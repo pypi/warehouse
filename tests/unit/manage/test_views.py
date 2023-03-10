@@ -45,6 +45,7 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
+from warehouse.manage.views import organizations as org_views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.interfaces import IOrganizationService
@@ -2399,7 +2400,9 @@ class TestManageOrganizations:
         create_organization_cls = pretend.call_recorder(
             lambda *a, **kw: create_organization_obj
         )
-        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+        monkeypatch.setattr(
+            org_views, "CreateOrganizationForm", create_organization_cls
+        )
 
         organization = pretend.stub(name=pretend.stub(), is_approved=None)
 
@@ -2410,7 +2413,7 @@ class TestManageOrganizations:
                 "organizations_billing": [],
             }
         )
-        monkeypatch.setattr(views, "user_organizations", user_organizations)
+        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
 
         organization_service = pretend.stub(
             get_organizations_by_user=lambda *a, **kw: [organization],
@@ -2425,7 +2428,7 @@ class TestManageOrganizations:
             }[interface],
         )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
             "organization_invites": [],
@@ -2444,9 +2447,11 @@ class TestManageOrganizations:
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
-            views.ManageOrganizationsViews, "default_response", default_response
+            org_views.ManageOrganizationsViews,
+            "default_response",
+            default_response,
         )
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         result = view.manage_organizations()
 
         assert result == default_response
@@ -2457,7 +2462,7 @@ class TestManageOrganizations:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
         )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         with pytest.raises(HTTPNotFound):
             view.manage_organizations()
 
@@ -2523,20 +2528,26 @@ class TestManageOrganizations:
         create_organization_cls = pretend.call_recorder(
             lambda *a, **kw: create_organization_obj
         )
-        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+        monkeypatch.setattr(
+            org_views, "CreateOrganizationForm", create_organization_cls
+        )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views, "send_admin_new_organization_requested_email", send_email
+            org_views, "send_admin_new_organization_requested_email", send_email
         )
-        monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
+        monkeypatch.setattr(
+            org_views, "send_new_organization_requested_email", send_email
+        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
-            views.ManageOrganizationsViews, "default_response", default_response
+            org_views.ManageOrganizationsViews,
+            "default_response",
+            default_response,
         )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
         assert user_service.get_admins.calls == [pretend.call()]
@@ -2669,20 +2680,26 @@ class TestManageOrganizations:
         create_organization_cls = pretend.call_recorder(
             lambda *a, **kw: create_organization_obj
         )
-        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+        monkeypatch.setattr(
+            org_views, "CreateOrganizationForm", create_organization_cls
+        )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views, "send_admin_new_organization_requested_email", send_email
+            org_views, "send_admin_new_organization_requested_email", send_email
         )
-        monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
+        monkeypatch.setattr(
+            org_views, "send_new_organization_requested_email", send_email
+        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(
-            views.ManageOrganizationsViews, "default_response", default_response
+            org_views.ManageOrganizationsViews,
+            "default_response",
+            default_response,
         )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
         assert user_service.get_admins.calls == [pretend.call()]
@@ -2797,15 +2814,19 @@ class TestManageOrganizations:
         create_organization_cls = pretend.call_recorder(
             lambda *a, **kw: create_organization_obj
         )
-        monkeypatch.setattr(views, "CreateOrganizationForm", create_organization_cls)
+        monkeypatch.setattr(
+            org_views, "CreateOrganizationForm", create_organization_cls
+        )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views, "send_admin_new_organization_requested_email", send_email
+            org_views, "send_admin_new_organization_requested_email", send_email
         )
-        monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
+        monkeypatch.setattr(
+            org_views, "send_new_organization_requested_email", send_email
+        )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
         assert user_service.get_admins.calls == []
@@ -2822,7 +2843,7 @@ class TestManageOrganizations:
             flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
         )
 
-        view = views.ManageOrganizationsViews(request)
+        view = org_views.ManageOrganizationsViews(request)
         with pytest.raises(HTTPNotFound):
             view.create_organization()
 
@@ -2840,17 +2861,17 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub()
         save_organization_name_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_name_obj
         )
         monkeypatch.setattr(
-            views, "SaveOrganizationNameForm", save_organization_name_cls
+            org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.manage_organization()
 
         assert view.request == db_request
@@ -2901,15 +2922,15 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_organization_updated_email", send_email)
+        monkeypatch.setattr(org_views, "send_organization_updated_email", send_email)
         monkeypatch.setattr(
-            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
         assert isinstance(result, HTTPSeeOther)
@@ -2955,17 +2976,17 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub()
         save_organization_name_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_name_obj
         )
         monkeypatch.setattr(
-            views, "SaveOrganizationNameForm", save_organization_name_cls
+            org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization()
 
         assert result == {
@@ -3014,7 +3035,7 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub(
             validate=lambda: True, name=pretend.stub(data=db_request.POST["name"])
@@ -3023,17 +3044,19 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_name_obj
         )
         monkeypatch.setattr(
-            views, "SaveOrganizationNameForm", save_organization_name_cls
+            org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_admin_organization_renamed_email", send_email)
-        monkeypatch.setattr(views, "send_organization_renamed_email", send_email)
         monkeypatch.setattr(
-            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+            org_views, "send_admin_organization_renamed_email", send_email
+        )
+        monkeypatch.setattr(org_views, "send_organization_renamed_email", send_email)
+        monkeypatch.setattr(
+            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3071,7 +3094,7 @@ class TestManageOrganizationSettings:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         with pytest.raises(HTTPSeeOther):
             view.save_organization_name()
 
@@ -3107,7 +3130,7 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub(
             validate=lambda: False, errors=pretend.stub(values=lambda: ["Invalid"])
@@ -3116,10 +3139,10 @@ class TestManageOrganizationSettings:
             lambda *a, **kw: save_organization_name_obj
         )
         monkeypatch.setattr(
-            views, "SaveOrganizationNameForm", save_organization_name_cls
+            org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.save_organization_name()
 
         assert result == {
@@ -3157,13 +3180,15 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_admin_organization_deleted_email", send_email)
-        monkeypatch.setattr(views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
-            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+            org_views, "send_admin_organization_deleted_email", send_email
+        )
+        monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
+        monkeypatch.setattr(
+            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.delete_organization()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3207,14 +3232,14 @@ class TestManageOrganizationSettings:
         save_organization_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_obj
         )
-        monkeypatch.setattr(views, "SaveOrganizationForm", save_organization_cls)
+        monkeypatch.setattr(org_views, "SaveOrganizationForm", save_organization_cls)
 
         save_organization_name_obj = pretend.stub()
         save_organization_name_cls = pretend.call_recorder(
             lambda *a, **kw: save_organization_name_obj
         )
         monkeypatch.setattr(
-            views, "SaveOrganizationNameForm", save_organization_name_cls
+            org_views, "SaveOrganizationNameForm", save_organization_name_cls
         )
 
         monkeypatch.setattr(
@@ -3223,7 +3248,7 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.delete_organization()
 
         assert result == view.default_response
@@ -3268,13 +3293,15 @@ class TestManageOrganizationSettings:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_admin_organization_deleted_email", send_email)
-        monkeypatch.setattr(views, "send_organization_deleted_email", send_email)
         monkeypatch.setattr(
-            views, "organization_owners", lambda *a, **kw: [pyramid_user]
+            org_views, "send_admin_organization_deleted_email", send_email
+        )
+        monkeypatch.setattr(org_views, "send_organization_deleted_email", send_email)
+        monkeypatch.setattr(
+            org_views, "organization_owners", lambda *a, **kw: [pyramid_user]
         )
 
-        view = views.ManageOrganizationSettingsViews(organization, db_request)
+        view = org_views.ManageOrganizationSettingsViews(organization, db_request)
         result = view.delete_organization()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3334,7 +3361,7 @@ class TestManageOrganizationBillingViews:
             create_customer=lambda *a, **kw: {"id": organization.customer.customer_id},
         )
 
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         view.billing_service = billing_service
         customer_id = view.customer_id
 
@@ -3349,7 +3376,7 @@ class TestManageOrganizationBillingViews:
     ):
         db_request.registry.settings["site.name"] = "PyPI"
 
-        view = views.ManageOrganizationBillingViews(
+        view = org_views.ManageOrganizationBillingViews(
             organization_no_customer, db_request
         )
         customer_id = view.customer_id
@@ -3363,7 +3390,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
     ):
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
         with pytest.raises(HTTPNotFound):
             view.create_or_manage_subscription()
@@ -3374,7 +3401,7 @@ class TestManageOrganizationBillingViews:
         organization,
         enable_organizations,
     ):
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         result = view.activate_subscription()
 
         assert result == {"organization": organization}
@@ -3404,7 +3431,7 @@ class TestManageOrganizationBillingViews:
             sync_product=lambda *a, **kw: None,
         )
 
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         view.billing_service = billing_service
         result = view.create_or_manage_subscription()
 
@@ -3441,7 +3468,7 @@ class TestManageOrganizationBillingViews:
             billing_service, "create_checkout_session", create_checkout_session
         )
 
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         result = view.create_or_manage_subscription()
 
         assert create_checkout_session.calls == [
@@ -3479,7 +3506,7 @@ class TestManageOrganizationBillingViews:
             sync_product=lambda *a, **kw: None,
         )
 
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         view.billing_service = billing_service
         result = view.create_or_manage_subscription()
 
@@ -3514,7 +3541,7 @@ class TestManageOrganizationBillingViews:
             billing_service, "create_portal_session", create_portal_session
         )
 
-        view = views.ManageOrganizationBillingViews(organization, db_request)
+        view = org_views.ManageOrganizationBillingViews(organization, db_request)
         result = view.create_or_manage_subscription()
 
         assert create_portal_session.calls == [
@@ -3541,7 +3568,7 @@ class TestManageOrganizationTeams:
 
         db_request.POST = MultiDict()
 
-        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        view = org_views.ManageOrganizationTeamsViews(organization, db_request)
         result = view.manage_teams()
         form = result["create_team_form"]
 
@@ -3578,12 +3605,12 @@ class TestManageOrganizationTeams:
 
         send_team_created_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_team_created_email",
             send_team_created_email,
         )
 
-        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        view = org_views.ManageOrganizationTeamsViews(organization, db_request)
         result = view.create_team()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3616,7 +3643,7 @@ class TestManageOrganizationTeams:
 
         db_request.POST = MultiDict({"name": "Used Name"})
 
-        view = views.ManageOrganizationTeamsViews(organization, db_request)
+        view = org_views.ManageOrganizationTeamsViews(organization, db_request)
         result = view.create_team()
         form = result["create_team_form"]
 
@@ -3651,10 +3678,10 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.manage_organization_projects()
 
         assert view.request == db_request
@@ -3698,7 +3725,7 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
         def add_organization_project(*args, **kwargs):
@@ -3714,12 +3741,12 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3763,7 +3790,7 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
         def add_organization_project(*args, **kwargs):
@@ -3779,12 +3806,12 @@ class TestManageOrganizationProjects:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         assert isinstance(result, HTTPSeeOther)
@@ -3829,7 +3856,7 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
         def add_organization_project(*args, **kwargs):
@@ -3841,7 +3868,7 @@ class TestManageOrganizationProjects:
             organization_service, "add_organization_project", add_organization_project
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         assert result == {
@@ -3879,22 +3906,22 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
         validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
-        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
+        monkeypatch.setattr(org_views, "validate_project_name", validate_project_name)
 
         send_organization_project_added_email = pretend.call_recorder(
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         # The project was created, and belongs to the organization.
@@ -3945,15 +3972,15 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
         def validate_project_name(*a, **kw):
             raise HTTPBadRequest("error-message")
 
-        monkeypatch.setattr(views, "validate_project_name", validate_project_name)
+        monkeypatch.setattr(org_views, "validate_project_name", validate_project_name)
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         assert result == {
@@ -3998,10 +4025,10 @@ class TestManageOrganizationProjects:
             lambda *a, **kw: add_organization_project_obj
         )
         monkeypatch.setattr(
-            views, "AddOrganizationProjectForm", add_organization_project_cls
+            org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
-        view = views.ManageOrganizationProjectsViews(organization, db_request)
+        view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
         assert result == {
@@ -4034,7 +4061,7 @@ class TestManageOrganizationRoles:
         def form_class(*a, **kw):
             return form_obj
 
-        result = views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
         assert result == {
@@ -4086,7 +4113,7 @@ class TestManageOrganizationRoles:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_invited_email",
             send_organization_member_invited_email,
         )
@@ -4094,12 +4121,12 @@ class TestManageOrganizationRoles:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_role_verification_email",
             send_organization_role_verification_email,
         )
 
-        result = views.manage_organization_roles(organization, db_request)
+        result = org_views.manage_organization_roles(organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Invitation sent to '{new_user.username}'", queue="success")
@@ -4177,7 +4204,7 @@ class TestManageOrganizationRoles:
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
-        result = views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
 
@@ -4227,7 +4254,7 @@ class TestManageOrganizationRoles:
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
-        result = views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
 
@@ -4293,7 +4320,7 @@ class TestManageOrganizationRoles:
         )
         form_class = pretend.call_recorder(lambda *a, **kw: form_obj)
 
-        result = views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
 
@@ -4364,7 +4391,7 @@ class TestManageOrganizationRoles:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_invited_email",
             send_organization_member_invited_email,
         )
@@ -4372,12 +4399,12 @@ class TestManageOrganizationRoles:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_role_verification_email",
             send_organization_role_verification_email,
         )
 
-        result = views.manage_organization_roles(
+        result = org_views.manage_organization_roles(
             organization, db_request, _form_class=form_class
         )
 
@@ -4468,7 +4495,7 @@ class TestResendOrganizationInvitations:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_invited_email",
             send_organization_member_invited_email,
         )
@@ -4476,7 +4503,7 @@ class TestResendOrganizationInvitations:
             lambda r, u, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_role_verification_email",
             send_organization_role_verification_email,
         )
@@ -4502,7 +4529,7 @@ class TestResendOrganizationInvitations:
             }
         )
 
-        result = views.resend_organization_invitation(organization, db_request)
+        result = org_views.resend_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert (
@@ -4563,7 +4590,7 @@ class TestResendOrganizationInvitations:
         ]
 
     def test_resend_invitation_fails_corrupt_token(
-        self, db_request, token_service, enable_organizations, monkeypatch
+        self, db_request, token_service, enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -4592,7 +4619,7 @@ class TestResendOrganizationInvitations:
         token_service.loads = pretend.raiser(TokenExpired)
         token_service.unsafe_load_payload = pretend.call_recorder(lambda data: None)
 
-        result = views.resend_organization_invitation(organization, db_request)
+        result = org_views.resend_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert (
@@ -4613,7 +4640,7 @@ class TestResendOrganizationInvitations:
         assert result.headers["Location"] == "/manage/organizations"
 
     def test_resend_invitation_fails_missing_invitation(
-        self, db_request, token_service, enable_organizations, monkeypatch
+        self, db_request, token_service, enable_organizations
     ):
         organization = OrganizationFactory.create(name="foobar")
         user = UserFactory.create(username="testuser")
@@ -4635,7 +4662,7 @@ class TestResendOrganizationInvitations:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        result = views.resend_organization_invitation(organization, db_request)
+        result = org_views.resend_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert (
@@ -4697,7 +4724,7 @@ class TestRevokeOrganizationInvitation:
             lambda *args, **kwargs: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_invite_canceled_email",
             organization_member_invite_canceled_email,
         )
@@ -4705,12 +4732,12 @@ class TestRevokeOrganizationInvitation:
             lambda *args, **kwargs: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_canceled_as_invited_organization_member_email",
             canceled_as_invited_organization_member_email,
         )
 
-        result = views.revoke_organization_invitation(organization, db_request)
+        result = org_views.revoke_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert not (
@@ -4764,7 +4791,7 @@ class TestRevokeOrganizationInvitation:
         )
         token_service.loads = pretend.call_recorder(lambda data: None)
 
-        result = views.revoke_organization_invitation(organization, db_request)
+        result = org_views.revoke_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert db_request.session.flash.calls == [
@@ -4799,7 +4826,7 @@ class TestRevokeOrganizationInvitation:
         )
         token_service.loads = pretend.call_recorder(pretend.raiser(TokenExpired))
 
-        result = views.revoke_organization_invitation(organization, db_request)
+        result = org_views.revoke_organization_invitation(organization, db_request)
         db_request.db.flush()
 
         assert not (
@@ -4841,7 +4868,7 @@ class TestChangeOrganizationRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_role_changed_email",
             send_organization_member_role_changed_email,
         )
@@ -4849,12 +4876,12 @@ class TestChangeOrganizationRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_role_changed_as_organization_member_email",
             send_role_changed_as_organization_member_email,
         )
 
-        result = views.change_organization_role(organization, db_request)
+        result = org_views.change_organization_role(organization, db_request)
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
@@ -4898,7 +4925,7 @@ class TestChangeOrganizationRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_organization_role(organization, db_request)
+        result = org_views.change_organization_role(organization, db_request)
 
         assert db_request.route_path.calls == [
             pretend.call(
@@ -4920,7 +4947,7 @@ class TestChangeOrganizationRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_organization_role(organization, db_request)
+        result = org_views.change_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find member", queue="error")
@@ -4943,7 +4970,7 @@ class TestChangeOrganizationRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_organization_role(organization, db_request)
+        result = org_views.change_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Cannot remove yourself as Owner", queue="error")
@@ -4975,7 +5002,7 @@ class TestDeleteOrganizationRoles:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_member_removed_email",
             send_organization_member_removed_email,
         )
@@ -4983,12 +5010,12 @@ class TestDeleteOrganizationRoles:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_removed_as_organization_member_email",
             send_removed_as_organization_member_email,
         )
 
-        result = views.delete_organization_role(organization, db_request)
+        result = org_views.delete_organization_role(organization, db_request)
 
         assert db_request.route_path.calls == [
             pretend.call(
@@ -5031,7 +5058,7 @@ class TestDeleteOrganizationRoles:
                 "organizations_with_sole_owner": [],
             }
         )
-        monkeypatch.setattr(views, "user_organizations", user_organizations)
+        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
 
         db_request.method = "POST"
         db_request.user = pretend.stub()
@@ -5041,7 +5068,7 @@ class TestDeleteOrganizationRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_organization_role(organization, db_request)
+        result = org_views.delete_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find member", queue="error")
@@ -5068,7 +5095,7 @@ class TestDeleteOrganizationRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_organization_role(organization, db_request)
+        result = org_views.delete_organization_role(organization, db_request)
 
         assert db_request.has_permission.calls == [pretend.call("manage:organization")]
         assert db_request.session.flash.calls == [
@@ -5096,7 +5123,7 @@ class TestDeleteOrganizationRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_organization_role(organization, db_request)
+        result = org_views.delete_organization_role(organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Cannot remove yourself as Sole Owner", queue="error")
@@ -5126,7 +5153,7 @@ class TestDeleteOrganizationRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_organization_role(some_other_organization, db_request)
+        result = org_views.delete_organization_role(some_other_organization, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find member", queue="error")
@@ -5151,7 +5178,7 @@ class TestManageOrganizationHistory:
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
-        assert views.manage_organization_history(organization, db_request) == {
+        assert org_views.manage_organization_history(organization, db_request) == {
             "events": [newer_event, older_event],
             "get_user": user_service.get_user,
             "organization": organization,
@@ -5176,7 +5203,7 @@ class TestManageOrganizationHistory:
 
         organization = OrganizationFactory.create()
         with pytest.raises(HTTPBadRequest):
-            views.manage_organization_history(organization, db_request)
+            org_views.manage_organization_history(organization, db_request)
 
         assert page_cls.calls == []
 
@@ -5206,7 +5233,7 @@ class TestManageOrganizationHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_organization_history(organization, db_request) == {
+        assert org_views.manage_organization_history(organization, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,
             "organization": organization,
@@ -5238,7 +5265,7 @@ class TestManageOrganizationHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_organization_history(organization, db_request) == {
+        assert org_views.manage_organization_history(organization, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,
             "organization": organization,
@@ -5258,7 +5285,7 @@ class TestManageOrganizationHistory:
             )
 
         with pytest.raises(HTTPNotFound):
-            assert views.manage_organization_history(organization, db_request)
+            assert org_views.manage_organization_history(organization, db_request)
 
 
 class TestManageTeamSettings:
@@ -6311,7 +6338,7 @@ class TestManageProjectSettings:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.remove_organization_project(project, request)
+            org_views.remove_organization_project(project, request)
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -6339,7 +6366,7 @@ class TestManageProjectSettings:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.remove_organization_project(project, request)
+            org_views.remove_organization_project(project, request)
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -6364,7 +6391,7 @@ class TestManageProjectSettings:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
-        result = views.remove_organization_project(project, request)
+        result = org_views.remove_organization_project(project, request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -6401,16 +6428,16 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
 
-        result = views.remove_organization_project(project, db_request)
+        result = org_views.remove_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                ("Could not remove project from organization - no organization found"),
+                "Could not remove project from organization - no organization found",
                 queue="error",
             )
         ]
@@ -6437,7 +6464,7 @@ class TestManageProjectSettings:
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
-        result = views.remove_organization_project(project, request)
+        result = org_views.remove_organization_project(project, request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -6478,7 +6505,7 @@ class TestManageProjectSettings:
             organization=project.organization, user=db_request.user, role_name="Owner"
         )
 
-        result = views.remove_organization_project(project, db_request)
+        result = org_views.remove_organization_project(project, db_request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
@@ -6525,12 +6552,12 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
 
-        result = views.remove_organization_project(project, db_request)
+        result = org_views.remove_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Removed the project 'foo' from 'bar'", queue="success")
@@ -6568,7 +6595,7 @@ class TestManageProjectSettings:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.transfer_organization_project(project, request)
+            org_views.transfer_organization_project(project, request)
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -6595,7 +6622,7 @@ class TestManageProjectSettings:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.transfer_organization_project(project, request)
+            org_views.transfer_organization_project(project, request)
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -6617,7 +6644,7 @@ class TestManageProjectSettings:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
-        result = views.transfer_organization_project(project, request)
+        result = org_views.transfer_organization_project(project, request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
@@ -6661,7 +6688,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
@@ -6670,12 +6697,12 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        result = views.transfer_organization_project(project, db_request)
+        result = org_views.transfer_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
@@ -6710,7 +6737,7 @@ class TestManageProjectSettings:
             route_path=lambda *a, **kw: "/foo/bar/",
         )
 
-        result = views.transfer_organization_project(project, request)
+        result = org_views.transfer_organization_project(project, request)
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
@@ -6760,7 +6787,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
@@ -6769,12 +6796,12 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        result = views.transfer_organization_project(project, db_request)
+        result = org_views.transfer_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
@@ -6825,7 +6852,7 @@ class TestManageProjectSettings:
         )
         RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
 
-        result = views.transfer_organization_project(project, db_request)
+        result = org_views.transfer_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Select organization", queue="error")
@@ -6875,13 +6902,13 @@ class TestManageProjectSettings:
                 "organizations_billing": [],
             }
         )
-        monkeypatch.setattr(views, "user_organizations", user_organizations)
+        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
 
         transfer_organization_project_form_class = pretend.call_recorder(
             views.TransferOrganizationProjectForm
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "TransferOrganizationProjectForm",
             transfer_organization_project_form_class,
         )
@@ -6890,7 +6917,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
@@ -6899,12 +6926,12 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        result = views.transfer_organization_project(project, db_request)
+        result = org_views.transfer_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
@@ -6973,13 +7000,13 @@ class TestManageProjectSettings:
                 "organizations_billing": [],
             }
         )
-        monkeypatch.setattr(views, "user_organizations", user_organizations)
+        monkeypatch.setattr(org_views, "user_organizations", user_organizations)
 
         transfer_organization_project_form_class = pretend.call_recorder(
             views.TransferOrganizationProjectForm
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "TransferOrganizationProjectForm",
             transfer_organization_project_form_class,
         )
@@ -6988,7 +7015,7 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_removed_email",
             send_organization_project_removed_email,
         )
@@ -6997,12 +7024,12 @@ class TestManageProjectSettings:
             lambda req, user, **k: None
         )
         monkeypatch.setattr(
-            views,
+            org_views,
             "send_organization_project_added_email",
             send_organization_project_added_email,
         )
 
-        result = views.transfer_organization_project(project, db_request)
+        result = org_views.transfer_organization_project(project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Transferred the project 'foo' to 'baz'", queue="success")
