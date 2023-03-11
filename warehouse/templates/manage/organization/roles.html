@@ -125,7 +125,7 @@
           <button class="button" title="{% trans %}Cannot remove yourself as Sole Owner{% endtrans %}" disabled>{% trans %}Remove{% endtrans %}</button>
         {% else %}
           {% set extra_fields %}<input type="hidden" name="role_id" value="{{ role.id }}">{% endset %}
-          {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
+          {% set extra_description %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization.{% endtrans %}{% endset %}
           {% set tooltip %}{% trans user=('yourself' if request.user.username == role.user.username else role.user.username) %}Remove {{ user }} from this organization{% endtrans %}{% endset %}
           {{ confirm_button(gettext("Remove"), gettext("Username"), "remove-" + role.id|string, gettext(role.user.username), extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.delete_role', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
         {% endif %}
@@ -160,9 +160,19 @@
         <td class="table__align-center"></td>
         <td class="table__align-right">
           {% set extra_fields %}<input name="user_id" type="hidden" value="{{ invite.user_id }}">{% endset %}
-          {% set extra_description %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% trans %}.{% endtrans %}{% endset %}
-          {% set tooltip %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% endset %}
-          {{ confirm_button(gettext("Revoke invite"), None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+          {% if invite.invite_status == OrganizationInvitationStatus.Pending %}
+            {% set extra_description %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}.{% endtrans %}{% endset %}
+            {% set tooltip %}{% trans user=invite.user.username %}Revoke invitation for {{ user }}{% endtrans %}{% endset %}
+            {{ confirm_button(gettext("Revoke invite"), None, "revoke-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+          {% elif invite.invite_status == OrganizationInvitationStatus.Expired %}
+            {% set extra_description %}{% trans user=invite.user.username %}Re-send invitation for {{ user }}.{% endtrans %}{% endset %}
+            {% set tooltip %}{% trans user=invite.user.username %}Re-send invitation for {{ user }}{% endtrans %}{% endset %}
+            {{ confirm_button(gettext("Re-send"), None, "resend-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.resend_invite', organization_name=organization.normalized_name), warning=False, modifier="--primary", tooltip=tooltip) }}
+            {% set extra_description %}{% trans user=invite.user.username %}Delete expired invitation for {{ user }}.{% endtrans %}{% endset %}
+            {% set tooltip %}{% trans user=invite.user.username %}Delete expired invitation for {{ user }}{% endtrans %}{% endset %}
+            {{ confirm_button(gettext("Delete"), None, "delete-expired-invite-" + invite.user_id|string, None, extra_fields=extra_fields, extra_description=extra_description, action=request.route_path('manage.organization.revoke_invite', organization_name=organization.normalized_name), warning=False, modifier="--secondary", tooltip=tooltip) }}
+
+          {% endif %}
         </td>
       </tr>
     {% endfor %}

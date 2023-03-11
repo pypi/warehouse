@@ -84,6 +84,11 @@
     <strong>
       {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Revoked invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }}{% endtrans %}
     </strong>
+    {% elif event.tag == EventTag.Organization.OrganizationRoleExpireInvite %}
+    {% set target_user = get_user(event.additional.target_user_id).username %}
+    <strong>
+      {% trans href=request.route_path('accounts.profile', username=target_user), username=target_user, role_name=event.additional.role_name|lower %}Invitation for <a href="{{ href }}">{{ username }}</a> to join as organization {{ role_name }} expired{% endtrans %}
+    </strong>
 
     {# Display action for team events #}
     {% elif event.tag == EventTag.Organization.TeamCreate %}

@@ -313,6 +313,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "manage.organization.resend_invite",
+            "/manage/organization/{organization_name}/people/resend_invite/",
+            factory="warehouse.organizations.models:OrganizationFactory",
+            traverse="/{organization_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "manage.organization.change_role",
             "/manage/organization/{organization_name}/people/change/",
             factory="warehouse.organizations.models:OrganizationFactory",

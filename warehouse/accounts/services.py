@@ -643,6 +643,20 @@ class TokenService:
 
         return data
 
+    def unsafe_load_payload(self, token):
+        """
+        ¡DANGER!
+
+        This method does not validate expiration whatsoever!
+        It can *and should* only be used for inspecting an expired token then
+        doing nothing with it whatsoever.
+        """
+        signature_valid, data = self.serializer.loads_unsafe(token)
+
+        if signature_valid:
+            return data
+        return None
+
 
 def database_login_factory(context, request):
     return DatabaseUserService(

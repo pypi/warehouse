@@ -42,6 +42,20 @@ def update_organization_invitation_status(request):
         try:
             token_service.loads(invite.token)
         except TokenExpired:
+            invite.user.record_event(
+                tag=EventTag.Account.OrganizationRoleExpireInvite,
+                ip_address=request.remote_addr,
+                additional={
+                    "organization_name": invite.organization.name,
+                },
+            )
+            invite.organization.record_event(
+                tag=EventTag.Organization.OrganizationRoleExpireInvite,
+                ip_address=request.remote_addr,
+                additional={
+                    "target_user_id": str(invite.user.id),
+                },
+            )
             invite.invite_status = OrganizationInvitationStatus.Expired
 
 

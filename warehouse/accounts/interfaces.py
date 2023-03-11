@@ -265,6 +265,11 @@ class ITokenService(Interface):
         Gets the data corresponding to the token provided
         """
 
+    def unsafe_load_payload(token):
+        """
+        Gets the data corresponding to the token provided *regardless of validity*
+        """
+
 
 class IPasswordBreachedService(Interface):
     failure_message = Attribute("The message to describe the failure that occurred")
