@@ -1,6 +1,17 @@
 site_name: PyPI Docs
 docs_dir: docs/user
 site_dir: docs/user-site
+nav:
+  - Home: index.md
+  - Organization account:
+    - About: org-account/about.md
+    - Roles and entities: org-account/roles-entities.md
+    - Operations:
+      - Organization actions: org-account/org-actions.md
+      - Team actions: org-account/team-actions.md
+      - Project actions: org-account/project-actions.md
+      - Billing actions: org-account/billing-actions.md
+    - FAQs: org-account/org-acc-faq.md
 theme:
   name: material
   logo: assets/logo.png
