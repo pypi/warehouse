@@ -1351,6 +1351,7 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseFileAdd,
             ip_address=request.remote_addr,
             additional={
+                "filename": file_.filename,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
