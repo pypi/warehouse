@@ -1103,11 +1103,13 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
             additional={
-                "ephemeral": request.user is None,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
             },
         )
 
@@ -1344,6 +1346,20 @@ def file_upload(request):
         )
         file_data = file_
         request.db.add(file_)
+
+        project.record_event(
+            tag=EventTag.Project.ReleaseFileAdd,
+            ip_address=request.remote_addr,
+            additional={
+                "submitted_by": request.user.username
+                if request.user
+                else "OpenID created token",
+                "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
+            },
+        )
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
