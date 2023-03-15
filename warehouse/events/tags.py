@@ -126,8 +126,6 @@ class EventTag:
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"
-        ReleaseFileAdd = "project:release:file:add"
-        ReleaseFileRemove = "project:release:file:remove"
         RoleAdd = "project:role:add"
         RoleChange = "project:role:change"
         RoleDeclineInvite = "project:role:decline_invite"
@@ -140,6 +138,8 @@ class EventTag:
         # The following tags are no longer used when recording events.
         # RoleAccepted = "project:role:accepted"
         # RoleDelete = "project:role:delete"
+        # ReleaseFileAdd = "project:release:file:add"
+        # ReleaseFileRemove = "project:release:file:remove"
 
     class File(EventTagEnum):
         """Tags for File events.

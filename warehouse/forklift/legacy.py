@@ -411,7 +411,6 @@ class ListField(wtforms.Field):
 #       library and we should just call that. However until PEP 426 is done
 #       that library won't have an API for this.
 class MetadataForm(forms.Form):
-
     # Metadata version
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
@@ -1347,8 +1346,8 @@ def file_upload(request):
         file_data = file_
         request.db.add(file_)
 
-        project.record_event(
-            tag=EventTag.Project.ReleaseFileAdd,
+        file_.record_event(
+            tag=EventTag.File.FileAdd,
             ip_address=request.remote_addr,
             additional={
                 "filename": file_.filename,
