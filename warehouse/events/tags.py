@@ -141,6 +141,15 @@ class EventTag:
         # RoleAccepted = "project:role:accepted"
         # RoleDelete = "project:role:delete"
 
+    class File(EventTagEnum):
+        """Tags for File events.
+
+        Keep in sync with: warehouse/templates/manage/project/history.html
+        """
+
+        FileAdd = "file:add"
+        FileRemove = "file:remove"
+
     class Organization(EventTagEnum):
         """Tags for Organization events.
 
