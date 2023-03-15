@@ -62,13 +62,7 @@ def _user(request):
 
 
 def _oidc_publisher(request):
-    if request.identity is None:
-        return None
-
-    if not isinstance(request.identity, OIDCPublisher):
-        return None
-
-    return request.identity
+    return request.identity if isinstance(request.identity, OIDCPublisher) else None
 
 
 def _unauthenticated_userid(request):
