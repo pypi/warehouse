@@ -9620,13 +9620,13 @@ class TestDeleteTeamProjectRole:
 class TestManageProjectHistory:
     def test_get(self, db_request, user_service):
         project = ProjectFactory.create()
-        older_event = ProjectEventFactory.create(
+        ProjectEventFactory.create(
             source=project,
             tag="fake:event",
             ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
-        newer_event = ProjectEventFactory.create(
+        ProjectEventFactory.create(
             source=project,
             tag="fake:event",
             ip_address="0.0.0.0",
