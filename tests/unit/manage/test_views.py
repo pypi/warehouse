@@ -9674,12 +9674,19 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project, tag="fake:event", ip_address="0.0.0.0"
             )
-        events_query = (
+        project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
             .filter(Project.Event.source_id == project.id)
             .order_by(Project.Event.time.desc())
         )
+        file_events_query = (
+            db_request.db.query(File.Event)
+            .join(File.Event.source)
+            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .order_by(File.Event.time.desc())
+        )
+        events_query = project_events_query.union(file_events_query)
 
         events_page = SQLAlchemyORMPage(
             events_query,
@@ -9706,12 +9713,19 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project, tag="fake:event", ip_address="0.0.0.0"
             )
-        events_query = (
+        project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
             .filter(Project.Event.source_id == project.id)
             .order_by(Project.Event.time.desc())
         )
+        file_events_query = (
+            db_request.db.query(File.Event)
+            .join(File.Event.source)
+            .filter(File.Event.additional["project_id"].astext == str(project.id))
+            .order_by(File.Event.time.desc())
+        )
+        events_query = project_events_query.union(file_events_query)
 
         events_page = SQLAlchemyORMPage(
             events_query,
@@ -9720,6 +9734,7 @@ class TestManageProjectHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
+
         assert views.manage_project_history(project, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,
