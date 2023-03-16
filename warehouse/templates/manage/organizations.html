@@ -117,14 +117,9 @@
           <button class="button button--primary" disabled title="{% trans %}This organization is not active{% endtrans %}">
             {% trans %}Manage{% endtrans %}
           </button>
-          {% elif organization.name in organizations_billing %}
-          {# Show "Manage" button for billing managers #}
-          <a class="button button--primary" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
-            {% trans %}Manage{% endtrans %}
-          </a>
           {% else %}
           {# Show "Manage" button for managers and owners #}
-          <a class="button button--primary" href="{{ request.route_path('manage.organization.projects', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
+          <a class="button button--primary" href="{{ request.route_path('manage.organization.settings', organization_name=organization.normalized_name) }}" title="{% trans %}Manage this organization{% endtrans %}">
             {% trans %}Manage{% endtrans %}
           </a>
           {% endif %}
