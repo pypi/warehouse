@@ -30,6 +30,7 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Load, joinedload
+from warehouse.events.models import Event
 from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
@@ -4988,17 +4989,17 @@ def manage_project_history(project, request):
         request.db.query(Project.Event)
         .join(Project.Event.source)
         .filter(Project.Event.source_id == project.id)
-        .order_by(Project.Event.time.desc())
     )
 
     file_events_query = (
         request.db.query(File.Event)
         .join(File.Event.source)
         .filter(File.Event.additional["project_id"].astext == str(project.id))
-        .order_by(File.Event.time.desc())
     )
 
-    events_query = project_events_query.union(file_events_query)
+    events_query = project_events_query.union(file_events_query).order_by(
+        Project.Event.time.desc(), File.Event.time.desc()
+    )
 
     events = SQLAlchemyORMPage(
         events_query,
