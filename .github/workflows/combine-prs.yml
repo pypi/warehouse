@@ -39,9 +39,10 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const pulls = await github.paginate('GET /repos/:owner/:repo/pulls', {
+            const pulls = await github.paginate('GET /repos/{owner}/{repo}/pulls', {
               owner: context.repo.owner,
-              repo: context.repo.repo
+              repo: context.repo.repo,
+              state: 'open',
             });
             branches = [];
             prs = [];
@@ -52,20 +53,33 @@ jobs:
               if (pull['user']['login'].match(/^(dependabot\[bot\]|dependabot-preview\[bot\])$/)) {
                 console.log('Branch matched: ' + branch);
                 statusOK = true;
+                // if the PR is not mergeable, bail early.
+                const pull_request = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pull['number']
+                });
+                if(pull_request.data.mergeable != true) {
+                  console.log('Discarding ' + branch + ' with unmergeable PR, state: ' + pull_request.data.mergeable_state);
+                  statusOK = false;
+                  continue;
+                }
                 if(${{ github.event.inputs.mustBeGreen }}) {
                   console.log('Checking green status: ' + branch);
+                  // get the checks for the PR. If all are complete and green, they pass and we can merge
                   const checks = await github.paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
                     owner: context.repo.owner,
                     repo: context.repo.repo,
                     ref: branch
                   });
-
                   if(checks.length > 0) {
                     for (const check of checks) {
-                      const latest_conclusion = check['conclusion'];
-                      console.log('Validating conclusion: ' + latest_conclusion);
-                      if(latest_conclusion != 'success') {
-                        console.log('Discarding ' + branch + ' with failed check');
+                      const check_name = check['name'];
+                      const check_status = check['status'];
+                      const check_conclusion = check['conclusion'];
+                      console.log('Validating check: ' + check_name + ' status: ' + check_status + ' conclusion: ' + check_conclusion);
+                      if(check_status != 'completed' || check_conclusion != 'success') {
+                        console.log('Discarding ' + branch + ' with failed check: ' + check_name);
                         statusOK = false;
                       }
                     }
