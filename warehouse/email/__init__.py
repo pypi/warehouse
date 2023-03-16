@@ -19,6 +19,7 @@ import pytz
 
 from celery.schedules import crontab
 from first import first
+from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from sqlalchemy.exc import NoResultFound
 
 from warehouse import tasks
@@ -67,6 +68,8 @@ def send_email(task, request, recipient, msg, success_event):
 
         user_service = request.find_service(IUserService, context=None)
         user_service.record_event(**success_event)
+    except (BadHeaders, EncodingError, InvalidMessage) as exc:
+        raise exc
     except Exception as exc:
         task.retry(exc=exc)
 

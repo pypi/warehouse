@@ -14,8 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}
-{% trans project_name=project_name %}
-OpenID Connect publisher removed from {{ project_name }}
-{% endtrans %}
-{% endblock %}
+{% block subject %}{% trans project_name=project_name %}OpenID Connect publisher removed from {{ project_name }}{% endtrans %}{% endblock %}
