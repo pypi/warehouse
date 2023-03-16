@@ -4097,6 +4097,7 @@ class ManageProjectRelease:
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
                 "filename": release_file.filename,
+                "project_id": str(self.release.project.id),
             },
         )
 
@@ -4990,11 +4991,10 @@ def manage_project_history(project, request):
         .order_by(Project.Event.time.desc())
     )
 
-    file_ids = [file.id for release in project.releases for file in release.files]
     file_events_query = (
         request.db.query(File.Event)
         .join(File.Event.source)
-        .filter(File.Event.source_id.in_(file_ids))
+        .filter(File.Event.additional["project_id"].astext == str(project.id))
         .order_by(File.Event.time.desc())
     )
 

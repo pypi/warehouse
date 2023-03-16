@@ -1358,6 +1358,7 @@ def file_upload(request):
                 "publisher_url": request.oidc_publisher.publisher_url
                 if request.oidc_publisher
                 else None,
+                "project_id": str(project.id),
             },
         )
 
