@@ -4986,13 +4986,13 @@ def manage_project_history(project, request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     project_events_query = (
-        request.db.query(Project.Event)
+        request.db.query(Event)
         .join(Project.Event.source)
         .filter(Project.Event.source_id == project.id)
     )
 
     file_events_query = (
-        request.db.query(File.Event)
+        request.db.query(Event)
         .join(File.Event.source)
         .filter(File.Event.additional["project_id"].astext == str(project.id))
     )

@@ -11,16 +11,17 @@
 # limitations under the License.
 
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
+from sqlalchemy.orm import declared_attr
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
+from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
 
 
-class Event(AbstractConcreteBase):
+class Event(AbstractConcreteBase, db.ModelBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
     ip_address_string = Column(String, nullable=True)
