@@ -1,4 +1,5 @@
 [tool.curlylint]
+include = '\.(html|jinja|txt)$'
 # For jinja's i18n extension:
 template_tags = [['trans', 'pluralize', 'endtrans']]
 
