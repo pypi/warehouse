@@ -30,7 +30,6 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Load, joinedload
-from warehouse.events.models import Event
 from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
@@ -4986,13 +4985,13 @@ def manage_project_history(project, request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     project_events_query = (
-        request.db.query(Event)
+        request.db.query(Project.Event)
         .join(Project.Event.source)
         .filter(Project.Event.source_id == project.id)
     )
 
     file_events_query = (
-        request.db.query(Event)
+        request.db.query(File.Event)
         .join(File.Event.source)
         .filter(File.Event.additional["project_id"].astext == str(project.id))
     )

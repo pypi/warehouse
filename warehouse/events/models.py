@@ -21,7 +21,7 @@ from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
 
 
-class Event(AbstractConcreteBase, db.ModelBase):
+class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
     ip_address_string = Column(String, nullable=True)
