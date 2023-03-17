@@ -95,7 +95,7 @@
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       {% endif %}
     </small>
-    {# NOTE: Deprecated; see file:add and file:remove #}
+    {# NOTE: "project:release:file:remove" is deprecated #}
     {% elif event.tag == EventTag.File.FileRemove or event.tag == "project:release:file:remove" %}
     <strong>
       {% trans
