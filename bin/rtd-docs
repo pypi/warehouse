@@ -1,22 +1,16 @@
 #!/bin/bash
 set -e
 
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
-
 # Print all the following commands
 set -x
 
 if [ "${READTHEDOCS_PROJECT}" = "warehouse" ]; then
-  python -m pip install -r requirements/docs/dev.txt;
-  make -C docs/dev/ html;
-  mv docs/dev/_build/html _readthedocs/html;
+  pip install -r requirements/docs/dev.txt
+  make -C docs/dev/ html
+  mv docs/dev/_build/html _readthedocs/html
 fi
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
-  python -m pip install -r requirements/docs/user.txt;
-  mkdocs build -f mkdocs-user-docs.yml;
-  mv docs/_build/html _readthedocs/html;
+  pip install -r requirements/docs/user.txt
+  mkdocs build -f mkdocs-user-docs.yml
+  mv docs/user-site _readthedocs/html
 fi
