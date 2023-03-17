@@ -4,27 +4,10 @@
 
 # Required
 version: 2
-python:
-  install:
-    - requirements: requirements/docs/dev.txt
-# When https://github.com/readthedocs/readthedocs.org/pull/10119 is deployed to readthedocs, this can be uncommented
-#   - requirements: requirements/docs/user.txt
 
 build:
   os: ubuntu-20.04
   tools:
     python: "3.11"
-# When https://github.com/readthedocs/readthedocs.org/pull/10119 is deployed to readthedocs, this can be uncommented
-#  commands:
-#    - |
-#        if [ "$READTHEDOCS_PROJECT" = "warehouse" ]
-#        then
-#          make -C docs/ html;
-#          mv docs/_build/html _readthedocs/html;
-#        fi
-#    - |
-#        if [ "$READTHEDOCS_PROJECT" = "docspypiorg" ]
-#        then
-#          mkdocs build -f user-docs/mkdocs.yml;
-#          mv user-docs/site _readthedocs/html;
-#        fi
+  commands:
+    - ./bin/rtd-docs
