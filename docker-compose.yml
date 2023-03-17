@@ -93,6 +93,7 @@ services:
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
       - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
+      - ./mkdocs-blog.yml:/opt/warehouse/src/mkdocs-blog.yml:z
       - ./docs/user:/opt/warehouse/src/docs/user:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
