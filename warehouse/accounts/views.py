@@ -556,7 +556,7 @@ def register(request, _form_class=RegistrationForm):
     post_body = {key.replace("-", "_"): value for key, value in request.POST.items()}
 
     form = _form_class(
-        data=request.POST,
+        data=post_body,
         user_service=user_service,
         recaptcha_service=recaptcha_service,
         breach_service=breach_service,
