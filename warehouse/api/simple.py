@@ -21,6 +21,25 @@ from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import _simple_detail, _simple_index
 
+# Generate appropriate CORS headers for the JSON endpoint.
+# We want to allow Cross-Origin requests here so that users can interact
+# with these endpoints via XHR/Fetch APIs in the browser.
+_CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": ", ".join(
+        [
+            "Content-Type",
+            "If-Match",
+            "If-Modified-Since",
+            "If-None-Match",
+            "If-Unmodified-Since",
+        ]
+    ),
+    "Access-Control-Allow-Methods": "GET",
+    "Access-Control-Max-Age": "86400",  # 1 day.
+    "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
+}
+
 
 def _select_content_type(request: Request) -> str:
     # The way this works, is this will return a list of
@@ -71,6 +90,9 @@ def simple_index(request):
     if request.response.content_type == "application/vnd.pypi.simple.v1+json":
         request.override_renderer = "json"
 
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+
     # Get the latest serial number
     serial = request.db.query(func.max(JournalEntry.id)).scalar() or 0
     request.response.headers["X-PyPI-Last-Serial"] = str(serial)
@@ -98,7 +120,8 @@ def simple_detail(project, request):
         "name", project.normalized_name
     ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.normalized_name)
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     # Determine what our content-type should be, and setup our request
@@ -106,6 +129,9 @@ def simple_detail(project, request):
     request.response.content_type = _select_content_type(request)
     if request.response.content_type == "application/vnd.pypi.simple.v1+json":
         request.override_renderer = "json"
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
 
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
