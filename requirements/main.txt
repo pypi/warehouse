@@ -1460,9 +1460,9 @@ text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
     --hash=sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93
     # via python-slugify
-transaction==3.0.1 \
-    --hash=sha256:0c15ef0b7ff3518357ceea75722a30d974c3f85e11aa5cec5d5a2b6a40cfcf68 \
-    --hash=sha256:2329a6e6b82d1d8d4de9267ea6ee790532c375e5911d3c7633a234e94a4a0a9e
+transaction==3.1.0 \
+    --hash=sha256:65d0b1ea92dbe7c4e3b237fb6bd8b41dea23d7459e7bdd8c3880bffdaf912fa4 \
+    --hash=sha256:8376a959aa71821df1bdd7d066858a3f9f34b7f5f1c0a0e1efbd11d626895449
     # via
     #   -r requirements/main.in
     #   pyramid-mailer
