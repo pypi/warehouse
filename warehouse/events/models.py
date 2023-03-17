@@ -11,11 +11,11 @@
 # limitations under the License.
 
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
-from sqlalchemy.orm import declared_attr
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import declared_attr
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress

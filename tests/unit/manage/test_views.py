@@ -9685,9 +9685,19 @@ class TestManageProjectHistory:
             "project": project,
         }
 
-        assert list(events_page) == list(
-            sorted(events, key=lambda e: e.time, reverse=True)
-        )
+        events_page = list(events_page)
+
+        # NOTE: The Event -> Project.Event | File.Event mapping is broken
+        # due to how Event subclasses are constructed, so we only test
+        # the ordering here.
+        assert [e.time for e in events_page] == [
+            e.time for e in sorted(events, key=lambda e: e.time, reverse=True)
+        ]
+
+        # NOTE: This is a backstop for the bugged behavior above: when we
+        # fix it, this will begin to fail.
+        for event in events_page:
+            assert isinstance(event, Project.Event)
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
         params = MultiDict({"page": "abc"})
