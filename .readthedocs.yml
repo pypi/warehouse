@@ -4,10 +4,6 @@
 
 # Required
 version: 2
-python:
-  install:
-    - requirements: requirements/docs/dev.txt
-    - requirements: requirements/docs/user.txt
 
 build:
   os: ubuntu-20.04
