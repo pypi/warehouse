@@ -19,7 +19,7 @@ import tarfile
 import tempfile
 import zipfile
 
-from cgi import FieldStorage, parse_header
+from cgi import FieldStorage
 
 import packaging.requirements
 import packaging.specifiers
@@ -343,7 +343,9 @@ def _validate_description_content_type(form, field):
             f"Invalid description content type: {message}"
         )
 
-    content_type, parameters = parse_header(field.data)
+    msg = email.message.EmailMessage()
+    msg["content-type"] = field.data
+    content_type, parameters = msg.get_content_type(), msg["content-type"].params
     if content_type not in _valid_description_content_types:
         _raise("type/subtype is not valid")
 
