@@ -4445,6 +4445,7 @@ class TestManageOrganizationRoles:
 
 
 class TestResendOrganizationInvitations:
+    @freeze_time(datetime.datetime.utcnow())
     def test_resend_invitation(
         self, db_request, token_service, enable_organizations, monkeypatch
     ):
