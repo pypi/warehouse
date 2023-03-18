@@ -377,6 +377,11 @@ class TestSendEmail:
     def test_send_email_failure_retry(self, monkeypatch):
         exc = Exception()
 
+        sentry_sdk = pretend.stub(
+            capture_exception=pretend.call_recorder(lambda s: None)
+        )
+        monkeypatch.setattr(email, "sentry_sdk", sentry_sdk)
+
         class FakeMailSender:
             def send(self, recipient, msg):
                 raise exc
@@ -414,6 +419,7 @@ class TestSendEmail:
                 },
             )
 
+        assert sentry_sdk.capture_exception.calls == [pretend.call(exc)]
         assert task.retry.calls == [pretend.call(exc=exc)]
 
     @pytest.mark.parametrize("exc", [InvalidMessage, BadHeaders, EncodingError])
