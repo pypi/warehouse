@@ -2,6 +2,6 @@
 exclude_from_blog: true
 ---
 
-# PyPI Blog
+# The PyPI Blog
 
 {{ blog_content }}

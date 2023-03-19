@@ -1,4 +1,4 @@
-site_name: PyPI Blog
+site_name: The Python Package Index
 docs_dir: blog
 site_dir: blog-site
 theme:
@@ -6,6 +6,7 @@ theme:
   logo: assets/logo.png
   favicon: assets/favicon.ico
   homepage: https://pypi.org
+  custom_dir: blog/overrides
 extra_css:
   - stylesheets/extra.css
 plugins:
