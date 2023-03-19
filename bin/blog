@@ -10,4 +10,4 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 # Print all the following commands
 set -x
 
-mkdocs build -f mkdocs-blog.yml
+mkdocs build -f docs/blog.yml

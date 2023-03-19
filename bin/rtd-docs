@@ -21,6 +21,6 @@ fi
 if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ]; then
   pip install -r requirements/docs/blog.txt
   asdf reshim
-  mkdocs build -f mkdocs-blog.yml
+  mkdocs build -f docs/blog.yml
   mkdir _readthedocs && mv docs/blog-site _readthedocs/html
 fi

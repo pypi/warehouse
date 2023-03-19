@@ -1,6 +1,6 @@
 site_name: PyPI Blog
-docs_dir: docs/blog
-site_dir: docs/blog-site
+docs_dir: blog
+site_dir: blog-site
 theme:
   name: material
   logo: assets/logo.png
@@ -11,8 +11,8 @@ extra_css:
 plugins:
   - blogging:
       dirs:
-        - docs/blog/posts
-      template: docs/blog/override/pypi-blog.html
+        - posts
+      template: blog/override/pypi-blog.html
       features:
         tags:
           index_page: tags.md
