@@ -12,7 +12,7 @@ plugins:
   - blogging:
       dirs:
         - posts
-      template: blog/override/pypi-blog.html
+      template: blog/overrides/pypi-blog.html
       features:
         tags:
           index_page: tags.md
