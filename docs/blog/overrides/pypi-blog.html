@@ -17,8 +17,8 @@
     <p class="blog-post-description">{{ description }}</p>
     {% endif %}
     {% if show_tags and "tags" in page.meta %}
-        {% call render_tags(page.meta["tags"], index_url) %}
-        {% endcall %}
+      {% call render_tags(page.meta["tags"], index_url) %}
+      {% endcall %}
     {% endif %}
   </div>
 </a>
