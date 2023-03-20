@@ -125,7 +125,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:455 warehouse/manage/views/__init__.py:818
+#: warehouse/accounts/views.py:455 warehouse/manage/views/__init__.py:803
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -268,7 +268,7 @@ msgstr ""
 msgid "You can't register more than 3 pending OpenID Connect publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1447 warehouse/manage/views/__init__.py:1692
+#: warehouse/accounts/views.py:1447 warehouse/manage/views/__init__.py:1244
 msgid ""
 "There have been too many attempted OpenID Connect registrations. Try "
 "again later."
@@ -356,55 +356,55 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:231
+#: warehouse/manage/views/__init__.py:216
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:766
+#: warehouse/manage/views/__init__.py:751
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:767
+#: warehouse/manage/views/__init__.py:752
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2477
+#: warehouse/manage/views/__init__.py:2029
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2137
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2653
+#: warehouse/manage/views/__init__.py:2205
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2685
+#: warehouse/manage/views/__init__.py:2237
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2698
+#: warehouse/manage/views/__init__.py:2250
 #: warehouse/manage/views/organizations.py:891
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2764
+#: warehouse/manage/views/__init__.py:2316
 #: warehouse/manage/views/organizations.py:956
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2797
+#: warehouse/manage/views/__init__.py:2349
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2808
+#: warehouse/manage/views/__init__.py:2360
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2841
+#: warehouse/manage/views/__init__.py:2393
 #: warehouse/manage/views/organizations.py:1143
 msgid "Invitation revoked from '${username}'."
 msgstr ""
