@@ -44,7 +44,7 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views
-from warehouse.manage.views import organizations as org_views
+from warehouse.manage.views import organizations as org_views, teams as team_views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.organizations.interfaces import IOrganizationService
@@ -2386,7 +2386,7 @@ class TestManageTeamSettings:
     ):
         team = TeamFactory.create()
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.manage_team()
         form = result["save_team_form"]
 
@@ -2405,7 +2405,7 @@ class TestManageTeamSettings:
         db_request.POST = MultiDict({"name": "Team name"})
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.save_team()
 
         assert isinstance(result, HTTPSeeOther)
@@ -2427,7 +2427,7 @@ class TestManageTeamSettings:
 
         db_request.POST = MultiDict({"name": "Existing Team Name"})
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.save_team()
         form = result["save_team_form"]
 
@@ -2454,9 +2454,9 @@ class TestManageTeamSettings:
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_team_deleted_email", send_email)
+        monkeypatch.setattr(team_views, "send_team_deleted_email", send_email)
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         result = view.delete_team()
 
         assert isinstance(result, HTTPSeeOther)
@@ -2486,7 +2486,7 @@ class TestManageTeamSettings:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         with pytest.raises(HTTPSeeOther):
             view.delete_team()
 
@@ -2510,7 +2510,7 @@ class TestManageTeamSettings:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ManageTeamSettingsViews(team, db_request)
+        view = team_views.ManageTeamSettingsViews(team, db_request)
         with pytest.raises(HTTPSeeOther):
             view.delete_team()
 
@@ -2541,7 +2541,7 @@ class TestManageTeamProjects:
             project=project, team=team, role_name=TeamProjectRoleType.Owner
         )
 
-        view = views.ManageTeamProjectsViews(team, db_request)
+        view = team_views.ManageTeamProjectsViews(team, db_request)
         result = view.manage_team_projects()
 
         assert view.team == team
@@ -2567,7 +2567,7 @@ class TestManageTeamRoles:
 
         db_request.POST = MultiDict()
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.manage_team_roles()
         form = result["form"]
 
@@ -2615,18 +2615,18 @@ class TestManageTeamRoles:
 
         send_team_member_added_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_team_member_added_email",
             send_team_member_added_email,
         )
         send_added_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_added_as_team_member_email",
             send_added_as_team_member_email,
         )
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
         roles = organization_service.get_team_roles(team.id)
 
@@ -2700,7 +2700,7 @@ class TestManageTeamRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
         form = result["form"]
 
@@ -2742,7 +2742,7 @@ class TestManageTeamRoles:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.create_team_role()
         form = result["form"]
 
@@ -2798,18 +2798,18 @@ class TestManageTeamRoles:
 
         send_team_member_removed_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_team_member_removed_email",
             send_team_member_removed_email,
         )
         send_removed_as_team_member_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_removed_as_team_member_email",
             send_removed_as_team_member_email,
         )
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == []
@@ -2879,7 +2879,7 @@ class TestManageTeamRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == []
@@ -2930,7 +2930,7 @@ class TestManageTeamRoles:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
 
-        view = views.ManageTeamRolesViews(team, db_request)
+        view = team_views.ManageTeamRolesViews(team, db_request)
         result = view.delete_team_role()
 
         assert organization_service.get_team_roles(team.id) == [role]
@@ -2956,7 +2956,7 @@ class TestManageTeamHistory:
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
-        assert views.manage_team_history(team, db_request) == {
+        assert team_views.manage_team_history(team, db_request) == {
             "events": [newer_event, older_event],
             "get_user": user_service.get_user,
             "team": team,
@@ -2981,7 +2981,7 @@ class TestManageTeamHistory:
 
         team = TeamFactory.create()
         with pytest.raises(HTTPBadRequest):
-            views.manage_team_history(team, db_request)
+            team_views.manage_team_history(team, db_request)
 
         assert page_cls.calls == []
 
@@ -3009,7 +3009,7 @@ class TestManageTeamHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_team_history(team, db_request) == {
+        assert team_views.manage_team_history(team, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,
             "team": team,
@@ -3039,7 +3039,7 @@ class TestManageTeamHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
-        assert views.manage_team_history(team, db_request) == {
+        assert team_views.manage_team_history(team, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,
             "team": team,
@@ -3057,7 +3057,7 @@ class TestManageTeamHistory:
             TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
 
         with pytest.raises(HTTPNotFound):
-            assert views.manage_team_history(team, db_request)
+            assert team_views.manage_team_history(team, db_request)
 
 
 class TestManageProjects:
@@ -6452,7 +6452,7 @@ class TestChangeTeamProjectRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_team_collaborator_role_changed_email",
             send_team_collaborator_role_changed_email,
         )
@@ -6460,12 +6460,12 @@ class TestChangeTeamProjectRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_role_changed_as_team_collaborator_email",
             send_role_changed_as_team_collaborator_email,
         )
 
-        result = views.change_team_project_role(organization_project, db_request)
+        result = team_views.change_team_project_role(organization_project, db_request)
 
         assert role.role_name == new_role_name
         assert db_request.route_path.calls == [
@@ -6518,7 +6518,9 @@ class TestChangeTeamProjectRole:
             lambda *a, **kw: "/the-redirect"
         )
 
-        result = views.change_team_project_role(organization_project, pyramid_request)
+        result = team_views.change_team_project_role(
+            organization_project, pyramid_request
+        )
 
         assert pyramid_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=organization_project.name)
@@ -6538,7 +6540,7 @@ class TestChangeTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_team_project_role(organization_project, db_request)
+        result = team_views.change_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find permissions", queue="error")
@@ -6569,7 +6571,7 @@ class TestChangeTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.change_team_project_role(organization_project, db_request)
+        result = team_views.change_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Cannot remove your own team as Owner", queue="error")
@@ -6637,7 +6639,7 @@ class TestDeleteTeamProjectRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_team_collaborator_removed_email",
             send_team_collaborator_removed_email,
         )
@@ -6645,12 +6647,12 @@ class TestDeleteTeamProjectRole:
             lambda *a, **kw: None
         )
         monkeypatch.setattr(
-            views,
+            team_views,
             "send_removed_as_team_collaborator_email",
             send_removed_as_team_collaborator_email,
         )
 
-        result = views.delete_team_project_role(organization_project, db_request)
+        result = team_views.delete_team_project_role(organization_project, db_request)
 
         assert db_request.route_path.calls == [
             pretend.call("manage.project.roles", project_name=organization_project.name)
@@ -6699,7 +6701,7 @@ class TestDeleteTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_team_project_role(organization_project, db_request)
+        result = team_views.delete_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Could not find permissions", queue="error")
@@ -6728,7 +6730,7 @@ class TestDeleteTeamProjectRole:
         )
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
 
-        result = views.delete_team_project_role(organization_project, db_request)
+        result = team_views.delete_team_project_role(organization_project, db_request)
 
         assert db_request.session.flash.calls == [
             pretend.call("Cannot remove your own team as Owner", queue="error")
