@@ -36,8 +36,12 @@
   <h1>{{ page.title | d(config.site_name, true)}}</h1>
 {% endif %}
 
-<b>{{ page.meta["author"] + " · " if "author" in page.meta else "" }}</b>
-<span>{{ page.meta["publish_date"] }}</span>
+{% if "author" in page.meta %}
+  by: <b>{{ page.meta["author"] + " · " if "publish_date" in page.meta else "" }}</b>
+{% endif %}
+{% if "publish_date" in page.meta %}
+  <span>{{ page.meta["publish_date"] }}</span>
+{% endif %}
 
 <!-- Page content -->
 {{ page.content }}
