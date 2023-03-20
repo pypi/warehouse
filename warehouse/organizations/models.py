@@ -320,6 +320,11 @@ class Organization(HasEvents, db.Model):
             query.all(),
             key=lambda x: [e.value for e in OrganizationRoleType].index(x.role_name),
         ):
+            # *** NOTE ***:
+            # When updating these ACLS, please also update the matrix in
+            # `warehouse/templates/manage/organization/roles.html` to ensure that
+            # the UI is consistent with the actual ACLs.
+            #
             # Allow all people in organization read access.
             # Allow write access depending on role.
             if role.role_name == OrganizationRoleType.Owner:
