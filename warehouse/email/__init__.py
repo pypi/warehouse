@@ -16,6 +16,7 @@ import functools
 from email.headerregistry import Address
 
 import pytz
+import sentry_sdk
 
 from celery.schedules import crontab
 from first import first
@@ -71,6 +72,8 @@ def send_email(task, request, recipient, msg, success_event):
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
     except Exception as exc:
+        # Send any other exception to Sentry, but don't re-raise it
+        sentry_sdk.capture_exception(exc)
         task.retry(exc=exc)
 
 
