@@ -78,6 +78,7 @@ from ...common.db.organizations import (
     TeamRoleFactory,
 )
 from ...common.db.packaging import (
+    FileEventFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectEventFactory,
@@ -6739,24 +6740,83 @@ class TestDeleteTeamProjectRole:
 class TestManageProjectHistory:
     def test_get(self, db_request, user_service):
         project = ProjectFactory.create()
-        older_event = ProjectEventFactory.create(
-            source=project,
-            tag="fake:event",
-            ip_address="0.0.0.0",
-            time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+        release = ReleaseFactory.create(project=project)
+        file_ = FileFactory.create(release=release)
+        # NOTE: intentionally out of order, to test sorting.
+        events = [
+            FileEventFactory.create(
+                source=file_,
+                tag="fake:event",
+                ip_address="0.0.0.0",
+                time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+                additional={
+                    "project_id": str(project.id),
+                },
+            ),
+            ProjectEventFactory.create(
+                source=project,
+                tag="fake:event",
+                ip_address="0.0.0.0",
+                time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            ),
+            ProjectEventFactory.create(
+                source=project,
+                tag="fake:event",
+                ip_address="0.0.0.0",
+                time=datetime.datetime(2019, 2, 5, 17, 18, 18, 462_634),
+            ),
+            FileEventFactory.create(
+                source=file_,
+                tag="fake:event",
+                ip_address="0.0.0.0",
+                time=datetime.datetime(2016, 2, 5, 17, 18, 18, 462_634),
+                additional={
+                    "project_id": str(project.id),
+                },
+            ),
+        ]
+
+        project_events_query = (
+            db_request.db.query(Project.Event)
+            .join(Project.Event.source)
+            .filter(Project.Event.source_id == project.id)
         )
-        newer_event = ProjectEventFactory.create(
-            source=project,
-            tag="fake:event",
-            ip_address="0.0.0.0",
-            time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
+        file_events_query = (
+            db_request.db.query(File.Event)
+            .join(File.Event.source)
+            .filter(File.Event.additional["project_id"].astext == str(project.id))
+        )
+        events_query = project_events_query.union(file_events_query).order_by(
+            Project.Event.time.desc(), File.Event.time.desc()
+        )
+
+        events_page = SQLAlchemyORMPage(
+            events_query,
+            page=1,
+            items_per_page=25,
+            item_count=4,
+            url_maker=paginate_url_factory(db_request),
         )
 
         assert views.manage_project_history(project, db_request) == {
-            "events": [newer_event, older_event],
+            "events": events_page,
             "get_user": user_service.get_user,
             "project": project,
         }
+
+        events_page = list(events_page)
+
+        # NOTE: The Event -> Project.Event | File.Event mapping is broken
+        # due to how Event subclasses are constructed, so we only test
+        # the ordering here.
+        assert [e.time for e in events_page] == [
+            e.time for e in sorted(events, key=lambda e: e.time, reverse=True)
+        ]
+
+        # NOTE: This is a backstop for the bugged behavior above: when we
+        # fix it, this will begin to fail.
+        for event in events_page:
+            assert isinstance(event, Project.Event)
 
     def test_raises_400_with_pagenum_type_str(self, monkeypatch, db_request):
         params = MultiDict({"page": "abc"})
@@ -6793,11 +6853,18 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project, tag="fake:event", ip_address="0.0.0.0"
             )
-        events_query = (
+        project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
             .filter(Project.Event.source_id == project.id)
-            .order_by(Project.Event.time.desc())
+        )
+        file_events_query = (
+            db_request.db.query(File.Event)
+            .join(File.Event.source)
+            .filter(File.Event.additional["project_id"].astext == str(project.id))
+        )
+        events_query = project_events_query.union(file_events_query).order_by(
+            Project.Event.time.desc(), File.Event.time.desc()
         )
 
         events_page = SQLAlchemyORMPage(
@@ -6825,11 +6892,18 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project, tag="fake:event", ip_address="0.0.0.0"
             )
-        events_query = (
+        project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
             .filter(Project.Event.source_id == project.id)
-            .order_by(Project.Event.time.desc())
+        )
+        file_events_query = (
+            db_request.db.query(File.Event)
+            .join(File.Event.source)
+            .filter(File.Event.additional["project_id"].astext == str(project.id))
+        )
+        events_query = project_events_query.union(file_events_query).order_by(
+            Project.Event.time.desc(), File.Event.time.desc()
         )
 
         events_page = SQLAlchemyORMPage(
@@ -6839,6 +6913,7 @@ class TestManageProjectHistory:
             item_count=total_items,
             url_maker=paginate_url_factory(db_request),
         )
+
         assert views.manage_project_history(project, db_request) == {
             "events": events_page,
             "get_user": user_service.get_user,

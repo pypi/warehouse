@@ -114,6 +114,13 @@ class FileFactory(WarehouseFactory):
     size = factory.Faker("pyint")
 
 
+class FileEventFactory(WarehouseFactory):
+    class Meta:
+        model = File.Event
+
+    source = factory.SubFactory(FileFactory)
+
+
 class RoleFactory(WarehouseFactory):
     class Meta:
         model = Role

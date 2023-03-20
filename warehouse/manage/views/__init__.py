@@ -2338,13 +2338,14 @@ class ManageProjectRelease:
             )
         )
 
-        self.release.project.record_event(
-            tag=EventTag.Project.ReleaseFileRemove,
+        release_file.record_event(
+            tag=EventTag.File.FileRemove,
             ip_address=self.request.remote_addr,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
                 "filename": release_file.filename,
+                "project_id": str(self.release.project.id),
             },
         )
 
@@ -2595,7 +2596,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         return HTTPSeeOther(request.path)
 
     if enable_internal_collaborator and user in internal_users:
-
         # Add internal member.
         request.db.add(Role(user=user, project=project, role_name=role_name))
 
@@ -2664,7 +2664,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         # Refresh project collaborators.
         return HTTPSeeOther(request.path)
     else:
-
         # Invite external user.
         token_service = request.find_service(ITokenService, name="email")
 
@@ -3233,11 +3232,20 @@ def manage_project_history(project, request):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.")
 
-    events_query = (
+    project_events_query = (
         request.db.query(Project.Event)
         .join(Project.Event.source)
         .filter(Project.Event.source_id == project.id)
-        .order_by(Project.Event.time.desc())
+    )
+
+    file_events_query = (
+        request.db.query(File.Event)
+        .join(File.Event.source)
+        .filter(File.Event.additional["project_id"].astext == str(project.id))
+    )
+
+    events_query = project_events_query.union(file_events_query).order_by(
+        Project.Event.time.desc(), File.Event.time.desc()
     )
 
     events = SQLAlchemyORMPage(

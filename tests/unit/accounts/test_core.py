@@ -36,9 +36,11 @@ from warehouse.accounts.services import (
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
+from warehouse.oidc.models import OIDCPublisher
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
+from ...common.db.oidc import GitHubPublisherFactory
 
 
 class TestLogin:
@@ -323,6 +325,25 @@ class TestUser:
         assert accounts._user(request) is None
 
 
+class TestOIDCPublisher:
+    def test_with_oidc_publisher(self, db_request):
+        publisher = GitHubPublisherFactory.create()
+        assert isinstance(publisher, OIDCPublisher)
+        request = pretend.stub(identity=publisher)
+
+        assert accounts._oidc_publisher(request) is publisher
+
+    def test_without_oidc_publisher_identity(self):
+        nonpublisher = pretend.stub()
+        request = pretend.stub(identity=nonpublisher)
+
+        assert accounts._oidc_publisher(request) is None
+
+    def test_without_identity(self):
+        request = pretend.stub(identity=None)
+        assert accounts._oidc_publisher(request) is None
+
+
 class TestUnauthenticatedUserid:
     def test_unauthenticated_userid(self):
         request = pretend.stub()
@@ -402,6 +423,7 @@ def test_includeme(monkeypatch):
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
+        pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
         pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
