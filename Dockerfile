@@ -132,7 +132,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev git'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

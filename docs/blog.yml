@@ -1,4 +1,5 @@
 site_name: The Python Package Index
+site_description: The official blog of the Python Package Index
 docs_dir: blog
 site_dir: blog-site
 theme:
@@ -10,6 +11,7 @@ theme:
 extra_css:
   - stylesheets/extra.css
 plugins:
+  - social
   - blogging:
       dirs:
         - posts
