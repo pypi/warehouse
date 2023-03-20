@@ -18,13 +18,3 @@
 </a>
 {{ caller() }}
 {%- endmacro %}
-
-{# Custom css, optional. #}
-{% block style %}
-{{ super() }}
-<style>
-    .md-typeset .blog-post-description {
-        margin-bottom: 0;
-    }
-</style>
-{% endblock %}
