@@ -92,7 +92,6 @@ services:
       # permissive security context.
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
-      - ./docs/user:/opt/warehouse/src/docs/user:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
