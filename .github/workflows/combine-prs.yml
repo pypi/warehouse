@@ -1,3 +1,6 @@
+# Origin: https://github.com/hrvey/combine-prs-workflow
+# Adapted to suit our purposes over time.
+
 name: 'Combine PRs'
 
 # Controls when the action will run - in this case triggered manually
@@ -9,16 +12,14 @@ on:
         type: boolean
         required: true
         default: true
-      mustBeUnblocked:
-        description: 'Exclude PRs that have the `blocked` label'
-        type: boolean
-        required: true
-        default: true
       combineBranchName:
         description: 'Name of the branch to combine PRs into'
-        type: string
         required: true
         default: 'combine-prs-branch'
+      ignoreLabel:
+        description: 'Exclude PRs with this label'
+        required: true
+        default: 'blocked'
 
 permissions:
   contents: write
@@ -36,66 +37,83 @@ jobs:
       - uses: actions/github-script@v6
         id: fetch-branch-names
         name: Fetch branch names
+        # Use GitHub's GraphQL API to minimize API calls.
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const pulls = await github.paginate('GET /repos/:owner/:repo/pulls', {
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            branches = [];
-            prs = [];
-            base_branch = null;
-            for (const pull of pulls) {
-              const branch = pull['head']['ref'];
-              console.log('Pull for branch: ' + branch);
-              if (pull['user']['login'].match(/^(dependabot\[bot\]|dependabot-preview\[bot\])$/)) {
-                console.log('Branch matched: ' + branch);
-                statusOK = true;
-                if(${{ github.event.inputs.mustBeGreen }}) {
-                  console.log('Checking green status: ' + branch);
-                  const checks = await github.paginate('GET /repos/{owner}/{repo}/commits/{ref}/check-runs', {
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    ref: branch
-                  });
-
-                  if(checks.length > 0) {
-                    for (const check of checks) {
-                      const latest_conclusion = check['conclusion'];
-                      console.log('Validating conclusion: ' + latest_conclusion);
-                      if(latest_conclusion != 'success') {
-                        console.log('Discarding ' + branch + ' with failed check');
-                        statusOK = false;
+            // Construct the search to return the PRs that match our conditions.
+            const searchString = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:open label:dependencies label:python -label:${{ github.event.inputs.ignoreLabel }}`;
+            console.log('Search string: ' + searchString);
+            // We pick the first 100 results, which should be enough for most
+            // cases, and prevents the API calls from being too large (slow). 
+            const matchingPullRequestQuery = `query {
+              search(
+                query: "${searchString}",
+                type: ISSUE,
+                first: 100
+              ) {
+                edges {
+                  node {
+                    ... on PullRequest {
+                      number
+                      title
+                      headRefOid
+                      mergeable
+                      commits(last: 1) {
+                        nodes {
+                          commit {
+                            statusCheckRollup {
+                              state
+                            }
+                          }
+                        }
                       }
                     }
                   }
-                }
-                if(${{ github.event.inputs.mustBeUnblocked }} && statusOK) {
-                  console.log('Checking blocked status: ' + pull['number']);
-                  const labels = await github.paginate('GET /repos/{owner}/{repo}/issues/{issue_number}/labels', {
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    issue_number: pull['number']
-                  });
-                  if(labels.length > 0) {
-                    for (const label of labels) {
-                      const label_name = label['name'];
-                      console.log('Validating label: ' + label_name);
-                      if(label_name == 'blocked') {
-                        console.log('Discarding ' + branch + ' with blocked label on PR');
-                        statusOK = false;
-                      }
-                    }
-                  }
-                }
-                if (statusOK) {
-                  console.log('Adding branch to array: ' + branch);
-                  branches.push(branch);
-                  prs.push('Closes #' + pull['number'] + ' ' + pull['title']);
-                  base_branch = pull['base']['ref'];
                 }
               }
+            }`;
+            // console.debug('Query: ' + matchingPullRequestQuery);
+            // Run the query and get the results.
+            const matchingPullRequests = await github.graphql(matchingPullRequestQuery);
+            // log the results
+            // console.debug('Matching PRs: ' + JSON.stringify(matchingPullRequests));
+            // Get the PRs from the results.
+            const pullRequests = matchingPullRequests.search.edges;
+            // console.debug('PRs: ' + JSON.stringify(pullRequests));
+            // Create an array to hold the branch names.
+            let branches = [];
+            // Create an array to hold the PRs.
+            let prs = [];
+            // Create a variable to hold the base branch.
+            let baseBranch = null;
+            // Sort the PRs by number, since the API response is tricky.
+            pullRequests.sort((a, b) => a.node.number - b.node.number);
+            // Loop through the PRs.
+            for (const pull of pullRequests) {
+              const prLogString = 'Pull #' + pull.node.number + ' - ' + pull.node.title;
+              console.log('👀 Checking:  ' + prLogString);
+              // If the PR is not mergeable (no conflicts), bail early.
+              if(pull.node.mergeable != 'MERGEABLE') {
+                console.warn('❌ Discarding: ' + prLogString + ' with unmergeable PR, state: ' + pull.node.mergeable);
+                continue;
+              }
+              // If the PR is not green, bail early.
+              if(${{ github.event.inputs.mustBeGreen }}) {
+                if(pull.node.commits.nodes[0].commit.statusCheckRollup.state != 'SUCCESS') {
+                  console.warn('❌ PR Status: ' + prLogString + ' with failed status: ' + pull.node.commits.nodes[0].commit.statusCheckRollup.state);
+                  continue;
+                }
+                console.log('✅ PR Status: ' + prLogString);
+              }
+              // At this point, the PR/branch is good to go.
+              const branch = pull.node.headRefOid;
+              console.log('☑️ Adding branch to array: ' + branch);
+              // Add the branch name to the array.
+              branches.push(branch);
+              // Add the PR to the array.
+              prs.push('Closes #' + pull.node.number + ' ' + pull.node.title);
+              baseBranch = pull.node.headRefOid;
             }
 
             if (branches.length == 0) {
@@ -103,7 +121,7 @@ jobs:
               return;
             }
 
-            core.setOutput('base-branch', base_branch);
+            core.setOutput('base-branch', baseBranch);
             core.setOutput('prs-string', prs.join('\n'));
 
             combined = branches.join(' ')

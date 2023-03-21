@@ -13,8 +13,9 @@
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.declarative import AbstractConcreteBase, declared_attr
+from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.orm import declared_attr
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
@@ -58,6 +59,7 @@ class Event(AbstractConcreteBase):
                 "%s.id" % cls._parent_class.__tablename__,
                 deferrable=True,
                 initially="DEFERRED",
+                ondelete="CASCADE",
             ),
             nullable=False,
         )
@@ -109,6 +111,7 @@ class HasEvents:
         return orm.relationship(
             cls.Event,
             cascade="all, delete-orphan",
+            passive_deletes=True,
             lazy="dynamic",
             back_populates="source",
         )

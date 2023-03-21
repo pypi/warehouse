@@ -627,7 +627,7 @@ class Release(db.Model):
         )
 
 
-class File(db.Model):
+class File(HasEvents, db.Model):
 
     __tablename__ = "release_files"
 

@@ -370,6 +370,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
+            pretend.call(".recaptcha"),
             pretend.call(".http"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
