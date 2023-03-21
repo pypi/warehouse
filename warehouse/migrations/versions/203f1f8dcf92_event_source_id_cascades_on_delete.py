@@ -25,6 +25,10 @@ down_revision = "d64193adcd10"
 
 
 def upgrade():
+    # We've seen this migration fail due to statement timeouts in production.
+    conn = op.get_bind()
+    conn.execute("SET statement_timeout = 60000")
+
     op.drop_constraint("file_events_source_id_fkey", "file_events", type_="foreignkey")
     op.create_foreign_key(
         None,
