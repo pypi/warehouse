@@ -59,6 +59,7 @@ class Event(AbstractConcreteBase):
                 "%s.id" % cls._parent_class.__tablename__,
                 deferrable=True,
                 initially="DEFERRED",
+                ondelete="CASCADE",
             ),
             nullable=False,
         )
@@ -110,6 +111,7 @@ class HasEvents:
         return orm.relationship(
             cls.Event,
             cascade="all, delete-orphan",
+            passive_deletes=True,
             lazy="dynamic",
             back_populates="source",
         )
