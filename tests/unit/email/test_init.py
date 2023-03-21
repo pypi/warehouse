@@ -16,6 +16,7 @@ import celery.exceptions
 import pretend
 import pytest
 
+from pyramid_mailer.exceptions import BadHeaders, EncodingError, InvalidMessage
 from sqlalchemy.exc import NoResultFound
 
 from warehouse import email
@@ -373,8 +374,13 @@ class TestSendEmail:
             }
         ]
 
-    def test_send_email_failure(self, monkeypatch):
+    def test_send_email_failure_retry(self, monkeypatch):
         exc = Exception()
+
+        sentry_sdk = pretend.stub(
+            capture_exception=pretend.call_recorder(lambda s: None)
+        )
+        monkeypatch.setattr(email, "sentry_sdk", sentry_sdk)
 
         class FakeMailSender:
             def send(self, recipient, msg):
@@ -413,7 +419,49 @@ class TestSendEmail:
                 },
             )
 
+        assert sentry_sdk.capture_exception.calls == [pretend.call(exc)]
         assert task.retry.calls == [pretend.call(exc=exc)]
+
+    @pytest.mark.parametrize("exc", [InvalidMessage, BadHeaders, EncodingError])
+    def test_send_email_failure_doesnt_retry(self, monkeypatch, exc):
+        class FakeMailSender:
+            def send(self, recipient, msg):
+                raise exc
+
+        class Task:
+            @staticmethod
+            @pretend.call_recorder
+            def retry(exc):
+                raise celery.exceptions.Retry
+
+        sender, task = FakeMailSender(), Task()
+        request = pretend.stub(find_service=lambda *a, **kw: sender)
+        user_id = pretend.stub()
+        msg = EmailMessage(subject="subject", body_text="body")
+
+        with pytest.raises(exc):
+            email.send_email(
+                task,
+                request,
+                "recipient",
+                {
+                    "subject": msg.subject,
+                    "body_text": msg.body_text,
+                    "body_html": msg.body_html,
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": user_id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "recipient",
+                        "subject": msg.subject,
+                        "redact_ip": False,
+                    },
+                },
+            )
+
+        assert task.retry.calls == []
 
 
 class TestSendAdminNewOrganizationRequestedEmail:

@@ -22,7 +22,7 @@ import wtforms.fields
 
 import warehouse.utils.webauthn as webauthn
 
-from warehouse import forms
+from warehouse import forms, recaptcha
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     InvalidRecoveryCode,
@@ -296,11 +296,24 @@ class RegistrationForm(
             )
         ]
     )
+    g_recaptcha_response = wtforms.StringField()
 
-    def __init__(self, *args, user_service, **kwargs):
+    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.user_id = None
+        self.recaptcha_service = recaptcha_service
+
+    def validate_g_recaptcha_response(self, field):
+        # do required data validation here due to enabled flag being required
+        if self.recaptcha_service.enabled and not field.data:
+            raise wtforms.validators.ValidationError("Recaptcha error.")
+        try:
+            self.recaptcha_service.verify_response(field.data)
+        except recaptcha.RecaptchaError:
+            # TODO: log error
+            # don't want to provide the user with any detail
+            raise wtforms.validators.ValidationError("Recaptcha error.")
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):

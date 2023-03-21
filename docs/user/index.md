@@ -1,17 +1,8 @@
-# Welcome to PyPI
+# Welcome to PyPI's User documentation
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+We're in the early phases of developing this documentation set.
 
-## Commands
-
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
-
-## Project layout
-
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+If you're interested in participating, consider opening an Issue on the
+[pypi/warehouse](https://github.com/pypi/warehouse) repository and adding the
+[documentation](https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3Adocumentation)
+label.

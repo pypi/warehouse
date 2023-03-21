@@ -169,6 +169,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request.remote_addr = remote_addr
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
+    dummy_request.oidc_publisher = None
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 

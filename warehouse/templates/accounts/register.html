@@ -18,6 +18,8 @@
   {% trans %}Create an account{% endtrans %}
 {% endblock %}
 
+{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
+
 {% block content %}
   {% if testPyPI %}
     {% set title = "TestPyPI" %}
@@ -159,6 +161,10 @@
           </ul>
         </div>
 
+        <div class="form-group">
+          {{ recaptcha_html(request, form) }}
+        </div>
+
         <input type="submit" value="{% trans %}Create account{% endtrans %}" class="button button--primary" data-password-match-target="submit">
       </form>
     </div>
@@ -166,6 +172,7 @@
 {% endblock %}
 
 {% block extra_js %}
+  {{ recaptcha_src(request) }}
   <script async
   src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
 </script>
