@@ -165,7 +165,7 @@ jobs:
               repo: context.repo.repo,
               title: 'Combined PR',
               head: '${{ github.event.inputs.combineBranchName }}',
-              base: '${{ steps.fetch-branch-names.outputs.base-branch }}',
+              base: 'main',
               body: body
             });
       # Trigger downstream workflows
