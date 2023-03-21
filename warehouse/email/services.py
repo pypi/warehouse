@@ -39,7 +39,9 @@ class EmailMessage:
 
     @classmethod
     def from_template(cls, email_name, context, *, request):
-        subject = render(f"email/{email_name}/subject.txt", context, request=request)
+        subject = render(
+            f"email/{email_name}/subject.txt", context, request=request
+        ).replace("\n", "")
         body_text = render(f"email/{email_name}/body.txt", context, request=request)
 
         try:
