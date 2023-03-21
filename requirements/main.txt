@@ -813,6 +813,10 @@ idna==3.4 \
     # via
     #   email-validator
     #   requests
+importlib-resources==5.12.0 \
+    --hash=sha256:4be82589bf5c1d7999aedf2a45159d10cb3ca4f19b2271f8792bc8e6da7b22f6 \
+    --hash=sha256:7b1deeebbf351c7578e09bf2f63fa2ce8b5ffec296e0d349139d43cca061a81a
+    # via limits
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
     --hash=sha256:5dbbc68b317e5e42f327f9021763545dc3fc3bfe22e6deb96aaf1fc38874156a
@@ -835,9 +839,9 @@ kombu[sqs]==5.2.4 \
     # via
     #   -r requirements/main.in
     #   celery
-limits==3.2.0 \
-    --hash=sha256:3e12a0d90bc1fb7f3d95fe61c5a76770aaeb21d50f590268187a8884d513c1da \
-    --hash=sha256:6fe1d261162ca6fd8023311273661a7355bc0f4615832bc9a4d6e45c0df59f5e
+limits==3.3.0 \
+    --hash=sha256:3874cea5142fc92bc6e3c0242dab85d9ef9ac0f17959290ec6a176b92239643b \
+    --hash=sha256:f4f4e50115321ecaa607a6b1d6bb6ee75d3778979c8354de2ab6649625ad46c1
     # via -r requirements/main.in
 lxml==4.9.2 \
     --hash=sha256:01d36c05f4afb8f7c20fd9ed5badca32a2029b93b1750f571ccc0b142531caf7 \
