@@ -12,7 +12,7 @@
 
 """Utils for rendering and updating package descriptions (READMEs)."""
 
-import cgi
+from email.message import EmailMessage
 
 import pkg_resources
 import readme_renderer.markdown
@@ -32,14 +32,19 @@ def render(value, content_type=None, use_fallback=True):
     if value is None:
         return value
 
-    content_type, parameters = cgi.parse_header(content_type or "")
+    # Necessary because `msg.get_content_type()` returns `test/plain` for
+    # invalid or missing input, per RFC 2045, which changes our behavior.
+    if content_type is not None:
+        msg = EmailMessage()
+        msg["content-type"] = content_type
+        content_type = msg.get_content_type()
 
     # Get the appropriate renderer
     renderer = _RENDERERS.get(content_type, readme_renderer.txt)
 
     # Actually render the given value, this will not only render the value, but
     # also ensure that it's had any disallowed markup removed.
-    rendered = renderer.render(value, **parameters)
+    rendered = renderer.render(value)
 
     # Wrap plaintext as preformatted to preserve whitespace.
     if content_type == "text/plain":

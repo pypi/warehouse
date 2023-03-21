@@ -94,6 +94,24 @@ class TestEmailMessage:
             "<html>\n<head></head>\n<body><p>Email HTML Body</p></body>\n</html>\n"
         )
 
+    def test_strips_newlines_from_subject(self, pyramid_config, pyramid_request):
+        subject_renderer = pyramid_config.testing_add_renderer("email/foo/subject.txt")
+        subject_renderer.string_response = "Email Subject\n"
+
+        body_renderer = pyramid_config.testing_add_renderer("email/foo/body.txt")
+        body_renderer.string_response = "Email Body"
+
+        html_renderer = pyramid_config.testing_add_renderer("email/foo/body.html")
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        msg = EmailMessage.from_template(
+            "foo", {"my_var": "my value"}, request=pyramid_request
+        )
+
+        subject_renderer.assert_(my_var="my value")
+
+        assert msg.subject == "Email Subject"
+
 
 @pytest.mark.parametrize("sender_class", [SMTPEmailSender, ConsoleAndSMTPEmailSender])
 class TestSMTPEmailSender:

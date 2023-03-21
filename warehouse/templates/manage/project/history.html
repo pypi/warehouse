@@ -41,7 +41,7 @@
     </strong>
     <small>
       {% trans %}Added by:{% endtrans %}
-      {% if event.additional.ephemeral %}
+      {% if event.additional.publisher_url %}
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
@@ -52,16 +52,6 @@
       {# No link to removed release #}
       {% trans version=event.additional.canonical_version %}Version {{ version }} removed{% endtrans %}
     </strong>
-    <small>
-      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
-    </small>
-    {% elif event.tag == EventTag.Project.ReleaseFileRemove %}
-    <strong>
-      {% trans href=request.route_path('manage.project.release', project_name=project.name, version=event.additional.canonical_version), version=event.additional.canonical_version %}File removed from <a href="{{ href }}">version {{ version }}</a>{% endtrans %}
-    </strong>
-    <small>
-      {% trans %}Filename:{% endtrans %} <code>{{ event.additional.filename }}</code>
-    </small>
     <small>
       {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
@@ -78,6 +68,52 @@
     </strong>
     <small>
       {% trans %}Yanked by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+
+    {# Display file events #}
+    {% elif event.tag == EventTag.File.FileAdd %}
+    <strong>
+      {% trans
+        href=request.route_path(
+          'manage.project.release',
+          project_name=project.name,
+          version=event.additional.canonical_version
+        ),
+        version=event.additional.canonical_version
+      %}
+        File added to <a href="{{ href }}">version {{ version }}</a>
+      {% endtrans %}
+    </strong>
+    <small>
+      {% trans %}Filename:{% endtrans %} <code>{{ event.additional.filename }}</code>
+    </small>
+    <small>
+      {% trans %}Added by:{% endtrans %}
+      {% if event.additional.publisher_url %}
+      <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
+      {% else %}
+      <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      {% endif %}
+    </small>
+    {# NOTE: "project:release:file:remove" is deprecated #}
+    {% elif event.tag == EventTag.File.FileRemove or event.tag == "project:release:file:remove" %}
+    <strong>
+      {% trans
+         href=request.route_path(
+           'manage.project.release',
+           project_name=project.name,
+           version=event.additional.canonical_version
+         ),
+         version=event.additional.canonical_version
+      %}
+        File removed from <a href="{{ href }}">version {{ version }}</a>
+      {% endtrans %}
+    </strong>
+    <small>
+      {% trans %}Filename:{% endtrans %} <code>{{ event.additional.filename }}</code>
+    </small>
+    <small>
+      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
     </small>
 
     {# Display role events #}

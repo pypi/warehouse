@@ -1,12 +1,12 @@
 # PyPI User Facing Documentation
 
-This documentation is (will be) hosted at https://docs.pypi.org/ to provide
+This documentation is hosted at https://docs.pypi.org/ to provide
 user-facing documentation for using PyPI.
 
 Documentation is written in [Markdown](https://www.markdownguide.org) and built
 using [mkdocs](https://www.mkdocs.org).
 
-The documentation is (will be) built and deployed with [readthedocs.org](https://readthedocs.org/projects/docspypiorg/).
+The documentation is built and deployed with [readthedocs.org](https://readthedocs.org/projects/docspypiorg/).
 
 See our [`.readthedocs.yml`](../.readthedocs.yml) for configuration.
 

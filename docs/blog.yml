@@ -1,0 +1,36 @@
+site_name: The Python Package Index
+site_description: The official blog of the Python Package Index
+docs_dir: blog
+site_dir: blog-site
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  homepage: https://pypi.org
+  custom_dir: blog/overrides
+markdown_extensions:
+  - footnotes
+extra_css:
+  - stylesheets/extra.css
+plugins:
+  - social
+  - blogging:
+      dirs:
+        - posts
+      template: blog/overrides/pypi-blog.html
+      features:
+        tags:
+          index_page: tags.md
+          insert: top
+      locale: en         # The locale for time localizations, default: system's locale
+      time_format: '%Y-%m-%d %H:%M:%S' # The format used to display the time
+      meta_time_format: '%Y-%m-%d %H:%M:%S' # The format used to parse the time from meta
+extra:
+  homepage: https://pypi.org
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pypi
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pypi
+site_url: https://blog.pypi.org/
+repo_url: https://github.com/pypi/warehouse

@@ -92,8 +92,6 @@ services:
       # permissive security context.
       - ./dev:/opt/warehouse/src/dev:z
       - ./docs:/opt/warehouse/src/docs:z
-      - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
-      - ./docs/user:/opt/warehouse/src/docs/user:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
@@ -189,13 +187,21 @@ services:
       - "8964:8000"
 
   user-docs:
-    build:
-      context: .
-      args:
-        DEVEL: "yes"
+    image: warehouse:docker-compose
     command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
     volumes:
       - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
       - ./docs/user:/opt/warehouse/src/docs/user:z
     ports:
       - "10000:8000"
+    depends_on: [web]
+
+  blog:
+    image: warehouse:docker-compose
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/blog.yml
+    volumes:
+      - ./docs/blog.yml:/opt/warehouse/src/docs/blog.yml:z
+      - ./docs/blog:/opt/warehouse/src/docs/blog:z
+    ports:
+      - "10001:8000"
+    depends_on: [web]
