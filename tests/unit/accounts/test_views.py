@@ -1347,8 +1347,10 @@ class TestRegister:
             lambda *args: None
         )
         db_request.session.record_password_timestamp = lambda ts: None
-        db_request.find_service = pretend.call_recorder(
-            lambda svc, name=None, context=None: {
+
+        def _find_service(service=None, name=None, context=None):
+            key = service or name
+            return {
                 IUserService: pretend.stub(
                     username_is_prohibited=lambda a: False,
                     find_userid=pretend.call_recorder(lambda _: None),
@@ -1364,8 +1366,13 @@ class TestRegister:
                     check_password=lambda pw, tags=None: False,
                 ),
                 IRateLimiter: pretend.stub(hit=lambda user_id: None),
-            }.get(svc)
-        )
+                "csp": pretend.stub(merge=lambda *a, **kw: {}),
+                "recaptcha": pretend.stub(
+                    csp_policy={}, enabled=True, verify_response=lambda a: True
+                ),
+            }[key]
+
+        db_request.find_service = pretend.call_recorder(_find_service)
         db_request.route_path = pretend.call_recorder(lambda name: "/")
         db_request.POST.update(
             {
@@ -1374,6 +1381,7 @@ class TestRegister:
                 "password_confirm": "MyStr0ng!shP455w0rd",
                 "email": "foo@bar.com",
                 "full_name": "full_name",
+                "g_recaptcha_response": "captchavalue",
             }
         )
 

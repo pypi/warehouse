@@ -1,0 +1,6 @@
+mkdocs
+mkdocs-material
+mkdocs-blogging-plugin
+packaging<=21.3
+pillow
+cairosvg
