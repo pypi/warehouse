@@ -16,6 +16,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.manage import views
+from warehouse.manage.views import organizations as org_views
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
 
@@ -81,11 +82,13 @@ class TestManageOrganizations:
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views, "send_admin_new_organization_requested_email", send_email
+            org_views, "send_admin_new_organization_requested_email", send_email
         )
-        monkeypatch.setattr(views, "send_new_organization_requested_email", send_email)
+        monkeypatch.setattr(
+            org_views, "send_new_organization_requested_email", send_email
+        )
 
-        views.ManageOrganizationsViews(db_request).create_organization()
+        org_views.ManageOrganizationsViews(db_request).create_organization()
         organization = organization_service.get_organization_by_name(
             db_request.POST["name"]
         )

@@ -123,7 +123,6 @@ class EventTag:
         OwnersRequire2FAEnabled = "project:owners_require_2fa:enabled"
         ProjectCreate = "project:create"
         ReleaseAdd = "project:release:add"
-        ReleaseFileRemove = "project:release:file:remove"
         ReleaseRemove = "project:release:remove"
         ReleaseUnyank = "project:release:unyank"
         ReleaseYank = "project:release:yank"
@@ -139,6 +138,17 @@ class EventTag:
         # The following tags are no longer used when recording events.
         # RoleAccepted = "project:role:accepted"
         # RoleDelete = "project:role:delete"
+        # ReleaseFileAdd = "project:release:file:add"
+        # ReleaseFileRemove = "project:release:file:remove"
+
+    class File(EventTagEnum):
+        """Tags for File events.
+
+        Keep in sync with: warehouse/templates/manage/project/history.html
+        """
+
+        FileAdd = "file:add"
+        FileRemove = "file:remove"
 
     class Organization(EventTagEnum):
         """Tags for Organization events.

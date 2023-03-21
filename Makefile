@@ -74,6 +74,9 @@ dev-docs: .state/docker-build-web
 user-docs: .state/docker-build-web
 	docker-compose run --rm web bin/user-docs
 
+blog: .state/docker-build-web
+	docker-compose run --rm web bin/blog
+
 licenses: .state/docker-build-web
 	docker compose run --rm web bin/licenses
 

@@ -19,7 +19,7 @@ import tarfile
 import tempfile
 import zipfile
 
-from cgi import FieldStorage, parse_header
+from cgi import FieldStorage
 
 import packaging.requirements
 import packaging.specifiers
@@ -343,7 +343,9 @@ def _validate_description_content_type(form, field):
             f"Invalid description content type: {message}"
         )
 
-    content_type, parameters = parse_header(field.data)
+    msg = email.message.EmailMessage()
+    msg["content-type"] = field.data
+    content_type, parameters = msg.get_content_type(), msg["content-type"].params
     if content_type not in _valid_description_content_types:
         _raise("type/subtype is not valid")
 
@@ -411,7 +413,6 @@ class ListField(wtforms.Field):
 #       library and we should just call that. However until PEP 426 is done
 #       that library won't have an API for this.
 class MetadataForm(forms.Form):
-
     # Metadata version
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
@@ -1103,11 +1104,13 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
             additional={
-                "ephemeral": request.user is None,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
             },
         )
 
@@ -1344,6 +1347,22 @@ def file_upload(request):
         )
         file_data = file_
         request.db.add(file_)
+
+        file_.record_event(
+            tag=EventTag.File.FileAdd,
+            ip_address=request.remote_addr,
+            additional={
+                "filename": file_.filename,
+                "submitted_by": request.user.username
+                if request.user
+                else "OpenID created token",
+                "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
+                "project_id": str(project.id),
+            },
+        )
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
