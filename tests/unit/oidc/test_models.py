@@ -71,6 +71,7 @@ class TestGitHubPublisher:
             "job_workflow_sha",
             "workflow_ref",
             "runner_environment",
+            "environment_node_id",
         }
 
     def test_github_publisher_computed_properties(self):
