@@ -37,7 +37,7 @@ RUN NODE_ENV=production npm run build
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.11.1-slim-bullseye as build
+FROM python:3.11.2-slim-bullseye as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -96,7 +96,7 @@ RUN set -x \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs/dev.txt -r /tmp/requirements/docs/user.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs/dev.txt -r /tmp/requirements/docs/user.txt -r /tmp/requirements/docs/blog.txt'; fi) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -106,7 +106,7 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.11.1-slim-bullseye
+FROM python:3.11.2-slim-bullseye
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -132,7 +132,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
