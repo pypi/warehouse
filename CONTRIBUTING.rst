@@ -11,5 +11,5 @@ Examples of contributions include:
 * Patch reviews.
 
 Extensive contribution guidelines are available in the repository at
-``docs/development/index.rst`` or
+``docs/dev/index.rst`` or
 `online <https://warehouse.pypa.io/development/>`_.
