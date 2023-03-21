@@ -46,7 +46,7 @@ secure since 2013._
 
 [^1]: We're thrifty and picky about what we run, but
 [Fastly](https://www.fastly.com/fast-forward) is the single most
-important factor allowing us to get by with comparitively few
+important factor allowing us to get by with comparatively few
 resources for our backends.
 [^2]: That was until we welcomed Mike Fiedler as an admin in 2023.
 [^3]: The PyPI Administrator team is
