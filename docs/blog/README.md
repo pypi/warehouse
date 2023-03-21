@@ -1,12 +1,13 @@
-# PyPI User Facing Documentation
+# PyPI Blog
 
-This documentation is hosted at https://docs.pypi.org/ to provide
-user-facing documentation for using PyPI.
+This blog is hosted at https://blog.pypi.org/ to provide a way for the PyPI
+Administrators to share new features, breaking changes, and curiosities with
+the community.
 
-Documentation is written in [Markdown](https://www.markdownguide.org) and built
-using [mkdocs](https://www.mkdocs.org).
+Posts are written in [Markdown](https://www.markdownguide.org) and built using
+[mkdocs](https://www.mkdocs.org).
 
-The documentation is built and deployed with [readthedocs.org](https://readthedocs.org/projects/docspypiorg/).
+The blog is built and deployed with [readthedocs.org](https://readthedocs.org/projects/blogpypiorg/).
 
 See our [`.readthedocs.yml`](../.readthedocs.yml) for configuration.
 
@@ -15,7 +16,7 @@ See our [`.readthedocs.yml`](../.readthedocs.yml) for configuration.
 After following the [installation instructions](https://warehouse.pypa.io/development/getting-started.html#detailed-installation-instructions)
 all the remaining commands take place in containers.
 
-The project can be previewed by running `docker compose up user-docs` from the
+The project can be previewed by running `docker compose up blog` from the
 base directory of your clone of pypa/warehouse. This will start a `mkdocs`
 development server that will live reload as you change the contents of this
 directory, including the `mkdocs.yml` configuration.
