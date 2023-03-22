@@ -223,9 +223,9 @@ pep8-naming==0.13.3 \
     --hash=sha256:1705f046dfcd851378aac3be1cd1551c7c1e5ff363bacad707d43007877fa971 \
     --hash=sha256:1a86b8c71a03337c97181917e2b472f0f5e4ccb06844a0d6f0a33522549e7a80
     # via -r requirements/lint.in
-platformdirs==3.0.0 \
-    --hash=sha256:8a1228abb1ef82d788f74139988b137e78692984ec7b08eaa6c65f1723af28f9 \
-    --hash=sha256:b1d5eb14f221506f50d6604a561f4c5786d9e80355219694a1b244bcd96f4567
+platformdirs==3.1.1 \
+    --hash=sha256:024996549ee88ec1a9aa99ff7f8fc819bb59e2c3477b410d90a16d32d6e707aa \
+    --hash=sha256:e5986afb596e4bb5bde29a79ac9061aa955b94fca2399b7aaac4090860920dd8
     # via black
 pycodestyle==2.10.0 \
     --hash=sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053 \
@@ -262,9 +262,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.16.10 \
-    --hash=sha256:35e27f667e882ef7d02f1829499df30c0881d4c3ba12ff698c796b79e87ce09e \
-    --hash=sha256:8df494aff24bdce188381304d6e762b797e2e3e67f610dcb7c2a3725f08cbf67
+types-awscrt==0.16.13 \
+    --hash=sha256:2c5c6dd76851b2d68ba61e732b7f7c26b796bd2abf48a0189e18767a60d9e907 \
+    --hash=sha256:c8d8ed407d481ce22148e9d8c34b2771b45640b1a37505e64c23ea784fe349dd
     # via
     #   botocore-stubs
     #   types-s3transfer
@@ -314,9 +314,9 @@ types-pytz==2022.7.1.2 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-redis==4.5.1.5 \
-    --hash=sha256:43d92b4d6315a45bb0e9a790683ba4448ada88cd1233f3f9886fa6f783f53956 \
-    --hash=sha256:f516254bd593023110a38b77e80d5a76a7f033f1d94c53bee09a7d5d0433f34d
+types-redis==4.5.2.0 \
+    --hash=sha256:54964b1b18b7c868c543011eafab7aafd3d57e5285075ae1b574288535d93b4e \
+    --hash=sha256:f3243339702cde2966e21f7fc34f8e9be1b55b407e8242ba204a42360f248678
     # via -r requirements/lint.in
 types-requests==2.28.11.15 \
     --hash=sha256:a05e4c7bc967518fba5789c341ea8b0c942776ee474c7873129a61161978e586 \
@@ -326,9 +326,9 @@ types-s3transfer==0.6.0.post6 \
     --hash=sha256:03af77eef369a9901422cadf3ad270709876421d8eb445ddbd78a58ac802a464 \
     --hash=sha256:e05c6d86c2d5271a5170a21f8a0222ca5f2d5b91aad7e9d436cca24c8e1ae13c
     # via boto3-stubs
-types-setuptools==67.4.0.3 \
-    --hash=sha256:19e958dfdbf1c5a628e54c2a7ee84935051afb7278d0c1cdb08ac194757ee3b1 \
-    --hash=sha256:3c83c3a6363dd3ddcdd054796705605f0fa8b8e5a39390e07a05e5f7af054978
+types-setuptools==67.6.0.5 \
+    --hash=sha256:3a708e66c7bdc620e4d0439f344c750c57a4340c895a4c3ed2d0fc4ae8eb9962 \
+    --hash=sha256:dae5a4a659dbb6dba57773440f6e2dbdd8ef282dc136a174a8a59bd33d949945
     # via -r requirements/lint.in
 types-sqlalchemy-utils==1.0.1 \
     --hash=sha256:37016333faa0abab7d253805ecf9f605c24ea107b32dd3643014efb8e49be76d \
