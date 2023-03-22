@@ -202,7 +202,9 @@ gitdb==4.0.10 \
 gitpython==3.1.31 \
     --hash=sha256:8ce3bcf69adfdf7c7d503e78fd3b1c492af782d58893b650adb2ac8912ddd573 \
     --hash=sha256:f04893614f6aa713a60cbbe1e6a97403ef633103cdd0ef5eb6efe0deb98dbe8d
-    # via mkdocs-blogging-plugin
+    # via
+    #   mkdocs-blogging-plugin
+    #   mkdocs-rss-plugin
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
     --hash=sha256:90b77e79eaa3eba6de819a0c442c0b4ceefc341a7a2ab77d7562bf49f425c5c2
@@ -284,6 +286,7 @@ mkdocs==1.4.2 \
     #   -r requirements/docs/blog.in
     #   mkdocs-blogging-plugin
     #   mkdocs-material
+    #   mkdocs-rss-plugin
 mkdocs-blogging-plugin==2.2.2 \
     --hash=sha256:297cae8ff7baae4b9cdcef3a2a6317a5954664c5d67223b5104a9e7bfa78eb50 \
     --hash=sha256:75638b791556cf399f1ba19e158e32034555a880f747d315421b6d018942ae10
@@ -296,6 +299,10 @@ mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
     # via mkdocs-material
+mkdocs-rss-plugin==1.6.0 \
+    --hash=sha256:7e7f08e7ea947d98042b9c05885d93c0f26b236865fc5b36a2261bb112a5d766 \
+    --hash=sha256:93644af3b9800842a5849ed5481e225f443bf0cda74843c9e81f6a62f6d14113
+    # via -r requirements/docs/blog.in
 packaging==21.3 \
     --hash=sha256:dd47c42927d89ab911e606518907cc2d3a1f38bbd026385970643f9c5b8ecfeb \
     --hash=sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522
