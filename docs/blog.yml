@@ -49,5 +49,7 @@ extra:
       link: https://github.com/pypi
     - icon: fontawesome/brands/twitter
       link: https://twitter.com/pypi
+    - icon: material/rss
+      link: https://blog.pypi.org/feed_rss_created.xml
 site_url: https://blog.pypi.org/
 repo_url: https://github.com/pypi/warehouse
