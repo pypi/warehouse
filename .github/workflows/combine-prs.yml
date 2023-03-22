@@ -177,7 +177,7 @@ jobs:
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            for (const workflow_id in ['ci.yml', 'node-ci.yml']) {
+            for (const workflow_id of ['ci.yml', 'node-ci.yml']) {
               await github.rest.actions.createWorkflowDispatch({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
