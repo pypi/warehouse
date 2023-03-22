@@ -238,6 +238,7 @@ class GitHubPublisherMixin:
     repository_owner = Column(String, nullable=False)
     repository_owner_id = Column(String, nullable=False)
     workflow_filename = Column(String, nullable=False)
+    environment = Column(String, nullable=True)
 
     __verifiable_claims__ = {
         "sub": _check_sub,
