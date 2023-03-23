@@ -2,6 +2,8 @@
 title: Team Actions
 ---
 
+{{ preview('org-accounts') }}
+
 # Team actions
 This section describes the actions that can be performed within
 team in an organization account.

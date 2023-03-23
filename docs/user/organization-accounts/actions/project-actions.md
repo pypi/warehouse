@@ -2,6 +2,8 @@
 title: Project Actions
 ---
 
+{{ preview('org-accounts') }}
+
 # Project actions
 
 This section describes the actions that can be performed
