@@ -37,7 +37,7 @@ default:
 	# Build the worker container for this project
 	docker compose build --build-arg  USER_ID=$(shell id -u)  --build-arg GROUP_ID=$(shell id -g) --force-rm dev-docs
 
-        # Mark the state so we don't rebuild this needlessly.
+	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
 	touch .state/docker-build-docs
 
@@ -119,9 +119,10 @@ clean:
 
 purge: stop clean
 	rm -rf .state
+	docker compose down -v
 	docker compose rm --force
 
 stop:
-	docker compose down -v
+	docker compose stop
 
 .PHONY: default build serve initdb shell tests dev-docs user-docs deps clean purge debug stop compile-pot
