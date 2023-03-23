@@ -36,8 +36,3 @@ def define_env(env):
     @env.macro
     def preview(preview_feature):
         return PREVIEW_FEATURES.get(preview_feature, "")
-
-    @env.macro
-    def image(name):
-        path = _HERE / "assets" / name
-        return f"![]({path})"
