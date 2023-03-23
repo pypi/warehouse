@@ -20,25 +20,7 @@ from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import _simple_detail, _simple_index
-
-# Generate appropriate CORS headers for the JSON endpoint.
-# We want to allow Cross-Origin requests here so that users can interact
-# with these endpoints via XHR/Fetch APIs in the browser.
-_CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": ", ".join(
-        [
-            "Content-Type",
-            "If-Match",
-            "If-Modified-Since",
-            "If-None-Match",
-            "If-Unmodified-Since",
-        ]
-    ),
-    "Access-Control-Allow-Methods": "GET",
-    "Access-Control-Max-Age": "86400",  # 1 day.
-    "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
-}
+from warehouse.utils.cors import _CORS_HEADERS
 
 
 def _select_content_type(request: Request) -> str:
