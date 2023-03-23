@@ -17,7 +17,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-web: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/docs/dev.txt requirements/docs/user.txt requirements/dev.txt requirements/tests.txt
+.state/docker-build-web: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt
 	# Build our web container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
 
@@ -33,7 +33,15 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-static
 
-.state/docker-build: .state/docker-build-web .state/docker-build-static
+.state/docker-build-docs: Dockerfile requirements/docs/dev.txt requirements/docs/blog.txt requirements/docs/user.txt
+	# Build the worker container for this project
+	docker compose build --build-arg  USER_ID=$(shell id -u)  --build-arg GROUP_ID=$(shell id -g) --force-rm dev-docs
+
+	# Mark the state so we don't rebuild this needlessly.
+	mkdir -p .state
+	touch .state/docker-build-docs
+
+.state/docker-build: .state/docker-build-web .state/docker-build-static .state/docker-build-docs
 	# Build the worker container for this project
 	docker compose build --force-rm worker
 
@@ -68,14 +76,14 @@ lint: .state/docker-build-web
 	docker compose run --rm web bin/lint
 	docker compose run --rm static bin/static_lint
 
-dev-docs: .state/docker-build-web
-	docker compose run --rm web bin/dev-docs
+dev-docs: .state/docker-build-docs
+	docker compose run --rm dev-docs bin/dev-docs
 
-user-docs: .state/docker-build-web
-	docker-compose run --rm web bin/user-docs
+user-docs: .state/docker-build-docs
+	docker compose run --rm user-docs bin/user-docs
 
-blog: .state/docker-build-web
-	docker-compose run --rm web bin/blog
+blog: .state/docker-build-docs
+	docker compose run --rm blog bin/blog
 
 licenses: .state/docker-build-web
 	docker compose run --rm web bin/licenses
@@ -111,9 +119,10 @@ clean:
 
 purge: stop clean
 	rm -rf .state
+	docker compose down -v
 	docker compose rm --force
 
 stop:
-	docker compose down -v
+	docker compose stop
 
 .PHONY: default build serve initdb shell tests dev-docs user-docs deps clean purge debug stop compile-pot

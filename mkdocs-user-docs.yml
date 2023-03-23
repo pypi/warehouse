@@ -1,6 +1,14 @@
 site_name: PyPI Docs
 docs_dir: docs/user
 site_dir: docs/user-site
+plugins:
+  - macros:
+      module_name: docs/user/main
+markdown_extensions: 
+  - admonition 
+  - pymdownx.details 
+  - pymdownx.superfences
+  - tables
 theme:
   name: material
   logo: assets/logo.png

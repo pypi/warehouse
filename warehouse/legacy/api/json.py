@@ -19,25 +19,7 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import File, Project, Release, ReleaseURL
-
-# Generate appropriate CORS headers for the JSON endpoint.
-# We want to allow Cross-Origin requests here so that users can interact
-# with these endpoints via XHR/Fetch APIs in the browser.
-_CORS_HEADERS = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": ", ".join(
-        [
-            "Content-Type",
-            "If-Match",
-            "If-Modified-Since",
-            "If-None-Match",
-            "If-Unmodified-Since",
-        ]
-    ),
-    "Access-Control-Allow-Methods": "GET",
-    "Access-Control-Max-Age": "86400",  # 1 day.
-    "Access-Control-Expose-Headers": ", ".join(["X-PyPI-Last-Serial"]),
-}
+from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
     cache_control(15 * 60),  # 15 minutes
