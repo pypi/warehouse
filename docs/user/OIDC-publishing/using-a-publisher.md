@@ -2,6 +2,8 @@
 title: Actually using an OIDC publisher
 ---
 
+{{ preview('oidc-publishing') }}
+
 # Actually using an OIDC publisher
 
 ## The easy way
