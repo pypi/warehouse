@@ -25,7 +25,7 @@ _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GitHubPublisherBase(forms.Form):
-    __params__ = ["owner", "repository", "workflow_filename"]
+    __params__ = ["owner", "repository", "workflow_filename", "environment"]
 
     owner = wtforms.StringField(
         validators=[
@@ -49,6 +49,9 @@ class GitHubPublisherBase(forms.Form):
             wtforms.validators.DataRequired(message=_("Specify workflow filename"))
         ]
     )
+
+    # TODO: What characters can appear in a valid GitHub Actions environment name?
+    environment = wtforms.StringField()
 
     def __init__(self, *args, api_token, **kwargs):
         super().__init__(*args, **kwargs)

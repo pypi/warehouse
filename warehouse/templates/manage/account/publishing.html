@@ -169,6 +169,27 @@
         {{ field_errors(pending_github_publisher_form.workflow_filename) }}
       </div>
     </div>
+    <div class="form-group">
+      <label for="environment" class="form-group__label">
+        {% trans %}Environment name{% endtrans %}
+        {% if pending_github_publisher_form.environment.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_github_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+      <p class="form-group__help-text">
+        {% trans %}
+        The name of the GitHub Actions environment that the above workflow uses for publishing.
+        This should be configured under the repository's settings. While not required, a
+        dedicated publishing environment is <strong>strongly</strong> encouraged,
+        <strong>especially</strong> if your repository has maintainers with commit access
+        who shouldn't have PyPI publishing access.
+      {% endtrans %}
+      </p>
+      <div id="environment-errors">
+        {{ field_errors(pending_github_publisher_form.environment) }}
+      </div>
+    </div>
     <div>
       <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
     </div>
