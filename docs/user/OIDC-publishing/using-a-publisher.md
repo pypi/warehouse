@@ -4,7 +4,7 @@ title: Actually using an OIDC publisher
 
 # Actually using an OIDC publisher
 
-### The easy way
+## The easy way
 
 Once you have an OIDC publisher configured, you can use the
 [`pypa/gh-action-pypi-publish`](https://github.com/pypa/gh-action-pypi-publish)
@@ -47,12 +47,14 @@ here's how you can publish to [TestPyPI](https://test.pypi.org) using OIDC:
     repository-url: https://test.pypi.org/legacy/
 ```
 
-### The manual way
+## The manual way
 
-**STOP! You probably don't need this section; it exists only to provide some
-internal details about how GitHub Actions and PyPI coordinate using OIDC.
-If you're a beta user, you should use the `pypa/gh-action-pypi-publish`
-action instead.**
+!!! warning
+
+    **STOP! You probably don't need this section; it exists only to provide some
+    internal details about how GitHub Actions and PyPI coordinate using OIDC.
+    If you're an ordinary user, you should use the `pypa/gh-action-pypi-publish`
+    action instead.**
 
 As described above, the process for using an OIDC publisher is:
 
