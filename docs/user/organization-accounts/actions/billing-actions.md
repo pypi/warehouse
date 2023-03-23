@@ -1,17 +1,18 @@
---- 
-title: Billing Actions 
+---
+title: Billing Actions
 ---
 
 # Billing actions
 
 This section describes the billing actions that
-can be performed an organization account. 
+can be performed an organization account.
 
-!!! note 
-    
+!!! note
+
     All actions assume an authorized user has logged into their account.
 
 #### Change billing details
+
 *Actor: Owner, Billing Manager*
 
 * Click on **Your organizations**
@@ -24,7 +25,8 @@ can be performed an organization account.
 ---
 
 #### Cancel Subscription plan
-Actor: Owner, Billing Manager
+
+*Actor: Owner, Billing Manager*
 
 * Click on **Your organizations**
 * Click on **Manage** for a specific organization
@@ -38,7 +40,8 @@ The subscription will be available until the end of the month
 ---
 
 #### Renew Subscription plan
-Actor: Owner, Billing Manager
+
+*Actor: Owner, Billing Manager*
 
 * Click on **Your organizations**
 * Click on **Manage** for a specific organization
@@ -50,12 +53,13 @@ Actor: Owner, Billing Manager
 ---
 
 #### Download invoice/receipt
-Actor: Owner, Billing Manager
+
+*Actor: Owner, Billing Manager*
 
 * Click on **Your organizations**
 * Click on **Manage** for a specific organization
 * Click on **Settings**
 * Click on **Manage Billing**
-* Scroll down and click on a specific invoice 
+* Scroll down and click on a specific invoice
 * Click on **Download invoice** or **Download receipt**
 

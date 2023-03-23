@@ -1,10 +1,10 @@
---- 
-title: FAQs 
+---
+title: FAQs
 ---
 
 # FAQs
 
-This list of FAQs pertain to organization accounts in PyPI. 
+This list of FAQs pertain to organization accounts in PyPI.
 
 1. **Can anyone create an organization account?**
 
@@ -41,7 +41,7 @@ account request?**
 1. **Who ensures that the organization account request is from a private
 organization or community  project?**
 
-    The PyPI admin will ensure that the private organizations are 
+    The PyPI admin will ensure that the private organizations are
     billed and community projects can access the features free of cost
 
 1. **Can we cancel a subscription?**
@@ -92,15 +92,15 @@ organization or community  project?**
 
     A user can create any number of organization accounts.
     A user can create a new account only when the previous
-    request has been approved. 
+    request has been approved.
 
 1. **Does organization accounts support namespaces?**
 
-    No. Organizations accounts do not support namespaces. 
+    No. Organizations accounts do not support namespaces.
 
 1. **Does an organization account support private packages?**
 
-    No. Organizations accounts do not support private packages. 
+    No. Organizations accounts do not support private packages.
 
 1. **If namespaces or private packages are not available,
 what does organization accounts offer?**

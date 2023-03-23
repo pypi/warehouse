@@ -1,16 +1,17 @@
---- 
-title: Team Actions 
+---
+title: Team Actions
 ---
 
 # Team actions
 This section describes the actions that can be performed within
-team in an organization account. 
+team in an organization account.
 
-!!! note 
-    
+!!! note
+
     All actions assume an authorized user has logged into their account.
 
 #### Create a team
+
 *Actor: Owner, Manager*
 
 * Click on **Your organizations**
@@ -24,6 +25,7 @@ The new team will appear under Teams
 ---
 
 #### Add member to a team
+
 *Actor: Owner, Manager*
 
 * Click on **Your organizations**
@@ -40,6 +42,7 @@ Only members of an organization can be added to a team.
 ---
 
 #### Remove member from a team
+
 *Actor: Owner, Manager*
 
 * Click on **Your organizations**
@@ -56,6 +59,7 @@ other team of which they are a member.
 ---
 
 #### Rename a team
+
 *Actor: Owner, Manager*
 
 * Click on **Your organizations**
@@ -68,6 +72,7 @@ other team of which they are a member.
 ---
 
 #### Delete a team
+
 *Actor: Owner, Manager*
 
 * Click on **Your organizations**
@@ -79,4 +84,3 @@ other team of which they are a member.
 * Enter the team name and click on **Delete team**
 
 Individual members will retain their project permissions.
-
