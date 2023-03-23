@@ -39,8 +39,8 @@ the TL;DR:
 1. Release automation (like GitHub Actions) can submit an OIDC token
    to PyPI. The token will be matched against configurations trusted by
    different projects; if any projects trust the token's configuration,
-   then PyPI will mint a *short lived API token* for those projects and
-   return it.
+   then PyPI will mint a *short-lived API token* for those projects and
+   return it;
 1. The short-lived API token behaves exactly like a normal project-scoped API
    token, except that it's only valid for 15 minutes from time of creation
    (enough time for the CI to use it to upload packages).

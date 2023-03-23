@@ -24,6 +24,7 @@ endpoint:
   ```
 
   No other layouts are supported.
+
 * `invalid-token`: the OIDC token itself is either formatted incorrectly,
   has an invalid signature, is expired, etc. This encompasses pretty much
   any failure mode that can occur with an OIDC token (which is just a JWT)

@@ -46,18 +46,18 @@ is not a panacea. In particular:
   of external state; that state **must not** be controllable by untrusted
   parties. In particular, for OIDC publishing with GitHub Actions, you **must**:
 
-  * Trust the correct username and repository: if you trust a repository
-    other than one you control and trust, that repository can upload to your
-    PyPI project.
+   * Trust the correct username and repository: if you trust a repository
+     other than one you control and trust, that repository can upload to your
+     PyPI project.
 
-  * Trust the correct workflow: you shouldn't trust every workflow
-    to upload to PyPI; instead, you should isolate responsibility to the
-    smallest (and least-privileged) possible separate workflow. We recommend
-    naming this workflow `release.yml`.
+   * Trust the correct workflow: you shouldn't trust every workflow
+     to upload to PyPI; instead, you should isolate responsibility to the
+     smallest (and least-privileged) possible separate workflow. We recommend
+     naming this workflow `release.yml`.
 
-  * Take care when merging third-party changes to your code: if you trust
-    `release.yml`, then you must make sure that third-party changes to that
-    workflow (or code that runs within that workflow) are not malicious.
+   * Take care when merging third-party changes to your code: if you trust
+     `release.yml`, then you must make sure that third-party changes to that
+     workflow (or code that runs within that workflow) are not malicious.
 
 PyPI has protections in place to make some attacks against OIDC more difficult
 (like account resurrection attacks). However, like all forms of authentication,
@@ -95,10 +95,10 @@ In addition to the requirements above, you can do the following to
 * **Limit the scope of your publishing job**: your publishing job should
   (ideally) have only two steps:
 
-  1. Retrieve the publishable distribution files from **a separate
-    build job**;
+   1. Retrieve the publishable distribution files from **a separate
+     build job**;
 
-  2. Publish the distributions using `pypa/gh-action-pypi-publish@release/v1`.
+   2. Publish the distributions using `pypa/gh-action-pypi-publish@release/v1`.
 
   By using a separate build job, you keep the number of steps that can
   access the OIDC token to a bare minimum. This prevents both accidental
