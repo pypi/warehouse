@@ -1,3 +1,12 @@
+OIDC_PUBLISHING = """
+!!! info
+
+    OpenID Connect publishing functionality is currently in closed beta.
+
+    You can register for the closed beta using
+    [this form](https://forms.gle/XUsRT8KTKy66TuUp7).
+"""
+
 ORG_ACCOUNTS = """
 !!! info
 
@@ -8,9 +17,7 @@ ORG_ACCOUNTS = """
     to be one of the first to know how you can begin using them.
 """
 
-PREVIEW_FEATURES = {
-    'org-accounts': ORG_ACCOUNTS
-}
+PREVIEW_FEATURES = {"oidc-publishing": OIDC_PUBLISHING, "org-accounts": ORG_ACCOUNTS}
 
 
 def define_env(env):
