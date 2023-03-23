@@ -211,7 +211,8 @@ services:
     pull_policy: never
     command: mkdocs serve -a 0.0.0.0:8000 -f docs/blog.yml
     volumes:
-      - ./.git:/opt/warehouse/src/.git:z
+      # we mount git because rss, thanks feed nerds
+      - ./.git:/opt/warehouse/src/.git:ro
       - ./bin:/opt/warehouse/src/bin:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
