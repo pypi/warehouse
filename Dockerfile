@@ -80,6 +80,8 @@ RUN set -x \
 
 WORKDIR /opt/warehouse/src/
 
+# We'll make the docs container run as a non-root user, ensure that the built
+# documentation belongs to the same user on the host machine.
 ARG USER_ID
 ARG GROUP_ID
 RUN groupadd -o -g $GROUP_ID -r docs
