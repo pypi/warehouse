@@ -1,3 +1,4 @@
 mkdocs
 mkdocs-material
+mkdocs-macros-plugin
 packaging<=21.3
