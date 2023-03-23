@@ -1,5 +1,5 @@
 ---
-title: About
+title: Getting started
 ---
 
 {{ preview('oidc-publishing') }}
