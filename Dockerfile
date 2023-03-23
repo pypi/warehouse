@@ -34,6 +34,61 @@ RUN NODE_ENV=production npm run build
 
 
 
+# We'll build a light-weight layer along the way with just docs stuff
+FROM python:3.11.2-slim-bullseye as docs
+
+# Install System level build requirements, this is done before
+# everything else because these are rarely ever going to change.
+RUN set -x \
+    && apt-get update \
+    && apt-get install --no-install-recommends -y \
+        build-essential git libffi-dev libcairo2-dev libfreetype6-dev libpq-dev
+
+# We create an /opt directory with a virtual environment in it to store our
+# application in.
+RUN set -x \
+    && python3 -m venv /opt/warehouse
+
+# Now that we've created our virtual environment, we'll go ahead and update
+# our $PATH to refer to it first.
+ENV PATH="/opt/warehouse/bin:${PATH}"
+
+# Next, we want to update pip, setuptools, and wheel inside of this virtual
+# environment to ensure that we have the latest versions of them.
+# TODO: We use --require-hashes in our requirements files, but not here, making
+#       the ones in the requirements files kind of a moot point. We should
+#       probably pin these too, and update them as we do anything else.
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+
+# We copy this into the docker container prior to copying in the rest of our
+# application so that we can skip installing requirements if the only thing
+# that has changed is the Warehouse code itself.
+COPY requirements /tmp/requirements
+
+# Install the Python level Warehouse requirements, this is done after copying
+# the requirements but prior to copying Warehouse itself into the container so
+# that code changes don't require triggering an entire install of all of
+# Warehouse's dependencies.
+RUN set -x \
+    && pip --no-cache-dir --disable-pip-version-check \
+            install --no-deps \
+            -r /tmp/requirements/docs/dev.txt \
+            -r /tmp/requirements/docs/user.txt \
+            -r /tmp/requirements/docs/blog.txt \
+    && pip check \
+    && find /opt/warehouse -name '*.pyc' -delete
+
+WORKDIR /opt/warehouse/src/
+
+ARG USER_ID
+ARG GROUP_ID
+RUN groupadd -o -g $GROUP_ID -r docs
+RUN useradd -o -m -u $USER_ID -g $GROUP_ID docs
+RUN chown docs /opt/warehouse/src
+USER docs
+
+
+
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
@@ -61,7 +116,6 @@ RUN set -x \
 # application in.
 RUN set -x \
     && python3 -m venv /opt/warehouse
-
 
 # Now that we've created our virtual environment, we'll go ahead and update
 # our $PATH to refer to it first.
@@ -96,10 +150,9 @@ RUN set -x \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt -r /tmp/requirements/docs/dev.txt -r /tmp/requirements/docs/user.txt -r /tmp/requirements/docs/blog.txt'; fi) \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
-
 
 
 
@@ -132,7 +185,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev git libjpeg-dev libpng-dev libz-dev'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

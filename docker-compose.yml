@@ -186,22 +186,33 @@ services:
     ports:
       - "8964:8000"
 
+  dev-docs:
+    build:
+      context: .
+      target: docs
+    image: warehouse:docker-compose-docs
+    volumes:
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./docs:/opt/warehouse/src/docs:z
+
   user-docs:
-    image: warehouse:docker-compose
+    image: warehouse:docker-compose-docs
+    pull_policy: never
     command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
     volumes:
+      - ./bin:/opt/warehouse/src/bin:z
       - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
-      - ./docs/user:/opt/warehouse/src/docs/user:z
+      - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10000:8000"
-    depends_on: [web]
 
   blog:
-    image: warehouse:docker-compose
+    image: warehouse:docker-compose-docs
+    pull_policy: never
     command: mkdocs serve -a 0.0.0.0:8000 -f docs/blog.yml
     volumes:
-      - ./docs/blog.yml:/opt/warehouse/src/docs/blog.yml:z
-      - ./docs/blog:/opt/warehouse/src/docs/blog:z
+      - ./.git:/opt/warehouse/src/.git:z
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10001:8000"
-    depends_on: [web]
