@@ -20,6 +20,7 @@ from warehouse.cache.http import add_vary, cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import JournalEntry, Project
 from warehouse.packaging.utils import _simple_detail, _simple_index
+from warehouse.utils.cors import _CORS_HEADERS
 
 
 def _select_content_type(request: Request) -> str:
@@ -71,6 +72,9 @@ def simple_index(request):
     if request.response.content_type == "application/vnd.pypi.simple.v1+json":
         request.override_renderer = "json"
 
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
+
     # Get the latest serial number
     serial = request.db.query(func.max(JournalEntry.id)).scalar() or 0
     request.response.headers["X-PyPI-Last-Serial"] = str(serial)
@@ -98,7 +102,8 @@ def simple_detail(project, request):
         "name", project.normalized_name
     ):
         return HTTPMovedPermanently(
-            request.current_route_path(name=project.normalized_name)
+            request.current_route_path(name=project.normalized_name),
+            headers=_CORS_HEADERS,
         )
 
     # Determine what our content-type should be, and setup our request
@@ -106,6 +111,9 @@ def simple_detail(project, request):
     request.response.content_type = _select_content_type(request)
     if request.response.content_type == "application/vnd.pypi.simple.v1+json":
         request.override_renderer = "json"
+
+    # Apply CORS headers.
+    request.response.headers.update(_CORS_HEADERS)
 
     # Get the latest serial number for this project.
     request.response.headers["X-PyPI-Last-Serial"] = str(project.last_serial)
