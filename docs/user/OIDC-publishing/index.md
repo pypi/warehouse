@@ -12,12 +12,12 @@ Before we do anything else: let's confirm that you're actually in the OIDC
 beta! You can do this by [logging into PyPI](https://pypi.org/account/login/)
 and clicking on "Account settings" in the dropdown under your profile:
 
-{{ image('dropdown.png') }}
+![](/assets/dropdown.png)
 
 On the "Account settings" page, you should see a right-side menu that
 contains a "Publishing" link:
 
-{{ image('publishing-link.png') }}
+![](/assets/publishing-link.png)
 
 If you see that link and can click on it, then you're in the beta group!
 
@@ -66,15 +66,15 @@ Adding an OIDC publisher to a PyPI project only requires a single setup step.
 On the "Your projects" page, click "Manage" on any project you'd like to
 configure:
 
-{{ image('manage-link.png') }}
+![](/assets/manage-link.png)
 
 Then, click on "Publishing" in the project's sidebar:
 
-{{ image('project-publishing-link.png') }}
+![](/assets/project-publishing-link.png)
 
 That link will take you to the OIDC publisher configuration page for the project:
 
-{{ image('project-publishing.png') }}
+![](/assets/project-publishing.png)
 
 To enable an OIDC publisher, you need to tell PyPI how to trust it. For
 GitHub Actions (the only currently supported provider), you do this by
@@ -86,12 +86,12 @@ For example, if you have a project at `https://github.com/pypa/pip-audit`
 that uses a publishing workflow defined in `.github/workflows/release.yml`,
 then you'd do the following:
 
-{{ image('project-publishing-form.png') }}
+![](/assets/project-publishing-form.png)
 
 Once you click "Add", your OIDC publisher will be registered and will appear
 at the top of the page:
 
-{{ image('project-publisher-registered.png') }}
+![](/assets/project-publisher-registered.png)
 
 From this point onwards, the `release.yml` workflow on `pypa/pip-audit` will
 be able to mint short-lived API tokens for the PyPI project you've registered
@@ -117,11 +117,11 @@ The process for configuring a "pending" publisher are similar to those for
 a normal publisher, except that the page is under your account sidebar
 instead of any project's sidebar (since the project doesn't exist yet):
 
-{{ image('publishing-link.png') }}
+![](/assets/publishing-link.png)
 
 Clicking on "publishing" will bring you to a familiar looking form:
 
-{{ image('pending-publisher-form.png') }}
+![](/assets/pending-publisher-form.png)
 
 This form behaves the same as with a "normal" OIDC publisher, except that you
 also need to provide the name of the PyPI project that will be created.
@@ -130,11 +130,11 @@ For example, if you have a repository at `https://github.com/example/awesome`
 with a release workflow at `release.yml` and you'd like to publish it to
 PyPI as `pyawesome`, you'd do the following:
 
-{{ image('pending-publisher-form-filled.png') }}
+![](/assets/pending-publisher-form-filled.png)
 
 Clicking "Add" will register the "pending" publisher, and show it to you:
 
-{{ image('pending-publisher-registered.png') }}
+![](/assets/pending-publisher-registered.png)
 
 From this point on, the "pending" publisher can be used exactly like a
 "normal" OIDC publisher. Using it will convert it into a "normal" OIDC
@@ -405,7 +405,7 @@ In addition to the requirements above, you can do the following to
   For example, here is how `pypa/pip-audit`'s `release` environment
   restricts reviews to members of the maintenance and admin teams:
 
-  {{ image('required-reviewers.png') }}
+  ![](/assets/required-reviewers.png)
 
 * **[Use tag protection rules]**: if you use a tag-based publishing workflow
   (e.g. triggering on tags pushed), then you can limit tag creation and
