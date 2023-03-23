@@ -44,4 +44,5 @@ it against.
 
 An OIDC publisher can be registered against multiple PyPI projects (e.g. for a
 multi-project repository), and a single PyPI project can have multiple OIDC
-publishers (e.g. for multiple workflows on different architectures, OSes).
+publishers (e.g. for multiple workflows on different architectures, operating
+systems).
