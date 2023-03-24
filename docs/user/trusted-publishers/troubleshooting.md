@@ -11,8 +11,7 @@ endpoint:
 
 * `not-enabled`: this indicates that PyPI's backend has
   disabled OIDC entirely. You should not see this message during normal
-  operation for the duration of the OIDC beta, **unless** PyPI's admins
-  have decided to disable OIDC support.
+  operation, **unless** PyPI's admins have decided to disable OIDC support.
 * `invalid-payload`: the OIDC token payload submitted to the `mint-token`
   endpoint is not formatted correctly. The payload **must** be a JSON serialized
   object, with the following layout:
