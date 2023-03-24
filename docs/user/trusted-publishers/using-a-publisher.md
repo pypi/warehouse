@@ -32,10 +32,14 @@ jobs:
 ```
 
 Note the `id-token: write` permission: you **must** provide this permission
-at either the job or workflow level. Without it, the publishing action
-won't have sufficient permissions to identify itself to PyPI. Using the
-permission at the job level is **strongly** encouraged, as it reduces
-unnecessary credential exposure.
+at either the job level (**strongly recommended**) or workflow level
+(**discouraged**). Without it, the publishing action
+won't have sufficient permissions to identify itself to PyPI.
+
+!!! note
+
+    Using the permission at the job level is **strongly** encouraged, as
+    it reduces unnecessary credential exposure.
 
 ### Publishing to indices other than PyPI
 The `gh-action-pypi-publish` action also supports OIDC publishing with
