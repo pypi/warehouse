@@ -14,13 +14,13 @@ fi
 if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
   pip install -r requirements/docs/user.txt
   asdf reshim
-  mkdocs build -f mkdocs-user-docs.yml
+  mkdocs build -f docs/mkdocs-user-docs.yml
   mkdir _readthedocs && mv docs/user-site _readthedocs/html
 fi
 
 if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ]; then
   pip install -r requirements/docs/blog.txt
   asdf reshim
-  mkdocs build -f docs/blog.yml
+  mkdocs build -f docs/mkdocs-blog.yml
   mkdir _readthedocs && mv docs/blog-site _readthedocs/html
 fi

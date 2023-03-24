@@ -66,11 +66,11 @@ class Service:
         # be dynamic.
         return {
             "script-src": [
-                "{request.scheme}://www.google.com/recaptcha/",
+                "{request.scheme}://www.recaptcha.net/recaptcha/",
                 "{request.scheme}://www.gstatic.com/recaptcha/",
             ],
             "frame-src": [
-                "{request.scheme}://www.google.com/recaptcha/",
+                "{request.scheme}://www.recaptcha.net/recaptcha/",
             ],
             "style-src": [
                 "'unsafe-inline'",

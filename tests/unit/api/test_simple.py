@@ -29,6 +29,17 @@ from ...common.db.packaging import (
 )
 
 
+def _assert_has_cors_headers(headers):
+    assert headers["Access-Control-Allow-Origin"] == "*"
+    assert headers["Access-Control-Allow-Headers"] == (
+        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
+        "If-Unmodified-Since"
+    )
+    assert headers["Access-Control-Allow-Methods"] == "GET"
+    assert headers["Access-Control-Max-Age"] == "86400"
+    assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
+
+
 class TestContentNegotiation:
     @pytest.mark.parametrize("header", [None, "text/plain"])
     def test_defaults_text_html(self, header):
@@ -88,6 +99,7 @@ class TestSimpleIndex:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -106,6 +118,7 @@ class TestSimpleIndex:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -129,6 +142,7 @@ class TestSimpleIndex:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -157,6 +171,7 @@ class TestSimpleIndex:
         }
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -175,6 +190,7 @@ class TestSimpleDetail:
 
         assert isinstance(resp, HTTPMovedPermanently)
         assert resp.headers["Location"] == "/foobar/"
+        _assert_has_cors_headers(resp.headers)
         assert pyramid_request.current_route_path.calls == [pretend.call(name="foo")]
 
     @pytest.mark.parametrize(
@@ -197,6 +213,7 @@ class TestSimpleDetail:
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -221,6 +238,7 @@ class TestSimpleDetail:
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -266,6 +284,7 @@ class TestSimpleDetail:
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -311,6 +330,7 @@ class TestSimpleDetail:
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override
@@ -392,6 +412,7 @@ class TestSimpleDetail:
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
+        _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
             db_request.override_renderer == renderer_override

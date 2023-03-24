@@ -26,6 +26,6 @@
 
 {% macro recaptcha_src(request) -%}
   {% if request.find_service(name="recaptcha").enabled %}
-    <script src="//www.google.com/recaptcha/api.js" async defer></script>
+    <script src="//www.recaptcha.net/recaptcha/api.js" async defer></script>
   {% endif %}
 {%- endmacro %}

@@ -1,0 +1,40 @@
+site_name: PyPI Docs
+docs_dir: user
+site_dir: user-site
+plugins:
+  - macros:
+      module_name: user/main
+markdown_extensions: 
+  - admonition 
+  - pymdownx.details 
+  - pymdownx.superfences
+  - tables
+theme:
+  name: material
+  logo: assets/logo.png
+  favicon: assets/favicon.ico
+  homepage: https://pypi.org
+  features:
+    - content.action.edit
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      toggle:
+        icon: material/weather-night
+        name: Switch to Dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to Light mode
+extra_css:
+  - stylesheets/extra.css
+extra:
+  homepage: https://pypi.org
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/pypi
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/pypi
+repo_url: https://github.com/pypi/warehouse
+edit_uri: blob/main/docs/user/
