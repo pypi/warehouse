@@ -39,10 +39,10 @@ nav:
       - "organization-accounts/actions/org-actions.md"
       - "organization-accounts/actions/project-actions.md"
       - "organization-accounts/actions/team-actions.md"
-  - "OIDC Publishing":
-    - "OIDC-publishing/index.md"
-    - "OIDC-publishing/adding-a-publisher.md"
-    - "OIDC-publishing/creating-a-project-through-oidc.md"
-    - "OIDC-publishing/using-a-publisher.md"
-    - "OIDC-publishing/security-model.md"
-    - "OIDC-publishing/troubleshooting.md"
+  - "Trusted Publishers":
+    - "trusted-publishers/index.md"
+    - "trusted-publishers/adding-a-publisher.md"
+    - "trusted-publishers/creating-a-project-through-oidc.md"
+    - "trusted-publishers/using-a-publisher.md"
+    - "trusted-publishers/security-model.md"
+    - "trusted-publishers/troubleshooting.md"
