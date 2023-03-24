@@ -1,9 +1,9 @@
 site_name: PyPI Docs
-docs_dir: docs/user
-site_dir: docs/user-site
+docs_dir: user
+site_dir: user-site
 plugins:
   - macros:
-      module_name: docs/user/main
+      module_name: user/main
 markdown_extensions: 
   - admonition 
   - pymdownx.details 
@@ -16,6 +16,17 @@ theme:
   homepage: https://pypi.org
   features:
     - content.action.edit
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      toggle:
+        icon: material/weather-night
+        name: Switch to Dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to Light mode
 extra_css:
   - stylesheets/extra.css
 extra:
