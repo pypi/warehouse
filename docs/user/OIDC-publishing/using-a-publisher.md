@@ -1,19 +1,19 @@
 ---
-title: Actually using an OIDC publisher
+title: Publishing with a Trusted Publisher
 ---
 
 {{ preview('oidc-publishing') }}
 
-# Actually using an OIDC publisher
+# Publishing with a Trusted Publisher
 
 ## The easy way
 
-Once you have an OIDC publisher configured, you can use the
+Once you have a publisher configured, you can use the
 [`pypa/gh-action-pypi-publish`](https://github.com/pypa/gh-action-pypi-publish)
 action to publish your packages.
 
 This looks *almost* exactly the same as normal, except that you don't
-need any explicit usernames, passwords, or API tokens: GitHub's OIDC provider
+need any explicit usernames, passwords, or API tokens: GitHub's OIDC identity provider
 will take care of everything for you:
 
 ```yaml
