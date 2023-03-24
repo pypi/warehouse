@@ -8,6 +8,17 @@ theme:
   favicon: assets/favicon.ico
   homepage: https://pypi.org
   custom_dir: blog/overrides
+  palette:
+    - scheme: default
+      media: "(prefers-color-scheme: light)"
+      toggle:
+        icon: material/weather-night
+        name: Switch to Dark mode
+    - scheme: slate
+      media: "(prefers-color-scheme: dark)"
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to Light mode
 markdown_extensions:
   - footnotes
 extra_css:
