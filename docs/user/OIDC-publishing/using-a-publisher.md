@@ -33,10 +33,11 @@ jobs:
 
 Note the `id-token: write` permission: you **must** provide this permission
 at either the job or workflow level. Without it, the publishing action
-won't have sufficient permissions to grab an OIDC credential. Using the
+won't have sufficient permissions to identify itself to PyPI. Using the
 permission at the job level is **strongly** encouraged, as it reduces
 unnecessary credential exposure.
 
+### Publishing to indices other than PyPI
 The `gh-action-pypi-publish` action also supports OIDC publishing with
 other (non-PyPI) indices, provided they have OIDC enabled (and you've
 configured your OIDC publisher on them). For example,
@@ -55,7 +56,8 @@ here's how you can publish to [TestPyPI](https://test.pypi.org) using OIDC:
 
     **STOP! You probably don't need this section; it exists only to provide some
     internal details about how GitHub Actions and PyPI coordinate using OIDC.
-    If you're an ordinary user, you should use the `pypa/gh-action-pypi-publish`
+    If you're an ordinary user, it is strongly recommended that you use the
+    [`pypa/gh-action-pypi-publish`](https://github.com/pypa/gh-action-pypi-publish)
     action instead.**
 
 As described above, the process for using an OIDC publisher is:
