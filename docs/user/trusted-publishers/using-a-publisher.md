@@ -22,7 +22,7 @@ jobs:
     name: upload release to PyPI
     runs-on: ubuntu-latest
     permissions:
-      # IMPORTANT: this permission is mandatory for OIDC publishing
+      # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
     steps:
       # retrieve your distributions here
