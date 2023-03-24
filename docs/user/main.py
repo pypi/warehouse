@@ -6,7 +6,7 @@ OIDC_PUBLISHING = """
 
     OpenID Connect publishing functionality is currently in closed beta.
 
-    You can register for the closed beta using
+    You can request access to the closed beta using
     [this form](https://forms.gle/XUsRT8KTKy66TuUp7).
 
     **NOTE**: Access to the OIDC beta is provided on a *per-user* basis: users
