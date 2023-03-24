@@ -1,5 +1,5 @@
 ---
-title: Creating a PyPI project with a trusted publisher
+title: Creating a PyPI Project with a Trusted Publisher
 ---
 
 {{ preview('oidc-publishing') }}

@@ -1,5 +1,5 @@
 ---
-title: Security model and considerations
+title: Security Model and Considerations
 ---
 
 {{ preview('oidc-publishing') }}
