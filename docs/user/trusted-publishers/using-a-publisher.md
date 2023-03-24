@@ -31,6 +31,27 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
 ```
 
+If you're moving away from a password or API token-based authentication
+flow, your diff might look like this:
+
+```diff
+ jobs:
+   pypi-publish:
+     name: upload release to PyPI
+     runs-on: ubuntu-latest
++    permissions:
++      # IMPORTANT: this permission is mandatory for trusted publishing
++      id-token: write
+     steps:
+       # retrieve your distributions here
+
+       - name: Publish package distributions to PyPI
+         uses: pypa/gh-action-pypi-publish@release/v1
+-        with:
+-          username: __token__
+-          password: {{ '${{ secrets.PYPI_TOKEN }}' }}
+```
+
 Note the `id-token: write` permission: you **must** provide this permission
 at either the job level (**strongly recommended**) or workflow level
 (**discouraged**). Without it, the publishing action
