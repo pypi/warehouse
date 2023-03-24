@@ -4,7 +4,7 @@ title: Getting started
 
 {{ preview('oidc-publishing') }}
 
-# Publishing to PyPI with OpenID Connect
+# Publishing to PyPI with a Trusted Publisher
 
 ## Confirming that you're in the beta
 
