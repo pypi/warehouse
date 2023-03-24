@@ -59,6 +59,14 @@ is not a panacea. In particular:
      `release.yml`, then you must make sure that third-party changes to that
      workflow (or code that runs within that workflow) are not malicious.
 
+   * Take care when adding repository contributors, members, and administrators:
+     by default, anybody who can unconditionally commit to your repository can
+     also modify your publishing workflow to make it trigger on events you
+     may not intend (e.g., a manual `workflow_dispatch` trigger).
+
+     This particular risk can be mitigated by using a dedicated environment
+     with manual approvers, as described below.
+
 PyPI has protections in place to make some attacks against OIDC more difficult
 (like account resurrection attacks). However, like all forms of authentication,
 the end user is **fundamentally responsible** for applying it correctly.
