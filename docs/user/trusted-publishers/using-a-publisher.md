@@ -60,7 +60,7 @@ here's how you can publish to [TestPyPI](https://test.pypi.org) using OIDC:
     [`pypa/gh-action-pypi-publish`](https://github.com/pypa/gh-action-pypi-publish)
     action instead.**
 
-As described above, the process for using an OIDC publisher is:
+The process for using an OIDC publisher is:
 
 1. Retrieve an *OIDC token* from the OIDC *provider*;
 2. Submit that token to PyPI, which will return a short-lived API key;
