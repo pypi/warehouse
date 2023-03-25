@@ -29,9 +29,10 @@ Clicking on "publishing" will bring you to the following form:
 This form behaves the same as with publishers for existing projects, except that you
 also need to provide the name of the PyPI project that will be created.
 
-For example, if you have a repository at `https://github.com/example/awesome`
-with a release workflow at `release.yml` and you'd like to publish it to
-PyPI as `pyawesome`, you'd do the following:
+For example, if you have a repository at
+`https://github.com/octo-org/sampleproject` with a release workflow at
+`release.yml` and you'd like to publish it to PyPI as `sampleproject`, you'd do
+the following:
 
 ![](/assets/pending-publisher-form-filled.png)
 
