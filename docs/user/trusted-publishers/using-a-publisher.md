@@ -87,12 +87,12 @@ here's how you can publish to [TestPyPI](https://test.pypi.org) using OIDC:
 
 The process for using an OIDC publisher is:
 
-1. Retrieve an *OIDC token* from the OIDC *provider*;
+1. Retrieve an *OIDC token* from the OIDC *identity provider*;
 2. Submit that token to PyPI, which will return a short-lived API key;
 3. Use that API key as you normally would (e.g. with `twine`)
 
-GitHub is currently the only OIDC provider supported, so we'll use it for
-examples below.
+GitHub is currently the only OIDC identity provider supported, so we'll use it
+for examples below.
 
 All code below assumes that it's being run in a GitHub Actions
 workflow runner with `id-token: write` permissions. That permission is
