@@ -22,4 +22,4 @@ fetchMock.enableMocks();
 // in the same way as in a browser environment
 window.TextEncoder = require("util").TextEncoder;
 const crypto = require("crypto");
-window.crypto = crypto.webcrypto;
+window.crypto.subtle = crypto.webcrypto.subtle;

@@ -228,10 +228,7 @@
         }
 
         &::before {
-          top: auto;
-          left: auto;
-          right: 50%;
-          bottom: -5px;
+          inset: auto, 50%, -5px, auto;
           margin-right: -5px;
           border-color: transparent;
           border-bottom-color: transparentize($black, 0.3);

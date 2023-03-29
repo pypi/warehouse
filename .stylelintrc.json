@@ -34,15 +34,6 @@
         ]
       }
     ],
-    "max-empty-lines": 2,
-    "max-line-length": [
-      120,
-      {
-        "ignore": [
-          "comments"
-        ]
-      }
-    ],
     "no-descending-specificity": null,
     "plugin/selector-bem-pattern": {
       "preset": "bem"
