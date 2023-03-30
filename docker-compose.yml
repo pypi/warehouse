@@ -209,7 +209,7 @@ services:
   blog:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f docs/blog.yml
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-blog.yml
     volumes:
       # we mount git because rss, thanks feed nerds
       - ./.git:/opt/warehouse/src/.git:ro

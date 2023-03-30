@@ -23,7 +23,7 @@ is _"I didn't realize that PyPI..."_. Followed by something along the lines of:
 
 That is certainly in part due to the fact that the people[^3] who
 make PyPI "happen" are *humble*, and do so with the limited time they
-have to commit to the project among their other responsibilites.
+have to commit to the project among their other responsibilities.
 But its also because writing is hard. Harder still when there is
 not a convenient tool at hand.
 We're hoping that a modern and extensible stack[^4] for this blog
