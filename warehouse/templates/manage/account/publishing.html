@@ -31,12 +31,7 @@
 
   <h3>Projects with active publishers</h3>
 
-  {% set projects = [] %}
-  {% for project in user.projects %}
-    {% if project.oidc_publishers %}
-      {{ projects.append(project) }}
-    {% endif %}
-  {% endfor %}
+  {% set projects = user.projects | selectattr('oidc_publishers') %}
 
   {% if projects %}
   <table class="table">

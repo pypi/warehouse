@@ -4,9 +4,9 @@ site_dir: user-site
 plugins:
   - macros:
       module_name: user/main
-markdown_extensions: 
-  - admonition 
-  - pymdownx.details 
+markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.superfences
   - tables
 theme:
@@ -38,3 +38,22 @@ extra:
       link: https://twitter.com/pypi
 repo_url: https://github.com/pypi/warehouse
 edit_uri: blob/main/docs/user/
+
+nav:
+  - "index.md"
+  - "Organization Accounts":
+    - "organization-accounts/index.md"
+    - "organization-accounts/org-acc-faq.md"
+    - "organization-accounts/roles-entities.md"
+    - "Actions":
+      - "organization-accounts/actions/billing-actions.md"
+      - "organization-accounts/actions/org-actions.md"
+      - "organization-accounts/actions/project-actions.md"
+      - "organization-accounts/actions/team-actions.md"
+  - "Trusted Publishers":
+    - "trusted-publishers/index.md"
+    - "trusted-publishers/adding-a-publisher.md"
+    - "trusted-publishers/creating-a-project-through-oidc.md"
+    - "trusted-publishers/using-a-publisher.md"
+    - "trusted-publishers/security-model.md"
+    - "trusted-publishers/troubleshooting.md"
