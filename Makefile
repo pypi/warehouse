@@ -83,7 +83,7 @@ user-docs: .state/docker-build-docs
 	docker compose run --rm user-docs bin/user-docs
 
 blog: .state/docker-build-docs
-	docker compose run --rm blog bin/blog
+	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
 licenses: .state/docker-build-web
 	docker compose run --rm web bin/licenses

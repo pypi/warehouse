@@ -17,6 +17,12 @@ After following the [installation instructions](https://warehouse.pypa.io/develo
 all the remaining commands take place in containers.
 
 The project can be previewed by running `docker compose up blog` from the
-base directory of your clone of pypa/warehouse. This will start a `mkdocs`
+base directory of your clone of `pypa/warehouse`. This will start a `mkdocs`
 development server that will live reload as you change the contents of this
-directory, including the `mkdocs.yml` configuration.
+directory, including the `docs/mkdocs-blog.yml` configuration.
+
+## Building
+
+You may also build the static blog files by running `make blog` from the base
+directory of your clone of `pypa/warehouse`. This will build the static files
+into the `docs/blog-site/` directory.
