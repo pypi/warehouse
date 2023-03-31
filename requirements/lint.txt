@@ -201,9 +201,9 @@ mypy-extensions==1.0.0 \
     # via
     #   black
     #   mypy
-mypy-zope==0.9.0 \
-    --hash=sha256:88bf6cd056e38b338e6956055958a7805b4ff84404ccd99e29883a3647a1aeb3 \
-    --hash=sha256:e1bb4b57084f76ff8a154a3e07880a1af2ac6536c491dad4b143d529f72c5d15
+mypy-zope==0.9.1 \
+    --hash=sha256:4c87dbc71fec35f6533746ecdf9d400cd9281338d71c16b5676bb5ed00a97ca2 \
+    --hash=sha256:733d4399affe9e61e332ce9c4049418d6775c39b473e4b9f409d51c207c1b71a
     # via -r requirements/lint.in
 parsy==1.1.0 \
     --hash=sha256:25bd5cea2954950ebbfdf71f8bdaf7fd45a5df5325fd36a1064be2204d9d4c94 \
