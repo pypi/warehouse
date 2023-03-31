@@ -1651,9 +1651,9 @@ yara-python==4.2.3 \
     --hash=sha256:d7543ff7eb7e21a815d7bc1bf2fcca24cab3548184d3257c58916628f3c89b37 \
     --hash=sha256:feac02291a584b846615aa9265f01fa458ec7e7087317ffa679bbb1a2baec85b
     # via -r requirements/main.in
-zope-deprecation==4.4.0 \
-    --hash=sha256:0d453338f04bacf91bbfba545d8bcdf529aa829e67b705eac8c1a7fdce66e2df \
-    --hash=sha256:f1480b74995958b24ce37b0ef04d3663d2683e5d6debc96726eff18acf4ea113
+zope-deprecation==5.0 \
+    --hash=sha256:28c2ee983812efb4676d33c7a8c6ade0df191c1c6d652bbbfe6e2eeee067b2d4 \
+    --hash=sha256:b7c32d3392036b2145c40b3103e7322db68662ab09b7267afe1532a9d93f640f
     # via
     #   pyramid
     #   pyramid-jinja2
