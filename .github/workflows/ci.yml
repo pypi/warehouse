@@ -34,9 +34,6 @@ jobs:
         run: |
           pip install -U setuptools wheel
           pip install 'pip @ git+https://github.com/pypa/pip@refs/pull/11897/head'
-          pip --version
-          pip cache dir
-          pip cache info
           pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
           pip check
@@ -99,12 +96,9 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -U setuptools wheel
-          pip install --no-cache-dir  'pip @ git+https://github.com/sbidoul/pip@49d3354e1c807bafdd715225d2aaa5cfc3532434'
-          pip --version
-          pip cache dir
-          pip cache info
-          pip install --no-build-isolation -r requirements.txt --no-deps
-          pip install --no-build-isolation -r requirements/dev.txt
+          pip install 'pip @ git+https://github.com/pypa/pip@refs/pull/11897/head'
+          pip install -r requirements.txt --no-deps
+          pip install -r requirements/dev.txt
           pip check
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
