@@ -13,7 +13,32 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 jobs:
+  deps:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Install platform dependencies
+        run: |
+          sudo apt -y update
+          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
+      - uses: actions/setup-python@v4
+        with:
+          python-version-file: '.python-version'
+      - name: pip cache
+        uses: actions/cache@v3
+        with:
+          path: .cache
+          key: pip-${{ runner.os }}
+      - name: Install Python dependencies
+        run: |
+          pip install -U setuptools wheel
+          pip install 'pip @ git+https://github.com/sbidoul/pip@49d3354e1c807bafdd715225d2aaa5cfc3532434'
+          pip install -r requirements.txt --no-deps
+          pip install -r requirements/dev.txt
+          pip check
   test:
+    needs: deps
     strategy:
       matrix:
         include:
@@ -58,17 +83,16 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version-file: '.python-version'
-          cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-            requirements/*.txt
-      - name: Cache common Python cache paths
+      - name: mypy cache
         uses: actions/cache@v3
         with:
-          path: |
-            .cache
-            .mypy_cache
-          key: ${{ runner.os }}
+          path: .mypy_cache
+          key: mypy-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+      - name: pip cache
+        uses: actions/cache@v3
+        with:
+          path: .cache
+          key: pip-${{ runner.os }}
       - name: Install Python dependencies
         run: |
           pip install -U setuptools wheel
