@@ -84,7 +84,7 @@ jobs:
       - name: Install platform dependencies
         run: |
           sudo apt -y update
-          sudo apt -y install libcurl4-openssl libssl libxml2 libxslt
+          sudo apt -y install libxml2 libxslt1.1 libcurl4
       - uses: actions/setup-python@v4
         with:
           python-version-file: '.python-version'
