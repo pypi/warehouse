@@ -37,6 +37,11 @@ jobs:
           pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
           pip check
+      - name: Cache built Python environment
+        uses: actions/cache/save@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
   test:
     needs: deps
     strategy:
@@ -79,20 +84,20 @@ jobs:
       - name: Install platform dependencies
         run: |
           sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
+          sudo apt -y install libcurl4-openssl libssl libxml2 libxslt
       - uses: actions/setup-python@v4
         with:
           python-version-file: '.python-version'
+      - name: Restore built Python environment from deps
+        uses: actions/cache/restore@v3
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: mypy cache
         uses: actions/cache@v3
         with:
           path: .mypy_cache
           key: mypy-${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-      - name: pip cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}
       - name: Install Python dependencies
         run: |
           pip install -U setuptools wheel
