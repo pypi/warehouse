@@ -33,7 +33,7 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install -U setuptools wheel
-          pip install --no-cache-dir  'pip @ git+https://github.com/sbidoul/pip@49d3354e1c807bafdd715225d2aaa5cfc3532434'
+          pip install 'pip @ git+https://github.com/pypa/pip@refs/pull/11897/head'
           pip --version
           pip cache dir
           pip cache info
