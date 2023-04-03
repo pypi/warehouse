@@ -34,6 +34,7 @@ jobs:
         run: |
           pip install -U setuptools wheel
           pip install 'pip @ git+https://github.com/sbidoul/pip@49d3354e1c807bafdd715225d2aaa5cfc3532434'
+          pip --version
           pip install -r requirements.txt --no-deps
           pip install -r requirements/dev.txt
           pip check
@@ -97,8 +98,9 @@ jobs:
         run: |
           pip install -U setuptools wheel
           pip install 'pip @ git+https://github.com/sbidoul/pip@49d3354e1c807bafdd715225d2aaa5cfc3532434'
-          pip install -r requirements.txt --no-deps
-          pip install -r requirements/dev.txt
+          pip --version
+          pip install --no-build-isolation -r requirements.txt --no-deps
+          pip install --no-build-isolation -r requirements/dev.txt
           pip check
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
