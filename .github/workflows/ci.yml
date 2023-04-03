@@ -54,7 +54,7 @@ jobs:
       - name: Install platform dependencies
         run: |
           sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
+          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
       - uses: actions/setup-python@v4
         with:
           python-version-file: '.python-version'
@@ -68,7 +68,7 @@ jobs:
           path: |
             .cache
             .mypy_cache
-          key: ${{ runner.os }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          key: ${{ runner.os }}
       - name: Install Python dependencies
         run: |
           pip install -U setuptools wheel
