@@ -42,9 +42,10 @@ is not a panacea. In particular:
   OIDC tokens are also short-lived, but an attacker who successfully intercepts
   one can mint API tokens against it for as long as it lives.
 
-* Configuring an OIDC publisher means establishing trust in a particular piece
+* Configuring a trusted publisher means establishing trust in a particular piece
   of external state; that state **must not** be controllable by untrusted
-  parties. In particular, for OIDC publishing with GitHub Actions, you **must**:
+  parties. In particular, for trusted publishing with GitHub Actions, you
+  **must**:
 
    * Trust the correct username and repository: if you trust a repository
      other than one you control and trust, that repository can upload to your
@@ -67,12 +68,17 @@ is not a panacea. In particular:
      This particular risk can be mitigated by using a dedicated environment
      with manual approvers, as described below.
 
+* Trusted publishers are registered to projects, not to users. This means that
+  removing a user from a PyPI project does **not** remove any trusted publishers
+  that they might have registered, and that you should include a review
+  of any/all trusted publishers as part of "offboarding" a project maintainer.
+
 PyPI has protections in place to make some attacks against OIDC more difficult
 (like account resurrection attacks). However, like all forms of authentication,
 the end user is **fundamentally responsible** for applying it correctly.
 
 In addition to the requirements above, you can do the following to
-"ratchet down" the scope of your OIDC publishing workflows:
+"ratchet down" the scope of your trusted publishing workflows:
 
 * **Use per-job permissions**: The `permissions` key can be defined on the
   workflow level or the job level; the job level is **always more secure**
