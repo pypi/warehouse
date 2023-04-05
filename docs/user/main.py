@@ -11,8 +11,8 @@ OIDC_PUBLISHING = """
 
     **NOTE**: Access to the OIDC beta is provided on a *per-user* basis: users
     can register OIDC publishers against projects once added to the beta, but
-    other maintainers/owners of the project can't modify OIDC settings unless
-    they're *also* in the beta.
+    other owners of the project can't modify OIDC settings unless they're
+    *also* in the beta.
 """
 
 ORG_ACCOUNTS = """
