@@ -8,9 +8,9 @@ title: Troubleshooting
 
 ## Ratelimiting
 
-PyPI currently imposes somewhat conservative restrictions on trusted
-publisher registration: no more than 20 publishers can be registered by
-a single user or IP address within a 24 hour window.
+PyPI currently imposes ratelimits on trusted publisher registration: no more
+than 100 publishers can be registered by a single user or IP address within a 24
+hour window.
 
 This should be more than sufficient for most users (since publisher
 registration should happen rarely relative to publisher use), but maintainers
