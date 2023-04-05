@@ -180,6 +180,9 @@ jobs:
           resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
           api_token=$(jq '.token' <<< "${resp}")
 
+          # mask the newly minted API token, so that we don't accidentally leak it
+          echo "::add-mask::${api_token}"
+
           # export the API token as TWINE_PASSWORD
           echo "TWINE_PASSWORD=${api_token}" >> "${GITHUB_ENV}"
 
