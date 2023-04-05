@@ -53,7 +53,6 @@ class Configurator(_Configurator):
 
 
 class RootFactory:
-
     __parent__ = None
     __name__ = None
 
@@ -70,7 +69,6 @@ class RootFactory:
 
 
 def require_https_tween_factory(handler, registry):
-
     if not registry.settings.get("enforce_https", True):
         return handler
 
@@ -293,13 +291,13 @@ def configure(settings=None):
         settings,
         "warehouse.manage.oidc.user_registration_ratelimit_string",
         "USER_OIDC_REGISTRATION_RATELIMIT_STRING",
-        default="20 per day",
+        default="100 per day",
     )
     maybe_set(
         settings,
         "warehouse.manage.oidc.ip_registration_ratelimit_string",
         "IP_OIDC_REGISTRATION_RATELIMIT_STRING",
-        default="20 per day",
+        default="100 per day",
     )
     maybe_set(
         settings,
