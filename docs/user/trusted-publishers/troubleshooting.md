@@ -16,7 +16,8 @@ This should be more than sufficient for most users (since publisher
 registration should happen rarely relative to publisher use), but maintainers
 with large numbers of projects or who access PyPI via a shared IP address
 may run into ratelimiting errors. If this happens to you, please wait 24 hours,
-try again, and then contact PyPI's admins if the problem persists.
+try again, and then [contact PyPI's admins](mailto:admin@pypi.org)
+if the problem persists.
 
 ## Token minting
 
