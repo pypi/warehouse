@@ -5511,17 +5511,17 @@ class TestRecoveryCodeEmails:
         ]
 
 
-class TestOIDCPublisherEmails:
+class TestTrustedPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
             (
-                email.send_pending_oidc_publisher_invalidated_email,
-                "pending-oidc-publisher-invalidated",
+                email.send_pending_trusted_publisher_invalidated_email,
+                "pending-trusted-publisher-invalidated",
             ),
         ],
     )
-    def test_pending_oidc_publisher_emails(
+    def test_pending_trusted_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5601,11 +5601,11 @@ class TestOIDCPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
-            (email.send_oidc_publisher_added_email, "oidc-publisher-added"),
-            (email.send_oidc_publisher_removed_email, "oidc-publisher-removed"),
+            (email.send_trusted_publisher_added_email, "trusted-publisher-added"),
+            (email.send_trusted_publisher_removed_email, "trusted-publisher-removed"),
         ],
     )
-    def test_oidc_publisher_emails(
+    def test_trusted_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(

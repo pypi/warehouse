@@ -458,14 +458,14 @@
 {% endmacro %}
 
 {% macro oidc_title() %}
-  {% trans %}OpenID Connect Publisher Management{% endtrans %}
+  {% trans %}Trusted Publisher Management{% endtrans %}
 {% endmacro %}
 
 {% macro oidc_desc() %}
   <p>
     {% trans %}
       OpenID Connect (OIDC) provides a flexible, credential-free mechanism for delegating
-      publishing authority for a PyPI package to a third party service,
+      publishing authority for a PyPI package to a trusted third party service,
       like GitHub Actions.
     {% endtrans %}
   </p>
@@ -478,8 +478,8 @@
   </p>
 
   <p class="no-bottom-padding">
-    {% trans href="/help#openid-connect" %}
-    You can read more about OpenID Connect and how to use it
+    {% trans href="/help#trusted-publishers" %}
+    You can read more about trusted publishers and how to use them
     <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>

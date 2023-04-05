@@ -977,8 +977,8 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-@_email("oidc-publisher-added")
-def send_oidc_publisher_added_email(request, user, project_name, publisher):
+@_email("trusted-publisher-added")
+def send_trusted_publisher_added_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
@@ -988,8 +988,8 @@ def send_oidc_publisher_added_email(request, user, project_name, publisher):
     }
 
 
-@_email("oidc-publisher-removed")
-def send_oidc_publisher_removed_email(request, user, project_name, publisher):
+@_email("trusted-publisher-removed")
+def send_trusted_publisher_removed_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
@@ -999,8 +999,8 @@ def send_oidc_publisher_removed_email(request, user, project_name, publisher):
     }
 
 
-@_email("pending-oidc-publisher-invalidated")
-def send_pending_oidc_publisher_invalidated_email(request, user, project_name):
+@_email("pending-trusted-publisher-invalidated")
+def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
     }

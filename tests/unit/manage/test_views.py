@@ -6244,7 +6244,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_publisher_added_email",
+            "send_trusted_publisher_added_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -6282,7 +6282,7 @@ class TestManageOIDCPublisherViews:
         ]
         assert request.db.add.calls == [pretend.call(project.oidc_publishers[0])]
         assert github_publisher_form_obj.validate.calls == [pretend.call()]
-        assert views.send_oidc_publisher_added_email.calls == [
+        assert views.send_trusted_publisher_added_email.calls == [
             pretend.call(
                 request,
                 fakeuser,
@@ -6563,7 +6563,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_publisher_removed_email",
+            "send_trusted_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -6610,7 +6610,7 @@ class TestManageOIDCPublisherViews:
         assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
         assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-        assert views.send_oidc_publisher_removed_email.calls == [
+        assert views.send_trusted_publisher_removed_email.calls == [
             pretend.call(
                 request, fakeuser, project_name="fakeproject", publisher=publisher
             )
@@ -6664,7 +6664,7 @@ class TestManageOIDCPublisherViews:
         monkeypatch.setattr(views, "DeletePublisherForm", delete_publisher_form_cls)
         monkeypatch.setattr(
             views,
-            "send_oidc_publisher_removed_email",
+            "send_trusted_publisher_removed_email",
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
@@ -6709,7 +6709,7 @@ class TestManageOIDCPublisherViews:
         assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
         assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-        assert views.send_oidc_publisher_removed_email.calls == [
+        assert views.send_trusted_publisher_removed_email.calls == [
             pretend.call(
                 request, fakeuser, project_name="fakeproject", publisher=publisher
             )

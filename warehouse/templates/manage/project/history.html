@@ -255,11 +255,11 @@
 
     {# Display OIDC publisher events #}
     {% elif event.tag == EventTag.Project.OIDCPublisherAdded %}
-    <strong>{% trans %}OpenID Connect publisher added{% endtrans %}</strong>
+    <strong>{% trans %}Trusted publisher added{% endtrans %}</strong>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
     {% elif event.tag == EventTag.Project.OIDCPublisherRemoved %}
-    <strong>{% trans %}OpenID Connect publisher removed{% endtrans %}</strong>
+    <strong>{% trans %}Trusted publisher removed{% endtrans %}</strong>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
 
