@@ -1302,6 +1302,8 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
+                    "url": publisher.publisher_url,
+                    "submitted_by": self.request.user.username,
                 },
             )
 
@@ -1376,6 +1378,8 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
+                    "url": publisher.publisher_url,
+                    "submitted_by": self.request.user.username,
                 },
             )
 
