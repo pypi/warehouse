@@ -140,7 +140,7 @@
           <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
           <li><a href="#username-change">{{ username_change() }}</a></li>
           {% if request.registry.settings["warehouse.oidc.enabled"] %}
-          <li><a href="#openid-connect">{{ openid_connect() }}</a></li>
+          <li><a href="#trusted-publishers">{{ trusted_publishers() }}</a></li>
           {% endif %}
         </ul>
       </section>
@@ -525,7 +525,7 @@
         <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
 
         {% if request.registry.settings["warehouse.oidc.enabled"] %}
-        <h3 id="openid-connect">{{ openid_connect() }}</h3>
+        <h3 id="trusted-publishers">{{ trusted_publishers() }}</h3>
         <p>
           {% trans openid="https://openid.net/connect/", apitoken="#apitoken" %}
           PyPI users and projects can use <a href="{{ openid }}">OpenID Connect</a> (OIDC) to delegate
@@ -535,10 +535,12 @@
         </p>
         <p>
           {% trans %}
-          Using OIDC to authenticate when publishing is done by registering "publishers,"
-          which correspond to services with OIDC identities like GitHub Actions.
-          Existing projects can add or remove OIDC publishers at any time. OIDC publishers
-          can also be created in advance for projects that don't exist yet.
+          Using OIDC to authenticate when publishing is done by registering
+          "trusted publishers," which correspond to services with OIDC
+          identities like GitHub Actions.
+          Existing projects can add or remove trusted publishers at any time.
+          Trusted publishers can also be created in advance for projects that
+          don't exist yet.
           {% endtrans %}
         </p>
         {% endif %}

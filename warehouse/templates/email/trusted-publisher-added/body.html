@@ -17,8 +17,10 @@
 {% block content %}
 <p>
   {% trans username=username, project_name=project_name %}
-  PyPI user <strong>{{ username }}</strong> has removed an OpenID Connect
-  publisher from a project (<strong>{{project_name}}</strong>) that you manage.
+  PyPI user <strong>{{ username }}</strong> has added a new trusted
+  publisher to a project (<strong>{{project_name}}</strong>) that you manage.
+  Trusted publishers act as trusted users and can create project releases
+  automatically.
   {% endtrans %}
 </p>
 
@@ -32,8 +34,8 @@
 
 <p>
   {% trans %}
-  If you did not make this change and you think it was made in error, you can
-  check the "Security history" tab on the project's page.
+  If you did not make this change and you think it was made maliciously, you can
+  remove it from the project via the "Publishing" tab on the project's page.
   {% endtrans %}
 </p>
 

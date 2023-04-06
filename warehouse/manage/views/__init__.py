@@ -49,8 +49,6 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
-    send_oidc_publisher_added_email,
-    send_oidc_publisher_removed_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -61,6 +59,8 @@ from warehouse.email import (
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_team_collaborator_added_email,
+    send_trusted_publisher_added_email,
+    send_trusted_publisher_removed_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -1286,7 +1286,7 @@ class ManageOIDCPublisherViews:
                 return response
 
             for user in self.project.users:
-                send_oidc_publisher_added_email(
+                send_trusted_publisher_added_email(
                     self.request,
                     user,
                     project_name=self.project.name,
@@ -1355,7 +1355,7 @@ class ManageOIDCPublisherViews:
                 return self.default_response
 
             for user in self.project.users:
-                send_oidc_publisher_removed_email(
+                send_trusted_publisher_removed_email(
                     self.request,
                     user,
                     project_name=self.project.name,

@@ -20,7 +20,7 @@ from pyramid.view import view_config
 from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.email import send_pending_oidc_publisher_invalidated_email
+from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -156,7 +156,7 @@ def mint_token_from_oidc(request):
             .all()
         )
         for stale_publisher in stale_pending_publishers:
-            send_pending_oidc_publisher_invalidated_email(
+            send_pending_trusted_publisher_invalidated_email(
                 request,
                 stale_publisher.added_by,
                 project_name=stale_publisher.project_name,
