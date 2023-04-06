@@ -3101,7 +3101,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3181,7 +3181,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3244,7 +3244,7 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 (
                     "You must have a verified email in order to register a "
-                    "pending OpenID Connect publisher. "
+                    "pending trusted publisher. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
@@ -3314,7 +3314,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "You can't register more than 3 pending OpenID Connect "
+                    "You can't register more than 3 pending trusted "
                     "publishers at once."
                 ),
                 queue="error",
@@ -3517,7 +3517,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "This OpenID Connect publisher has already been registered. "
+                    "This trusted publisher has already been registered. "
                     "Please contact PyPI's admins if this wasn't intentional."
                 ),
                 queue="error",
@@ -3712,7 +3712,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",

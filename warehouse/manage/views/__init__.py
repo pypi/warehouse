@@ -1201,7 +1201,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1223,7 +1223,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1242,8 +1242,8 @@ class ManageOIDCPublisherViews:
             )
             return HTTPTooManyRequests(
                 self.request._(
-                    "There have been too many attempted OpenID Connect registrations. "
-                    "Try again later."
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
                 ),
                 retry_after=exc.resets_in.total_seconds(),
             )
@@ -1332,7 +1332,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
