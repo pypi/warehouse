@@ -15,7 +15,7 @@
 
 {% block content %}
 {% trans username=username, project_name=project_name %}
-PyPI user {{ username }} has removed an OpenID Connect publisher from a project
+PyPI user {{ username }} has removed a trusted publisher from a project
 ({{ project_name }}) that you manage.
 {% endtrans %}
 

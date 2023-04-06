@@ -17,10 +17,10 @@
 {% block content %}
 <p>
   {% trans username=username, project_name=project_name %}
-  PyPI user <strong>{{ username }}</strong> has added a new OpenID Connect
+  PyPI user <strong>{{ username }}</strong> has added a new trusted
   publisher to a project (<strong>{{project_name}}</strong>) that you manage.
-  OpenID Connect publishers act as trusted users and can create project releases
-  automatically.
+  Trusted publishers behave similarly to API tokens and can create project
+  releases automatically.
   {% endtrans %}
 </p>
 
