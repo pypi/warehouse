@@ -260,24 +260,24 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1418
 msgid ""
-"You must have a verified email in order to register a pending OpenID "
-"Connect publisher. See https://pypi.org/help#openid-connect for details."
+"You must have a verified email in order to register a pending trusted "
+"publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1431
-msgid "You can't register more than 3 pending OpenID Connect publishers at once."
+msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1447 warehouse/manage/views/__init__.py:1244
 msgid ""
-"There have been too many attempted OpenID Connect registrations. Try "
+"There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
 #: warehouse/accounts/views.py:1475
 msgid ""
-"This OpenID Connect publisher has already been registered. Please contact"
-" PyPI's admins if this wasn't intentional."
+"This trusted publisher has already been registered. Please contact PyPI's"
+" admins if this wasn't intentional."
 msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15

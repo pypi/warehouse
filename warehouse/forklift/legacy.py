@@ -901,7 +901,7 @@ def file_upload(request):
                 (
                     "Non-user identities cannot create new projects. "
                     "You must first create a project as a user, and then "
-                    "configure the project to use OpenID Connect."
+                    "configure the project to use trusted publishers."
                 ),
             )
 

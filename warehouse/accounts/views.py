@@ -1379,7 +1379,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1402,7 +1402,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1417,7 +1417,7 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "You must have a verified email in order to register a "
-                    "pending OpenID Connect publisher. "
+                    "pending trusted publisher. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
@@ -1429,7 +1429,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending OpenID Connect "
+                    "You can't register more than 3 pending trusted "
                     "publishers at once."
                 ),
                 queue="error",
@@ -1445,8 +1445,8 @@ class ManageAccountPublishingViews:
             )
             return HTTPTooManyRequests(
                 self.request._(
-                    "There have been too many attempted OpenID Connect registrations. "
-                    "Try again later."
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
                 ),
                 retry_after=exc.resets_in.total_seconds(),
             )
@@ -1473,7 +1473,7 @@ class ManageAccountPublishingViews:
         if publisher_already_exists:
             self.request.session.flash(
                 self.request._(
-                    "This OpenID Connect publisher has already been registered. "
+                    "This trusted publisher has already been registered. "
                     "Please contact PyPI's admins if this wasn't intentional."
                 ),
                 queue="error",
@@ -1528,7 +1528,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
