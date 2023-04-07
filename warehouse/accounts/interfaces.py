@@ -224,14 +224,6 @@ class IUserService(Interface):
         or None of the user doesn't have a credential with this ID.
         """
 
-    def record_event(user_id, *, tag, additional=None):
-        """
-        Creates a new UserEvent for the given user with the given
-        tag, IP address, and additional metadata.
-
-        Returns the event.
-        """
-
     def generate_recovery_codes(user_id):
         """
         Generates RecoveryCode objects for the given user.

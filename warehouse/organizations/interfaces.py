@@ -256,11 +256,3 @@ class IOrganizationService(Interface):
         """
         Delete an team project role for a specified team project role id
         """
-
-    def record_event(organization_id, *, tag, additional=None):
-        """
-        Creates a new Organization.Event for the given organization with the given
-        tag, IP address, and additional metadata.
-
-        Returns the event.
-        """
