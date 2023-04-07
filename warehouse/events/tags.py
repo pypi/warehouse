@@ -100,8 +100,8 @@ class EventTag:
         TeamRoleRemove = "account:team_role:remove"
         TwoFactorMethodAdded = "account:two_factor:method_added"
         TwoFactorMethodRemoved = "account:two_factor:method_removed"
+        EmailSent = "account:email:sent"
         # The following tags are no longer used when recording events.
-        # EmailSent = "account:email:sent"
         # ReauthenticateFailure = "account:reauthenticate:failure"
         # RoleAccepted = "account:role:accepted"
 
