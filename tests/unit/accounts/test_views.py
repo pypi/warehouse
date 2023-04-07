@@ -3542,6 +3542,7 @@ class TestManageAccountPublishingViews:
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
                 record_event=pretend.call_recorder(lambda **kw: None),
+                username="some-user",
             ),
             _=lambda s: s,
             db=pretend.stub(
@@ -3562,6 +3563,7 @@ class TestManageAccountPublishingViews:
             project_name="some-project-name",
             publisher_name="some-publisher",
             id=uuid.uuid4(),
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
@@ -3634,6 +3636,8 @@ class TestManageAccountPublishingViews:
                     "publisher": "some-publisher",
                     "id": str(pending_publisher.id),
                     "specifier": "fakespecifier",
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]
@@ -3814,6 +3818,7 @@ class TestManageAccountPublishingViews:
             project_name="some-project-name",
             publisher_name="some-publisher",
             id=uuid.uuid4(),
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
@@ -3830,7 +3835,9 @@ class TestManageAccountPublishingViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             user=pretend.stub(
-                in_oidc_beta=True, record_event=pretend.call_recorder(lambda **kw: None)
+                in_oidc_beta=True,
+                record_event=pretend.call_recorder(lambda **kw: None),
+                username="some-user",
             ),
             remote_addr="0.0.0.0",
             path="some-path",
@@ -3878,6 +3885,8 @@ class TestManageAccountPublishingViews:
                     "publisher": "some-publisher",
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]

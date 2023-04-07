@@ -6110,6 +6110,7 @@ class TestManageOIDCPublisherViews:
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
@@ -6126,6 +6127,7 @@ class TestManageOIDCPublisherViews:
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
+                username="some-user",
             ),
             registry=pretend.stub(
                 settings={
@@ -6181,6 +6183,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]
@@ -6210,6 +6214,7 @@ class TestManageOIDCPublisherViews:
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
+                username="some-user",
             ),
             registry=pretend.stub(
                 settings={
@@ -6271,6 +6276,11 @@ class TestManageOIDCPublisherViews:
                     "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
+                    "url": (
+                        "https://github.com/fakeowner/fakerepo/blob/HEAD/"
+                        ".github/workflows/fakeworkflow.yml"
+                    ),
+                    "submitted_by": "some-user",
                 },
             )
         ]
@@ -6523,6 +6533,7 @@ class TestManageOIDCPublisherViews:
             publisher_name="fakepublisher",
             id="fakeid",
             projects=[pretend.stub(), pretend.stub()],
+            publisher_url="some-url",
         )
 
         # NOTE: Can't set __str__ using pretend.stub()
@@ -6539,6 +6550,7 @@ class TestManageOIDCPublisherViews:
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
+                username="some-user",
             ),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
@@ -6593,6 +6605,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": "fakepublisher",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]
@@ -6625,6 +6639,7 @@ class TestManageOIDCPublisherViews:
             # it should be projects=[project], but we make it empty
             # to trigger the DB deletion case.
             projects=[],
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
@@ -6640,6 +6655,7 @@ class TestManageOIDCPublisherViews:
         request = pretend.stub(
             user=pretend.stub(
                 in_oidc_beta=True,
+                username="some-user",
             ),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
@@ -6694,6 +6710,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": "fakepublisher",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]
