@@ -161,9 +161,10 @@ class PasswordMixin:
                     field.data,
                     tags=self._check_password_metrics_tags,
                 ):
-                    self.user_service.record_event(
-                        userid,
+                    user = self.user_service.get_user(userid)
+                    user.record_event(
                         tag=f"account:{self.action}:failure",
+                        ip_address=self.request.remote_addr,
                         additional={"reason": "invalid_password"},
                     )
                     raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
@@ -372,9 +373,10 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
         if not self.user_service.check_totp_value(self.user_id, totp_value):
-            self.user_service.record_event(
-                self.user_id,
+            user = self.user_service.get_user(self.user_id)
+            user.record_event(
                 tag=EventTag.Account.LoginFailure,
+                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -407,9 +409,10 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             )
 
         except webauthn.AuthenticationRejectedError as e:
-            self.user_service.record_event(
-                self.user_id,
+            user = self.user_service.get_user(self.user_id)
+            user.record_event(
                 tag=EventTag.Account.LoginFailure,
+                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -447,16 +450,18 @@ class RecoveryCodeAuthenticationForm(
                 self.request, self.user_service.get_user(self.user_id)
             )
         except (InvalidRecoveryCode, NoRecoveryCodes):
-            self.user_service.record_event(
-                self.user_id,
+            user = self.user_service.get_user(self.user_id)
+            user.record_event(
                 tag=EventTag.Account.LoginFailure,
+                ip_address=self.request.remote_addr,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
         except BurnedRecoveryCode:
-            self.user_service.record_event(
-                self.user_id,
+            user = self.user_service.get_user(self.user_id)
+            user.record_event(
                 tag=EventTag.Account.LoginFailure,
+                ip_address=self.request.remote_addr,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(

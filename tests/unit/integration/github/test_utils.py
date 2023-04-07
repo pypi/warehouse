@@ -561,7 +561,10 @@ def test_analyze_disclosure(monkeypatch):
         metrics.update([key])
 
     user_id = uuid.UUID(bytes=b"0" * 16)
-    user = pretend.stub(id=user_id)
+    user = pretend.stub(
+        id=user_id,
+        record_event=pretend.call_recorder(lambda *a, **kw: None),
+    )
     database_macaroon = pretend.stub(
         user=user,
         id=12,
@@ -571,16 +574,16 @@ def test_analyze_disclosure(monkeypatch):
 
     find = pretend.call_recorder(lambda *a, **kw: database_macaroon)
     delete = pretend.call_recorder(lambda *a, **kw: None)
-    record_event = pretend.call_recorder(lambda user_id, *, tag, additional=None: None)
     svc = {
         utils.IMetricsService: pretend.stub(increment=metrics_increment),
         utils.IMacaroonService: pretend.stub(
             find_from_raw=find, delete_macaroon=delete
         ),
-        utils.IUserService: pretend.stub(record_event=record_event),
     }
 
-    request = pretend.stub(find_service=lambda iface, context: svc[iface])
+    request = pretend.stub(
+        find_service=lambda iface, context: svc[iface], remote_addr="0.0.0.0"
+    )
 
     send_email = pretend.call_recorder(lambda *a, **kw: None)
     monkeypatch.setattr(utils, "send_token_compromised_email_leak", send_email)
@@ -604,10 +607,10 @@ def test_analyze_disclosure(monkeypatch):
     ]
     assert find.calls == [pretend.call(raw_macaroon="pypi-1234")]
     assert delete.calls == [pretend.call(macaroon_id="12")]
-    assert record_event.calls == [
+    assert user.record_event.calls == [
         pretend.call(
-            user_id,
             tag=EventTag.Account.APITokenRemovedLeak,
+            ip_address=request.remote_addr,
             additional={
                 "macaroon_id": "12",
                 "public_url": "http://example.com",

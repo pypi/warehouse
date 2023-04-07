@@ -74,9 +74,9 @@ def delete_declined_organizations(request):
     for organization in organizations:
         organization_service = request.find_service(IOrganizationService, context=None)
         # TODO: Cannot call this after deletion so how exactly do we handle this?
-        organization_service.record_event(
-            organization.id,
+        organization.record_event(
             tag=EventTag.Organization.OrganizationDelete,
+            ip_address=request.remote_addr,
             additional={"deleted_by": "CRON"},
         )
         organization_service.delete_organization(organization.id)

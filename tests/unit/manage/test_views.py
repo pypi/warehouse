@@ -253,7 +253,6 @@ class TestManageAccount:
         email = pretend.stub(id=pretend.stub(), email=email_address)
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: email),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.POST = {"email": email_address}
         pyramid_request.db = pretend.stub(flush=lambda: None)
@@ -262,7 +261,11 @@ class TestManageAccount:
         )
         pyramid_request.find_service = lambda a, **kw: user_service
         pyramid_request.user = pretend.stub(
-            emails=[], username="username", name="Name", id=pretend.stub()
+            emails=[],
+            username="username",
+            name="Name",
+            id=pretend.stub(),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(
@@ -295,10 +298,10 @@ class TestManageAccount:
         assert send_email.calls == [
             pretend.call(pyramid_request, (pyramid_request.user, email))
         ]
-        assert user_service.record_event.calls == [
+        assert pyramid_request.user.record_event.calls == [
             pretend.call(
-                pyramid_request.user.id,
                 tag=EventTag.Account.EmailAdd,
+                ip_address=pyramid_request.remote_addr,
                 additional={"email": email_address},
             )
         ]
@@ -344,7 +347,10 @@ class TestManageAccount:
         request = pretend.stub(
             POST={"delete_email_id": email.id},
             user=pretend.stub(
-                id=pretend.stub(), emails=[email, some_other_email], name=pretend.stub()
+                id=pretend.stub(),
+                emails=[email, some_other_email],
+                name=pretend.stub(),
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             db=pretend.stub(
                 query=lambda a: pretend.stub(
@@ -366,10 +372,10 @@ class TestManageAccount:
             pretend.call(f"Email address {email.email} removed", queue="success")
         ]
         assert request.user.emails == [some_other_email]
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.EmailRemove,
+                ip_address=request.remote_addr,
                 additional={"email": email.email},
             )
         ]
@@ -429,14 +435,13 @@ class TestManageAccount:
 
     def test_change_primary_email(self, monkeypatch, db_request):
         user = UserFactory()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
         old_primary = EmailFactory(primary=True, user=user, email="old")
         new_primary = EmailFactory(primary=False, verified=True, user=user, email="new")
 
         db_request.user = user
 
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        user_service = pretend.stub()
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -459,23 +464,22 @@ class TestManageAccount:
         ]
         assert not old_primary.primary
         assert new_primary.primary
-        assert user_service.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
-                user.id,
                 tag=EventTag.Account.EmailPrimaryChange,
+                ip_address=db_request.remote_addr,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
         ]
 
     def test_change_primary_email_without_current(self, monkeypatch, db_request):
         user = UserFactory()
+        user.record_event = pretend.call_recorder(lambda *a, **kw: None)
         new_primary = EmailFactory(primary=False, verified=True, user=user)
 
         db_request.user = user
 
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        user_service = pretend.stub()
         db_request.find_service = lambda *a, **kw: user_service
         db_request.POST = {"primary_email_id": new_primary.id}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
@@ -495,10 +499,10 @@ class TestManageAccount:
             )
         ]
         assert new_primary.primary
-        assert user_service.record_event.calls == [
+        assert db_request.user.record_event.calls == [
             pretend.call(
-                user.id,
                 tag=EventTag.Account.EmailPrimaryChange,
+                ip_address=db_request.remote_addr,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
         ]
@@ -678,7 +682,6 @@ class TestManageAccount:
         new_password = "n3w_p455w0rd"
         user_service = pretend.stub(
             update_user=pretend.call_recorder(lambda *a, **kw: None),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
             get_password_timestamp=lambda uid: 0,
         )
         request = pretend.stub(
@@ -697,6 +700,7 @@ class TestManageAccount:
                 username=pretend.stub(),
                 email=pretend.stub(),
                 name=pretend.stub(),
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             db=pretend.stub(
                 flush=lambda: None,
@@ -726,8 +730,10 @@ class TestManageAccount:
         assert user_service.update_user.calls == [
             pretend.call(request.user.id, password=new_password)
         ]
-        assert user_service.record_event.calls == [
-            pretend.call(request.user.id, tag=EventTag.Account.PasswordChange)
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.PasswordChange, ip_address=request.remote_addr
+            )
         ]
 
     def test_change_password_validation_fails(self, monkeypatch):
@@ -1085,7 +1091,6 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: None,
             update_user=pretend.call_recorder(lambda *a, **kw: None),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"totp_value": "123456"},
@@ -1103,6 +1108,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
             remote_addr="0.0.0.0",
@@ -1128,10 +1134,10 @@ class TestProvisionTOTP:
                 "Authentication application successfully set up", queue="success"
             )
         ]
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.TwoFactorMethodAdded,
+                ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
         ]
@@ -1245,7 +1251,6 @@ class TestProvisionTOTP:
         user_service = pretend.stub(
             get_totp_secret=lambda id: b"secret",
             update_user=pretend.call_recorder(lambda *a, **kw: None),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_password": pretend.stub()},
@@ -1258,6 +1263,7 @@ class TestProvisionTOTP:
                 name=pretend.stub(),
                 totp_secret=b"secret",
                 has_primary_verified_email=True,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
             remote_addr="0.0.0.0",
@@ -1285,10 +1291,10 @@ class TestProvisionTOTP:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.TwoFactorMethodRemoved,
+                ip_address=request.remote_addr,
                 additional={"method": "totp"},
             )
         ]
@@ -1447,11 +1453,14 @@ class TestProvisionWebAuthn:
     def test_validate_webauthn_provision(self, monkeypatch):
         user_service = pretend.stub(
             add_webauthn=pretend.call_recorder(lambda *a, **kw: pretend.stub()),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={},
-            user=pretend.stub(id=1234, webauthn=None),
+            user=pretend.stub(
+                id=1234,
+                webauthn=None,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+            ),
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "fake_challenge"),
                 clear_webauthn_challenge=pretend.call_recorder(lambda: pretend.stub()),
@@ -1498,10 +1507,10 @@ class TestProvisionWebAuthn:
             pretend.call("Security device successfully set up", queue="success")
         ]
         assert result == {"success": "Security device successfully set up"}
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.TwoFactorMethodAdded,
+                ip_address=request.remote_addr,
                 additional={
                     "method": "webauthn",
                     "label": provision_webauthn_obj.label.data,
@@ -1549,9 +1558,7 @@ class TestProvisionWebAuthn:
         assert result == {"fail": {"errors": ["Not a real error"]}}
 
     def test_delete_webauthn(self, monkeypatch):
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        user_service = pretend.stub()
         request = pretend.stub(
             POST={},
             user=pretend.stub(
@@ -1562,6 +1569,7 @@ class TestProvisionWebAuthn:
                     __len__=pretend.call_recorder(lambda *a: 1),
                     remove=pretend.call_recorder(lambda *a: pretend.stub()),
                 ),
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
@@ -1591,10 +1599,10 @@ class TestProvisionWebAuthn:
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar"
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.TwoFactorMethodRemoved,
+                ip_address=request.remote_addr,
                 additional={
                     "method": "webauthn",
                     "label": delete_webauthn_obj.label.data,
@@ -1657,13 +1665,15 @@ class TestProvisionRecoveryCodes:
             has_recovery_codes=lambda user_id: False,
             has_two_factor=lambda user_id: True,
             generate_recovery_codes=lambda user_id: ["aaaaaaaaaaaa", "bbbbbbbbbbbb"],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(id=1),
+            user=pretend.stub(
+                id=1,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+            ),
             remote_addr="0.0.0.0",
         )
 
@@ -1679,8 +1689,11 @@ class TestProvisionRecoveryCodes:
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_generate()
 
-        assert user_service.record_event.calls == [
-            pretend.call(1, tag=EventTag.Account.RecoveryCodesGenerated)
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.RecoveryCodesGenerated,
+                ip_address=request.remote_addr,
+            )
         ]
 
         assert result == {"recovery_codes": ["aaaaaaaaaaaa", "bbbbbbbbbbbb"]}
@@ -1724,14 +1737,17 @@ class TestProvisionRecoveryCodes:
             has_recovery_codes=lambda user_id: True,
             has_two_factor=lambda user_id: True,
             generate_recovery_codes=lambda user_id: ["cccccccccccc", "dddddddddddd"],
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
             POST={"confirm_password": "correct password"},
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
             ],
-            user=pretend.stub(id=1, username="username"),
+            user=pretend.stub(
+                id=1,
+                username="username",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+            ),
             remote_addr="0.0.0.0",
         )
         send_recovery_codes_generated_email = pretend.call_recorder(
@@ -1746,8 +1762,11 @@ class TestProvisionRecoveryCodes:
         view = views.ProvisionRecoveryCodesViews(request)
         result = view.recovery_codes_regenerate()
 
-        assert user_service.record_event.calls == [
-            pretend.call(1, tag=EventTag.Account.RecoveryCodesRegenerated)
+        assert request.user.record_event.calls == [
+            pretend.call(
+                tag=EventTag.Account.RecoveryCodesRegenerated,
+                ip_address=request.remote_addr,
+            )
         ]
 
         assert result == {"recovery_codes": ["cccccccccccc", "dddddddddddd"]}
@@ -1987,13 +2006,15 @@ class TestProvisionMacaroonViews:
                 lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
-        user_service = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None)
-        )
+        user_service = pretend.stub()
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
-            user=pretend.stub(id="a user id", has_primary_verified_email=True),
+            user=pretend.stub(
+                id="a user id",
+                has_primary_verified_email=True,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+            ),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
                 IUserService: user_service,
@@ -2040,10 +2061,10 @@ class TestProvisionMacaroonViews:
             "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.APITokenAdded,
+                ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2063,9 +2084,8 @@ class TestProvisionMacaroonViews:
                 lambda *a, **kw: ("not a real raw macaroon", macaroon)
             )
         )
-        record_user_event = pretend.call_recorder(lambda *a, **kw: None)
         record_project_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(record_event=record_user_event)
+        user_service = pretend.stub()
         request = pretend.stub(
             POST={},
             domain=pretend.stub(),
@@ -2085,6 +2105,7 @@ class TestProvisionMacaroonViews:
                         record_event=record_project_event,
                     ),
                 ],
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -2135,10 +2156,10 @@ class TestProvisionMacaroonViews:
             "macaroon": macaroon,
             "create_macaroon_form": create_macaroon_obj,
         }
-        assert record_user_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.APITokenAdded,
+                ip_address=request.remote_addr,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2241,69 +2262,9 @@ class TestProvisionMacaroonViews:
             delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
             find_macaroon=pretend.call_recorder(lambda id: macaroon),
         )
-        record_event = pretend.call_recorder(
-            pretend.call_recorder(lambda *a, **kw: None)
-        )
-        user_service = pretend.stub(record_event=record_event)
+        user_service = pretend.stub()
         request = pretend.stub(
             POST={"confirm_password": "password", "macaroon_id": "macaroon_id"},
-            route_path=pretend.call_recorder(lambda x: pretend.stub()),
-            find_service=lambda interface, **kw: {
-                IMacaroonService: macaroon_service,
-                IUserService: user_service,
-            }[interface],
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            referer="/fake/safe/route",
-            host=None,
-            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
-            remote_addr="0.0.0.0",
-        )
-
-        delete_macaroon_obj = pretend.stub(
-            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
-        )
-        delete_macaroon_cls = pretend.call_recorder(
-            lambda *a, **kw: delete_macaroon_obj
-        )
-        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
-
-        view = views.ProvisionMacaroonViews(request)
-        result = view.delete_macaroon()
-
-        assert request.route_path.calls == []
-        assert isinstance(result, HTTPSeeOther)
-        assert result.location == "/fake/safe/route"
-        assert macaroon_service.delete_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert macaroon_service.find_macaroon.calls == [
-            pretend.call(delete_macaroon_obj.macaroon_id.data)
-        ]
-        assert request.session.flash.calls == [
-            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
-        ]
-        assert record_event.calls == [
-            pretend.call(
-                request.user.id,
-                tag=EventTag.Account.APITokenRemoved,
-                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
-            )
-        ]
-
-    def test_delete_macaroon_records_events_for_each_project(self, monkeypatch):
-        macaroon = pretend.stub(
-            description="fake macaroon",
-            permissions_caveat={"projects": ["foo", "bar"]},
-        )
-        macaroon_service = pretend.stub(
-            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
-            find_macaroon=pretend.call_recorder(lambda id: macaroon),
-        )
-        record_user_event = pretend.call_recorder(lambda *a, **kw: None)
-        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
-        user_service = pretend.stub(record_event=record_user_event)
-        request = pretend.stub(
-            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
             route_path=pretend.call_recorder(lambda x: pretend.stub()),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -2315,14 +2276,7 @@ class TestProvisionMacaroonViews:
             user=pretend.stub(
                 id=pretend.stub(),
                 username=pretend.stub(),
-                projects=[
-                    pretend.stub(
-                        normalized_name="foo", record_event=record_project_event
-                    ),
-                    pretend.stub(
-                        normalized_name="bar", record_event=record_project_event
-                    ),
-                ],
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             remote_addr="0.0.0.0",
         )
@@ -2350,9 +2304,77 @@ class TestProvisionMacaroonViews:
         assert request.session.flash.calls == [
             pretend.call("Deleted API token 'fake macaroon'.", queue="success")
         ]
-        assert record_user_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
+                tag=EventTag.Account.APITokenRemoved,
+                ip_address=request.remote_addr,
+                additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
+            )
+        ]
+
+    def test_delete_macaroon_records_events_for_each_project(self, monkeypatch):
+        macaroon = pretend.stub(
+            description="fake macaroon",
+            permissions_caveat={"projects": ["foo", "bar"]},
+        )
+        macaroon_service = pretend.stub(
+            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
+            find_macaroon=pretend.call_recorder(lambda id: macaroon),
+        )
+        record_project_event = pretend.call_recorder(lambda *a, **kw: None)
+        user_service = pretend.stub()
+        request = pretend.stub(
+            POST={"confirm_password": pretend.stub(), "macaroon_id": pretend.stub()},
+            route_path=pretend.call_recorder(lambda x: pretend.stub()),
+            find_service=lambda interface, **kw: {
+                IMacaroonService: macaroon_service,
+                IUserService: user_service,
+            }[interface],
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            referer="/fake/safe/route",
+            host=None,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                projects=[
+                    pretend.stub(
+                        normalized_name="foo", record_event=record_project_event
+                    ),
+                    pretend.stub(
+                        normalized_name="bar", record_event=record_project_event
+                    ),
+                ],
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+            ),
+            remote_addr="0.0.0.0",
+        )
+
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        view = views.ProvisionMacaroonViews(request)
+        result = view.delete_macaroon()
+
+        assert request.route_path.calls == []
+        assert isinstance(result, HTTPSeeOther)
+        assert result.location == "/fake/safe/route"
+        assert macaroon_service.delete_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert macaroon_service.find_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert request.session.flash.calls == [
+            pretend.call("Deleted API token 'fake macaroon'.", queue="success")
+        ]
+        assert request.user.record_event.calls == [
+            pretend.call(
+                ip_address=request.remote_addr,
                 tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )

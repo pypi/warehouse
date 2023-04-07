@@ -205,14 +205,14 @@ class ManageOrganizationsViews:
         if form.validate():
             data = form.data
             organization = self.organization_service.add_organization(**data)
-            self.organization_service.record_event(
-                organization.id,
+            organization.record_event(
                 tag=EventTag.Organization.CatalogEntryAdd,
+                ip_address=self.request.remote_addr,
                 additional={"submitted_by_user_id": str(self.request.user.id)},
             )
-            self.organization_service.record_event(
-                organization.id,
+            organization.record_event(
                 tag=EventTag.Organization.OrganizationCreate,
+                ip_address=self.request.remote_addr,
                 additional={"created_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
@@ -220,18 +220,18 @@ class ManageOrganizationsViews:
                 self.request.user.id,
                 OrganizationRoleType.Owner,
             )
-            self.organization_service.record_event(
-                organization.id,
+            organization.record_event(
                 tag=EventTag.Organization.OrganizationRoleAdd,
+                ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "role_name": "Owner",
                     "target_user_id": str(self.request.user.id),
                 },
             )
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.OrganizationRoleAdd,
+                ip_address=self.request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": organization.name,
