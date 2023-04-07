@@ -553,7 +553,7 @@
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
-      {% elif event.tag == "account:email:sent" %}
+      {% elif event.tag == EventTag.Account.EmailSent %}
       <strong>{% trans %}Email sent{% endtrans %}</strong><br>
       <small>
         {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>

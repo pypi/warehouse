@@ -29,6 +29,7 @@ from warehouse.accounts.models import Email
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
+from warehouse.events.tags import EventTag
 
 
 def _compute_recipient(user, email):
@@ -113,7 +114,7 @@ def _send_email_to_user(
             "body_html": msg.body_html,
         },
         {
-            "tag": "account:email:sent",
+            "tag": EventTag.Account.EmailSent,
             "user_id": user.id,
             "additional": {
                 "from_": request.registry.settings.get("mail.sender"),
