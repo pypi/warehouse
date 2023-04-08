@@ -103,7 +103,7 @@ class TestManageOrganizations:
     def test_manage_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            organization_access=True,
         )
 
         default_response = {"default": "response"}
@@ -120,7 +120,7 @@ class TestManageOrganizations:
     def test_manage_organizations_disable_organizations(self):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            organization_access=False,
         )
 
         view = org_views.ManageOrganizationsViews(request)
@@ -176,7 +176,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            organization_access=True,
             remote_addr="0.0.0.0",
             path="request-path",
         )
@@ -328,7 +328,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            organization_access=True,
             remote_addr="0.0.0.0",
             route_path=lambda *a, **kw: "manage-subscription-url",
         )
@@ -465,7 +465,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
                 IOrganizationService: organization_service,
             }[interface],
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            organization_access=True,
             remote_addr="0.0.0.0",
         )
 
@@ -501,7 +501,7 @@ class TestManageOrganizations:
     def test_create_organization_disable_organizations(self):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            organization_access=False,
         )
 
         view = org_views.ManageOrganizationsViews(request)
@@ -1051,6 +1051,7 @@ class TestManageOrganizationBillingViews:
         subscription_service,
         organization,
     ):
+        db_request.organization_access = False
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
 
         with pytest.raises(HTTPNotFound):

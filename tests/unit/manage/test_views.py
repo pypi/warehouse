@@ -2526,9 +2526,7 @@ class TestManageProjects:
 class TestManageProjectSettings:
     @pytest.mark.parametrize("enabled", [False, True])
     def test_manage_project_settings(self, enabled, monkeypatch):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: enabled))
-        )
+        request = pretend.stub(organization_access=enabled)
         project = pretend.stub(organization=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
@@ -2553,9 +2551,7 @@ class TestManageProjectSettings:
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        )
+        request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_managed)
@@ -2587,9 +2583,7 @@ class TestManageProjectSettings:
         ]
 
     def test_manage_project_settings_in_organization_owned(self, monkeypatch):
-        request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
-        )
+        request = pretend.stub(organization_access=True)
         organization_managed = pretend.stub(name="managed-org", is_active=True)
         organization_owned = pretend.stub(name="owned-org", is_active=True)
         project = pretend.stub(organization=organization_owned)
@@ -2763,7 +2757,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2773,9 +2767,6 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -2791,7 +2782,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_remove_organization_project_name": "FOO"},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2801,9 +2792,6 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call(
                 (
@@ -2817,7 +2805,7 @@ class TestManageProjectSettings:
     def test_remove_organization_project_disable_organizations(self):
         project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            organization_access=False,
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -2826,9 +2814,6 @@ class TestManageProjectSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call("Organizations are disabled", queue="error")
         ]
@@ -2890,7 +2875,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -2899,9 +2884,6 @@ class TestManageProjectSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call(
                 (
@@ -2940,9 +2922,6 @@ class TestManageProjectSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3020,7 +2999,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3030,9 +3009,6 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
         ]
@@ -3047,7 +3023,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={"confirm_transfer_organization_project_name": "FOO"},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3057,9 +3033,6 @@ class TestManageProjectSettings:
             assert exc.value.status_code == 303
             assert exc.value.headers["Location"] == "/foo/bar/"
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call(
                 "Could not transfer project - 'FOO' is not the same as 'foo'",
@@ -3070,7 +3043,7 @@ class TestManageProjectSettings:
     def test_transfer_organization_project_disable_organizations(self):
         project = pretend.stub(name="foo", normalized_name="foo")
         request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
+            organization_access=False,
             route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
@@ -3078,10 +3051,6 @@ class TestManageProjectSettings:
         result = org_views.transfer_organization_project(project, request)
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
 
         assert request.session.flash.calls == [
             pretend.call("Organizations are disabled", queue="error")
@@ -3163,7 +3132,7 @@ class TestManageProjectSettings:
         request = pretend.stub(
             POST={},
             user=user,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            organization_access=True,
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -3172,9 +3141,6 @@ class TestManageProjectSettings:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/foo/bar/"
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ]
         assert request.session.flash.calls == [
             pretend.call(
                 (

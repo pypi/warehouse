@@ -37,7 +37,7 @@
             {% trans %}Your projects{% endtrans %}
           </a>
         </li>
-        {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+        {% if request.organization_access %}
         <li>
           <a href="{{ request.route_path('manage.organizations') }}" class="dropdown__link">
             <i class="fa fa-sitemap" aria-hidden="true"></i>
