@@ -288,7 +288,8 @@ class TestSendEmailToUser:
 
 
 class TestSendEmail:
-    def test_send_email_success(self, db_session, monkeypatch):
+    @pytest.mark.parametrize("delete_user", [True, False])
+    def test_send_email_success(self, delete_user, db_session, monkeypatch):
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
@@ -321,6 +322,8 @@ class TestSendEmail:
                 self.user = FakeUser()
 
             def get_user(self, user_id):
+                if delete_user:
+                    return None
                 return self.user
 
         user_service = FakeUserEventService()
@@ -373,18 +376,21 @@ class TestSendEmail:
                 "recipient": "recipient",
             }
         ]
-        assert user_service.user.events == [
-            {
-                "tag": "account:email:sent",
-                "ip_address": request.remote_addr,
-                "additional": {
-                    "from_": "noreply@example.com",
-                    "to": "recipient",
-                    "subject": msg.subject,
-                    "redact_ip": False,
-                },
-            }
-        ]
+        if delete_user:
+            assert user_service.user.events == []
+        else:
+            assert user_service.user.events == [
+                {
+                    "tag": "account:email:sent",
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "recipient",
+                        "subject": msg.subject,
+                        "redact_ip": False,
+                    },
+                }
+            ]
 
     def test_send_email_failure_retry(self, monkeypatch):
         exc = Exception()
