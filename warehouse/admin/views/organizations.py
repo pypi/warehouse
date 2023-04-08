@@ -18,7 +18,6 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_admin_new_organization_approved_email,
     send_admin_new_organization_declined_email,
@@ -38,9 +37,6 @@ from warehouse.utils.paginate import paginate_url_factory
     uses_session=True,
 )
 def organization_list(request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        raise HTTPNotFound
-
     q = request.params.get("q", "")
     terms = shlex.split(q)
 
@@ -145,9 +141,6 @@ def organization_list(request):
     require_reauth=True,
 )
 def organization_detail(request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        raise HTTPNotFound
-
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
@@ -204,9 +197,6 @@ def organization_detail(request):
     require_reauth=True,
 )
 def organization_approve(request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        raise HTTPNotFound
-
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
@@ -272,9 +262,6 @@ def organization_approve(request):
     require_reauth=True,
 )
 def organization_decline(request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        raise HTTPNotFound
-
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
