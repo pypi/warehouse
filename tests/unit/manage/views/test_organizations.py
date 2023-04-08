@@ -620,7 +620,10 @@ class TestManageOrganizationSettings:
             [
                 pretend.call(
                     customer.customer_id,
-                    organization.customer_name(),
+                    (
+                        f"PiePeaEye Organization - {organization.display_name} "
+                        f"({organization.name})"
+                    ),
                     organization.description,
                 )
             ]
