@@ -78,6 +78,13 @@ class GenericBillingService:
             description=description,
         )
 
+    def update_customer(self, customer_id, name, description):
+        return self.api.Customer.modify(
+            customer_id,
+            name=name,
+            description=description,
+        )
+
     def create_checkout_session(self, customer_id, price_ids, success_url, cancel_url):
         """
         # Create new Checkout Session for the order

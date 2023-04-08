@@ -553,17 +553,28 @@ class TestManageOrganizationSettings:
             ),
         ]
 
-    @pytest.mark.parametrize("orgtype", list(OrganizationType))
+    @pytest.mark.parametrize(
+        ["orgtype", "has_customer"],
+        [(orgtype, True) for orgtype in list(OrganizationType)]
+        + [(orgtype, False) for orgtype in list(OrganizationType)],
+    )
     def test_save_organization(
         self,
         db_request,
         pyramid_user,
         orgtype,
+        has_customer,
+        billing_service,
         organization_service,
         enable_organizations,
         monkeypatch,
     ):
         organization = OrganizationFactory.create(orgtype=orgtype)
+        customer = StripeCustomerFactory.create()
+        if has_customer:
+            OrganizationStripeCustomerFactory.create(
+                organization=organization, customer=customer
+            )
         db_request.POST = {
             "display_name": organization.display_name,
             "link_url": organization.link_url,
@@ -571,10 +582,17 @@ class TestManageOrganizationSettings:
             "orgtype": organization.orgtype,
         }
 
+        db_request.registry.settings["site.name"] = "PiePeaEye"
+
         monkeypatch.setattr(
             organization_service,
             "update_organization",
             pretend.call_recorder(lambda *a, **kw: None),
+        )
+        monkeypatch.setattr(
+            billing_service,
+            "update_customer",
+            pretend.call_recorder(lambda stripe_customer_id, name, description: None),
         )
 
         save_organization_obj = pretend.stub(
@@ -598,6 +616,17 @@ class TestManageOrganizationSettings:
         assert organization_service.update_organization.calls == [
             pretend.call(organization.id, **db_request.POST)
         ]
+        assert billing_service.update_customer.calls == (
+            [
+                pretend.call(
+                    customer.customer_id,
+                    organization.customer_name(),
+                    organization.description,
+                )
+            ]
+            if has_customer
+            else []
+        )
         assert send_email.calls == [
             pretend.call(
                 db_request,

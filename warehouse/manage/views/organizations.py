@@ -341,6 +341,14 @@ class ManageOrganizationSettingsViews:
                 previous_organization_description=previous_organization_description,
                 previous_organization_orgtype=previous_organization_orgtype,
             )
+            if self.organization.customer is not None:
+                self.billing_service.update_customer(
+                    self.organization.customer.customer_id,
+                    self.organization.customer_name(
+                        self.request.registry.settings["site.name"]
+                    ),
+                    self.organization.description,
+                )
 
             self.request.session.flash("Organization details updated", queue="success")
 
@@ -485,9 +493,8 @@ class ManageOrganizationBillingViews:
     def customer_id(self):
         if self.organization.customer is None:
             customer = self.billing_service.create_customer(
-                name=(
-                    f"{self.request.registry.settings['site.name']} Organization -"
-                    f"self.organization.display_name ({self.organization.name})"
+                name=self.organization.customer_name(
+                    self.request.registry.settings["site.name"]
                 ),
                 description=self.organization.description,
             )
