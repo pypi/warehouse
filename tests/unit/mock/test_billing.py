@@ -25,6 +25,7 @@ class TestMockBillingViews:
         return OrganizationFactory.create()
 
     def test_disable_organizations(self, db_request, organization):
+        db_request.organization_access = False
         with pytest.raises(HTTPNotFound):
             billing.MockBillingViews(organization, db_request)
 

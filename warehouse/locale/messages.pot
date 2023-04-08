@@ -808,6 +808,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:372
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:249
+#: warehouse/templates/manage/organization/settings.html:255
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
@@ -3611,7 +3612,7 @@ msgstr ""
 msgid "Decline invitation"
 msgstr ""
 
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:267
 #: warehouse/templates/manage/organizations.html:54
 msgid "Organization Name"
 msgstr ""
@@ -4854,7 +4855,7 @@ msgid "Current organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:218
-#: warehouse/templates/manage/organization/settings.html:252
+#: warehouse/templates/manage/organization/settings.html:267
 msgid "Delete organization"
 msgstr ""
 
@@ -4881,6 +4882,23 @@ msgstr[1] ""
 
 #: warehouse/templates/manage/organization/settings.html:250
 msgid "You will not be able to recover your organization after you delete it."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:257
+msgid ""
+"Your subscription will be cancelled, and you will lose access to the "
+"billing portal."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:259
+msgid "You will lose access to the billing portal."
+msgstr ""
+
+#: warehouse/templates/manage/organization/settings.html:261
+#, python-format
+msgid ""
+"Please ensure you have retrieved all invoices from <a "
+"href=\"%(billing_href)s\">your billing portal</a> before proceeding."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:17
