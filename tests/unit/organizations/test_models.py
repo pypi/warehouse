@@ -66,6 +66,12 @@ class TestOrganizationFactory:
 
 
 class TestOrganization:
+
+    def test_customer_name(self, db_session):
+        organization = DBOrganizationFactory.create(name="pypi", display_name="The Python Package Index")
+        assert organization.customer_name() == "PyPI Organization - The Python Package Index (pypi)"
+        assert organization.customer_name("Test PyPI") == "Test PyPI Organization - The Python Package Index (pypi)"
+
     def test_acl(self, db_session):
         organization = DBOrganizationFactory.create()
         owner1 = DBOrganizationRoleFactory.create(organization=organization)

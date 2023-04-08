@@ -418,7 +418,7 @@ class Organization(HasEvents, db.Model):
             return None
 
     def customer_name(self, site_name="PyPI"):
-        (f"{site_name} Organization -" f"self.display_name ({self.name})"),
+        return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
 class OrganizationNameCatalog(db.Model):
