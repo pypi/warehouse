@@ -183,6 +183,13 @@
         <li>
           {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
         </li>
+        {% else %}
+        <li>
+          {% trans %}Revoke your direct Owner role on the project.{% endtrans %}
+        </li>
+        <li>
+          {% trans %}You will retain Owner permissions on the project through your organization role.{% endtrans %}
+        </li>
         {% endif %}
         <li>
           {% if project.organization %}
@@ -196,7 +203,7 @@
         </li>
       </ul>
       <p>
-        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+        {% trans %}All other individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
       </p>
       {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
       {% set extra_fields %}

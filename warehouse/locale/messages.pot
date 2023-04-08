@@ -812,7 +812,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:182
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
-#: warehouse/templates/manage/project/settings.html:240
+#: warehouse/templates/manage/project/settings.html:247
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr ""
@@ -5673,7 +5673,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:138
 #: warehouse/templates/manage/project/settings.html:144
-#: warehouse/templates/manage/project/settings.html:199
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "project permissions."
@@ -5691,8 +5690,8 @@ msgid "Remove project"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:147
-#: warehouse/templates/manage/project/settings.html:211
-#: warehouse/templates/manage/project/settings.html:278
+#: warehouse/templates/manage/project/settings.html:218
+#: warehouse/templates/manage/project/settings.html:285
 msgid "Project Name"
 msgstr ""
 
@@ -5719,60 +5718,76 @@ msgstr ""
 msgid "Transferring this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:189
-msgid "Add the project to another organization that you own."
+#: warehouse/templates/manage/project/settings.html:188
+msgid "Revoke your direct Owner role on the project."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:191
+msgid ""
+"You will retain Owner permissions on the project through your "
+"organization role."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:196
+msgid "Add the project to another organization that you own."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:198
 msgid "Add the project to an organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:195
+#: warehouse/templates/manage/project/settings.html:202
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:206
+msgid ""
+"All other individual owners and maintainers of the project will retain "
+"their project permissions."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:218
 msgid "Transfer project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:217
+#: warehouse/templates/manage/project/settings.html:224
 msgid "Cannot transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:219
+#: warehouse/templates/manage/project/settings.html:226
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:231
 msgid ""
 "Organization owners can transfer the project to organizations that they "
 "own or manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:225
+#: warehouse/templates/manage/project/settings.html:232
 msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:227
+#: warehouse/templates/manage/project/settings.html:234
 msgid ""
 "Project owners can transfer the project to organizations that they own or"
 " manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:228
+#: warehouse/templates/manage/project/settings.html:235
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:238
-#: warehouse/templates/manage/project/settings.html:278
+#: warehouse/templates/manage/project/settings.html:245
+#: warehouse/templates/manage/project/settings.html:285
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:241
+#: warehouse/templates/manage/project/settings.html:248
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:246
+#: warehouse/templates/manage/project/settings.html:253
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -5783,15 +5798,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:252
+#: warehouse/templates/manage/project/settings.html:259
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:256
+#: warehouse/templates/manage/project/settings.html:263
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:258
+#: warehouse/templates/manage/project/settings.html:265
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
