@@ -225,20 +225,21 @@
         {% pluralize %}
           Your organization currently owns {{ count }} projects.
         {% endtrans %}
-        {% trans count=active_projects|length %}
-          You must transfer ownership or delete this project before you can delete your organization.
-        {% pluralize %}
-          You must transfer ownership or delete these projects before you can delete your organization.
-        {% endtrans %}
+        {% trans %}For each project, you must either:{% endtrans %}
+        <ul>
+          <li>{% trans %}Transfer ownership and remove the project from your organization{% endtrans %}</li>
+          <li>{% trans %}Delete the project{% endtrans %}</li>
+        </ul>
+        {% trans %}Before you can delete your organization.{% endtrans %}
       </p>
       <ul class="no-bottom-margin">
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
-            <a href="{{ transfer_href }}">transfer ownership</a>
-            or
-            <a href="{{ delete_href }}">delete project</a>
+          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), remove_delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+            <a href="{{ transfer_href }}">transfer ownership</a> and <a href="{{ remove_delete_href }}">remove project</a>
+            <b>or</b>
+            <a href="{{ remove_delete_href }}">delete project</a>
           {% endtrans %}
         </li>
         {% endfor %}
@@ -249,6 +250,21 @@
         <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
         {% trans %}You will not be able to recover your organization after you delete it.{% endtrans %}
       </p>
+      {% if organization %}
+        {% if organization.subscriptions %}
+        <p>
+          <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+          {% if organization.active_subscription %}
+          {% trans %}Your subscription will be cancelled, and you will lose access to the billing portal.{% endtrans %}
+          {% else %}
+          {% trans %}You will lose access to the billing portal.{% endtrans %}
+          {% endif %}
+          {% trans billing_href=request.route_path('manage.organization.subscription', organization_name=organization.normalized_name, _query={'next': request.current_route_path(organization_name=organization.normalized_name)})%}
+            Please ensure you have retrieved all invoices from <a href="{{billing_href}}">your billing portal</a> before proceeding.
+          {% endtrans %}
+        </p>
+        {% endif %}
+      {% endif %}
       {{ confirm_button(gettext("Delete organization"), gettext("Organization Name"), "organization_name", organization.name) }}
       {% endif %}
     </div>

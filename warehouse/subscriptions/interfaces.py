@@ -34,6 +34,11 @@ class IGenericBillingService(Interface):
         Create the Customer resource via Billing API with the given name and description
         """
 
+    def update_customer(customer_id, name, description):
+        """
+        Update a Customer resource via Billing API with the given name and description
+        """
+
     def create_checkout_session(customer_id, price_ids, success_url, cancel_url):
         """
         # Create new Checkout Session for the order
