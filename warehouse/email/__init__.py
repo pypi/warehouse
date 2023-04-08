@@ -67,9 +67,9 @@ def send_email(task, request, recipient, msg, success_event):
 
     try:
         sender.send(recipient, msg)
-
         user_service = request.find_service(IUserService, context=None)
-        user_service.record_event(**success_event)
+        user = user_service.get_user(success_event.pop("user_id"))
+        user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
     except Exception as exc:

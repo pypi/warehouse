@@ -446,9 +446,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 .lower(),
             )
 
-            user_service.record_event(
-                userid,
-                tag=EventTag.Account.RecoveryCodesUsed,
+            user = user_service.get_user(userid)
+            user.record_event(
+                tag=EventTag.Account.RecoveryCodesUsed, ip_address=request.remote_addr
             )
 
             request.session.flash(
@@ -568,9 +568,9 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
-        user_service.record_event(
-            user.id,
+        user.record_event(
             tag=EventTag.Account.AccountCreate,
+            ip_address=request.remote_addr,
             additional={"email": form.email.data},
         )
 
@@ -615,9 +615,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         if user.can_reset_password:
             send_password_reset_email(request, (user, email))
-            user_service.record_event(
-                user.id,
+            user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
+                ip_address=request.remote_addr,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -625,9 +625,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             n_hours = token_service.max_age // 60 // 60
             return {"n_hours": n_hours}
         else:
-            user_service.record_event(
-                user.id,
+            user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
+                ip_address=request.remote_addr,
             )
             request.session.flash(
                 request._(
@@ -730,7 +730,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
-        user_service.record_event(user.id, tag=EventTag.Account.PasswordReset)
+        user.record_event(
+            tag=EventTag.Account.PasswordReset, ip_address=request.remote_addr
+        )
         password_reset_limiter.clear(user.id)
 
         # Send password change email
@@ -1213,9 +1215,10 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
-    user_service.record_event(
-        userid,
+    user = user_service.get_user(userid)
+    user.record_event(
         tag=EventTag.Account.LoginSuccess,
+        ip_address=request.remote_addr,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,

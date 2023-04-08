@@ -234,9 +234,9 @@ def organization_approve(request):
     message = request.params.get("message", "")
 
     organization_service.approve_organization(organization.id)
-    organization_service.record_event(
-        organization.id,
+    organization.record_event(
         tag=EventTag.Organization.OrganizationApprove,
+        ip_address=request.remote_addr,
         additional={"approved_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_approved_email(
@@ -302,9 +302,9 @@ def organization_decline(request):
     message = request.params.get("message", "")
 
     organization_service.decline_organization(organization.id)
-    organization_service.record_event(
-        organization.id,
+    organization.record_event(
         tag=EventTag.Organization.OrganizationDecline,
+        ip_address=request.remote_addr,
         additional={"declined_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_declined_email(

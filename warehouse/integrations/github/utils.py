@@ -17,7 +17,6 @@ import time
 import requests
 
 from warehouse import integrations
-from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import InvalidMacaroonError
@@ -245,11 +244,10 @@ def _analyze_disclosure(request, disclosure_record, origin):
         public_url=disclosure.public_url,
         origin=origin,
     )
-    user_service = request.find_service(IUserService, context=None)
 
-    user_service.record_event(
-        database_macaroon.user.id,
+    database_macaroon.user.record_event(
         tag=EventTag.Account.APITokenRemovedLeak,
+        ip_address=request.remote_addr,
         additional={
             "macaroon_id": str(database_macaroon.id),
             "public_url": disclosure.public_url,

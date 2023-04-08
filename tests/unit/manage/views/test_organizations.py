@@ -131,7 +131,6 @@ class TestManageOrganizations:
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         organization = pretend.stub(
@@ -147,6 +146,7 @@ class TestManageOrganizations:
             ),
             is_active=False,
             is_approved=None,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         catalog_entry = pretend.stub()
         role = pretend.stub()
@@ -154,7 +154,6 @@ class TestManageOrganizations:
             add_organization=pretend.call_recorder(lambda *a, **kw: organization),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         request = pretend.stub(
@@ -170,6 +169,7 @@ class TestManageOrganizations:
                 id=pretend.stub(),
                 username=pretend.stub(),
                 has_primary_verified_email=True,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {
@@ -228,20 +228,20 @@ class TestManageOrganizations:
                 OrganizationRoleType.Owner,
             )
         ]
-        assert organization_service.record_event.calls == [
+        assert organization.record_event.calls == [
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.CatalogEntryAdd,
+                ip_address=request.remote_addr,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationCreate,
+                ip_address=request.remote_addr,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationRoleAdd,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -249,10 +249,10 @@ class TestManageOrganizations:
                 },
             ),
         ]
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.OrganizationRoleAdd,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -282,7 +282,6 @@ class TestManageOrganizations:
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         organization = pretend.stub(
@@ -299,6 +298,7 @@ class TestManageOrganizations:
             ),
             is_active=False,
             is_approved=None,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         catalog_entry = pretend.stub()
         role = pretend.stub()
@@ -306,7 +306,6 @@ class TestManageOrganizations:
             add_organization=pretend.call_recorder(lambda *a, **kw: organization),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         request = pretend.stub(
@@ -322,6 +321,7 @@ class TestManageOrganizations:
                 id=pretend.stub(),
                 username=pretend.stub(),
                 has_primary_verified_email=True,
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda interface, **kw: {
@@ -380,20 +380,20 @@ class TestManageOrganizations:
                 OrganizationRoleType.Owner,
             )
         ]
-        assert organization_service.record_event.calls == [
+        assert organization.record_event.calls == [
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.CatalogEntryAdd,
+                ip_address=request.remote_addr,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationCreate,
+                ip_address=request.remote_addr,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationRoleAdd,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -401,10 +401,10 @@ class TestManageOrganizations:
                 },
             ),
         ]
-        assert user_service.record_event.calls == [
+        assert request.user.record_event.calls == [
             pretend.call(
-                request.user.id,
                 tag=EventTag.Account.OrganizationRoleAdd,
+                ip_address=request.remote_addr,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -433,17 +433,17 @@ class TestManageOrganizations:
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        organization = pretend.stub()
+        organization = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         catalog_entry = pretend.stub()
         role = pretend.stub()
         organization_service = pretend.stub(
             add_organization=pretend.call_recorder(lambda *a, **kw: organization),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
 
         request = pretend.stub(
@@ -494,7 +494,7 @@ class TestManageOrganizations:
         assert organization_service.add_organization.calls == []
         assert organization_service.add_catalog_entry.calls == []
         assert organization_service.add_organization_role.calls == []
-        assert organization_service.record_event.calls == []
+        assert organization.record_event.calls == []
         assert send_email.calls == []
         assert result == {"create_organization_form": create_organization_obj}
 

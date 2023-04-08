@@ -300,18 +300,25 @@ class TestSendEmail:
                     }
                 )
 
-        class FakeUserEventService:
+        class FakeUser:
             def __init__(self):
                 self.events = []
 
-            def record_event(self, user_id, tag, additional):
+            def record_event(self, tag, ip_address, additional):
                 self.events.append(
                     {
-                        "user_id": user_id,
+                        "ip_address": ip_address,
                         "tag": tag,
                         "additional": additional,
                     }
                 )
+
+        class FakeUserEventService:
+            def __init__(self):
+                self.user = FakeUser()
+
+            def get_user(self, user_id):
+                return self.user
 
         user_service = FakeUserEventService()
         sender = FakeMailSender()
@@ -323,6 +330,7 @@ class TestSendEmail:
                     IEmailSender: sender,
                 }.get(svc)
             ),
+            remote_addr="0.0.0.0",
         )
         user_id = pretend.stub()
 
@@ -340,6 +348,7 @@ class TestSendEmail:
             {
                 "tag": "account:email:sent",
                 "user_id": user_id,
+                "ip_address": request.remote_addr,
                 "additional": {
                     "from_": "noreply@example.com",
                     "to": "recipient",
@@ -361,10 +370,10 @@ class TestSendEmail:
                 "recipient": "recipient",
             }
         ]
-        assert user_service.events == [
+        assert user_service.user.events == [
             {
-                "user_id": user_id,
                 "tag": "account:email:sent",
+                "ip_address": request.remote_addr,
                 "additional": {
                     "from_": "noreply@example.com",
                     "to": "recipient",

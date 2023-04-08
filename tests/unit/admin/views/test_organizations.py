@@ -460,11 +460,11 @@ class TestOrganizationDetail:
                     ),
                 ),
             ),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
             approve_organization=pretend.call_recorder(lambda *a, **kw: None),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         message = pretend.stub()
@@ -480,6 +480,7 @@ class TestOrganizationDetail:
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
+            remote_addr="0.0.0.0",
             user=admin,
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -493,10 +494,10 @@ class TestOrganizationDetail:
         assert organization_service.approve_organization.calls == [
             pretend.call(organization.id),
         ]
-        assert organization_service.record_event.calls == [
+        assert organization.record_event.calls == [
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationApprove,
+                ip_address=request.remote_addr,
                 additional={"approved_by_user_id": str(admin.id)},
             ),
         ]
@@ -606,11 +607,11 @@ class TestOrganizationDetail:
                     ),
                 ),
             ),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         organization_service = pretend.stub(
             get_organization=lambda *a, **kw: organization,
             decline_organization=pretend.call_recorder(lambda *a, **kw: None),
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         organization_detail_location = (f"/admin/organizations/{organization.id}/",)
         message = pretend.stub()
@@ -626,6 +627,7 @@ class TestOrganizationDetail:
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
+            remote_addr="0.0.0.0",
             user=admin,
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -639,10 +641,10 @@ class TestOrganizationDetail:
         assert organization_service.decline_organization.calls == [
             pretend.call(organization.id),
         ]
-        assert organization_service.record_event.calls == [
+        assert organization.record_event.calls == [
             pretend.call(
-                organization.id,
                 tag=EventTag.Organization.OrganizationDecline,
+                ip_address=request.remote_addr,
                 additional={"declined_by_user_id": str(admin.id)},
             ),
         ]

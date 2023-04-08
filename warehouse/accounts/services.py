@@ -565,18 +565,6 @@ class DatabaseUserService:
             None,
         )
 
-    def record_event(self, user_id, *, tag, additional=None):
-        """
-        Creates a new UserEvent for the given user with the given
-        tag, IP address, and additional metadata.
-
-        Returns the event.
-        """
-        user = self.get_user(user_id)
-        return user.record_event(
-            tag=tag, ip_address=self.remote_addr, additional=additional
-        )
-
     def generate_recovery_codes(self, user_id):
         user = self.get_user(user_id)
 
