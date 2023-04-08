@@ -82,11 +82,6 @@ class ActiveOrganizationPredicate:
         )
 
         if (
-            # Organization accounts are disabled.
-            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        ):
-            return False
-        elif (
             # Organization is active.
             organization.is_active
             # Organization has active subscription if it is a Company.
@@ -96,6 +91,11 @@ class ActiveOrganizationPredicate:
             )
         ):
             return True
+        elif (
+            # Organization accounts are disabled.
+            request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        ):
+            return False
         else:
             raise HTTPSeeOther(request.route_path("manage.organizations"))
 

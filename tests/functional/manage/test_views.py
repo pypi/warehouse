@@ -65,6 +65,7 @@ class TestManageOrganizations:
         user = UserFactory.create(name="old name")
         EmailFactory.create(primary=True, verified=True, public=True, user=user)
         db_request.user = user
+        db_request.organization_access = True
         db_request.method = "POST"
         db_request.path = "/manage/organizations/"
         db_request.POST = MultiDict(

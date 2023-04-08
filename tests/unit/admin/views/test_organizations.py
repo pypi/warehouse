@@ -221,10 +221,6 @@ class TestOrganizationList:
             "terms": ["is:not-actually-a-valid-query"],
         }
 
-    def test_disable_organizations(self, db_request):
-        with pytest.raises(HTTPNotFound):
-            views.organization_list(db_request)
-
 
 class TestOrganizationDetail:
     def test_detail(self, enable_organizations):
@@ -713,15 +709,3 @@ class TestOrganizationDetail:
 
         with pytest.raises(HTTPNotFound):
             views.organization_decline(request)
-
-    def test_detail_disable_organizations(self, db_request):
-        with pytest.raises(HTTPNotFound):
-            views.organization_detail(db_request)
-
-    def test_approve_disable_organizations(self, db_request):
-        with pytest.raises(HTTPNotFound):
-            views.organization_approve(db_request)
-
-    def test_decline_disable_organizations(self, db_request):
-        with pytest.raises(HTTPNotFound):
-            views.organization_decline(db_request)

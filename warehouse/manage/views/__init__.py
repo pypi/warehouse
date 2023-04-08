@@ -1045,7 +1045,7 @@ class ManageProjectSettingsViews:
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        if not self.request.organization_access:
             # Disable transfer of project to any organization.
             organization_choices = set()
         else:
@@ -1965,8 +1965,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
     # Team project roles and add internal collaborator form for organization projects.
     enable_internal_collaborator = bool(
-        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        and project.organization
+        request.organization_access and project.organization
     )
     if enable_internal_collaborator:
         team_project_roles = set(

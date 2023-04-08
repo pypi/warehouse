@@ -344,6 +344,34 @@ class TestOIDCPublisher:
         assert accounts._oidc_publisher(request) is None
 
 
+class TestOrganizationAccess:
+    @pytest.mark.parametrize(
+        ["identity", "flag", "orgs", "expected"],
+        [
+            (False, True, [], False),  # Unauth'd always have no access
+            (False, False, [], False),  # Unauth'd always have no access
+            (True, False, [], True),  # Flag allows all authenticated users
+            (True, True, [], False),  # Flag blocks all authenticated users without orgs
+            (
+                True,
+                True,
+                [pretend.stub()],
+                True,
+            ),  # Flag allows users with organizations
+        ],
+    )
+    def test_organization_access(self, db_session, identity, flag, orgs, expected):
+        user = None if not identity else UserFactory()
+        request = pretend.stub(
+            identity=user,
+            find_service=lambda interface, context=None: pretend.stub(
+                get_organizations_by_user=lambda x: orgs
+            ),
+            flags=pretend.stub(enabled=lambda flag_name: flag),
+        )
+        assert expected == accounts._organization_access(request)
+
+
 class TestUnauthenticatedUserid:
     def test_unauthenticated_userid(self):
         request = pretend.stub()
@@ -424,6 +452,9 @@ def test_includeme(monkeypatch):
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
         pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
+        pretend.call(
+            accounts._organization_access, name="organization_access", reify=True
+        ),
         pretend.call(accounts._unauthenticated_userid, name="_unauthenticated_userid"),
     ]
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]

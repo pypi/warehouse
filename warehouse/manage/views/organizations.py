@@ -22,7 +22,6 @@ from pyramid.view import view_config, view_defaults
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.email import (
     send_admin_new_organization_requested_email,
     send_admin_organization_deleted_email,
@@ -186,7 +185,7 @@ class ManageOrganizationsViews:
     @view_config(request_method="GET")
     def manage_organizations(self):
         # Organizations must be enabled.
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        if not self.request.organization_access:
             raise HTTPNotFound()
 
         return self.default_response
@@ -194,7 +193,7 @@ class ManageOrganizationsViews:
     @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
     def create_organization(self):
         # Organizations must be enabled.
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        if not self.request.organization_access:
             raise HTTPNotFound()
 
         form = CreateOrganizationForm(
@@ -566,7 +565,7 @@ class ManageOrganizationBillingViews:
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
         # Organizations must be enabled.
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        if not self.request.organization_access:
             raise HTTPNotFound()
 
         if not self.organization.subscriptions:
@@ -1370,7 +1369,7 @@ def manage_organization_history(organization, request):
     require_reauth=True,
 )
 def remove_organization_project(project, request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+    if not request.organization_access:
         request.session.flash("Organizations are disabled", queue="error")
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
@@ -1464,7 +1463,7 @@ def remove_organization_project(project, request):
     require_reauth=True,
 )
 def transfer_organization_project(project, request):
-    if request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+    if not request.organization_access:
         request.session.flash("Organizations are disabled", queue="error")
         return HTTPSeeOther(
             request.route_path("manage.project.settings", project_name=project.name)
