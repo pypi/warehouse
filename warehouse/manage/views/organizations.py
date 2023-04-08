@@ -486,9 +486,8 @@ class ManageOrganizationBillingViews:
         if self.organization.customer is None:
             customer = self.billing_service.create_customer(
                 name=(
-                    self.request.registry.settings["site.name"]
-                    + " Organization - "
-                    + self.organization.name
+                    f"{self.request.registry.settings['site.name']} Organization -"
+                    f"self.organization.display_name ({self.organization.name})"
                 ),
                 description=self.organization.description,
             )
