@@ -69,7 +69,8 @@ def send_email(task, request, recipient, msg, success_event):
         sender.send(recipient, msg)
         user_service = request.find_service(IUserService, context=None)
         user = user_service.get_user(success_event.pop("user_id"))
-        user.record_event(**success_event)
+        if user is not None:  # We send account deletion confirmation emails
+            user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
     except Exception as exc:
