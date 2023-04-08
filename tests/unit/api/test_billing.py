@@ -16,7 +16,7 @@ import pretend
 import pytest
 import stripe
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 
 from warehouse.api import billing
 
@@ -238,7 +238,7 @@ class TestHandleBillingWebhookEvent:
 
         billing.handle_billing_webhook_event(db_request, event)
 
-    def test_handle_billing_webhook_event_subscription_deleted_not_found(
+    def test_handle_billing_webhook_event_subscription_deleted(
         self, db_request, subscription_service
     ):
         organization = OrganizationFactory.create()
@@ -258,8 +258,7 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        with pytest.raises(HTTPNotFound):
-            billing.handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_deleted_invalid_status(
         self, db_request
@@ -359,8 +358,7 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        with pytest.raises(HTTPNotFound):
-            billing.handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_subscription_updated_no_change(
         self, db_request
@@ -478,8 +476,7 @@ class TestHandleBillingWebhookEvent:
             },
         }
 
-        with pytest.raises(HTTPNotFound):
-            billing.handle_billing_webhook_event(db_request, event)
+        billing.handle_billing_webhook_event(db_request, event)
 
     def test_handle_billing_webhook_event_customer_deleted_invalid_customer(
         self, db_request
