@@ -48,7 +48,9 @@ def sync_file_to_archive(request, file_id):
 def check_file_archive_tasks_outstanding(request):
     metrics = request.find_service(IMetricsService, context=None)
 
-    files_not_archived = request.db.query(File).filter(File.archived == False).count()
+    files_not_archived = (
+        request.db.query(File).filter(File.archived == False).count()  # noqa: E712
+    )
 
     metrics.gauge(
         "warehouse.packaging.files.not_archived",
