@@ -4,14 +4,14 @@ from pathlib import Path
 OIDC_PUBLISHING = """
 !!! info
 
-    OpenID Connect publishing functionality is currently in closed beta.
+    Trusted publishing functionality is currently in closed beta.
 
     You can request access to the closed beta using
     [this form](https://forms.gle/XUsRT8KTKy66TuUp7).
 
-    **NOTE**: Access to the OIDC beta is provided on a *per-user* basis: users
-    can register OIDC publishers against projects once added to the beta, but
-    other maintainers/owners of the project can't modify OIDC settings unless
+    **NOTE**: Access to the beta is provided on a *per-user* basis: users can
+    register trusted publishers against projects once added to the beta, but
+    other owners of the project can't modify trusted publisher settings unless
     they're *also* in the beta.
 """
 

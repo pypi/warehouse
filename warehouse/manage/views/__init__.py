@@ -49,8 +49,6 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
-    send_oidc_publisher_added_email,
-    send_oidc_publisher_removed_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -61,6 +59,8 @@ from warehouse.email import (
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_team_collaborator_added_email,
+    send_trusted_publisher_added_email,
+    send_trusted_publisher_removed_email,
     send_two_factor_added_email,
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
@@ -204,9 +204,9 @@ class ManageAccountViews:
 
         if form.validate():
             email = self.user_service.add_email(self.request.user.id, form.email.data)
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.EmailAdd,
+                ip_address=self.request.remote_addr,
                 additional={"email": email.email},
             )
 
@@ -247,9 +247,9 @@ class ManageAccountViews:
             )
         else:
             self.request.user.emails.remove(email)
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.EmailRemove,
+                ip_address=self.request.remote_addr,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -283,9 +283,9 @@ class ManageAccountViews:
         ).update(values={"primary": False})
 
         new_primary_email.primary = True
-        self.user_service.record_event(
-            self.request.user.id,
+        self.request.user.record_event(
             tag=EventTag.Account.EmailPrimaryChange,
+            ip_address=self.request.remote_addr,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -367,9 +367,9 @@ class ManageAccountViews:
             self.user_service.update_user(
                 self.request.user.id, password=form.new_password.data
             )
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.PasswordChange,
+                ip_address=self.request.remote_addr,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.db.flush()  # ensure password_date is available
@@ -545,9 +545,9 @@ class ProvisionTOTPViews:
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
             self.request.session.clear_totp_secret()
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
+                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -583,9 +583,9 @@ class ProvisionTOTPViews:
 
         if form.validate():
             self.user_service.update_user(self.request.user.id, totp_secret=None)
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
+                ip_address=self.request.remote_addr,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -670,9 +670,9 @@ class ProvisionWebAuthnViews:
                 ),
                 sign_count=form.validated_credential.sign_count,
             )
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
+                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -710,9 +710,9 @@ class ProvisionWebAuthnViews:
 
         if form.validate():
             self.request.user.webauthn.remove(form.webauthn)
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
+                ip_address=self.request.remote_addr,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -756,9 +756,9 @@ class ProvisionRecoveryCodesViews:
 
         recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
         send_recovery_codes_generated_email(self.request, self.request.user)
-        self.user_service.record_event(
-            self.request.user.id,
+        self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesGenerated,
+            ip_address=self.request.remote_addr,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -772,9 +772,9 @@ class ProvisionRecoveryCodesViews:
     def recovery_codes_regenerate(self):
         recovery_codes = self.user_service.generate_recovery_codes(self.request.user.id)
         send_recovery_codes_generated_email(self.request, self.request.user)
-        self.user_service.record_event(
-            self.request.user.id,
+        self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesRegenerated,
+            ip_address=self.request.remote_addr,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -896,9 +896,9 @@ class ProvisionMacaroonViews:
                 scopes=macaroon_caveats,
                 user_id=self.request.user.id,
             )
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.APITokenAdded,
+                ip_address=self.request.remote_addr,
                 additional={
                     "description": form.description.data,
                     "caveats": recorded_caveats,
@@ -947,9 +947,9 @@ class ProvisionMacaroonViews:
         if form.validate():
             macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
-            self.user_service.record_event(
-                self.request.user.id,
+            self.request.user.record_event(
                 tag=EventTag.Account.APITokenRemoved,
+                ip_address=self.request.remote_addr,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.permissions_caveat:
@@ -1045,7 +1045,7 @@ class ManageProjectSettingsViews:
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
-        if self.request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
+        if not self.request.organization_access:
             # Disable transfer of project to any organization.
             organization_choices = set()
         else:
@@ -1201,7 +1201,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1223,7 +1223,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1242,8 +1242,8 @@ class ManageOIDCPublisherViews:
             )
             return HTTPTooManyRequests(
                 self.request._(
-                    "There have been too many attempted OpenID Connect registrations. "
-                    "Try again later."
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
                 ),
                 retry_after=exc.resets_in.total_seconds(),
             )
@@ -1286,7 +1286,7 @@ class ManageOIDCPublisherViews:
                 return response
 
             for user in self.project.users:
-                send_oidc_publisher_added_email(
+                send_trusted_publisher_added_email(
                     self.request,
                     user,
                     project_name=self.project.name,
@@ -1302,6 +1302,8 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
+                    "url": publisher.publisher_url,
+                    "submitted_by": self.request.user.username,
                 },
             )
 
@@ -1332,7 +1334,7 @@ class ManageOIDCPublisherViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1355,7 +1357,7 @@ class ManageOIDCPublisherViews:
                 return self.default_response
 
             for user in self.project.users:
-                send_oidc_publisher_removed_email(
+                send_trusted_publisher_removed_email(
                     self.request,
                     user,
                     project_name=self.project.name,
@@ -1376,6 +1378,8 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
+                    "url": publisher.publisher_url,
+                    "submitted_by": self.request.user.username,
                 },
             )
 
@@ -1961,8 +1965,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
     # Team project roles and add internal collaborator form for organization projects.
     enable_internal_collaborator = bool(
-        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
-        and project.organization
+        request.organization_access and project.organization
     )
     if enable_internal_collaborator:
         team_project_roles = set(

@@ -216,7 +216,7 @@
                   {% trans %}Your projects{% endtrans %}
                 </a>
               </li>
-              {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+              {% if request.organization_access %}
               <li>
                 <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-sitemap" aria-hidden="true"></i>
@@ -252,7 +252,7 @@
                 {% trans %}Your projects{% endtrans %}
               </a>
             </li>
-            {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+            {% if request.organization_access %}
             <li>
               <a href="{{ request.route_path('manage.organizations') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'organizations' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'organizations' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-sitemap" aria-hidden="true"></i>
@@ -458,14 +458,14 @@
 {% endmacro %}
 
 {% macro oidc_title() %}
-  {% trans %}OpenID Connect Publisher Management{% endtrans %}
+  {% trans %}Trusted Publisher Management{% endtrans %}
 {% endmacro %}
 
 {% macro oidc_desc() %}
   <p>
     {% trans %}
       OpenID Connect (OIDC) provides a flexible, credential-free mechanism for delegating
-      publishing authority for a PyPI package to a third party service,
+      publishing authority for a PyPI package to a trusted third party service,
       like GitHub Actions.
     {% endtrans %}
   </p>
@@ -478,8 +478,8 @@
   </p>
 
   <p class="no-bottom-padding">
-    {% trans href="/help#openid-connect" %}
-    You can read more about OpenID Connect and how to use it
+    {% trans href="/help#trusted-publishers" %}
+    You can read more about trusted publishers and how to use them
     <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>

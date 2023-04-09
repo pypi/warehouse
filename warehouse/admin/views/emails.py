@@ -23,6 +23,7 @@ from sqlalchemy.exc import NoResultFound
 from warehouse.accounts.models import User
 from warehouse.email import send_email
 from warehouse.email.ses.models import EmailMessage
+from warehouse.events.tags import EventTag
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -101,7 +102,7 @@ def email_mass(request):
                         "body_html": row.get("body_html"),
                     },
                     {
-                        "tag": "account:email:sent",
+                        "tag": EventTag.Account.EmailSent,
                         "user_id": user.id,
                         "additional": {
                             "from_": request.registry.settings.get("mail.sender"),

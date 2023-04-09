@@ -553,7 +553,7 @@
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
-      {% elif event.tag == "account:email:sent" %}
+      {% elif event.tag == EventTag.Account.EmailSent %}
       <strong>{% trans %}Email sent{% endtrans %}</strong><br>
       <small>
         {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
@@ -571,16 +571,34 @@
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
 
       {% elif event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
-      <strong>Pending OpenID Connect publisher added</strong>
+      <strong>Pending trusted publisher added</strong>
       <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
       <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+      {% if event.additional.url %}
+      <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+      {% else %}
+      <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
+      {% endif %}
+      {% if event.additional.submitted_by %}
+      <small>
+        {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      </small>
+      {% endif %}
 
       {% elif event.tag == EventTag.Account.PendingOIDCPublisherRemoved %}
-      <strong>Pending OpenID Connect publisher removed</strong>
+      <strong>Pending trusted publisher removed</strong>
       <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
       <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-      <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+      {% if event.additional.url %}
+      <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+      {% else %}
+      <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
+      {% endif %}
+      {% if event.additional.submitted_by %}
+      <small>
+        {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+      </small>
+      {% endif %}
 
       {% elif event.tag  == EventTag.Account.TwoFactorMethodAdded %}
       <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>

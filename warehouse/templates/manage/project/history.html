@@ -255,13 +255,31 @@
 
     {# Display OIDC publisher events #}
     {% elif event.tag == EventTag.Project.OIDCPublisherAdded %}
-    <strong>{% trans %}OpenID Connect publisher added{% endtrans %}</strong>
+    <strong>{% trans %}Trusted publisher added{% endtrans %}</strong>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+    {% if event.additional.url %}
+    <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+    {% else %}
+    <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
+    {% endif %}
+    {% if event.additional.submitted_by %}
+    <small>
+      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% endif %}
     {% elif event.tag == EventTag.Project.OIDCPublisherRemoved %}
-    <strong>{% trans %}OpenID Connect publisher removed{% endtrans %}</strong>
+    <strong>{% trans %}Trusted publisher removed{% endtrans %}</strong>
     <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.specifier }}</small>
+    {% if event.additional.url %}
+    <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+    {% else %}
+    <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
+    {% endif %}
+    {% if event.additional.submitted_by %}
+    <small>
+      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+    </small>
+    {% endif %}
 
     {# Display 2FA events #}
     {% elif event.tag == EventTag.Project.OwnersRequire2FAEnabled %}

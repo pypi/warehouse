@@ -143,6 +143,7 @@ class TestSendEmailToUser:
         )
         pyramid_request.user = user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+        pyramid_request.remote_addr = "10.69.10.69"
 
         if address is not None:
             address = pretend.stub(email=address, verified=True)
@@ -165,6 +166,7 @@ class TestSendEmailToUser:
                         "subject": "My Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "10.69.10.69",
                 },
             )
         ]
@@ -279,13 +281,15 @@ class TestSendEmailToUser:
                         "subject": "My Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
 
 
 class TestSendEmail:
-    def test_send_email_success(self, db_session, monkeypatch):
+    @pytest.mark.parametrize("delete_user", [True, False])
+    def test_send_email_success(self, delete_user, db_session, monkeypatch):
         class FakeMailSender:
             def __init__(self):
                 self.emails = []
@@ -300,18 +304,27 @@ class TestSendEmail:
                     }
                 )
 
-        class FakeUserEventService:
+        class FakeUser:
             def __init__(self):
                 self.events = []
 
-            def record_event(self, user_id, tag, additional):
+            def record_event(self, tag, ip_address, additional):
                 self.events.append(
                     {
-                        "user_id": user_id,
+                        "ip_address": ip_address,
                         "tag": tag,
                         "additional": additional,
                     }
                 )
+
+        class FakeUserEventService:
+            def __init__(self):
+                self.user = FakeUser()
+
+            def get_user(self, user_id):
+                if delete_user:
+                    return None
+                return self.user
 
         user_service = FakeUserEventService()
         sender = FakeMailSender()
@@ -323,6 +336,7 @@ class TestSendEmail:
                     IEmailSender: sender,
                 }.get(svc)
             ),
+            remote_addr="0.0.0.0",
         )
         user_id = pretend.stub()
 
@@ -340,6 +354,7 @@ class TestSendEmail:
             {
                 "tag": "account:email:sent",
                 "user_id": user_id,
+                "ip_address": request.remote_addr,
                 "additional": {
                     "from_": "noreply@example.com",
                     "to": "recipient",
@@ -361,18 +376,21 @@ class TestSendEmail:
                 "recipient": "recipient",
             }
         ]
-        assert user_service.events == [
-            {
-                "user_id": user_id,
-                "tag": "account:email:sent",
-                "additional": {
-                    "from_": "noreply@example.com",
-                    "to": "recipient",
-                    "subject": msg.subject,
-                    "redact_ip": False,
-                },
-            }
-        ]
+        if delete_user:
+            assert user_service.user.events == []
+        else:
+            assert user_service.user.events == [
+                {
+                    "tag": "account:email:sent",
+                    "ip_address": request.remote_addr,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": "recipient",
+                        "subject": msg.subject,
+                        "redact_ip": False,
+                    },
+                }
+            ]
 
     def test_send_email_failure_retry(self, monkeypatch):
         exc = Exception()
@@ -416,6 +434,7 @@ class TestSendEmail:
                         "subject": msg.subject,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
 
@@ -458,6 +477,7 @@ class TestSendEmail:
                         "subject": msg.subject,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
 
@@ -563,6 +583,7 @@ class TestSendAdminNewOrganizationRequestedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -667,6 +688,7 @@ class TestSendAdminNewOrganizationApprovedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -771,6 +793,7 @@ class TestSendAdminNewOrganizationDeclinedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -888,6 +911,7 @@ class TestSendPasswordResetEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -970,6 +994,7 @@ class TestEmailVerificationEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1040,6 +1065,7 @@ class TestPasswordChangeEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1157,6 +1183,7 @@ class TestPasswordCompromisedHIBPEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1230,6 +1257,7 @@ class TestTokenLeakEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1300,6 +1328,7 @@ class TestPasswordCompromisedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1372,6 +1401,7 @@ class TestBasicAuthWith2FAEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1443,6 +1473,7 @@ class TestAccountDeletionEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1568,6 +1599,7 @@ class TestPrimaryEmailChangeEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1698,6 +1730,7 @@ class TestSendNewOrganizationRequestedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1790,6 +1823,7 @@ class TestSendNewOrganizationApprovedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1881,6 +1915,7 @@ class TestSendNewOrganizationDeclinedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1953,6 +1988,7 @@ class TestOrganizationProjectEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2026,6 +2062,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2085,6 +2122,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2137,6 +2175,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2188,6 +2227,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2242,6 +2282,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2293,6 +2334,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2349,6 +2391,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2404,6 +2447,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2458,6 +2502,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2511,6 +2556,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2567,6 +2613,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2622,6 +2669,7 @@ class TestOrganizationMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2706,6 +2754,7 @@ class TestOrganizationUpdateEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2767,6 +2816,7 @@ class TestOrganizationRenameEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2819,6 +2869,7 @@ class TestOrganizationRenameEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2877,6 +2928,7 @@ class TestOrganizationDeleteEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -2927,6 +2979,7 @@ class TestOrganizationDeleteEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3015,6 +3068,7 @@ class TestTeamMemberEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": recipient != self.submitter,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3084,6 +3138,7 @@ class TestTeamEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3189,6 +3244,7 @@ class TestCollaboratorAddedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -3210,6 +3266,7 @@ class TestCollaboratorAddedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -3309,6 +3366,7 @@ class TestCollaboratorAddedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3346,7 +3404,6 @@ class TestProjectRoleVerificationEmail:
         db_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         db_request.user = stub_user
         db_request.registry.settings = {"mail.sender": "noreply@example.com"}
-        db_request.remote_addr = "0.0.0.0"
         monkeypatch.setattr(email, "send_email", send_email)
 
         result = email.send_project_role_verification_email(
@@ -3391,6 +3448,7 @@ class TestProjectRoleVerificationEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3482,6 +3540,7 @@ class TestAddedAsCollaboratorEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3628,6 +3687,7 @@ class TestCollaboratorRemovedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -3649,6 +3709,7 @@ class TestCollaboratorRemovedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -3723,6 +3784,7 @@ class TestRemovedAsCollaboratorEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -3806,6 +3868,7 @@ class TestRoleChangedEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -3827,6 +3890,7 @@ class TestRoleChangedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -3905,6 +3969,7 @@ class TestRoleChangedAsCollaboratorEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4010,6 +4075,7 @@ class TestTeamCollaboratorEmails:
                         "subject": subject_renderer.string_response,
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -4112,6 +4178,7 @@ class TestRemovedProjectEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4133,6 +4200,7 @@ class TestRemovedProjectEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4233,6 +4301,7 @@ class TestRemovedProjectEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4254,6 +4323,7 @@ class TestRemovedProjectEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4370,6 +4440,7 @@ class TestYankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4391,6 +4462,7 @@ class TestYankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4505,6 +4577,7 @@ class TestYankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4526,6 +4599,7 @@ class TestYankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4641,6 +4715,7 @@ class TestUnyankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4662,6 +4737,7 @@ class TestUnyankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4775,6 +4851,7 @@ class TestUnyankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4796,6 +4873,7 @@ class TestUnyankedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -4911,6 +4989,7 @@ class TestRemovedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -4932,6 +5011,7 @@ class TestRemovedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -5045,6 +5125,7 @@ class TestRemovedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -5066,6 +5147,7 @@ class TestRemovedReleaseEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -5182,6 +5264,7 @@ class TestRemovedReleaseFileEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -5203,6 +5286,7 @@ class TestRemovedReleaseFileEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -5317,6 +5401,7 @@ class TestRemovedReleaseFileEmail:
                         "subject": "Email Subject",
                         "redact_ip": True,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
             pretend.call(
@@ -5338,6 +5423,7 @@ class TestRemovedReleaseFileEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             ),
         ]
@@ -5426,6 +5512,7 @@ class TestTwoFactorEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -5506,22 +5593,23 @@ class TestRecoveryCodeEmails:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
 
 
-class TestOIDCPublisherEmails:
+class TestTrustedPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
             (
-                email.send_pending_oidc_publisher_invalidated_email,
-                "pending-oidc-publisher-invalidated",
+                email.send_pending_trusted_publisher_invalidated_email,
+                "pending-trusted-publisher-invalidated",
             ),
         ],
     )
-    def test_pending_oidc_publisher_emails(
+    def test_pending_trusted_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5594,6 +5682,7 @@ class TestOIDCPublisherEmails:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -5601,11 +5690,11 @@ class TestOIDCPublisherEmails:
     @pytest.mark.parametrize(
         "fn, template_name",
         [
-            (email.send_oidc_publisher_added_email, "oidc-publisher-added"),
-            (email.send_oidc_publisher_removed_email, "oidc-publisher-removed"),
+            (email.send_trusted_publisher_added_email, "trusted-publisher-added"),
+            (email.send_trusted_publisher_removed_email, "trusted-publisher-removed"),
         ],
     )
-    def test_oidc_publisher_emails(
+    def test_trusted_publisher_emails(
         self, pyramid_request, pyramid_config, monkeypatch, fn, template_name
     ):
         stub_user = pretend.stub(
@@ -5688,6 +5777,7 @@ class TestOIDCPublisherEmails:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
+                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -5771,6 +5861,7 @@ def test_two_factor_mandate_emails(
                     "subject": "Email Subject",
                     "redact_ip": False,
                 },
+                "ip_address": "1.2.3.4",
             },
         )
     ]

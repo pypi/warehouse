@@ -153,6 +153,26 @@ class TestMockStripeBillingService:
         assert customer is not None
         assert customer["id"]
 
+    def test_update_customer(self, billing_service, organization_service):
+        organization = OrganizationFactory.create()
+
+        customer = billing_service.create_customer(
+            name=organization.name,
+            description=organization.description,
+        )
+
+        assert customer is not None
+        assert customer["name"] == organization.name
+
+        customer = billing_service.update_customer(
+            customer_id=customer["id"],
+            name="wutangClan",
+            description=organization.description,
+        )
+
+        assert customer is not None
+        assert customer["name"] == "wutangClan"
+
     def test_create_checkout_session(self, billing_service, subscription_service):
         subscription_price = StripeSubscriptionPriceFactory.create()
         success_url = "http://what.ever"

@@ -32,11 +32,13 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import (
     MacaroonAuthorizationPolicy,
     MacaroonSecurityPolicy,
 )
 from warehouse.oidc.models import OIDCPublisher
+from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
 
@@ -63,6 +65,18 @@ def _user(request):
 
 def _oidc_publisher(request):
     return request.identity if isinstance(request.identity, OIDCPublisher) else None
+
+
+def _organization_access(request):
+    if (user := _user(request)) is None:
+        return False
+
+    organization_service = request.find_service(IOrganizationService, context=None)
+    organizations = organization_service.get_organizations_by_user(user.id)
+    return (
+        not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS)
+        or len(organizations) > 0
+    )
 
 
 def _unauthenticated_userid(request):
@@ -122,6 +136,9 @@ def includeme(config):
     # request identity by type, if they know it.
     config.add_request_method(_user, name="user", reify=True)
     config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
+    config.add_request_method(
+        _organization_access, name="organization_access", reify=True
+    )
 
     config.add_request_method(_unauthenticated_userid, name="_unauthenticated_userid")
 

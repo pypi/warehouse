@@ -212,11 +212,14 @@ class TestLogin:
         new_session = {}
 
         user_id = uuid.uuid4()
+        user = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user_id),
             update_user=pretend.call_recorder(lambda *a, **kw: None),
+            get_user=pretend.call_recorder(lambda userid: user),
             has_two_factor=lambda userid: False,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
             get_password_timestamp=lambda userid: 0,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
@@ -278,10 +281,10 @@ class TestLogin:
 
         assert user_service.find_userid.calls == [pretend.call("theuser")]
         assert user_service.update_user.calls == [pretend.call(user_id, last_login=now)]
-        assert user_service.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
-                user_id,
                 tag=EventTag.Account.LoginSuccess,
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -305,11 +308,14 @@ class TestLogin:
     def test_post_validate_no_redirects(
         self, pyramid_request, pyramid_services, expected_next_url, observed_next_url
     ):
+        user = pretend.stub(
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         user_service = pretend.stub(
+            get_user=pretend.call_recorder(lambda userid: user),
             find_userid=pretend.call_recorder(lambda username: 1),
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
             get_password_timestamp=lambda userid: 0,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
@@ -338,10 +344,10 @@ class TestLogin:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == observed_next_url
-        assert user_service.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
-                1,
                 tag=EventTag.Account.LoginSuccess,
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -400,7 +406,6 @@ class TestLogin:
             ("Content-Length", "0"),
             ("Location", "/account/two-factor"),
         ]
-        assert user_service.record_event.calls == []
 
 
 class TestTwoFactor:
@@ -636,6 +641,7 @@ class TestTwoFactor:
         user = pretend.stub(
             last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
             has_recovery_codes=has_recovery_codes,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
@@ -645,7 +651,6 @@ class TestTwoFactor:
             has_webauthn=lambda userid: False,
             has_recovery_codes=lambda userid: has_recovery_codes,
             check_totp_value=lambda userid, totp_value: True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
             get_password_timestamp=lambda userid: 0,
         )
 
@@ -702,10 +707,10 @@ class TestTwoFactor:
         assert remember.calls == [pretend.call(pyramid_request, str(1))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
-        assert user_service.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
-                "1",
                 tag=EventTag.Account.LoginSuccess,
+                ip_address=pyramid_request.remote_addr,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1086,17 +1091,16 @@ class TestRecoveryCode:
             )
         )
 
+        user = pretend.stub(
+            last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: 1),
-            get_user=pretend.call_recorder(
-                lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
-                )
-            ),
+            get_user=pretend.call_recorder(lambda userid: user),
             update_user=lambda *a, **k: None,
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
             get_password_timestamp=lambda userid: 0,
         )
 
@@ -1146,18 +1150,18 @@ class TestRecoveryCode:
         assert remember.calls == [pretend.call(pyramid_request, str(1))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
         assert pyramid_request.session.new_csrf_token.calls == [pretend.call()]
-        assert user_service.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
-                "1",
                 tag=EventTag.Account.LoginSuccess,
+                ip_address=pyramid_request.remote_addr,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
                 },
             ),
             pretend.call(
-                "1",
                 tag=EventTag.Account.RecoveryCodesUsed,
+                ip_address=pyramid_request.remote_addr,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1338,11 +1342,14 @@ class TestRegister:
     def test_register_redirect(self, db_request, monkeypatch):
         db_request.method = "POST"
 
-        user = pretend.stub(id=pretend.stub())
+        record_event = pretend.call_recorder(lambda *a, **kw: None)
+        user = pretend.stub(
+            id=pretend.stub(),
+            record_event=record_event,
+        )
         email = pretend.stub()
         create_user = pretend.call_recorder(lambda *args, **kwargs: user)
         add_email = pretend.call_recorder(lambda *args, **kwargs: email)
-        record_event = pretend.call_recorder(lambda *a, **kw: None)
         db_request.session.record_auth_timestamp = pretend.call_recorder(
             lambda *args: None
         )
@@ -1357,9 +1364,9 @@ class TestRegister:
                     find_userid_by_email=pretend.call_recorder(lambda _: None),
                     update_user=lambda *args, **kwargs: None,
                     create_user=create_user,
+                    get_user=lambda userid: user,
                     add_email=add_email,
                     check_password=lambda pw, tags=None: False,
-                    record_event=record_event,
                     get_password_timestamp=lambda uid: 0,
                 ),
                 IPasswordBreachedService: pretend.stub(
@@ -1399,13 +1406,13 @@ class TestRegister:
         assert send_email.calls == [pretend.call(db_request, (user, email))]
         assert record_event.calls == [
             pretend.call(
-                user.id,
                 tag=EventTag.Account.AccountCreate,
+                ip_address=db_request.remote_addr,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
-                user.id,
                 tag=EventTag.Account.LoginSuccess,
+                ip_address=db_request.remote_addr,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1467,12 +1474,14 @@ class TestRequestPasswordReset:
     ):
 
         stub_user = pretend.stub(
-            id=pretend.stub(), username=pretend.stub(), can_reset_password=True
+            id=pretend.stub(),
+            username=pretend.stub(),
+            can_reset_password=True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
-        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1509,10 +1518,10 @@ class TestRequestPasswordReset:
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, None))
         ]
-        assert user_service.record_event.calls == [
+        assert stub_user.record_event.calls == [
             pretend.call(
-                stub_user.id,
                 tag=EventTag.Account.PasswordResetRequest,
+                ip_address=pyramid_request.remote_addr,
             )
         ]
 
@@ -1525,12 +1534,12 @@ class TestRequestPasswordReset:
             email="foo@example.com",
             emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         user_service.ratelimiters = {
             "password.reset": pretend.stub(
                 test=pretend.call_recorder(lambda *a, **kw: True),
@@ -1574,10 +1583,10 @@ class TestRequestPasswordReset:
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, stub_user.emails[0]))
         ]
-        assert user_service.record_event.calls == [
+        assert stub_user.record_event.calls == [
             pretend.call(
-                stub_user.id,
                 tag=EventTag.Account.PasswordResetRequest,
+                ip_address=pyramid_request.remote_addr,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1599,12 +1608,12 @@ class TestRequestPasswordReset:
                 pretend.stub(email="other@example.com"),
             ],
             can_reset_password=True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.method = "POST"
         token_service.dumps = pretend.call_recorder(lambda a: "TOK")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         user_service.ratelimiters = {
             "password.reset": pretend.stub(
                 test=pretend.call_recorder(lambda *a, **kw: True),
@@ -1650,10 +1659,10 @@ class TestRequestPasswordReset:
         assert send_password_reset_email.calls == [
             pretend.call(pyramid_request, (stub_user, stub_user.emails[1]))
         ]
-        assert user_service.record_event.calls == [
+        assert stub_user.record_event.calls == [
             pretend.call(
-                stub_user.id,
                 tag=EventTag.Account.PasswordResetRequest,
+                ip_address=pyramid_request.remote_addr,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1676,11 +1685,11 @@ class TestRequestPasswordReset:
             email="foo@example.com",
             emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=True,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.method = "POST"
         user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
         user_service.get_user_by_email = pretend.call_recorder(lambda a: stub_user)
-        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         user_service.ratelimiters = {
             "password.reset": pretend.stub(
                 test=pretend.call_recorder(lambda *a, **kw: False),
@@ -1723,12 +1732,14 @@ class TestRequestPasswordReset:
         self, monkeypatch, pyramid_request, pyramid_config, user_service
     ):
         stub_user = pretend.stub(
-            id=pretend.stub(), username=pretend.stub(), can_reset_password=False
+            id=pretend.stub(),
+            username=pretend.stub(),
+            can_reset_password=False,
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         pyramid_request.method = "POST"
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         user_service.get_user_by_username = pretend.call_recorder(lambda a: stub_user)
-        user_service.record_event = pretend.call_recorder(lambda *a, **kw: None)
         pyramid_request.find_service = pretend.call_recorder(
             lambda interface, **kw: {
                 IUserService: user_service,
@@ -1748,10 +1759,10 @@ class TestRequestPasswordReset:
         ]
         assert result.headers["Location"] == "/the-redirect"
 
-        assert user_service.record_event.calls == [
+        assert stub_user.record_event.calls == [
             pretend.call(
-                stub_user.id,
                 tag=EventTag.Account.PasswordResetAttempt,
+                ip_address=pyramid_request.remote_addr,
             )
         ]
 
@@ -3101,7 +3112,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3181,7 +3192,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3244,7 +3255,7 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 (
                     "You must have a verified email in order to register a "
-                    "pending OpenID Connect publisher. "
+                    "pending trusted publisher. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
@@ -3314,7 +3325,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "You can't register more than 3 pending OpenID Connect "
+                    "You can't register more than 3 pending trusted "
                     "publishers at once."
                 ),
                 queue="error",
@@ -3517,7 +3528,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "This OpenID Connect publisher has already been registered. "
+                    "This trusted publisher has already been registered. "
                     "Please contact PyPI's admins if this wasn't intentional."
                 ),
                 queue="error",
@@ -3542,6 +3553,7 @@ class TestManageAccountPublishingViews:
                 has_primary_verified_email=True,
                 pending_oidc_publishers=[],
                 record_event=pretend.call_recorder(lambda **kw: None),
+                username="some-user",
             ),
             _=lambda s: s,
             db=pretend.stub(
@@ -3562,6 +3574,7 @@ class TestManageAccountPublishingViews:
             project_name="some-project-name",
             publisher_name="some-publisher",
             id=uuid.uuid4(),
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
@@ -3634,6 +3647,8 @@ class TestManageAccountPublishingViews:
                     "publisher": "some-publisher",
                     "id": str(pending_publisher.id),
                     "specifier": "fakespecifier",
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]
@@ -3712,7 +3727,7 @@ class TestManageAccountPublishingViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3814,6 +3829,7 @@ class TestManageAccountPublishingViews:
             project_name="some-project-name",
             publisher_name="some-publisher",
             id=uuid.uuid4(),
+            publisher_url="some-url",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
@@ -3830,7 +3846,9 @@ class TestManageAccountPublishingViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             user=pretend.stub(
-                in_oidc_beta=True, record_event=pretend.call_recorder(lambda **kw: None)
+                in_oidc_beta=True,
+                record_event=pretend.call_recorder(lambda **kw: None),
+                username="some-user",
             ),
             remote_addr="0.0.0.0",
             path="some-path",
@@ -3878,6 +3896,8 @@ class TestManageAccountPublishingViews:
                     "publisher": "some-publisher",
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
+                    "url": "some-url",
+                    "submitted_by": "some-user",
                 },
             )
         ]

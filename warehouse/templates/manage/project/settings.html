@@ -118,7 +118,7 @@
    # 1. User must be organization owner.
    # 2. There must be an individual project owner.
    #}
-  {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) and (project.organization and request.user in project.organization.owners) %}
+  {% if request.organization_access and (project.organization and request.user in project.organization.owners) %}
     {% if (project.owners|length) %}
     <div class="callout-block callout-block--danger">
       <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
@@ -161,7 +161,7 @@
    # 1. If project is currently in an organization, the user must be organization owner.
    # 2. User must have an organization to transfer the project to.
    #}
-  {% if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS) %}
+  {% if request.organization_access %}
     {% if (not project.organization or request.user in project.organization.owners) and (transfer_organization_project_form.organization.choices|length > 1) %}
     <div class="callout-block callout-block--danger">
       <h3>
@@ -183,6 +183,13 @@
         <li>
           {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
         </li>
+        {% else %}
+        <li>
+          {% trans %}Revoke your direct Owner role on the project.{% endtrans %}
+        </li>
+        <li>
+          {% trans %}You will retain Owner permissions on the project through your organization role.{% endtrans %}
+        </li>
         {% endif %}
         <li>
           {% if project.organization %}
@@ -196,7 +203,7 @@
         </li>
       </ul>
       <p>
-        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+        {% trans %}All other individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
       </p>
       {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
       {% set extra_fields %}

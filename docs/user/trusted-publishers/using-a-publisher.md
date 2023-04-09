@@ -170,6 +170,7 @@ jobs:
         run: python -m build
 
       - name: mint API token
+        id: mint-token
         run: |
           # retrieve the ambient OIDC token
           resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
@@ -180,11 +181,15 @@ jobs:
           resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
           api_token=$(jq '.token' <<< "${resp}")
 
-          # export the API token as TWINE_PASSWORD
-          echo "TWINE_PASSWORD=${api_token}" >> "${GITHUB_ENV}"
+          # mask the newly minted API token, so that we don't accidentally leak it
+          echo "::add-mask::${api_token}"
 
+          # see the next step in the workflow for an example of using this step output
+          echo "api-token=${api_token}" >> "${GITHUB_OUTPUT}"
 
       - name: publish
         # gh-action-pypi-publish uses TWINE_PASSWORD automatically
         uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ steps.mint-token.outputs.api-token }}
 ```

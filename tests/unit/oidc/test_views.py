@@ -136,7 +136,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
         assert isinstance(err["description"], str)
 
 
-def test_mint_token_from_oidc_publisher_verify_jwt_signature_fails():
+def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
@@ -166,7 +166,7 @@ def test_mint_token_from_oidc_publisher_verify_jwt_signature_fails():
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
 
 
-def test_mint_token_from_oidc_publisher_lookup_fails():
+def test_mint_token_from_trusted_publisher_lookup_fails():
     claims = pretend.stub()
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
@@ -292,7 +292,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     ]
 
 
-def test_mint_token_from_pending_oidc_publisher_invalidates_others(
+def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     monkeypatch, db_request
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
@@ -320,13 +320,13 @@ def test_mint_token_from_pending_oidc_publisher_invalidates_others(
         )
         emailed_users.append(user)
 
-    send_pending_oidc_publisher_invalidated_email = pretend.call_recorder(
+    send_pending_trusted_publisher_invalidated_email = pretend.call_recorder(
         lambda *a, **kw: None
     )
     monkeypatch.setattr(
         views,
-        "send_pending_oidc_publisher_invalidated_email",
-        send_pending_oidc_publisher_invalidated_email,
+        "send_pending_trusted_publisher_invalidated_email",
+        send_pending_trusted_publisher_invalidated_email,
     )
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
@@ -365,7 +365,7 @@ def test_mint_token_from_pending_oidc_publisher_invalidates_others(
 
     # We should have sent one invalidation email for each pending publisher that
     # was invalidated by the minting operation.
-    assert send_pending_oidc_publisher_invalidated_email.calls == [
+    assert send_pending_trusted_publisher_invalidated_email.calls == [
         pretend.call(db_request, emailed_users[0], project_name="does_not_exist"),
         pretend.call(db_request, emailed_users[1], project_name="does-not-exist"),
         pretend.call(db_request, emailed_users[2], project_name="dOeS-NoT-ExISt"),

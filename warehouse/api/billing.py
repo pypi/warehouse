@@ -12,7 +12,7 @@
 
 import stripe
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent, HTTPNotFound
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 from pyramid.view import view_config
 
 from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionService
@@ -76,8 +76,6 @@ def handle_billing_webhook_event(request, event):
                 subscription_service.update_subscription_status(
                     id, StripeSubscriptionStatus.Canceled
                 )
-            else:
-                raise HTTPNotFound("Subscription not found")
         # Occurs whenever a subscription changes e.g. status changes.
         case "customer.subscription.updated":
             subscription = event["data"]["object"]
@@ -94,8 +92,6 @@ def handle_billing_webhook_event(request, event):
             if id := subscription_service.find_subscriptionid(subscription_id):
                 # Update subscription status.
                 subscription_service.update_subscription_status(id, status)
-            else:
-                raise HTTPNotFound("Subscription not found")
         # Occurs whenever a customer is deleted.
         case "customer.deleted":
             customer = event["data"]["object"]
@@ -105,8 +101,6 @@ def handle_billing_webhook_event(request, event):
             if subscription_service.get_subscriptions_by_customer(customer_id):
                 # Delete the customer and all associated subscription data
                 subscription_service.delete_customer(customer_id)
-            else:
-                raise HTTPNotFound("Customer subscription data not found")
         # Occurs whenever a customer is updated.
         case "customer.updated":
             customer = event["data"]["object"]

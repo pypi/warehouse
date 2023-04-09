@@ -3316,7 +3316,7 @@ class TestFileUpload:
         assert resp.status == (
             "400 Non-user identities cannot create new projects. "
             "You must first create a project as a user, and then "
-            "configure the project to use OpenID Connect."
+            "configure the project to use trusted publishers."
         )
 
     @pytest.mark.parametrize(

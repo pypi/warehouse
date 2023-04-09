@@ -446,9 +446,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
                 .lower(),
             )
 
-            user_service.record_event(
-                userid,
-                tag=EventTag.Account.RecoveryCodesUsed,
+            user = user_service.get_user(userid)
+            user.record_event(
+                tag=EventTag.Account.RecoveryCodesUsed, ip_address=request.remote_addr
             )
 
             request.session.flash(
@@ -568,9 +568,9 @@ def register(request, _form_class=RegistrationForm):
             form.username.data, form.full_name.data, form.new_password.data
         )
         email = user_service.add_email(user.id, form.email.data, primary=True)
-        user_service.record_event(
-            user.id,
+        user.record_event(
             tag=EventTag.Account.AccountCreate,
+            ip_address=request.remote_addr,
             additional={"email": form.email.data},
         )
 
@@ -615,9 +615,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
 
         if user.can_reset_password:
             send_password_reset_email(request, (user, email))
-            user_service.record_event(
-                user.id,
+            user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
+                ip_address=request.remote_addr,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -625,9 +625,9 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             n_hours = token_service.max_age // 60 // 60
             return {"n_hours": n_hours}
         else:
-            user_service.record_event(
-                user.id,
+            user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
+                ip_address=request.remote_addr,
             )
             request.session.flash(
                 request._(
@@ -730,7 +730,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
-        user_service.record_event(user.id, tag=EventTag.Account.PasswordReset)
+        user.record_event(
+            tag=EventTag.Account.PasswordReset, ip_address=request.remote_addr
+        )
         password_reset_limiter.clear(user.id)
 
         # Send password change email
@@ -1213,9 +1215,10 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
-    user_service.record_event(
-        userid,
+    user = user_service.get_user(userid)
+    user.record_event(
         tag=EventTag.Account.LoginSuccess,
+        ip_address=request.remote_addr,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,
@@ -1379,7 +1382,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1402,7 +1405,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1417,7 +1420,7 @@ class ManageAccountPublishingViews:
             self.request.session.flash(
                 self.request._(
                     "You must have a verified email in order to register a "
-                    "pending OpenID Connect publisher. "
+                    "pending trusted publisher. "
                     "See https://pypi.org/help#openid-connect for details."
                 ),
                 queue="error",
@@ -1429,7 +1432,7 @@ class ManageAccountPublishingViews:
         if len(self.request.user.pending_oidc_publishers) >= 3:
             self.request.session.flash(
                 self.request._(
-                    "You can't register more than 3 pending OpenID Connect "
+                    "You can't register more than 3 pending trusted "
                     "publishers at once."
                 ),
                 queue="error",
@@ -1445,8 +1448,8 @@ class ManageAccountPublishingViews:
             )
             return HTTPTooManyRequests(
                 self.request._(
-                    "There have been too many attempted OpenID Connect registrations. "
-                    "Try again later."
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
                 ),
                 retry_after=exc.resets_in.total_seconds(),
             )
@@ -1473,7 +1476,7 @@ class ManageAccountPublishingViews:
         if publisher_already_exists:
             self.request.session.flash(
                 self.request._(
-                    "This OpenID Connect publisher has already been registered. "
+                    "This trusted publisher has already been registered. "
                     "Please contact PyPI's admins if this wasn't intentional."
                 ),
                 queue="error",
@@ -1499,6 +1502,8 @@ class ManageAccountPublishingViews:
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url,
+                "submitted_by": self.request.user.username,
             },
         )
 
@@ -1528,7 +1533,7 @@ class ManageAccountPublishingViews:
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 (
-                    "OpenID Connect is temporarily disabled. "
+                    "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1571,6 +1576,8 @@ class ManageAccountPublishingViews:
                     "publisher": pending_publisher.publisher_name,
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
+                    "url": pending_publisher.publisher_url,
+                    "submitted_by": self.request.user.username,
                 },
             )
 

@@ -29,6 +29,7 @@ from warehouse.accounts.models import Email
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
+from warehouse.events.tags import EventTag
 
 
 def _compute_recipient(user, email):
@@ -66,9 +67,10 @@ def send_email(task, request, recipient, msg, success_event):
 
     try:
         sender.send(recipient, msg)
-
         user_service = request.find_service(IUserService, context=None)
-        user_service.record_event(**success_event)
+        user = user_service.get_user(success_event.pop("user_id"))
+        if user is not None:  # We send account deletion confirmation emails
+            user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
         raise exc
     except Exception as exc:
@@ -113,7 +115,7 @@ def _send_email_to_user(
             "body_html": msg.body_html,
         },
         {
-            "tag": "account:email:sent",
+            "tag": EventTag.Account.EmailSent,
             "user_id": user.id,
             "additional": {
                 "from_": request.registry.settings.get("mail.sender"),
@@ -121,6 +123,7 @@ def _send_email_to_user(
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
             },
+            "ip_address": request.remote_addr,
         },
     )
 
@@ -977,8 +980,8 @@ def send_recovery_code_reminder_email(request, user):
     return {"username": user.username}
 
 
-@_email("oidc-publisher-added")
-def send_oidc_publisher_added_email(request, user, project_name, publisher):
+@_email("trusted-publisher-added")
+def send_trusted_publisher_added_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
@@ -988,8 +991,8 @@ def send_oidc_publisher_added_email(request, user, project_name, publisher):
     }
 
 
-@_email("oidc-publisher-removed")
-def send_oidc_publisher_removed_email(request, user, project_name, publisher):
+@_email("trusted-publisher-removed")
+def send_trusted_publisher_removed_email(request, user, project_name, publisher):
     # We use the request's user, since they're the one triggering the action.
     return {
         "username": request.user.username,
@@ -999,8 +1002,8 @@ def send_oidc_publisher_removed_email(request, user, project_name, publisher):
     }
 
 
-@_email("pending-oidc-publisher-invalidated")
-def send_pending_oidc_publisher_invalidated_email(request, user, project_name):
+@_email("pending-trusted-publisher-invalidated")
+def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
     }

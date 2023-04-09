@@ -15,7 +15,6 @@ Helper functions for `manage/views`, preventing circular imports.
 
 from sqlalchemy import func
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.organizations.models import (
     Organization,
     OrganizationRole,
@@ -127,58 +126,57 @@ def user_projects(request):
         .filter(~Project.organization.has())
     )
 
-    if not request.flags.enabled(AdminFlagValue.DISABLE_ORGANIZATIONS):
-        organizations_owned = (
-            request.db.query(Organization.id)
-            .join(OrganizationRole.organization)
-            .filter(
-                OrganizationRole.role_name == OrganizationRoleType.Owner,
-                OrganizationRole.user == request.user,
-            )
-            .subquery()
+    organizations_owned = (
+        request.db.query(Organization.id)
+        .join(OrganizationRole.organization)
+        .filter(
+            OrganizationRole.role_name == OrganizationRoleType.Owner,
+            OrganizationRole.user == request.user,
         )
+        .subquery()
+    )
 
-        organizations_with_sole_owner = (
-            request.db.query(OrganizationRole.organization_id)
-            .join(organizations_owned)
-            .filter(OrganizationRole.role_name == "Owner")
-            .group_by(OrganizationRole.organization_id)
-            .having(func.count(OrganizationRole.organization_id) == 1)
-            .subquery()
+    organizations_with_sole_owner = (
+        request.db.query(OrganizationRole.organization_id)
+        .join(organizations_owned)
+        .filter(OrganizationRole.role_name == "Owner")
+        .group_by(OrganizationRole.organization_id)
+        .having(func.count(OrganizationRole.organization_id) == 1)
+        .subquery()
+    )
+
+    teams = (
+        request.db.query(Team.id)
+        .join(TeamRole.team)
+        .filter(TeamRole.user == request.user)
+        .subquery()
+    )
+
+    projects_owned = projects_owned.union(
+        request.db.query(Project.id.label("id"))
+        .join(Organization.projects)
+        .join(organizations_owned, Organization.id == organizations_owned.c.id),
+        request.db.query(Project.id.label("id"))
+        .join(TeamProjectRole.project)
+        .join(teams, TeamProjectRole.team_id == teams.c.id)
+        .filter(TeamProjectRole.role_name == TeamProjectRoleType.Owner),
+    )
+
+    with_sole_owner = with_sole_owner.union(
+        # Select projects where organization has only one owner.
+        request.db.query(Project.id)
+        .join(Organization.projects)
+        .join(
+            organizations_with_sole_owner,
+            Organization.id == organizations_with_sole_owner.c.organization_id,
         )
-
-        teams = (
-            request.db.query(Team.id)
-            .join(TeamRole.team)
-            .filter(TeamRole.user == request.user)
-            .subquery()
-        )
-
-        projects_owned = projects_owned.union(
-            request.db.query(Project.id.label("id"))
-            .join(Organization.projects)
-            .join(organizations_owned, Organization.id == organizations_owned.c.id),
-            request.db.query(Project.id.label("id"))
-            .join(TeamProjectRole.project)
-            .join(teams, TeamProjectRole.team_id == teams.c.id)
-            .filter(TeamProjectRole.role_name == TeamProjectRoleType.Owner),
-        )
-
-        with_sole_owner = with_sole_owner.union(
-            # Select projects where organization has only one owner.
-            request.db.query(Project.id)
-            .join(Organization.projects)
-            .join(
-                organizations_with_sole_owner,
-                Organization.id == organizations_with_sole_owner.c.organization_id,
-            )
-            # Except projects with any other individual owners.
-            .filter(
-                ~Project.roles.any(
-                    (Role.role_name == "Owner") & (Role.user_id != request.user.id)
-                )
+        # Except projects with any other individual owners.
+        .filter(
+            ~Project.roles.any(
+                (Role.role_name == "Owner") & (Role.user_id != request.user.id)
             )
         )
+    )
 
     projects_owned = projects_owned.subquery()
     projects_collaborator = projects_collaborator.subquery()

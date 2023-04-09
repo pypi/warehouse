@@ -624,18 +624,6 @@ class DatabaseOrganizationService:
 
         self.db.delete(team_project_role)
 
-    def record_event(self, organization_id, *, tag, additional=None):
-        """
-        Creates a new Organization.Event for the given organization with the given
-        tag, IP address, and additional metadata.
-
-        Returns the event.
-        """
-        organization = self.get_organization(organization_id)
-        return organization.record_event(
-            tag=tag, ip_address=self.remote_addr, additional=additional
-        )
-
 
 def database_organization_factory(context, request):
     return DatabaseOrganizationService(request.db, remote_addr=request.remote_addr)
