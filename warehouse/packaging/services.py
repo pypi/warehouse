@@ -147,6 +147,7 @@ class GenericBlobStorage:
 
 class GenericB2BlobStorage(GenericBlobStorage):
     def get(self, path):
+        path = self._get_path(path)
         try:
             file_obj = io.BytesIO()
             downloaded_file = self.bucket.download_file_by_name(path)
@@ -157,12 +158,14 @@ class GenericB2BlobStorage(GenericBlobStorage):
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
     def get_metadata(self, path):
+        path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_name(path).file_info
         except b2sdk.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
     def store(self, path, file_path, *, meta=None):
+        path = self._get_path(path)
         self.bucket.upload_local_file(
             local_file=file_path,
             file_name=path,
