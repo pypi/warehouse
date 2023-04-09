@@ -224,6 +224,17 @@ class S3FileStorage(GenericS3BlobStorage):
         return cls(bucket, prefix=prefix)
 
 
+@implementer(IFileStorage)
+class S3ArchiveFileStorage(GenericS3BlobStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        session = request.find_service(name="aws.session")
+        s3 = session.resource("s3")
+        bucket = s3.Bucket(request.registry.settings["archive_files.bucket"])
+        prefix = request.registry.settings.get("archive_files.prefix")
+        return cls(bucket, prefix=prefix)
+
+
 @implementer(IDocsStorage)
 class S3DocsStorage:
     def __init__(self, s3_client, bucket_name, *, prefix=None):
