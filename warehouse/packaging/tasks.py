@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import datetime
+import tempfile
 
 from itertools import product
 
@@ -23,8 +24,36 @@ from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.email import send_two_factor_mandate_email
 from warehouse.metrics import IMetricsService
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def sync_file_to_archive(request, file_id):
+    file = request.db.query(File).get(file_id)
+    if not file.archived:
+        primary_storage = request.find_service(IFileStorage, name="primary")
+        archive_storage = request.find_service(IFileStorage, name="archive")
+        metadata = primary_storage.get_metadata(file.path)
+        file_obj = primary_storage.get(file.path)
+        with tempfile.NamedTemporaryFile() as file_for_archive:
+            file_for_archive.write(file_obj.read())
+            file_for_archive.flush()
+            archive_storage.store(file.path, file_for_archive.name, meta=metadata)
+        file.archived = True
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def check_file_archive_tasks_outstanding(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    files_not_archived = request.db.query(File).filter(File.archived == False).count()
+
+    metrics.gauge(
+        "warehouse.packaging.files.not_archived",
+        files_not_archived,
+    )
 
 
 @tasks.task(ignore_result=True, acks_late=True)

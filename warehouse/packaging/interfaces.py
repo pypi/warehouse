@@ -32,6 +32,13 @@ class IGenericFileStorage(Interface):
         at the given path.
         """
 
+    def get_metadata(path):
+        """
+        Return a dictionary containing any user-created metadata associated
+        with the file at a given path. Implementations may or may not store
+        or provide such metadata.
+        """
+
     def store(path, file_path, *, meta=None):
         """
         Save the file located at file_path to the file storage at the location

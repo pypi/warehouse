@@ -27,6 +27,7 @@ from warehouse.packaging.interfaces import (
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
+    check_file_archive_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
     update_description_html,
@@ -62,7 +63,16 @@ def includeme(config):
     # Register whatever file storage backend has been configured for storing
     # our package files.
     files_storage_class = config.maybe_dotted(config.registry.settings["files.backend"])
-    config.register_service_factory(files_storage_class.create_service, IFileStorage)
+    config.register_service_factory(
+        files_storage_class.create_service, IFileStorage, name="primary"
+    )
+
+    archive_files_storage_class = config.maybe_dotted(
+        config.registry.settings["archive_files.backend"]
+    )
+    config.register_service_factory(
+        archive_files_storage_class.create_service, IFileStorage, name="archive"
+    )
 
     simple_storage_class = config.maybe_dotted(
         config.registry.settings["simple.backend"]
@@ -163,6 +173,10 @@ def includeme(config):
             key_factory("org/{obj.normalized_name}"),
             key_factory("project/{itr.normalized_name}", iterate_on="projects"),
         ],
+    )
+
+    config.add_periodic_task(
+        crontab(minute="*/1"), check_file_archive_tasks_outstanding
     )
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)

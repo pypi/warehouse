@@ -11,11 +11,13 @@
 # limitations under the License.
 
 import collections
+import json
 import logging
 import os.path
 import shutil
 import warnings
 
+import b2sdk
 import botocore.exceptions
 import google.api_core.exceptions
 import google.api_core.retry
@@ -64,12 +66,18 @@ class GenericLocalBlobStorage:
     def get(self, path):
         return open(os.path.join(self.base, path), "rb")
 
+    def get_metadata(self, path):
+        return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
         with open(destination, "wb") as dest_fp:
             with open(file_path, "rb") as src_fp:
                 dest_fp.write(src_fp.read())
+        if meta is not None:
+            with open(destination + ".meta", "w") as dest_fp:
+                dest_fp.write(json.dumps(meta))
 
 
 @implementer(IFileStorage)
@@ -77,6 +85,13 @@ class LocalFileStorage(GenericLocalBlobStorage):
     @classmethod
     def create_service(cls, context, request):
         return cls(request.registry.settings["files.path"])
+
+
+@implementer(IFileStorage)
+class LocalArchiveFileStorage(GenericLocalBlobStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request.registry.settings["archive_files.path"])
 
 
 @implementer(ISimpleStorage)
@@ -129,13 +144,52 @@ class GenericBlobStorage:
         return path
 
 
+class GenericB2BlobStorage(GenericBlobStorage):
+    def get(self, path):
+        try:
+            downloaded_file = self.bucket.download_file_by_name(path)
+        except b2sdk.exception.FileNotPresent:
+            raise FileNotFoundError(f"No such key: {path!r}") from None
+
+    def get_metadata(self, path):
+        try:
+            file_info = self.bucket.get_file_info_by_name(path)
+        except b2sdk.exception.FileNotPresent:
+            raise FileNotFoundError(f"No such key: {path!r}") from None
+
+    def store(self, path, file_path, *, meta=None):
+        self.bucket.upload_local_file(
+            local_file=file_path,
+            file_name=path,
+            file_infos=meta,
+        )
+
+
+@implementer(IFileStorage)
+class B2FileStorage(GenericB2BlobStorage):
+    @classmethod
+    def create_service(cls, context, request):
+        b2_api = request.find_service(name="b2.api")
+        bucket = b2_api.get_bucket_by_name(request.registry.settings["files.bucket"])
+        prefix = request.registry.settings.get("files.prefix")
+        return cls(bucket, prefix=prefix)
+
+
 class GenericS3BlobStorage(GenericBlobStorage):
     def get(self, path):
-        # Note: this is not actually used in production, instead our CDN is
+        # Note: this is not actually used to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
         try:
             return self.bucket.Object(self._get_path(path)).get()["Body"]
+        except botocore.exceptions.ClientError as exc:
+            if exc.response["Error"]["Code"] != "NoSuchKey":
+                raise
+            raise FileNotFoundError(f"No such key: {path!r}") from None
+
+    def get_metadata(self, path):
+        try:
+            return self.bucket.Object(self._get_path(path)).metadata
         except botocore.exceptions.ClientError as exc:
             if exc.response["Error"]["Code"] != "NoSuchKey":
                 raise
@@ -197,9 +251,12 @@ class S3DocsStorage:
 
 class GenericGCSBlobStorage(GenericBlobStorage):
     def get(self, path):
-        # Note: this is not actually used in production, instead our CDN is
+        # Note: this is not actually used in to serve files, instead our CDN is
         # configured to connect directly to our storage bucket. See:
         # https://github.com/python/pypi-infra/blob/master/terraform/file-hosting/vcl/main.vcl
+        raise NotImplementedError
+
+    def get_metadata(self, path):
         raise NotImplementedError
 
     @google.api_core.retry.Retry(

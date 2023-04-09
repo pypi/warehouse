@@ -61,7 +61,10 @@ from warehouse.packaging.models import (
     Project,
     Release,
 )
-from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.packaging.tasks import (
+    sync_file_to_archive,
+    update_bigquery_release_files,
+)
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
@@ -1383,7 +1386,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage)
+        storage = request.find_service(IFileStorage, name="primary")
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),
@@ -1456,6 +1459,9 @@ def file_upload(request):
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
+
+    # Dispatch our archive task to sync this as soon as possible
+    request.task(sync_file_to_archive).delay(file_.id)
 
     return Response()
 

@@ -231,6 +231,7 @@ def configure(settings=None):
     )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "sponsorlogos", "backend", "SPONSORLOGOS_BACKEND")
