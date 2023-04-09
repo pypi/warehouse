@@ -173,6 +173,13 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
 
+    dummy_request._task_stub = pretend.stub(
+        delay=pretend.call_recorder(lambda *a, **kw: None)
+    )
+    dummy_request.task = pretend.call_recorder(
+        lambda *a, **kw: dummy_request._task_stub
+    )
+
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
         return ts.interpolate()

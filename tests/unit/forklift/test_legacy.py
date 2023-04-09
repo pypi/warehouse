@@ -48,7 +48,10 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.packaging.tasks import (
+    sync_file_to_archive,
+    update_bigquery_release_files,
+)
 from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1426,17 +1429,12 @@ class TestFileUpload:
             "warehouse.release_files_table": "example.pypi.distributions"
         }
 
-        update_bigquery = pretend.stub(
-            delay=pretend.call_recorder(lambda *a, **kw: None)
-        )
-        db_request.task = pretend.call_recorder(lambda *a, **kw: update_bigquery)
-
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage),
+            pretend.call(IFileStorage, name="primary"),
         ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
@@ -1508,7 +1506,10 @@ class TestFileUpload:
             )
         ]
 
-        assert db_request.task.calls == [pretend.call(update_bigquery_release_files)]
+        assert db_request.task.calls == [
+            pretend.call(update_bigquery_release_files),
+            pretend.call(sync_file_to_archive),
+        ]
 
         assert metrics.increment.calls == [
             pretend.call("warehouse.upload.attempt"),
@@ -2786,7 +2787,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage),
+            pretend.call(IFileStorage, name="primary"),
         ]
         assert storage_service.store.calls == [
             pretend.call(
@@ -2898,7 +2899,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage),
+            pretend.call(IFileStorage, name="primary"),
         ]
         assert storage_service.store.calls == [
             pretend.call(
