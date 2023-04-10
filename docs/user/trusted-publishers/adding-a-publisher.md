@@ -2,7 +2,7 @@
 title: Adding a Trusted Publisher to an Existing PyPI Project
 ---
 
-{{ preview('oidc-publishing') }}
+<!--[[ preview('oidc-publishing') ]]-->
 
 # Adding a trusted publisher to an existing PyPI project
 

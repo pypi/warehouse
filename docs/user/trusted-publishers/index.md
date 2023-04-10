@@ -2,7 +2,7 @@
 title: Getting Started
 ---
 
-{{ preview('oidc-publishing') }}
+<!--[[ preview('oidc-publishing') ]]-->
 
 # Publishing to PyPI with a Trusted Publisher
 
