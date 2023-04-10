@@ -684,7 +684,12 @@ class File(HasEvents, db.Model):
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
 
-    archived = Column(Boolean, nullable=False, server_default=sql.false())
+    archived = Column(
+        Boolean,
+        comment="Tracks if the associated object has been archived to our archival bucket.",
+        nullable=False,
+        server_default=sql.false(),
+    )
 
     @hybrid_property
     def pgp_path(self):

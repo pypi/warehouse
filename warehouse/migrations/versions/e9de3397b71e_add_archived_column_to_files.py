@@ -10,18 +10,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-add archived column to files table
+Add archived column to files
 
-Revision ID: 360dc6a7eb7a
+Revision ID: e9de3397b71e
 Revises: 203f1f8dcf92
-Create Date: 2023-04-09 15:03:39.717818
+Create Date: 2023-04-10 00:01:06.306182
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "360dc6a7eb7a"
+revision = "e9de3397b71e"
 down_revision = "203f1f8dcf92"
 
 
@@ -29,7 +29,11 @@ def upgrade():
     op.add_column(
         "release_files",
         sa.Column(
-            "archived", sa.Boolean(), server_default=sa.text("false"), nullable=False
+            "archived",
+            sa.Boolean(),
+            server_default=sa.text("false"),
+            nullable=False,
+            comment="Tracks if the associated object has been archived to our archival bucket.",
         ),
     )
     op.create_index(
