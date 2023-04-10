@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from b2sdk.v2 import B2Api, InMemoryAccountInfo
+import b2sdk.v2
 
 
 def b2_api_factory(context, request):
-    b2_api = B2Api(InMemoryAccountInfo())
+    b2_api = b2sdk.v2.B2Api(b2sdk.v2.InMemoryAccountInfo())
     b2_api.authorize_account(
         "production",
         request.registry.settings["b2.application_key_id"],

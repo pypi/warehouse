@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
+
+from contextlib import contextmanager
 from itertools import product
 
 import pretend
@@ -23,9 +26,11 @@ import warehouse.packaging.tasks
 from warehouse.accounts.models import WebAuthn
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
+    check_file_archive_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
     sync_bigquery_release_files,
+    sync_file_to_archive,
     update_bigquery_release_files,
     update_description_html,
 )
@@ -41,6 +46,61 @@ from ...common.db.packaging import (
     RoleFactory,
     UserFactory,
 )
+
+
+@pytest.mark.parametrize("archived", [True, False])
+def test_sync_file_to_archive(db_request, monkeypatch, archived):
+    file = FileFactory(archived=archived)
+    primary_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    archive_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"primary": primary_stub, "archive": archive_stub}[
+            name
+        ]
+    )
+
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
+        )
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+
+    sync_file_to_archive(db_request, file.id)
+
+    assert file.archived
+
+    if not archived:
+        assert primary_stub.get_metadata.calls == [pretend.call(file.path)]
+        assert primary_stub.get.calls == [pretend.call(file.path)]
+        assert archive_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"})
+        ]
+    else:
+        assert primary_stub.get_metadata.calls == []
+        assert primary_stub.get.calls == []
+        assert archive_stub.store.calls == []
+
+
+def test_check_file_archive_tasks_outstanding(db_request, metrics):
+    [FileFactory(archived=True) for _ in range(12)]
+    [FileFactory(archived=False) for _ in range(3)]
+
+    check_file_archive_tasks_outstanding(db_request)
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.files.not_archived", 3)
+    ]
 
 
 def test_update_description_html(monkeypatch, db_request):

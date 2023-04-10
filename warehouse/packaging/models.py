@@ -686,7 +686,7 @@ class File(HasEvents, db.Model):
 
     archived = Column(
         Boolean,
-        comment="Tracks if the associated object has been archived to our archival bucket.",
+        comment="If True, the object has been archived to our archival bucket.",
         nullable=False,
         server_default=sql.false(),
     )
