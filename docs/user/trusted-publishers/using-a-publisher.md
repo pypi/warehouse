@@ -49,7 +49,7 @@ flow, your diff might look like this:
          uses: pypa/gh-action-pypi-publish@release/v1
 -        with:
 -          username: __token__
--          password: {{ '${{ secrets.PYPI_TOKEN }}' }}
+-          password: ${{ secrets.PYPI_TOKEN }}
 ```
 
 Note the `id-token: write` permission: you **must** provide this permission
@@ -142,7 +142,6 @@ TWINE_USERNAME=__token__ TWINE_PASSWORD="${api_token}" twine upload dist/*
 This can all be tied together into a single GitHub Actions workflow:
 
 ```yaml
-
 on:
   release:
     types:
