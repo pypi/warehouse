@@ -120,6 +120,8 @@
           {% trans %}Environment name{% endtrans %}
           {% if github_publisher_form.environment.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% else %}
+          <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
           {% endif %}
         </label>
         {{ github_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
