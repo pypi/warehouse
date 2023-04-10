@@ -28,7 +28,7 @@ a billing page will appear. Enter the billing details.
 
 Once the organization has been created, it will have to be
 approved by the PyPI admin.
-This usually takes <<>> days.
+This usually takes <<TODO>> days.
 Once the account request has been approved,
 the user who created the account becomes the Owner of the organization.
 The Owner will be able to manage the organization once it has been approved.

@@ -11,7 +11,7 @@ This list of FAQs pertain to organization accounts in PyPI.
 1. **Can anyone create an organization account?**
 
     Yes, anyone can create an organization. For more information,
-    please see <<>>
+    please see <<TODO>>
 
 1. **How do I access an organization account?**
 
@@ -23,17 +23,20 @@ This list of FAQs pertain to organization accounts in PyPI.
     organization URL provided when creating the account
 
 1. **Why does an admin approve the organization account request?**
-	
+
+    <<TODO>>
+
 1. **How many days does it take for the admin to approve the organization
 account request?**
 
-    It will take <<>> days for the account to be approved.
-    If the account has not been approved in <<>> days, please contact <<>>.
+    It will take <<TODO>> days for the account to be approved.
+    If the account has not been approved in <<TODO>> days, please contact
+    <<TODO>>.
 
 1. **What is the subscription fee?**
 
     The organization account subscription fee depends on the
-    number of users. <<>>
+    number of users. <<TODO>>
 
 1. **Do community projects like ‘warehouse’ have to pay a subscription fee?**
 
@@ -48,7 +51,7 @@ organization or community  project?**
 
 1. **Can we cancel a subscription?**
 
-    Yes, you can cancel a subscription. For more information, see <<>>.
+    Yes, you can cancel a subscription. For more information, see <<TODO>>.
 
 1. **Is there a trial period?**
 
@@ -57,7 +60,7 @@ organization or community  project?**
 1. **Can we renew a lapsed subscription?**
 
     Yes, it is possible to renew a subscription. For more information,
-    see << add link>>
+    see <<TODO: add link>>
 
 1. **What happens if a subscription fee is not paid?**
 
