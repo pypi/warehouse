@@ -50,7 +50,9 @@ class GitHubPublisherBase(forms.Form):
         ]
     )
 
-    # TODO: What characters can appear in a valid GitHub Actions environment name?
+    # Environment names are not case sensitive. An environment name may not
+    # exceed 255 characters and must be unique within the repository.
+    # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     environment = wtforms.StringField()
 
     def __init__(self, *args, api_token, **kwargs):
