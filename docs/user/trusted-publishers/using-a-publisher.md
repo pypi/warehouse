@@ -2,7 +2,7 @@
 title: Publishing with a Trusted Publisher
 ---
 
-{{ preview('oidc-publishing') }}
+<!--[[ preview('oidc-publishing') ]]-->
 
 # Publishing with a Trusted Publisher
 

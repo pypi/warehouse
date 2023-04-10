@@ -2,7 +2,7 @@
 title: About
 ---
 
-{{ preview('org-accounts') }}
+<!--[[ preview('org-accounts') ]]-->
 
 # PyPI Organization Accounts
 

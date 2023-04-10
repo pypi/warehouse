@@ -2,7 +2,7 @@
 title: Security Model and Considerations
 ---
 
-{{ preview('oidc-publishing') }}
+<!--[[ preview('oidc-publishing') ]]-->
 
 # Security model and considerations
 

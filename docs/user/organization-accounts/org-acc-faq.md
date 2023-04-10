@@ -2,7 +2,7 @@
 title: FAQs
 ---
 
-{{ preview('org-accounts') }}
+<!--[[ preview('org-accounts') ]]-->
 
 # FAQs
 

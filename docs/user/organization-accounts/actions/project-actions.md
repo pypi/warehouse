@@ -2,7 +2,7 @@
 title: Project Actions
 ---
 
-{{ preview('org-accounts') }}
+<!--[[ preview('org-accounts') ]]-->
 
 # Project actions
 
