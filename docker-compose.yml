@@ -198,10 +198,10 @@ services:
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-user-docs.yml
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
-      - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
+      - ./docs/mkdocs-user-docs.yml:/opt/warehouse/src/docs/mkdocs-user-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10000:8000"
