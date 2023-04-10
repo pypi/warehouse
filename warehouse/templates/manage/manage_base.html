@@ -511,6 +511,13 @@
     <a href="{{ publisher.publisher_url }}">{{ publisher.publisher_url }}</a>
   </td>
   <td scope="row">
+    {% if publisher.environment %}
+      {{ publisher.environment }}
+    {% else %}
+      <i>({% trans %}Any{% endtrans %})</i>
+    {% endif %}
+  </td>
+  <td scope="row">
     <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger" {{ "" if request.user.in_oidc_beta else "disabled" }}>
   </td>
 </tr>
