@@ -27,7 +27,7 @@ providing the repository owner's name, the repository's name, and the
 filename of the GitHub Actions workflow that's authorized to upload to
 PyPI.
 
-For example, if you have a project at `https://github.com/pypa/sampleproject`
+For example, if you have a project at `https://github.com/octo-org/sampleproject`
 that uses a publishing workflow defined in `.github/workflows/release.yml`,
 then you'd do the following:
 
