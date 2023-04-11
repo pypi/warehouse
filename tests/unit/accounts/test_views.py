@@ -3884,7 +3884,8 @@ class TestManageAccountPublishingViews:
         assert delete_publisher_form_obj.validate.calls == [pretend.call()]
         assert request.session.flash.calls == [
             pretend.call(
-                "Removed publisher for project 'some-project-name'", queue="success"
+                "Removed trusted publisher for project 'some-project-name'",
+                queue="success",
             )
         ]
         assert request.user.record_event.calls == [

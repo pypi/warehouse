@@ -1384,7 +1384,8 @@ class ManageOIDCPublisherViews:
             )
 
             self.request.session.flash(
-                f"Removed {publisher} from {self.project.name}", queue="success"
+                f"Removed trusted publisher for project {self.project.name!r}",
+                queue="success",
             )
 
             self.metrics.increment(
