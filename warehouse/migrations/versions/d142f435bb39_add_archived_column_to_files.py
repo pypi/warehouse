@@ -26,6 +26,8 @@ down_revision = "665b6f8fd9ac"
 
 
 def upgrade():
+    conn = op.get_bind()
+    conn.execute("SET statement_timeout = 120000")
     op.add_column(
         "release_files",
         sa.Column(
@@ -36,8 +38,16 @@ def upgrade():
             comment="If True, the object has been archived to our archival bucket.",
         ),
     )
+
+    # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll close
+    # our transaction here and issue the statement.
+    op.execute("COMMIT")
     op.create_index(
-        "release_files_archived_idx", "release_files", ["archived"], unique=False
+        "release_files_archived_idx",
+        "release_files",
+        ["archived"],
+        unique=False,
+        postgresql_concurrently=True,
     )
 
 
