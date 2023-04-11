@@ -38,6 +38,10 @@ def upgrade():
             comment="If True, the object has been archived to our archival bucket.",
         ),
     )
+
+    # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll close
+    # our transaction here and issue the statement.
+    op.execute("COMMIT")
     op.create_index(
         "release_files_archived_idx",
         "release_files",
