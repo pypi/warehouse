@@ -162,6 +162,8 @@ def configure(settings=None):
     maybe_set(settings, "aws.key_id", "AWS_ACCESS_KEY_ID")
     maybe_set(settings, "aws.secret_key", "AWS_SECRET_ACCESS_KEY")
     maybe_set(settings, "aws.region", "AWS_REGION")
+    maybe_set(settings, "b2.application_key_id", "B2_APPLICATION_KEY_ID")
+    maybe_set(settings, "b2.application_key", "B2_APPLICATION_KEY")
     maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
     maybe_set(
@@ -231,6 +233,7 @@ def configure(settings=None):
     )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
+    maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
     maybe_set_compound(settings, "simple", "backend", "SIMPLE_BACKEND")
     maybe_set_compound(settings, "docs", "backend", "DOCS_BACKEND")
     maybe_set_compound(settings, "sponsorlogos", "backend", "SPONSORLOGOS_BACKEND")
@@ -554,8 +557,9 @@ def configure(settings=None):
 
     config.include(".search")
 
-    # Register the support for AWS and Google Cloud
+    # Register the support for AWS, Backblaze,and Google Cloud
     config.include(".aws")
+    config.include(".b2")
     config.include(".gcloud")
 
     # Register our session support

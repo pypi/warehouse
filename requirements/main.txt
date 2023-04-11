@@ -39,6 +39,10 @@ argon2-cffi-bindings==21.2.0 \
     --hash=sha256:f1152ac548bd5b8bcecfb0b0371f082037e47128653df2e8ba6e914d384f3c3e \
     --hash=sha256:f9f8b450ed0547e3d473fdc8612083fd08dd2120d6ac8f73828df9b7d45bb351
     # via argon2-cffi
+arrow==1.2.3 \
+    --hash=sha256:3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1 \
+    --hash=sha256:5a49ab92e3b7b71d96cd6bfcc4df14efefc9dfa96ea19045815914a6ab6b1fe2
+    # via b2sdk
 asn1crypto==1.5.1 \
     --hash=sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c \
     --hash=sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67
@@ -54,6 +58,9 @@ attrs==22.2.0 \
 automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
+    # via -r requirements/main.in
+b2sdk==1.20.0 \
+    --hash=sha256:b394d9fbdada1a4ffc0837cd6c930351f5fccc24cd0af23e41edd850d67fb687
     # via -r requirements/main.in
 babel==2.12.1 \
     --hash=sha256:b4246fb7677d3b98f501a39d43396d3cafdc8eadb045f4a31be01863f655c610 \
@@ -843,6 +850,10 @@ limits==3.3.1 \
     --hash=sha256:df8685b1aff349b5199628ecdf41a9f339a35233d8e4fcd9c3e10002e4419b45 \
     --hash=sha256:dfc59ed5b4847e33a33b88ec16033bed18ce444ce6a76287a4e054db9a683861
     # via -r requirements/main.in
+logfury==1.0.1 \
+    --hash=sha256:130a5daceab9ad534924252ddf70482aa2c96662b3a3825a7d30981d03b76a26 \
+    --hash=sha256:b4f04be1701a1df644afc3384d6167d64c899f8036b7eefc3b6c570c6a9b290b
+    # via b2sdk
 lxml==4.9.2 \
     --hash=sha256:01d36c05f4afb8f7c20fd9ed5badca32a2029b93b1750f571ccc0b142531caf7 \
     --hash=sha256:04876580c050a8c5341d706dd464ff04fd597095cc8c023252566a8826505726 \
@@ -1327,6 +1338,7 @@ python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via
+    #   arrow
     #   botocore
     #   celery-redbeat
     #   elasticsearch-dsl
@@ -1358,6 +1370,7 @@ requests==2.28.2 \
     --hash=sha256:98b1b2782e3c6c4904938b84c0eb932721069dfdb9134313beff7c83c2df24bf
     # via
     #   -r requirements/main.in
+    #   b2sdk
     #   datadog
     #   forcediphttpsadapter
     #   google-api-core
@@ -1475,6 +1488,10 @@ text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
     --hash=sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93
     # via python-slugify
+tqdm==4.65.0 \
+    --hash=sha256:1871fb68a86b8fb3b59ca4cdd3dcccbc7e6d613eeed31f4c332531977b89beb5 \
+    --hash=sha256:c4f53a17fe37e132815abceec022631be8ffe1b9381c2e6e30aa70edc99e9671
+    # via b2sdk
 transaction==3.1.0 \
     --hash=sha256:65d0b1ea92dbe7c4e3b237fb6bd8b41dea23d7459e7bdd8c3880bffdaf912fa4 \
     --hash=sha256:8376a959aa71821df1bdd7d066858a3f9f34b7f5f1c0a0e1efbd11d626895449

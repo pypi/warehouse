@@ -89,6 +89,7 @@ def metrics_timing(*args, **kwargs):
 def metrics():
     return pretend.stub(
         event=pretend.call_recorder(lambda *args, **kwargs: None),
+        gauge=pretend.call_recorder(lambda *args, **kwargs: None),
         increment=pretend.call_recorder(lambda *args, **kwargs: None),
         histogram=pretend.call_recorder(lambda *args, **kwargs: None),
         timing=pretend.call_recorder(lambda *args, **kwargs: None),
@@ -172,6 +173,13 @@ def pyramid_request(pyramid_services, jinja, remote_addr):
     dummy_request.oidc_publisher = None
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
+
+    dummy_request._task_stub = pretend.stub(
+        delay=pretend.call_recorder(lambda *a, **kw: None)
+    )
+    dummy_request.task = pretend.call_recorder(
+        lambda *a, **kw: dummy_request._task_stub
+    )
 
     def localize(message, **kwargs):
         ts = TranslationString(message, **kwargs)
@@ -264,6 +272,7 @@ def app_config(database):
         "ratelimit.url": "memory://",
         "elasticsearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
+        "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
@@ -273,6 +282,7 @@ def app_config(database):
             "warehouse.malware.services.PrinterMalwareCheckService"
         ),
         "files.url": "http://localhost:7000/",
+        "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
         "sessions.url": "redis://localhost:0/",
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
