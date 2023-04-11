@@ -10,19 +10,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Add archived column to files
+add archived column to files
 
-Revision ID: e9de3397b71e
-Revises: 203f1f8dcf92
-Create Date: 2023-04-10 00:01:06.306182
+Revision ID: d142f435bb39
+Revises: 665b6f8fd9ac
+Create Date: 2023-04-11 10:11:22.602965
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "e9de3397b71e"
-down_revision = "203f1f8dcf92"
+revision = "d142f435bb39"
+down_revision = "665b6f8fd9ac"
 
 
 def upgrade():
