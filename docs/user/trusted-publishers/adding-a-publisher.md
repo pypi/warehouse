@@ -38,7 +38,7 @@ at the top of the page:
 
 ![](/assets/project-publisher-registered.png)
 
-From this point onwards, the `release.yml` workflow on `pypa/sampleproject` will
+From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
 be able to generate short-lived API tokens from PyPI for the project you've registered
 it against.
 
