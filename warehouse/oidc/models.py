@@ -234,10 +234,10 @@ class GitHubPublisherMixin:
     Common functionality for both pending and concrete GitHub OIDC publishers.
     """
 
-    repository_name = Column(String)
-    repository_owner = Column(String)
-    repository_owner_id = Column(String)
-    workflow_filename = Column(String)
+    repository_name = Column(String, nullable=False)
+    repository_owner = Column(String, nullable=False)
+    repository_owner_id = Column(String, nullable=False)
+    workflow_filename = Column(String, nullable=False)
 
     __verifiable_claims__ = {
         "sub": _check_sub,
