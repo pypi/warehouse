@@ -153,6 +153,12 @@ class GitHubPublisherBase(forms.Form):
                 _("Workflow filename must be a filename only, without directories")
             )
 
+    @property
+    def normalized_environment(self):
+        return (
+            self.environment.data.lower() if self.environment.data is not None else None
+        )
+
 
 class PendingGitHubPublisherForm(GitHubPublisherBase):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]

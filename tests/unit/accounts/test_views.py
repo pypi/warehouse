@@ -3493,6 +3493,7 @@ class TestManageAccountPublishingViews:
             repository=pretend.stub(data="some-repo"),
             normalized_owner="some-owner",
             workflow_filename=pretend.stub(data="some-workflow.yml"),
+            normalized_environment="some-environment",
         )
         pending_github_publisher_form_cls = pretend.call_recorder(
             lambda *a, **kw: pending_github_publisher_form_obj
@@ -3575,6 +3576,7 @@ class TestManageAccountPublishingViews:
             publisher_name="some-publisher",
             id=uuid.uuid4(),
             publisher_url="some-url",
+            environment="some-environment",
         )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
@@ -3591,6 +3593,7 @@ class TestManageAccountPublishingViews:
             normalized_owner="some-owner",
             owner_id="some-owner-id",
             workflow_filename=pretend.stub(data="some-workflow.yml"),
+            normalized_environment=pending_publisher.environment,
         )
         pending_github_publisher_form_cls = pretend.call_recorder(
             lambda *a, **kw: pending_github_publisher_form_obj
@@ -3635,6 +3638,7 @@ class TestManageAccountPublishingViews:
                 repository_owner="some-owner",
                 repository_owner_id="some-owner-id",
                 workflow_filename="some-workflow.yml",
+                environment="some-environment",
             )
         ]
         assert request.db.add.calls == [pretend.call(pending_publisher)]
