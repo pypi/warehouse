@@ -28,6 +28,7 @@ from warehouse.packaging.interfaces import (
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
+    check_file_archive_tasks_outstanding,
     compute_2fa_mandate,
     update_description_html,
 )
@@ -49,6 +50,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
     monkeypatch.setattr(packaging, "key_factory", key_factory)
     settings = {
         "files.backend": "foo.bar",
+        "archive_files.backend": "peas.carrots",
         "simple.backend": "bread.butter",
         "docs.backend": "wu.tang",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
@@ -73,7 +75,8 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
     packaging.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(storage_class.create_service, IFileStorage),
+        pretend.call(storage_class.create_service, IFileStorage, name="primary"),
+        pretend.call(storage_class.create_service, IFileStorage, name="archive"),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
         pretend.call(
@@ -169,6 +172,10 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
             in config.add_periodic_task.calls
         )
 
+    assert (
+        pretend.call(crontab(minute="*/1"), check_file_archive_tasks_outstanding)
+        in config.add_periodic_task.calls
+    )
     assert (
         pretend.call(crontab(minute="*/5"), update_description_html)
         in config.add_periodic_task.calls

@@ -61,7 +61,10 @@ from warehouse.packaging.models import (
     Project,
     Release,
 )
-from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.packaging.tasks import (
+    sync_file_to_archive,
+    update_bigquery_release_files,
+)
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
@@ -613,6 +616,40 @@ class MetadataForm(forms.Form):
             )
 
 
+def _validate_filename(filename):
+    # Our object storage does not tolerate some specific characters
+    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
+    #
+    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
+    # or completely by mistake.
+    disallowed = [*(chr(x) for x in range(32)), chr(127)]
+    if [char for char in filename if char in disallowed]:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Cannot upload a file with "
+                "non-printable characters (ordinals 0-31) "
+                "or the DEL character (ordinal 127) "
+                "in the name."
+            ),
+        )
+
+    # Make sure that the filename does not contain any path separators.
+    if "/" in filename or "\\" in filename:
+        raise _exc_with_message(
+            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
+        )
+
+    # Make sure the filename ends with an allowed extension.
+    if _dist_file_re.search(filename) is None:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
+        )
+
+
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
 # .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
 _tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
@@ -1133,20 +1170,8 @@ def file_upload(request):
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
-    # Make sure that the filename does not contain any path separators.
-    if "/" in filename or "\\" in filename:
-        raise _exc_with_message(
-            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
-        )
-
-    # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information.",
-        )
+    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
+    _validate_filename(filename)
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
@@ -1383,7 +1408,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage)
+        storage = request.find_service(IFileStorage, name="primary")
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),
@@ -1456,6 +1481,9 @@ def file_upload(request):
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
+
+    # Dispatch our archive task to sync this as soon as possible
+    request.task(sync_file_to_archive).delay(file_.id)
 
     return Response()
 

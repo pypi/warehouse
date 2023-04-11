@@ -1,6 +1,7 @@
 alembic>=0.7.0
 Automat
 argon2-cffi
+b2sdk
 Babel
 bcrypt
 boto3
