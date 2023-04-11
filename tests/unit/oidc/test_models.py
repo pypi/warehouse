@@ -45,6 +45,7 @@ class TestGitHubPublisher:
             "repository_owner",
             "repository_owner_id",
             "job_workflow_ref",
+            "environment",
             # preverified claims
             "iss",
             "iat",
@@ -80,6 +81,7 @@ class TestGitHubPublisher:
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
+            environment="fakeenv",
         )
 
         for claim_name in publisher.__verifiable_claims__.keys():
@@ -140,12 +142,14 @@ class TestGitHubPublisher:
             pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
 
-    def test_github_publisher_verifies(self, monkeypatch):
+    @pytest.mark.parametrize("environment", [None, "some-environment"])
+    def test_github_publisher_verifies(self, monkeypatch, environment):
         publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
+            environment=environment,
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
@@ -232,6 +236,21 @@ class TestGitHubPublisher:
     )
     def test_github_publisher_sub_claim(self, truth, claim, valid):
         check = models.GitHubPublisher.__verifiable_claims__["sub"]
+        assert check(truth, claim, pretend.stub()) is valid
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            (None, None, True),
+            (None, "some-environment", True),
+            ("some-environment", "some-environment", True),
+            ("some-environment", "sOmE-eNvIrOnMeNt", True),
+            ("some-environment", None, False),
+            ("some-environment", "some-other-environment", False),
+        ],
+    )
+    def test_github_publisher_environment_claim(self, truth, claim, valid):
+        check = models.GitHubPublisher.__verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
 

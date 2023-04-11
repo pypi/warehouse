@@ -57,6 +57,28 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return f"{ground_truth}@{ref}" == signed_claim
 
 
+def _check_environment(ground_truth, signed_claim, all_signed_claims):
+    # When there is an environment, we expect a case-insensitive string.
+    # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
+    # For tokens that are generated outside of an environment, the claim will
+    # be missing.
+
+    # If we haven't set an environment name for the publisher, we don't need to
+    # check this claim
+    if ground_truth is None:
+        return True
+
+    # Defensive: GitHub might give us an empty environment if this token wasn't
+    # generated from within an environment, in which case the check should
+    # fail.
+    if not signed_claim:
+        return False
+
+    # We store the normalized environment name, but we normalize both here to
+    # ensure we can't accidentally become case-sensitive.
+    return ground_truth.lower() == signed_claim.lower()
+
+
 def _check_sub(ground_truth, signed_claim, _all_signed_claims):
     # We expect a string formatted as follows:
     #  repo:ORG/REPO[:OPTIONAL-STUFF]
@@ -246,6 +268,7 @@ class GitHubPublisherMixin:
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
+        "environment": _check_environment,
     }
 
     __unchecked_claims__ = {
