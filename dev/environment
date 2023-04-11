@@ -31,6 +31,7 @@ HIBP_API_KEY="something-not-real"
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
+ARCHIVE_FILES_BACKEND=warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://localhost:9001/packages-archive/{path}
 SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://localhost:9001/simple/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/

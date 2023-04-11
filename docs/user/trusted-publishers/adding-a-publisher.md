@@ -2,7 +2,7 @@
 title: Adding a Trusted Publisher to an Existing PyPI Project
 ---
 
-{{ preview('oidc-publishing') }}
+<!--[[ preview('oidc-publishing') ]]-->
 
 # Adding a trusted publisher to an existing PyPI project
 
@@ -27,7 +27,7 @@ providing the repository owner's name, the repository's name, and the
 filename of the GitHub Actions workflow that's authorized to upload to
 PyPI.
 
-For example, if you have a project at `https://github.com/pypa/sampleproject`
+For example, if you have a project at `https://github.com/octo-org/sampleproject`
 that uses a publishing workflow defined in `.github/workflows/release.yml`,
 then you'd do the following:
 
@@ -38,7 +38,7 @@ at the top of the page:
 
 ![](/assets/project-publisher-registered.png)
 
-From this point onwards, the `release.yml` workflow on `pypa/sampleproject` will
+From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
 be able to generate short-lived API tokens from PyPI for the project you've registered
 it against.
 

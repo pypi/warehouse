@@ -647,6 +647,7 @@ class File(HasEvents, db.Model):
                 ),
             ),
             Index("release_files_release_id_idx", "release_id"),
+            Index("release_files_archived_idx", "archived"),
         )
 
     release_id = Column(
@@ -682,6 +683,13 @@ class File(HasEvents, db.Model):
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
+
+    archived = Column(
+        Boolean,
+        comment="If True, the object has been archived to our archival bucket.",
+        nullable=False,
+        server_default=sql.false(),
+    )
 
     @hybrid_property
     def pgp_path(self):

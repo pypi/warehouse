@@ -4,6 +4,10 @@ site_dir: user-site
 plugins:
   - macros:
       module_name: user/main
+      j2_block_start_string: '<!--[[%'
+      j2_block_end_string: '%]]-->'
+      j2_variable_start_string: '<!--[['
+      j2_variable_end_string: ']]-->'
 markdown_extensions:
   - admonition
   - pymdownx.details

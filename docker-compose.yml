@@ -3,6 +3,7 @@ version: '3.9'
 volumes:
   simple:
   packages:
+  packages-archive:
   sponsorlogos:
   policies:
   vault:
@@ -98,6 +99,7 @@ services:
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - policies:/var/opt/warehouse/policies
       - simple:/var/opt/warehouse/simple
@@ -128,6 +130,7 @@ services:
     command: python -m http.server 9001
     volumes:
       - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
     ports:
@@ -139,10 +142,13 @@ services:
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
+      - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
+      ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   static:
@@ -198,10 +204,10 @@ services:
   user-docs:
     image: warehouse:docker-compose-docs
     pull_policy: never
-    command: mkdocs serve -a 0.0.0.0:8000 -f mkdocs-user-docs.yml
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-user-docs.yml
     volumes:
       - ./bin:/opt/warehouse/src/bin:z
-      - ./mkdocs-user-docs.yml:/opt/warehouse/src/mkdocs-user-docs.yml:z
+      - ./docs/mkdocs-user-docs.yml:/opt/warehouse/src/docs/mkdocs-user-docs.yml:z
       - ./docs:/opt/warehouse/src/docs:z
     ports:
       - "10000:8000"
