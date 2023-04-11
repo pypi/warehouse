@@ -245,6 +245,7 @@ class TestPendingGitHubPublisher:
                 repository_owner=pending_publisher.repository_owner,
                 repository_owner_id=pending_publisher.repository_owner_id,
                 workflow_filename=pending_publisher.workflow_filename,
+                environment=pending_publisher.environment,
             )
             .one_or_none()
             is None
@@ -259,6 +260,7 @@ class TestPendingGitHubPublisher:
         assert publisher.repository_owner == pending_publisher.repository_owner
         assert publisher.repository_owner_id == pending_publisher.repository_owner_id
         assert publisher.workflow_filename == pending_publisher.workflow_filename
+        assert publisher.environment == pending_publisher.environment
 
     def test_reify_already_exists(self, db_request):
         existing_publisher = GitHubPublisherFactory.create()
@@ -267,6 +269,7 @@ class TestPendingGitHubPublisher:
             repository_owner=existing_publisher.repository_owner,
             repository_owner_id=existing_publisher.repository_owner_id,
             workflow_filename=existing_publisher.workflow_filename,
+            environment=existing_publisher.environment,
         )
         publisher = pending_publisher.reify(db_request.db)
 

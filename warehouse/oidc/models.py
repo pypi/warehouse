@@ -344,6 +344,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
                 GitHubPublisher.repository_name == self.repository_name,
                 GitHubPublisher.repository_owner == self.repository_owner,
                 GitHubPublisher.workflow_filename == self.workflow_filename,
+                GitHubPublisher.environment == self.environment,
             )
             .one_or_none()
         )
@@ -353,6 +354,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             repository_owner=self.repository_owner,
             repository_owner_id=self.repository_owner_id,
             workflow_filename=self.workflow_filename,
+            environment=self.environment,
         )
 
         session.delete(self)

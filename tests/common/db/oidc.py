@@ -26,6 +26,7 @@ class GitHubPublisherFactory(WarehouseFactory):
     repository_owner = factory.Faker("pystr", max_chars=12)
     repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
+    environment = "production"
 
 
 class PendingGitHubPublisherFactory(WarehouseFactory):
@@ -38,3 +39,4 @@ class PendingGitHubPublisherFactory(WarehouseFactory):
     repository_owner = factory.Faker("pystr", max_chars=12)
     repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
+    environment = "production"
