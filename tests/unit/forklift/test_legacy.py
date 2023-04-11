@@ -2568,6 +2568,47 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Cannot upload a file with '/' or '\\' in the name."
 
+    @pytest.mark.parametrize("character", [*(chr(x) for x in range(32)), chr(127)])
+    def test_upload_fails_with_disallowed_in_filename(
+        self, pyramid_config, db_request, character
+    ):
+
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = f"{project.name}{character}-{release.version}.tar.wat"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "sdist",
+                "md5_digest": "nope!",
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            "400 Cannot upload a file with non-printable characters (ordinals 0-31) "
+            "or the DEL character (ordinal 127) in the name."
+        )
+
     def test_upload_fails_without_user_permission(self, pyramid_config, db_request):
         user1 = UserFactory.create()
         EmailFactory.create(user=user1)

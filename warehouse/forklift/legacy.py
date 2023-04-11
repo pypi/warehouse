@@ -616,6 +616,40 @@ class MetadataForm(forms.Form):
             )
 
 
+def _validate_filename(filename):
+    # Our object storage does not tolerate some specific characters
+    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
+    #
+    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
+    # or completely by mistake.
+    disallowed = [*(chr(x) for x in range(32)), chr(127)]
+    if [char for char in filename if char in disallowed]:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Cannot upload a file with "
+                "non-printable characters (ordinals 0-31) "
+                "or the DEL character (ordinal 127) "
+                "in the name."
+            ),
+        )
+
+    # Make sure that the filename does not contain any path separators.
+    if "/" in filename or "\\" in filename:
+        raise _exc_with_message(
+            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
+        )
+
+    # Make sure the filename ends with an allowed extension.
+    if _dist_file_re.search(filename) is None:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
+        )
+
+
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
 # .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
 _tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
@@ -1136,20 +1170,8 @@ def file_upload(request):
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
-    # Make sure that the filename does not contain any path separators.
-    if "/" in filename or "\\" in filename:
-        raise _exc_with_message(
-            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
-        )
-
-    # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information.",
-        )
+    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
+    _validate_filename(filename)
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
