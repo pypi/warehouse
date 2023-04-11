@@ -39,7 +39,11 @@ def upgrade():
         ),
     )
     op.create_index(
-        "release_files_archived_idx", "release_files", ["archived"], unique=False
+        "release_files_archived_idx",
+        "release_files",
+        ["archived"],
+        unique=False,
+        postgresql_concurrently=True,
     )
 
 
