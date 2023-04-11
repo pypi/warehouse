@@ -303,7 +303,7 @@ class TestB2FileStorage:
 
     def test_raises_when_key_non_existent(self):
         def raiser(path):
-            raise b2sdk.exception.FileNotPresent()
+            raise b2sdk.v2.exception.FileNotPresent()
 
         bucket_stub = pretend.stub(download_file_by_name=raiser)
         mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
@@ -319,7 +319,7 @@ class TestB2FileStorage:
 
     def test_get_metadata_raises_when_key_non_existent(self):
         def raiser(path):
-            raise b2sdk.exception.FileNotPresent()
+            raise b2sdk.v2.exception.FileNotPresent()
 
         bucket_stub = pretend.stub(get_file_info_by_name=raiser)
         mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)

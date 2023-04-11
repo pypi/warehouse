@@ -154,14 +154,14 @@ class GenericB2BlobStorage(GenericBlobStorage):
             downloaded_file.save(file_obj)
             file_obj.seek(0)
             return file_obj
-        except b2sdk.exception.FileNotPresent:
+        except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
     def get_metadata(self, path):
         path = self._get_path(path)
         try:
             return self.bucket.get_file_info_by_name(path).file_info
-        except b2sdk.exception.FileNotPresent:
+        except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
     def store(self, path, file_path, *, meta=None):
