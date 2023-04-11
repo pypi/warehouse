@@ -274,7 +274,7 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1478
+#: warehouse/accounts/views.py:1479
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
@@ -306,7 +306,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:158
+#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:169
 msgid "Specify project name"
 msgstr ""
 
@@ -368,43 +368,43 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2032
+#: warehouse/manage/views/__init__.py:2034
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2140
+#: warehouse/manage/views/__init__.py:2142
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2208
+#: warehouse/manage/views/__init__.py:2210
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2240
+#: warehouse/manage/views/__init__.py:2242
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2253
+#: warehouse/manage/views/__init__.py:2255
 #: warehouse/manage/views/organizations.py:896
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2319
+#: warehouse/manage/views/__init__.py:2321
 #: warehouse/manage/views/organizations.py:961
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2354
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2363
+#: warehouse/manage/views/__init__.py:2365
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2396
+#: warehouse/manage/views/__init__.py:2398
 #: warehouse/manage/views/organizations.py:1148
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -448,47 +448,47 @@ msgstr ""
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:78
+#: warehouse/oidc/forms.py:83
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:88
+#: warehouse/oidc/forms.py:93
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:98
+#: warehouse/oidc/forms.py:103
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:105
+#: warehouse/oidc/forms.py:110
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:115
+#: warehouse/oidc/forms.py:120
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:127
+#: warehouse/oidc/forms.py:132
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:143
+#: warehouse/oidc/forms.py:148
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:153
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:161
+#: warehouse/oidc/forms.py:172
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:186
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:188
+#: warehouse/oidc/forms.py:199
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1127,10 +1127,11 @@ msgstr ""
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
-#: warehouse/templates/manage/account/publishing.html:116
-#: warehouse/templates/manage/account/publishing.html:131
-#: warehouse/templates/manage/account/publishing.html:146
-#: warehouse/templates/manage/account/publishing.html:161
+#: warehouse/templates/manage/account/publishing.html:117
+#: warehouse/templates/manage/account/publishing.html:132
+#: warehouse/templates/manage/account/publishing.html:147
+#: warehouse/templates/manage/account/publishing.html:162
+#: warehouse/templates/manage/account/publishing.html:177
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1150,9 +1151,10 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:202
 #: warehouse/templates/manage/organizations.html:220
 #: warehouse/templates/manage/organizations.html:239
-#: warehouse/templates/manage/project/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:92
-#: warehouse/templates/manage/project/publishing.html:107
+#: warehouse/templates/manage/project/publishing.html:78
+#: warehouse/templates/manage/project/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:108
+#: warehouse/templates/manage/project/publishing.html:123
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -2662,11 +2664,11 @@ msgid "Requires:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:117
-#: warehouse/templates/manage/account/publishing.html:129
+#: warehouse/templates/manage/account/publishing.html:130
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:88
-#: warehouse/templates/manage/project/publishing.html:75
+#: warehouse/templates/manage/project/publishing.html:76
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -3403,7 +3405,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:514
+#: warehouse/templates/manage/manage_base.html:521
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -3585,6 +3587,10 @@ msgstr ""
 msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:517
+msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:23
@@ -3866,7 +3872,7 @@ msgid "Project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:61
-#: warehouse/templates/manage/project/publishing.html:56
+#: warehouse/templates/manage/project/publishing.html:57
 msgid "No publishers are currently configured."
 msgstr ""
 
@@ -3883,19 +3889,26 @@ msgstr ""
 msgid "Publishing workflow URL"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:83
+#: warehouse/templates/manage/account/publishing.html:73
+#: warehouse/templates/manage/account/publishing.html:175
+#: warehouse/templates/manage/project/publishing.html:46
+#: warehouse/templates/manage/project/publishing.html:121
+msgid "Environment name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:84
 msgid "No pending publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:86
+#: warehouse/templates/manage/account/publishing.html:87
 msgid "Add a new pending publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:89
+#: warehouse/templates/manage/account/publishing.html:90
 msgid "You can use this page to register \"pending\" OpenID Connect publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:96
+#: warehouse/templates/manage/account/publishing.html:97
 #, python-format
 msgid ""
 "These publishers behave similarly to OpenID Connect publishers registered"
@@ -3906,63 +3919,85 @@ msgid ""
 "OpenID Connect publishers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:114
+#: warehouse/templates/manage/account/publishing.html:115
 msgid "PyPI Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:119
+#: warehouse/templates/manage/account/publishing.html:120
 msgid "project name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:121
+#: warehouse/templates/manage/account/publishing.html:122
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:134
-#: warehouse/templates/manage/project/publishing.html:80
+#: warehouse/templates/manage/account/publishing.html:135
+#: warehouse/templates/manage/project/publishing.html:81
 msgid "owner"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:136
-#: warehouse/templates/manage/project/publishing.html:82
+#: warehouse/templates/manage/account/publishing.html:137
+#: warehouse/templates/manage/project/publishing.html:83
 msgid "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:144
-#: warehouse/templates/manage/project/publishing.html:90
+#: warehouse/templates/manage/account/publishing.html:145
+#: warehouse/templates/manage/project/publishing.html:91
 msgid "Repository name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:149
-#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/account/publishing.html:150
+#: warehouse/templates/manage/project/publishing.html:96
 msgid "repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:151
-#: warehouse/templates/manage/project/publishing.html:97
+#: warehouse/templates/manage/account/publishing.html:152
+#: warehouse/templates/manage/project/publishing.html:98
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:159
-#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/account/publishing.html:160
+#: warehouse/templates/manage/project/publishing.html:106
 msgid "Workflow name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:164
-#: warehouse/templates/manage/project/publishing.html:110
+#: warehouse/templates/manage/account/publishing.html:165
+#: warehouse/templates/manage/project/publishing.html:111
 msgid "workflow.yml"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:166
-#: warehouse/templates/manage/project/publishing.html:112
+#: warehouse/templates/manage/account/publishing.html:167
+#: warehouse/templates/manage/project/publishing.html:113
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured "
 "above."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:173
-#: warehouse/templates/manage/project/publishing.html:119
+#: warehouse/templates/manage/account/publishing.html:179
+#: warehouse/templates/manage/project/publishing.html:125
+msgid "(optional)"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:182
+#: warehouse/templates/manage/project/publishing.html:128
+msgid "release"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:184
+#: warehouse/templates/manage/project/publishing.html:130
+#, python-format
+msgid ""
+"The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
+"the above workflow uses for publishing.  This should be configured under "
+"the repository's settings. While not required, a dedicated publishing "
+"environment is <strong>strongly</strong> encouraged, "
+"<strong>especially</strong> if your repository has maintainers with "
+"commit access who shouldn't have PyPI publishing access."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:199
+#: warehouse/templates/manage/project/publishing.html:145
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
@@ -5188,11 +5223,11 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:60
+#: warehouse/templates/manage/project/publishing.html:61
 msgid "Add a new publisher"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:64
+#: warehouse/templates/manage/project/publishing.html:65
 #, python-format
 msgid ""
 "Read more about GitHub Actions's OpenID Connect support <a "
