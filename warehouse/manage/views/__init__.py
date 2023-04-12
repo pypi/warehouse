@@ -1263,6 +1263,7 @@ class ManageOIDCPublisherViews:
                     GitHubPublisher.repository_name == form.repository.data,
                     GitHubPublisher.repository_owner == form.normalized_owner,
                     GitHubPublisher.workflow_filename == form.workflow_filename.data,
+                    GitHubPublisher.environment == form.normalized_environment,
                 )
                 .one_or_none()
             )
@@ -1272,6 +1273,7 @@ class ManageOIDCPublisherViews:
                     repository_owner=form.normalized_owner,
                     repository_owner_id=form.owner_id,
                     workflow_filename=form.workflow_filename.data,
+                    environment=form.normalized_environment,
                 )
 
                 self.request.db.add(publisher)
