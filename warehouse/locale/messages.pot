@@ -306,7 +306,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:169
+#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr ""
 
@@ -480,15 +480,15 @@ msgstr ""
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:172
+#: warehouse/oidc/forms.py:177
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:186
+#: warehouse/oidc/forms.py:191
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:199
+#: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
 msgstr ""
 
