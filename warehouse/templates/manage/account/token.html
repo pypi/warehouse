@@ -34,7 +34,7 @@
   <h1 class="page-title">{{ title }}</h1>
 
   {% if serialized_macaroon %}
-  <section id="provisioned-key">
+  <section id="provisioned-key" data-controller="clipboard">
     <h2>{% trans macaroon_description=macaroon.description %}Token for "{{ macaroon_description }}"{% endtrans %}</h2>
     <p>
       <strong>{% trans %}Permissions:{% endtrans %}</strong> {% trans %}Upload packages{% endtrans %}<br>
@@ -45,12 +45,12 @@
       {% endif %}
     </p>
 
-    <code class="code-block">{{ serialized_macaroon }}</code>
+    <code class="code-block" data-clipboard-target="source">{{ serialized_macaroon }}</code>
     <div class="margin-bottom--large">
       <div class="callout-block callout-block--danger no-top-margin">
         <p>{% trans %}For security reasons this token will only appear once. <strong>Copy it now.</strong>{% endtrans %}</p>
       </div>
-      <button type="button" class="button button--primary copy-tooltip copy-tooltip-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-tooltip-label="{% trans %}Copy token to clipboard{% endtrans %}" data-clipboard-text="{{ serialized_macaroon }}">
+      <button type="button" class="button button--primary copy-tooltip copy-tooltip-e" aria-label="{% trans %}Copy token to clipboard{% endtrans %}" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy token to clipboard{% endtrans %}">
         {% trans %}Copy token{% endtrans %}
       </button>
       <a href="#remove-API-token--{{ macaroon.id }}" class="button">

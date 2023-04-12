@@ -3,15 +3,15 @@
 // Copyright (c) 2016 GitHub Inc
 
 /*
-  A tooltip that is attached to a button, incidacting that clicking the button will cause something to be copied:
+  A tooltip that is attached to a button, indicating that clicking the button will cause something to be copied:
 
-  <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#target" data-tooltip-label="Copy to clipboard">
+  <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#target" data-clipboard-tooltip-value="Copy to clipboard">
     // Text or icon
   </button>
 
   Data:
     - data-clipboard-target: the content that will be copied to the clipboard
-    - data-tooltip-label: the label of the tooltip (before the button is clicked)
+    - data-clipboard-tooltip-value: the label of the tooltip (before the button is clicked)
 
   Modifiers:
     - copy-tooltip-s: Tooltip appears below the button (south)
@@ -34,7 +34,7 @@ $tooltip-duration: 0.1s !default;
 
 // This is the tooltip bubble
 .copy-tooltip::after {
-  content: attr(data-tooltip-label);
+  content: attr(data-clipboard-tooltip-value);
   position: absolute;
   z-index: 1000000;
   display: none;
