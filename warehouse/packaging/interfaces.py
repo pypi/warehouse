@@ -39,6 +39,11 @@ class IGenericFileStorage(Interface):
         or provide such metadata.
         """
 
+    def get_checksum(path):
+        """
+        Return the md5 digest of the file at a given path as a lowercase string.
+        """
+
     def store(path, file_path, *, meta=None):
         """
         Save the file located at file_path to the file storage at the location
