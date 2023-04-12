@@ -64,10 +64,10 @@ won't have sufficient permissions to identify itself to PyPI.
 
 ### Publishing to indices other than PyPI
 The PyPA's [`pypi-publish`](https://github.com/marketplace/actions/pypi-publish)
-action also supports OIDC publishing with other (non-PyPI) indices, provided
-they have OIDC enabled (and you've configured your OIDC publisher on them). For
-example, here's how you can publish to [TestPyPI](https://test.pypi.org) using
-OIDC:
+action also supports trusted publishing with other (non-PyPI) indices, provided
+they have trusted publishing enabled (and you've configured your trusted
+publisher on them). For example, here's how you can use trusted publishing on
+[TestPyPI](https://test.pypi.org):
 
 ```yaml
 - name: Publish package distributions to TestPyPI

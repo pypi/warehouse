@@ -309,3 +309,18 @@ class TestGitHubPublisherForm:
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_workflow_filename(field)
+
+    @pytest.mark.parametrize(
+        "data, expected",
+        [
+            ("wu-tang", "wu-tang"),
+            ("WU-TANG", "wu-tang"),
+            ("", None),
+            ("  ", None),
+            ("\t\r\n", None),
+            (None, None),
+        ],
+    )
+    def test_normalized_environment(self, data, expected):
+        form = forms.GitHubPublisherForm(api_token=pretend.stub(), environment=data)
+        assert form.normalized_environment == expected
