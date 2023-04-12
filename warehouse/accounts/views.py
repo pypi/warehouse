@@ -1468,6 +1468,7 @@ class ManageAccountPublishingViews:
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
             )
             .first()
             is not None
@@ -1490,6 +1491,7 @@ class ManageAccountPublishingViews:
             repository_owner=form.normalized_owner,
             repository_owner_id=form.owner_id,
             workflow_filename=form.workflow_filename.data,
+            environment=form.normalized_environment,
         )
 
         self.request.db.add(pending_publisher)
@@ -1559,7 +1561,8 @@ class ManageAccountPublishingViews:
                 return self.default_response
 
             self.request.session.flash(
-                f"Removed publisher for project '{pending_publisher.project_name}'",
+                "Removed trusted publisher for project "
+                f"{pending_publisher.project_name!r}",
                 queue="success",
             )
 

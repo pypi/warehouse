@@ -45,6 +45,7 @@ class TestGitHubPublisher:
             "repository_owner",
             "repository_owner_id",
             "job_workflow_ref",
+            "environment",
             # preverified claims
             "iss",
             "iat",
@@ -80,6 +81,7 @@ class TestGitHubPublisher:
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
+            environment="fakeenv",
         )
 
         for claim_name in publisher.__verifiable_claims__.keys():
@@ -140,12 +142,14 @@ class TestGitHubPublisher:
             pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
 
-    def test_github_publisher_verifies(self, monkeypatch):
+    @pytest.mark.parametrize("environment", [None, "some-environment"])
+    def test_github_publisher_verifies(self, monkeypatch, environment):
         publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
             workflow_filename="fakeworkflow.yml",
+            environment=environment,
         )
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
@@ -234,6 +238,21 @@ class TestGitHubPublisher:
         check = models.GitHubPublisher.__verifiable_claims__["sub"]
         assert check(truth, claim, pretend.stub()) is valid
 
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            (None, None, True),
+            (None, "some-environment", True),
+            ("some-environment", "some-environment", True),
+            ("some-environment", "sOmE-eNvIrOnMeNt", True),
+            ("some-environment", None, False),
+            ("some-environment", "some-other-environment", False),
+        ],
+    )
+    def test_github_publisher_environment_claim(self, truth, claim, valid):
+        check = models.GitHubPublisher.__verifiable_claims__["environment"]
+        assert check(truth, claim, pretend.stub()) is valid
+
 
 class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
@@ -245,6 +264,7 @@ class TestPendingGitHubPublisher:
                 repository_owner=pending_publisher.repository_owner,
                 repository_owner_id=pending_publisher.repository_owner_id,
                 workflow_filename=pending_publisher.workflow_filename,
+                environment=pending_publisher.environment,
             )
             .one_or_none()
             is None
@@ -259,6 +279,7 @@ class TestPendingGitHubPublisher:
         assert publisher.repository_owner == pending_publisher.repository_owner
         assert publisher.repository_owner_id == pending_publisher.repository_owner_id
         assert publisher.workflow_filename == pending_publisher.workflow_filename
+        assert publisher.environment == pending_publisher.environment
 
     def test_reify_already_exists(self, db_request):
         existing_publisher = GitHubPublisherFactory.create()
@@ -267,6 +288,7 @@ class TestPendingGitHubPublisher:
             repository_owner=existing_publisher.repository_owner,
             repository_owner_id=existing_publisher.repository_owner_id,
             workflow_filename=existing_publisher.workflow_filename,
+            environment=existing_publisher.environment,
         )
         publisher = pending_publisher.reify(db_request.db)
 
