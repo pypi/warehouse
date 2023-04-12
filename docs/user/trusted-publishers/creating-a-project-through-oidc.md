@@ -31,8 +31,8 @@ also need to provide the name of the PyPI project that will be created.
 
 For example, if you have a repository at
 `https://github.com/octo-org/sampleproject` with a release workflow at
-`release.yml` and you'd like to publish it to PyPI as `sampleproject`, you'd do
-the following:
+`release.yml` and an environment named `release` that you would like to publish
+to PyPI as `sampleproject`, then you would do the following:
 
 ![](/assets/pending-publisher-form-filled.png)
 
