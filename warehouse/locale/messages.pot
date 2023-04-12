@@ -368,43 +368,43 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2034
+#: warehouse/manage/views/__init__.py:2035
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2142
+#: warehouse/manage/views/__init__.py:2143
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2211
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2242
+#: warehouse/manage/views/__init__.py:2243
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2255
+#: warehouse/manage/views/__init__.py:2256
 #: warehouse/manage/views/organizations.py:896
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2321
+#: warehouse/manage/views/__init__.py:2322
 #: warehouse/manage/views/organizations.py:961
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2354
+#: warehouse/manage/views/__init__.py:2355
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2365
+#: warehouse/manage/views/__init__.py:2366
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2398
+#: warehouse/manage/views/__init__.py:2399
 #: warehouse/manage/views/organizations.py:1148
 msgid "Invitation revoked from '${username}'."
 msgstr ""

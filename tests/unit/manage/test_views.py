@@ -6608,7 +6608,9 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
         ]
         assert request.session.flash.calls == [
-            pretend.call("Removed fakespecifier from fakeproject", queue="success")
+            pretend.call(
+                "Removed trusted publisher for project 'fakeproject'", queue="success"
+            )
         ]
         # The publisher is not actually removed entirely from the DB, since it's
         # registered to other projects that haven't removed it.
@@ -6713,7 +6715,9 @@ class TestManageOIDCPublisherViews:
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
         ]
         assert request.session.flash.calls == [
-            pretend.call("Removed fakespecifier from fakeproject", queue="success")
+            pretend.call(
+                "Removed trusted publisher for project 'fakeproject'", queue="success"
+            )
         ]
         assert request.db.delete.calls == [pretend.call(publisher)]
 

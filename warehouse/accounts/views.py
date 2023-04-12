@@ -1561,7 +1561,8 @@ class ManageAccountPublishingViews:
                 return self.default_response
 
             self.request.session.flash(
-                f"Removed publisher for project '{pending_publisher.project_name}'",
+                "Removed trusted publisher for project "
+                f"{pending_publisher.project_name!r}",
                 queue="success",
             )
 
