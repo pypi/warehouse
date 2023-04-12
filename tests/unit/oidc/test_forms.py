@@ -315,7 +315,7 @@ class TestGitHubPublisherForm:
         [
             ("wu-tang", "wu-tang"),
             ("WU-TANG", "wu-tang"),
-            ("", ""),
+            ("", None),
             (None, None),
         ],
     )
