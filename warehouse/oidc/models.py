@@ -129,6 +129,11 @@ class OIDCPublisherMixin:
         str, Callable[[Any, Any, dict[str, Any]], bool]
     ] = dict()
 
+    # Simlar to __verificable_claims__, but these claims are optional
+    __optional_verifiable_claims__: dict[
+        str, Callable[[Any, Any, dict[str, Any]], bool]
+    ] = dict()
+
     # Claims that have already been verified during the JWT signature
     # verification phase.
     __preverified_claims__ = {
@@ -151,6 +156,7 @@ class OIDCPublisherMixin:
         """
         return (
             cls.__verifiable_claims__.keys()
+            | cls.__optional_verifiable_claims__.keys()
             | cls.__preverified_claims__
             | cls.__unchecked_claims__
         )
@@ -180,14 +186,25 @@ class OIDCPublisherMixin:
         # Finally, perform the actual claim verification.
         for claim_name, check in self.__verifiable_claims__.items():
             # All verifiable claims are mandatory. The absence of a missing
-            # claim *is* an error, since it indicates a breaking change in the
-            # JWT's payload.
+            # claim *is* an error with the JWT, since it indicates a breaking
+            # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
             if signed_claim is None:
                 sentry_sdk.capture_message(
                     f"JWT for {self.__class__.__name__} is missing claim: {claim_name}"
                 )
                 return False
+
+            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+                return False
+
+        # Check optional verifiable claims
+        for claim_name, check in self.__optional_verifiable_claims__.items():
+            # All optional claims are optional. The absence of a missing
+            # claim is *NOT* an error with the JWT, however we should still
+            # verify this against the check, because the claim might be
+            # required for a given publisher.
+            signed_claim = signed_claims.get(claim_name)
 
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
                 return False
@@ -268,6 +285,9 @@ class GitHubPublisherMixin:
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
+    }
+
+    __optional_verifiable_claims__ = {
         "environment": _check_environment,
     }
 
