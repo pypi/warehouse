@@ -274,7 +274,11 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1479
+#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1258
+msgid "The trusted publisher could not be registered"
+msgstr ""
+
+#: warehouse/accounts/views.py:1483
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
@@ -368,43 +372,43 @@ msgstr ""
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2035
+#: warehouse/manage/views/__init__.py:2039
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2143
+#: warehouse/manage/views/__init__.py:2147
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2211
+#: warehouse/manage/views/__init__.py:2215
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2247
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2256
+#: warehouse/manage/views/__init__.py:2260
 #: warehouse/manage/views/organizations.py:896
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2322
+#: warehouse/manage/views/__init__.py:2326
 #: warehouse/manage/views/organizations.py:961
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2355
+#: warehouse/manage/views/__init__.py:2359
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2366
+#: warehouse/manage/views/__init__.py:2370
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2399
+#: warehouse/manage/views/__init__.py:2403
 #: warehouse/manage/views/organizations.py:1148
 msgid "Invitation revoked from '${username}'."
 msgstr ""
