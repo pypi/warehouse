@@ -53,7 +53,7 @@ class GitHubPublisherBase(forms.Form):
     # Environment names are not case sensitive. An environment name may not
     # exceed 255 characters and must be unique within the repository.
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
-    environment = wtforms.StringField()
+    environment = wtforms.StringField(validators=[wtforms.validators.Optional()])
 
     def __init__(self, *args, api_token, **kwargs):
         super().__init__(*args, **kwargs)
@@ -155,8 +155,13 @@ class GitHubPublisherBase(forms.Form):
 
     @property
     def normalized_environment(self):
+        # NOTE: We explicitly do not compare `self.environment.data` to None,
+        # since it might also be falsey via an empty string (or might be
+        # only whitespace, which we also treat as a None case).
         return (
-            self.environment.data.lower() if self.environment.data is not None else None
+            self.environment.data.lower()
+            if self.environment.data and not self.environment.data.isspace()
+            else None
         )
 
 

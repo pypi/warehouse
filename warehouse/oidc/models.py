@@ -332,6 +332,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
             "repository_name",
             "repository_owner",
             "workflow_filename",
+            "environment",
             name="_github_oidc_publisher_uc",
         ),
     )
@@ -347,6 +348,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             "repository_name",
             "repository_owner",
             "workflow_filename",
+            "environment",
             name="_pending_github_oidc_publisher_uc",
         ),
     )
