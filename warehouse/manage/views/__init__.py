@@ -1255,8 +1255,8 @@ class ManageOIDCPublisherViews:
 
         if form.validate():
             # GitHub OIDC publishers are unique on the tuple of
-            # (repository_name, repository_owner, workflow_filename), so we check for
-            # an already registered one before creating.
+            # (repository_name, repository_owner, workflow_filename, environment),
+            # so we check for an already registered one before creating.
             publisher = (
                 self.request.db.query(GitHubPublisher)
                 .filter(
