@@ -214,12 +214,12 @@ class OIDCPublisherMixin:
     @property
     def publisher_name(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
     @property
     def publisher_url(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
@@ -265,7 +265,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
         """
 
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
 
 class GitHubPublisherMixin:
