@@ -45,6 +45,7 @@ class TestGitHubPublisher:
             "repository_owner",
             "repository_owner_id",
             "job_workflow_ref",
+            # optional verifiable claims
             "environment",
             # preverified claims
             "iss",
@@ -84,7 +85,7 @@ class TestGitHubPublisher:
             environment="fakeenv",
         )
 
-        for claim_name in publisher.__verifiable_claims__.keys():
+        for claim_name in publisher.__required_verifiable_claims__.keys():
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml @ fakeowner/fakerepo"
@@ -136,14 +137,40 @@ class TestGitHubPublisher:
         # Pop the first signed claim, so that it's the first one to fail.
         signed_claims.pop("sub")
         assert "sub" not in signed_claims
-        assert publisher.__verifiable_claims__
+        assert publisher.__required_verifiable_claims__
         assert not publisher.verify_claims(signed_claims=signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
 
+    def test_github_publisher_missing_optional_claims(self, monkeypatch):
+        publisher = models.GitHubPublisher(
+            repository_name="fakerepo",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
+            workflow_filename="fakeworkflow.yml",
+            environment="some-environment",  # The optional claim that should be present
+        )
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
+
+        signed_claims = {
+            claim_name: getattr(publisher, claim_name)
+            for claim_name in models.GitHubPublisher.__required_verifiable_claims__
+        }
+        signed_claims["ref"] = "ref"
+        signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
+        assert publisher.__required_verifiable_claims__
+        assert not publisher.verify_claims(signed_claims=signed_claims)
+        assert sentry_sdk.capture_message.calls == []
+
     @pytest.mark.parametrize("environment", [None, "some-environment"])
-    def test_github_publisher_verifies(self, monkeypatch, environment):
+    @pytest.mark.parametrize(
+        "missing_claims",
+        [set(), models.GitHubPublisher.__optional_verifiable_claims__.keys()],
+    )
+    def test_github_publisher_verifies(self, monkeypatch, environment, missing_claims):
         publisher = models.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
@@ -154,16 +181,29 @@ class TestGitHubPublisher:
 
         noop_check = pretend.call_recorder(lambda gt, sc, ac: True)
         verifiable_claims = {
-            claim_name: noop_check for claim_name in publisher.__verifiable_claims__
+            claim_name: noop_check
+            for claim_name in publisher.__required_verifiable_claims__
         }
-        monkeypatch.setattr(publisher, "__verifiable_claims__", verifiable_claims)
+        monkeypatch.setattr(
+            publisher, "__required_verifiable_claims__", verifiable_claims
+        )
+        optional_verifiable_claims = {
+            claim_name: noop_check
+            for claim_name in publisher.__optional_verifiable_claims__
+        }
+        monkeypatch.setattr(
+            publisher, "__optional_verifiable_claims__", optional_verifiable_claims
+        )
 
         signed_claims = {
             claim_name: "fake"
             for claim_name in models.GitHubPublisher.all_known_claims()
+            if claim_name not in missing_claims
         }
         assert publisher.verify_claims(signed_claims=signed_claims)
-        assert len(noop_check.calls) == len(verifiable_claims)
+        assert len(noop_check.calls) == len(verifiable_claims) + len(
+            optional_verifiable_claims
+        )
 
     @pytest.mark.parametrize(
         ("claim", "ref", "valid"),
@@ -221,7 +261,9 @@ class TestGitHubPublisher:
             workflow_filename="baz.yml",
         )
 
-        check = models.GitHubPublisher.__verifiable_claims__["job_workflow_ref"]
+        check = models.GitHubPublisher.__required_verifiable_claims__[
+            "job_workflow_ref"
+        ]
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
 
     @pytest.mark.parametrize(
@@ -235,7 +277,7 @@ class TestGitHubPublisher:
         ],
     )
     def test_github_publisher_sub_claim(self, truth, claim, valid):
-        check = models.GitHubPublisher.__verifiable_claims__["sub"]
+        check = models.GitHubPublisher.__required_verifiable_claims__["sub"]
         assert check(truth, claim, pretend.stub()) is valid
 
     @pytest.mark.parametrize(
@@ -250,7 +292,7 @@ class TestGitHubPublisher:
         ],
     )
     def test_github_publisher_environment_claim(self, truth, claim, valid):
-        check = models.GitHubPublisher.__verifiable_claims__["environment"]
+        check = models.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
 
