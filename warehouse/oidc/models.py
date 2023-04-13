@@ -125,7 +125,7 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __verifiable_claims__: dict[
+    __required_verifiable_claims__: dict[
         str, Callable[[Any, Any, dict[str, Any]], bool]
     ] = dict()
 
@@ -155,7 +155,7 @@ class OIDCPublisherMixin:
         Returns all claims "known" to this publisher.
         """
         return (
-            cls.__verifiable_claims__.keys()
+            cls.__required_verifiable_claims__.keys()
             | cls.__optional_verifiable_claims__.keys()
             | cls.__preverified_claims__
             | cls.__unchecked_claims__
@@ -170,7 +170,7 @@ class OIDCPublisherMixin:
 
         # Defensive programming: treat the absence of any claims to verify
         # as a failure rather than trivially valid.
-        if not self.__verifiable_claims__:
+        if not self.__required_verifiable_claims__:
             return False
 
         # All claims should be accounted for.
@@ -184,7 +184,7 @@ class OIDCPublisherMixin:
             )
 
         # Finally, perform the actual claim verification.
-        for claim_name, check in self.__verifiable_claims__.items():
+        for claim_name, check in self.__required_verifiable_claims__.items():
             # All verifiable claims are mandatory. The absence of a missing
             # claim *is* an error with the JWT, since it indicates a breaking
             # change in the JWT's payload.
@@ -279,7 +279,7 @@ class GitHubPublisherMixin:
     workflow_filename = Column(String, nullable=False)
     environment = Column(String, nullable=True)
 
-    __verifiable_claims__ = {
+    __required_verifiable_claims__ = {
         "sub": _check_sub,
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
