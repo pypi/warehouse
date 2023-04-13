@@ -179,11 +179,11 @@ class SessionSecurityPolicy:
 
     def authenticated_userid(self, request):
         # Handled by MultiSecurityPolicy
-        return NotImplemented
+        raise NotImplementedError
 
     def permits(self, request, context, permission):
         # Handled by MultiSecurityPolicy
-        return NotImplemented
+        raise NotImplementedError
 
 
 @implementer(ISecurityPolicy)
@@ -220,11 +220,11 @@ class BasicAuthSecurityPolicy:
 
     def authenticated_userid(self, request):
         # Handled by MultiSecurityPolicy
-        return NotImplemented
+        raise NotImplementedError
 
     def permits(self, request, context, permission):
         # Handled by MultiSecurityPolicy
-        return NotImplemented
+        raise NotImplementedError
 
 
 @implementer(IAuthorizationPolicy)

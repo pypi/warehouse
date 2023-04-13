@@ -64,11 +64,10 @@ class TestMacaroonSecurityPolicy:
 
     def test_noops(self):
         policy = security_policy.MacaroonSecurityPolicy()
-        assert policy.authenticated_userid(pretend.stub()) == NotImplemented
-        assert (
+        with pytest.raises(NotImplementedError):
+            policy.authenticated_userid(pretend.stub())
+        with pytest.raises(NotImplementedError):
             policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-            == NotImplemented
-        )
 
     def test_forget_and_remember(self):
         policy = security_policy.MacaroonSecurityPolicy()
