@@ -185,7 +185,7 @@ class OIDCPublisherMixin:
 
         # Finally, perform the actual claim verification.
         for claim_name, check in self.__required_verifiable_claims__.items():
-            # All verifiable claims are mandatory. The absence of a missing
+            # All required claims are mandatory. The absence of a missing
             # claim *is* an error with the JWT, since it indicates a breaking
             # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
