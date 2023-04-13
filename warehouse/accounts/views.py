@@ -1460,6 +1460,10 @@ class ManageAccountPublishingViews:
         form = response["pending_github_publisher_form"]
 
         if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
             return response
 
         publisher_already_exists = (

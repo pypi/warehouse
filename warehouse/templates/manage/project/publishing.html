@@ -68,7 +68,7 @@
     </p>
 
     {{ form_error_anchor(github_publisher_form) }}
-    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">
+    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(github_publisher_form) }}
       <div class="form-group">
