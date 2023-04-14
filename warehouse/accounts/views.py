@@ -1550,46 +1550,50 @@ class ManageAccountPublishingViews:
 
         form = DeletePublisherForm(self.request.POST)
 
-        if form.validate():
-            pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
-                form.publisher_id.data
-            )
-
-            # pending_publisher will be `None` here if someone manually
-            # futzes with the form.
-            if pending_publisher is None:
-                self.request.session.flash(
-                    "Invalid publisher for user",
-                    queue="error",
-                )
-                return self.default_response
-
+        if not form.validate():
             self.request.session.flash(
-                "Removed trusted publisher for project "
-                f"{pending_publisher.project_name!r}",
-                queue="success",
+                "Invalid publisher ID",
+                queue="error",
             )
+            return self.default_response
 
-            self.metrics.increment(
-                "warehouse.oidc.delete_pending_publisher.ok",
-                tags=[f"publisher:{pending_publisher.publisher_name}"],
+        pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
+            form.publisher_id.data
+        )
+
+        # pending_publisher will be `None` here if someone manually
+        # futzes with the form.
+        if pending_publisher is None:
+            self.request.session.flash(
+                "Invalid publisher for user",
+                queue="error",
             )
+            return self.default_response
 
-            self.request.user.record_event(
-                tag=EventTag.Account.PendingOIDCPublisherRemoved,
-                ip_address=self.request.remote_addr,
-                additional={
-                    "project": pending_publisher.project_name,
-                    "publisher": pending_publisher.publisher_name,
-                    "id": str(pending_publisher.id),
-                    "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
-                    "submitted_by": self.request.user.username,
-                },
-            )
+        self.request.session.flash(
+            "Removed trusted publisher for project "
+            f"{pending_publisher.project_name!r}",
+            queue="success",
+        )
 
-            self.request.db.delete(pending_publisher)
+        self.metrics.increment(
+            "warehouse.oidc.delete_pending_publisher.ok",
+            tags=[f"publisher:{pending_publisher.publisher_name}"],
+        )
 
-            return HTTPSeeOther(self.request.path)
+        self.request.user.record_event(
+            tag=EventTag.Account.PendingOIDCPublisherRemoved,
+            ip_address=self.request.remote_addr,
+            additional={
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url,
+                "submitted_by": self.request.user.username,
+            },
+        )
 
-        return self.default_response
+        self.request.db.delete(pending_publisher)
+
+        return HTTPSeeOther(self.request.path)
