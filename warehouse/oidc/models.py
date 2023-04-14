@@ -250,7 +250,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     project_name = Column(String, nullable=False)
     added_by_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
 
     __mapper_args__ = {
