@@ -1566,6 +1566,13 @@ class ManageAccountPublishingViews:
         # futzes with the form.
         if pending_publisher is None:
             self.request.session.flash(
+                self.request._("Invalid publisher ID"),
+                queue="error",
+            )
+            return self.default_response
+
+        if pending_publisher.added_by != self.request.user:
+            self.request.session.flash(
                 "Invalid publisher ID",
                 queue="error",
             )
