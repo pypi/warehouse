@@ -1499,6 +1499,7 @@ class ManageAccountPublishingViews:
         )
 
         self.request.db.add(pending_publisher)
+        self.request.db.flush()  # To get the new ID
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
