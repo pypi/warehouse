@@ -1381,7 +1381,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1404,7 +1404,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1499,6 +1499,7 @@ class ManageAccountPublishingViews:
         )
 
         self.request.db.add(pending_publisher)
+        self.request.db.flush()  # To get the new ID
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
@@ -1514,8 +1515,10 @@ class ManageAccountPublishingViews:
         )
 
         self.request.session.flash(
-            "Registered a new publishing publisher to create "
-            f"the project '{pending_publisher.project_name}'.",
+            self.request._(
+                "Registered a new publishing publisher to create "
+                f"the project '{pending_publisher.project_name}'."
+            ),
             queue="success",
         )
 
@@ -1538,7 +1541,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1550,46 +1553,59 @@ class ManageAccountPublishingViews:
 
         form = DeletePublisherForm(self.request.POST)
 
-        if form.validate():
-            pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
-                form.publisher_id.data
-            )
-
-            # pending_publisher will be `None` here if someone manually
-            # futzes with the form.
-            if pending_publisher is None:
-                self.request.session.flash(
-                    "Invalid publisher for user",
-                    queue="error",
-                )
-                return self.default_response
-
+        if not form.validate():
             self.request.session.flash(
+                self.request._("Invalid publisher ID"),
+                queue="error",
+            )
+            return self.default_response
+
+        pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
+            form.publisher_id.data
+        )
+
+        # pending_publisher will be `None` here if someone manually
+        # futzes with the form.
+        if pending_publisher is None:
+            self.request.session.flash(
+                self.request._("Invalid publisher ID"),
+                queue="error",
+            )
+            return self.default_response
+
+        if pending_publisher.added_by != self.request.user:
+            self.request.session.flash(
+                self.request._("Invalid publisher ID"),
+                queue="error",
+            )
+            return self.default_response
+
+        self.request.session.flash(
+            self.request._(
                 "Removed trusted publisher for project "
-                f"{pending_publisher.project_name!r}",
-                queue="success",
-            )
+                f"{pending_publisher.project_name!r}"
+            ),
+            queue="success",
+        )
 
-            self.metrics.increment(
-                "warehouse.oidc.delete_pending_publisher.ok",
-                tags=[f"publisher:{pending_publisher.publisher_name}"],
-            )
+        self.metrics.increment(
+            "warehouse.oidc.delete_pending_publisher.ok",
+            tags=[f"publisher:{pending_publisher.publisher_name}"],
+        )
 
-            self.request.user.record_event(
-                tag=EventTag.Account.PendingOIDCPublisherRemoved,
-                ip_address=self.request.remote_addr,
-                additional={
-                    "project": pending_publisher.project_name,
-                    "publisher": pending_publisher.publisher_name,
-                    "id": str(pending_publisher.id),
-                    "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
-                    "submitted_by": self.request.user.username,
-                },
-            )
+        self.request.user.record_event(
+            tag=EventTag.Account.PendingOIDCPublisherRemoved,
+            ip_address=self.request.remote_addr,
+            additional={
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url,
+                "submitted_by": self.request.user.username,
+            },
+        )
 
-            self.request.db.delete(pending_publisher)
+        self.request.db.delete(pending_publisher)
 
-            return HTTPSeeOther(self.request.path)
-
-        return self.default_response
+        return HTTPSeeOther(self.request.path)

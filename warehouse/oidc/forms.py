@@ -170,9 +170,7 @@ class PendingGitHubPublisherForm(GitHubPublisherBase):
 
     project_name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(
-                message=_("Specify project name"),
-            ),
+            wtforms.validators.DataRequired(message=_("Specify project name")),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE, message=_("Invalid project name")
             ),
@@ -201,6 +199,7 @@ class DeletePublisherForm(forms.Form):
 
     publisher_id = wtforms.StringField(
         validators=[
-            wtforms.validators.UUID(message=_("Publisher must be specified by ID"))
+            wtforms.validators.DataRequired(message=_("Specify a publisher ID")),
+            wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
         ]
     )
