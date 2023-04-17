@@ -25,6 +25,8 @@ down_revision = "f7cd7a943caa"
 
 
 def upgrade():
+    conn = op.get_bind()
+    conn.execute("SET statement_timeout = 120000")
     op.alter_column(
         "pending_oidc_publishers",
         "added_by_id",
