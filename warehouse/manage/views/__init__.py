@@ -185,7 +185,9 @@ class ManageAccountViews:
             self.user_service.update_user(self.request.user.id, **data)
             for email in self.request.user.emails:
                 email.public = email.email == public_email
-            self.request.session.flash("Account details updated", queue="success")
+            self.request.session.flash(
+                self.request._("Account details updated"), queue="success"
+            )
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "save_account_form": form}
@@ -855,7 +857,8 @@ class ProvisionMacaroonViews:
     def create_macaroon(self):
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
-                "Verify your email to create an API token.", queue="error"
+                self.request._("Verify your email to create an API token."),
+                queue="error",
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -969,10 +972,13 @@ class ProvisionMacaroonViews:
                         },
                     )
             self.request.session.flash(
-                f"Deleted API token '{macaroon.description}'.", queue="success"
+                self.request._(f"Deleted API token '{macaroon.description}'."),
+                queue="success",
             )
         else:
-            self.request.session.flash("Invalid credentials. Try again", queue="error")
+            self.request.session.flash(
+                self.request._("Invalid credentials. Try again"), queue="error"
+            )
 
         redirect_to = self.request.referer
         if not is_safe_url(redirect_to, host=self.request.host):
@@ -1093,7 +1099,9 @@ class ManageProjectSettingsViews:
 
         if self.project.pypi_mandates_2fa:
             self.request.session.flash(
-                "2FA requirement cannot be disabled for critical projects",
+                self.request._(
+                    "2FA requirement cannot be disabled for critical projects"
+                ),
                 queue="error",
             )
         elif self.project.owners_require_2fa:
@@ -1104,7 +1112,7 @@ class ManageProjectSettingsViews:
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
-                f"2FA requirement disabled for { self.project.name }",
+                self.request._(f"2FA requirement disabled for { self.project.name }"),
                 queue="success",
             )
         else:
@@ -1115,7 +1123,7 @@ class ManageProjectSettingsViews:
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
-                f"2FA requirement enabled for { self.project.name }",
+                self.request._(f"2FA requirement enabled for { self.project.name }"),
                 queue="success",
             )
 
@@ -1200,7 +1208,7 @@ class ManageOIDCPublisherViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1222,7 +1230,7 @@ class ManageOIDCPublisherViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1288,7 +1296,9 @@ class ManageOIDCPublisherViews:
         # publisher can't be registered to the project more than once.
         if publisher in self.project.oidc_publishers:
             self.request.session.flash(
-                f"{publisher} is already registered with {self.project.name}",
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
                 queue="error",
             )
             return response
@@ -1390,7 +1400,9 @@ class ManageOIDCPublisherViews:
             )
 
             self.request.session.flash(
-                f"Removed trusted publisher for project {self.project.name!r}",
+                self.request._(
+                    f"Removed trusted publisher for project {self.project.name!r}"
+                ),
                 queue="success",
             )
 
@@ -1462,7 +1474,7 @@ def get_user_role_in_organization_project(project, user, request):
 def delete_project(project, request):
     if request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
         request.session.flash(
-            (
+            request._(
                 "Project deletion temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             ),
@@ -1594,7 +1606,9 @@ class ManageProjectRelease:
         yanked_reason = self.request.POST.get("yanked_reason", "")
 
         if not version:
-            self.request.session.flash("Confirm the request", queue="error")
+            self.request.session.flash(
+                self.request._("Confirm the request"), queue="error"
+            )
             return HTTPSeeOther(
                 self.request.route_path(
                     "manage.project.release",
@@ -1605,8 +1619,10 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
-                "Could not yank release - "
-                + f"{version!r} is not the same as {self.release.version!r}",
+                self.request._(
+                    "Could not yank release - "
+                    + f"{version!r} is not the same as {self.release.version!r}"
+                ),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1645,7 +1661,7 @@ class ManageProjectRelease:
         self.release.yanked_reason = yanked_reason
 
         self.request.session.flash(
-            f"Yanked release {self.release.version!r}", queue="success"
+            self.request._(f"Yanked release {self.release.version!r}"), queue="success"
         )
 
         for contributor in self.release.project.users:
@@ -1676,7 +1692,9 @@ class ManageProjectRelease:
     def unyank_project_release(self):
         version = self.request.POST.get("confirm_unyank_version")
         if not version:
-            self.request.session.flash("Confirm the request", queue="error")
+            self.request.session.flash(
+                self.request._("Confirm the request"), queue="error"
+            )
             return HTTPSeeOther(
                 self.request.route_path(
                     "manage.project.release",
@@ -1687,8 +1705,10 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
-                "Could not un-yank release - "
-                + f"{version!r} is not the same as {self.release.version!r}",
+                self.request._(
+                    "Could not un-yank release - "
+                    + f"{version!r} is not the same as {self.release.version!r}"
+                ),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1726,7 +1746,8 @@ class ManageProjectRelease:
         self.release.yanked_reason = ""
 
         self.request.session.flash(
-            f"Un-yanked release {self.release.version!r}", queue="success"
+            self.request._(f"Un-yanked release {self.release.version!r}"),
+            queue="success",
         )
 
         for contributor in self.release.project.users:
@@ -1757,7 +1778,7 @@ class ManageProjectRelease:
     def delete_project_release(self):
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
             self.request.session.flash(
-                (
+                self.request._(
                     "Project deletion temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1773,7 +1794,9 @@ class ManageProjectRelease:
 
         version = self.request.POST.get("confirm_delete_version")
         if not version:
-            self.request.session.flash("Confirm the request", queue="error")
+            self.request.session.flash(
+                self.request._("Confirm the request"), queue="error"
+            )
             return HTTPSeeOther(
                 self.request.route_path(
                     "manage.project.release",
@@ -1784,8 +1807,10 @@ class ManageProjectRelease:
 
         if version != self.release.version:
             self.request.session.flash(
-                "Could not delete release - "
-                + f"{version!r} is not the same as {self.release.version!r}",
+                self.request._(
+                    "Could not delete release - "
+                    + f"{version!r} is not the same as {self.release.version!r}"
+                ),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1822,7 +1847,7 @@ class ManageProjectRelease:
         self.request.db.delete(self.release)
 
         self.request.session.flash(
-            f"Deleted release {self.release.version!r}", queue="success"
+            self.request._(f"Deleted release {self.release.version!r}"), queue="success"
         )
 
         for contributor in self.release.project.users:
@@ -1862,7 +1887,7 @@ class ManageProjectRelease:
             )
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_DELETION):
-            message = (
+            message = self.request._(
                 "Project deletion temporarily disabled. "
                 "See https://pypi.org/help#admin-intervention for details."
             )
@@ -1871,7 +1896,7 @@ class ManageProjectRelease:
         project_name = self.request.POST.get("confirm_project_name")
 
         if not project_name:
-            return _error("Confirm the request")
+            return _error(self.request._("Confirm the request"))
 
         try:
             release_file = (
@@ -1883,12 +1908,14 @@ class ManageProjectRelease:
                 .one()
             )
         except NoResultFound:
-            return _error("Could not find file")
+            return _error(self.request._("Could not find file"))
 
         if project_name != self.release.project.name:
             return _error(
-                "Could not delete file - " + f"{project_name!r} is not the same as "
-                f"{self.release.project.name!r}"
+                self.request._(
+                    "Could not delete file - " + f"{project_name!r} is not the same as "
+                    f"{self.release.project.name!r}"
+                )
             )
 
         self.request.db.add(

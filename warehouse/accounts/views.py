@@ -1381,7 +1381,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1404,7 +1404,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1515,8 +1515,10 @@ class ManageAccountPublishingViews:
         )
 
         self.request.session.flash(
-            "Registered a new publishing publisher to create "
-            f"the project '{pending_publisher.project_name}'.",
+            self.request._(
+                "Registered a new publishing publisher to create "
+                f"the project '{pending_publisher.project_name}'."
+            ),
             queue="success",
         )
 
@@ -1539,7 +1541,7 @@ class ManageAccountPublishingViews:
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
-                (
+                self.request._(
                     "Trusted publishers are temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
@@ -1553,7 +1555,7 @@ class ManageAccountPublishingViews:
 
         if not form.validate():
             self.request.session.flash(
-                "Invalid publisher ID",
+                self.request._("Invalid publisher ID"),
                 queue="error",
             )
             return self.default_response
@@ -1573,14 +1575,16 @@ class ManageAccountPublishingViews:
 
         if pending_publisher.added_by != self.request.user:
             self.request.session.flash(
-                "Invalid publisher ID",
+                self.request._("Invalid publisher ID"),
                 queue="error",
             )
             return self.default_response
 
         self.request.session.flash(
-            "Removed trusted publisher for project "
-            f"{pending_publisher.project_name!r}",
+            self.request._(
+                "Removed trusted publisher for project "
+                f"{pending_publisher.project_name!r}"
+            ),
             queue="success",
         )
 
