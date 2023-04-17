@@ -30,7 +30,6 @@ class UserFactory(WarehouseFactory):
     is_superuser = False
     is_moderator = False
     is_psf_staff = False
-    has_oidc_beta_access = True
     date_joined = factory.Faker(
         "date_time_between_dates",
         datetime_start=datetime.datetime(2005, 1, 1),

@@ -3278,7 +3278,7 @@ class TestManageAccountPublishingViews:
     def test_add_pending_github_oidc_publisher_too_many_already(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         for i in range(3):
             pending_publisher = PendingGitHubPublisher(
@@ -3460,7 +3460,7 @@ class TestManageAccountPublishingViews:
     def test_add_pending_github_oidc_publisher_already_exists(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
@@ -3534,7 +3534,7 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_add_pending_github_oidc_publisher(self, monkeypatch, db_request):
-        db_request.user = UserFactory()
+        db_request.user = UserFactory(has_oidc_beta_access=True)
         db_request.user.record_event = pretend.call_recorder(lambda **kw: None)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         db_request.registry = pretend.stub(
@@ -3735,7 +3735,7 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_delete_pending_oidc_publisher_not_found(self, monkeypatch, db_request):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
             repository_name="some-repository",
@@ -3816,7 +3816,7 @@ class TestManageAccountPublishingViews:
         assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
 
     def test_delete_pending_oidc_publisher(self, monkeypatch, db_request):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
             repository_name="some-repository",

@@ -6284,7 +6284,7 @@ class TestManageOIDCPublisherViews:
     def test_add_github_oidc_publisher_already_registered_with_project(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         publisher = GitHubPublisher(
             repository_name="some-repository",
@@ -6503,7 +6503,7 @@ class TestManageOIDCPublisherViews:
     def test_delete_oidc_publisher_registered_to_multiple_projects(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         publisher = GitHubPublisher(
             repository_name="some-repository",
@@ -6595,7 +6595,7 @@ class TestManageOIDCPublisherViews:
         ]
 
     def test_delete_oidc_publisher_entirely(self, monkeypatch, db_request):
-        db_request.user = UserFactory.create()
+        db_request.user = UserFactory.create(has_oidc_beta_access=True)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         publisher = GitHubPublisher(
             repository_name="some-repository",
@@ -6607,7 +6607,6 @@ class TestManageOIDCPublisherViews:
         db_request.db.add(publisher)
         db_request.db.flush()  # To get it in the DB
 
-        db_request.user = UserFactory.create()
         project = ProjectFactory.create(oidc_publishers=[publisher])
         project.record_event = pretend.call_recorder(lambda *a, **kw: None)
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
