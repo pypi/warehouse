@@ -125,7 +125,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:455 warehouse/manage/views/__init__.py:803
+#: warehouse/accounts/views.py:455 warehouse/manage/views/__init__.py:805
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -258,6 +258,14 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
+#: warehouse/accounts/views.py:1384 warehouse/accounts/views.py:1407
+#: warehouse/accounts/views.py:1544 warehouse/manage/views/__init__.py:1211
+#: warehouse/manage/views/__init__.py:1233
+msgid ""
+"Trusted publishers are temporarily disabled. See https://pypi.org/help"
+"#admin-intervention for details."
+msgstr ""
+
 #: warehouse/accounts/views.py:1421
 msgid ""
 "You must have a verified email in order to register a pending trusted "
@@ -268,13 +276,13 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1450 warehouse/manage/views/__init__.py:1244
+#: warehouse/accounts/views.py:1450 warehouse/manage/views/__init__.py:1252
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1258
+#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1266
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -282,6 +290,19 @@ msgstr ""
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
+msgstr ""
+
+#: warehouse/accounts/views.py:1518
+msgid "Registered a new publishing publisher to create "
+msgstr ""
+
+#: warehouse/accounts/views.py:1558 warehouse/accounts/views.py:1571
+#: warehouse/accounts/views.py:1578
+msgid "Invalid publisher ID"
+msgstr ""
+
+#: warehouse/accounts/views.py:1584
+msgid "Removed trusted publisher for project "
 msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
@@ -310,7 +331,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:174
+#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr ""
 
@@ -360,55 +381,106 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:216
+#: warehouse/manage/views/__init__.py:189
+msgid "Account details updated"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:218
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:751
+#: warehouse/manage/views/__init__.py:753
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:752
+#: warehouse/manage/views/__init__.py:754
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2039
+#: warehouse/manage/views/__init__.py:860
+msgid "Verify your email to create an API token."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:980
+msgid "Invalid credentials. Try again"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1102
+msgid "2FA requirement cannot be disabled for critical projects"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1477
+#: warehouse/manage/views/__init__.py:1781
+#: warehouse/manage/views/__init__.py:1890
+msgid ""
+"Project deletion temporarily disabled. See https://pypi.org/help#admin-"
+"intervention for details."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1610
+#: warehouse/manage/views/__init__.py:1696
+#: warehouse/manage/views/__init__.py:1798
+#: warehouse/manage/views/__init__.py:1899
+msgid "Confirm the request"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1622
+msgid "Could not yank release - "
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1708
+msgid "Could not un-yank release - "
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1810
+msgid "Could not delete release - "
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1911
+msgid "Could not find file"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1915
+msgid "Could not delete file - "
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:2066
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2147
+#: warehouse/manage/views/__init__.py:2174
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2215
+#: warehouse/manage/views/__init__.py:2242
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2247
+#: warehouse/manage/views/__init__.py:2274
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2260
+#: warehouse/manage/views/__init__.py:2287
 #: warehouse/manage/views/organizations.py:896
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2326
+#: warehouse/manage/views/__init__.py:2353
 #: warehouse/manage/views/organizations.py:961
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2359
+#: warehouse/manage/views/__init__.py:2386
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2370
+#: warehouse/manage/views/__init__.py:2397
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2403
+#: warehouse/manage/views/__init__.py:2430
 #: warehouse/manage/views/organizations.py:1148
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -484,15 +556,19 @@ msgstr ""
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:177
+#: warehouse/oidc/forms.py:175
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:191
+#: warehouse/oidc/forms.py:189
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:204
+#: warehouse/oidc/forms.py:202
+msgid "Specify a publisher ID"
+msgstr ""
+
+#: warehouse/oidc/forms.py:203
 msgid "Publisher must be specified by ID"
 msgstr ""
 
