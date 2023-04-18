@@ -9,7 +9,7 @@ tags:
   - oidc
 ---
 
-Starting today, PyPI maintainers can adopt a new, more secure publishing method
+Starting today, PyPI package maintainers can adopt a new, more secure publishing method
 that does not require long-lived passwords or API tokens to be shared with
 external systems.
 
@@ -23,7 +23,7 @@ generated API tokens to authenticate with PyPI when publishing.
 
 Instead, PyPI maintainers can configure PyPI to trust an identity provided by a
 given OpenID Connect Identity Provider (IdP). This allows allows PyPI to verify
-and delegate trust to that identity, which is used to request short-lived,
+and delegate trust to that identity, which is then authorized to request short-lived,
 tightly-scoped API tokens from PyPI. These API tokens never need to be stored
 or shared, rotate automatically by expiring quickly, and provide a verifiable
 link between a published package and its source.
@@ -34,7 +34,7 @@ PyPI currently supports trusted publishing with GitHub Actions, using [their
 support for OpenID Connect].
 
 After configuring PyPI to trust a given GitHub repository and workflow, users
-of the PyPA's ['pypi-publish' GitHub Action] can quickly and easily adopt
+of the PyPA's ['pypi-publish' GitHub Action] can adopt
 trusted publishing by removing the `username` and `password` fields from their
 workflow configuration, and adding permissions to generate an identity token:
 
@@ -56,13 +56,13 @@ jobs:
 -          password: ${{ secrets.PYPI_TOKEN }}
 ```
 
-Using the PyPA's GitHub action is strongly suggested, but not required. More
+Using the PyPA's GitHub action is strongly recommended, but not required. More
 details on how to manually exchange tokens are available [in our
 documentation].
 
 ### Additional security hardening is available
 
-PyPI maintainers can further increase the security of their release workflows
+PyPI package maintainers can further increase the security of their release workflows
 by configuring trusted publishers to only release from a specific [GitHub
 Actions environment].
 
@@ -83,12 +83,13 @@ publishing with a trusted publisher allows PyPI to correlate more information
 about where a given file was published from in a verifiable way.
 
 Finally, although trusted publishers is currently limited to GitHub Actions,
-much of the underling work that went into making this feature possible is
+much of the underlying work that went into making this feature possible is
 generalizable and not specific to a single publisher. We're interested in
 supporting the ability to publish from additional services that provide OpenID
 Connect identities.
 
 ### Acknowledgements
+
 Funding for this work was provided by the Google Open Source Security Team, and
 much of the development work was performed by [Trail of Bits], with special
 thanks to contributor [William Woodruff].
@@ -120,4 +121,3 @@ the Python Software Foundation._
 [Trail of Bits]: https://www.trailofbits.com/
 [William Woodruff]: https://github.com/woodruffw
 [Sviatoslav Sydorenko]: https://github.com/webknjaz
-[pypi-publish GitHub Action]: https://github.com/marketplace/actions/pypi-publish
