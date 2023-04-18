@@ -21,6 +21,7 @@ theme:
         name: Switch to Light mode
 markdown_extensions:
   - footnotes
+  - pymdownx.superfences
 extra_css:
   - stylesheets/extra.css
 plugins:
