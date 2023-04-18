@@ -322,9 +322,9 @@ types-s3transfer==0.6.0.post7 \
     --hash=sha256:40e665643f0647832d51c4a26d8a8275cda9134b02bf22caf28198b79bcad382 \
     --hash=sha256:d9c669b30fdd61347720434aacb8ecc4645d900712a70b10f495104f9039c07b
     # via boto3-stubs
-types-setuptools==67.6.0.6 \
-    --hash=sha256:a5efd019b53c5793a112e0112b91bb402df749f75ee7abe681b6240841650ce4 \
-    --hash=sha256:fb46e651c6b5880ec8932a8876aa832071d612b2954fc5156b09cd263927d85b
+types-setuptools==67.6.0.8 \
+    --hash=sha256:0b178cab1d5a7487cd410d1b5448d1a85d9da1bf44aa7be7c0d4f33d65041e5a \
+    --hash=sha256:df3e084c3b5af782cb81bd516f40213b572d932fa2f1272aef307d15643736f8
     # via -r requirements/lint.in
 types-sqlalchemy-utils==1.0.1 \
     --hash=sha256:37016333faa0abab7d253805ecf9f605c24ea107b32dd3643014efb8e49be76d \
