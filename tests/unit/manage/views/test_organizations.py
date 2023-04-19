@@ -331,6 +331,7 @@ class TestManageOrganizations:
             organization_access=True,
             remote_addr="0.0.0.0",
             route_path=lambda *a, **kw: "manage-subscription-url",
+            path="request-path",
         )
 
         create_organization_obj = pretend.stub(
@@ -427,7 +428,7 @@ class TestManageOrganizations:
             ),
         ]
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "manage-subscription-url"
+        assert result.headers["Location"] == "request-path"
 
     def test_create_organization_validation_fails(self, monkeypatch):
         admins = []

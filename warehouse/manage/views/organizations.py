@@ -253,14 +253,6 @@ class ManageOrganizationsViews:
         else:
             return {"create_organization_form": form}
 
-        if form.orgtype.data == OrganizationType.Company:
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.organization.activate_subscription",
-                    organization_name=organization.normalized_name,
-                )
-            )
-
         return HTTPSeeOther(self.request.path)
 
 
