@@ -31,7 +31,7 @@
 
   <h3>Projects with active publishers</h3>
 
-  {% set projects = user.projects | selectattr('oidc_publishers') %}
+  {% set projects = user.projects | selectattr('oidc_publishers') | list %}
 
   {% if projects %}
   <table class="table">
