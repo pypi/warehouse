@@ -156,7 +156,11 @@ def organization_detail(request):
         .order_by(Organization.Event.time.desc())
         .first()
     )
-    user = user_service.get_user(create_event.additional["created_by_user_id"])
+    user = (
+        user_service.get_user(create_event.additional["created_by_user_id"])
+        if create_event
+        else None
+    )
 
     if organization.is_approved is True:
         approve_event = (
