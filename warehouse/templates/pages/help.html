@@ -67,7 +67,7 @@
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 {% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
 {% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
-{% macro trusted_publishers() %}{% trans %}How can I use OpenID connect to authenticate with PyPI?{% endtrans %}{% endmacro %}
+{% macro trusted_publishers() %}{% trans %}How can I use Trusted Publishers to publish to PyPI?{% endtrans %}{% endmacro %}
 
 {% macro mirroring() %}{% trans %}How can I run a mirror of PyPI?{% endtrans %}{% endmacro %}
 {% macro APIs() %}{% trans %}Does PyPI have APIs I can use?{% endtrans %}{% endmacro %}
@@ -527,20 +527,10 @@
         {% if request.registry.settings["warehouse.oidc.enabled"] %}
         <h3 id="trusted-publishers">{{ trusted_publishers() }}</h3>
         <p>
-          {% trans openid="https://openid.net/connect/", apitoken="#apitoken" %}
-          PyPI users and projects can use <a href="{{ openid }}">OpenID Connect</a> (OIDC) to delegate
+          {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
+          PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
           the need to use API tokens or passwords.
-          {% endtrans %}
-        </p>
-        <p>
-          {% trans %}
-          Using OIDC to authenticate when publishing is done by registering
-          "trusted publishers," which correspond to services with OIDC
-          identities like GitHub Actions.
-          Existing projects can add or remove trusted publishers at any time.
-          Trusted publishers can also be created in advance for projects that
-          don't exist yet.
           {% endtrans %}
         </p>
         {% endif %}
