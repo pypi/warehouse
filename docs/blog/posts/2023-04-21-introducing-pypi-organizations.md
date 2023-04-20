@@ -2,7 +2,7 @@
 title: Introducing PyPI Organizations
 description: Announcing the launch of a signifiant new collaboration feature for PyPI
 author: Ee Durbin
-publish_date: 2023-04-21
+publish_date: 2023-04-23
 tags:
   - organizations
   - sustainability
