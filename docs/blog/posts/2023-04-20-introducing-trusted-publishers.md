@@ -2,7 +2,7 @@
 title: Introducing 'Trusted Publishers'
 description: Announcing a new, more secure way to publish to PyPI
 author: Dustin Ingram
-publish_date: 2024-04-20
+publish_date: 2023-04-20
 tags:
   - publishing
   - security
