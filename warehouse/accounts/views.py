@@ -24,7 +24,6 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
@@ -1376,9 +1375,6 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if not self.request.user.in_oidc_beta:
-            return Response(status=403)
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 self.request._(
@@ -1398,9 +1394,6 @@ class ManageAccountPublishingViews:
     def add_pending_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        if not self.request.user.in_oidc_beta:
-            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1535,9 +1528,6 @@ class ManageAccountPublishingViews:
     def delete_pending_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        if not self.request.user.in_oidc_beta:
-            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(

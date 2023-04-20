@@ -2,8 +2,6 @@
 title: Creating a PyPI Project with a Trusted Publisher
 ---
 
-<!--[[ preview('oidc-publishing') ]]-->
-
 # Creating a PyPI project with a trusted publisher
 
 Trusted publishers are not just for pre-existing PyPI projects: you can also use

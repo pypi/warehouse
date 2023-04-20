@@ -2,8 +2,6 @@
 title: Security Model and Considerations
 ---
 
-<!--[[ preview('oidc-publishing') ]]-->
-
 # Security model and considerations
 
 ## Security model
