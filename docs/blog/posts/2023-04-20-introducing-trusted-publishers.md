@@ -88,6 +88,11 @@ generalizable and not specific to a single publisher. We're interested in
 supporting the ability to publish from additional services that provide OpenID
 Connect identities.
 
+### Get started today
+
+To get started with using trusted publishers on PyPI, see our documentation
+here: <https://docs.pypi.org/trusted-publishers/>.
+
 ### Acknowledgements
 
 Funding for this work was provided by the Google Open Source Security Team, and
@@ -101,11 +106,6 @@ trusted publishers in the action.
 Finally, we want to thank all our beta testers, including GitHub staff, for
 working with us to ensure this feature is intuitive and useful, and for
 providing valuable feedback to improve this feature along the way.
-
-### Get started today
-
-To get started with using trusted publishers on PyPI, see our documentation
-here: <https://docs.pypi.org/trusted-publishers/>.
 
 ---
 
