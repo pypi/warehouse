@@ -25,7 +25,6 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
     VerifiedAuthentication,
@@ -3003,9 +3002,7 @@ class TestManageAccountPublishingViews:
     def test_manage_publishing(self, monkeypatch):
         metrics = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(
-                in_oidc_beta=True,
-            ),
+            user=pretend.stub(),
             registry=pretend.stub(
                 settings={
                     "warehouse.oidc.enabled": True,
@@ -3059,23 +3056,8 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.manage_publishing()
 
-    def test_manage_publishing_not_in_beta(self):
-        request = pretend.stub(
-            user=pretend.stub(in_oidc_beta=False),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-        resp = view.manage_publishing()
-
-        assert isinstance(resp, Response)
-        assert resp.status_code == 403
-
     def test_manage_publishing_admin_disabled(self, monkeypatch, pyramid_request):
-        pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
-        )
+        pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
                 "warehouse.oidc.enabled": True,
@@ -3139,25 +3121,10 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.add_pending_github_oidc_publisher()
 
-    def test_add_pending_github_oidc_publisher_not_in_beta(self):
-        request = pretend.stub(
-            user=pretend.stub(in_oidc_beta=False),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-        resp = view.add_pending_github_oidc_publisher()
-
-        assert isinstance(resp, Response)
-        assert resp.status_code == 403
-
     def test_add_pending_github_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
-        pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
-        )
+        pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
                 "warehouse.oidc.enabled": True,
@@ -3220,7 +3187,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.user = pretend.stub(
-            has_primary_verified_email=False, in_oidc_beta=True
+            has_primary_verified_email=False,
         )
         pyramid_request.flags = pretend.stub(
             enabled=pretend.call_recorder(lambda f: False)
@@ -3278,7 +3245,7 @@ class TestManageAccountPublishingViews:
     def test_add_pending_github_oidc_publisher_too_many_already(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create(has_oidc_beta_access=True)
+        db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
         for i in range(3):
             pending_publisher = PendingGitHubPublisher(
@@ -3342,7 +3309,6 @@ class TestManageAccountPublishingViews:
         self, monkeypatch, pyramid_request
     ):
         pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
         )
@@ -3397,7 +3363,6 @@ class TestManageAccountPublishingViews:
         self, monkeypatch, pyramid_request
     ):
         pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
         )
@@ -3460,7 +3425,7 @@ class TestManageAccountPublishingViews:
     def test_add_pending_github_oidc_publisher_already_exists(
         self, monkeypatch, db_request
     ):
-        db_request.user = UserFactory.create(has_oidc_beta_access=True)
+        db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
@@ -3534,7 +3499,7 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_add_pending_github_oidc_publisher(self, monkeypatch, db_request):
-        db_request.user = UserFactory(has_oidc_beta_access=True)
+        db_request.user = UserFactory()
         db_request.user.record_event = pretend.call_recorder(lambda **kw: None)
         EmailFactory(user=db_request.user, verified=True, primary=True)
         db_request.registry = pretend.stub(
@@ -3628,25 +3593,10 @@ class TestManageAccountPublishingViews:
         with pytest.raises(HTTPNotFound):
             view.delete_pending_oidc_publisher()
 
-    def test_delete_pending_oidc_publisher_not_in_beta(self):
-        request = pretend.stub(
-            user=pretend.stub(in_oidc_beta=False),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-        resp = view.delete_pending_oidc_publisher()
-
-        assert isinstance(resp, Response)
-        assert resp.status_code == 403
-
     def test_delete_pending_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
-        pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
-        )
+        pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
                 "warehouse.oidc.enabled": True,
@@ -3702,9 +3652,7 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_invalid_form(
         self, monkeypatch, pyramid_request
     ):
-        pyramid_request.user = pretend.stub(
-            in_oidc_beta=True,
-        )
+        pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={"warehouse.oidc.enabled": True}
         )
@@ -3735,7 +3683,7 @@ class TestManageAccountPublishingViews:
         ]
 
     def test_delete_pending_oidc_publisher_not_found(self, monkeypatch, db_request):
-        db_request.user = UserFactory.create(has_oidc_beta_access=True)
+        db_request.user = UserFactory.create()
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
             repository_name="some-repository",
@@ -3786,9 +3734,7 @@ class TestManageAccountPublishingViews:
         db_request.db.add(pending_publisher)
         db_request.db.flush()  # To get the id
 
-        db_request.user = pretend.stub(
-            in_oidc_beta=True,
-        )
+        db_request.user = pretend.stub()
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
         db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
         db_request.session = pretend.stub(
@@ -3816,7 +3762,7 @@ class TestManageAccountPublishingViews:
         assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
 
     def test_delete_pending_oidc_publisher(self, monkeypatch, db_request):
-        db_request.user = UserFactory.create(has_oidc_beta_access=True)
+        db_request.user = UserFactory.create()
         pending_publisher = PendingGitHubPublisher(
             project_name="some-project-name",
             repository_name="some-repository",
