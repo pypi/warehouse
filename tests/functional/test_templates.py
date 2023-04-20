@@ -10,7 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+from pathlib import Path
+
+import pytest
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -37,12 +39,19 @@ FILTERS = {
 }
 
 
-def test_templates_for_empty_titles():
+@pytest.mark.parametrize(
+    "template",
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "templates")
+        for f in Path(warehouse.__path__[0]).glob("templates/**/*.html")
+    ],
+)
+def test_templates_for_empty_titles(template: Path):
     """
     Test if all HTML templates have defined the title block. See
     https://github.com/pypi/warehouse/issues/784
     """
-    dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
+    dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
@@ -56,31 +65,35 @@ def test_templates_for_empty_titles():
 
     env.filters.update(FILTERS)
 
-    for dir_, _, files in os.walk(dir_name):
-        if (
-            dir_.find("/includes") > -1
-            or dir_.find("/api") > -1
-            or dir_.find("/legacy") > -1
-            or dir_.find("/email/") > -1
-        ):
-            continue
+    if template.suffixes == [".csi", ".html"]:
+        # Skips `.csi.html` files, which are used for client-side includes.
+        # TODO: do we have any of these left?
+        return
 
-        for file_name in files:
-            if file_name.endswith(".csi.html"):
-                continue
-            if file_name.endswith(".html"):
-                rel_dir = os.path.relpath(dir_, dir_name)
-                rel_file = os.path.join(rel_dir, file_name)
-                template = env.get_template(rel_file)
-                assert "title" in template.blocks or "title_base" in template.blocks
+    if any(
+        parent.name in ["includes", "api", "legacy", "email"]
+        for parent in template.parents
+    ):
+        # Skips specific directories, which are not expected to have titles.
+        return
+
+    template_obj = env.get_template(str(template))
+    assert "title" in template_obj.blocks or "title_base" in template_obj.blocks
 
 
-def test_render_templates():
+@pytest.mark.parametrize(
+    "template",
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "templates")
+        for f in Path(warehouse.__path__[0]).glob("templates/**/*.html")
+    ],
+)
+def test_render_templates(template):
     """
     Test if all HTML templates are rendered without Jinja exceptions.
     see https://github.com/pypi/warehouse/issues/6634
     """
-    dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
+    dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
@@ -94,15 +107,4 @@ def test_render_templates():
 
     env.filters.update(FILTERS)
 
-    exceptions = []
-    for dir_, _, files in os.walk(dir_name):
-        for file_name in files:
-            if file_name.endswith(".html"):
-                rel_dir = os.path.relpath(dir_, dir_name)
-                rel_file = os.path.join(rel_dir, file_name)
-                try:
-                    env.get_template(rel_file)
-                except Exception as e:
-                    exceptions.append(e)
-
-    assert len(exceptions) == 0
+    assert env.get_template(str(template))
