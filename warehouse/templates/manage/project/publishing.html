@@ -57,7 +57,6 @@
     <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
     {% endif %}
 
-    {% if request.user.in_oidc_beta %}
     <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
     <h3>GitHub</h3>
 
@@ -145,7 +144,6 @@
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
     </form>
-    {% endif %}
   </div>
 </div>
 

@@ -162,20 +162,3 @@ class TestUser:
             ("Allow", "group:admins", "admin"),
             ("Allow", "group:moderators", "moderator"),
         ]
-
-    @pytest.mark.parametrize(
-        ("is_superuser", "has_oidc_beta_access", "in_oidc_beta"),
-        [
-            (False, False, False),
-            (True, False, True),
-            (True, True, True),
-            (False, True, True),
-        ],
-    )
-    def test_in_oidc_beta(
-        self, db_session, is_superuser, has_oidc_beta_access, in_oidc_beta
-    ):
-        user = DBUserFactory.create(
-            is_superuser=is_superuser, has_oidc_beta_access=has_oidc_beta_access
-        )
-        assert user.in_oidc_beta == in_oidc_beta

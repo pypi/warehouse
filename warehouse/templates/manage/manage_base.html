@@ -230,7 +230,7 @@
                   {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
-              {% if request.registry.settings["warehouse.oidc.enabled"] and request.user.in_oidc_beta %}
+              {% if request.registry.settings["warehouse.oidc.enabled"] %}
               <li>
                 <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-upload" aria-hidden="true"></i>
@@ -478,7 +478,7 @@
   </p>
 
   <p class="no-bottom-padding">
-    {% trans href="/help#trusted-publishers" %}
+    {% trans href="https://docs.pypi.org/trusted-publishers/" %}
     You can read more about trusted publishers and how to use them
     <a href="{{ href }}">here</a>.
     {% endtrans %}
@@ -518,7 +518,7 @@
     {% endif %}
   </td>
   <td scope="row">
-    <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger" {{ "" if request.user.in_oidc_beta else "disabled" }}>
+    <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
   </td>
 </tr>
 {%- endmacro %}
