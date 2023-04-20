@@ -195,11 +195,6 @@ class User(SitemapMixin, HasEvents, db.Model):
             ]
         )
 
-    # XXX: Can be removed once OIDC is removed from beta.
-    @property
-    def in_oidc_beta(self):
-        return self.is_superuser or self.has_oidc_beta_access
-
     def __acl__(self):
         return [
             (Allow, "group:admins", "admin"),

@@ -2,8 +2,6 @@
 title: Adding a Trusted Publisher to an Existing PyPI Project
 ---
 
-<!--[[ preview('oidc-publishing') ]]-->
-
 # Adding a trusted publisher to an existing PyPI project
 
 Adding a trusted publisher to a PyPI project only requires a single setup step.

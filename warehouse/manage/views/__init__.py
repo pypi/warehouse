@@ -1203,9 +1203,6 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if not self.request.user.in_oidc_beta and not self.project.oidc_publishers:
-            return Response(status=403)
-
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
                 self.request._(
@@ -1224,9 +1221,6 @@ class ManageOIDCPublisherViews:
     def add_github_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        if not self.request.user.in_oidc_beta:
-            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
@@ -1343,9 +1337,6 @@ class ManageOIDCPublisherViews:
     def delete_oidc_publisher(self):
         if not self.oidc_enabled:
             raise HTTPNotFound
-
-        if not self.request.user.in_oidc_beta:
-            return Response(status=403)
 
         if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
             self.request.session.flash(
