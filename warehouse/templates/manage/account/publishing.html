@@ -58,7 +58,11 @@
     </tbody>
   </table>
   {% else %}
-  <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+  <p class="no-bottom-padding">
+    {% trans %}
+    No publishers are currently configured. Publishers for existing projects can be added in the publishing configuration for each individual project.
+    {% endtrans %}
+  </p>
   {% endif %}
 
   <h3>Pending publishers</h3>
@@ -81,7 +85,11 @@
     </tbody>
   </table>
   {% else %}
-  <p class="no-bottom-padding">{% trans %}No pending publishers are currently configured.{% endtrans %}</p>
+  <p class="no-bottom-padding">
+    {% trans %}
+    No pending publishers are currently configured. Publishers for projects that don't exist yet can be added below.
+    {% endtrans %}
+  </p>
   {% endif %}
 
   <h2>{% trans %}Add a new pending publisher{% endtrans %}</h2>
