@@ -188,5 +188,15 @@ def format_author_email(metadata_email: str) -> tuple[str, str]:
     return author_emails[0][0], author_emails[0][1]
 
 
+def remove_invalid_xml_unicode(value: str) -> str:
+    """
+    Remove invalid unicode characters from a string.
+    Useful for XML Templates.
+
+    Ref: https://www.w3.org/TR/REC-xml/#NT-Char
+    """
+    return "".join(c for c in value if ord(c) >= 32)
+
+
 def includeme(config):
     config.add_request_method(_camo_url, name="camo_url")
