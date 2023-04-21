@@ -319,6 +319,7 @@ class GitHubPublisherMixin:
         "workflow_ref",
         "runner_environment",
         "environment_node_id",
+        "enterprise",
     }
 
     @property
