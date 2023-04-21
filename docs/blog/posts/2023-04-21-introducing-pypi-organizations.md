@@ -38,8 +38,8 @@ spread) largely volunteer team could reasonably handle.
 
 We also want to be very clear—these new features are completely optional. If
 features for larger projects don't sound like something that would be useful to
-you as a PyPI maintainer, then there is no obligation to create a team and
-absolutely nothing about your PyPI experience will change for you.
+you as a PyPI maintainer, then there is no obligation to create an organization
+and absolutely nothing about your PyPI experience will change for you.
 
 ### We want your feedback
 
