@@ -39,10 +39,6 @@ argon2-cffi-bindings==21.2.0 \
     --hash=sha256:f1152ac548bd5b8bcecfb0b0371f082037e47128653df2e8ba6e914d384f3c3e \
     --hash=sha256:f9f8b450ed0547e3d473fdc8612083fd08dd2120d6ac8f73828df9b7d45bb351
     # via argon2-cffi
-arrow==1.2.3 \
-    --hash=sha256:3934b30ca1b9f292376d9db15b19446088d12ec58629bc3f0da28fd55fb633a1 \
-    --hash=sha256:5a49ab92e3b7b71d96cd6bfcc4df14efefc9dfa96ea19045815914a6ab6b1fe2
-    # via b2sdk
 asn1crypto==1.5.1 \
     --hash=sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c \
     --hash=sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67
@@ -59,8 +55,8 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==1.20.0 \
-    --hash=sha256:b394d9fbdada1a4ffc0837cd6c930351f5fccc24cd0af23e41edd850d67fb687
+b2sdk==1.21.0 \
+    --hash=sha256:c6b362c1ddc777748ff68fee0b9155fcdf32efb0b6731bf648340483c1ff202b
     # via -r requirements/main.in
 babel==2.12.1 \
     --hash=sha256:b4246fb7677d3b98f501a39d43396d3cafdc8eadb045f4a31be01863f655c610 \
@@ -1338,7 +1334,6 @@ python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
     --hash=sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9
     # via
-    #   arrow
     #   botocore
     #   celery-redbeat
     #   elasticsearch-dsl
