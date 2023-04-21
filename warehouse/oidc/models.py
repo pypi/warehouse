@@ -176,12 +176,16 @@ class OIDCPublisherMixin:
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = signed_claims.keys() - self.all_known_claims()
+        unaccounted_claims = sorted(
+            list(signed_claims.keys() - self.all_known_claims())
+        )
         if unaccounted_claims:
-            sentry_sdk.capture_message(
-                f"JWT for {self.__class__.__name__} has unaccounted claims: "
-                f"{unaccounted_claims}"
-            )
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = unaccounted_claims
+                sentry_sdk.capture_message(
+                    f"JWT for {self.__class__.__name__} has unaccounted claims: "
+                    f"{unaccounted_claims}"
+                )
 
         # Finally, perform the actual claim verification.
         for claim_name, check in self.__required_verifiable_claims__.items():
@@ -190,9 +194,12 @@ class OIDCPublisherMixin:
             # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
             if signed_claim is None:
-                sentry_sdk.capture_message(
-                    f"JWT for {self.__class__.__name__} is missing claim: {claim_name}"
-                )
+                with sentry_sdk.push_scope() as scope:
+                    scope.fingerprint = [claim_name]
+                    sentry_sdk.capture_message(
+                        f"JWT for {self.__class__.__name__} is missing claim: "
+                        f"{claim_name}"
+                    )
                 return False
 
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
