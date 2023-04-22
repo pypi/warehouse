@@ -52,7 +52,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-04-21 20:12+0000\n"
+"PO-Revision-Date: 2023-04-22 22:36+0000\n"
 "Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
@@ -65,11 +65,10 @@ msgstr ""
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
-#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr "必须在您的帐户上启用双重身份验证才能执行此操作。"
+msgstr "你的账户必须启用双因素身份验证才能执行此操作。"
 
 # | msgid "Stay updated:"
 #: warehouse/views.py:265

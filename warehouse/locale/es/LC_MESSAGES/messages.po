@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-04-15 09:50+0000\n"
+"PO-Revision-Date: 2023-04-22 22:36+0000\n"
 "Last-Translator: Tom5521 <mismarttv321@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
@@ -28,7 +28,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.17-dev\n"
+"X-Generator: Weblate 4.18-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -332,32 +332,25 @@ msgstr "Ahora es ${role} del proyecto «${project_name}»."
 #: warehouse/accounts/views.py:1380 warehouse/accounts/views.py:1400
 #: warehouse/accounts/views.py:1534 warehouse/manage/views/__init__.py:1208
 #: warehouse/manage/views/__init__.py:1227
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishers are temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Se desactivaron temporalmente las altas de usuarios nuevos. Para obtener "
-"detalles, consulte https://pypi.org/help#admin-intervention."
+"Los editores de confianza están temporalmente desactivados. Consulte "
+"https://pypi.org/help#admin-intervention para obtener más información."
 
 #: warehouse/accounts/views.py:1414
-#, fuzzy
-#| msgid ""
-#| "You must have a verified email in order to register a pending OpenID "
-#| "Connect publisher. See https://pypi.org/help#openid-connect for details."
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
-"Debe tener un email verificado para registrar un editor de OpenID Connect "
-"pendiente. Vea https://pypi.org/help#openid-connect para más detalles."
+"Debe tener un correo electrónico verificado para poder registrar un editor "
+"de confianza pendiente. Consulte https://pypi.org/help#openid-connect para "
+"obtener más información."
 
 #: warehouse/accounts/views.py:1427
 msgid "You can't register more than 3 pending trusted publishers at once."
-msgstr ""
+msgstr "No puede registrar más de 3 editores de confianza pendientes a la vez."
 
 #: warehouse/accounts/views.py:1443 warehouse/manage/views/__init__.py:1246
 #, fuzzy
@@ -373,34 +366,28 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1457 warehouse/manage/views/__init__.py:1260
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "No se ha podido registrar el editor de confianza"
 
 #: warehouse/accounts/views.py:1476
-#, fuzzy
-#| msgid ""
-#| "This OpenID Connect publisher has already been registered. Please contact "
-#| "PyPI's admins if this wasn't intentional."
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
-"Este publicador de OpenID Connect ya ha sido registrado. Por favor, póngase "
-"en contacto con los administradores de PyPI si esto no fue intencional."
+"Este editor de confianza ya ha sido registrado. Por favor, póngase en "
+"contacto con los administradores de PyPI si esto no fue intencional."
 
 #: warehouse/accounts/views.py:1511
 msgid "Registered a new publishing publisher to create "
-msgstr ""
+msgstr "Registro de un nuevo editor para crear "
 
 #: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1561
 #: warehouse/accounts/views.py:1568
-#, fuzzy
-#| msgid "Manage version"
 msgid "Invalid publisher ID"
-msgstr "Gestionar versión"
+msgstr "ID de editor no válido"
 
 #: warehouse/accounts/views.py:1574
 msgid "Removed trusted publisher for project "
-msgstr ""
+msgstr "Editor de confianza eliminado del proyecto "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -500,10 +487,8 @@ msgstr ""
 "Este nombre de equipo ya se ha utilizado. Elija un nombre de equipo distinto."
 
 #: warehouse/manage/views/__init__.py:189
-#, fuzzy
-#| msgid "Account details"
 msgid "Account details updated"
-msgstr "Datos de cuenta"
+msgstr "Datos de cuenta actualizados"
 
 #: warehouse/manage/views/__init__.py:218
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -521,71 +506,55 @@ msgstr ""
 "Generar códigos de recuperación nuevos invalidará sus códigos existentes."
 
 #: warehouse/manage/views/__init__.py:860
-#, fuzzy
-#| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
-msgstr "Verifique su dirección o añada otra."
+msgstr "Verifique su email para crear un token de API."
 
 #: warehouse/manage/views/__init__.py:980
 msgid "Invalid credentials. Try again"
 msgstr "Datos de acceso no válidos. Inténtelo de nuevo"
 
 #: warehouse/manage/views/__init__.py:1102
-#, fuzzy
-#| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
-msgstr "A2F desactivada"
+msgstr "El requisito 2FA no puede desactivarse para proyectos críticos"
 
 #: warehouse/manage/views/__init__.py:1468
 #: warehouse/manage/views/__init__.py:1772
 #: warehouse/manage/views/__init__.py:1881
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Se desactivaron temporalmente las altas de usuarios nuevos. Para obtener "
-"detalles, consulte https://pypi.org/help#admin-intervention."
+"Eliminación de proyectos temporalmente desactivada. Consulte https://pypi."
+"org/help#admin-intervention para más detalles."
 
 #: warehouse/manage/views/__init__.py:1601
 #: warehouse/manage/views/__init__.py:1687
 #: warehouse/manage/views/__init__.py:1789
 #: warehouse/manage/views/__init__.py:1890
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm the request"
-msgstr "Confirme la invitación"
+msgstr "Confirmar la solicitud"
 
 #: warehouse/manage/views/__init__.py:1613
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
-msgstr "Anular retirada de versión"
+msgstr "Anular retirada de versión "
 
 #: warehouse/manage/views/__init__.py:1699
-#, fuzzy
-#| msgid "Un-yank release"
 msgid "Could not un-yank release - "
-msgstr "Anular retirada de versión"
+msgstr "Anular retirada de versión - "
 
 #: warehouse/manage/views/__init__.py:1801
-#, fuzzy
-#| msgid "Delete release"
 msgid "Could not delete release - "
-msgstr "Eliminar versión"
+msgstr "No se ha podido borrar la versión "
 
 #: warehouse/manage/views/__init__.py:1902
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find file"
-msgstr "No se encontró la invitación al puesto."
+msgstr "No se encuentra el archivo"
 
 #: warehouse/manage/views/__init__.py:1906
 msgid "Could not delete file - "
-msgstr ""
+msgstr "No se ha podido eliminar el archivo - "
 
 #: warehouse/manage/views/__init__.py:2057
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -655,10 +624,8 @@ msgid "Organization invitation could not be re-sent."
 msgstr "La invitación a la organización no puede ser re-enviada."
 
 #: warehouse/manage/views/organizations.py:1093
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
-msgstr "Se declinó la invitación a «${project_name}»."
+msgstr "Invitación caducada para '${username}' eliminada."
 
 #: warehouse/oidc/forms.py:33
 msgid "Specify GitHub repository owner (username or organization)"
@@ -692,12 +659,9 @@ msgid "Unexpected error from GitHub. Try again."
 msgstr "Error inesperado de GitHub. Intente de nuevo."
 
 #: warehouse/oidc/forms.py:110
-#, fuzzy
-#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
-"Terminó el tiempo de espera inesperadamente en GitHub. Reintente en unos "
-"minutos."
+"Error de conexión inesperado de GitHub. Vuelva a intentarlo en unos minutos."
 
 #: warehouse/oidc/forms.py:120
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
@@ -726,14 +690,12 @@ msgid "Invalid project name"
 msgstr "El nombre del repositorio no es válido"
 
 #: warehouse/oidc/forms.py:189
-#, fuzzy
-#| msgid "This project has no releases"
 msgid "This project name is already in use"
-msgstr "Este proyecto no tiene versiones"
+msgstr "El nombre del proyecto ya está en uso"
 
 #: warehouse/oidc/forms.py:202
 msgid "Specify a publisher ID"
-msgstr ""
+msgstr "Especifique un ID de editor"
 
 #: warehouse/oidc/forms.py:203
 #, fuzzy
@@ -2208,10 +2170,8 @@ msgstr ""
 "organización \"%(organization_name)s\""
 
 #: warehouse/templates/email/organization-member-invited/body.html:33
-#, fuzzy
-#| msgid "Invite"
 msgid "Invited by"
-msgstr "Invitar"
+msgstr "Invitado por"
 
 #: warehouse/templates/email/organization-member-removed/body.html:27
 #, python-format
@@ -2224,10 +2184,8 @@ msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
 #: warehouse/templates/email/team-collaborator-removed/body.html:31
-#, fuzzy
-#| msgid "Removed by:"
 msgid "Removed by"
-msgstr "Eliminada por:"
+msgstr "Eliminado por:"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:27
 #, python-format
@@ -2235,6 +2193,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
+"El rol de <a href=\"%(user_profile)s\">%(username)s</a> en la organización "
+"%(organization_name)s ha sido cambiado a %(role)s"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:31
 msgid "New role"
