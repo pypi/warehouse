@@ -277,6 +277,7 @@ def test_format_author_email(meta_email, expected_name, expected_email):
         ("foo \x1b bar", "foo  bar"),  # U+001B : <control> ESCAPE [ESC]
         ("foo \x00 bar", "foo  bar"),  # U+0000 : <control> NULL
         ("foo 🐍 bar", "foo 🐍 bar"),  # U+1F40D : SNAKE [snake] (emoji) [Python]
+        (None, None),  # no change
     ],
 )
 def test_remove_invalid_xml_unicode(inp, expected):
