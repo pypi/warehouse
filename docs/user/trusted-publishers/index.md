@@ -11,7 +11,7 @@ in automated environments and eliminates the need to use username/password
 combinations or manually generated API tokens to authenticate with PyPI when
 publishing.
 
-To for a quickstart, see:
+For a quickstart, see:
 
 * [Adding a trusted publisher to an existing PyPI project](adding-a-publisher.md)
 * [Creating a PyPI project with a trusted publisher](creating-a-project-through-oidc.md)
