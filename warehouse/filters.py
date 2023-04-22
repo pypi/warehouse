@@ -188,14 +188,14 @@ def format_author_email(metadata_email: str) -> tuple[str, str]:
     return author_emails[0][0], author_emails[0][1]
 
 
-def remove_invalid_xml_unicode(value: str) -> str:
+def remove_invalid_xml_unicode(value: str | None) -> str | None:
     """
     Remove invalid unicode characters from a string.
     Useful for XML Templates.
 
     Ref: https://www.w3.org/TR/REC-xml/#NT-Char
     """
-    return "".join(c for c in value if ord(c) >= 32)
+    return "".join(c for c in value if ord(c) >= 32) if value else value
 
 
 def includeme(config):
