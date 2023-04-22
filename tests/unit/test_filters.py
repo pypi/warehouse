@@ -267,3 +267,20 @@ def test_format_author_email(meta_email, expected_name, expected_email):
     author_name, author_email = filters.format_author_email(meta_email)
     assert author_name == expected_name
     assert author_email == expected_email
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("foo", "foo"),  # no change
+        (" foo  bar ", " foo  bar "),  # U+001B : <control> ESCAPE [ESC]
+        ("foo \x1b bar", "foo  bar"),  # U+001B : <control> ESCAPE [ESC]
+        ("foo \x00 bar", "foo  bar"),  # U+0000 : <control> NULL
+        ("foo 🐍 bar", "foo 🐍 bar"),  # U+1F40D : SNAKE [snake] (emoji) [Python]
+    ],
+)
+def test_remove_invalid_xml_unicode(inp, expected):
+    """
+    Test that invalid XML unicode characters are removed.
+    """
+    assert filters.remove_invalid_xml_unicode(inp) == expected
