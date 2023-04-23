@@ -458,6 +458,9 @@ def configure(settings=None):
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
     filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
+    filters.setdefault(
+        "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
+    )
 
     # We also want to register some global functions for Jinja
     jglobals = config.get_settings().setdefault("jinja2.globals", {})

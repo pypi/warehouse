@@ -74,6 +74,7 @@ class TestGitHubPublisher:
             "workflow_ref",
             "runner_environment",
             "environment_node_id",
+            "enterprise",
         }
 
     def test_github_publisher_computed_properties(self):
@@ -103,7 +104,15 @@ class TestGitHubPublisher:
             workflow_filename="fakeworkflow.yml",
         )
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        scope = pretend.stub()
+        sentry_sdk = pretend.stub(
+            capture_message=pretend.call_recorder(lambda s: None),
+            push_scope=pretend.call_recorder(
+                lambda: pretend.stub(
+                    __enter__=lambda *a: scope, __exit__=lambda *a: None
+                )
+            ),
+        )
         monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
@@ -112,12 +121,15 @@ class TestGitHubPublisher:
             for claim_name in models.GitHubPublisher.all_known_claims()
         }
         signed_claims["fake-claim"] = "fake"
+        signed_claims["another-fake-claim"] = "also-fake"
         assert not publisher.verify_claims(signed_claims=signed_claims)
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
-                "JWT for GitHubPublisher has unaccounted claims: {'fake-claim'}"
+                "JWT for GitHubPublisher has unaccounted claims: "
+                "['another-fake-claim', 'fake-claim']"
             )
         ]
+        assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
     def test_github_publisher_missing_claims(self, monkeypatch):
         publisher = models.GitHubPublisher(
@@ -127,7 +139,15 @@ class TestGitHubPublisher:
             workflow_filename="fakeworkflow.yml",
         )
 
-        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        scope = pretend.stub()
+        sentry_sdk = pretend.stub(
+            capture_message=pretend.call_recorder(lambda s: None),
+            push_scope=pretend.call_recorder(
+                lambda: pretend.stub(
+                    __enter__=lambda *a: scope, __exit__=lambda *a: None
+                )
+            ),
+        )
         monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
 
         signed_claims = {
@@ -142,6 +162,7 @@ class TestGitHubPublisher:
         assert sentry_sdk.capture_message.calls == [
             pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
+        assert scope.fingerprint == ["sub"]
 
     def test_github_publisher_missing_optional_claims(self, monkeypatch):
         publisher = models.GitHubPublisher(
