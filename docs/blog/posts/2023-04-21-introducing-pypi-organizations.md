@@ -8,7 +8,7 @@ tags:
   - sustainability
 ---
 
-Today, we are rolling out the first step in our plan to increase financial
+Today, we are rolling out the first step in our plan to build financial
 support and long-term sustainability of the Python Packaging Index (PyPI),
 while simultaneously giving our users one of our most requested features:
 organization accounts.
