@@ -26,8 +26,8 @@ for all our users.
 
 ### Increasing sustainability and support
 
-In 2022 PyPI served 199,529,846,822 downloads for the 428,120 projects hosted
-there. This means that in 2022, PyPI saw a 57% annual growth in download counts
+In the last year PyPI served 235.7 billion downloads for the 448,941 projects hosted
+there. This means that since the previous period, PyPI saw a 57% annual growth in download counts
 and bandwidth alike. Having more people using and contributing to Python every
 year is an fantastic problem to have, but it is one we must increase
 organizational capacity to accommodate.
