@@ -35,8 +35,8 @@ plugins:
           index_page: tags.md
           insert: top
       locale: en         # The locale for time localizations, default: system's locale
-      time_format: '%Y-%m-%d %H:%M:%S' # The format used to display the time
-      meta_time_format: '%Y-%m-%d %H:%M:%S' # The format used to parse the time from meta
+      time_format: '%Y-%m-%d' # The format used to display the time
+      meta_time_format: '%Y-%m-%d %H:%M' # The format used to parse the time from meta
   - rss:
       abstract_chars_count: 160
       abstract_delimiter: <!-- more -->

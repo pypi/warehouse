@@ -37,10 +37,10 @@
 {% endif %}
 
 {% if "author" in page.meta %}
-  by: <b>{{ page.meta["author"] + " · " if "publish_date" in page.meta else "" }}</b>
+  by: <b>{{ page.meta["author"] + " · " if "date" in page.meta else "" }}</b>
 {% endif %}
-{% if "publish_date" in page.meta %}
-  <span>{{ page.meta["publish_date"] }}</span>
+{% if "date" in page.meta %}
+  <span>{{ page.meta["date"] }}</span>
 {% endif %}
 
 <!-- Page content -->
