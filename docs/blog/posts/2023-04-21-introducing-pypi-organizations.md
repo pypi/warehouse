@@ -20,7 +20,7 @@ web addresses. Our goal is to make PyPI easier to use for large community
 projects, organizations, or companies who manage multiple sub-teams and multiple
 packages. We’re making organizations available to community projects for free,
 forever, and to corporate projects for a small fee. Additional priority support
-agreemens will be available to all paid subscribers, and all revenue will go
+agreements will be available to all paid subscribers, and all revenue will go
 right back into PyPI to continue building better support and infrastructure
 for all our users.
 
