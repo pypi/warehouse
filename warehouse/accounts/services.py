@@ -118,8 +118,9 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache
-    def get_admins(self):
-        return self.db.query(User).filter(User.is_superuser.is_(True)).all()
+    def get_admin_user(self):
+        """Useful for notifications to the admin@ email address."""
+        return self.get_user_by_username("admin")
 
     def username_is_prohibited(self, username):
         return self.db.query(

@@ -695,11 +695,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(rename_organization),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         save_organization_obj = pretend.stub()
@@ -740,7 +740,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name="FooBar",
                 previous_organization_name="foobar",
             ),
@@ -843,11 +843,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -870,7 +870,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name=organization.name,
             ),
             pretend.call(
@@ -956,11 +956,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -983,7 +983,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name=organization.name,
             ),
             pretend.call(
