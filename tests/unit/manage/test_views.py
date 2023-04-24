@@ -6705,7 +6705,7 @@ class TestManageOIDCPublisherViews:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
-                query=lambda *a: pretend.stub(get=lambda id: other_publisher),
+                get=pretend.call_recorder(lambda *a, **kw: other_publisher),
             ),
             remote_addr="0.0.0.0",
         )

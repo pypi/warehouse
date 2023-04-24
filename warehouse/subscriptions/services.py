@@ -379,7 +379,7 @@ class StripeSubscriptionService:
         """
         Get a subscription by id
         """
-        return self.db.query(StripeSubscription).get(id)
+        return self.db.get(StripeSubscription, id)
 
     def find_subscriptionid(self, subscription_id):
         """
@@ -495,7 +495,7 @@ class StripeSubscriptionService:
         """
         Get a stripe customer by id
         """
-        return self.db.query(StripeCustomer).get(stripe_customer_id)
+        return self.db.get(StripeCustomer, stripe_customer_id)
 
     def find_stripe_customer_id(self, customer_id):
         """
@@ -560,7 +560,7 @@ class StripeSubscriptionService:
         """
         Get a product by subscription product id
         """
-        return self.db.query(StripeSubscriptionProduct).get(subscription_product_id)
+        return self.db.get(StripeSubscriptionProduct, subscription_product_id)
 
     def get_subscription_products(self):
         """
@@ -661,7 +661,7 @@ class StripeSubscriptionService:
         """
         Get a subscription price by id
         """
-        return self.db.query(StripeSubscriptionPrice).get(subscription_price_id)
+        return self.db.get(StripeSubscriptionPrice, subscription_price_id)
 
     def get_subscription_prices(self):
         """

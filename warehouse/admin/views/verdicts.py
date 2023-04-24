@@ -56,7 +56,7 @@ def get_verdicts(request):
     uses_session=True,
 )
 def get_verdict(request):
-    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
+    verdict = request.db.get(MalwareVerdict, request.matchdict["verdict_id"])
 
     if verdict:
         return {
@@ -76,7 +76,7 @@ def get_verdict(request):
     require_csrf=True,
 )
 def review_verdict(request):
-    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
+    verdict = request.db.get(MalwareVerdict, request.matchdict["verdict_id"])
 
     try:
         classification = getattr(VerdictClassification, request.POST["classification"])

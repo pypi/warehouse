@@ -1353,7 +1353,7 @@ class ManageOIDCPublisherViews:
         form = DeletePublisherForm(self.request.POST)
 
         if form.validate():
-            publisher = self.request.db.query(OIDCPublisher).get(form.publisher_id.data)
+            publisher = self.request.db.get(OIDCPublisher, form.publisher_id.data)
 
             # publisher will be `None` here if someone manually futzes with the form.
             if publisher is None or publisher not in self.project.oidc_publishers:
