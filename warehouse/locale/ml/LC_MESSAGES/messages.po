@@ -34,23 +34,23 @@ msgstr "ലോക്കൽ അപ്ഡേറ്റ് ചെയ്തു"
 msgid "The password is invalid. Try again."
 msgstr "പാസ്‌വേഡ് അസാധുവാണ്. വീണ്ടും ശ്രമിക്ക്."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "ആ ഉപയോക്തൃനാമത്തിൽ ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP കോഡ് ${totp_length} അക്കങ്ങളായിരിക്കണം."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -60,70 +60,70 @@ msgstr ""
 "എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
 "വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "പാസ്സ്‌വേർഡ് വളരെ നീളമുള്ളതാണ്."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "നിങ്ങളുടെ പാസ്‌വേഡുകൾ പൊരുത്തപ്പെടുന്നില്ല. വീണ്ടും ശ്രമിക്ക്."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "ഈ ഡൊമെയ്‌നിൽ നിന്ന് നിങ്ങൾക്ക് ഒരു ഇമെയിൽ വിലാസം ഉപയോഗിക്കാൻ കഴിയില്ല. മറ്റൊരു ഇമെയിൽ "
 "ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "ഈ ഇമെയിൽ വിലാസം ഇതിനകം ഈ അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "ഈ ഇമെയിൽ വിലാസം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഇമെയിൽ ഉപയോഗിക്കുക."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "പേര് വളരെ നീണ്ടതാണ്. 100 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഒരു പേര് തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "അസാധുവായ TOTP കോഡ്."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "WebAuthn അവകാശവാദം അസാധുവാണ്: മോശം പേലോഡ്"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "അസാധുവായ റിക്കവറി കോഡ്."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "റിക്കവറി കോഡ് മുമ്പ് ഉപയോഗിച്ചിരുന്നു."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "ആ ഉപയോക്തൃനാമമോ ഇമെയിലോ ഉള്ള ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
 
@@ -354,13 +354,13 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -376,7 +376,7 @@ msgstr ""
 "എന്നിവ ഉൾക്കൊള്ളണം. കൂടാതെ ഒരു അക്ഷരമോ നമ്പറോ ഉപയോഗിച്ച് ആരംഭിക്കുകയും പൂർത്തിയാക്കുകയും "
 "വേണം. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -387,21 +387,21 @@ msgid ""
 msgstr ""
 "ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -411,7 +411,7 @@ msgid ""
 msgstr ""
 "ഈ ഉപയോക്തൃനാമം ഇതിനകം മറ്റൊരു അക്കൗണ്ട് ഉപയോഗിക്കുന്നു. മറ്റൊരു ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid ""
@@ -419,35 +419,35 @@ msgid ""
 "characters or less."
 msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "50 പ്രതീകങ്ങളോ അതിൽ കുറവോ ഉള്ള ഉപയോക്തൃനാമം തിരഞ്ഞെടുക്കുക"
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -544,13 +544,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -563,30 +563,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -2189,7 +2189,7 @@ msgstr[1] ""
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
@@ -2197,7 +2197,7 @@ msgid ""
 "publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a href=\"%(href)s\">"

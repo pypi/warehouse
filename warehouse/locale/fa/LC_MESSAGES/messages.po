@@ -49,23 +49,23 @@ msgstr "به‌روز رسانی محلی"
 msgid "The password is invalid. Try again."
 msgstr "رمز عبور معتبر نیست. دوباره تلاش کنید."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "هیچ کاربری با این نام کاربری پیدا نشد"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "رمز پویا باید ${totp_length} رقم باشد."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "کد بازیابی."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "یک نام کاربری با طول ۵۰ کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -75,7 +75,7 @@ msgstr ""
 "زیر خط باشد. و همچنین باید با یک حرف یا یک عدد شروع و پایان یابد. نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -83,39 +83,39 @@ msgstr ""
 "این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "رمز عبور خیلی طولانی است"
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "تعداد زیادی تلاش ناموفق برای ورود به سیستم انجام شده است. لطفا بعدا تلاش "
 "کنید."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "رمز های عبور شما هم خوانی ندارند. دوباره امتحان کنید."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "آدرس پست الکترونیک شما معتبر نیست. دوباره امتحان کنید."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "شما نمی توانید از یک آدرس ایمیل از این دامنه استفاده کنید. از یک ایمیل دیگر "
 "استفاده کنید."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "این ایمیل توسط اکانت دیگری استفاده میشود . از ایمیل دیگری استفاده کنید."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -123,27 +123,27 @@ msgstr ""
 "این آدرس ایمیل در حال حاضر توسط حساب دیگری استفاده می شود. از یک ایمیل دیگر "
 "استفاده کنید."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "رمز یکبار مصرف اشتباه است."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "خطای WebAuthn: بارگیری با مشکل مواجه شد"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "کد بازیابی نامعتبر."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "کد بازیابی قبلا استفاده شده است."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "هیچ کاربری با این نام کاربری یا ایمیل یافت نشد"
 
@@ -388,11 +388,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "پیش نمایش بنر"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "یک نام کاربری سازمانی با طول ۵۰ کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -408,7 +408,7 @@ msgstr ""
 "و زیر خط باشد. و همچنین باید با حرف یا عدد شروع و پایان یابد.نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -420,25 +420,25 @@ msgstr ""
 "این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "هذف برنامه"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 #, fuzzy
 #| msgid "Search projects"
 msgid "Specify project name"
 msgstr "جستجوی پروژه ها"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -449,7 +449,7 @@ msgstr ""
 "این نام کاربری در حال حاضر توسط حساب کاربری دیگری استفاده می شود. نام کاربری "
 "دیگری انتخاب کنید."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -457,7 +457,7 @@ msgid ""
 "characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -465,11 +465,11 @@ msgid ""
 "characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -477,19 +477,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "نام خیلی طولانی است یک نام با 100 کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "یک نام کاربری با طول ۵۰ کاراکتر یا کمتر انتخاب کنید."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -604,7 +604,7 @@ msgstr ""
 "$ {role_name} برای پروژه اضافه شود"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -612,7 +612,7 @@ msgstr ""
 "کنید."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "دعوت نامه به \"$ {username}\" ارسال شد"
 
@@ -625,17 +625,17 @@ msgid "Invitation already expired."
 msgstr "دعوتنامه قبلاً منقضی شده است."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "دعوت از \"$ {username}\" لغو شد."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "کاربر \"$ {username}\" از قبل نقش {role_name} پروژه را دارد"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -647,20 +647,20 @@ msgstr ""
 "کاربر \"$ {username}\" آدرس ایمیل تأیید شده اولیه ندارد و نمی تواند به عنوان "
 "$ {role_name} برای پروژه اضافه شود"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "دعوتنامه نقش پیدا نشد."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "دعوت نامه دیگر وجود ندارد."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2519,7 +2519,7 @@ msgstr ""
 "اگر این درخواست را نکردید ، می توانید با خیال راحت این ایمیل را نادیده "
 "بگیرید."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
@@ -2527,7 +2527,7 @@ msgid ""
 "publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
