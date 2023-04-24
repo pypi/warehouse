@@ -50,23 +50,23 @@ msgstr "Yerel ayarlarlar güncellendi"
 msgid "The password is invalid. Try again."
 msgstr "Geçersiz parola. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "Bu kullanıcı adıyla kayıtlı bir kullanıcı bulunamadı"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kodu ${totp_length} rakamdan oluşmalıdır."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Kurtarma Kodları ${recovery_code_length} karakterlerinden oluşmalıdır."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -76,7 +76,7 @@ msgstr ""
 "çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile başlayıp "
 "bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -84,30 +84,30 @@ msgstr ""
 "Bu kullanıcı adı başka bir hesap tarafından kullanılıyor. Başka bir "
 "kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "Parola çok uzun."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "Parolalarınız eşleşmiyor. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "E-posta adresi geçerli değil. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -115,7 +115,7 @@ msgstr ""
 "Bu e-posta adresi zaten bu hesap tarafından kullanılıyor. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -123,28 +123,28 @@ msgstr ""
 "Bu e-posta adresi farklı bir hesap tarafından kullanılıyor. Başka bir e-"
 "posta kullanın."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "İsim çok uzun. En fazla 100 karakter olacak şekilde başka bir isim seçin."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "Geçersiz TOTP kodu."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "Geçersiz kurtarma kodu."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "Kurtarma kodu daha önceden kullanıldı."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
@@ -396,11 +396,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "Afiş Önizlemesi"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir organizasyon kullanıcı adı seçin."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -411,7 +411,7 @@ msgstr ""
 "tire ve alt çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile "
 "başlayıp bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -419,15 +419,15 @@ msgstr ""
 "Bu organizasyon hesap adı kullanılıyor. Başka bir organizasyon hesap adı "
 "seçin."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "Projeyi seç"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "Proje adını belirtin"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -435,12 +435,12 @@ msgstr ""
 "Yalnızca ASCII sayısal ve '.', '_' ve '-' içeren bir harf veya sayı ile "
 "başlayın ve bitirin."
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Bu proje adı zaten kullanılmıştır. Farklı bir proje adı seçin."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -448,7 +448,7 @@ msgstr ""
 "Organizasyon adı çok uzun. En fazla 100 karakter olacak şekilde başka bir "
 "isim seçin."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -456,11 +456,11 @@ msgstr ""
 "Organizasyon site adresi çok uzun. En fazla 100 karakter olacak şekilde "
 "başka bir adres belirtin."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr "Kuruluş URL'si http:// veya https:// ile başlamalıdır."
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -468,11 +468,11 @@ msgstr ""
 "Organizasyon açıklaması çok uzun. En fazla 100 karakter olacak şekilde başka "
 "bir açıklama belirtin."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 msgid "Choose a team name with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir takım adı seçin."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -480,7 +480,7 @@ msgstr ""
 "Takım adı geçersiz. Takım adları boşluk, nokta, alt çizgi, kısa çizgi veya "
 "eğik çizgi ile başlayamaz veya bitemez. Farklı bir takım adı seçin."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Bu takım adı zaten kullanılmıştır. Farklı bir takım adı seçin."
 
@@ -594,7 +594,7 @@ msgstr ""
 "mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -602,7 +602,7 @@ msgstr ""
 "Lütfen daha sonra tekrar deneyiniz."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
@@ -615,15 +615,15 @@ msgid "Invitation already expired."
 msgstr "Davetin süresi zaten dolmuş."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "'${username}' kullanıcısı projede zaten ${role_name} rolüne sahip"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -631,18 +631,18 @@ msgstr ""
 "Kullanıcı \"${username}\", doğrulanmış bir birincil e-posta adresine sahip "
 "değil ve kuruluş için ${role_name} olarak eklenemez"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr "Organizasyon davetiyesi bulunamadı."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2490,7 +2490,7 @@ msgstr ""
 "Eğer bu isteği siz yapmadıysanız, güvenli bir şekilde bu e-postayı görmezden "
 "gelebilirsiniz."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
@@ -2498,7 +2498,7 @@ msgid ""
 "publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
