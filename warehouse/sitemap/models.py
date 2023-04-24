@@ -14,7 +14,6 @@ from sqlalchemy import Column, FetchedValue, Text
 
 
 class SitemapMixin:
-
     sitemap_bucket = Column(
         Text,
         nullable=False,

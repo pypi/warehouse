@@ -75,7 +75,6 @@ class TokenLeakDisclosureRequest:
 
     @classmethod
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
-
         if not isinstance(record, dict):
             raise InvalidTokenLeakRequestError(
                 f"Record is not a dict but: {str(record)[:100]}", reason="format"
@@ -189,7 +188,6 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         expected_attributes = {"key", "key_identifier"}
         result = []
         for public_key in public_keys:
-
             if not isinstance(public_key, dict):
                 raise GitHubPublicKeyMetaAPIError(
                     f"Key is not a dict but: {public_key}",
@@ -212,7 +210,6 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
 
 
 def _analyze_disclosure(request, disclosure_record, origin):
-
     metrics = request.find_service(IMetricsService, context=None)
 
     metrics.increment(f"warehouse.token_leak.{origin}.received")

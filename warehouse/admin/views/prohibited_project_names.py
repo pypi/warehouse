@@ -321,7 +321,6 @@ def bulk_add_prohibited_project_names(request):
         comment = request.POST.get("comment", "")
 
         for project_name in project_names:
-
             # Check to make sure the object doesn't already exist.
             if (
                 request.db.query(literal(True))

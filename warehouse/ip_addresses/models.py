@@ -26,7 +26,6 @@ class BanReason(enum.Enum):
 
 
 class IpAddress(db.Model):
-
     __tablename__ = "ip_addresses"
     __table_args__ = (
         Index("bans_idx", "is_banned"),

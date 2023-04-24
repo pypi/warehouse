@@ -88,7 +88,6 @@ class Caveat:
 
 
 class _CaveatRegistry:
-
     _tags: dict[int, type[Caveat]]
 
     def __init__(self, *args: Any, **kwargs: Any):
