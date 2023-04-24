@@ -1512,9 +1512,9 @@ trove-classifiers==2023.7.6 \
     --hash=sha256:8a8e168b51d20fed607043831d37632bb50919d1c80a64e0f1393744691a8b22 \
     --hash=sha256:b420d5aa048ee7c456233a49203f7d58d1736af4a6cde637657d78c13ab7969b
     # via -r requirements/main.in
-typeguard==2.13.3 \
-    --hash=sha256:00edaa8da3a133674796cf5ea87d9f4b4c367d77476e185e80251cc13dfbb8c4 \
-    --hash=sha256:5e3e3be01e887e7eafae5af63d1f36c849aaa94e3a0112097312aabfa16284f1
+typeguard==3.0.2 \
+    --hash=sha256:bbe993854385284ab42fd5bd3bee6f6556577ce8b50696d6cb956d704f286c8e \
+    --hash=sha256:fee5297fdb28f8e9efcb8142b5ee219e02375509cd77ea9d270b5af826358d5a
     # via -r requirements/main.in
 typing-extensions==4.7.1 \
     --hash=sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36 \
