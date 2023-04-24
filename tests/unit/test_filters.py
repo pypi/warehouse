@@ -16,6 +16,7 @@ import urllib.parse
 from functools import partial
 
 import packaging.version
+import packaging_legacy.version
 import pretend
 import pytest
 
@@ -203,7 +204,11 @@ def test_format_package_type(inp, expected):
 
 
 @pytest.mark.parametrize(
-    ("inp", "expected"), [("1.0", packaging.version.Version("1.0"))]
+    ("inp", "expected"),
+    [
+        ("1.0", packaging.version.Version("1.0")),
+        ("dog", packaging_legacy.version.LegacyVersion("dog")),
+    ],
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected
