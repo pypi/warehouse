@@ -25,6 +25,7 @@ import packaging.requirements
 import packaging.specifiers
 import packaging.utils
 import packaging.version
+import packaging_legacy.version
 import pkg_resources
 import requests
 import wtforms
@@ -214,10 +215,10 @@ def _exc_with_message(exc, message, **kwargs):
 
 
 def _validate_pep440_version(form, field):
-    parsed = packaging.version.parse(field.data)
-
     # Check that this version is a valid PEP 440 version at all.
-    if not isinstance(parsed, packaging.version.Version):
+    try:
+        parsed = packaging.version.parse(field.data)
+    except packaging.version.InvalidVersion:
         raise wtforms.validators.ValidationError(
             "Start and end with a letter or numeral containing only "
             "ASCII numeric and '.', '_' and '-'."
@@ -1163,7 +1164,7 @@ def file_upload(request):
         .all()
     )
     for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging.version.parse(x.version))
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
     ):
         r._pypi_ordering = i
 
