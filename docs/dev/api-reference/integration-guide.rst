@@ -96,12 +96,34 @@ Query PyPI’s `JSON
 API <https://warehouse.pypa.io/api-reference/json/>`__ to
 determine where to download files from.
 
-If you so choose
+Predictable URLs
 ----------------
 
-You can use our conveyor service to fetch this file, but this
-realistically exists primarily to support that historical predictable
-URLs still work.
+You can use our conveyor service to fetch this file, which exists for
+cases where using the API is impractical or impossible. This is for
+example the case for Linux package maintainers, as package build scripts
+or package metadata expect static URLs in some cases.
+
+URLs can be constructed as follows, with wheel file names following
+:pep:`491#file-name-convention`.
+
+.. code:: python
+
+   host = 'https://files.pythonhosted.org'
+
+   def source_url(name, version):
+       return f'{host}/packages/source/{name[0]}/{name}/{name}-{version}.tar.gz'
+
+   def wheel_url(name, version, build_tag, python_tag, abi_tag, platform_tag):
+       # https://www.python.org/dev/peps/pep-0491/#file-name-convention
+       wheel_parts = {
+           tag: re.sub('[^\w\d.]+', '_', part, re.UNICODE)
+           for tag, part in locals().items()
+       }
+       wheel_parts['optional_build_tag'] = f'-{wheel_parts["build_tag"]}' if build_tag else ''
+       filename = '{name}-{version}{optional_build_tag}-{python_tag}-{abi_tag}-{platform_tag}.whl'\
+                  .format_map(wheel_parts)
+       return f'{host}/packages/{python_tag}/{name[0]}/{name}/{filename}'
 
 Example:
 ~~~~~~~~
@@ -112,18 +134,4 @@ Example:
    HTTP/2 302
    location: https://files.pythonhosted.org/packages/b1/72/2d70c5a1de409ceb3a27ff2ec007ecdd5cc52239e7c74990e32af57affe9/virtualenv-15.2.0.tar.gz
 
-But as you’ll note, it is just a redirect to the canonical file.
-
-You should generally query the index for package URLs rather than
-guessing, but the URL structure for the redirect service is:
-
-::
-
-   /packages/{python_version}/{project_l}/{project_name}/{filename}
-
-where ``project_l`` is the first letter of the project name.
-``python_version`` can be one of many things, akin to the old file
-structure PyPI used to hold on disk. In general this is only a good idea
-for ``source`` as a ``python_version`` to fetch tar and zip files.
-Otherwise, you will want to match the format of the ``python_version``
-field of the releases in the :doc:`json`.
+As you’ll note, it is just a redirect to the canonical file.
