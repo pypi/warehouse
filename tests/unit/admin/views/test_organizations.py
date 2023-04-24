@@ -430,7 +430,7 @@ class TestOrganizationDetail:
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
-            get_admins=lambda *a, **kw: [admin],
+            get_admin_user=lambda *a, **kw: [admin],
             get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_event = pretend.stub(
@@ -577,7 +577,7 @@ class TestOrganizationDetail:
             public_email="webmaster@example.com",
         )
         user_service = pretend.stub(
-            get_admins=lambda *a, **kw: [admin],
+            get_admin_user=lambda *a, **kw: [admin],
             get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
         )
         create_event = pretend.stub(

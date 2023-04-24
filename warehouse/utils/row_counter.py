@@ -16,7 +16,6 @@ from warehouse import db
 
 
 class RowCount(db.Model):
-
     __tablename__ = "row_counts"
 
     table_name = Column(Text, nullable=False, unique=True)

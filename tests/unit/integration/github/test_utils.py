@@ -554,7 +554,6 @@ class TestGitHubTokenScanningPayloadVerifier:
 
 
 def test_analyze_disclosure(monkeypatch):
-
     metrics = collections.Counter()
 
     def metrics_increment(key):
@@ -622,7 +621,6 @@ def test_analyze_disclosure(monkeypatch):
 
 
 def test_analyze_disclosure_wrong_record():
-
     metrics = collections.Counter()
 
     def metrics_increment(key):
@@ -647,7 +645,6 @@ def test_analyze_disclosure_wrong_record():
 
 
 def test_analyze_disclosure_invalid_macaroon():
-
     metrics = collections.Counter()
 
     def metrics_increment(key):
@@ -677,7 +674,6 @@ def test_analyze_disclosure_invalid_macaroon():
 
 
 def test_analyze_disclosure_unknown_error(monkeypatch):
-
     metrics = collections.Counter()
 
     def metrics_increment(key):
@@ -700,7 +696,6 @@ def test_analyze_disclosure_unknown_error(monkeypatch):
 
 
 def test_analyze_disclosures_wrong_type():
-
     metrics = collections.Counter()
 
     def metrics_increment(key):

@@ -39,7 +39,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class OrganizationRoleType(str, enum.Enum):
-
     Owner = "Owner"
     BillingManager = "Billing Manager"
     Manager = "Manager"
@@ -47,7 +46,6 @@ class OrganizationRoleType(str, enum.Enum):
 
 
 class OrganizationRole(db.Model):
-
     __tablename__ = "organization_roles"
     __table_args__ = (
         Index("organization_roles_user_id_idx", "user_id"),
@@ -78,7 +76,6 @@ class OrganizationRole(db.Model):
 
 
 class OrganizationProject(db.Model):
-
     __tablename__ = "organization_projects"
     __table_args__ = (
         Index("organization_projects_organization_id_idx", "organization_id"),
@@ -106,7 +103,6 @@ class OrganizationProject(db.Model):
 
 
 class OrganizationStripeSubscription(db.Model):
-
     __tablename__ = "organization_stripe_subscriptions"
     __table_args__ = (
         Index(
@@ -138,7 +134,6 @@ class OrganizationStripeSubscription(db.Model):
 
 
 class OrganizationStripeCustomer(db.Model):
-
     __tablename__ = "organization_stripe_customers"
     __table_args__ = (
         Index("organization_stripe_customers_organization_id_idx", "organization_id"),
@@ -168,7 +163,6 @@ class OrganizationStripeCustomer(db.Model):
 
 
 class OrganizationType(str, enum.Enum):
-
     Community = "Community"
     Company = "Company"
 
@@ -422,7 +416,6 @@ class Organization(HasEvents, db.Model):
 
 
 class OrganizationNameCatalog(db.Model):
-
     __tablename__ = "organization_name_catalog"
     __table_args__ = (
         Index("organization_name_catalog_normalized_name_idx", "normalized_name"),
@@ -441,13 +434,11 @@ class OrganizationNameCatalog(db.Model):
 
 
 class OrganizationInvitationStatus(enum.Enum):
-
     Pending = "pending"
     Expired = "expired"
 
 
 class OrganizationInvitation(db.Model):
-
     __tablename__ = "organization_invitations"
     __table_args__ = (
         Index("organization_invitations_user_id_idx", "user_id"),
@@ -483,12 +474,10 @@ class OrganizationInvitation(db.Model):
 
 
 class TeamRoleType(str, enum.Enum):
-
     Member = "Member"
 
 
 class TeamRole(db.Model):
-
     __tablename__ = "team_roles"
     __table_args__ = (
         Index("team_roles_user_id_idx", "user_id"),
@@ -519,13 +508,11 @@ class TeamRole(db.Model):
 
 
 class TeamProjectRoleType(str, enum.Enum):
-
     Owner = "Owner"  # Granted "Administer" permissions.
     Maintainer = "Maintainer"  # Granted "Upload" permissions.
 
 
 class TeamProjectRole(db.Model):
-
     __tablename__ = "team_project_roles"
     __table_args__ = (
         Index("team_project_roles_project_id_idx", "project_id"),
@@ -586,7 +573,6 @@ class TeamFactory:
 
 
 class Team(HasEvents, db.Model):
-
     __tablename__ = "teams"
     __table_args__ = (
         Index("teams_organization_id_idx", "organization_id"),

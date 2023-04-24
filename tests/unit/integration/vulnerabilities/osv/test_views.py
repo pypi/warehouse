@@ -21,7 +21,6 @@ from warehouse.integrations.vulnerabilities.osv import views
 
 class TestReportVulnerabilities:
     def test_report_vulnerabilities(self, pyramid_request, monkeypatch):
-
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
@@ -99,7 +98,6 @@ class TestReportVulnerabilities:
         ]
 
     def test_report_vulnerabilities_verify_fail(self, monkeypatch, pyramid_request):
-
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",
@@ -130,7 +128,6 @@ class TestReportVulnerabilities:
         assert response.status_int == 400
 
     def test_report_vulnerabilities_verify_invalid_json(self, monkeypatch):
-
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
@@ -173,7 +170,6 @@ class TestReportVulnerabilities:
     def test_report_vulnerabilities_verify_invalid_vuln(
         self, monkeypatch, pyramid_request
     ):
-
         pyramid_request.headers = {
             "VULN-PUBLIC-KEY-IDENTIFIER": "vuln_pub_key_id",
             "VULN-PUBLIC-KEY-SIGNATURE": "vuln_pub_key_sig",

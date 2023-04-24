@@ -23,7 +23,6 @@ from pyramid.view import view_config, view_defaults
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
 from warehouse.email import (
-    send_admin_new_organization_requested_email,
     send_admin_organization_deleted_email,
     send_admin_organization_renamed_email,
     send_canceled_as_invited_organization_member_email,
@@ -237,13 +236,6 @@ class ManageOrganizationsViews:
                     "role_name": "Owner",
                 },
             )
-            send_admin_new_organization_requested_email(
-                self.request,
-                self.user_service.get_admins(),
-                organization_name=organization.name,
-                initiator_username=self.request.user.username,
-                organization_id=organization.id,
-            )
             send_new_organization_requested_email(
                 self.request, self.request.user, organization_name=organization.name
             )
@@ -390,7 +382,7 @@ class ManageOrganizationSettingsViews:
             owner_users = set(organization_owners(self.request, self.organization))
             send_admin_organization_renamed_email(
                 self.request,
-                self.user_service.get_admins(),
+                self.user_service.get_admin_user(),
                 organization_name=self.organization.name,
                 previous_organization_name=previous_organization_name,
             )
@@ -447,7 +439,7 @@ class ManageOrganizationSettingsViews:
 
         send_admin_organization_deleted_email(
             self.request,
-            self.user_service.get_admins(),
+            self.user_service.get_admin_user(),
             organization_name=self.organization.name,
         )
         send_organization_deleted_email(
@@ -613,7 +605,6 @@ class ManageOrganizationTeamsViews:
 
     @view_config(request_method="POST")
     def create_team(self):
-
         # Get and validate form from default response.
         default_response = self.default_response
         form = default_response["create_team_form"]

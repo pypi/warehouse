@@ -78,10 +78,9 @@ class IUserService(Interface):
         if there is no user with that email.
         """
 
-    def get_admins():
+    def get_admin_user():
         """
-        Return a list of user objects corresponding with admin users, or []
-        if there is no admin users.
+        Returns the `admin` user object.
         """
 
     def find_userid(username):

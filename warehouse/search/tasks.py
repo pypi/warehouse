@@ -38,7 +38,6 @@ from warehouse.utils.db import windowed_query
 
 
 def _project_docs(db, project_name=None):
-
     releases_list = (
         db.query(Release.id)
         .filter(Release.yanked.is_(False), Release.files)

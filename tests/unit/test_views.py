@@ -313,7 +313,6 @@ def test_opensearchxml(pyramid_request):
 
 class TestIndex:
     def test_index(self, db_request):
-
         project = ProjectFactory.create()
         release1 = ReleaseFactory.create(project=project)
         release1.created = datetime.date(2011, 1, 1)

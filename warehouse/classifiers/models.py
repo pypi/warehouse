@@ -17,7 +17,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class Classifier(db.ModelBase):
-
     __tablename__ = "trove_classifiers"
     __tableargs__ = CheckConstraint(
         "classifier not ilike 'private ::%'",

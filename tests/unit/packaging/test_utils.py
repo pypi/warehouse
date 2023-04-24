@@ -18,11 +18,15 @@ import pretend
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
-from ...common.db.packaging import ProjectFactory
+from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):
     project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project, version="1.0")
+    release2 = ReleaseFactory.create(project=project, version="dog")
+    FileFactory.create(release=release1)
+    FileFactory.create(release=release2)
 
     fake_hasher = pretend.stub(
         update=pretend.call_recorder(lambda x: None),
@@ -31,6 +35,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     fakeblake2b = pretend.call_recorder(lambda *a, **kw: fake_hasher)
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
+    db_request.route_url = lambda *a, **kw: "the-url"
     template = jinja.get_template("templates/api/simple/detail.html")
     expected_content = template.render(
         **_simple_detail(project, db_request), request=db_request

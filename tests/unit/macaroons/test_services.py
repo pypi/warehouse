@@ -156,7 +156,10 @@ class TestDatabaseMacaroonService:
 
     def test_find_userid_oidc_macaroon(self, macaroon_service):
         publisher = GitHubPublisherFactory.create()
-        raw_macaroon, _, = macaroon_service.create_macaroon(
+        (
+            raw_macaroon,
+            _,
+        ) = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],

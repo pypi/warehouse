@@ -74,7 +74,6 @@ def user_list(request):
 
 
 class EmailForm(forms.Form):
-
     email = wtforms.fields.EmailField(validators=[wtforms.validators.DataRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
@@ -82,7 +81,6 @@ class EmailForm(forms.Form):
 
 
 class UserForm(forms.Form):
-
     name = wtforms.StringField(
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
     )
@@ -177,7 +175,6 @@ def user_add_email(user, request):
     form = EmailForm(request.POST)
 
     if form.validate():
-
         if form.primary.data:
             for other in user.emails:
                 other.primary = False
@@ -310,7 +307,6 @@ def bulk_add_prohibited_user_names(request):
         user_names = request.POST.get("users", "").split()
 
         for user_name in user_names:
-
             # Check to make sure the prohibition doesn't already exist.
             if (
                 request.db.query(literal(True))

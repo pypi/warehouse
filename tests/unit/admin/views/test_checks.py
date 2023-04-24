@@ -172,7 +172,6 @@ class TestRunEvaluation:
         ("check_type"), [MalwareCheckType.EventHook, MalwareCheckType.Scheduled]
     )
     def test_success(self, db_request, check_type):
-
         check = MalwareCheckFactory.create(
             check_type=check_type, state=MalwareCheckState.Enabled
         )

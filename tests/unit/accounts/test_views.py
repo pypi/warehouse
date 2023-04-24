@@ -1473,7 +1473,6 @@ class TestRequestPasswordReset:
     def test_request_password_reset(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
-
         stub_user = pretend.stub(
             id=pretend.stub(),
             username=pretend.stub(),
@@ -1529,7 +1528,6 @@ class TestRequestPasswordReset:
     def test_request_password_reset_with_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
-
         stub_user = pretend.stub(
             id=uuid.uuid4(),
             email="foo@example.com",
@@ -1600,7 +1598,6 @@ class TestRequestPasswordReset:
     def test_request_password_reset_with_non_primary_email(
         self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
     ):
-
         stub_user = pretend.stub(
             id=uuid.uuid4(),
             email="foo@example.com",
@@ -1680,7 +1677,6 @@ class TestRequestPasswordReset:
         pyramid_config,
         user_service,
     ):
-
         stub_user = pretend.stub(
             id=uuid.uuid4(),
             email="foo@example.com",
