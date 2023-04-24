@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+from typing import TYPE_CHECKING
 import warnings
 
 import jwt
@@ -22,8 +23,10 @@ from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
-from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
+
+if TYPE_CHECKING:
+    from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 
 
 class InsecureOIDCPublisherWarning(UserWarning):
