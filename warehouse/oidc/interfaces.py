@@ -19,8 +19,8 @@ from zope.interface import Interface
 from warehouse.rate_limiting.interfaces import RateLimiterException
 
 if TYPE_CHECKING:
-    from warehouse.packaging.models import Project
     from warehouse.oidc.models import PendingOIDCPublisher
+    from warehouse.packaging.models import Project
 
 SignedClaims = NewType("SignedClaims", dict[str, Any])
 
