@@ -40,7 +40,6 @@ class URIValidator:
 
 
 class PasswordStrengthValidator:
-
     # From the zxcvbn documentation, a score of 2 is:
     #       somewhat guessable: protection from unthrottled online attacks.
     #       (guesses < 10^8)

@@ -37,7 +37,6 @@ from warehouse.utils.project import PROJECT_NAME_RE
 
 
 class RoleNameMixin:
-
     role_name = wtforms.SelectField(
         "Select role",
         choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
@@ -46,7 +45,6 @@ class RoleNameMixin:
 
 
 class TeamProjectRoleNameMixin:
-
     team_project_role_name = wtforms.SelectField(
         "Select permissions",
         choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
@@ -56,7 +54,6 @@ class TeamProjectRoleNameMixin:
 
 
 class UsernameMixin:
-
     username = wtforms.StringField(
         validators=[wtforms.validators.DataRequired(message="Specify username")]
     )
@@ -133,7 +130,6 @@ class ChangeTeamProjectRoleForm(TeamProjectRoleNameMixin, forms.Form):
 
 
 class SaveAccountForm(forms.Form):
-
     __params__ = ["name", "public_email"]
 
     name = wtforms.StringField(
@@ -169,7 +165,6 @@ class SaveAccountForm(forms.Form):
 
 
 class AddEmailForm(NewEmailMixin, forms.Form):
-
     __params__ = ["email"]
 
     def __init__(self, *args, user_service, user_id, **kwargs):
@@ -179,7 +174,6 @@ class AddEmailForm(NewEmailMixin, forms.Form):
 
 
 class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
-
     __params__ = ["password", "new_password", "password_confirm"]
 
     def __init__(self, *args, user_service, **kwargs):
@@ -188,7 +182,6 @@ class ChangePasswordForm(PasswordMixin, NewPasswordMixin, forms.Form):
 
 
 class ConfirmPasswordForm(UsernameMixin, PasswordMixin, forms.Form):
-
     __params__ = ["confirm_password"]
 
     def __init__(self, *args, user_service, **kwargs):
@@ -202,7 +195,6 @@ class DeleteTOTPForm(ConfirmPasswordForm):
 
 
 class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
-
     __params__ = ["totp_value"]
 
     def __init__(self, *args, totp_secret, **kwargs):
@@ -379,7 +371,6 @@ class Toggle2FARequirementForm(forms.Form):
 
 
 class OrganizationRoleNameMixin:
-
     role_name = wtforms.SelectField(
         "Select role",
         choices=[
@@ -395,7 +386,6 @@ class OrganizationRoleNameMixin:
 
 
 class OrganizationNameMixin:
-
     name = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(
@@ -440,7 +430,6 @@ class OrganizationNameMixin:
 
 
 class AddOrganizationProjectForm(forms.Form):
-
     __params__ = ["add_existing_project", "existing_project_name", "new_project_name"]
 
     add_existing_project = wtforms.RadioField(
@@ -492,7 +481,6 @@ class AddOrganizationProjectForm(forms.Form):
 
 
 class TransferOrganizationProjectForm(forms.Form):
-
     __params__ = ["organization"]
 
     organization = wtforms.SelectField(
@@ -537,7 +525,6 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
 
 
 class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
-
     __params__ = ["name"]
 
     def __init__(self, *args, organization_service, organization_id=None, **kwargs):
@@ -547,7 +534,6 @@ class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
 
 
 class SaveOrganizationForm(forms.Form):
-
     __params__ = ["display_name", "link_url", "description", "orgtype"]
 
     display_name = wtforms.StringField(
@@ -602,12 +588,10 @@ class SaveOrganizationForm(forms.Form):
 
 
 class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
-
     __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
 
 
 class CreateTeamRoleForm(forms.Form):
-
     username = wtforms.SelectField(
         "Select user",
         choices=[("", "Select user")],
@@ -621,7 +605,6 @@ class CreateTeamRoleForm(forms.Form):
 
 
 class SaveTeamForm(forms.Form):
-
     __params__ = ["name"]
 
     name = wtforms.StringField(
@@ -671,5 +654,4 @@ class SaveTeamForm(forms.Form):
 
 
 class CreateTeamForm(SaveTeamForm):
-
     __params__ = SaveTeamForm.__params__

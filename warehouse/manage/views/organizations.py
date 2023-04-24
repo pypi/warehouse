@@ -605,7 +605,6 @@ class ManageOrganizationTeamsViews:
 
     @view_config(request_method="POST")
     def create_team(self):
-
         # Get and validate form from default response.
         default_response = self.default_response
         form = default_response["create_team_form"]

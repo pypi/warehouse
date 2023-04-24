@@ -695,7 +695,6 @@ class TokenServiceFactory:
 
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
-
     _failure_message_preamble = (
         "This password appears in a security breach or has been "
         "compromised and cannot be used."

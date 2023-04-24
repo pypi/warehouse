@@ -47,7 +47,6 @@ INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
 
 
 class UsernameMixin:
-
     username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
     def validate_username(self, field):
@@ -60,7 +59,6 @@ class UsernameMixin:
 
 
 class TOTPValueMixin:
-
     totp_value = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -76,12 +74,10 @@ class TOTPValueMixin:
 
 
 class WebAuthnCredentialMixin:
-
     credential = wtforms.StringField(wtforms.validators.DataRequired())
 
 
 class RecoveryCodeValueMixin:
-
     recovery_code_value = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -97,7 +93,6 @@ class RecoveryCodeValueMixin:
 
 
 class NewUsernameMixin:
-
     username = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -133,7 +128,6 @@ class NewUsernameMixin:
 
 
 class PasswordMixin:
-
     password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -178,7 +172,6 @@ class PasswordMixin:
 
 
 class NewPasswordMixin:
-
     new_password = wtforms.PasswordField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -226,7 +219,6 @@ class NewPasswordMixin:
 
 
 class NewEmailMixin:
-
     email = wtforms.fields.EmailField(
         validators=[
             wtforms.validators.DataRequired(),
@@ -285,7 +277,6 @@ class HoneypotMixin:
 class RegistrationForm(
     NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin, forms.Form
 ):
-
     full_name = wtforms.StringField(
         validators=[
             wtforms.validators.Length(
@@ -489,5 +480,4 @@ class RequestPasswordResetForm(forms.Form):
 
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):
-
     pass

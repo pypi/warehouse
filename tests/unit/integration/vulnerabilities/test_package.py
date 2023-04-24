@@ -30,7 +30,6 @@ from warehouse.integrations.vulnerabilities import (
     ],
 )
 def test_vulnerability_report_request_from_api_request_error(record, error, reason):
-
     with pytest.raises(InvalidVulnerabilityReportError) as exc:
         VulnerabilityReportRequest.from_api_request(record)
 
