@@ -61,6 +61,7 @@
         <th>Account Name</th>
         <th>Organization</th>
         <th>Description</th>
+        <th>Type</th>
         <th><i class="fa fa-fw"></i> Approval</th>
         <th><i class="fa fa-fw"></i> Status</th>
       </tr>
@@ -76,6 +77,7 @@
           <a href="{{ organization.link_url }}" rel="nofollow noopener noreferrer" target="_blank">{{ organization.display_name }} <i class="fa-solid fa-arrow-up-right-from-square"></i></a>
         </td>
         <td>{{ organization.description }}</td>
+        <td>{{ organization.orgtype.value }}</td>
         {% if organization.is_approved == True %}
         <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
         {% elif organization.is_approved == False %}
