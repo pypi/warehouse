@@ -1129,6 +1129,11 @@ packaging==23.1 \
     #   -r requirements/main.in
     #   google-cloud-bigquery
     #   limits
+    #   packaging-legacy
+packaging-legacy==23.0 \
+    --hash=sha256:7013a4aec35163f76c1d7b55340b0602b2fbe6628b4bb0948ac71c607f454260 \
+    --hash=sha256:e1a20ece340845c11d384c27e456eaf76be05dbdb4073469019aabcbbd7b99de
+    # via -r requirements/main.in
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d
     # via

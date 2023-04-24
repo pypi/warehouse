@@ -25,6 +25,7 @@ import packaging.requirements
 import packaging.specifiers
 import packaging.utils
 import packaging.version
+import packaging_legacy.version
 import pkg_resources
 import requests
 import wtforms
@@ -1163,7 +1164,7 @@ def file_upload(request):
         .all()
     )
     for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging.version.parse(x.version))
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
     ):
         r._pypi_ordering = i
 

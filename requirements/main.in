@@ -31,6 +31,7 @@ msgpack
 natsort
 orjson
 packaging>=15.2
+packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
