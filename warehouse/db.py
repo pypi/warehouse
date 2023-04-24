@@ -22,8 +22,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.ext.declarative import declarative_base  # type: ignore
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
