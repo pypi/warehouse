@@ -31,24 +31,24 @@ msgstr "Localització actualitzada"
 msgid "The password is invalid. Try again."
 msgstr "La contrasenya no és vàlida. Torneu-ho a provar."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "No s’ha trobat cap usuari amb aquest nom"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "El codi TOTP ha de tenir ${totp_length} dígits."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Els codis de recuperació han de tenir ${recovery_code_length} caràcters."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "Trieu un nom d’usuari de 50 caràcters o menys."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -58,38 +58,38 @@ msgstr ""
 "lletres, nombres, punts, guionets i guions baixos; a més, han de començar i "
 "finalitzar per una lletra o un nombre. Trieu un altre nom d’usuari."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "Un altre compte ja utilitza aquest nom d’usuari. Trieu-ne un altre."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "La contrasenya és massa llarga."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Hi ha hagut massa intents d’inici de sessió fallits. Torneu-ho a provar més "
 "tard."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "Les contrasenyes no coincideixen. Torneu-ho a provar."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "L’adreça electrònica no és vàlida. Torneu-ho a provar."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "No podeu utilitzar adreces electròniques d’aquest domini. Feu servir-ne una "
 "de diferent."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -97,7 +97,7 @@ msgstr ""
 "Aquest compte ja utilitza aquesta adreça electrònica. Feu servir-ne una de "
 "diferent."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -105,27 +105,27 @@ msgstr ""
 "Un altre compte ja utilitza aquesta adreça electrònica. Feu servir-ne una de "
 "diferent."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "El nom és massa llarg. Trieu un nom amb 100 caràcters o menys."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "El codi TOTP no és vàlid."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "L’asserció del WebAuthn no és vàlida: la càrrega és incorrecta"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "El codi de recuperació no és vàlid."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "El codi de recuperació ja s’havia utilitzat."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "No s’ha trobat cap usuari amb aquest nom o adreça"
 
@@ -394,13 +394,13 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "Previsualització del bàner"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Trieu un nom d’usuari de 50 caràcters o menys."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 #, fuzzy
 #| msgid ""
 #| "The username is invalid. Usernames must be composed of letters, numbers, "
@@ -416,7 +416,7 @@ msgstr ""
 "lletres, nombres, punts, guionets i guions baixos; a més, han de començar i "
 "finalitzar per una lletra o un nombre. Trieu un altre nom d’usuari."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -426,23 +426,23 @@ msgid ""
 "organization account name."
 msgstr "Un altre compte ja utilitza aquest nom d’usuari. Trieu-ne un altre."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "Suprimeix el projecte"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "Especifiqueu el nom del projecte"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -451,7 +451,7 @@ msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Un altre compte ja utilitza aquest nom d’usuari. Trieu-ne un altre."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -459,7 +459,7 @@ msgid ""
 "characters or less."
 msgstr "El nom és massa llarg. Trieu un nom amb 100 caràcters o menys."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -467,11 +467,11 @@ msgid ""
 "characters or less."
 msgstr "El nom és massa llarg. Trieu un nom amb 100 caràcters o menys."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -479,19 +479,19 @@ msgid ""
 "with 400 characters or less."
 msgstr "El nom és massa llarg. Trieu un nom amb 100 caràcters o menys."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Trieu un nom d’usuari de 50 caràcters o menys."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -595,13 +595,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "S’ha enviat la invitació a «${username}»"
 
@@ -614,30 +614,30 @@ msgid "Invitation already expired."
 msgstr "Ja ha caducat la invitació."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "S’ha revocat la invitació de «${username}»."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2420,7 +2420,7 @@ msgstr ""
 "Si no heu fet aquesta sol·licitud, podeu ignorar aquest missatge amb "
 "seguretat."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
@@ -2428,7 +2428,7 @@ msgid ""
 "publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
