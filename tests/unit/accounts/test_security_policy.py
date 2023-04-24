@@ -35,11 +35,10 @@ class TestBasicAuthSecurityPolicy:
 
     def test_noops(self):
         policy = security_policy.BasicAuthSecurityPolicy()
-        assert policy.authenticated_userid(pretend.stub()) == NotImplemented
-        assert (
+        with pytest.raises(NotImplementedError):
+            policy.authenticated_userid(pretend.stub())
+        with pytest.raises(NotImplementedError):
             policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-            == NotImplemented
-        )
 
     def test_forget_and_remember(self):
         policy = security_policy.BasicAuthSecurityPolicy()
@@ -220,11 +219,10 @@ class TestSessionSecurityPolicy:
 
     def test_noops(self):
         policy = security_policy.SessionSecurityPolicy()
-        assert policy.authenticated_userid(pretend.stub()) == NotImplemented
-        assert (
+        with pytest.raises(NotImplementedError):
+            policy.authenticated_userid(pretend.stub())
+        with pytest.raises(NotImplementedError):
             policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-            == NotImplemented
-        )
 
     def test_forget_and_remember(self, monkeypatch):
         request = pretend.stub()

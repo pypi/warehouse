@@ -25,7 +25,7 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-import packaging.version
+import packaging_legacy.version
 import pytz
 
 from natsort import natsorted
@@ -157,7 +157,7 @@ def contains_valid_uris(items):
 
 
 def parse_version(version_str):
-    return packaging.version.parse(version_str)
+    return packaging_legacy.version.parse(version_str)
 
 
 def localize_datetime(timestamp):
@@ -186,6 +186,16 @@ def format_author_email(metadata_email: str) -> tuple[str, str]:
             return author_name, ""
         author_emails.append((author_name, author_email))
     return author_emails[0][0], author_emails[0][1]
+
+
+def remove_invalid_xml_unicode(value: str | None) -> str | None:
+    """
+    Remove invalid unicode characters from a string.
+    Useful for XML Templates.
+
+    Ref: https://www.w3.org/TR/REC-xml/#NT-Char
+    """
+    return "".join(c for c in value if ord(c) >= 32) if value else value
 
 
 def includeme(config):

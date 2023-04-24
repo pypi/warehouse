@@ -195,9 +195,6 @@ class TestManageOrganizations:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
-        monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
 
@@ -211,7 +208,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert user_service.get_admins.calls == [pretend.call()]
+        assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == [
             pretend.call(
                 name=organization.name,
@@ -261,13 +258,6 @@ class TestManageOrganizations:
             ),
         ]
         assert send_email.calls == [
-            pretend.call(
-                request,
-                admins,
-                organization_name=organization.name,
-                initiator_username=request.user.username,
-                organization_id=organization.id,
-            ),
             pretend.call(
                 request,
                 request.user,
@@ -331,6 +321,7 @@ class TestManageOrganizations:
             organization_access=True,
             remote_addr="0.0.0.0",
             route_path=lambda *a, **kw: "manage-subscription-url",
+            path="request-path",
         )
 
         create_organization_obj = pretend.stub(
@@ -347,9 +338,6 @@ class TestManageOrganizations:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
-        monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
 
@@ -363,7 +351,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert user_service.get_admins.calls == [pretend.call()]
+        assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == [
             pretend.call(
                 name=organization.name,
@@ -415,19 +403,12 @@ class TestManageOrganizations:
         assert send_email.calls == [
             pretend.call(
                 request,
-                admins,
-                organization_name=organization.name,
-                initiator_username=request.user.username,
-                organization_id=organization.id,
-            ),
-            pretend.call(
-                request,
                 request.user,
                 organization_name=organization.name,
             ),
         ]
         assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "manage-subscription-url"
+        assert result.headers["Location"] == "request-path"
 
     def test_create_organization_validation_fails(self, monkeypatch):
         admins = []
@@ -480,9 +461,6 @@ class TestManageOrganizations:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
         monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
@@ -717,11 +695,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(rename_organization),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         save_organization_obj = pretend.stub()
@@ -762,7 +740,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name="FooBar",
                 previous_organization_name="foobar",
             ),
@@ -865,11 +843,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -892,7 +870,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name=organization.name,
             ),
             pretend.call(
@@ -978,11 +956,11 @@ class TestManageOrganizationSettings:
             pretend.call_recorder(lambda *a, **kw: None),
         )
 
-        admins = []
+        admin = None
         monkeypatch.setattr(
             user_service,
-            "get_admins",
-            pretend.call_recorder(lambda *a, **kw: admins),
+            "get_admin_user",
+            pretend.call_recorder(lambda *a, **kw: admin),
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -1005,7 +983,7 @@ class TestManageOrganizationSettings:
         assert send_email.calls == [
             pretend.call(
                 db_request,
-                admins,
+                admin,
                 organization_name=organization.name,
             ),
             pretend.call(
@@ -1096,9 +1074,14 @@ class TestManageOrganizationBillingViews:
         enable_organizations,
     ):
         view = org_views.ManageOrganizationBillingViews(organization, db_request)
-        result = view.activate_subscription()
 
-        assert result == {"organization": organization}
+        # We're not ready for companies to activate their own subscriptions yet.
+        with pytest.raises(HTTPNotFound):
+            assert view.activate_subscription()
+
+        # result = view.activate_subscription()
+
+        # assert result == {"organization": organization}
 
     def test_create_subscription(
         self,

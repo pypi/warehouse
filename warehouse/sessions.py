@@ -40,7 +40,6 @@ def _invalid_method(method):
 
 @implementer(ISession)
 class InvalidSession(dict):
-
     __contains__ = _invalid_method(dict.__contains__)
     __delitem__ = _invalid_method(dict.__delitem__)
     __getitem__ = _invalid_method(dict.__getitem__)
@@ -222,7 +221,6 @@ class Session(dict):
 
 @implementer(ISessionFactory)
 class SessionFactory:
-
     cookie_name = "session_id"
     max_age = 12 * 60 * 60  # 12 hours
 

@@ -644,7 +644,6 @@ class TestFileValidation:
 
 class TestIsDuplicateFile:
     def test_is_duplicate_true(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -676,7 +675,6 @@ class TestIsDuplicateFile:
         assert legacy._is_duplicate_file(db_request.db, filename, hashes)
 
     def test_is_duplicate_none(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -714,7 +712,6 @@ class TestIsDuplicateFile:
         )
 
     def test_is_duplicate_false_same_blake2(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -750,7 +747,6 @@ class TestIsDuplicateFile:
         )
 
     def test_is_duplicate_false(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -1560,7 +1556,6 @@ class TestFileUpload:
         assert resp.status == "400 Invalid distribution file."
 
     def test_upload_fails_with_legacy_type(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1599,7 +1594,6 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_legacy_ext(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         pyramid_config.testing_securitypolicy(identity=user)
@@ -1638,7 +1632,6 @@ class TestFileUpload:
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1679,7 +1672,6 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("sig", [b"lol nope"])
     def test_upload_fails_with_invalid_signature(self, pyramid_config, db_request, sig):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1717,7 +1709,6 @@ class TestFileUpload:
         assert resp.status == "400 PGP signature isn't ASCII armored."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1774,7 +1765,6 @@ class TestFileUpload:
     def test_upload_fails_with_deprecated_classifier(
         self, pyramid_config, db_request, monkeypatch, deprecated_classifiers, expected
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1849,7 +1839,6 @@ class TestFileUpload:
     def test_upload_fails_with_invalid_digest(
         self, pyramid_config, db_request, digests
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1887,7 +1876,6 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_invalid_file(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -1966,7 +1954,6 @@ class TestFileUpload:
         assert resp.status == "400 Invalid distribution file."
 
     def test_upload_fails_with_too_large_file(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2008,7 +1995,6 @@ class TestFileUpload:
     def test_upload_fails_with_too_large_project_size_default_limit(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2055,7 +2041,6 @@ class TestFileUpload:
     def test_upload_fails_with_too_large_project_size_custom_limit(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2109,7 +2094,6 @@ class TestFileUpload:
         metrics,
         project_service,
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2212,7 +2196,6 @@ class TestFileUpload:
         ]
 
     def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2253,7 +2236,6 @@ class TestFileUpload:
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2297,7 +2279,6 @@ class TestFileUpload:
     def test_upload_noop_with_existing_filename_same_content(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2344,7 +2325,6 @@ class TestFileUpload:
     def test_upload_fails_with_existing_filename_diff_content(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2398,7 +2378,6 @@ class TestFileUpload:
     def test_upload_fails_with_diff_filename_same_blake2(
         self, pyramid_config, db_request
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2453,7 +2432,6 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2492,7 +2470,6 @@ class TestFileUpload:
         )
 
     def test_upload_fails_with_invalid_extension(self, pyramid_config, db_request):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2534,7 +2511,6 @@ class TestFileUpload:
     def test_upload_fails_with_unsafe_filename(
         self, pyramid_config, db_request, character
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2572,7 +2548,6 @@ class TestFileUpload:
     def test_upload_fails_with_disallowed_in_filename(
         self, pyramid_config, db_request, character
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2696,7 +2671,6 @@ class TestFileUpload:
     def test_upload_succeeds_with_2fa_enabled(
         self, pyramid_config, db_request, metrics, monkeypatch
     ):
-
         user = UserFactory.create(totp_secret=b"secret")
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -3003,7 +2977,6 @@ class TestFileUpload:
     def test_upload_fails_with_unsupported_wheel_plat(
         self, monkeypatch, pyramid_config, db_request, plat
     ):
-
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -3045,7 +3018,6 @@ class TestFileUpload:
     def test_upload_updates_existing_project_name(
         self, pyramid_config, db_request, metrics
     ):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name="Package-Name")
@@ -3109,7 +3081,6 @@ class TestFileUpload:
     def test_upload_succeeds_creates_release(
         self, pyramid_config, db_request, metrics, version, expected_version
     ):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
@@ -3378,7 +3349,6 @@ class TestFileUpload:
         failing_limiter,
         remote_addr,
     ):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
@@ -3425,7 +3395,6 @@ class TestFileUpload:
     def test_upload_succeeds_creates_project(
         self, pyramid_config, db_request, metrics, project_service
     ):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
@@ -3538,7 +3507,6 @@ class TestFileUpload:
         metrics,
         project_service,
     ):
-
         user = UserFactory.create()
         for i, verified in enumerate(emails_verified):
             EmailFactory.create(user=user, verified=verified, primary=i == 0)
@@ -3600,7 +3568,6 @@ class TestFileUpload:
         metrics,
         project_service,
     ):
-
         user = UserFactory.create()
         EmailFactory.create(user=user)
 
@@ -3697,7 +3664,6 @@ def test_doc_upload(pyramid_request):
 
 
 def test_missing_trailing_slash_redirect(pyramid_request):
-
     pyramid_request.route_path = pretend.call_recorder(lambda *a, **kw: "/legacy/")
 
     resp = legacy.missing_trailing_slash_redirect(pyramid_request)

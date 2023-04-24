@@ -288,7 +288,6 @@ class TestReindex:
         assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
 
     def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
-
         docs = pretend.stub()
 
         def project_docs(db):

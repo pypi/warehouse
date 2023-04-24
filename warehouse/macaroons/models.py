@@ -32,7 +32,6 @@ def _generate_key():
 
 
 class Macaroon(db.Model):
-
     __tablename__ = "macaroons"
     __table_args__ = (
         UniqueConstraint(

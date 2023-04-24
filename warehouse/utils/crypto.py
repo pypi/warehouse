@@ -40,17 +40,14 @@ def random_token():
 
 
 class Signer(_Signer):
-
     default_digest_method = hashlib.sha512
     default_key_derivation = "hmac"
 
 
 class TimestampSigner(_TimestampSigner):
-
     default_digest_method = hashlib.sha512
     default_key_derivation = "hmac"
 
 
 class URLSafeTimedSerializer(_URLSafeTimedSerializer):
-
     default_signer = TimestampSigner

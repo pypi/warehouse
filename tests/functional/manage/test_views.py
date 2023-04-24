@@ -83,9 +83,6 @@ class TestManageOrganizations:
         )
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
-        monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
 

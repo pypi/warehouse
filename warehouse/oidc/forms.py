@@ -25,7 +25,7 @@ _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GitHubPublisherBase(forms.Form):
-    __params__ = ["owner", "repository", "workflow_filename"]
+    __params__ = ["owner", "repository", "workflow_filename", "environment"]
 
     owner = wtforms.StringField(
         validators=[
@@ -49,6 +49,11 @@ class GitHubPublisherBase(forms.Form):
             wtforms.validators.DataRequired(message=_("Specify workflow filename"))
         ]
     )
+
+    # Environment names are not case sensitive. An environment name may not
+    # exceed 255 characters and must be unique within the repository.
+    # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
+    environment = wtforms.StringField(validators=[wtforms.validators.Optional()])
 
     def __init__(self, *args, api_token, **kwargs):
         super().__init__(*args, **kwargs)
@@ -148,15 +153,24 @@ class GitHubPublisherBase(forms.Form):
                 _("Workflow filename must be a filename only, without directories")
             )
 
+    @property
+    def normalized_environment(self):
+        # NOTE: We explicitly do not compare `self.environment.data` to None,
+        # since it might also be falsey via an empty string (or might be
+        # only whitespace, which we also treat as a None case).
+        return (
+            self.environment.data.lower()
+            if self.environment.data and not self.environment.data.isspace()
+            else None
+        )
+
 
 class PendingGitHubPublisherForm(GitHubPublisherBase):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
 
     project_name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(
-                message=_("Specify project name"),
-            ),
+            wtforms.validators.DataRequired(message=_("Specify project name")),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE, message=_("Invalid project name")
             ),
@@ -185,6 +199,7 @@ class DeletePublisherForm(forms.Form):
 
     publisher_id = wtforms.StringField(
         validators=[
-            wtforms.validators.UUID(message=_("Publisher must be specified by ID"))
+            wtforms.validators.DataRequired(message=_("Specify a publisher ID")),
+            wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
         ]
     )

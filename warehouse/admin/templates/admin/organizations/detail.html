@@ -80,6 +80,7 @@
               Click <b>Approve</b> to change the decision.
             </p>
             {% endif %}
+            {% if user %}
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.organization.approve', organization_id=organization.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -172,6 +173,7 @@
                 </div>
               </form>
             </div>
+            {% endif %}
           </div>
         </div>
       </div>
@@ -195,9 +197,11 @@
                 {% elif organization.is_approved == False %}
                 Declined by <a href="{{ request.route_url('admin.user.detail', username=admin.username) }}">{{ admin.username }}</a><br>
                 {{ organization.date_approved|format_date() }}
-                {% else %}
+                {% elif user %}
                 Pending request by <a href="{{ request.route_url('admin.user.detail', username=user.username) }}">{{ user.username }}</a><br>
                 {{ organization.created|format_date() }}
+                {% else %}
+                Unknown
                 {% endif %}
               </div>
             </div>
@@ -206,8 +210,12 @@
                 Requesting User
               </label>
               <div class="col-sm-7">
+                {% if user %}
                 <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
                 <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                {% else %}
+                <i>n/a</i>
+                {% endif %}
               </div>
             </div>
             <div class="form-group">

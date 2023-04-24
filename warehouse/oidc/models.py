@@ -57,6 +57,28 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return f"{ground_truth}@{ref}" == signed_claim
 
 
+def _check_environment(ground_truth, signed_claim, all_signed_claims):
+    # When there is an environment, we expect a case-insensitive string.
+    # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
+    # For tokens that are generated outside of an environment, the claim will
+    # be missing.
+
+    # If we haven't set an environment name for the publisher, we don't need to
+    # check this claim
+    if ground_truth is None:
+        return True
+
+    # Defensive: GitHub might give us an empty environment if this token wasn't
+    # generated from within an environment, in which case the check should
+    # fail.
+    if not signed_claim:
+        return False
+
+    # We store the normalized environment name, but we normalize both here to
+    # ensure we can't accidentally become case-sensitive.
+    return ground_truth.lower() == signed_claim.lower()
+
+
 def _check_sub(ground_truth, signed_claim, _all_signed_claims):
     # We expect a string formatted as follows:
     #  repo:ORG/REPO[:OPTIONAL-STUFF]
@@ -103,7 +125,12 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __verifiable_claims__: dict[
+    __required_verifiable_claims__: dict[
+        str, Callable[[Any, Any, dict[str, Any]], bool]
+    ] = dict()
+
+    # Simlar to __verificable_claims__, but these claims are optional
+    __optional_verifiable_claims__: dict[
         str, Callable[[Any, Any, dict[str, Any]], bool]
     ] = dict()
 
@@ -128,7 +155,8 @@ class OIDCPublisherMixin:
         Returns all claims "known" to this publisher.
         """
         return (
-            cls.__verifiable_claims__.keys()
+            cls.__required_verifiable_claims__.keys()
+            | cls.__optional_verifiable_claims__.keys()
             | cls.__preverified_claims__
             | cls.__unchecked_claims__
         )
@@ -142,30 +170,48 @@ class OIDCPublisherMixin:
 
         # Defensive programming: treat the absence of any claims to verify
         # as a failure rather than trivially valid.
-        if not self.__verifiable_claims__:
+        if not self.__required_verifiable_claims__:
             return False
 
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
         # that the JWT payload has changed.
-        unaccounted_claims = signed_claims.keys() - self.all_known_claims()
+        unaccounted_claims = sorted(
+            list(signed_claims.keys() - self.all_known_claims())
+        )
         if unaccounted_claims:
-            sentry_sdk.capture_message(
-                f"JWT for {self.__class__.__name__} has unaccounted claims: "
-                f"{unaccounted_claims}"
-            )
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = unaccounted_claims
+                sentry_sdk.capture_message(
+                    f"JWT for {self.__class__.__name__} has unaccounted claims: "
+                    f"{unaccounted_claims}"
+                )
 
         # Finally, perform the actual claim verification.
-        for claim_name, check in self.__verifiable_claims__.items():
-            # All verifiable claims are mandatory. The absence of a missing
-            # claim *is* an error, since it indicates a breaking change in the
-            # JWT's payload.
+        for claim_name, check in self.__required_verifiable_claims__.items():
+            # All required claims are mandatory. The absence of a missing
+            # claim *is* an error with the JWT, since it indicates a breaking
+            # change in the JWT's payload.
             signed_claim = signed_claims.get(claim_name)
             if signed_claim is None:
-                sentry_sdk.capture_message(
-                    f"JWT for {self.__class__.__name__} is missing claim: {claim_name}"
-                )
+                with sentry_sdk.push_scope() as scope:
+                    scope.fingerprint = [claim_name]
+                    sentry_sdk.capture_message(
+                        f"JWT for {self.__class__.__name__} is missing claim: "
+                        f"{claim_name}"
+                    )
                 return False
+
+            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+                return False
+
+        # Check optional verifiable claims
+        for claim_name, check in self.__optional_verifiable_claims__.items():
+            # All optional claims are optional. The absence of a missing
+            # claim is *NOT* an error with the JWT, however we should still
+            # verify this against the check, because the claim might be
+            # required for a given publisher.
+            signed_claim = signed_claims.get(claim_name)
 
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
                 return False
@@ -175,12 +221,12 @@ class OIDCPublisherMixin:
     @property
     def publisher_name(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
     @property
     def publisher_url(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
@@ -211,7 +257,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     project_name = Column(String, nullable=False)
     added_by_id = Column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
 
     __mapper_args__ = {
@@ -226,7 +272,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
         """
 
         # Only concrete subclasses are constructed.
-        return NotImplemented
+        raise NotImplementedError
 
 
 class GitHubPublisherMixin:
@@ -238,13 +284,18 @@ class GitHubPublisherMixin:
     repository_owner = Column(String, nullable=False)
     repository_owner_id = Column(String, nullable=False)
     workflow_filename = Column(String, nullable=False)
+    environment = Column(String, nullable=True)
 
-    __verifiable_claims__ = {
+    __required_verifiable_claims__ = {
         "sub": _check_sub,
         "repository": _check_claim_binary(str.__eq__),
         "repository_owner": _check_claim_binary(str.__eq__),
         "repository_owner_id": _check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
+    }
+
+    __optional_verifiable_claims__ = {
+        "environment": _check_environment,
     }
 
     __unchecked_claims__ = {
@@ -268,6 +319,7 @@ class GitHubPublisherMixin:
         "workflow_ref",
         "runner_environment",
         "environment_node_id",
+        "enterprise",
     }
 
     @property
@@ -308,6 +360,7 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
             "repository_name",
             "repository_owner",
             "workflow_filename",
+            "environment",
             name="_github_oidc_publisher_uc",
         ),
     )
@@ -323,6 +376,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             "repository_name",
             "repository_owner",
             "workflow_filename",
+            "environment",
             name="_pending_github_oidc_publisher_uc",
         ),
     )
@@ -343,6 +397,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
                 GitHubPublisher.repository_name == self.repository_name,
                 GitHubPublisher.repository_owner == self.repository_owner,
                 GitHubPublisher.workflow_filename == self.workflow_filename,
+                GitHubPublisher.environment == self.environment,
             )
             .one_or_none()
         )
@@ -352,6 +407,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             repository_owner=self.repository_owner,
             repository_owner_id=self.repository_owner_id,
             workflow_filename=self.workflow_filename,
+            environment=self.environment,
         )
 
         session.delete(self)

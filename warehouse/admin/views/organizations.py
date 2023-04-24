@@ -156,7 +156,11 @@ def organization_detail(request):
         .order_by(Organization.Event.time.desc())
         .first()
     )
-    user = user_service.get_user(create_event.additional["created_by_user_id"])
+    user = (
+        user_service.get_user(create_event.additional["created_by_user_id"])
+        if create_event
+        else None
+    )
 
     if organization.is_approved is True:
         approve_event = (
@@ -231,7 +235,7 @@ def organization_approve(request):
     )
     send_admin_new_organization_approved_email(
         request,
-        user_service.get_admins(),
+        user_service.get_admin_user(),
         organization_name=organization.name,
         initiator_username=user.username,
         message=message,
@@ -296,7 +300,7 @@ def organization_decline(request):
     )
     send_admin_new_organization_declined_email(
         request,
-        user_service.get_admins(),
+        user_service.get_admin_user(),
         organization_name=organization.name,
         initiator_username=user.username,
         message=message,

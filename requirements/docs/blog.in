@@ -2,6 +2,5 @@ mkdocs
 mkdocs-material
 mkdocs-blogging-plugin
 mkdocs-rss-plugin
-packaging<=21.3
 pillow
 cairosvg

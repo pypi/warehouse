@@ -818,7 +818,6 @@ class TestSendPasswordResetEmail:
         token_service,
         monkeypatch,
     ):
-
         stub_user = pretend.stub(
             id="id",
             email="email@example.com",
@@ -921,7 +920,6 @@ class TestEmailVerificationEmail:
     def test_email_verification_email(
         self, pyramid_request, pyramid_config, token_service, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id", username=None, name=None, email="foo@example.com"
         )
@@ -1409,7 +1407,6 @@ class TestBasicAuthWith2FAEmail:
 
 class TestAccountDeletionEmail:
     def test_account_deletion_email(self, pyramid_request, pyramid_config, monkeypatch):
-
         stub_user = pretend.stub(
             id="id",
             username="username",
@@ -1481,7 +1478,6 @@ class TestAccountDeletionEmail:
     def test_account_deletion_email_unverified(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id",
             username="username",
@@ -1532,7 +1528,6 @@ class TestPrimaryEmailChangeEmail:
     def test_primary_email_change_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id", email="new_email@example.com", username="username", name=""
         )
@@ -1607,7 +1602,6 @@ class TestPrimaryEmailChangeEmail:
     def test_primary_email_change_email_unverified(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id", email="new_email@example.com", username="username", name=""
         )
@@ -3148,7 +3142,6 @@ class TestCollaboratorAddedEmail:
     def test_collaborator_added_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id_1",
             username="username",
@@ -3274,7 +3267,6 @@ class TestCollaboratorAddedEmail:
     def test_collaborator_added_email_unverified(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id_1",
             username="username",
@@ -3458,7 +3450,6 @@ class TestAddedAsCollaboratorEmail:
     def test_added_as_collaborator_email(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id_1",
             username="username",
@@ -3548,7 +3539,6 @@ class TestAddedAsCollaboratorEmail:
     def test_added_as_collaborator_email_unverified(
         self, pyramid_request, pyramid_config, monkeypatch
     ):
-
         stub_user = pretend.stub(
             id="id_1",
             username="username",

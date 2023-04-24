@@ -66,7 +66,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class Role(db.Model):
-
     __tablename__ = "roles"
     __table_args__ = (
         Index("roles_user_id_idx", "user_id"),
@@ -90,13 +89,11 @@ class Role(db.Model):
 
 
 class RoleInvitationStatus(enum.Enum):
-
     Pending = "pending"
     Expired = "expired"
 
 
 class RoleInvitation(db.Model):
-
     __tablename__ = "role_invitations"
     __table_args__ = (
         Index("role_invitations_user_id_idx", "user_id"),
@@ -162,7 +159,6 @@ class TwoFactorRequireable:
 
 
 class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
-
     __tablename__ = "projects"
     __table_args__ = (
         CheckConstraint(
@@ -355,7 +351,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
 
 class DependencyKind(enum.IntEnum):
-
     requires = 1
     provides = 2
     obsoletes = 3
@@ -366,7 +361,6 @@ class DependencyKind(enum.IntEnum):
 
 
 class Dependency(db.Model):
-
     __tablename__ = "release_dependencies"
     __table_args__ = (
         Index("release_dependencies_release_kind_idx", "release_id", "kind"),
@@ -392,7 +386,6 @@ def _dependency_relation(kind):
 
 
 class Description(db.Model):
-
     __tablename__ = "release_descriptions"
 
     content_type = Column(Text)
@@ -402,7 +395,6 @@ class Description(db.Model):
 
 
 class ReleaseURL(db.Model):
-
     __tablename__ = "release_urls"
     __table_args__ = (
         UniqueConstraint("release_id", "name"),
@@ -424,7 +416,6 @@ class ReleaseURL(db.Model):
 
 
 class Release(db.Model):
-
     __tablename__ = "releases"
 
     @declared_attr
@@ -628,7 +619,6 @@ class Release(db.Model):
 
 
 class File(HasEvents, db.Model):
-
     __tablename__ = "release_files"
 
     @declared_attr
@@ -705,7 +695,6 @@ class File(HasEvents, db.Model):
 
 
 class Filename(db.ModelBase):
-
     __tablename__ = "file_registry"
 
     id = Column(Integer, primary_key=True, nullable=False)
@@ -727,7 +716,6 @@ release_classifiers = Table(
 
 
 class JournalEntry(db.ModelBase):
-
     __tablename__ = "journals"
 
     @declared_attr
@@ -758,7 +746,6 @@ class JournalEntry(db.ModelBase):
 
 
 class ProhibitedProjectName(db.Model):
-
     __tablename__ = "prohibited_project_names"
     __table_args__ = (
         CheckConstraint(

@@ -53,7 +53,6 @@ class StripeSubscriptionStatus(StrLabelEnum):
 
 
 class StripeSubscriptionPriceInterval(str, enum.Enum):
-
     Month = "month"
     Year = "year"
     Week = "week"
@@ -61,7 +60,6 @@ class StripeSubscriptionPriceInterval(str, enum.Enum):
 
 
 class StripeCustomer(db.Model):
-
     __tablename__ = "stripe_customers"
 
     __repr__ = make_repr("customer_id", "billing_email")
@@ -82,7 +80,6 @@ class StripeCustomer(db.Model):
 
 
 class StripeSubscription(db.Model):
-
     __tablename__ = "stripe_subscriptions"
     __table_args__ = (
         Index("stripe_subscriptions_stripe_customer_id_idx", "stripe_customer_id"),
@@ -146,7 +143,6 @@ class StripeSubscription(db.Model):
 
 
 class StripeSubscriptionProduct(db.Model):
-
     __tablename__ = "stripe_subscription_products"
 
     __repr__ = make_repr("product_name")
@@ -159,7 +155,6 @@ class StripeSubscriptionProduct(db.Model):
 
 
 class StripeSubscriptionPrice(db.Model):
-
     __tablename__ = "stripe_subscription_prices"
 
     __repr__ = make_repr("price_id", "unit_amount", "recurring")
@@ -190,7 +185,6 @@ class StripeSubscriptionPrice(db.Model):
 
 
 class StripeSubscriptionItem(db.Model):
-
     __tablename__ = "stripe_subscription_items"
 
     __repr__ = make_repr(

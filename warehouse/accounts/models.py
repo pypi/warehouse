@@ -55,13 +55,11 @@ class UserFactory:
 
 
 class DisableReason(enum.Enum):
-
     CompromisedPassword = "password compromised"
     AccountFrozen = "account frozen"
 
 
 class User(SitemapMixin, HasEvents, db.Model):
-
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -95,9 +93,6 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     totp_secret = Column(LargeBinary(length=20), nullable=True)
     last_totp_value = Column(String, nullable=True)
-
-    # XXX: Can be removed once OIDC is removed from beta.
-    has_oidc_beta_access = Column(Boolean, nullable=False, server_default=sql.false())
 
     webauthn = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
@@ -198,11 +193,6 @@ class User(SitemapMixin, HasEvents, db.Model):
             ]
         )
 
-    # XXX: Can be removed once OIDC is removed from beta.
-    @property
-    def in_oidc_beta(self):
-        return self.is_superuser or self.has_oidc_beta_access
-
     def __acl__(self):
         return [
             (Allow, "group:admins", "admin"),
@@ -246,14 +236,12 @@ class RecoveryCode(db.Model):
 
 
 class UnverifyReasons(enum.Enum):
-
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
 
 
 class Email(db.ModelBase):
-
     __tablename__ = "user_emails"
     __table_args__ = (
         UniqueConstraint("email", name="user_emails_email_key"),
@@ -280,7 +268,6 @@ class Email(db.ModelBase):
 
 
 class ProhibitedUserName(db.Model):
-
     __tablename__ = "prohibited_user_names"
     __table_args__ = (
         CheckConstraint(

@@ -2,24 +2,19 @@
 title: Getting Started
 ---
 
-<!--[[ preview('oidc-publishing') ]]-->
-
 # Publishing to PyPI with a Trusted Publisher
 
-## Confirming that you're in the beta
+"Trusted publishing" is our term for using the [OpenID Connect
+(OIDC)](https://openid.net/connect/) standard to exchange short-lived identity
+tokens between a trusted third-party service and PyPI. This method can be used
+in automated environments and eliminates the need to use username/password
+combinations or manually generated API tokens to authenticate with PyPI when
+publishing.
 
-Before we do anything else: let's confirm that you're actually in the
-beta! You can do this by [logging into PyPI](https://pypi.org/account/login/)
-and clicking on "Account settings" in the dropdown under your profile:
+For a quickstart, see:
 
-![](/assets/dropdown.png)
-
-On the "Account settings" page, you should see a right-side menu that
-contains a "Publishing" link:
-
-![](/assets/publishing-link.png)
-
-If you see that link and can click on it, then you're in the beta group!
+* [Adding a trusted publisher to an existing PyPI project](adding-a-publisher.md)
+* [Creating a PyPI project with a trusted publisher](creating-a-project-through-oidc.md)
 
 ## Quick background: Publishing with OpenID Connect
 

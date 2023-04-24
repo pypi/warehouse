@@ -51,10 +51,10 @@
       <div class="totp-form__qr">
         <img src="{{ request.route_path('manage.account.totp-provision.image') }}" alt="{% trans %}QR code for setting up an authentication application{% endtrans %}" aria-label="{{ provision_totp_uri }}">
       </div>
-      <div class="totp-form__manual-code">
+      <div class="totp-form__manual-code" data-controller="clipboard">
         <p>{% trans %}<strong>No QR scanner?</strong> Manually enter the code instead:{% endtrans %}
-          <code>{{ provision_totp_secret }}</code>
-          <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ provision_totp_secret }}">
+          <code data-clipboard-target="source">{{ provision_totp_secret }}</code>
+          <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
             {% trans %}Copy{% endtrans %}
           </button>
         </p>

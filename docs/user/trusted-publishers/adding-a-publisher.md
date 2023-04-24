@@ -2,8 +2,6 @@
 title: Adding a Trusted Publisher to an Existing PyPI Project
 ---
 
-<!--[[ preview('oidc-publishing') ]]-->
-
 # Adding a trusted publisher to an existing PyPI project
 
 Adding a trusted publisher to a PyPI project only requires a single setup step.
@@ -28,10 +26,17 @@ filename of the GitHub Actions workflow that's authorized to upload to
 PyPI.
 
 For example, if you have a project at `https://github.com/octo-org/sampleproject`
-that uses a publishing workflow defined in `.github/workflows/release.yml`,
-then you'd do the following:
+that uses a publishing workflow defined in `.github/workflows/release.yml`
+and a custom environment named `release`, then you'd do the following:
 
 ![](/assets/project-publishing-form.png)
+
+!!! note
+
+    Configuring an environment is optional, but **strongly** recommended:
+    with a GitHub environment, you can apply additional restrictions to
+    your trusted workflow, such as requiring manual approval on each run
+    by a trusted subset of repository maintainers.
 
 Once you click "Add", your publisher will be registered and will appear
 at the top of the page:

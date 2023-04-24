@@ -16,7 +16,6 @@ from warehouse.malware.models import VerdictClassification, VerdictConfidence
 
 
 class ExampleHookedCheck(MalwareCheckBase):
-
     version = 1
     short_description = "An example hook-based check"
     long_description = "The purpose of this check is to test the \
