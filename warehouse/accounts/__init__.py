@@ -37,7 +37,6 @@ from warehouse.macaroons.security_policy import (
     MacaroonAuthorizationPolicy,
     MacaroonSecurityPolicy,
 )
-from warehouse.oidc.models import OIDCPublisher
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -64,6 +63,8 @@ def _user(request):
 
 
 def _oidc_publisher(request):
+    from warehouse.oidc.models import OIDCPublisher
+
     return request.identity if isinstance(request.identity, OIDCPublisher) else None
 
 

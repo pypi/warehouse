@@ -11,11 +11,12 @@
 # limitations under the License.
 
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.services import OIDCPublisherServiceFactory
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
 
 
 def includeme(config):
+    from warehouse.oidc.services import OIDCPublisherServiceFactory
+    from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
+
     oidc_publisher_service_class = config.maybe_dotted(
         config.registry.settings["oidc.backend"]
     )

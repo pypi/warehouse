@@ -17,9 +17,6 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Denied
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
-from warehouse.oidc.models import OIDCPublisher
-
 
 class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
@@ -74,6 +71,8 @@ class MultiSecurityPolicy:
         return None
 
     def authenticated_userid(self, request):
+        from warehouse.accounts.models import User
+
         if ident := self.identity(request):
             if isinstance(ident, User):
                 return str(ident.id)
@@ -96,6 +95,9 @@ class MultiSecurityPolicy:
         return headers
 
     def permits(self, request, context, permission):
+        from warehouse.accounts.models import User
+        from warehouse.oidc.models import OIDCPublisher
+
         identity = request.identity
         principals = []
         if identity is not None:
