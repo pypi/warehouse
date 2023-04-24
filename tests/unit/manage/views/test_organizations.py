@@ -195,9 +195,6 @@ class TestManageOrganizations:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
-        monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
 
@@ -211,7 +208,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert user_service.get_admins.calls == [pretend.call()]
+        assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == [
             pretend.call(
                 name=organization.name,
@@ -261,13 +258,6 @@ class TestManageOrganizations:
             ),
         ]
         assert send_email.calls == [
-            pretend.call(
-                request,
-                admins,
-                organization_name=organization.name,
-                initiator_username=request.user.username,
-                organization_id=organization.id,
-            ),
             pretend.call(
                 request,
                 request.user,
@@ -348,9 +338,6 @@ class TestManageOrganizations:
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
-        monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
 
@@ -364,7 +351,7 @@ class TestManageOrganizations:
         view = org_views.ManageOrganizationsViews(request)
         result = view.create_organization()
 
-        assert user_service.get_admins.calls == [pretend.call()]
+        assert user_service.get_admins.calls == []
         assert organization_service.add_organization.calls == [
             pretend.call(
                 name=organization.name,
@@ -414,13 +401,6 @@ class TestManageOrganizations:
             ),
         ]
         assert send_email.calls == [
-            pretend.call(
-                request,
-                admins,
-                organization_name=organization.name,
-                initiator_username=request.user.username,
-                organization_id=organization.id,
-            ),
             pretend.call(
                 request,
                 request.user,
@@ -481,9 +461,6 @@ class TestManageOrganizations:
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            org_views, "send_admin_new_organization_requested_email", send_email
-        )
         monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email
         )
