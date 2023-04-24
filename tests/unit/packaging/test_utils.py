@@ -18,11 +18,15 @@ import pretend
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
-from ...common.db.packaging import ProjectFactory
+from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_render_simple_detail(db_request, monkeypatch, jinja):
     project = ProjectFactory.create()
+    release1 = ReleaseFactory.create(project=project, version="1.0")
+    release2 = ReleaseFactory.create(project=project, version="dog")
+    FileFactory.create(release=release1)
+    FileFactory.create(release=release2)
 
     fake_hasher = pretend.stub(
         update=pretend.call_recorder(lambda x: None),
