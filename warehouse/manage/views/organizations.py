@@ -382,7 +382,7 @@ class ManageOrganizationSettingsViews:
             owner_users = set(organization_owners(self.request, self.organization))
             send_admin_organization_renamed_email(
                 self.request,
-                self.user_service.get_admins(),
+                self.user_service.get_admin_user(),
                 organization_name=self.organization.name,
                 previous_organization_name=previous_organization_name,
             )
@@ -439,7 +439,7 @@ class ManageOrganizationSettingsViews:
 
         send_admin_organization_deleted_email(
             self.request,
-            self.user_service.get_admins(),
+            self.user_service.get_admin_user(),
             organization_name=self.organization.name,
         )
         send_organization_deleted_email(
