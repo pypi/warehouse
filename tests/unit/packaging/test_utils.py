@@ -35,6 +35,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     fakeblake2b = pretend.call_recorder(lambda *a, **kw: fake_hasher)
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
+    db_request.route_url = lambda *a, **kw: "the-url"
     template = jinja.get_template("templates/api/simple/detail.html")
     expected_content = template.render(
         **_simple_detail(project, db_request), request=db_request
