@@ -13,8 +13,9 @@
 from __future__ import annotations
 
 import json
-from typing import TYPE_CHECKING
 import warnings
+
+from typing import TYPE_CHECKING
 
 import jwt
 import redis
