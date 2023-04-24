@@ -2,5 +2,3 @@ furo
 Sphinx
 sphinxcontrib-httpdomain
 myst-parser
-# Until resolved https://github.com/googleapis/python-bigquery/issues/1435
-packaging<22.0

@@ -82,7 +82,6 @@ ModelBase = declarative_base(cls=ModelBase, metadata=metadata)  # type: ignore
 
 
 class Model(ModelBase):
-
     __abstract__ = True
 
     id = sqlalchemy.Column(

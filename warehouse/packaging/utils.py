@@ -14,7 +14,8 @@ import hashlib
 import os.path
 import tempfile
 
-from packaging.version import parse
+import packaging_legacy.version
+
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
@@ -46,9 +47,11 @@ def _simple_detail(project, request):
         .join(Release)
         .filter(Release.project == project)
         .all(),
-        key=lambda f: (parse(f.release.version), f.filename),
+        key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
     )
-    versions = sorted({f.release.version for f in files}, key=parse)
+    versions = sorted(
+        {f.release.version for f in files}, key=packaging_legacy.version.parse
+    )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
