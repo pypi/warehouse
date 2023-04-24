@@ -5,6 +5,7 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
+    "lint": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
     "stylelint": "stylelint '**/*.scss' --cache",
     "stylelint-fix": "stylelint '**/*.scss' --cache --fix",
     "test": "jest --coverage"
