@@ -27,7 +27,7 @@ down_revision = "665b6f8fd9ac"
 
 def upgrade():
     conn = op.get_bind()
-    conn.execute("SET statement_timeout = 120000")
+    conn.execute(sa.text("SET statement_timeout = 120000"))
     op.add_column(
         "release_files",
         sa.Column(

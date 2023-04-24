@@ -27,8 +27,8 @@ down_revision = "75ba94852cd1"
 
 def upgrade():
     conn = op.get_bind()
-    conn.execute("SET statement_timeout = 120000")
-    conn.execute("SET lock_timeout = 120000")
+    conn.execute(sa.text("SET statement_timeout = 120000"))
+    conn.execute(sa.text("SET lock_timeout = 120000"))
     op.drop_column("users", "has_oidc_beta_access")
 
 
