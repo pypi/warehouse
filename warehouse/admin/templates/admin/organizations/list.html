@@ -47,6 +47,10 @@
         <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
+        </div>&nbsp;
+        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Type">
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:company' in terms else '' }}" data-status="type:company">Company</button>
+          <button type="button" class="btn btn-secondary {{ 'active' if 'type:community' in terms else '' }}" data-status="type:community">Community</button>
         </div>
       </div>
     </form>
