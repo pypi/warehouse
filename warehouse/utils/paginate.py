@@ -14,7 +14,6 @@ from paginate import Page
 
 
 class _ElasticsearchWrapper:
-
     max_results = 10000
 
     def __init__(self, query):

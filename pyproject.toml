@@ -32,6 +32,7 @@ module = [
     "forcediphttpsadapter.*",
     "IPython.*",
     "mistune.*",
+    "packaging_legacy.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
     "premailer.*",

@@ -32,7 +32,6 @@ down_revision = "e7b09b5c089d"
 
 
 def upgrade():
-
     op.execute(
         """ UPDATE release_files
             SET requires_python = releases.requires_python

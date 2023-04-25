@@ -235,7 +235,7 @@ def organization_approve(request):
     )
     send_admin_new_organization_approved_email(
         request,
-        user_service.get_admins(),
+        user_service.get_admin_user(),
         organization_name=organization.name,
         initiator_username=user.username,
         message=message,
@@ -300,7 +300,7 @@ def organization_decline(request):
     )
     send_admin_new_organization_declined_email(
         request,
-        user_service.get_admins(),
+        user_service.get_admin_user(),
         organization_name=organization.name,
         initiator_username=user.username,
         message=message,

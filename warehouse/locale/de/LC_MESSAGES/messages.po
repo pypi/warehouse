@@ -18,15 +18,15 @@
 # Pascal Vallaster <pascalvallaster@gmail.com>, 2021, 2022.
 # Marlon <mawol@protonmail.com>, 2022.
 # Pixel-Master <Pixel_Mqster@protonmail.com>, 2022.
-# Jean-Luc Tibaux <eugentoptic@outlook.de>, 2022.
+# Jean-Luc Tibaux <eugentoptic@outlook.de>, 2022, 2023.
 # Justin Nogossek <justmegaliga10000@gmail.com>, 2022.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-12-31 17:51+0000\n"
-"Last-Translator: Marlon <mawol@protonmail.com>\n"
+"PO-Revision-Date: 2023-04-23 12:47+0000\n"
+"Last-Translator: Jean-Luc Tibaux <eugentoptic@outlook.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -34,7 +34,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.15.1-dev\n"
+"X-Generator: Weblate 4.18-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:140
@@ -54,24 +54,24 @@ msgstr "Lokalisierung aktualisiert"
 msgid "The password is invalid. Try again."
 msgstr "Das Passwort ist ungültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "Kein Benutzer mit diesem Benutzernamen gefunden"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Der TOTP-Code muss ${totp_length} Zeichen lang sein."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Wiederherstellungscodes müssen ${recovery_code_length} Zeichen lang sein."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "Bitte Benutzername mit 50 Zeichen oder weniger wählen."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -81,7 +81,7 @@ msgstr ""
 "Punkten, Binde- oder Unterstrichen bestehen und mit einem Buchstaben oder "
 "einer Zahl beginnen und enden. Bitte einen anderen Benutzernamen wählen."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -89,30 +89,30 @@ msgstr ""
 "Dieser Benutzername wird schon von einem anderen Konto verwendet. Bitte "
 "einen anderen Benutzername wählen."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "Das Passwort ist zu lang."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Es gab zu viele erfolglose Login-Versuche. Versuche es später erneut."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "Die Passwörter stimmen nicht überein. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "Die E-Mail-Adresse ist nicht gültig. Bitte erneut versuchen."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "E-Mail-Adressen dieser Domain können nicht verwendet werden. Bitte eine "
 "andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -120,7 +120,7 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von diesem Konto verwendet. Bitte eine "
 "andere verwenden."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -128,30 +128,30 @@ msgstr ""
 "Diese E-Mail-Adresse wird schon von einem anderen Konto verwendet. Bitte "
 "eine andere E-Mail-Adresse verwenden."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Der Name ist zu lang. Bitte  einen Namen mit 100 Zeichen oder weniger "
 "verwenden."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "Ungültiger TOTP-Code."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ungültige WebAuthn-Assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "Ungültiger Wiederherstellungs-Code."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "Wiederherstellungscode wurde bereits benutzt."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "Kein Benutzer mit diesem Benutzernamen oder E-Mail-Adresse gefunden"
 
@@ -347,10 +347,15 @@ msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
+"Sie müssen über eine verifizierte E-Mail verfügen, um einen ausstehenden "
+"vertrauenswürdigen Herausgeber zu registrieren. Siehe auch https://pypi.org/"
+"help#openid-connect für weitere Informationen."
 
 #: warehouse/accounts/views.py:1427
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
+"Sie können nicht mehr als 3 ausstehende vertrauenswürdige Publisher "
+"gleichzeitig registrieren."
 
 #: warehouse/accounts/views.py:1443 warehouse/manage/views/__init__.py:1246
 #, fuzzy
@@ -366,17 +371,19 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1457 warehouse/manage/views/__init__.py:1260
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "Der vertrauenswürdige Herausgeber konnte nicht registriert werden"
 
 #: warehouse/accounts/views.py:1476
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
+"Dieser vertrauenswürdige Herausgeber wurde bereits registriert. Bitte "
+"kontaktieren Sie die PyPI-Administratoren, wenn dies nicht beabsichtigt war."
 
 #: warehouse/accounts/views.py:1511
 msgid "Registered a new publishing publisher to create "
-msgstr ""
+msgstr "Registrierung eines neuen Herausgebers zur Erstellung "
 
 #: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1561
 #: warehouse/accounts/views.py:1568
@@ -387,17 +394,17 @@ msgstr "Version verwalten"
 
 #: warehouse/accounts/views.py:1574
 msgid "Removed trusted publisher for project "
-msgstr ""
+msgstr "Vertrauenswürdigen Herausgeber für Projekt entfernt "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
 msgstr "Banner Vorschau"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Wähle einen Namen für dein Organisationskonto mit maximal 50 Zeichen."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -410,7 +417,7 @@ msgstr ""
 "Zahl beginnen und enden. Wähle einen anderen Namen für das "
 "Organisationskonto."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -418,15 +425,15 @@ msgstr ""
 "Dieser Organisations-Name wird schon von einem anderen Konto verwendet. "
 "Bitte einen anderen Namen wählen."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "Projekt auswählen"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "Projektname angeben"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -434,14 +441,14 @@ msgstr ""
 "Beginnen und enden Sie mit einem Buchstaben oder einer Zahl, die nur ASCII-"
 "Zahlen und '.', '_' und '-' enthalten."
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Dieser Projekt-Name wird schon von einem anderen Konto verwendet. Bitte "
 "einen anderen Namen wählen."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -449,7 +456,7 @@ msgstr ""
 "Der Name der Organisation ist zu lang. Wähle einen Organisationsnamen mit "
 "100 Zeichen oder weniger."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -457,11 +464,11 @@ msgstr ""
 "Die URL der Organisation ist zu lang. Wähle eine Organisations-URL mit 400 "
 "Zeichen oder weniger."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr "Die Organisations-URL muss mit http:// oder https:// beginnen"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -469,11 +476,11 @@ msgstr ""
 "Die Organisationsbeschreibung ist zu lang. Wählen Sie eine "
 "Organisationsbeschreibung mit 400 Zeichen oder weniger."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 msgid "Choose a team name with 50 characters or less."
 msgstr "Bitte wählen Sie einen Team-Namen mit maximal 50 Zeichen."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -482,7 +489,7 @@ msgstr ""
 "Punkt, Unterstrich, Bindestrich oder Schrägstrich beginnen oder enden. Bitte "
 "wählen Sie einen anderen Team-Namen aus."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Dieser Team-Name wurde bereits verwendet. Bitte wählen Sie einen anderen "
@@ -575,7 +582,7 @@ msgstr "Es konnte keine Einladung für eine Berechtigungsrolle gefunden werden."
 
 #: warehouse/manage/views/__init__.py:1906
 msgid "Could not delete file - "
-msgstr ""
+msgstr "Datei konnte nicht gelöscht werden - "
 
 #: warehouse/manage/views/__init__.py:2057
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -599,7 +606,7 @@ msgstr ""
 "als '${role_name}' hinzugefügt werden"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -607,7 +614,7 @@ msgstr ""
 "es später noch einmal."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "Die Einladung wurde '${username}' zugestellt"
 
@@ -620,17 +627,17 @@ msgid "Invitation already expired."
 msgstr "Die Einladung ist schon angelaufen."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "Einladung von '${username}' wurde annuliert."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "Der Benutzer '${username}' besitzt bereits die Rolle ${role_name} für die "
 "Organisation"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -638,18 +645,18 @@ msgstr ""
 "Der Benutzer '${username}' hat keine gültige E-Mail-Adresse und konnte nicht "
 "als '${role_name}' hinzugefügt werden"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr "Ich konnte keine Einladung zur Organisation finden."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Die Einladung der Organisation existiert nicht mehr."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -729,7 +736,7 @@ msgstr "Dieses Projekt hat keine Veröffentlichungen"
 
 #: warehouse/oidc/forms.py:202
 msgid "Specify a publisher ID"
-msgstr ""
+msgstr "Geben Sie eine Herausgeber-ID an"
 
 #: warehouse/oidc/forms.py:203
 #, fuzzy
@@ -1192,7 +1199,7 @@ msgstr "Statistiken"
 
 #: warehouse/templates/base.html:290
 msgid "Logos & trademarks"
-msgstr ""
+msgstr "Logos und Markenzeichen"
 
 #: warehouse/templates/base.html:291
 msgid "Our sponsors"
@@ -1255,7 +1262,7 @@ msgstr "Nutzungsbedingungen"
 
 #: warehouse/templates/base.html:317
 msgid "Acceptable Use Policy"
-msgstr ""
+msgstr "Richtlinie zur akzeptablen Nutzung"
 
 #: warehouse/templates/base.html:327
 #, fuzzy
@@ -1291,7 +1298,7 @@ msgstr "Bestätige diese Aktion"
 
 #: warehouse/templates/confirm-action.html:26
 msgid "Are you sure?"
-msgstr ""
+msgstr "Sind Sie sicher?"
 
 #: warehouse/templates/error-base.html:35
 msgid "Error code"
@@ -1498,6 +1505,10 @@ msgid ""
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
+"<b>Tipp:</b> Sie sind dabei, eine <a href=\"%(href)s\">sensible Aktion "
+"durchzuführen</a>. Wenn Sie nicht an einem PC arbeiten, loggen Sie sich aus, "
+"sobald Sie Ihre Sitzung beendet haben. Wir werden Sie in der nächsten Stunde "
+"nicht mehr auffordern, Ihr Passwort zu bestätigen."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1543,7 +1554,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:42
 #: warehouse/templates/manage/projects.html:52
 msgid "Accept"
-msgstr ""
+msgstr "Akzeptieren"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
 #: warehouse/templates/accounts/organization-invite-confirmation.html:33
@@ -1551,7 +1562,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:54
 #: warehouse/templates/manage/projects.html:53
 msgid "Decline"
-msgstr ""
+msgstr "Ablehnen"
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1599,11 +1610,13 @@ msgid "Confirm Organization Invite"
 msgstr "Bestätigungsformular"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:26
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
+"Möchten Sie diese Einladung annehmen und der Organisation "
+"'%(organization_name)s' beitreten %(role_name)s?"
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1684,6 +1697,9 @@ msgid ""
 "<code>a-z</code> and digits <code>0-9</code> (e.g., <code>badc0ffee0ddf00d</"
 "code>)."
 msgstr ""
+"Bei den Wiederherstellungscodes handelt es sich um 16 hexadezimale "
+"Zeichenfolgen, die aus den Kleinbuchstaben <code>a-z</code> und den Ziffern "
+"<code>0-9</code> (z. B. <code>badc0ffee0ddf00d</code>) bestehen."
 
 #: warehouse/templates/accounts/recovery-code.html:58
 #: warehouse/templates/accounts/two-factor.html:112
@@ -1898,6 +1914,10 @@ msgid ""
 "you lose access to your two factor methods, you may lose access to your "
 "account. <a href=\"%(href)s\">Get help with recovery codes.</a></p>"
 msgstr ""
+"<p><strong>Sie haben keine Kontowiederherstellungscodes generiert.</strong></"
+"p> <p>Wenn Sie den Zugang zu Ihren Zwei-Faktor-Methoden verlieren, können "
+"Sie den Zugang zu Ihrem Konto verlieren. <a href=\"%(href)s\">Holen Sie sich "
+"Hilfe mit Wiederherstellungscodes.</a></p>"
 
 #: warehouse/templates/email/account-deleted/body.html:18
 #, python-format
@@ -2005,7 +2025,7 @@ msgstr "Sie sehen diese Nachricht, da Sie der Besitzer dieses Projektes sind."
 #: warehouse/templates/email/organization-deleted/body.html:27
 #, python-format
 msgid "The %(site)s organization \"%(organization_name)s\" has been deleted."
-msgstr ""
+msgstr "Die Organisation %(site)s \"%(organization_name)s\" wurde gelöscht."
 
 #: warehouse/templates/email/admin-organization-deleted/body.html:33
 #: warehouse/templates/email/admin-organization-renamed/body.html:33
@@ -2039,6 +2059,10 @@ msgid ""
 "we noticed you used basic authentication (username &amp; password). However, "
 "your account has two-factor authentication (2FA) enabled."
 msgstr ""
+"Während Ihres letzten Uploads oder Uploadversuchs von %(project_name)s auf "
+"%(site)s haben wir festgestellt, dass Sie die einfache Authentifizierung "
+"(Benutzername &amp; Passwort) verwendet haben. In Ihrem Konto ist jedoch die "
+"Zwei-Faktor-Authentifizierung (2FA) aktiviert."
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
 #, python-format
@@ -2047,6 +2071,9 @@ msgid ""
 "authentication for accounts with two-factor authentication enabled. Instead, "
 "we will require API tokens to be used."
 msgstr ""
+"In naher Zukunft wird %(site)s damit beginnen, Uploads mit einfacher "
+"Authentifizierung für Konten mit aktivierter Zwei-Faktor-Authentifizierung "
+"zu verbieten. Stattdessen werden wir die Verwendung von API-Tokens verlangen."
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
@@ -2062,6 +2089,10 @@ msgid ""
 "username and password. See %(token_help_url)s for help using API tokens to "
 "publish."
 msgstr ""
+"Generieren Sie zunächst ein API-Token für Ihr Konto oder Projekt unter "
+"%(new_token_url)s. Verwenden Sie dann dieses Token bei der Veröffentlichung "
+"anstelle Ihres Benutzernamens und Passworts. Unter %(token_help_url)s finden "
+"Sie Hilfe bei der Verwendung von API-Tokens zur Veröffentlichung."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
@@ -2069,6 +2100,8 @@ msgid ""
 "An invitation for you to join the \"%(organization_name)s\" organization has "
 "been canceled"
 msgstr ""
+"Eine Einladung an Sie, der Organisation \"%(organization_name)s\" "
+"beizutreten, wurde storniert"
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:25
 #: warehouse/templates/email/declined-as-invited-organization-member/body.html:24
@@ -2085,6 +2118,8 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr ""
+"Sie haben eine Einladung zur Mitgliedschaft in der Organisation "
+"\"%(organization_name)s\" abgelehnt"
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, fuzzy, python-format
@@ -2100,6 +2135,9 @@ msgid ""
 "You are the owner of the new organization and can log in to manage "
 "organization projects, collaborators, teams, or settings."
 msgstr ""
+"Sie sind der Eigentümer der neuen Organisation und können sich anmelden, um "
+"Projekte, Mitarbeiter, Teams oder Einstellungen der Organisation zu "
+"verwalten."
 
 #: warehouse/templates/email/new-organization-declined/body.html:17
 #, python-format
@@ -2107,6 +2145,8 @@ msgid ""
 "Your request to create a new organization named '%(organization_name)s' was "
 "not approved."
 msgstr ""
+"Ihr Antrag, eine neue Organisation mit dem Namen '%(organization_name)s' zu "
+"gründen, wurde nicht genehmigt."
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
 #: warehouse/templates/manage/organizations.html:145
@@ -2115,6 +2155,8 @@ msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
 "been submitted."
 msgstr ""
+"Ihre Anfrage für eine neue PyPI-Organisation namens '%(organization_name)s' "
+"wurde eingereicht."
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
@@ -2181,7 +2223,7 @@ msgstr "Rolle"
 #: warehouse/templates/email/organization-member-removed/body.html:31
 #: warehouse/templates/email/organization-member-role-changed/body.html:32
 msgid "Member of"
-msgstr ""
+msgstr "Mitglied von"
 
 #: warehouse/templates/email/organization-member-added/body.html:33
 #: warehouse/templates/email/team-collaborator-added/body.html:32
@@ -2210,6 +2252,8 @@ msgid ""
 "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join the "
 "\"%(organization_name)s\" organization has been canceled"
 msgstr ""
+"Eine Einladung an <a href=\"%(user_profile)s\">%(username)s</a> , der "
+"Organisation \"%(organization_name)s\" beizutreten, wurde storniert"
 
 #: warehouse/templates/email/organization-member-invite-declined/body.html:19
 #, fuzzy, python-format
@@ -2261,6 +2305,8 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a>'s role in the "
 "\"%(organization_name)s\" organization has been changed to %(role)s"
 msgstr ""
+"Die Rolle von <a href=\"%(user_profile)s\">%(username)s</a> in der "
+"Organisation \"%(organization_name)s\" wurde geändert in %(role)s"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:31
 #, fuzzy
@@ -2313,19 +2359,19 @@ msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:36
 msgid "Old display name:"
-msgstr ""
+msgstr "Alter Anzeigename:"
 
 #: warehouse/templates/email/organization-updated/body.html:39
 msgid "New display name:"
-msgstr ""
+msgstr "Neuer Anzeigename:"
 
 #: warehouse/templates/email/organization-updated/body.html:44
 msgid "Old URL:"
-msgstr ""
+msgstr "Alte URL:"
 
 #: warehouse/templates/email/organization-updated/body.html:47
 msgid "New URL:"
-msgstr ""
+msgstr "Neue URL:"
 
 #: warehouse/templates/email/organization-updated/body.html:52
 #, fuzzy
@@ -2542,15 +2588,19 @@ msgstr ""
 "Falls Sie diese Anfrage nicht gestellt haben, können Sie diese E-Mail "
 "einfach ignorieren."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
 "%(project_name)s</strong>), but someone else has invalidated your pending "
 "publisher by creating the project before you did."
 msgstr ""
+"Sie haben einen ausstehenden OpenID Connect-Herausgeber für ein Projekt "
+"(<strong>%(project_name)s</strong>) registriert, aber eine andere Person hat "
+"Ihren ausstehenden Herausgeber ungültig gemacht, indem er das Projekt vor "
+"Ihnen erstellt hat."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
@@ -2579,6 +2629,10 @@ msgid ""
 "strong>, which has two-factor authentication enabled, but haven't generated "
 "recovery codes for this account."
 msgstr ""
+"Wir haben festgestellt, dass Sie sich kürzlich bei Ihrem PyPI-Konto <strong>"
+"%(username)s</strong> angemeldet haben, für das die Zwei-Faktor-"
+"Authentifizierung aktiviert ist, aber keine Wiederherstellungscodes für "
+"dieses Konto generiert haben."
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:27
 msgid ""
@@ -2586,6 +2640,9 @@ msgid ""
 "have access to these recovery codes, you may permanently lose access to your "
 "PyPI account!"
 msgstr ""
+"Wenn Sie Ihre Authentifizierungsanwendung oder Ihre(n) Sicherheitsschlüssel "
+"verlieren und keinen Zugang zu diesen Wiederherstellungscodes haben, können "
+"Sie Ihren Zugang zu Ihrem PyPI-Konto dauerhaft verlieren!"
 
 #: warehouse/templates/email/recovery-code-reminder/body.html:35
 #, fuzzy, python-format
@@ -2619,6 +2676,7 @@ msgstr "Das PyPI-Konto <strong>%(username)s</strong> wurde gelöscht."
 #, python-format
 msgid "You have been removed from the \"%(organization_name)s\" organization"
 msgstr ""
+"Sie sind aus der Organisation \"%(organization_name)s\" entfernt worden"
 
 #: warehouse/templates/email/removed-as-organization-member/body.html:23
 #, fuzzy
@@ -2738,7 +2796,7 @@ msgstr ""
 #: warehouse/templates/email/team-collaborator-removed/body.html:29
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:29
 msgid "Team"
-msgstr ""
+msgstr "Team"
 
 #: warehouse/templates/email/team-collaborator-added/body.html:30
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:30
@@ -2841,11 +2899,16 @@ msgid ""
 "publishers act as trusted users and can create project releases "
 "automatically."
 msgstr ""
+"Der PyPI-Benutzer <strong>%(username)s</strong> hat einen neuen "
+"vertrauenswürdigen Herausgeber zu einem Projekt (<strong>%(project_name)s</"
+"strong> ) hinzugefügt, das Sie verwalten. Vertrauenswürdige Herausgeber "
+"agieren wie vertrauenswürdige Benutzer und können automatisch "
+"Projektveröffentlichungen erstellen."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:28
 #: warehouse/templates/email/trusted-publisher-removed/body.html:26
 msgid "Publisher information"
-msgstr ""
+msgstr "Informationen zum Herausgeber"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:30
 #: warehouse/templates/email/trusted-publisher-removed/body.html:28
@@ -2857,7 +2920,7 @@ msgstr "Benutzername"
 #: warehouse/templates/email/trusted-publisher-added/body.html:31
 #: warehouse/templates/email/trusted-publisher-removed/body.html:29
 msgid "Publisher specification"
-msgstr ""
+msgstr "Angaben zum Herausgeber"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 msgid ""
@@ -2865,6 +2928,9 @@ msgid ""
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
+"Wenn Sie diese Änderung nicht vorgenommen haben und der Meinung sind, dass "
+"sie böswillig vorgenommen wurde, können Sie sie über die Registerkarte "
+"\"Veröffentlichen\" auf der Projektseite aus dem Projekt entfernen."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:43
 #: warehouse/templates/email/trusted-publisher-removed/body.html:41

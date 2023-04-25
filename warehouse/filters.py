@@ -25,7 +25,7 @@ import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-import packaging.version
+import packaging_legacy.version
 import pytz
 
 from natsort import natsorted
@@ -157,7 +157,7 @@ def contains_valid_uris(items):
 
 
 def parse_version(version_str):
-    return packaging.version.parse(version_str)
+    return packaging_legacy.version.parse(version_str)
 
 
 def localize_datetime(timestamp):

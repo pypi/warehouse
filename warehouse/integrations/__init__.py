@@ -69,7 +69,6 @@ class PayloadVerifier:
         raise NotImplementedError
 
     def verify(self, *, payload, key_id, signature):
-
         public_key = None
         try:
             public_keys = self._get_cached_public_keys()

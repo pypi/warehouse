@@ -50,23 +50,23 @@ msgstr "ロケールが更新されました (Locale updated)"
 msgid "The password is invalid. Try again."
 msgstr "パスワードが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "そのユーザー名のユーザーは見つかりませんでした"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "リカバリーコード"
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "50文字以下のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -76,7 +76,7 @@ msgstr ""
 "コアで構成する必要があります。また、文字または数字で開始および終了する必要が"
 "あります。別のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -84,30 +84,30 @@ msgstr ""
 "このユーザー名はすでに別のアカウントで使用されています。別のユーザー名を選択"
 "してください。"
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "パスワードが長すぎます。"
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "ログインの失敗が多数発生しました。後でやり直してください。"
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "パスワードが一致しません。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "メールアドレスが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "このドメインからのメールアドレスは使用できません。別のメールアドレスを使用し"
 "てください。"
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -115,7 +115,7 @@ msgstr ""
 "このメールアドレスはすでにこのアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -123,28 +123,28 @@ msgstr ""
 "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "不正なTOTPコード。"
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無効なWebAuthnアサーション：不正なペイロード"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "回復コードが無効です。"
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "復旧コードは以前に使用済みです。"
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "そのユーザ名またはメールアドレスのユーザは見つかりませんでした"
 
@@ -390,11 +390,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "バナーのプレビュー"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "50 文字以下の組織アカウント名を選択します。"
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -405,7 +405,7 @@ msgstr ""
 "フン、アンダースコアで構成する必要があります。また、文字または数字で開始およ"
 "び終了する必要があります。別の組織のアカウント名を選択します。"
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -417,21 +417,21 @@ msgstr ""
 "この組織のアカウント名は、すでに別のアカウントで使用されています。別の組織ア"
 "カウント名を選択してください。"
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "プロジェクトの選択"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "プロジェクト名を指定する"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -442,41 +442,41 @@ msgstr ""
 "この組織のアカウント名は、すでに別のアカウントで使用されています。別の組織ア"
 "カウント名を選択してください。"
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr "組織名が長すぎます。100 文字以下の組織名を選択します。"
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr "組織の URL が長すぎます。400 文字以下の組織の URL を選択します。"
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr "組織の説明が長すぎます。400 文字以下の組織の説明を選択します。"
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "50文字以下のユーザー名を選択してください。"
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This organization account name is already being used by another account. "
@@ -602,7 +602,7 @@ msgstr ""
 "プロジェクトの ${role_name} に追加することはできません"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -610,7 +610,7 @@ msgstr ""
 "ださい。"
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' に招待を送信しました"
 
@@ -623,11 +623,11 @@ msgid "Invitation already expired."
 msgstr "招待の期限が切れています。"
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' の招待を無効化しました。"
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
@@ -635,7 +635,7 @@ msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -647,20 +647,20 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "ロールへの招待が存在しません。"
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2601,7 +2601,7 @@ msgstr ""
 "このリクエストをしたのがあなたでない場合は、このメールは無視して問題ありませ"
 "ん。"
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2626,7 +2626,7 @@ msgstr ""
 "  自動的に。\n"
 "  "
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"

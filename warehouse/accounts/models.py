@@ -55,13 +55,11 @@ class UserFactory:
 
 
 class DisableReason(enum.Enum):
-
     CompromisedPassword = "password compromised"
     AccountFrozen = "account frozen"
 
 
 class User(SitemapMixin, HasEvents, db.Model):
-
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -238,14 +236,12 @@ class RecoveryCode(db.Model):
 
 
 class UnverifyReasons(enum.Enum):
-
     SpamComplaint = "spam complaint"
     HardBounce = "hard bounce"
     SoftBounce = "soft bounce"
 
 
 class Email(db.ModelBase):
-
     __tablename__ = "user_emails"
     __table_args__ = (
         UniqueConstraint("email", name="user_emails_email_key"),
@@ -272,7 +268,6 @@ class Email(db.ModelBase):
 
 
 class ProhibitedUserName(db.Model):
-
     __tablename__ = "prohibited_user_names"
     __table_args__ = (
         CheckConstraint(

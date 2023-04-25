@@ -47,25 +47,25 @@ msgstr "Se actualizó la configuración de idioma"
 msgid "The password is invalid. Try again."
 msgstr "La contraseña no es válida. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "No se encontró ninguna cuenta con ese nombre de usuario"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "El código TOTP debe tener ${totp_length} dígitos."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 "Los códigos de recuperación tienen que tener ${recovery_code_length} "
 "caracteres."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "Elija un nombre de usuario de 50 caracteres o menos."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -75,7 +75,7 @@ msgstr ""
 "de letras, números, puntos, guiones y guiones bajos. Además, deben comenzar "
 "y finalizar por una letra o un número. Elija otro nombre de usuario."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -83,32 +83,32 @@ msgstr ""
 "Otra cuenta ya utiliza este nombre de usuario. Elija un nombre de usuario "
 "distinto."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "La contraseña es demasiado larga."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr ""
 "Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
 "tarde."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "Las contraseñas no coinciden. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "La dirección de correo no es válida. Inténtelo de nuevo."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "No puede utilizar una dirección de correo de este dominio. Utilice una "
 "dirección distinta."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -116,7 +116,7 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -124,28 +124,28 @@ msgstr ""
 "Otra cuenta ya utiliza esta dirección de correo. Utilice una dirección "
 "distinta."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "El nombre es demasiado extenso. Elija un nombre con 100 caracteres o menos."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "El código TOTP no es válido."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "La aserción de WebAuthn no es válida: carga incorrecta"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "El código de recuperación no es válido."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "El código de recuperación ya se había utilizado."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "No se encontró ninguna cuenta con ese nombre o esa dirección"
 
@@ -336,8 +336,8 @@ msgid ""
 "Trusted publishers are temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Los editores de confianza están temporalmente desactivados. Consulte "
-"https://pypi.org/help#admin-intervention para obtener más información."
+"Los editores de confianza están temporalmente desactivados. Consulte https://"
+"pypi.org/help#admin-intervention para obtener más información."
 
 #: warehouse/accounts/views.py:1414
 msgid ""
@@ -393,11 +393,11 @@ msgstr "Editor de confianza eliminado del proyecto "
 msgid "Banner Preview"
 msgstr "Previsualización del anuncio"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "Elija un nombre de cuenta de organización de 50 caracteres o menos."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -409,7 +409,7 @@ msgstr ""
 "guiones bajos; además, deben comenzar y finalizar por una letra o un número. "
 "Elíjase otro nombre para la cuenta de la organización."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -417,15 +417,15 @@ msgstr ""
 "Esta cuenta de organización ya está en uso. Elija un nombre de usuario "
 "distinto."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "Seleccionar proyecto"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "Especifique el nombre del proyecto"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -433,14 +433,14 @@ msgstr ""
 "Empiece y termine con una letra o número que contenga solo números ASCII y "
 "'.', '_' y '-'."
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
 "Ya se ha utilizado este nombre de proyecto. Elija un nombre de proyecto "
 "distinto."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -448,7 +448,7 @@ msgstr ""
 "El nombre de la organización es demasiado extenso. Elija un nombre de "
 "organización de 100 caracteres o menos."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -456,11 +456,11 @@ msgstr ""
 "El URL de la organización es demasiado extenso. Elija un URL de organización "
 "de 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr "La URL de la organización debe empezar con http:// o https://"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -468,11 +468,11 @@ msgstr ""
 "La descripción de la organización es demasiado extensa. Elija una "
 "descripción con 400 caracteres o menos."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 msgid "Choose a team name with 50 characters or less."
 msgstr "Elija un nombre de equipo de 50 caracteres o menos."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -481,7 +481,7 @@ msgstr ""
 "comenzar ni terminar con un espacio, un punto, un guion bajo, un guion o una "
 "barra diagonal. Elija un nombre de equipo diferente."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Este nombre de equipo ya se ha utilizado. Elija un nombre de equipo distinto."
@@ -577,7 +577,7 @@ msgstr ""
 "tiene verificada ninguna dirección de correo principal"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -585,7 +585,7 @@ msgstr ""
 "adelante."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
@@ -598,15 +598,15 @@ msgid "Invitation already expired."
 msgstr "Ya caducó la invitación."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -614,16 +614,16 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} de la organización "
 "porque no tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr "No se encontró la invitación a la organización."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 msgid "Organization invitation could not be re-sent."
 msgstr "La invitación a la organización no puede ser re-enviada."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Invitación caducada para '${username}' eliminada."
 
@@ -2454,7 +2454,7 @@ msgstr ""
 "Si no ha hecho esta solicitud, puede pasar por alto este mensaje con "
 "seguridad."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, fuzzy, python-format
 #| msgid ""
 #| "PyPI user <strong>%(username)s</strong> has added a new OpenID Connect "
@@ -2471,7 +2471,7 @@ msgstr ""
 "usted maneja. Los editores de OpenID Connect actúan como usuarios de "
 "confianza y pueden crear lanzamientos de proyectos automáticamente."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"

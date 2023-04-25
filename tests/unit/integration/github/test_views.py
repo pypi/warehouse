@@ -20,7 +20,6 @@ from warehouse.integrations.github import utils, views
 
 class TestGitHubDiscloseToken:
     def test_github_disclose_token(self, pyramid_request, monkeypatch):
-
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -66,7 +65,6 @@ class TestGitHubDiscloseToken:
         ]
 
     def test_github_disclose_token_no_token(self, pyramid_request, monkeypatch):
-
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
@@ -94,7 +92,6 @@ class TestGitHubDiscloseToken:
         assert response.status_code == 204
 
     def test_github_disclose_token_verify_fail(self, monkeypatch, pyramid_request):
-
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",

@@ -45,7 +45,6 @@ release_vulnerabilities = Table(
 
 
 class VulnerabilityRecord(db.Model):
-
     __tablename__ = "vulnerabilities"
 
     source = Column(String, primary_key=True)

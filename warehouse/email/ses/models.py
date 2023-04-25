@@ -26,7 +26,6 @@ MAX_TRANSIENT_BOUNCES = 5
 
 
 class EmailStatuses(enum.Enum):
-
     Accepted = "Accepted"
     Delivered = "Delivered"
     Bounced = "Bounced"
@@ -35,7 +34,6 @@ class EmailStatuses(enum.Enum):
 
 
 class EmailStatus:
-
     _machine = automat.MethodicalMachine()
 
     def __init__(self, email_message):
@@ -229,7 +227,6 @@ class EmailStatus:
 
 
 class EmailMessage(db.Model):
-
     __tablename__ = "ses_emails"
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -256,14 +253,12 @@ class EmailMessage(db.Model):
 
 
 class EventTypes(enum.Enum):
-
     Delivery = "Delivery"
     Bounce = "Bounce"
     Complaint = "Complaint"
 
 
 class Event(db.Model):
-
     __tablename__ = "ses_events"
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())

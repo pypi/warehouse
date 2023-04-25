@@ -59,23 +59,23 @@ msgstr "Язык обновлён"
 msgid "The password is invalid. Try again."
 msgstr "Неверный пароль. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "Пользователь с таким именем не найден"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP-код должен состоять из ${totp_length} цифр."
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Резервные коды должны быть длиной в ${recovery_code_length} символов."
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "Выберите имя пользователя, используя не более 50 символов."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -85,7 +85,7 @@ msgstr ""
 "цифр, точек, дефисов и подчёркиваний. Также они должны начинаться и "
 "заканчиваться буквой или цифрой. Выберите другое имя пользователя."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -93,30 +93,30 @@ msgstr ""
 "Это имя пользователя уже используется другой учётной записью. Выберите "
 "другое имя."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "Пароль слишком длинный."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "Вы сделали слишком много неверных попыток входа. Попробуйте позже."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "Ваши пароли не совпадают. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Вы не можете использовать адрес электронной почты этого домена. Используйте "
 "другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -124,7 +124,7 @@ msgstr ""
 "Этот адрес электронной почты уже используется текущей учётной записью. "
 "Используйте другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -132,27 +132,27 @@ msgstr ""
 "Этот адрес электронной почты уже используется другой учётной записью. "
 "Используйте другой адрес электронной почты."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "Неверный TOTP-код."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недопустимое значение WebAuthn: Плохая полезная нагрузка"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "Неверный код восстановления."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "Код восстановления уже использовался."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "Пользователь с таким именем или адресом электронной почты не найден"
 
@@ -416,12 +416,12 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "Предпросмотр баннера"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 "Выберите название аккаунта организации, используя не более 50 символов."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -432,7 +432,7 @@ msgstr ""
 "цифр, точек, дефисов и подчеркиваний. И также должен начинаться и "
 "заканчиваться буквой или цифрой. Выберите другое название организации."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -440,23 +440,23 @@ msgstr ""
 "Это имя учетной записи организации уже используется. Выберите другое "
 "название учетной записи организации."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "Выберите проект"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "Название проекта"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -467,7 +467,7 @@ msgstr ""
 "Это имя пользователя уже используется другой учётной записью. Выберите "
 "другое имя."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -475,7 +475,7 @@ msgid ""
 "characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -483,11 +483,11 @@ msgid ""
 "characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr "URL организации должен начинаться с http:// или https://"
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -495,13 +495,13 @@ msgid ""
 "with 400 characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Выберите имя пользователя, используя не более 50 символов."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -510,7 +510,7 @@ msgstr ""
 "заканчиваться с пробела, точки, подчеркивания, дефиса или косой черты. "
 "Выберите другое название команды."
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -634,7 +634,7 @@ msgstr ""
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -642,7 +642,7 @@ msgstr ""
 "повторите попытку позже."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "Приглашение отправлено пользователю «${username}»"
 
@@ -655,17 +655,17 @@ msgid "Invitation already expired."
 msgstr "Приглашение уже истекло."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "Приглашение для «${username}» отозвано."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -677,20 +677,20 @@ msgstr ""
 "Пользователь «${username}» не имеет проверенного основного адреса "
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Приглашение в организацию больше не существует."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2526,7 +2526,7 @@ msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 "Если вы не делали этого запроса, то можете проигнорировать это сообщение."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, python-format
 msgid ""
 "You registered an pending OpenID Connect publisher for a project (<strong>"
@@ -2534,7 +2534,7 @@ msgid ""
 "publisher by creating the project before you did."
 msgstr ""
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"

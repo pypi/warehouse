@@ -30,23 +30,23 @@ msgstr "Ndnv"
 msgid "The password is invalid. Try again."
 msgstr "وشەی نهێنیەکەت هەڵەیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:58
+#: warehouse/accounts/forms.py:57
 msgid "No user found with that username"
 msgstr "هیچ بەکارهێنەرێک نەدۆزراوە بەو نازناوە"
 
-#: warehouse/accounts/forms.py:69
+#: warehouse/accounts/forms.py:67
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "‮fzmg"
 
-#: warehouse/accounts/forms.py:90
+#: warehouse/accounts/forms.py:86
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:105
+#: warehouse/accounts/forms.py:100
 msgid "Choose a username with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:111
+#: warehouse/accounts/forms.py:106
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -56,7 +56,7 @@ msgstr ""
 "ژمارە یاخوود خاڵ بەکاربهێندرێت . وە هەروەها پێویستە دەست پێببکات و کۆتایش پێ "
 "بێت بە پیت یاخوود ژمارە. نازناوی جیاواز بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:128
+#: warehouse/accounts/forms.py:123
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -64,30 +64,30 @@ msgstr ""
 "ئەو نازناوە پێشتر لەلایەن هەژماری ترەوە بەکارهاتووە. نازناوێکی جیاواز "
 "بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:142 warehouse/accounts/forms.py:187
-#: warehouse/accounts/forms.py:200
+#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
+#: warehouse/accounts/forms.py:193
 msgid "Password too long."
 msgstr "وشەی نهێنیەکەت زۆر درێژە."
 
-#: warehouse/accounts/forms.py:173 warehouse/accounts/views.py:94
+#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
 msgid "There have been too many unsuccessful login attempts. Try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:203
+#: warehouse/accounts/forms.py:196
 msgid "Your passwords don't match. Try again."
 msgstr "پاسۆردەکانت وەکوو یەک نین. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
 msgid "The email address isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:245
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "تۆ ناتوانیت ئەو ناونیشانەی پۆستە ئەلیکترۆنیە بەکاربهێنی بەهۆی پاشگرەکەی. "
 "پۆستێکی ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:256
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -95,7 +95,7 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە پێشووتر بەکارهاتووە لەلایەن هەژماری ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:263
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -103,27 +103,27 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:293 warehouse/manage/forms.py:143
+#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:373
 msgid "Invalid TOTP code."
 msgstr "کۆدی TOTP نادروستە."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:390
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:450
 msgid "Invalid recovery code."
 msgstr "کۆدی هێنانەوەت نادروستە."
 
-#: warehouse/accounts/forms.py:468
+#: warehouse/accounts/forms.py:459
 msgid "Recovery code has been previously used."
 msgstr "کۆدی ‌هێنانەوەکەت پێشووتر بەکارهاتووە."
 
-#: warehouse/accounts/forms.py:487
+#: warehouse/accounts/forms.py:478
 msgid "No user found with that username or email"
 msgstr "هیچ بەکارهێنەرێک نەدۆزرایەوە بەو نازناوەو و پۆستی ئەلیکترۆنیە"
 
@@ -355,11 +355,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr "پێشبینی بانەر"
 
-#: warehouse/manage/forms.py:406
+#: warehouse/manage/forms.py:396
 msgid "Choose an organization account name with 50 characters or less."
 msgstr "ناوی ئەکاونتی ڕێکخراوێک هەڵبژێرە کە ٥٠ پیت یان کەمتر بێت."
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:404
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
@@ -371,7 +371,7 @@ msgstr ""
 "ژمارەیەک دەست پێبکات و کۆتایی پێبێت. ناوی ئەکاونتی ڕێکخراوێکی جیاواز "
 "هەڵبژێرە."
 
-#: warehouse/manage/forms.py:435
+#: warehouse/manage/forms.py:425
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -379,15 +379,15 @@ msgstr ""
 "ئەم ناوی ئەکاونتی ڕێکخراوە پێشتر بەکارهاتووە. ناوی ئەکاونتی ڕێکخراوێکی "
 "جیاواز هەڵبژێرە."
 
-#: warehouse/manage/forms.py:472
+#: warehouse/manage/forms.py:461
 msgid "Select project"
 msgstr "پرۆژە هەڵبژێرە"
 
-#: warehouse/manage/forms.py:477 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "ناوی پڕۆژەکە دیاری بکە"
 
-#: warehouse/manage/forms.py:480
+#: warehouse/manage/forms.py:469
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -395,30 +395,30 @@ msgstr ""
 "بە پیتێک یان ژمارەیەک دەست پێ بکە و کۆتایی پێ بێنە کە تەنها ژمارەی ASCII و "
 "'.' و '_' و '-' لەخۆدەگرێت."
 
-#: warehouse/manage/forms.py:487
+#: warehouse/manage/forms.py:476
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/manage/forms.py:558
+#: warehouse/manage/forms.py:544
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 "ناوی ڕێکخراوەکە زۆر درێژە. ناوی ڕێکخراوێک هەڵبژێرە کە ١٠٠ پیت یان کەمتر بێت."
 
-#: warehouse/manage/forms.py:570
+#: warehouse/manage/forms.py:556
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 "URLی ڕێکخراوەکە زۆر درێژە. URLی ڕێکخراوێک هەڵبژێرە کە ٤٠٠ پیت یان کەمتر بێت."
 
-#: warehouse/manage/forms.py:577
+#: warehouse/manage/forms.py:563
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:574
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -426,19 +426,19 @@ msgstr ""
 "وەسفی ڕێکخراوەکە زۆر درێژە. وەسفێکی ڕێکخراو هەڵبژێرە کە ٤٠٠ پیت یان کەمتر "
 "بێت."
 
-#: warehouse/manage/forms.py:632
+#: warehouse/manage/forms.py:615
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/manage/forms.py:638
+#: warehouse/manage/forms.py:621
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:666
+#: warehouse/manage/forms.py:649
 #, fuzzy
 #| msgid ""
 #| "This project name has already been used. Choose a different project name."
@@ -548,7 +548,7 @@ msgstr ""
 "ناتوانرێت وەک ${role_name} بۆ پڕۆژە زیاد بکرێت"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:888
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -556,7 +556,7 @@ msgstr ""
 "هەوڵبدەرەوە."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:953
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "بانگهێشتنامە نێردراوە بۆ '${username}'."
 
@@ -569,15 +569,15 @@ msgid "Invitation already expired."
 msgstr "بانگێشتنامە پێشتر بەسەرچووە."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "بانگهێشتنامە لە '${username}' هەڵوەشایەوە."
 
-#: warehouse/manage/views/organizations.py:864
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ ڕێکخستن"
 
-#: warehouse/manage/views/organizations.py:875
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -585,18 +585,18 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ ڕێکخراو زیاد بکرێت"
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr "نەتوانرا بانگهێشتی ڕێکخراو بدۆزرێتەوە."
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -2472,7 +2472,7 @@ msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 "ئەگەر ئەم داواکاریەت نەکرد، دەتوانیت بە سەلامەتی ئەم ئیمەیڵە پشتگوێ بخەیت."
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:19
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2498,7 +2498,7 @@ msgstr ""
 "   بە شێوەیەکی ئۆتۆماتیکی.\n"
 "  "
 
-#: warehouse/templates/email/pending-oidc-publisher-invalidated/body.html:27
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
