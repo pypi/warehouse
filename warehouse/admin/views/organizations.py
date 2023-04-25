@@ -26,7 +26,7 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
-from warehouse.organizations.models import Organization
+from warehouse.organizations.models import Organization, OrganizationType
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -55,8 +55,10 @@ def organization_list(request):
             # Examples:
             # - search individual words or "whole phrase" in any field
             # - name:psf
+            # - org:python
             # - organization:python
             # - url:.org
+            # - desc:word
             # - description:word
             # - description:"whole phrase"
             # - is:approved
@@ -64,6 +66,8 @@ def organization_list(request):
             # - is:submitted
             # - is:active
             # - is:inactive
+            # - type:company
+            # - type:community
             try:
                 field, value = term.lower().split(":", 1)
             except ValueError:
@@ -97,6 +101,11 @@ def organization_list(request):
                     filters.append(Organization.is_active == True)  # noqa: E712
                 elif "inactive".startswith(value):
                     filters.append(Organization.is_active == False)  # noqa: E712
+            elif field == "type":
+                if "company".startswith(value):
+                    filters.append(Organization.orgtype == OrganizationType.Company)
+                elif "community".startswith(value):
+                    filters.append(Organization.orgtype == OrganizationType.Community)
             else:
                 # Add filter for any field.
                 filters.append(
