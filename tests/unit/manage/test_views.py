@@ -6146,7 +6146,7 @@ class TestManageOIDCPublisherViews:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakespecifier @ https://github.com/fakeowner/fakerepo to fakeproject",
+                "Added fakespecifier in https://github.com/fakeowner/fakerepo to fakeproject",
                 queue="success",
             )
         ]
@@ -6239,7 +6239,7 @@ class TestManageOIDCPublisherViews:
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakeworkflow.yml @ https://github.com/fakeowner/fakerepo to fakeproject",
+                "Added fakeworkflow.yml in https://github.com/fakeowner/fakerepo to fakeproject",
                 queue="success",
             )
         ]
