@@ -1146,7 +1146,7 @@ def file_upload(request):
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "repository_url": request.oidc_publisher.repository_url
+                "publisher_url": request.oidc_publisher.publisher_url
                 if request.oidc_publisher
                 else None,
             },

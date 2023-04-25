@@ -6062,11 +6062,10 @@ class TestManageOIDCPublisherViews:
             id="fakeid",
             publisher_name="GitHub",
             repository_name="fakerepo",
-            repository_url="https://github.com/fakeowner/fakerepo",
+            publisher_url="https://github.com/fakeowner/fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
-            publisher_url="some-url",
             environment="some-environment",
         )
         # NOTE: Can't set __str__ using pretend.stub()
@@ -6141,14 +6140,13 @@ class TestManageOIDCPublisherViews:
                     "id": "fakeid",
                     "specifier": "fakespecifier",
                     "url": "https://github.com/fakeowner/fakerepo",
-                    "workflow": "fakeworkflow.yml",
                     "submitted_by": "some-user",
                 },
             )
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakespecifier to fakeproject",
+                "Added fakespecifier @ https://github.com/fakeowner/fakerepo to fakeproject",
                 queue="success",
             )
         ]
@@ -6233,16 +6231,15 @@ class TestManageOIDCPublisherViews:
                 additional={
                     "publisher": "GitHub",
                     "id": "fakeid",
-                    "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
+                    "specifier": "fakeworkflow.yml",
                     "url": "https://github.com/fakeowner/fakerepo",
-                    "workflow": "fakeworkflow.yml",
                     "submitted_by": "some-user",
                 },
             )
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakeworkflow.yml @ fakeowner/fakerepo to fakeproject",
+                "Added fakeworkflow.yml @ https://github.com/fakeowner/fakerepo to fakeproject",
                 queue="success",
             )
         ]
@@ -6522,8 +6519,7 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.repository_url,
-                    "workflow": publisher.workflow_filename,
+                    "url": publisher.publisher_url,
                     "submitted_by": db_request.user.username,
                 },
             )
@@ -6614,8 +6610,7 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.repository_url,
-                    "workflow": publisher.workflow_filename,
+                    "url": publisher.publisher_url,
                     "submitted_by": db_request.user.username,
                 },
             )

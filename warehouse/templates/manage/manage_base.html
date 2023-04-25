@@ -508,7 +508,7 @@
     {{ publisher.publisher_name }}
   </td>
   <td scope="row">
-    <a href="{{ publisher.repository_url }}">{{ publisher.repository }}</a>
+    <a href="{{ publisher.publisher_url }}">{{ publisher.repository }}</a>
   </td>
   <td scope="row">
     {{ publisher.workflow_filename }}
@@ -534,15 +534,17 @@
 {% else %}
 {% set submit_desc = _("Submitted by:") %}
 {% endif %}
+{% if event.additional.publisher == "GitHub" %}
+{% set specifier_desc = _("Workflow:") %}
+{% else %}
+{% set specifier_desc = _("Specifier:") %}
+{% endif %}
+
 <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
 {% if event.additional.url %}
 <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
-{% if event.additional.workflow %}
-<small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
 {% endif %}
-{% else %}
-<small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
-{% endif %}
+<small>{{ specifier_desc }} {{ event.additional.specifier }}</small>
 {% if event.additional.submitted_by %}
 <small>
   {{ submit_desc }} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>

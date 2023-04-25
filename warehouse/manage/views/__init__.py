@@ -1314,14 +1314,13 @@ class ManageOIDCPublisherViews:
                 "publisher": publisher.publisher_name,
                 "id": str(publisher.id),
                 "specifier": str(publisher),
-                "url": publisher.repository_url,
-                "workflow": publisher.workflow_filename,
+                "url": publisher.publisher_url,
                 "submitted_by": self.request.user.username,
             },
         )
 
         self.request.session.flash(
-            f"Added {publisher} to {self.project.name}",
+            f"Added {publisher} @ {publisher.publisher_url} to {self.project.name}",
             queue="success",
         )
 
@@ -1386,10 +1385,7 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.repository_url,
-                    "workflow": publisher.workflow_filename
-                    if isinstance(publisher, GitHubPublisherMixin)
-                    else None,
+                    "url": publisher.publisher_url,
                     "submitted_by": self.request.user.username,
                 },
             )

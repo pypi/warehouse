@@ -224,7 +224,7 @@ class OIDCPublisherMixin:
         raise NotImplementedError
 
     @property
-    def repository_url(self):  # pragma: no cover
+    def publisher_url(self):  # pragma: no cover
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
@@ -335,7 +335,7 @@ class GitHubPublisherMixin:
         return f"{self.repository_owner}/{self.repository_name}"
 
     @property
-    def repository_url(self):
+    def publisher_url(self):
         return f"https://github.com/{self.repository}"
 
     @property
@@ -347,7 +347,7 @@ class GitHubPublisherMixin:
         return f"repo:{self.repository}"
 
     def __str__(self):
-        return f"{self.workflow_filename} @ {self.repository}"
+        return self.workflow_filename
 
 
 class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
