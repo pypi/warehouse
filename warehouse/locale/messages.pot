@@ -3966,7 +3966,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:76
 #: warehouse/templates/manage/project/publishing.html:45
-msgid "Slug"
+msgid "Repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:77
