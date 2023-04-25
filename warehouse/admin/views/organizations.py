@@ -55,8 +55,10 @@ def organization_list(request):
             # Examples:
             # - search individual words or "whole phrase" in any field
             # - name:psf
+            # - org:python
             # - organization:python
             # - url:.org
+            # - desc:word
             # - description:word
             # - description:"whole phrase"
             # - is:approved
