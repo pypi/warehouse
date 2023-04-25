@@ -313,9 +313,9 @@ types-psycopg2==2.9.21.9 \
     --hash=sha256:0332525fb9d3031d3da46f091e7d40b2c4d4958e9c00d2b4c1eaaa9f8ef9de4e \
     --hash=sha256:388dc36a04551632289c4aaf1fc5b91e147654b165db896d094844e216f22bf5
     # via -r requirements/lint.in
-types-pyopenssl==23.1.0.1 \
-    --hash=sha256:59044283c475eaa5a29b36a903c123d52bdf4a7e012f0a1ca0e41115b99216da \
-    --hash=sha256:ac7fbc240930c2f9a1cbd2d04f9cb14ad0f15b0ad8d6528732a83747b1b2086e
+types-pyopenssl==23.1.0.2 \
+    --hash=sha256:20b80971b86240e8432a1832bd8124cea49c3088c7bfc77dfd23be27ffe4a517 \
+    --hash=sha256:b050641aeff6dfebf231ad719bdac12d53b8ee818d4afb67b886333484629957
     # via types-redis
 types-python-slugify==8.0.0.2 \
     --hash=sha256:9e81f49eac8c805f924695de559fb8dc123ccbd15adb47d40ceaec51c739f044 \
