@@ -100,7 +100,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm, GitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, GitHubPublisherMixin, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,

@@ -25,7 +25,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import GitHubPublisherMixin, PendingOIDCPublisher
+from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter

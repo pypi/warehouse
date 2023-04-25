@@ -71,11 +71,7 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import (
-    GitHubPublisherMixin,
-    PendingGitHubPublisher,
-    PendingOIDCPublisher,
-)
+from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
