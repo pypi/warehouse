@@ -829,9 +829,9 @@ kombu[sqs]==5.2.4 \
     # via
     #   -r requirements/main.in
     #   celery
-limits==3.3.1 \
-    --hash=sha256:df8685b1aff349b5199628ecdf41a9f339a35233d8e4fcd9c3e10002e4419b45 \
-    --hash=sha256:dfc59ed5b4847e33a33b88ec16033bed18ce444ce6a76287a4e054db9a683861
+limits==3.4.0 \
+    --hash=sha256:919db5cdc00670b7a5bef992f0a00a5bdbe1bf5fc8ea840df8735ffde0e170b0 \
+    --hash=sha256:fc5e01a6a96b6f78b7e8a8f4610a93f3ebe3351a1bcd8cd93763a90fa52bc7fe
     # via -r requirements/main.in
 logfury==1.0.1 \
     --hash=sha256:130a5daceab9ad534924252ddf70482aa2c96662b3a3825a7d30981d03b76a26 \
