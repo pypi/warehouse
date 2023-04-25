@@ -21,7 +21,7 @@ def test_build_search():
     release = pretend.stub(
         name="Foobar",
         normalized_name="foobar",
-        all_versions=["5.0.dev0", "4.0", "3.0", "2.0", "1.0"],
+        all_versions=["5.0.dev0", "4.0", "3.0", "2.0", "1.0", "dog"],
         latest_version="4.0",
         summary="This is my summary",
         description="This is my description",
