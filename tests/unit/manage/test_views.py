@@ -6062,6 +6062,7 @@ class TestManageOIDCPublisherViews:
             id="fakeid",
             publisher_name="GitHub",
             repository_name="fakerepo",
+            repository_url="https://github.com/fakeowner/fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
@@ -6139,7 +6140,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
-                    "url": "some-url",
+                    "url": "https://github.com/fakeowner/fakerepo",
+                    "workflow": "fakeworkflow.yml",
                     "submitted_by": "some-user",
                 },
             )
@@ -6232,10 +6234,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
-                    "url": (
-                        "https://github.com/fakeowner/fakerepo/blob/HEAD/"
-                        ".github/workflows/fakeworkflow.yml"
-                    ),
+                    "url": "https://github.com/fakeowner/fakerepo",
+                    "workflow": "fakeworkflow.yml",
                     "submitted_by": "some-user",
                 },
             )
@@ -6522,7 +6522,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.repository_url,
+                    "workflow": publisher.workflow_filename,
                     "submitted_by": db_request.user.username,
                 },
             )
@@ -6613,7 +6614,8 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.repository_url,
+                    "workflow": publisher.workflow_filename,
                     "submitted_by": db_request.user.username,
                 },
             )

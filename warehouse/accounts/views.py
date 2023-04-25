@@ -71,7 +71,11 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    GitHubPublisherMixin,
+    PendingGitHubPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1502,7 +1506,8 @@ class ManageAccountPublishingViews:
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.repository_url,
+                "workflow": pending_publisher.workflow_filename,
                 "submitted_by": self.request.user.username,
             },
         )
@@ -1591,7 +1596,10 @@ class ManageAccountPublishingViews:
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.repository_url,
+                "workflow": pending_publisher.workflow_filename
+                if isinstance(pending_publisher, GitHubPublisherMixin)
+                else None,
                 "submitted_by": self.request.user.username,
             },
         )

@@ -100,7 +100,7 @@ from warehouse.manage.views.view_helpers import (
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm, GitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, GitHubPublisherMixin, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,
@@ -1314,7 +1314,8 @@ class ManageOIDCPublisherViews:
                 "publisher": publisher.publisher_name,
                 "id": str(publisher.id),
                 "specifier": str(publisher),
-                "url": publisher.publisher_url,
+                "url": publisher.repository_url,
+                "workflow": publisher.workflow_filename,
                 "submitted_by": self.request.user.username,
             },
         )
@@ -1385,7 +1386,10 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.repository_url,
+                    "workflow": publisher.workflow_filename
+                    if isinstance(publisher, GitHubPublisherMixin)
+                    else None,
                     "submitted_by": self.request.user.username,
                 },
             )

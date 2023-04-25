@@ -25,7 +25,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import PendingOIDCPublisher
+from warehouse.oidc.models import GitHubPublisherMixin, PendingOIDCPublisher
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -187,7 +187,7 @@ def mint_token_from_oidc(request):
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
         (
-            f"OpenID token: {publisher.publisher_url} "
+            f"OpenID token: {str(publisher)} "
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [
@@ -204,7 +204,10 @@ def mint_token_from_oidc(request):
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
-                "publisher_url": publisher.publisher_url,
+                "publisher_url": publisher.repository_url,
+                "workflow": publisher.workflow_filename
+                if isinstance(publisher, GitHubPublisherMixin)
+                else None,
             },
         )
     return {"success": True, "token": serialized}

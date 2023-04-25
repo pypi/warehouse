@@ -508,7 +508,10 @@
     {{ publisher.publisher_name }}
   </td>
   <td scope="row">
-    <a href="{{ publisher.publisher_url }}">{{ publisher.publisher_url }}</a>
+    <a href="{{ publisher.repository_url }}">{{ publisher.repository }}</a>
+  </td>
+  <td scope="row">
+    {{ publisher.workflow_filename }}
   </td>
   <td scope="row">
     {% if publisher.environment %}
@@ -521,4 +524,28 @@
     <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">
   </td>
 </tr>
+{%- endmacro %}
+
+{% macro oidc_audit_event(event) -%}
+{% if event.tag == EventTag.Project.OIDCPublisherAdded or event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
+{% set submit_desc = _("Added by:") %}
+{% elif event.tag == EventTag.Project.OIDCPublisherRemoved or event.tag == EventTag.Account.PendingOIDCPublisherRemoved %}
+{% set submit_desc = _("Removed by:") %}
+{% else %}
+{% set submit_desc = _("Submitted by:") %}
+{% endif %}
+<small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
+{% if event.additional.url %}
+<small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
+{% if event.additional.workflow %}
+<small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
+{% endif %}
+{% else %}
+<small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
+{% endif %}
+{% if event.additional.submitted_by %}
+<small>
+  {{ submit_desc }} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
+</small>
+{% endif %}
 {%- endmacro %}

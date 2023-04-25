@@ -41,7 +41,7 @@
     </strong>
     <small>
       {% trans %}Added by:{% endtrans %}
-      {% if event.additional.publisher_url %}
+      {% if event.additional.repository_url %}
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
@@ -89,7 +89,7 @@
     </small>
     <small>
       {% trans %}Added by:{% endtrans %}
-      {% if event.additional.publisher_url %}
+      {% if event.additional.repository_url %}
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
@@ -227,6 +227,9 @@
       <a href="{{ event.additional.publisher_url }}">
         {{ event.additional.publisher_url }}
       </a>
+      {% if event.additional.workflow %}
+      <small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
+      {% endif %}
     </small>
     {% elif event.tag == EventTag.Project.APITokenAdded %}
     <strong>{% trans %}API token created{% endtrans %}</strong>
@@ -256,30 +259,10 @@
     {# Display OIDC publisher events #}
     {% elif event.tag == EventTag.Project.OIDCPublisherAdded %}
     <strong>{% trans %}Trusted publisher added{% endtrans %}</strong>
-    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-    {% if event.additional.url %}
-    <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
-    {% else %}
-    <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
-    {% endif %}
-    {% if event.additional.submitted_by %}
-    <small>
-      {% trans %}Added by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
-    </small>
-    {% endif %}
+    {{ oidc_audit_event(event) }}
     {% elif event.tag == EventTag.Project.OIDCPublisherRemoved %}
     <strong>{% trans %}Trusted publisher removed{% endtrans %}</strong>
-    <small>{% trans %}Publisher:{% endtrans %} {{ event.additional.publisher }}</small>
-    {% if event.additional.url %}
-    <small>{% trans %}URL:{% endtrans %} {{ event.additional.url }}</small>
-    {% else %}
-    <small>{% trans %}Specifier:{% endtrans %} {{ event.additional.specifier }}</small>
-    {% endif %}
-    {% if event.additional.submitted_by %}
-    <small>
-      {% trans %}Removed by:{% endtrans %} <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
-    </small>
-    {% endif %}
+    {{ oidc_audit_event(event) }}
 
     {# Display 2FA events #}
     {% elif event.tag == EventTag.Project.OwnersRequire2FAEnabled %}

@@ -90,11 +90,7 @@ class TestGitHubPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "fakeworkflow.yml @ fakeowner/fakerepo"
-        assert (
-            publisher.publisher_url
-            == "https://github.com/fakeowner/fakerepo/blob/HEAD/"
-            f".github/workflows/{publisher.workflow_filename}"
-        )
+        assert publisher.repository_url == "https://github.com/fakeowner/fakerepo"
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
         publisher = models.GitHubPublisher(

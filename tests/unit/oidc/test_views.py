@@ -389,7 +389,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
         id="fakepublisherid",
         projects=[project],
         publisher_name="fakepublishername",
-        publisher_url="https://fake/url",
+        repository_url="https://fake/url",
     )
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
@@ -440,7 +440,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: https://fake/url ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid"),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
@@ -457,6 +457,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
                 "expires": 900,
                 "publisher_name": "fakepublishername",
                 "publisher_url": "https://fake/url",
+                "workflow": None,
             },
         )
     ]
