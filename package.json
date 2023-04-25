@@ -54,7 +54,7 @@
     "rtlcss": "^4.0.0",
     "sass-embedded": "^1.57.1",
     "sass-loader": "^13.2.0",
-    "sharp": "^0.31.3",
+    "sharp": "^0.32.0",
     "stylelint": "^15.3.0",
     "stylelint-config-standard-scss": "^9.0.0",
     "stylelint-selector-bem-pattern": "^2.1.1",
