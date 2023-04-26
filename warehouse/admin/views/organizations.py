@@ -179,7 +179,11 @@ def organization_detail(request):
             .order_by(Organization.Event.time.desc())
             .first()
         )
-        approved_by_user_id = approve_event.additional.get("approved_by_user_id")
+        approved_by_user_id = (
+            approve_event.additional.get("approved_by_user_id")
+            if approve_event
+            else None
+        )
         admin = (
             user_service.get_user(approved_by_user_id) if approved_by_user_id else None
         )
@@ -191,7 +195,11 @@ def organization_detail(request):
             .order_by(Organization.Event.time.desc())
             .first()
         )
-        declined_by_user_id = decline_event.additional.get("declined_by_user_id")
+        declined_by_user_id = (
+            decline_event.additional.get("declined_by_user_id")
+            if decline_event
+            else None
+        )
         admin = (
             user_service.get_user(declined_by_user_id) if declined_by_user_id else None
         )
