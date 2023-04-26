@@ -236,9 +236,9 @@ pep8-naming==0.13.3 \
     --hash=sha256:1705f046dfcd851378aac3be1cd1551c7c1e5ff363bacad707d43007877fa971 \
     --hash=sha256:1a86b8c71a03337c97181917e2b472f0f5e4ccb06844a0d6f0a33522549e7a80
     # via -r requirements/lint.in
-platformdirs==3.2.0 \
-    --hash=sha256:d5b638ca397f25f979350ff789db335903d7ea010ab28903f57b27e1b16c2b08 \
-    --hash=sha256:ebe11c0d7a805086e99506aa331612429a72ca7cd52a1f0d277dc4adc20cb10e
+platformdirs==3.3.0 \
+    --hash=sha256:64370d47dc3fca65b4879f89bdead8197e93e05d696d6d1816243ebae8595da5 \
+    --hash=sha256:ea61fd7b85554beecbbd3e9b37fb26689b227ffae38f73353cbcc1cf8bd01878
     # via black
 pycodestyle==2.10.0 \
     --hash=sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053 \
@@ -256,9 +256,9 @@ pygments==2.14.0 \
     --hash=sha256:b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297 \
     --hash=sha256:fa7bd7bd2771287c0de303af8bfdfc731f51bd2c6a47ab69d117138893b82717
     # via doc8
-pyupgrade==3.3.1 \
-    --hash=sha256:3b93641963df022d605c78aeae4b5956a5296ea24701eafaef9c487527b77e60 \
-    --hash=sha256:f88bce38b0ba92c2a9a5063c8629e456e8d919b67d2d42c7ecab82ff196f9813
+pyupgrade==3.3.2 \
+    --hash=sha256:bcfed63d38811809f179fd269dec246680b0aaa5bbe662b535826e5fa2275219 \
+    --hash=sha256:c05b82c911934b3a638b29f48f48dc6e0ef6c57c55ec36f2b41ae9dbf6711b4b
     # via -r requirements/lint.in
 restructuredtext-lint==1.4.0 \
     --hash=sha256:1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45
@@ -313,9 +313,9 @@ types-psycopg2==2.9.21.9 \
     --hash=sha256:0332525fb9d3031d3da46f091e7d40b2c4d4958e9c00d2b4c1eaaa9f8ef9de4e \
     --hash=sha256:388dc36a04551632289c4aaf1fc5b91e147654b165db896d094844e216f22bf5
     # via -r requirements/lint.in
-types-pyopenssl==23.1.0.1 \
-    --hash=sha256:59044283c475eaa5a29b36a903c123d52bdf4a7e012f0a1ca0e41115b99216da \
-    --hash=sha256:ac7fbc240930c2f9a1cbd2d04f9cb14ad0f15b0ad8d6528732a83747b1b2086e
+types-pyopenssl==23.1.0.2 \
+    --hash=sha256:20b80971b86240e8432a1832bd8124cea49c3088c7bfc77dfd23be27ffe4a517 \
+    --hash=sha256:b050641aeff6dfebf231ad719bdac12d53b8ee818d4afb67b886333484629957
     # via types-redis
 types-python-slugify==8.0.0.2 \
     --hash=sha256:9e81f49eac8c805f924695de559fb8dc123ccbd15adb47d40ceaec51c739f044 \
@@ -410,9 +410,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==67.7.1 \
-    --hash=sha256:6f0839fbdb7e3cfef1fc38d7954f5c1c26bf4eebb155a55c9bf8faf997b9fb67 \
-    --hash=sha256:bb16732e8eb928922eabaa022f881ae2b7cdcfaf9993ef1f5e841a96d32b8e0c
+setuptools==67.7.2 \
+    --hash=sha256:23aaf86b85ca52ceb801d32703f12d77517b2556af839621c641fca11287952b \
+    --hash=sha256:f104fa03692a2602fa0fec6c6a9e63b6c8a968de13e17c026957dd1f53d80990
     # via
     #   zope-event
     #   zope-interface
