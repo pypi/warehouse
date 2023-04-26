@@ -19,6 +19,7 @@ from warehouse.accounts.interfaces import IUserService
 from warehouse.admin.views import organizations as views
 from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
+from warehouse.organizations.models import OrganizationType
 
 from ....common.db.organizations import OrganizationFactory
 
@@ -205,6 +206,39 @@ class TestOrganizationList:
             "organizations": organizations[2:],
             "query": "is:inactive",
             "terms": ["is:inactive"],
+        }
+
+    def test_type_query(self, enable_organizations, db_request):
+        company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+        community_org = OrganizationFactory.create(orgtype=OrganizationType.Community)
+        db_request.GET["q"] = "type:company"
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": [company_org],
+            "query": "type:company",
+            "terms": ["type:company"],
+        }
+
+        db_request.GET["q"] = "type:community"
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": [community_org],
+            "query": "type:community",
+            "terms": ["type:community"],
+        }
+
+    def test_invalid_type_query(self, enable_organizations, db_request):
+        company_org = OrganizationFactory.create(orgtype=OrganizationType.Company)
+
+        db_request.GET["q"] = "type:invalid"
+        result = views.organization_list(db_request)
+
+        assert result == {
+            "organizations": [company_org],
+            "query": "type:invalid",
+            "terms": ["type:invalid"],
         }
 
     def test_is_invalid_query(self, enable_organizations, db_request):

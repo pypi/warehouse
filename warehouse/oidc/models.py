@@ -331,14 +331,12 @@ class GitHubPublisherMixin:
         return "GitHub"
 
     @property
-    def publisher_url(self):
-        # NOTE: Until we embed the SHA, this URL is not guaranteed to contain
-        # the exact contents of the workflow that their OIDC publisher corresponds to.
-        return f"https://github.com/{self.repository}/blob/HEAD/{self._workflow_slug}"
-
-    @property
     def repository(self):
         return f"{self.repository_owner}/{self.repository_name}"
+
+    @property
+    def publisher_url(self):
+        return f"https://github.com/{self.repository}"
 
     @property
     def job_workflow_ref(self):
@@ -349,7 +347,7 @@ class GitHubPublisherMixin:
         return f"repo:{self.repository}"
 
     def __str__(self):
-        return f"{self.workflow_filename} @ {self.repository}"
+        return self.workflow_filename
 
 
 class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
