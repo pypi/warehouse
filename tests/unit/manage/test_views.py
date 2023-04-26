@@ -6062,10 +6062,10 @@ class TestManageOIDCPublisherViews:
             id="fakeid",
             publisher_name="GitHub",
             repository_name="fakerepo",
+            publisher_url="https://github.com/fakeowner/fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
-            publisher_url="some-url",
             environment="some-environment",
         )
         # NOTE: Can't set __str__ using pretend.stub()
@@ -6139,14 +6139,17 @@ class TestManageOIDCPublisherViews:
                     "publisher": "GitHub",
                     "id": "fakeid",
                     "specifier": "fakespecifier",
-                    "url": "some-url",
+                    "url": "https://github.com/fakeowner/fakerepo",
                     "submitted_by": "some-user",
                 },
             )
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakespecifier to fakeproject",
+                (
+                    "Added fakespecifier in https://github.com/fakeowner/fakerepo "
+                    "to fakeproject"
+                ),
                 queue="success",
             )
         ]
@@ -6231,18 +6234,18 @@ class TestManageOIDCPublisherViews:
                 additional={
                     "publisher": "GitHub",
                     "id": "fakeid",
-                    "specifier": "fakeworkflow.yml @ fakeowner/fakerepo",
-                    "url": (
-                        "https://github.com/fakeowner/fakerepo/blob/HEAD/"
-                        ".github/workflows/fakeworkflow.yml"
-                    ),
+                    "specifier": "fakeworkflow.yml",
+                    "url": "https://github.com/fakeowner/fakerepo",
                     "submitted_by": "some-user",
                 },
             )
         ]
         assert request.session.flash.calls == [
             pretend.call(
-                "Added fakeworkflow.yml @ fakeowner/fakerepo to fakeproject",
+                (
+                    "Added fakeworkflow.yml in https://github.com/fakeowner/fakerepo "
+                    "to fakeproject"
+                ),
                 queue="success",
             )
         ]
