@@ -1114,7 +1114,7 @@ msgstr "Passer à la version mobile"
 #: warehouse/templates/base.html:187
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:763
+#: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/manage_base.html:313
 #: warehouse/templates/manage/manage_base.html:372
 #: warehouse/templates/manage/organization/settings.html:194
@@ -1462,11 +1462,11 @@ msgstr "Mot de passe"
 #: warehouse/templates/manage/account.html:369
 #: warehouse/templates/manage/account.html:386
 #: warehouse/templates/manage/account.html:402
-#: warehouse/templates/manage/account/publishing.html:125
-#: warehouse/templates/manage/account/publishing.html:140
-#: warehouse/templates/manage/account/publishing.html:155
-#: warehouse/templates/manage/account/publishing.html:170
-#: warehouse/templates/manage/account/publishing.html:185
+#: warehouse/templates/manage/account/publishing.html:126
+#: warehouse/templates/manage/account/publishing.html:141
+#: warehouse/templates/manage/account/publishing.html:156
+#: warehouse/templates/manage/account/publishing.html:171
+#: warehouse/templates/manage/account/publishing.html:186
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1486,10 +1486,10 @@ msgstr "Mot de passe"
 #: warehouse/templates/manage/organizations.html:203
 #: warehouse/templates/manage/organizations.html:221
 #: warehouse/templates/manage/organizations.html:240
-#: warehouse/templates/manage/project/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:92
-#: warehouse/templates/manage/project/publishing.html:107
-#: warehouse/templates/manage/project/publishing.html:122
+#: warehouse/templates/manage/project/publishing.html:78
+#: warehouse/templates/manage/project/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:108
+#: warehouse/templates/manage/project/publishing.html:123
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -3404,11 +3404,11 @@ msgid "Requires:"
 msgstr "Exigences :"
 
 #: warehouse/templates/includes/packaging/project-data.html:117
-#: warehouse/templates/manage/account/publishing.html:138
+#: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:89
-#: warehouse/templates/manage/project/publishing.html:75
+#: warehouse/templates/manage/project/publishing.html:76
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -3723,12 +3723,12 @@ msgstr ""
 "ajouter des jetons d'API à votre compte."
 
 #: warehouse/templates/manage/account.html:467
-#: warehouse/templates/manage/account.html:667
+#: warehouse/templates/manage/account.html:646
 msgid "Token scope: entire account"
 msgstr "Portée du jeton : Ensemble du compte"
 
 #: warehouse/templates/manage/account.html:469
-#: warehouse/templates/manage/account.html:669
+#: warehouse/templates/manage/account.html:648
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Portée du jeton : Projet %(project_name)s"
@@ -3784,7 +3784,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:253
+#: warehouse/templates/manage/project/history.html:256
 msgid "Reason:"
 msgstr "Motif :"
 
@@ -3887,79 +3887,30 @@ msgid "Password successfully changed"
 msgstr "Mot de passe modifié avec succès"
 
 #: warehouse/templates/manage/account.html:575
-#: warehouse/templates/manage/account.html:590
+#: warehouse/templates/manage/account.html:580
 #: warehouse/templates/manage/account/token.html:158
 msgid "Project:"
 msgstr "Projet :"
 
-#: warehouse/templates/manage/account.html:576
-#: warehouse/templates/manage/account.html:591
-#: warehouse/templates/manage/project/history.html:259
-#: warehouse/templates/manage/project/history.html:272
-#, fuzzy
-#| msgid "Username"
-msgid "Publisher:"
-msgstr "Nom d’utilisateur"
-
-#: warehouse/templates/manage/account.html:578
-#: warehouse/templates/manage/account.html:593
-#: warehouse/templates/manage/project/history.html:261
-#: warehouse/templates/manage/project/history.html:274
-msgid "URL:"
-msgstr ""
-
-#: warehouse/templates/manage/account.html:580
-#: warehouse/templates/manage/account.html:595
-#: warehouse/templates/manage/project/history.html:263
-#: warehouse/templates/manage/project/history.html:276
-#, fuzzy
-#| msgid "Verify application"
-msgid "Specifier:"
-msgstr "Vérifier l'application"
-
-#: warehouse/templates/manage/account.html:584
-#: warehouse/templates/manage/organization/history.html:166
-#: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:91
-#: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/history.html:170
-#: warehouse/templates/manage/project/history.html:196
-#: warehouse/templates/manage/project/history.html:267
-#: warehouse/templates/manage/team/history.html:88
-msgid "Added by:"
-msgstr "Ajoutée par :"
-
-#: warehouse/templates/manage/account.html:599
-#: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:56
-#: warehouse/templates/manage/project/history.html:116
-#: warehouse/templates/manage/project/history.html:132
-#: warehouse/templates/manage/project/history.html:178
-#: warehouse/templates/manage/project/history.html:204
-#: warehouse/templates/manage/project/history.html:280
-#: warehouse/templates/manage/team/history.html:93
-msgid "Removed by:"
-msgstr "Supprimée par :"
-
-#: warehouse/templates/manage/account.html:604
+#: warehouse/templates/manage/account.html:583
 msgid "Two factor authentication added"
 msgstr "Authentification à deux facteurs ajoutée"
 
-#: warehouse/templates/manage/account.html:607
-#: warehouse/templates/manage/account.html:617
+#: warehouse/templates/manage/account.html:586
+#: warehouse/templates/manage/account.html:596
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Méthode : Périphérique de sécurité (<abbr title=\"Web Authentication"
 "\">WebAuthn</abbr>)"
 
-#: warehouse/templates/manage/account.html:608
-#: warehouse/templates/manage/account.html:618
+#: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/account.html:597
 msgid "Device name:"
 msgstr "Nom du périphérique :"
 
-#: warehouse/templates/manage/account.html:610
-#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:589
+#: warehouse/templates/manage/account.html:599
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -3967,54 +3918,54 @@ msgstr ""
 "Méthode : Application d'authentification (<abbr title=\"Time-based One-Time "
 "Password\">TOTP</abbr>)"
 
-#: warehouse/templates/manage/account.html:614
+#: warehouse/templates/manage/account.html:593
 msgid "Two factor authentication removed"
 msgstr "Authentification à deux facteurs supprimée"
 
-#: warehouse/templates/manage/account.html:625
+#: warehouse/templates/manage/account.html:604
 msgid "Recovery codes generated"
 msgstr "Codes de récupération générés"
 
-#: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/account.html:608
 msgid "Recovery codes regenerated"
 msgstr "Codes de récupération régénérés"
 
-#: warehouse/templates/manage/account.html:633
+#: warehouse/templates/manage/account.html:612
 msgid "Recovery code used for login"
 msgstr "Code de récupération utilisé pour la connexion"
 
-#: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/account.html:618
 msgid "API token added"
 msgstr "Jeton d'API ajouté"
 
-#: warehouse/templates/manage/account.html:641
-#: warehouse/templates/manage/account.html:664
-#: warehouse/templates/manage/project/history.html:244
-#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/account.html:620
+#: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/project/history.html:247
+#: warehouse/templates/manage/project/history.html:254
 msgid "Token name:"
 msgstr "Nom du jeton :"
 
-#: warehouse/templates/manage/account.html:658
-#: warehouse/templates/manage/project/history.html:246
+#: warehouse/templates/manage/account.html:637
+#: warehouse/templates/manage/project/history.html:249
 msgid "API token removed"
 msgstr "Jeton d'API supprimé"
 
-#: warehouse/templates/manage/account.html:659
-#: warehouse/templates/manage/account.html:665
+#: warehouse/templates/manage/account.html:638
+#: warehouse/templates/manage/account.html:644
 msgid "Unique identifier:"
 msgstr "Identifiant unique :"
 
-#: warehouse/templates/manage/account.html:662
+#: warehouse/templates/manage/account.html:641
 msgid "API token automatically removed for security reasons"
 msgstr "Jeton d'API supprimé automatiquement pour des raisons de sécurité"
 
-#: warehouse/templates/manage/account.html:671
+#: warehouse/templates/manage/account.html:650
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 "Motif : jeton trouvé sur une <a href=\"%(public_url)s\">URL publique</a>"
 
-#: warehouse/templates/manage/account.html:676
+#: warehouse/templates/manage/account.html:655
 #, fuzzy, python-format
 #| msgid ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -4023,14 +3974,14 @@ msgstr ""
 "Si le propriétaire ne répond pas, voir <a href=\"%(href)s\">%(anchor_text)s</"
 "a>"
 
-#: warehouse/templates/manage/account.html:680
+#: warehouse/templates/manage/account.html:659
 #, fuzzy, python-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
 msgstr "L'invitation pour '$ {project_name}' est refusée."
 
-#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:663
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -4039,7 +3990,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> n'est plus %(role_name)s pour le projet"
 
-#: warehouse/templates/manage/account.html:688
+#: warehouse/templates/manage/account.html:667
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -4048,7 +3999,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> n'est plus %(role_name)s pour le projet"
 
-#: warehouse/templates/manage/account.html:697
+#: warehouse/templates/manage/account.html:676
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -4059,49 +4010,49 @@ msgstr ""
 "produisent sur votre compte. Si vous remarquez quelque chose de suspect, <a "
 "href=\"%(faq_url)s\"> sécurisez votre compte </a> dès que possible."
 
-#: warehouse/templates/manage/account.html:702
+#: warehouse/templates/manage/account.html:681
 msgid "Recent account activity"
 msgstr "Activité récente du compte"
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:305
+#: warehouse/templates/manage/project/history.html:288
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Événement"
 
-#: warehouse/templates/manage/account.html:705
-#: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/account.html:692
 msgid "Date / time"
 msgstr "Date / heure"
 
-#: warehouse/templates/manage/account.html:706
-#: warehouse/templates/manage/account.html:717
+#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/organization/history.html:215
-#: warehouse/templates/manage/project/history.html:307
-#: warehouse/templates/manage/project/history.html:319
+#: warehouse/templates/manage/project/history.html:290
+#: warehouse/templates/manage/project/history.html:302
 #: warehouse/templates/manage/team/history.html:110
 #: warehouse/templates/manage/team/history.html:122
 msgid "IP address"
 msgstr "Adresse IP"
 
-#: warehouse/templates/manage/account.html:725
+#: warehouse/templates/manage/account.html:704
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 "Les événements apparaîtront ici comme des occurrences des actions liées à la "
 "sécurité sur votre compte."
 
-#: warehouse/templates/manage/account.html:732
+#: warehouse/templates/manage/account.html:711
 msgid "Delete account"
 msgstr "Supprimer le compte"
 
-#: warehouse/templates/manage/account.html:735
+#: warehouse/templates/manage/account.html:714
 msgid "Cannot delete account"
 msgstr "Impossible de supprimer le compte"
 
-#: warehouse/templates/manage/account.html:737
+#: warehouse/templates/manage/account.html:716
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -4130,7 +4081,7 @@ msgstr[1] ""
 "strong> de %(count)s projets.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:721
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -4159,7 +4110,7 @@ msgstr[1] ""
 "de pouvoir supprimer votre compte.\n"
 "        "
 
-#: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/account.html:731
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -4168,7 +4119,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\">transférer la propriété</a> ou <a href="
 "\"%(delete_href)s\">supprimer le projet</a>"
 
-#: warehouse/templates/manage/account.html:761
+#: warehouse/templates/manage/account.html:740
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:248
@@ -4176,12 +4127,12 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "Procédez avec précaution!"
 
-#: warehouse/templates/manage/account.html:764
+#: warehouse/templates/manage/account.html:743
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 "Vous ne serez pas en mesure de récupérer votre compte après l'avoir supprimé"
 
-#: warehouse/templates/manage/account.html:766
+#: warehouse/templates/manage/account.html:745
 msgid "Delete your PyPI account"
 msgstr "Supprimer votre compte PyPI"
 
@@ -4252,7 +4203,7 @@ msgstr "Méthode d'authentification à deux facteurs"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:521
+#: warehouse/templates/manage/manage_base.html:524
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4489,8 +4440,59 @@ msgstr ""
 "Pour récupérer l'accès à votre compte, veuillez <a href=\"%(href)s"
 "\">réinitialiser votre mot de passe</a> sur PyPI."
 
-#: warehouse/templates/manage/manage_base.html:517
+#: warehouse/templates/manage/manage_base.html:520
 msgid "Any"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:531
+#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/project/history.html:43
+#: warehouse/templates/manage/project/history.html:91
+#: warehouse/templates/manage/project/history.html:125
+#: warehouse/templates/manage/project/history.html:170
+#: warehouse/templates/manage/project/history.html:196
+#: warehouse/templates/manage/team/history.html:88
+msgid "Added by:"
+msgstr "Ajoutée par :"
+
+#: warehouse/templates/manage/manage_base.html:533
+#: warehouse/templates/manage/organization/history.html:171
+#: warehouse/templates/manage/project/history.html:56
+#: warehouse/templates/manage/project/history.html:116
+#: warehouse/templates/manage/project/history.html:132
+#: warehouse/templates/manage/project/history.html:178
+#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/team/history.html:93
+msgid "Removed by:"
+msgstr "Supprimée par :"
+
+#: warehouse/templates/manage/manage_base.html:535
+#, fuzzy
+#| msgid "Invite"
+msgid "Submitted by:"
+msgstr "Inviter"
+
+#: warehouse/templates/manage/manage_base.html:538
+#: warehouse/templates/manage/project/history.html:231
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow:"
+msgstr "Votre nom"
+
+#: warehouse/templates/manage/manage_base.html:540
+#, fuzzy
+#| msgid "Verify application"
+msgid "Specifier:"
+msgstr "Vérifier l'application"
+
+#: warehouse/templates/manage/manage_base.html:543
+#, fuzzy
+#| msgid "Username"
+msgid "Publisher:"
+msgstr "Nom d’utilisateur"
+
+#: warehouse/templates/manage/manage_base.html:545
+msgid "URL:"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:23
@@ -4829,35 +4831,45 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:76
-msgid "Publishing workflow URL"
-msgstr ""
+#: warehouse/templates/manage/project/publishing.html:45
+#, fuzzy
+#| msgid "Release history"
+msgid "Repository"
+msgstr "Historique de version"
 
 #: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/account/publishing.html:183
 #: warehouse/templates/manage/project/publishing.html:46
-#: warehouse/templates/manage/project/publishing.html:120
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow"
+msgstr "Votre nom"
+
+#: warehouse/templates/manage/account/publishing.html:78
+#: warehouse/templates/manage/account/publishing.html:184
+#: warehouse/templates/manage/project/publishing.html:47
+#: warehouse/templates/manage/project/publishing.html:121
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Environment name"
 msgstr "Code de récupération invalide."
 
-#: warehouse/templates/manage/account/publishing.html:89
+#: warehouse/templates/manage/account/publishing.html:90
 msgid ""
 "No pending publishers are currently configured. Publishers for projects that "
 "don't exist yet can be added below."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:95
+#: warehouse/templates/manage/account/publishing.html:96
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Add a new pending publisher"
 msgstr "Gérer ce projet"
 
-#: warehouse/templates/manage/account/publishing.html:98
+#: warehouse/templates/manage/account/publishing.html:99
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:105
+#: warehouse/templates/manage/account/publishing.html:106
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered against "
@@ -4868,85 +4880,85 @@ msgid ""
 "\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:123
+#: warehouse/templates/manage/account/publishing.html:124
 #, fuzzy
 #| msgid "Project Name"
 msgid "PyPI Project Name"
 msgstr "Nom du projet"
 
-#: warehouse/templates/manage/account/publishing.html:128
+#: warehouse/templates/manage/account/publishing.html:129
 #, fuzzy
 #| msgid "Project name"
 msgid "project name"
 msgstr "Nom du projet"
 
-#: warehouse/templates/manage/account/publishing.html:130
+#: warehouse/templates/manage/account/publishing.html:131
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:143
-#: warehouse/templates/manage/project/publishing.html:80
+#: warehouse/templates/manage/account/publishing.html:144
+#: warehouse/templates/manage/project/publishing.html:81
 #, fuzzy
 #| msgid "Owner"
 msgid "owner"
 msgstr "Propriétaire"
 
-#: warehouse/templates/manage/account/publishing.html:145
-#: warehouse/templates/manage/project/publishing.html:82
+#: warehouse/templates/manage/account/publishing.html:146
+#: warehouse/templates/manage/project/publishing.html:83
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:153
-#: warehouse/templates/manage/project/publishing.html:90
+#: warehouse/templates/manage/account/publishing.html:154
+#: warehouse/templates/manage/project/publishing.html:91
 msgid "Repository name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:158
-#: warehouse/templates/manage/project/publishing.html:95
+#: warehouse/templates/manage/account/publishing.html:159
+#: warehouse/templates/manage/project/publishing.html:96
 msgid "repository"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:160
-#: warehouse/templates/manage/project/publishing.html:97
+#: warehouse/templates/manage/account/publishing.html:161
+#: warehouse/templates/manage/project/publishing.html:98
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:168
-#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/account/publishing.html:169
+#: warehouse/templates/manage/project/publishing.html:106
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow name"
 msgstr "Votre nom"
 
-#: warehouse/templates/manage/account/publishing.html:173
-#: warehouse/templates/manage/project/publishing.html:110
+#: warehouse/templates/manage/account/publishing.html:174
+#: warehouse/templates/manage/project/publishing.html:111
 msgid "workflow.yml"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:175
-#: warehouse/templates/manage/project/publishing.html:112
+#: warehouse/templates/manage/account/publishing.html:176
+#: warehouse/templates/manage/project/publishing.html:113
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/publishing.html:124
+#: warehouse/templates/manage/account/publishing.html:188
+#: warehouse/templates/manage/project/publishing.html:125
 #, fuzzy
 #| msgid "Reason (optional)"
 msgid "(optional)"
 msgstr "Raison (facultatif)"
 
-#: warehouse/templates/manage/account/publishing.html:190
-#: warehouse/templates/manage/project/publishing.html:127
+#: warehouse/templates/manage/account/publishing.html:191
+#: warehouse/templates/manage/project/publishing.html:128
 #, fuzzy
 #| msgid "Releases"
 msgid "release"
 msgstr "Versions"
 
-#: warehouse/templates/manage/account/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:129
+#: warehouse/templates/manage/account/publishing.html:193
+#: warehouse/templates/manage/project/publishing.html:130
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that the "
@@ -4957,8 +4969,8 @@ msgid ""
 "have PyPI publishing access."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:207
-#: warehouse/templates/manage/project/publishing.html:144
+#: warehouse/templates/manage/account/publishing.html:208
+#: warehouse/templates/manage/project/publishing.html:145
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
@@ -5616,7 +5628,7 @@ msgid "Revoked by:"
 msgstr "Supprimée par :"
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:285
 #: warehouse/templates/manage/team/history.html:105
 #, fuzzy, python-format
 #| msgid "Security history for %(project_name)s"
@@ -5625,8 +5637,8 @@ msgstr "Historique de sécurité pour %(project_name)s"
 
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:306
-#: warehouse/templates/manage/project/history.html:315
+#: warehouse/templates/manage/project/history.html:289
+#: warehouse/templates/manage/project/history.html:298
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -6423,13 +6435,13 @@ msgid "Short-lived API token created"
 msgstr "Jeton d'API supprimé"
 
 #: warehouse/templates/manage/project/history.html:210
-#: warehouse/templates/manage/project/history.html:233
-#: warehouse/templates/manage/project/history.html:247
+#: warehouse/templates/manage/project/history.html:236
+#: warehouse/templates/manage/project/history.html:250
 msgid "Permissions: Can upload to this project"
 msgstr "Permissions : Peut publier dans ce projet"
 
 #: warehouse/templates/manage/project/history.html:213
-#: warehouse/templates/manage/project/history.html:241
+#: warehouse/templates/manage/project/history.html:244
 msgid "Expiration:"
 msgstr ""
 
@@ -6447,44 +6459,44 @@ msgstr ""
 msgid "Creator:"
 msgstr "Créé"
 
-#: warehouse/templates/manage/project/history.html:232
+#: warehouse/templates/manage/project/history.html:235
 #, fuzzy
 #| msgid "API token removed"
 msgid "API token created"
 msgstr "Jeton d'API supprimé"
 
-#: warehouse/templates/manage/project/history.html:236
-#: warehouse/templates/manage/project/history.html:249
+#: warehouse/templates/manage/project/history.html:239
+#: warehouse/templates/manage/project/history.html:252
 msgid "Controlled by:"
 msgstr "Contrôlé par :"
 
-#: warehouse/templates/manage/project/history.html:258
+#: warehouse/templates/manage/project/history.html:261
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:264
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:286
+#: warehouse/templates/manage/project/history.html:269
 #, fuzzy
 #| msgid "2FA enabled"
 msgid "2FA requirement enabled"
 msgstr "A2F activée"
 
-#: warehouse/templates/manage/project/history.html:288
+#: warehouse/templates/manage/project/history.html:271
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Enabled by:"
 msgstr "Remisé par :"
 
-#: warehouse/templates/manage/project/history.html:291
+#: warehouse/templates/manage/project/history.html:274
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement disabled"
 msgstr "A2F désactivée"
 
-#: warehouse/templates/manage/project/history.html:293
+#: warehouse/templates/manage/project/history.html:276
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Disabled by:"
@@ -6510,21 +6522,17 @@ msgstr "Gérer ce projet"
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:45
-msgid "URL"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:57
+#: warehouse/templates/manage/project/publishing.html:58
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:60
+#: warehouse/templates/manage/project/publishing.html:61
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Add a new publisher"
 msgstr "Gérer ce projet"
 
-#: warehouse/templates/manage/project/publishing.html:64
+#: warehouse/templates/manage/project/publishing.html:65
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
