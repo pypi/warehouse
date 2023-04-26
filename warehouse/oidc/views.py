@@ -187,7 +187,7 @@ def mint_token_from_oidc(request):
     serialized, dm = macaroon_service.create_macaroon(
         request.domain,
         (
-            f"OpenID token: {publisher.publisher_url} "
+            f"OpenID token: {str(publisher)} "
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [

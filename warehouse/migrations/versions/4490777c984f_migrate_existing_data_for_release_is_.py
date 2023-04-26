@@ -35,7 +35,7 @@ def _get_num_rows(conn):
 
 def upgrade():
     conn = op.get_bind()
-    conn.execute(sa.text("SET statement_timeout = 60000"))
+    conn.execute(sa.text("SET statement_timeout = 120000"))
     total_rows = _get_num_rows(conn)
     max_loops = total_rows / 100000 * 2
     loops = 0
