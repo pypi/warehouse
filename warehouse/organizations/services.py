@@ -12,7 +12,7 @@
 
 import datetime
 
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
@@ -396,6 +396,11 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
+        # Flush db so we can address the organization related object
+        self.db.flush()
+
+        # Mark Organization as dirty, so purges will happen
+        orm.attributes.flag_dirty(organization_project.organization)
 
         return organization_project
 

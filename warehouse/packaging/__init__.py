@@ -156,7 +156,11 @@ def includeme(config):
         ],
     )
     config.register_origin_cache_keys(
-        Organization, cache_keys=["org/{obj.normalized_name}"]
+        Organization,
+        cache_keys=["org/{obj.normalized_name}"],
+        purge_keys=[
+            key_factory("org/{obj.normalized_name}"),
+        ],
     )
     config.register_origin_cache_keys(
         Organization.name,

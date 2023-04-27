@@ -19,6 +19,7 @@ from pyramid.httpexceptions import (
     HTTPSeeOther,
 )
 from pyramid.view import view_config, view_defaults
+from sqlalchemy import orm
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
@@ -1572,6 +1573,9 @@ def transfer_organization_project(project, request):
             project_name=project.name,
         )
 
+        # Mark Organization as dirty, so purges will happen
+        orm.attributes.flag_dirty(organization)
+
     # Add project to selected organization.
     organization = organization_service.get_organization_by_name(form.organization.data)
     organization_service.add_organization_project(organization.id, project.id)
@@ -1591,6 +1595,9 @@ def transfer_organization_project(project, request):
             "organization_name": organization.name,
         },
     )
+
+    # Mark Organization as dirty, so purges will happen
+    orm.attributes.flag_dirty(organization)
 
     # Send notification emails.
     owner_users = set(
