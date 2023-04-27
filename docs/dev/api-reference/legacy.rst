@@ -129,8 +129,10 @@ POST request with the following fields:
 - ``protocol_version`` set to ``1``
 - ``content`` with the file to be uploaded and the proper filename
   (i.e. ``my_foo_bar-4.2-cp36-cp36m-manylinux1_x86_64.whl``)
-- ``md5_digest`` set to the md5 hash of the uploaded file in urlsafe base64
+- One of the following hash digests:
+    - ``md5_digest`` set to the md5 hash of the uploaded file in urlsafe base64
   with no padding
+    - ``sha256_digest`` set to the SHA2-256 hash in hexadecimal
 - ``filetype`` set to the type of the artifact, i.e. ``bdist_wheel``
   or ``sdist``
 - When used with ``bdist_wheel`` for ``filetype``, ``pyversion`` must be set to
