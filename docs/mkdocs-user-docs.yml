@@ -61,3 +61,4 @@ nav:
     - "trusted-publishers/using-a-publisher.md"
     - "trusted-publishers/security-model.md"
     - "trusted-publishers/troubleshooting.md"
+    - "trusted-publishers/internals.md"
