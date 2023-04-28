@@ -798,7 +798,6 @@ def extract_wheel_metadata(path):
 
     See https://www.python.org/dev/peps/pep-0658/#specification
     """
-    global _wheel_file_re
     filename = os.path.basename(path)
     namever = _wheel_file_re.match(filename).group("namever")
     metafile = namever + ".dist-info/METADATA"
