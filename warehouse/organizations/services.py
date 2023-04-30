@@ -396,8 +396,7 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
-        # Flush db so we can address the organization related object
-        self.db.flush()
+        self.db.flush() # Flush db so we can address the organization related object
 
         # Mark Organization as dirty, so purges will happen
         orm.attributes.flag_dirty(organization_project.organization)
