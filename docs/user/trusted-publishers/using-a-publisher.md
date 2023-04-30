@@ -124,7 +124,7 @@ Finally, we can submit that token to PyPI and get a short-lived API token
 back:
 
 ```bash
-resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": ${oidc_token}}")
 api_token=$(jq '.token' <<< "${resp}")
 
 # tell GitHub Actions to mask the token in any console logs,
@@ -176,7 +176,7 @@ jobs:
           oidc_token=$(jq '.value' <<< "${resp}")
 
           # exchange the OIDC token for an API token
-          resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+          resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": ${oidc_token}}")
           api_token=$(jq '.token' <<< "${resp}")
 
           # mask the newly minted API token, so that we don't accidentally leak it
