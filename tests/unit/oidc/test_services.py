@@ -15,7 +15,7 @@ import pretend
 import pytest
 
 from cryptography.hazmat.primitives.asymmetric import rsa
-from jwt import PyJWK, PyJWTError, algorithms
+from jwt import DecodeError, PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
@@ -104,6 +104,42 @@ class TestOIDCPublisherService:
             )
         ]
 
+    @pytest.mark.parametrize("exc", [DecodeError, TypeError("foo")])
+    def test_verify_jwt_signature_get_key_for_token_fails(self, monkeypatch, exc):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url=pretend.stub(),
+            metrics=pretend.stub(
+                increment=pretend.call_recorder(lambda *a, **kw: None)
+            ),
+        )
+
+        token = pretend.stub()
+        jwt = pretend.stub(decode=pretend.raiser(exc), PyJWTError=PyJWTError)
+        monkeypatch.setattr(service, "_get_key_for_token", pretend.raiser(exc))
+        monkeypatch.setattr(services, "jwt", jwt)
+
+        sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
+        monkeypatch.setattr(services, "sentry_sdk", sentry_sdk)
+
+        assert service.verify_jwt_signature(token) is None
+        assert service.metrics.increment.calls == [
+            pretend.call(
+                "warehouse.oidc.verify_jwt_signature.malformed_jwt",
+                tags=["publisher:fakepublisher"],
+            )
+        ]
+
+        if exc != DecodeError:
+            assert sentry_sdk.capture_message.calls == [
+                pretend.call(f"JWT backend raised generic error: {exc}")
+            ]
+        else:
+            assert sentry_sdk.capture_message.calls == []
+
     @pytest.mark.parametrize("exc", [PyJWTError, TypeError("foo")])
     def test_verify_jwt_signature_fails(self, monkeypatch, exc):
         service = services.OIDCPublisherService(
@@ -138,7 +174,7 @@ class TestOIDCPublisherService:
 
         if exc != PyJWTError:
             assert sentry_sdk.capture_message.calls == [
-                pretend.call(f"JWT verify raised generic error: {exc}")
+                pretend.call(f"JWT backend raised generic error: {exc}")
             ]
         else:
             assert sentry_sdk.capture_message.calls == []
