@@ -41,6 +41,7 @@ class TestProxyFixer:
             "HTTP_WAREHOUSE_TOKEN": "1234",
             "HTTP_WAREHOUSE_PROTO": "http",
             "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_HASHED_IP": "hashbrowns",
             "HTTP_WAREHOUSE_HOST": "example.com",
         }
         start_response = pretend.stub()
@@ -52,6 +53,7 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": "hashbrowns",
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -162,3 +164,17 @@ class TestVhmRootRemover:
 
         assert resp is response
         assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
+
+
+def test_remote_addr_hashed(remote_addr_hashed):
+    environ = {"REMOTE_ADDR_HASHED": remote_addr_hashed}
+    request = pretend.stub(environ=environ)
+
+    assert wsgi._remote_addr_hashed(request) == remote_addr_hashed
+
+
+def test_remote_addr_hashed_missing():
+    environ = {}
+    request = pretend.stub(environ=environ)
+
+    assert wsgi._remote_addr_hashed(request) == ""
