@@ -220,7 +220,23 @@ class OIDCPublisherService:
         return self._get_key(unverified_header["kid"])
 
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
-        key = self._get_key_for_token(unverified_token)
+        try:
+            key = self._get_key_for_token(unverified_token)
+        except Exception as e:
+            # The user might feed us an entirely nonsense JWT, e.g. one
+            # with missing components.
+            self.metrics.increment(
+                "warehouse.oidc.verify_jwt_signature.malformed_jwt",
+                tags=[f"publisher:{self.publisher}"],
+            )
+
+            if not isinstance(e, jwt.PyJWTError):
+                with sentry_sdk.push_scope() as scope:
+                    scope.fingerprint = e
+                    # Similar to below: Other exceptions indicate an abstraction
+                    # leak, so we log them for upstream reporting.
+                    sentry_sdk.capture_message(f"JWT backend raised generic error: {e}")
+            return None
 
         try:
             # NOTE: Many of the keyword arguments here are defaults, but we
@@ -252,10 +268,12 @@ class OIDCPublisherService:
                 tags=[f"publisher:{self.publisher}"],
             )
             if not isinstance(e, jwt.PyJWTError):
-                # We expect pyjwt to only raise subclasses of PyJWTError, but
-                # we can't enforce this. Other exceptions indicate an abstraction
-                # leak, so we log them for upstream reporting.
-                sentry_sdk.capture_message(f"JWT verify raised generic error: {e}")
+                with sentry_sdk.push_scope() as scope:
+                    scope.fingerprint = e
+                    # We expect pyjwt to only raise subclasses of PyJWTError, but
+                    # we can't enforce this. Other exceptions indicate an abstraction
+                    # leak, so we log them for upstream reporting.
+                    sentry_sdk.capture_message(f"JWT backend raised generic error: {e}")
             return None
 
     def find_publisher(
