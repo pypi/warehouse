@@ -14,32 +14,17 @@ import pretend
 import pytest
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
-from warehouse.oidc import models
 from warehouse.oidc.models import base, github
-
-
-def test_check_claim_binary():
-    wrapped = models.base._check_claim_binary(str.__eq__)
-
-    assert wrapped("foo", "bar", pretend.stub()) is False
-    assert wrapped("foo", "foo", pretend.stub()) is True
 
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
 def test_check_sub(claim):
-    assert models.github._check_sub(pretend.stub(), claim, pretend.stub()) is False
-
-
-class TestOIDCPublisher:
-    def test_oidc_publisher_not_default_verifiable(self):
-        publisher = models.OIDCPublisher(projects=[])
-
-        assert not publisher.verify_claims(signed_claims={})
+    assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
 class TestGitHubPublisher:
     def test_github_publisher_all_known_claims(self):
-        assert models.GitHubPublisher.all_known_claims() == {
+        assert github.GitHubPublisher.all_known_claims() == {
             # verifiable claims
             "sub",
             "repository",
