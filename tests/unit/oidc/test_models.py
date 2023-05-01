@@ -15,10 +15,11 @@ import pytest
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import models
+from warehouse.oidc.models import base, github
 
 
 def test_check_claim_binary():
-    wrapped = models._check_claim_binary(str.__eq__)
+    wrapped = models.base._check_claim_binary(str.__eq__)
 
     assert wrapped("foo", "bar", pretend.stub()) is False
     assert wrapped("foo", "foo", pretend.stub()) is True
@@ -26,7 +27,7 @@ def test_check_claim_binary():
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
 def test_check_sub(claim):
-    assert models._check_sub(pretend.stub(), claim, pretend.stub()) is False
+    assert models.github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
 class TestOIDCPublisher:
@@ -78,7 +79,7 @@ class TestGitHubPublisher:
         }
 
     def test_github_publisher_computed_properties(self):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -93,7 +94,7 @@ class TestGitHubPublisher:
         assert publisher.publisher_url == "https://github.com/fakeowner/fakerepo"
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -109,12 +110,12 @@ class TestGitHubPublisher:
                 )
             ),
         )
-        monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubPublisher.all_known_claims()
+            for claim_name in github.GitHubPublisher.all_known_claims()
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
@@ -128,7 +129,7 @@ class TestGitHubPublisher:
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
     def test_github_publisher_missing_claims(self, monkeypatch):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -144,11 +145,11 @@ class TestGitHubPublisher:
                 )
             ),
         )
-        monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
 
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubPublisher.all_known_claims()
+            for claim_name in github.GitHubPublisher.all_known_claims()
         }
         # Pop the first signed claim, so that it's the first one to fail.
         signed_claims.pop("sub")
@@ -161,7 +162,7 @@ class TestGitHubPublisher:
         assert scope.fingerprint == ["sub"]
 
     def test_github_publisher_missing_optional_claims(self, monkeypatch):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -170,11 +171,11 @@ class TestGitHubPublisher:
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(models, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
 
         signed_claims = {
             claim_name: getattr(publisher, claim_name)
-            for claim_name in models.GitHubPublisher.__required_verifiable_claims__
+            for claim_name in github.GitHubPublisher.__required_verifiable_claims__
         }
         signed_claims["ref"] = "ref"
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
@@ -185,10 +186,10 @@ class TestGitHubPublisher:
     @pytest.mark.parametrize("environment", [None, "some-environment"])
     @pytest.mark.parametrize(
         "missing_claims",
-        [set(), models.GitHubPublisher.__optional_verifiable_claims__.keys()],
+        [set(), github.GitHubPublisher.__optional_verifiable_claims__.keys()],
     )
     def test_github_publisher_verifies(self, monkeypatch, environment, missing_claims):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
             repository_owner_id="fakeid",
@@ -214,7 +215,7 @@ class TestGitHubPublisher:
 
         signed_claims = {
             claim_name: "fake"
-            for claim_name in models.GitHubPublisher.all_known_claims()
+            for claim_name in github.GitHubPublisher.all_known_claims()
             if claim_name not in missing_claims
         }
         assert publisher.verify_claims(signed_claims=signed_claims)
@@ -271,14 +272,14 @@ class TestGitHubPublisher:
         ],
     )
     def test_github_publisher_job_workflow_ref(self, claim, ref, valid):
-        publisher = models.GitHubPublisher(
+        publisher = github.GitHubPublisher(
             repository_name="bar",
             repository_owner="foo",
             repository_owner_id=pretend.stub(),
             workflow_filename="baz.yml",
         )
 
-        check = models.GitHubPublisher.__required_verifiable_claims__[
+        check = github.GitHubPublisher.__required_verifiable_claims__[
             "job_workflow_ref"
         ]
         assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
@@ -294,7 +295,7 @@ class TestGitHubPublisher:
         ],
     )
     def test_github_publisher_sub_claim(self, truth, claim, valid):
-        check = models.GitHubPublisher.__required_verifiable_claims__["sub"]
+        check = github.GitHubPublisher.__required_verifiable_claims__["sub"]
         assert check(truth, claim, pretend.stub()) is valid
 
     @pytest.mark.parametrize(
@@ -309,7 +310,7 @@ class TestGitHubPublisher:
         ],
     )
     def test_github_publisher_environment_claim(self, truth, claim, valid):
-        check = models.GitHubPublisher.__optional_verifiable_claims__["environment"]
+        check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
 
 
@@ -317,7 +318,7 @@ class TestPendingGitHubPublisher:
     def test_reify_does_not_exist_yet(self, db_request):
         pending_publisher = PendingGitHubPublisherFactory.create()
         assert (
-            db_request.db.query(models.GitHubPublisher)
+            db_request.db.query(github.GitHubPublisher)
             .filter_by(
                 repository_name=pending_publisher.repository_name,
                 repository_owner=pending_publisher.repository_owner,
@@ -332,7 +333,7 @@ class TestPendingGitHubPublisher:
 
         # If an OIDC publisher for this pending publisher does not already exist,
         # a new one is created and the pending publisher is marked for deletion.
-        assert isinstance(publisher, models.GitHubPublisher)
+        assert isinstance(publisher, github.GitHubPublisher)
         assert pending_publisher in db_request.db.deleted
         assert publisher.repository_name == pending_publisher.repository_name
         assert publisher.repository_owner == pending_publisher.repository_owner
