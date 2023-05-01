@@ -331,7 +331,7 @@ class TestUserDelete:
 
         db_request.db.flush()
 
-        assert not db_request.db.query(User).get(user.id)
+        assert not db_request.db.get(User, user.id)
         assert db_request.db.query(Project).all() == [another_project]
         assert db_request.route_path.calls == [pretend.call("admin.user.list")]
         assert result.status_code == 303
@@ -371,7 +371,7 @@ class TestUserDelete:
 
         db_request.db.flush()
 
-        assert db_request.db.query(User).get(user.id)
+        assert db_request.db.get(User, user.id)
         assert db_request.db.query(Project).all() == [project]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
