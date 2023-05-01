@@ -231,9 +231,11 @@ class OIDCPublisherService:
             )
 
             if not isinstance(e, jwt.PyJWTError):
-                # Similar to below: Other exceptions indicate an abstraction
-                # leak, so we log them for upstream reporting.
-                sentry_sdk.capture_message(f"JWT backend raised generic error: {e}")
+                with sentry_sdk.push_scope() as scope:
+                    scope.fingerprint = e
+                    # Similar to below: Other exceptions indicate an abstraction
+                    # leak, so we log them for upstream reporting.
+                    sentry_sdk.capture_message(f"JWT backend raised generic error: {e}")
             return None
 
         try:
