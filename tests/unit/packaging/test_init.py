@@ -140,7 +140,13 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
                 ),
             ],
         ),
-        pretend.call(Organization, cache_keys=["org/{obj.normalized_name}"]),
+        pretend.call(
+            Organization,
+            cache_keys=["org/{obj.normalized_name}"],
+            purge_keys=[
+                key_factory("org/{obj.normalized_name}"),
+            ],
+        ),
         pretend.call(
             Organization.name,
             purge_keys=[
