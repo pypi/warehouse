@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from alembic import context
-from sqlalchemy import create_engine, pool
+from sqlalchemy import create_engine, pool, text
 
 from warehouse import db
 
@@ -50,8 +50,8 @@ def run_migrations_online():
         connectable = create_engine(url, poolclass=pool.NullPool)
 
     with connectable.connect() as connection:
-        connection.execute("SET statement_timeout = 5000")
-        connection.execute("SET lock_timeout = 4000")
+        connection.execute(text("SET statement_timeout = 5000"))
+        connection.execute(text("SET lock_timeout = 4000"))
 
         context.configure(
             connection=connection,

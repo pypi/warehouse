@@ -24,7 +24,7 @@ from sqlalchemy import event
 from sqlalchemy.exc import OperationalError
 
 from warehouse import db
-from warehouse.admin.flags import AdminFlagValue
+from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.db import (
     DEFAULT_ISOLATION,
     DatabaseNotAvailableError,
@@ -134,7 +134,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
 def test_create_session(monkeypatch, pyramid_services):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
-        query=lambda *a: pretend.stub(get=lambda *a: None),
+        get=pretend.call_recorder(lambda *a: None),
     )
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
@@ -190,9 +190,7 @@ def test_create_session_read_only_mode(
     admin_flag, is_superuser, doom_calls, monkeypatch, pyramid_services
 ):
     get = pretend.call_recorder(lambda *a: admin_flag)
-    session_obj = pretend.stub(
-        close=lambda: None, query=lambda *a: pretend.stub(get=get)
-    )
+    session_obj = pretend.stub(close=lambda: None, get=get)
     session_cls = pretend.call_recorder(lambda bind: session_obj)
     monkeypatch.setattr(db, "Session", session_cls)
 
@@ -218,7 +216,7 @@ def test_create_session_read_only_mode(
     )
 
     assert _create_session(request) is session_obj
-    assert get.calls == [pretend.call(AdminFlagValue.READ_ONLY.value)]
+    assert get.calls == [pretend.call(AdminFlag, AdminFlagValue.READ_ONLY.value)]
     assert request.tm.doom.calls == doom_calls
 
 

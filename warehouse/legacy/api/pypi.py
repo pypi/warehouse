@@ -100,7 +100,7 @@ def browse(request):
     except ValueError:
         raise HTTPNotFound
 
-    classifier = request.db.query(Classifier).get(classifier_id)
+    classifier = request.db.get(Classifier, classifier_id)
 
     if not classifier:
         raise HTTPNotFound

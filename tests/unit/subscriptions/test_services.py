@@ -749,11 +749,9 @@ class TestStripeSubscriptionService:
         """
         subscription_price = StripeSubscriptionPriceFactory.create()
 
-        assert db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
+        assert db_request.db.get(StripeSubscriptionPrice, subscription_price.id)
 
         subscription_service.delete_subscription_price(subscription_price.id)
         subscription_service.db.flush()
 
-        assert not (
-            db_request.db.query(StripeSubscriptionPrice).get(subscription_price.id)
-        )
+        assert not (db_request.db.get(StripeSubscriptionPrice, subscription_price.id))
