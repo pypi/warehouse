@@ -14,7 +14,7 @@ import pretend
 import pytest
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
-from warehouse.oidc.models import base, github
+from warehouse.oidc.models import _core, github
 
 
 @pytest.mark.parametrize("claim", ["", "repo", "repo:"])
@@ -95,7 +95,7 @@ class TestGitHubPublisher:
                 )
             ),
         )
-        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         # We don't care if these actually verify, only that they're present.
         signed_claims = {
@@ -130,7 +130,7 @@ class TestGitHubPublisher:
                 )
             ),
         )
-        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         signed_claims = {
             claim_name: "fake"
@@ -156,7 +156,7 @@ class TestGitHubPublisher:
         )
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(base, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(_core, "sentry_sdk", sentry_sdk)
 
         signed_claims = {
             claim_name: getattr(publisher, claim_name)

@@ -12,11 +12,11 @@
 
 import pretend
 
-from warehouse.oidc.models import base
+from warehouse.oidc.models import _core
 
 
 def test_check_claim_binary():
-    wrapped = base._check_claim_binary(str.__eq__)
+    wrapped = _core._check_claim_binary(str.__eq__)
 
     assert wrapped("foo", "bar", pretend.stub()) is False
     assert wrapped("foo", "foo", pretend.stub()) is True
@@ -24,6 +24,6 @@ def test_check_claim_binary():
 
 class TestOIDCPublisher:
     def test_oidc_publisher_not_default_verifiable(self):
-        publisher = base.OIDCPublisher(projects=[])
+        publisher = _core.OIDCPublisher(projects=[])
 
         assert not publisher.verify_claims(signed_claims={})

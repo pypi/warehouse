@@ -13,7 +13,7 @@
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 
-from warehouse.oidc.models.base import (
+from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
     _check_claim_binary,
