@@ -442,9 +442,7 @@ def db_request(pyramid_request, db_session):
 
 @pytest.fixture
 def enable_organizations(db_request):
-    flag = db_request.db.query(AdminFlag).get(
-        AdminFlagValue.DISABLE_ORGANIZATIONS.value
-    )
+    flag = db_request.db.get(AdminFlag, AdminFlagValue.DISABLE_ORGANIZATIONS.value)
     flag.enabled = False
     yield
     flag.enabled = True

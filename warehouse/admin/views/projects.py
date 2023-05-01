@@ -429,7 +429,7 @@ def delete_role(project, request):
     confirm = request.POST.get("username")
     role_id = request.matchdict.get("role_id")
 
-    role = request.db.query(Role).get(role_id)
+    role = request.db.get(Role, role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         raise HTTPSeeOther(

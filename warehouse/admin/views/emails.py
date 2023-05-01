@@ -90,7 +90,7 @@ def email_mass(request):
     rows = list(csv.DictReader(wrapper))
     if rows:
         for row in rows:
-            user = request.db.query(User).get(row["user_id"])
+            user = request.db.get(User, row["user_id"])
             email = user.primary_email
 
             if email:

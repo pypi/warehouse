@@ -1550,8 +1550,8 @@ class ManageAccountPublishingViews:
             )
             return self.default_response
 
-        pending_publisher = self.request.db.query(PendingOIDCPublisher).get(
-            form.publisher_id.data
+        pending_publisher = self.request.db.get(
+            PendingOIDCPublisher, form.publisher_id.data
         )
 
         # pending_publisher will be `None` here if someone manually

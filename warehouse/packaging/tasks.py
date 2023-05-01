@@ -31,7 +31,7 @@ from warehouse.utils import readme
 
 @tasks.task(ignore_result=True, acks_late=True)
 def sync_file_to_archive(request, file_id):
-    file = request.db.query(File).get(file_id)
+    file = request.db.get(File, file_id)
     if not file.archived:
         primary_storage = request.find_service(IFileStorage, name="primary")
         archive_storage = request.find_service(IFileStorage, name="archive")

@@ -21,7 +21,7 @@ import requests_aws4auth
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import aliased
 
 from warehouse import tasks
@@ -183,7 +183,7 @@ def reindex(self, request):
             # From this point on, if any error occurs, we want to be able to delete our
             # in progress index.
             try:
-                request.db.execute("SET statement_timeout = '600s'")
+                request.db.execute(text("SET statement_timeout = '600s'"))
 
                 for _ in parallel_bulk(
                     client, _project_docs(request.db), index=new_index_name
