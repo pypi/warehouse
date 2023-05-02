@@ -63,6 +63,7 @@ class PendingGooglePublisherFactory(WarehouseFactory):
         model = PendingGooglePublisher
 
     id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
     email = factory.Faker("safe_email")
     sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)

@@ -22,6 +22,20 @@ from warehouse.oidc.models._core import (
 )
 
 
+def _check_sub(ground_truth, signed_claim, all_signed_claims):
+    # If we haven't set a subject for the publisher, we don't need to check
+    # this claim.
+    if ground_truth is None:
+        return True
+
+    # Defensive: Google should never send us an empty or null subject, but
+    # we check regardless.
+    if not signed_claim:
+        return False
+
+    return ground_truth == signed_claim
+
+
 class GooglePublisherMixin:
     """
     Common functionality for both pending and concrete Google OIDC
@@ -36,7 +50,7 @@ class GooglePublisherMixin:
         "email_verified": _check_claim_invariant(True),
     }
 
-    __optional_verifiable_claims__ = {"sub": _check_claim_binary(str.__eq__)}
+    __optional_verifiable_claims__ = {"sub": _check_sub}
 
     __unchecked_claims__ = {"azp", "google"}
 
