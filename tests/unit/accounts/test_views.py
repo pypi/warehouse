@@ -1420,8 +1420,8 @@ class TestRegister:
 
     def test_register_fails_with_admin_flag_set(self, db_request):
         # This flag was already set via migration, just need to enable it
-        flag = db_request.db.query(AdminFlag).get(
-            AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION.value
+        flag = db_request.db.get(
+            AdminFlag, AdminFlagValue.DISALLOW_NEW_USER_REGISTRATION.value
         )
         flag.enabled = True
 

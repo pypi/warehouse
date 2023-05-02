@@ -18,6 +18,8 @@ Create Date: 2023-03-20 21:31:48.032660
 """
 
 
+import sqlalchemy as sa
+
 from alembic import op
 
 revision = "203f1f8dcf92"
@@ -27,7 +29,7 @@ down_revision = "d64193adcd10"
 def upgrade():
     # We've seen this migration fail due to statement timeouts in production.
     conn = op.get_bind()
-    conn.execute("SET statement_timeout = 60000")
+    conn.execute(sa.text("SET statement_timeout = 60000"))
 
     op.drop_constraint("file_events_source_id_fkey", "file_events", type_="foreignkey")
     op.create_foreign_key(

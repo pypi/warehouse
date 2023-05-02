@@ -36,7 +36,7 @@ def get_flags(request):
     require_csrf=True,
 )
 def edit_flag(request):
-    flag = request.db.query(AdminFlag).get(request.POST["id"])
+    flag = request.db.get(AdminFlag, request.POST["id"])
     flag.description = request.POST["description"]
     flag.enabled = bool(request.POST.get("enabled"))
 

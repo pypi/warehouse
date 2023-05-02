@@ -668,6 +668,9 @@ def configure(settings=None):
     # Protect against cache poisoning via the X-Vhm-Root headers.
     config.add_wsgi_middleware(VhmRootRemover)
 
+    # Add our extensions to Request
+    config.include(".utils.wsgi")
+
     # We want Sentry to be the last things we add here so that it's the outer
     # most WSGI middleware.
     config.include(".sentry")

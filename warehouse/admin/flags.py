@@ -48,7 +48,7 @@ class Flags:
         )
 
     def enabled(self, flag_member):
-        flag = self.request.db.query(AdminFlag).get(flag_member.value)
+        flag = self.request.db.get(AdminFlag, flag_member.value)
         return flag.enabled if flag else False
 
 

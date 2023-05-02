@@ -12,7 +12,7 @@
 
 import datetime
 
-from sqlalchemy import func
+from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
@@ -47,7 +47,7 @@ class DatabaseOrganizationService:
         Return the organization object that represents the given organizationid,
         or None if there is no organization for that ID.
         """
-        return self.db.query(Organization).get(organization_id)
+        return self.db.get(Organization, organization_id)
 
     def get_organization_by_name(self, name):
         """
@@ -80,7 +80,7 @@ class DatabaseOrganizationService:
         """
         Return a list of all organization objects, or None if there are none.
         """
-        return self.db.query(Organization).order_by(Organization.name).all()
+        return self.db.scalars(select(Organization).order_by(Organization.name)).all()
 
     def get_organizations_needing_approval(self):
         """
@@ -155,7 +155,7 @@ class DatabaseOrganizationService:
         Return the org role object that represents the given org role id,
         or None if there is no organization role for that ID.
         """
-        return self.db.query(OrganizationRole).get(organization_role_id)
+        return self.db.get(OrganizationRole, organization_role_id)
 
     def get_organization_role_by_user(self, organization_id, user_id):
         """
@@ -213,7 +213,7 @@ class DatabaseOrganizationService:
         Return the org invite object that represents the given org invite id,
         or None if there is no organization invite for that ID.
         """
-        return self.db.query(OrganizationInvitation).get(organization_invite_id)
+        return self.db.get(OrganizationInvitation, organization_invite_id)
 
     def get_organization_invite_by_user(self, organization_id, user_id):
         """
@@ -396,6 +396,10 @@ class DatabaseOrganizationService:
         )
 
         self.db.add(organization_project)
+        self.db.flush()  # Flush db so we can address the organization related object
+
+        # Mark Organization as dirty, so purges will happen
+        orm.attributes.flag_dirty(organization_project.organization)
 
         return organization_project
 
@@ -477,13 +481,17 @@ class DatabaseOrganizationService:
         Return a list of all team objects for the specified organization,
         or None if there are none.
         """
-        return self.db.query(Team).filter(Team.organization_id == organization_id).all()
+        return (
+            self.db.execute(select(Team).where(Team.organization_id == organization_id))
+            .scalars()
+            .all()
+        )
 
     def get_team(self, team_id):
         """
         Return a team object for the specified identifier,
         """
-        return self.db.query(Team).get(team_id)
+        return self.db.get(Team, team_id)
 
     def find_teamid(self, organization_id, team_name):
         """
@@ -545,11 +553,11 @@ class DatabaseOrganizationService:
         """
         team = self.get_team(team_id)
         # Delete team members
-        self.db.query(TeamRole).filter_by(team=team).delete()
+        self.db.execute(delete(TeamRole).filter_by(team=team))
         # Delete projects
-        self.db.query(TeamProjectRole).filter_by(team=team).delete()
+        self.db.execute(delete(TeamProjectRole).filter_by(team=team))
         # Delete team
-        self.db.delete(team)
+        self.db.execute(delete(Team).where(Team.id == team_id))
 
     def delete_teams_by_organization(self, organization_id):
         """
@@ -563,7 +571,7 @@ class DatabaseOrganizationService:
         """
         Return the team role object that represents the given team role id,
         """
-        return self.db.query(TeamRole).get(team_role_id)
+        return self.db.get(TeamRole, team_role_id)
 
     def get_team_roles(self, team_id):
         """
@@ -600,7 +608,7 @@ class DatabaseOrganizationService:
         Return the team project role object that
         represents the given team project role id,
         """
-        return self.db.query(TeamProjectRole).get(team_project_role_id)
+        return self.db.get(TeamProjectRole, team_project_role_id)
 
     def add_team_project_role(self, team_id, project_id, role_name):
         """
