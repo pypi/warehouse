@@ -48,7 +48,7 @@ def _check_claim_invariant(value: Any):
     """
 
     def wrapper(ground_truth, signed_claim, all_signed_claims):
-        return value == signed_claim
+        return ground_truth == signed_claim == value
 
     return wrapper
 
