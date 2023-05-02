@@ -30,13 +30,27 @@ def _check_claim_binary(binary_func):
     ignoring the third.
 
     This is used solely to make claim verification compatible with "trivial"
-    checks like `str.__eq__`.
+    comparison checks like `str.__eq__`.
     """
 
     def wrapper(ground_truth, signed_claim, all_signed_claims):
         return binary_func(ground_truth, signed_claim)
 
     return wrapper
+
+
+def _check_invariant(value: Any):
+    """
+    Wraps a fixed value comparison into a three-argument function.
+
+    This is used solely to make claim verification compatible with "invariant"
+    comparison checks, like "claim x is always the literal `true` value".
+    """
+
+    def wrapper(ground_truth, signed_claim, all_signed_claims):
+        return value == signed_claim
+
+    return wrapper()
 
 
 class OIDCPublisherProjectAssociation(db.Model):
