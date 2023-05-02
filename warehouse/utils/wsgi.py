@@ -11,6 +11,7 @@
 # limitations under the License.
 from __future__ import annotations
 
+import hashlib
 import hmac
 
 from typing import TYPE_CHECKING
@@ -50,7 +51,11 @@ class ProxyFixer:
             remote_addr = _forwarded_value(
                 environ.get("HTTP_X_FORWARDED_FOR", ""), self.num_proxies
             )
-            remote_addr_hashed = ""
+            remote_addr_hashed = (
+                hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
+                if remote_addr
+                else ""
+            )
             host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
         # Put the new header values into our environment.

@@ -73,7 +73,7 @@ class TestProxyFixer:
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
 
-    def test_accepts_x_forwarded_headers(self):
+    def test_accepts_x_forwarded_headers(self, remote_addr_hashed):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -93,6 +93,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -114,7 +115,7 @@ class TestProxyFixer:
             pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
         ]
 
-    def test_selects_right_x_forwarded_value(self):
+    def test_selects_right_x_forwarded_value(self, remote_addr_hashed):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -134,6 +135,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
