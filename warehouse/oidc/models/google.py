@@ -29,13 +29,14 @@ class GooglePublisherMixin:
     """
 
     email = Column(String, nullable=False)
-    sub = Column(String, nullable=False)
+    sub = Column(String, nullable=True)
 
     __required_verifiable_claims__ = {
         "email": _check_claim_binary(str.__eq__),
         "email_verified": _check_claim_invariant(True),
-        "sub": _check_claim_binary(str.__eq__),
     }
+
+    __optional_verifiable_claims__ = {"sub": _check_claim_binary(str.__eq__)}
 
     __unchecked_claims__ = {"azp", "google"}
 
@@ -46,7 +47,7 @@ class GooglePublisherMixin:
         return True
 
     def __str__(self):
-        return self.sub
+        return self.email
 
 
 class GooglePublisher(GooglePublisherMixin, OIDCPublisher):

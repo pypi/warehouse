@@ -30,7 +30,7 @@ def upgrade():
     op.create_table(
         "google_oidc_publishers",
         sa.Column("email", sa.String(), nullable=False),
-        sa.Column("sub", sa.String(), nullable=False),
+        sa.Column("sub", sa.String(), nullable=True),
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["id"],
@@ -42,7 +42,7 @@ def upgrade():
     op.create_table(
         "pending_google_oidc_publishers",
         sa.Column("email", sa.String(), nullable=False),
-        sa.Column("sub", sa.String(), nullable=False),
+        sa.Column("sub", sa.String(), nullable=True),
         sa.Column("id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.ForeignKeyConstraint(
             ["id"],

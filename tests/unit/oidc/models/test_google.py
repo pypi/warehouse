@@ -13,16 +13,18 @@
 
 import pretend
 import pytest
-from warehouse.oidc.models import google, _core
+
+from warehouse.oidc.models import _core, google
 
 
 class TestGooglePublisher:
     def test_google_publisher_all_known_claims(self):
         assert google.GooglePublisher.all_known_claims() == {
             # verifiable claims
-            "sub",
             "email",
             "email_verified",
+            # optional verifiable claims
+            "sub",
             # preverified claims
             "iss",
             "iat",
