@@ -9,8 +9,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
+import hashlib
 import hmac
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 def _forwarded_value(values, num_proxies):
@@ -33,6 +40,7 @@ class ProxyFixer:
             # Compute our values from the environment.
             proto = environ.get("HTTP_WAREHOUSE_PROTO", "")
             remote_addr = environ.get("HTTP_WAREHOUSE_IP", "")
+            remote_addr_hashed = environ.get("HTTP_WAREHOUSE_HASHED_IP", "")
             host = environ.get("HTTP_WAREHOUSE_HOST", "")
         # If we're not getting headers from a trusted third party via the
         # specialized Warehouse-* headers, then we'll fall back to looking at
@@ -43,11 +51,18 @@ class ProxyFixer:
             remote_addr = _forwarded_value(
                 environ.get("HTTP_X_FORWARDED_FOR", ""), self.num_proxies
             )
+            remote_addr_hashed = (
+                hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
+                if remote_addr
+                else ""
+            )
             host = environ.get("HTTP_X_FORWARDED_HOST", "")
 
         # Put the new header values into our environment.
         if remote_addr:
             environ["REMOTE_ADDR"] = remote_addr
+        if remote_addr_hashed:
+            environ["REMOTE_ADDR_HASHED"] = remote_addr_hashed
         if host:
             environ["HTTP_HOST"] = host
         if proto:
@@ -62,6 +77,7 @@ class ProxyFixer:
             "HTTP_WAREHOUSE_TOKEN",
             "HTTP_WAREHOUSE_PROTO",
             "HTTP_WAREHOUSE_IP",
+            "HTTP_WAREHOUSE_HASHED_IP",
             "HTTP_WAREHOUSE_HOST",
         }:
             if header in environ:
@@ -81,3 +97,15 @@ class VhmRootRemover:
             del environ["HTTP_X_VHM_ROOT"]
 
         return self.app(environ, start_response)
+
+
+def _remote_addr_hashed(request: Request) -> str:
+    """Return the hashed remote address from the environment."""
+    return request.environ.get("REMOTE_ADDR_HASHED", "")
+
+
+def includeme(config):
+    # Add property to Request to get the hashed IP address
+    config.add_request_method(
+        _remote_addr_hashed, name="remote_addr_hashed", property=True, reify=True
+    )

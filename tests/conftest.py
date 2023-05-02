@@ -105,6 +105,15 @@ def remote_addr():
 
 
 @pytest.fixture
+def remote_addr_hashed():
+    """
+    Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
+    Created statically to prevent needing to calculate it every run.
+    """
+    return "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
+
+
+@pytest.fixture
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 
@@ -163,11 +172,12 @@ def pyramid_services(
 
 
 @pytest.fixture
-def pyramid_request(pyramid_services, jinja, remote_addr):
+def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     pyramid.testing.setUp()
     dummy_request = pyramid.testing.DummyRequest()
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
+    dummy_request.remote_addr_hashed = remote_addr_hashed
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.oidc_publisher = None
