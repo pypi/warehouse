@@ -41,6 +41,8 @@ class GooglePublisherMixin:
 
     @property
     def email_verified(self):
+        # We don't consider a claim set valid unless `email_verified` is true;
+        # no other states are possible.
         return True
 
     def __str__(self):
