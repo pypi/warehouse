@@ -436,16 +436,26 @@ class TestMetadataForm:
     @pytest.mark.parametrize(
         "data",
         [
+            # Test for singular supported digests
             {"filetype": "sdist", "md5_digest": "bad"},
-            {"filetpye": "bdist_wheel", "pyversion": "3.4", "md5_digest": "bad"},
+            {"filetype": "bdist_wheel", "pyversion": "3.4", "md5_digest": "bad"},
             {"filetype": "sdist", "sha256_digest": "bad"},
-            {"filetpye": "bdist_wheel", "pyversion": "3.4", "sha256_digest": "bad"},
-            {"filetype": "sdist", "md5_digest": "bad", "sha256_digest": "bad"},
+            {"filetype": "bdist_wheel", "pyversion": "3.4", "sha256_digest": "bad"},
+            {"filetype": "sdist", "blake2_256_digest": "bad"},
+            {"filetype": "bdist_wheel", "pyversion": "3.4", "blake2_256_digest": "bad"},
+            # Tests for multiple digests passing through
             {
-                "filetpye": "bdist_wheel",
+                "filetype": "sdist",
+                "md5_digest": "bad",
+                "sha256_digest": "bad",
+                "blake2_256_digest": "bad",
+            },
+            {
+                "filetype": "bdist_wheel",
                 "pyversion": "3.4",
                 "md5_digest": "bad",
                 "sha256_digest": "bad",
+                "blake2_256_digest": "bad",
             },
         ],
     )
