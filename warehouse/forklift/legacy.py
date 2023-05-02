@@ -611,7 +611,11 @@ class MetadataForm(forms.Form):
                 )
 
         # We *must* have at least one digest to verify against.
-        if not self.md5_digest.data and not self.sha256_digest.data:
+        if (
+            not self.md5_digest.data
+            and not self.sha256_digest.data
+            and not self.blake2_256_digest.data
+        ):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
