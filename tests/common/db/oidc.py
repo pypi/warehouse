@@ -12,7 +12,12 @@
 
 import factory
 
-from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.models import (
+    GitHubPublisher,
+    GooglePublisher,
+    PendingGitHubPublisher,
+    PendingGooglePublisher,
+)
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
@@ -41,4 +46,24 @@ class PendingGitHubPublisherFactory(WarehouseFactory):
     repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
     environment = "production"
+    added_by = factory.SubFactory(UserFactory)
+
+
+class GooglePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = GooglePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    email = factory.Faker("safe_email")
+    sub = factory.Faker("pystr", max_chars=12)
+
+
+class PendingGooglePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingGooglePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
+    email = factory.Faker("safe_email")
+    sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
