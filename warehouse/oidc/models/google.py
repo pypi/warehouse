@@ -37,8 +37,6 @@ class GooglePublisherMixin:
         "sub": _check_claim_binary(str.__eq__),
     }
 
-    __optional_verifiable_claims__ = {}
-
     __unchecked_claims__ = {"azp", "google"}
 
     def __str__(self):
