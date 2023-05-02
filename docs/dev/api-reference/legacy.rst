@@ -133,6 +133,7 @@ POST request with the following fields:
     - ``md5_digest`` set to the md5 hash of the uploaded file in urlsafe base64
   with no padding
     - ``sha256_digest`` set to the SHA2-256 hash in hexadecimal
+    - ``blake2_256_digest`` set to the Blake2b 256-bit hash in hexadecimal
 - ``filetype`` set to the type of the artifact, i.e. ``bdist_wheel``
   or ``sdist``
 - When used with ``bdist_wheel`` for ``filetype``, ``pyversion`` must be set to
