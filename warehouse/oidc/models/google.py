@@ -39,6 +39,10 @@ class GooglePublisherMixin:
 
     __unchecked_claims__ = {"azp", "google"}
 
+    @property
+    def email_verified(self):
+        return True
+
     def __str__(self):
         return self.sub
 
