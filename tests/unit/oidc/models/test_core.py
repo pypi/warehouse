@@ -24,15 +24,19 @@ def test_check_claim_binary():
 
 def test_check_claim_invariant():
     wrapped = _core._check_claim_invariant(True)
-    assert wrapped(pretend.stub(), True, pretend.stub()) is True
+    assert wrapped(True, True, pretend.stub()) is True
+    assert wrapped(False, True, pretend.stub()) is False
 
     wrapped = _core._check_claim_invariant(False)
-    assert wrapped(pretend.stub(), False, pretend.stub()) is True
+    assert wrapped(False, False, pretend.stub()) is True
+    assert wrapped(True, False, pretend.stub()) is False
 
     identity = object()
     wrapped = _core._check_claim_invariant(identity)
-    assert wrapped(pretend.stub(), object(), pretend.stub()) is False
-    assert wrapped(pretend.stub(), identity, pretend.stub()) is True
+    assert wrapped(object(), object(), pretend.stub()) is False
+    assert wrapped(identity, object(), pretend.stub()) is False
+    assert wrapped(object(), identity, pretend.stub()) is False
+    assert wrapped(identity, identity, pretend.stub()) is True
 
 
 class TestOIDCPublisher:
