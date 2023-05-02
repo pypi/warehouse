@@ -12,10 +12,13 @@
 
 from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.models.github import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.models.google import GooglePublisher, PendingGooglePublisher
 
 __all__ = [
     "OIDCPublisher",
     "PendingOIDCPublisher",
     "PendingGitHubPublisher",
+    "PendingGooglePublisher",
     "GitHubPublisher",
+    "GooglePublisher",
 ]
