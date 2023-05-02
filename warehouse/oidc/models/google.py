@@ -18,7 +18,7 @@ from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
     _check_claim_binary,
-    _check_invariant,
+    _check_claim_invariant,
 )
 
 
@@ -33,7 +33,7 @@ class GooglePublisherMixin:
 
     __required_verifiable_claims__ = {
         "email": _check_claim_binary(str.__eq__),
-        "email_verified": _check_invariant(True),
+        "email_verified": _check_claim_invariant(True),
         "sub": _check_claim_binary(str.__eq__),
     }
 

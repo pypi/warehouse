@@ -39,7 +39,7 @@ def _check_claim_binary(binary_func):
     return wrapper
 
 
-def _check_invariant(value: Any):
+def _check_claim_invariant(value: Any):
     """
     Wraps a fixed value comparison into a three-argument function.
 
@@ -50,7 +50,7 @@ def _check_invariant(value: Any):
     def wrapper(ground_truth, signed_claim, all_signed_claims):
         return value == signed_claim
 
-    return wrapper()
+    return wrapper
 
 
 class OIDCPublisherProjectAssociation(db.Model):

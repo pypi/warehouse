@@ -22,6 +22,19 @@ def test_check_claim_binary():
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
+def test_check_claim_invariant():
+    wrapped = _core._check_claim_invariant(True)
+    assert wrapped(pretend.stub(), True, pretend.stub()) is True
+
+    wrapped = _core._check_claim_invariant(False)
+    assert wrapped(pretend.stub(), False, pretend.stub()) is True
+
+    identity = object()
+    wrapped = _core._check_claim_invariant(identity)
+    assert wrapped(pretend.stub(), object(), pretend.stub()) is False
+    assert wrapped(pretend.stub(), identity, pretend.stub()) is True
+
+
 class TestOIDCPublisher:
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
