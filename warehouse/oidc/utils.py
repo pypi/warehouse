@@ -12,9 +12,15 @@
 
 from __future__ import annotations
 
+from sqlalchemy import or_
 from sqlalchemy.sql.expression import func, literal
 
-from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.models import (
+    GitHubPublisher,
+    GooglePublisher,
+    PendingGitHubPublisher,
+    PendingGooglePublisher,
+)
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
@@ -41,54 +47,84 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
     # polymorphic, and retrieving the correct publisher requires us to query
     # based on publisher-specific claims.
     if issuer_url == GITHUB_OIDC_ISSUER_URL:
-        repository = signed_claims["repository"]
-        repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
-
-        publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
-
-        publisher = None
-        # If an environment exists in the claim set, try finding a publisher
-        # that matches the provided environment first.
-        if environment := signed_claims.get("environment"):
-            publisher = (
-                session.query(publisher_cls)
-                .filter_by(
-                    repository_name=repository_name,
-                    repository_owner=repository_owner,
-                    repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=environment,
-                )
-                .filter(
-                    literal(workflow_ref).like(
-                        func.concat(publisher_cls.workflow_filename, "%")
-                    )
-                )
-                .one_or_none()
-            )
-
-        # There are no publishers for that specific environment, try finding a
-        # publisher without a restriction on the environment
-        if not publisher:
-            publisher = (
-                session.query(publisher_cls)
-                .filter_by(
-                    repository_name=repository_name,
-                    repository_owner=repository_owner,
-                    repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=None,
-                )
-                .filter(
-                    literal(workflow_ref).like(
-                        func.concat(publisher_cls.workflow_filename, "%")
-                    )
-                )
-                .one_or_none()
-            )
-
-        return publisher
-
+        return _find_github_publisher(session, signed_claims, pending=pending)
+    elif issuer_url == GOOGLE_OIDC_ISSUER_URL:
+        return _find_google_publisher(session, signed_claims, pending=pending)
     else:
         # Unreachable; same logic error as above.
         return None  # pragma: no cover
+
+
+def _find_github_publisher(session, signed_claims, *, pending=False):
+    repository = signed_claims["repository"]
+    repository_owner, repository_name = repository.split("/", 1)
+    workflow_prefix = f"{repository}/.github/workflows/"
+    workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+
+    publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
+
+    publisher = None
+    # If an environment exists in the claim set, try finding a publisher
+    # that matches the provided environment first.
+    if environment := signed_claims.get("environment"):
+        publisher = (
+            session.query(publisher_cls)
+            .filter_by(
+                repository_name=repository_name,
+                repository_owner=repository_owner,
+                repository_owner_id=signed_claims["repository_owner_id"],
+                environment=environment,
+            )
+            .filter(
+                literal(workflow_ref).like(
+                    func.concat(publisher_cls.workflow_filename, "%")
+                )
+            )
+            .one_or_none()
+        )
+
+    # There are no publishers for that specific environment, try finding a
+    # publisher without a restriction on the environment
+    if not publisher:
+        publisher = (
+            session.query(publisher_cls)
+            .filter_by(
+                repository_name=repository_name,
+                repository_owner=repository_owner,
+                repository_owner_id=signed_claims["repository_owner_id"],
+                environment=None,
+            )
+            .filter(
+                literal(workflow_ref).like(
+                    func.concat(publisher_cls.workflow_filename, "%")
+                )
+            )
+            .one_or_none()
+        )
+
+    return publisher
+
+
+def _find_google_publisher(session, signed_claims, *, pending=False):
+    publisher_cls = GooglePublisher if not pending else PendingGooglePublisher
+
+    # The `sub` claim should always be present in the claim set, but is
+    # optional on the registered publisher side. We first check for a
+    # publisher that has both, and then for one with no `sub`.
+    # This has to happen as separate queries to prevent duplicate
+    # results: both variants can be registered, and we always want
+    # to return the more specialized one if possible.
+    publisher = (
+        session.query(publisher_cls)
+        .filter_by(email=signed_claims["email"], sub=signed_claims["sub"])
+        .one_or_none()
+    )
+
+    if publisher is not None:
+        return publisher
+
+    return (
+        session.query(publisher_cls)
+        .filter_by(email=signed_claims["email"], sub=None)
+        .one_or_none()
+    )
