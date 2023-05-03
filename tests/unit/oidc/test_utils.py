@@ -70,5 +70,3 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         ).id
         == expected_id
     )
-
-
