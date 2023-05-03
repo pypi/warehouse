@@ -10,12 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import uuid
+
 import pretend
+import pytest
 
-from sqlalchemy.sql.expression import func, literal
-
+from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.oidc import utils
-from warehouse.oidc.models import GitHubPublisher
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
@@ -27,46 +28,45 @@ def test_find_publisher_by_issuer_bad_issuer_url():
     )
 
 
-def test_find_publisher_by_issuer_github():
-    publisher = pretend.stub()
-    one_or_none = pretend.call_recorder(lambda: publisher)
-    filter_ = pretend.call_recorder(lambda *a: pretend.stub(one_or_none=one_or_none))
-    filter_by = pretend.call_recorder(lambda **kw: pretend.stub(filter=filter_))
-    session = pretend.stub(
-        query=pretend.call_recorder(lambda cls: pretend.stub(filter_by=filter_by))
+@pytest.mark.parametrize(
+    "environment, expected_id",
+    [
+        (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_environment", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
+    ],
+)
+def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
+    GitHubPublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        repository_owner="foo",
+        repository_name="bar",
+        repository_owner_id="1234",
+        workflow_filename="ci.yml",
+        environment=None,  # No environment
     )
+    GitHubPublisherFactory(
+        id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        repository_owner="foo",
+        repository_name="bar",
+        repository_owner_id="1234",
+        workflow_filename="ci.yml",
+        environment="some_environment",  # Environment set
+    )
+
     signed_claims = {
         "repository": "foo/bar",
         "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
         "repository_owner_id": "1234",
     }
+    if environment:
+        signed_claims["environment"] = environment
 
     assert (
         utils.find_publisher_by_issuer(
-            session, "https://token.actions.githubusercontent.com", signed_claims
-        )
-        == publisher
+            db_request.db,
+            "https://token.actions.githubusercontent.com",
+            signed_claims,
+        ).id
+        == expected_id
     )
-
-    assert session.query.calls == [pretend.call(GitHubPublisher)]
-    assert filter_by.calls == [
-        pretend.call(
-            repository_name="bar", repository_owner="foo", repository_owner_id="1234"
-        )
-    ]
-
-    # SQLAlchemy BinaryExpression objects don't support comparison with __eq__,
-    # so we need to dig into the callset and compare the argument manually.
-    assert len(filter_.calls) == 1
-    assert len(filter_.calls[0].args) == 1
-    assert (
-        filter_.calls[0]
-        .args[0]
-        .compare(
-            literal("ci.yml@refs/heads/main").like(
-                func.concat(GitHubPublisher.workflow_filename, "%")
-            )
-        )
-    )
-
-    assert one_or_none.calls == [pretend.call()]
