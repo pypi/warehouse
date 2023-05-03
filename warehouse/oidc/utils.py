@@ -48,20 +48,47 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
 
         publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
 
-        return (
-            session.query(publisher_cls)
-            .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
-                repository_owner_id=signed_claims["repository_owner_id"],
-            )
-            .filter(
-                literal(workflow_ref).like(
-                    func.concat(publisher_cls.workflow_filename, "%")
+        publisher = None
+        # If an environment exists in the claim set, try finding a publisher
+        # that matches the provided environment first.
+        if environment := signed_claims.get("environment"):
+            publisher = (
+                session.query(publisher_cls)
+                .filter_by(
+                    repository_name=repository_name,
+                    repository_owner=repository_owner,
+                    repository_owner_id=signed_claims["repository_owner_id"],
+                    environment=environment,
                 )
+                .filter(
+                    literal(workflow_ref).like(
+                        func.concat(publisher_cls.workflow_filename, "%")
+                    )
+                )
+                .one_or_none()
             )
-            .one_or_none()
-        )
+
+        # There are no publishers for that specific environment, try finding a
+        # publisher without a restriction on the environment
+        if not publisher:
+            publisher = (
+                session.query(publisher_cls)
+                .filter_by(
+                    repository_name=repository_name,
+                    repository_owner=repository_owner,
+                    repository_owner_id=signed_claims["repository_owner_id"],
+                    environment=None,
+                )
+                .filter(
+                    literal(workflow_ref).like(
+                        func.concat(publisher_cls.workflow_filename, "%")
+                    )
+                )
+                .one_or_none()
+            )
+
+        return publisher
+
     else:
         # Unreachable; same logic error as above.
         return None  # pragma: no cover
