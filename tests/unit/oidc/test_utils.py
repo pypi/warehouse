@@ -10,11 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import uuid
+
 import pretend
+import pytest
 
-
-from warehouse.oidc import utils
 from tests.common.db.oidc import GitHubPublisherFactory
+from warehouse.oidc import utils
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
@@ -26,12 +28,31 @@ def test_find_publisher_by_issuer_bad_issuer_url():
     )
 
 
-def test_find_publisher_by_issuer_github(db_request):
-    publisher = GitHubPublisherFactory(
+@pytest.mark.parametrize(
+    "environment, expected_id",
+    [
+        (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_environment", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
+    ],
+)
+def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
+    GitHubPublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         repository_owner="foo",
         repository_name="bar",
         repository_owner_id="1234",
         workflow_filename="ci.yml",
+        environment=None,
+        # No environment
+    )
+    GitHubPublisherFactory(
+        id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        repository_owner="foo",
+        repository_name="bar",
+        repository_owner_id="1234",
+        workflow_filename="ci.yml",
+        environment="some_environment",  # Environment set
     )
 
     signed_claims = {
@@ -39,6 +60,8 @@ def test_find_publisher_by_issuer_github(db_request):
         "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
         "repository_owner_id": "1234",
     }
+    if environment:
+        signed_claims["environment"] = environment
 
     assert (
         utils.find_publisher_by_issuer(
@@ -46,7 +69,9 @@ def test_find_publisher_by_issuer_github(db_request):
             "https://token.actions.githubusercontent.com",
             signed_claims,
         ).id
-        == publisher.id
+        == expected_id
     )
 
 
+# def test_find_publisher_by_issuer_with_environment_finds_match(db_request)
+# def test_find_publisher_by_issuer_with_environment_finds_wildcard(db_request)
