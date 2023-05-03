@@ -284,6 +284,7 @@ module.exports = [
         $: "jquery",
         jQuery: "jquery",
       }),
+      new LiveReloadPlugin(),
     ],
     resolve: sharedResolve,
     entry: {
