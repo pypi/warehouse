@@ -284,6 +284,7 @@ def test_includeme_development():
             settings={
                 "camo.url": "camo.url.value",
                 "warehouse.env": "development",
+                "livereload.url": "http://localhost:35729",
             }
         ),
     )

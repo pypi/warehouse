@@ -381,6 +381,12 @@ def configure(settings=None):
                 ]
             ],
         )
+        maybe_set(
+            settings,
+            "livereload.url",
+            "LIVERELOAD_URL",
+            default="http://localhost:35729",
+        )
 
     # Actually setup our Pyramid Configurator with the values pulled in from
     # the environment as well as the ones passed in to the configure function.

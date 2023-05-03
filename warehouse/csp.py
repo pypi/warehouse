@@ -12,6 +12,7 @@
 
 import collections
 import copy
+import urllib.parse
 
 from warehouse.config import Environment
 
@@ -98,7 +99,20 @@ def _connect_src_settings(config) -> list:
     )
 
     if config.registry.settings.get("warehouse.env") == Environment.development:
-        settings.extend(["ws://localhost:35729/livereload"])
+        livereload_url = config.registry.settings.get("livereload.url")
+        parsed_url = urllib.parse.urlparse(livereload_url)
+
+        # Incoming scheme could be http or https.
+        scheme_replacement = "wss" if parsed_url.scheme == "https" else "ws"
+
+        replaced = parsed_url._replace(scheme=scheme_replacement)  # noqa
+        fixed = urllib.parse.urlunparse(replaced)
+
+        settings.extend(
+            [
+                f"{fixed}/livereload",
+            ]
+        )
 
     return settings
 
@@ -122,7 +136,11 @@ def _script_src_settings(config) -> list:
     ]
 
     if config.registry.settings.get("warehouse.env") == Environment.development:
-        settings.extend(["http://localhost:35729/livereload.js"])
+        settings.extend(
+            [
+                f"{config.registry.settings['livereload.url']}/livereload.js",
+            ]
+        )
 
     return settings
 
