@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
@@ -48,27 +47,30 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
 
         publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
 
-        # Try finding a publisher that matches the provided environment first.
-        try:
-            return (
+        publisher = None
+        # If an environment exists in the claim set, try finding a publisher
+        # that matches the provided environment first.
+        if environment := signed_claims.get("environment"):
+            publisher = (
                 session.query(publisher_cls)
                 .filter_by(
                     repository_name=repository_name,
                     repository_owner=repository_owner,
                     repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=signed_claims.get("environment"),
+                    environment=environment,
                 )
                 .filter(
                     literal(workflow_ref).like(
                         func.concat(publisher_cls.workflow_filename, "%")
                     )
                 )
-                .one()
+                .one_or_none()
             )
-        except NoResultFound:
-            # There are no publishers for that specific environment, try finding a
-            # publisher without a restriction on the environment
-            return (
+
+        # There are no publishers for that specific environment, try finding a
+        # publisher without a restriction on the environment
+        if not publisher:
+            publisher = (
                 session.query(publisher_cls)
                 .filter_by(
                     repository_name=repository_name,
@@ -83,6 +85,8 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
                 )
                 .one_or_none()
             )
+
+        return publisher
 
     else:
         # Unreachable; same logic error as above.
