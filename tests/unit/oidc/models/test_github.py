@@ -22,7 +22,22 @@ def test_check_sub(claim):
     assert github._check_sub(pretend.stub(), claim, pretend.stub()) is False
 
 
+def test_lookup_strategies():
+    assert (
+        len(github.GitHubPublisher.__lookup_strategies__)
+        == len(github.PendingGitHubPublisher.__lookup_strategies__)
+        == 2
+    )
+
+
 class TestGitHubPublisher:
+    def test_lookup_strategies(self):
+        assert (
+            len(github.GitHubPublisher.__lookup_strategies__)
+            == len(github.PendingGitHubPublisher.__lookup_strategies__)
+            == 2
+        )
+
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
             # verifiable claims
