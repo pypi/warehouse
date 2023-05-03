@@ -149,7 +149,7 @@
     ></script>
 
     {% if devPyPI %}
-    <script src="http://localhost:35729/livereload.js"></script>
+    <script src="{{ request.scheme }}://{{ request.domain }}:35729/livereload.js"></script>
     {% endif %}
   </head>
 
