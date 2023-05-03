@@ -12,7 +12,6 @@
 
 from __future__ import annotations
 
-from sqlalchemy import or_
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.models import (
