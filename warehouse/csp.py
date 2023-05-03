@@ -13,6 +13,8 @@
 import collections
 import copy
 
+from warehouse.config import Environment
+
 SELF = "'self'"
 NONE = "'none'"
 
@@ -95,6 +97,9 @@ def _connect_src_settings(config) -> list:
         [item for item in [config.registry.settings.get("statuspage.url")] if item]
     )
 
+    if config.registry.settings.get("warehouse.env") == Environment.development:
+        settings.extend(["ws://localhost:35729/livereload"])
+
     return settings
 
 
@@ -115,6 +120,9 @@ def _script_src_settings(config) -> list:
         # See warehouse/templates/packaging/detail.html
         "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
     ]
+
+    if config.registry.settings.get("warehouse.env") == Environment.development:
+        settings.extend(["http://localhost:35729/livereload.js"])
 
     return settings
 

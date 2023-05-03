@@ -156,6 +156,8 @@ services:
       context: .
       target: static-deps
     image: warehouse:docker-compose-static
+    ports:
+      - "35729:35729" # LiveReload
     environment:
       NODE_ENV: "development"
     command: bash -c "npm run watch"
