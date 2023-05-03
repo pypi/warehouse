@@ -250,6 +250,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
         repository_owner="foo",
         repository_owner_id="123",
         workflow_filename="example.yml",
+        environment=None,
     )
 
     db_request.registry.settings = {"warehouse.oidc.enabled": True}
@@ -306,6 +307,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         repository_owner="foo",
         repository_owner_id="123",
         workflow_filename="example.yml",
+        environment=None,
     )
 
     # Create some other pending publishers for the same nonexistent project,

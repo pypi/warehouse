@@ -823,6 +823,7 @@ class TestNullOIDCPublisherService:
             repository_owner="foo",
             repository_owner_id="123",
             workflow_filename="example.yml",
+            environment=None,
         )
 
         claims = {
@@ -862,6 +863,7 @@ class TestNullOIDCPublisherService:
             repository_owner="foo",
             repository_owner_id="123",
             workflow_filename="example.yml",
+            environment=None,
         )
 
         claims = {
