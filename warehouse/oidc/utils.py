@@ -17,8 +17,9 @@ from sqlalchemy.sql.expression import func, literal
 from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
 
-OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL}
+OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL}
 
 
 def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=False):
