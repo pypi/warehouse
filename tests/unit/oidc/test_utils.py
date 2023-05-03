@@ -12,10 +12,9 @@
 
 import pretend
 
-from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc import utils
-from warehouse.oidc.models import GitHubPublisher
+from tests.common.db.oidc import GitHubPublisherFactory
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
@@ -27,14 +26,14 @@ def test_find_publisher_by_issuer_bad_issuer_url():
     )
 
 
-def test_find_publisher_by_issuer_github():
-    publisher = pretend.stub()
-    one_or_none = pretend.call_recorder(lambda: publisher)
-    filter_ = pretend.call_recorder(lambda *a: pretend.stub(one_or_none=one_or_none))
-    filter_by = pretend.call_recorder(lambda **kw: pretend.stub(filter=filter_))
-    session = pretend.stub(
-        query=pretend.call_recorder(lambda cls: pretend.stub(filter_by=filter_by))
+def test_find_publisher_by_issuer_github(db_request):
+    publisher = GitHubPublisherFactory(
+        repository_owner="foo",
+        repository_name="bar",
+        repository_owner_id="1234",
+        workflow_filename="ci.yml",
     )
+
     signed_claims = {
         "repository": "foo/bar",
         "job_workflow_ref": "foo/bar/.github/workflows/ci.yml@refs/heads/main",
@@ -43,30 +42,11 @@ def test_find_publisher_by_issuer_github():
 
     assert (
         utils.find_publisher_by_issuer(
-            session, "https://token.actions.githubusercontent.com", signed_claims
-        )
-        == publisher
+            db_request.db,
+            "https://token.actions.githubusercontent.com",
+            signed_claims,
+        ).id
+        == publisher.id
     )
 
-    assert session.query.calls == [pretend.call(GitHubPublisher)]
-    assert filter_by.calls == [
-        pretend.call(
-            repository_name="bar", repository_owner="foo", repository_owner_id="1234"
-        )
-    ]
 
-    # SQLAlchemy BinaryExpression objects don't support comparison with __eq__,
-    # so we need to dig into the callset and compare the argument manually.
-    assert len(filter_.calls) == 1
-    assert len(filter_.calls[0].args) == 1
-    assert (
-        filter_.calls[0]
-        .args[0]
-        .compare(
-            literal("ci.yml@refs/heads/main").like(
-                func.concat(GitHubPublisher.workflow_filename, "%")
-            )
-        )
-    )
-
-    assert one_or_none.calls == [pretend.call()]
