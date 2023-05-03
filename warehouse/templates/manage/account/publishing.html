@@ -209,7 +209,17 @@
     {% endtrans %}
   </p>
 
-  <h3>GitHub</h3>
-  {{ github_form(request, pending_github_publisher_form) }}
+  <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+    <div class="tabbar">
+      <button data-target="horizontal-tabs.tab" data-action="horizontal-tabs#change" class="tab is-active">GitHub</button>
+      <button data-target="horizontal-tabs.tab" data-action="horizontal-tabs#change" class="tab">Google</button>
+    </div>
+    <div class="tabcontent is-hidden" data-target="horizontal-tabs.tabPanel">
+      {{ github_form(request, pending_github_publisher_form) }}
+    </div>
+    <div class="tabcontent" data-target="horizontal-tabs.tabPanel">
+      # TODO
+    </div>
+  </div>
 
 {% endblock %}
