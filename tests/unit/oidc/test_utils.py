@@ -43,8 +43,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         repository_name="bar",
         repository_owner_id="1234",
         workflow_filename="ci.yml",
-        environment=None,
-        # No environment
+        environment=None,  # No environment
     )
     GitHubPublisherFactory(
         id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -73,5 +72,3 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
     )
 
 
-# def test_find_publisher_by_issuer_with_environment_finds_match(db_request)
-# def test_find_publisher_by_issuer_with_environment_finds_wildcard(db_request)
