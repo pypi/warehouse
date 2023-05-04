@@ -14,40 +14,40 @@
 
 .horizontal-tabs {
   margin-top: 30px;
-}
 
-.tabbar {
-  overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
-}
+  &__tabbar {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
 
-.tabbar button {
-  background-color: inherit;
-  float: left;
-  border: none;
-  outline: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-}
+    button {
+      background-color: inherit;
+      float: left;
+      border: none;
+      outline: none;
+      cursor: pointer;
+      padding: 14px 16px;
+      transition: 0.3s;
 
-.tabbar button:hover {
-  background-color: #ddd;
-}
+      &:hover {
+        background-color: #ddd;
+      }
 
-.tabbar button.is-active {
-  background-color: #006dad;
-  color: #fff;
-}
+      &.is-active {
+        background-color: #006dad;
+        color: #fff;
+      }
+    }
+  }
 
-.tabcontent {
-  display: block;
-  padding: 20px;
-  border: 1px solid #ccc;
-  border-top: none;
-}
+  &__tabcontent {
+    display: block;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-top: none;
 
-.tabcontent.is-hidden {
-  display: none;
+    &.is-hidden {
+      display: none;
+    }
+  }
 }
