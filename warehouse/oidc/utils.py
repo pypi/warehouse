@@ -57,7 +57,7 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
                     repository_name=repository_name,
                     repository_owner=repository_owner,
                     repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=environment,
+                    environment=environment.lower(),
                 )
                 .filter(
                     literal(workflow_ref).like(
