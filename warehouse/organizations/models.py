@@ -9,8 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import enum
+import typing
 
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
@@ -36,6 +38,9 @@ from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 class OrganizationRoleType(str, enum.Enum):
@@ -288,7 +293,9 @@ class Organization(HasEvents, db.Model):
             .all()
         )
 
-    def record_event(self, *, tag, ip_address, additional={}):
+    def record_event(
+        self, *, tag, ip_address, request: Request = None, additional=None
+    ):
         """Record organization name in events in case organization is ever deleted."""
         super().record_event(
             tag=tag,
@@ -605,7 +612,9 @@ class Team(HasEvents, db.Model):
         "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
 
-    def record_event(self, *, tag, ip_address, additional={}):
+    def record_event(
+        self, *, tag, ip_address, request: Request = None, additional=None
+    ):
         """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
