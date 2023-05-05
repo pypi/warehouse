@@ -14,8 +14,17 @@ import ipaddress
 
 import sentry_sdk
 
-from sqlalchemy import Boolean, CheckConstraint, Column, DateTime, Enum, Index, sql
-from sqlalchemy.dialects.postgresql import INET
+from sqlalchemy import (
+    Boolean,
+    CheckConstraint,
+    Column,
+    DateTime,
+    Enum,
+    Index,
+    Text,
+    sql,
+)
+from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import validates
 
 from warehouse import db
@@ -39,6 +48,9 @@ class IpAddress(db.Model):
         return self.ip_address
 
     ip_address = Column(INET, nullable=False, unique=True)
+    hashed_ip_address = Column(Text, nullable=True, unique=True)
+    geoip_info = Column(JSONB, nullable=True)
+
     is_banned = Column(Boolean, nullable=False, server_default=sql.false())
     ban_reason = Column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),

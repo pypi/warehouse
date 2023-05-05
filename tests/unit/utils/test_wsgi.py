@@ -11,8 +11,14 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
+from sqlalchemy.exc import NoResultFound
+
+from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
+
+from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 
 class TestProxyFixer:
@@ -43,6 +49,7 @@ class TestProxyFixer:
             "HTTP_WAREHOUSE_IP": "1.2.3.4",
             "HTTP_WAREHOUSE_HASHED_IP": "hashbrowns",
             "HTTP_WAREHOUSE_HOST": "example.com",
+            "HTTP_WAREHOUSE_CITY": "Anytown, ST",
         }
         start_response = pretend.stub()
 
@@ -55,6 +62,7 @@ class TestProxyFixer:
                     "REMOTE_ADDR": "1.2.3.4",
                     "REMOTE_ADDR_HASHED": "hashbrowns",
                     "HTTP_HOST": "example.com",
+                    "GEOIP_CITY": "Anytown, ST",
                     "wsgi.url_scheme": "http",
                 },
                 start_response,
@@ -166,6 +174,39 @@ class TestVhmRootRemover:
 
         assert resp is response
         assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
+
+
+def test_ip_address_exists(db_request):
+    ip_address = DBIpAddressFactory(ip_address="192.0.2.69")
+    db_request.environ["REMOTE_ADDR"] = "192.0.2.69"
+    db_request.remote_addr = "192.0.2.69"
+
+    assert wsgi._ip_address(db_request) == ip_address
+
+
+def test_ip_address_created(db_request):
+    with pytest.raises(NoResultFound):
+        db_request.db.query(IpAddress).filter(
+            IpAddress.ip_address == "192.0.2.69"
+        ).one()
+
+    db_request.environ["REMOTE_ADDR"] = "192.0.2.69"
+    db_request.environ["GEOIP_CITY"] = "Anytown, ST"
+    db_request.remote_addr = "192.0.2.69"
+
+    wsgi._ip_address(db_request)
+
+    ip_address = (
+        db_request.db.query(IpAddress)
+        .filter(IpAddress.ip_address == "192.0.2.69")
+        .one()
+    )
+    assert ip_address.ip_address == "192.0.2.69"
+    assert (
+        ip_address.hashed_ip_address
+        == "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
+    )
+    assert ip_address.geoip_info == {"city": "Anytown, ST"}
 
 
 def test_remote_addr_hashed(remote_addr_hashed):
