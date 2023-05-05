@@ -114,6 +114,9 @@ reindex: .state/docker-build-web
 shell: .state/docker-build-web
 	docker compose run --rm web python -m warehouse shell
 
+dbshell: .state/docker-build-web
+	docker compose run --rm web psql -h db -d warehouse -U postgres
+
 clean:
 	rm -rf dev/*.sql
 
@@ -125,4 +128,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve initdb shell tests dev-docs user-docs deps clean purge debug stop compile-pot
+.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot
