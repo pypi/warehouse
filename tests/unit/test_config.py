@@ -298,6 +298,7 @@ def test_configure(monkeypatch, settings, environment):
                         "IntrospectionDebugPanel"
                     ),
                 ],
+                "livereload.url": "http://localhost:35729",
             }
         )
 

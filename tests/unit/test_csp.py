@@ -271,6 +271,33 @@ def test_includeme():
     ]
 
 
+def test_includeme_development():
+    """
+    Tests for development-centric CSP settings.
+    Not as extensive as the production tests.
+    """
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(lambda fact, name: None),
+        add_settings=pretend.call_recorder(lambda settings: None),
+        add_tween=pretend.call_recorder(lambda tween: None),
+        registry=pretend.stub(
+            settings={
+                "camo.url": "camo.url.value",
+                "warehouse.env": "development",
+                "livereload.url": "http://localhost:35729",
+            }
+        ),
+    )
+    csp.includeme(config)
+
+    rendered_csp = config.add_settings.calls[0].args[0]["csp"]
+
+    assert config.registry.settings.get("warehouse.env") == "development"
+
+    assert "ws://localhost:35729/livereload" in rendered_csp["connect-src"]
+    assert "http://localhost:35729/livereload.js" in rendered_csp["script-src"]
+
+
 class TestFactory:
     def test_copy(self):
         settings = {"csp": {"foo": "bar"}}
