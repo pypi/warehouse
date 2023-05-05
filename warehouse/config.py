@@ -30,7 +30,7 @@ from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class Environment(enum.Enum):
+class Environment(str, enum.Enum):
     production = "production"
     development = "development"
 
@@ -380,6 +380,12 @@ def configure(settings=None):
                     "introspection.IntrospectionDebugPanel",
                 ]
             ],
+        )
+        maybe_set(
+            settings,
+            "livereload.url",
+            "LIVERELOAD_URL",
+            default="http://localhost:35729",
         )
 
     # Actually setup our Pyramid Configurator with the values pulled in from

@@ -4,6 +4,12 @@ title: Troubleshooting
 
 # Troubleshooting
 
+## Reusable workflows on GitHub
+
+[Reusable workflows] cannot currently be used as the workflow in a trusted
+publisher. This is a practical limitation, and is being tracked in
+[warehouse#11096].
+
 ## Ratelimiting
 
 PyPI currently imposes ratelimits on trusted publisher registration: no more
@@ -46,3 +52,7 @@ endpoint:
   (pending) OIDC publisher. This likely indicates a mismatch between the
   OIDC publisher specified in the user/project settings and the claims
   represented in the actual OIDC token. Check for typos!
+
+[reusable workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
+
+[warehouse#11096]: https://github.com/pypi/warehouse/issues/11096

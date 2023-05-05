@@ -27,6 +27,9 @@
 
     <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/dist/css/all.css') }}">
 
+    {% if devPyPI %}
+    <script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>
+    {% endif %}
   </head>
 
 <body class="hold-transition sidebar-mini">

@@ -22,6 +22,7 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
+const LiveReloadPlugin = require('webpack-livereload-plugin');
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ProvidePlugin = require("webpack").ProvidePlugin;
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
@@ -117,6 +118,7 @@ module.exports = [
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
       ...sharedWebpackManifestPlugins,
+      new LiveReloadPlugin(),
     ],
     resolve: sharedResolve,
     entry: {
@@ -282,6 +284,7 @@ module.exports = [
         $: "jquery",
         jQuery: "jquery",
       }),
+      new LiveReloadPlugin(),
     ],
     resolve: sharedResolve,
     entry: {

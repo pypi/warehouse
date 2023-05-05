@@ -26,6 +26,9 @@ BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_ba
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
 
+# Example of a Live Reload URL for remote development
+# LIVERELOAD_URL=http://some-remote-hostname:35729
+
 HIBP_API_KEY="something-not-real"
 
 DOCS_URL="https://pythonhosted.org/{project}/"
