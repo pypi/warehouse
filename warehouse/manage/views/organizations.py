@@ -759,7 +759,7 @@ class ManageOrganizationProjectsViews:
                         name=project.name,
                         action=f"remove {role.role_name} {role.user.username}",
                         submitted_by=self.request.user,
-                        submitted_from=self.request.remote_addr,
+                        submitted_from=self.request.ip_address.hashed_ip_address,
                     )
                 )
                 project.record_event(
@@ -1552,7 +1552,7 @@ def transfer_organization_project(project, request):
                 name=project.name,
                 action=f"remove {role.role_name} {role.user.username}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
         project.record_event(

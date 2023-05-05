@@ -192,7 +192,7 @@ def remove_project(project, request, flash=True):
             name=project.name,
             action="remove project",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
+            submitted_from=request.ip_address.hashed_ip_address,
         )
     )
 
@@ -209,7 +209,7 @@ def destroy_docs(project, request, flash=True):
             name=project.name,
             action="docdestroy",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
+            submitted_from=request.ip_address.hashed_ip_address,
         )
     )
 

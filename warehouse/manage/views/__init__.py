@@ -1653,7 +1653,7 @@ class ManageProjectRelease:
                 action="yank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
+                submitted_from=self.request.ip_address.hashed_ip_address,
             )
         )
 
@@ -1740,7 +1740,7 @@ class ManageProjectRelease:
                 action="unyank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
+                submitted_from=self.request.ip_address.hashed_ip_address,
             )
         )
 
@@ -1843,7 +1843,7 @@ class ManageProjectRelease:
                 action="remove release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
+                submitted_from=self.request.ip_address.hashed_ip_address,
             )
         )
 
@@ -1937,7 +1937,7 @@ class ManageProjectRelease:
                 action=f"remove file {release_file.filename}",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
+                submitted_from=self.request.ip_address.hashed_ip_address,
             )
         )
 
@@ -2097,7 +2097,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name.value} {team_name}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
 
@@ -2211,7 +2211,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name} {user.username}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
 
@@ -2338,7 +2338,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     name=project.name,
                     action=f"invite {role_name} {username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
+                    submitted_from=request.ip_address.hashed_ip_address,
                 )
             )
             send_project_role_verification_email(
@@ -2426,7 +2426,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             name=project.name,
             action=f"revoke_invite {role_name} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
+            submitted_from=request.ip_address.hashed_ip_address,
         )
     )
     project.record_event(
@@ -2493,7 +2493,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             role.role_name, role.user.username, form.role_name.data
                         ),
                         submitted_by=request.user,
-                        submitted_from=request.remote_addr,
+                        submitted_from=request.ip_address.hashed_ip_address,
                     )
                 )
                 role.role_name = form.role_name.data
@@ -2580,7 +2580,7 @@ def delete_project_role(project, request):
                     name=project.name,
                     action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
+                    submitted_from=request.ip_address.hashed_ip_address,
                 )
             )
             project.record_event(

@@ -425,7 +425,7 @@ class ProjectService:
                 name=project.name,
                 action="create",
                 submitted_by=creator,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
         project.record_event(
@@ -446,7 +446,7 @@ class ProjectService:
                     name=project.name,
                     action=f"add Owner {creator.username}",
                     submitted_by=creator,
-                    submitted_from=request.remote_addr,
+                    submitted_from=request.ip_address.hashed_ip_address,
                 )
             )
             project.record_event(

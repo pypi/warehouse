@@ -3975,7 +3975,7 @@ class TestManageProjectRelease:
         assert entry.action == "yank release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
         assert db_request.session.flash.calls == [
             pretend.call(f"Yanked release {release.version!r}", queue="success")
         ]
@@ -4129,7 +4129,7 @@ class TestManageProjectRelease:
         assert entry.action == "unyank release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Un-yanked release {release.version!r}", queue="success")
@@ -4287,7 +4287,7 @@ class TestManageProjectRelease:
         assert entry.action == "remove release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Deleted release {release.version!r}", queue="success")
@@ -4474,7 +4474,7 @@ class TestManageProjectRelease:
                 version=release.version,
                 action=f"remove file {release_file.filename}",
                 submitted_by=user,
-                submitted_from=db_request.remote_addr,
+                submitted_from=db_request.ip_address.hashed_ip_address,
             )
             .one()
         )
@@ -5460,7 +5460,7 @@ class TestChangeProjectRole:
         assert entry.name == project.name
         assert entry.action == "change Owner testuser to Maintainer"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
 
     def test_change_role_invalid_role_name(self, pyramid_request):
         project = pretend.stub(name="foobar")
@@ -5578,7 +5578,7 @@ class TestDeleteProjectRole:
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
 
     def test_delete_missing_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -5674,7 +5674,7 @@ class TestDeleteProjectRole:
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
+        assert entry.submitted_from == db_request.ip_address.hashed_ip_address
 
     def test_delete_non_owner_role(self, db_request):
         project = ProjectFactory.create(name="foobar")

@@ -140,7 +140,7 @@ def test_remove_project(db_request, flash):
     )
     assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
+    assert journal_entry.submitted_from == db_request.ip_address.hashed_ip_address
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -164,7 +164,7 @@ def test_destroy_docs(db_request, flash):
     )
     assert journal_entry.action == "docdestroy"
     assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
+    assert journal_entry.submitted_from == db_request.ip_address.hashed_ip_address
 
     assert not (
         db_request.db.query(Project)

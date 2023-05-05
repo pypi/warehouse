@@ -1164,7 +1164,7 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
 
@@ -1437,7 +1437,7 @@ def file_upload(request):
                     python_version=file_.python_version, filename=file_.filename
                 ),
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
+                submitted_from=request.ip_address.hashed_ip_address,
             )
         )
 

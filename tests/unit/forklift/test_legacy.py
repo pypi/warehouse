@@ -1481,7 +1481,7 @@ class TestFileUpload:
                 release.version,
                 f"add source file {filename}",
                 user,
-                db_request.remote_addr,
+                db_request.remote_addr_hashed,
             )
         ]
 
@@ -2122,21 +2122,27 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            ("example", None, "create", user, db_request.remote_addr),
+            ("example", None, "create", user, db_request.ip_address.hashed_ip_address),
             (
                 "example",
                 None,
                 f"add Owner {user.username}",
                 user,
-                db_request.remote_addr,
+                db_request.ip_address.hashed_ip_address,
             ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
+            (
+                "example",
+                "1.0",
+                "new release",
+                user,
+                db_request.ip_address.hashed_ip_address,
+            ),
             (
                 "example",
                 "1.0",
                 "add source file example-1.0.tar.gz",
                 user,
-                db_request.remote_addr,
+                db_request.ip_address.hashed_ip_address,
             ),
         ]
 
@@ -2777,7 +2783,7 @@ class TestFileUpload:
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
+                db_request.remote_addr_hashed,
             )
         ]
 
@@ -2911,7 +2917,7 @@ class TestFileUpload:
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
+                db_request.remote_addr_hashed,
             )
         ]
 
@@ -3176,14 +3182,14 @@ class TestFileUpload:
                 release.version,
                 "new release",
                 user,
-                db_request.remote_addr,
+                db_request.remote_addr_hashed,
             ),
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
                 user,
-                db_request.remote_addr,
+                db_request.remote_addr_hashed,
             ),
         ]
 
@@ -3468,21 +3474,27 @@ class TestFileUpload:
             (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
             for j in journals
         ] == [
-            ("example", None, "create", user, db_request.remote_addr),
+            ("example", None, "create", user, db_request.ip_address.hashed_ip_address),
             (
                 "example",
                 None,
                 f"add Owner {user.username}",
                 user,
-                db_request.remote_addr,
+                db_request.ip_address.hashed_ip_address,
             ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
+            (
+                "example",
+                "1.0",
+                "new release",
+                user,
+                db_request.ip_address.hashed_ip_address,
+            ),
             (
                 "example",
                 "1.0",
                 "add source file example-1.0.tar.gz",
                 user,
-                db_request.remote_addr,
+                db_request.ip_address.hashed_ip_address,
             ),
         ]
 
