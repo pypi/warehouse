@@ -572,6 +572,10 @@ msgstr ""
 msgid "Publisher must be specified by ID"
 msgstr ""
 
+#: warehouse/packaging/views.py:207
+msgid "Issue report submitted."
+msgstr ""
+
 #: warehouse/subscriptions/models.py:42
 #: warehouse/templates/manage/project/history.html:218
 msgid "Active"
@@ -653,8 +657,8 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:194
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:364
-#: warehouse/templates/packaging/detail.html:383
+#: warehouse/templates/packaging/detail.html:366
+#: warehouse/templates/packaging/detail.html:385
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1164,6 +1168,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/report-project-issue.html:17
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr ""
@@ -1243,6 +1248,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:350
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/report-project-issue.html:39
+#: warehouse/templates/packaging/report-project-issue.html:58
 #: warehouse/templates/re-auth.html:51
 msgid "(required)"
 msgstr ""
@@ -1555,6 +1562,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/reset-password.html:18
 #: warehouse/templates/accounts/reset-password.html:24
+#: warehouse/templates/packaging/report-project-issue.html:18
 #: warehouse/templates/pages/sitemap.html:34
 msgid "Reset your password"
 msgstr ""
@@ -2772,6 +2780,10 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/report-issue-button.html:16
+msgid "Report issue"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:33
@@ -6138,78 +6150,78 @@ msgid "Navigation"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:254
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:285
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:287
 msgid "Project description"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:307
+#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:309
 msgid "Release history"
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:363
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:365
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:263
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:299
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:301
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:292
+#: warehouse/templates/packaging/detail.html:294
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:309
+#: warehouse/templates/packaging/detail.html:311
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:310
+#: warehouse/templates/packaging/detail.html:312
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:322
+#: warehouse/templates/packaging/detail.html:324
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:342
+#: warehouse/templates/packaging/detail.html:344
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:347
+#: warehouse/templates/packaging/detail.html:349
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:364
+#: warehouse/templates/packaging/detail.html:366
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6217,28 +6229,45 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:366
+#: warehouse/templates/packaging/detail.html:368
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:382
+#: warehouse/templates/packaging/detail.html:384
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:383
+#: warehouse/templates/packaging/detail.html:385
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:390
+#: warehouse/templates/packaging/detail.html:392
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/packaging/report-project-issue.html:24
+#, python-format
+msgid "Report an issue with <code>%(project_name)s</code> project"
+msgstr ""
+
+#: warehouse/templates/packaging/report-project-issue.html:37
+msgid "What's the issue?"
+msgstr ""
+
+#: warehouse/templates/packaging/report-project-issue.html:56
+msgid "Description"
+msgstr ""
+
+#: warehouse/templates/packaging/report-project-issue.html:73
+msgid "Submit issue report"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""

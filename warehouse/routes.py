@@ -94,6 +94,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "includes.report-issue-button",
+        "/_includes/report-issue-button/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "includes.profile-actions",
         "/_includes/profile-actions/{username}",
         factory="warehouse.accounts.models:UserFactory",
@@ -479,6 +486,15 @@ def includeme(config):
         "/manage/project/{project_name}/history/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
+        domain=warehouse,
+    )
+
+    # Report Packaging Issues
+    config.add_route(
+        "packaging.project.report_issue",
+        "/project/{name}/report_issue/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}/",
         domain=warehouse,
     )
 

@@ -11,12 +11,18 @@
 # limitations under the License.
 
 from natsort import natsorted
-from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
+from pyramid.httpexceptions import (
+    HTTPForbidden,
+    HTTPMovedPermanently,
+    HTTPNotFound,
+    HTTPSeeOther,
+)
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
+from warehouse.packaging.forms import ReportProjectIssueForm
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.utils import readme
 
@@ -161,3 +167,43 @@ def release_detail(release, request):
 )
 def edit_project_button(project, request):
     return {"project": project}
+
+
+@view_config(
+    route_name="includes.report-issue-button",
+    context=Project,
+    renderer="includes/packaging/report-issue-button.html",
+    uses_session=True,
+    has_translations=True,
+)
+def report_issue_button(project, request):
+    return {"project": project}
+
+
+@view_config(
+    route_name="packaging.project.report_issue",
+    context=Project,
+    renderer="packaging/report-project-issue.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    has_translations=True,
+)
+def project_report_issue(project, request):
+    if request.user is None:
+        raise HTTPForbidden()
+
+    form = ReportProjectIssueForm(request.POST, subject=project)
+
+    if request.method == "POST":
+        if form.validate():
+            additional = {
+                "observer": f"user_id:{str(request.user.id)}",
+                "issue_description": form.issue_description.data,
+            }
+            project.record_observation(kind=form.issue_kind.data, additional=additional)
+            request.session.flash(request._("Issue report submitted."), queue="success")
+            return HTTPSeeOther(
+                request.route_path("packaging.project", name=project.name)
+            )
+    return {"form": form}

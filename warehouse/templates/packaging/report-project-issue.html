@@ -1,0 +1,77 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "base.html" %}
+
+{% block title %}
+  {% if form.errors %}{% trans %}Error processing form{% endtrans %} –{% endif %}
+  {% trans %}Reset your password{% endtrans %}
+{% endblock %}
+
+{% block content %}
+  <div class="horizontal-section">
+    <div class="site-container">
+      <h1 class="page-title">{% trans project_name=form.subject.name %}Report an issue with <code>{{ project_name }}</code> project{% endtrans %}</h1>
+      <form method="POST" action="{{ request.current_route_path() }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        {% if form.errors.__all__ %}
+          <ul class="errors">
+            {% for error in form.errors.__all__ %}
+            <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+        <div class="form-group">
+          <label for="issue_kind" class="form-group__label">
+            {% trans %}What's the issue?{% endtrans %}
+            {% if form.issue_kind.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.issue_kind(class_="form-group__field", **{"aria-describedby":"issue_kind-errors"}) }}
+          <div id="issue_kind-errors">
+            {% if form.issue_kind.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.issue_kind.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="issue_description" class="form-group__label">
+            {% trans %}Description{% endtrans %}
+            {% if form.issue_description.flags.required %}
+            <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+            {% endif %}
+          </label>
+          {{ form.issue_description(class_="form-group__field", **{"aria-describedby":"issue_description-errors"}) }}
+          <div id="issue_description-errors">
+            {% if form.issue_description.errors %}
+            <ul class="form-errors" role="alert">
+              {% for error in form.issue_description.errors %}
+              <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+          </div>
+        </div>
+
+        <input type="submit" value="{% trans %}Submit issue report{% endtrans %}" class="button button--primary" data-password-match-target="submit" tabindex="3">
+      </form>
+    </div>
+  </div>
+{% endblock %}
