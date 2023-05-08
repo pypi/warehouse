@@ -105,6 +105,8 @@ class Event(AbstractConcreteBase):
 
 
 class HasEvents:
+    Event: typing.ClassVar[type]
+
     def __init_subclass__(cls, /, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.Event = type(
@@ -127,8 +129,7 @@ class HasEvents:
     ):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
-        # some issue with how mypy handles `__init_subclass__`
-        event = self.Event(  # type: ignore[attr-defined]
+        event = self.Event(
             source=self,
             tag=tag,
             ip_address=ip_address,
