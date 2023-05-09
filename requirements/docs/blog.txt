@@ -15,9 +15,9 @@ cairosvg==2.7.0 \
     --hash=sha256:17cb96423a896258848322a95c80160e714a58f1af3dd73b8e1750994519b9f9 \
     --hash=sha256:ac4dc7c1d38b3a15717db2633a3a383012e0be664c727c911637e6af6a49293c
     # via -r requirements/docs/blog.in
-certifi==2022.12.7 \
-    --hash=sha256:35824b4c3a97115964b408844d64aa14db1cc518f6562e8d7261699d1350a9e3 \
-    --hash=sha256:4ad3232f5e926d6718ec31cfc1fcadfde020920e278684144551c91769c7bc18
+certifi==2023.5.7 \
+    --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
+    --hash=sha256:c6c2e98f5c7869efca1f8916fed228dd91539f9f1b444c314c06eef02980c716
     # via requests
 cffi==1.15.1 \
     --hash=sha256:00a9ed42e88df81ffae7a8ab6d9356b371399b91dbdf0c3cb1e84c03a13aceb5 \
