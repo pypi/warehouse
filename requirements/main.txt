@@ -1364,9 +1364,9 @@ requests==2.28.2 \
     #   premailer
     #   requests-aws4auth
     #   stripe
-requests-aws4auth==1.2.2 \
-    --hash=sha256:14518a2388f3fdaab10c64b23e0836046f47bfbc0b39b153d60b092cb47698b6 \
-    --hash=sha256:66bb1d346d8b5fc8fb08a0eb29640e961756dec80732748813525bfe90912610
+requests-aws4auth==1.2.3 \
+    --hash=sha256:8070a5207e95fa5fe88e87d9a75f34e768cbab35bb3557ef20cbbf9426dee4d5 \
+    --hash=sha256:d4c73c19f37f80d4aa9c5bd4fa376cfd0c69299c48b00a8eb2ae6b0416164fb8
     # via -r requirements/main.in
 rfc3986==2.0.0 \
     --hash=sha256:50b1502b60e289cb37883f3dfd34532b8873c7de9f49bb546641ce9cbd256ebd \
