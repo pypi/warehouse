@@ -13,6 +13,13 @@
 import alembic.command
 import pretend
 import pytest
+import sqlalchemy
+
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import declarative_base
+
+import warehouse.cli.db.dbml
+import warehouse.db
 
 from warehouse.cli.db.branches import branches
 from warehouse.cli.db.current import current
@@ -337,3 +344,147 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
         pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
     ]
     assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+
+
+def test_dbml_command(monkeypatch, cli):
+    generate_dbml_file = pretend.call_recorder(lambda tables, path: None)
+    monkeypatch.setattr(warehouse.cli.db.dbml, "generate_dbml_file", generate_dbml_file)
+
+    ModelBase = pretend.stub(  # noqa
+        metadata=pretend.stub(
+            tables=pretend.stub(
+                values=pretend.call_recorder(lambda: ["table0", "table1"])
+            )
+        )
+    )
+    monkeypatch.setattr(warehouse.db, "ModelBase", ModelBase)
+
+    cli.invoke(warehouse.cli.db.dbml.dbml)
+    assert generate_dbml_file.calls == [pretend.call(["table0", "table1"], None)]
+
+
+EXPECTED_DBML = """Table _clan {
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+  name text [unique, not null]
+  fetched text [default: `FetchedValue()`, note: "fetched value"]
+  for_the_children boolean [default: `True`]
+  nice varchar
+  Note: "various clans"
+}
+
+Table _clan_member {
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+  name text [not null]
+  clan_id varchar
+  joined datetime [not null, default: `now()`]
+  departed datetime
+}
+
+Ref: _clan_member.clan_id > _clan.id
+"""
+
+
+def test_generate_dbml_file(tmp_path_factory):
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+
+    metadata = sqlalchemy.MetaData()
+
+    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+
+    class Clan(Muddle):
+        __tablename__ = "_clan"
+        __table_args__ = {"comment": "various clans"}
+
+        name = sqlalchemy.Column(sqlalchemy.Text, unique=True, nullable=False)
+        fetched = sqlalchemy.Column(
+            sqlalchemy.Text,
+            server_default=sqlalchemy.FetchedValue(),
+            comment="fetched value",
+        )
+        for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+
+    class ClanMember(Muddle):
+        __tablename__ = "_clan_member"
+
+        name = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+        clan_id = sqlalchemy.Column(
+            UUID(as_uuid=True),
+            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
+        )
+        joined = sqlalchemy.Column(
+            sqlalchemy.DateTime,
+            nullable=False,
+            server_default=sqlalchemy.sql.func.now(),
+        )
+        departed = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)
+
+    outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
+    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), outpath)
+
+    with open(outpath) as f:
+        assert f.read() == EXPECTED_DBML
+
+
+def test_generate_dbml_console(capsys, monkeypatch):
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+
+    metadata = sqlalchemy.MetaData()
+
+    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+
+    class Clan(Muddle):
+        __tablename__ = "_clan"
+        __table_args__ = {"comment": "various clans"}
+
+        name = sqlalchemy.Column(sqlalchemy.Text, unique=True, nullable=False)
+        fetched = sqlalchemy.Column(
+            sqlalchemy.Text,
+            server_default=sqlalchemy.FetchedValue(),
+            comment="fetched value",
+        )
+        for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
+        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+
+    class ClanMember(Muddle):
+        __tablename__ = "_clan_member"
+
+        name = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
+        clan_id = sqlalchemy.Column(
+            UUID(as_uuid=True),
+            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
+        )
+        joined = sqlalchemy.Column(
+            sqlalchemy.DateTime,
+            nullable=False,
+            server_default=sqlalchemy.sql.func.now(),
+        )
+        departed = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)
+
+    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
+    captured = capsys.readouterr()
+
+    assert captured.out == EXPECTED_DBML
+
+
+def test_generate_dbml_bad_conversion():
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+
+    metadata = sqlalchemy.MetaData()
+
+    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+
+    class BadText(sqlalchemy.Text):
+        pass
+
+    class Puddle(Muddle):
+        __tablename__ = "puddle"
+        __table_args__ = {"comment": "various clans"}
+
+        name = sqlalchemy.Column(BadText, unique=True, nullable=False)
+
+    with pytest.raises(SystemExit):
+        warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)

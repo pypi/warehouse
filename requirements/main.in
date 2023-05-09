@@ -55,6 +55,7 @@ readme-renderer[md]>=36.0
 requests
 requests-aws4auth
 redis>=2.8.0,<5.0.0
+rich
 rfc3986
 sentry-sdk
 setuptools
