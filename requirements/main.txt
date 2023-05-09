@@ -468,9 +468,9 @@ first==2.0.2 \
 forcediphttpsadapter==1.0.2 \
     --hash=sha256:f7582b34aaa6ab6b17f69ab1abbfe67097b952ed0682b758b5e01e18fe24433e
     # via -r requirements/main.in
-github-reserved-names==1.0.1 \
-    --hash=sha256:c9acc3c8e573e303e962496308553241db6f306290a09be7d2c6d60cdcda0bb9 \
-    --hash=sha256:f10b8df2b01d76022b144a17381782b63205b2f2cefdfc145c984d16cb4e9733
+github-reserved-names==2023.5.1 \
+    --hash=sha256:05eccdcb5aaa8189f0910824c1361b60334ae0604c534a2c67f8a7f1f53abea5 \
+    --hash=sha256:63b4d51260fc232426eb99f41cb3c53a991ca9cf6dc48a5787528e7cf6edd59f
     # via -r requirements/main.in
 google-api-core[grpc]==2.11.0 \
     --hash=sha256:4b9bb5d5a380a0befa0573b302651b8a9a89262c1730e37bf423cec511804c22 \
