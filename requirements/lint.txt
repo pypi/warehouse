@@ -150,9 +150,9 @@ doc8==1.1.1 \
     --hash=sha256:d97a93e8f5a2efc4713a0804657dedad83745cca4cd1d88de9186f77f9776004 \
     --hash=sha256:e493aa3f36820197c49f407583521bb76a0fde4fffbcd0e092be946ff95931ac
     # via -r requirements/lint.in
-docutils==0.19 \
-    --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
-    --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
+docutils==0.20 \
+    --hash=sha256:a428f10de4de4774389734c986a01b4af2d802d26717108b0f1b9356862937c5 \
+    --hash=sha256:f75a5a52fbcacd81b47e42888ad2b380748aaccfb3f13af0fe69deb759f01eb6
     # via
     #   doc8
     #   restructuredtext-lint
