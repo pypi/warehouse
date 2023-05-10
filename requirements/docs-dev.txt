@@ -103,9 +103,9 @@ docutils==0.19 \
     # via
     #   myst-parser
     #   sphinx
-furo==2022.12.7 \
-    --hash=sha256:7cb76c12a25ef65db85ab0743df907573d03027a33631f17d267e598ebb191f7 \
-    --hash=sha256:d8008f8efbe7587a97ba533c8b2df1f9c21ee9b3e5cad0d27f61193d38b1a986
+furo==2023.3.27 \
+    --hash=sha256:4ab2be254a2d5e52792d0ca793a12c35582dd09897228a6dd47885dabd5c9521 \
+    --hash=sha256:b99e7867a5cc833b2b34d7230631dd6558c7a29f93071fdbb5709634bb33c5a5
     # via -r requirements/docs-dev.in
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
@@ -187,10 +187,10 @@ mdurl==0.1.2 \
     --hash=sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8 \
     --hash=sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba
     # via markdown-it-py
-myst-parser==0.19.1 \
-    --hash=sha256:356b38aef29ed09144285ad222e5c3cb7a8e7fae8015d53dba40dbb8b9f73e2c \
-    --hash=sha256:f2dc168ed380e01d77973ad22a64fff1377cc72a3d1ac4bced423f28258d0a42
-    # via -r requirements/docs-dev.in
+myst-parser==1.0.0 \
+    --hash=sha256:502845659313099542bd38a2ae62f01360e7dd4b1310f025dd014dfc0439cdae \
+    --hash=sha256:69fb40a586c6fa68995e6521ac0a525793935db7e724ca9bac1d33be51be9a4c
+    # via -r requirements/docs.in
 packaging==23.1 \
     --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
     --hash=sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f
@@ -259,9 +259,9 @@ soupsieve==2.4.1 \
     --hash=sha256:1c1bfee6819544a3447586c889157365a27e10d88cde3ad3da0cf0ddf646feb8 \
     --hash=sha256:89d12b2d5dfcd2c9e8c22326da9d9aa9cb3dfab0a83a024f05704076ee8d35ea
     # via beautifulsoup4
-sphinx==5.3.0 \
-    --hash=sha256:060ca5c9f7ba57a08a1219e547b269fadf125ae25b06b9fa7f66768efb652d6d \
-    --hash=sha256:51026de0a9ff9fc13c05d74913ad66047e104f56a129ff73e174eb5c3ee794b5
+sphinx==6.2.1 \
+    --hash=sha256:6d56a34697bb749ffa0152feafc4b19836c755d90a7c59b72bc7dfd371b9cc6b \
+    --hash=sha256:97787ff1fa3256a3eef9eda523a63dbf299f7b47e053cfcf684a1c2a8380c912
     # via
     #   -r requirements/docs-dev.in
     #   furo
