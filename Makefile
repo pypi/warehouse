@@ -33,7 +33,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-static
 
-.state/docker-build-docs: Dockerfile requirements/docs/dev.txt requirements/docs/blog.txt requirements/docs/user.txt
+.state/docker-build-docs: Dockerfile requirements/docs-dev.txt requirements/docs-blog.txt requirements/docs-user.txt
 	# Build the worker container for this project
 	docker compose build --build-arg  USER_ID=$(shell id -u)  --build-arg GROUP_ID=$(shell id -g) --force-rm dev-docs
 
