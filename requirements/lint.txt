@@ -281,9 +281,9 @@ types-awscrt==0.16.17 \
     # via
     #   botocore-stubs
     #   types-s3transfer
-types-babel==2.11.0.12 \
-    --hash=sha256:ab490b5e41714c90745bfe6a668ebbded22c22ba6ea9747768b4d4d4b194248f \
-    --hash=sha256:ce562b53ac3be1a32494e05031a565cab352625aefc38db392e236ff5eeb5f1b
+types-babel==2.11.0.13 \
+    --hash=sha256:1fa0d6fcae656a58f6de1cb85a5efb0babbaf80ca8cbffdf02212ba2e441d945 \
+    --hash=sha256:c6bfd394f3d39ac6fd0d414b86686626014ddab5b470d26476784a7500b639f1
     # via -r requirements/lint.in
 types-boto3==1.0.2 \
     --hash=sha256:15f3ffad0314e40a0708fec25f94891414f93260202422bf8b19b6913853c983 \
