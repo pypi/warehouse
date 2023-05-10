@@ -72,9 +72,9 @@ COPY requirements /tmp/requirements
 RUN set -x \
     && pip --no-cache-dir --disable-pip-version-check \
             install --no-deps \
-            -r /tmp/requirements/docs/dev.txt \
-            -r /tmp/requirements/docs/user.txt \
-            -r /tmp/requirements/docs/blog.txt \
+            -r /tmp/requirements/docs-dev.txt \
+            -r /tmp/requirements/docs-user.txt \
+            -r /tmp/requirements/docs-blog.txt \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
