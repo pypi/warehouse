@@ -213,12 +213,9 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
-            typeguard.check_argument_types(memo)
-        except TypeError as exc:
+            return super().mapply(typeguard.typechecked(fn), args, kwargs)
+        except typeguard.TypeCheckError as exc:
             raise XMLRPCInvalidParamTypes(exc)
-
-        return super().mapply(fn, args, kwargs)
 
 
 @view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")

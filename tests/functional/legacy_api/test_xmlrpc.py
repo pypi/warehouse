@@ -42,6 +42,6 @@ def test_invalid_arguments(app_config, webtest):
 def test_arguments_with_wrong_type(app_config, webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
-        match='client error; type of argument "serial" must be int; got str instead',
+        match='client error; argument "serial" \(str\) is not an instance of int',
     ):
         webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
