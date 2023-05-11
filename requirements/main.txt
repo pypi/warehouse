@@ -475,9 +475,9 @@ google-api-core[grpc]==2.11.0 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.17.3 \
-    --hash=sha256:ce311e2bc58b130fddf316df57c9b3943c2a7b4f6ec31de9663a9333e4064efc \
-    --hash=sha256:f586b274d3eb7bd932ea424b1c702a30e0393a2e2bc4ca3eae8263ffd8be229f
+google-auth==2.18.0 \
+    --hash=sha256:c66b488a8b005b23ccb97b1198b6cece516c91869091ac5b7c267422db2733c7 \
+    --hash=sha256:ef3f3a67fa54d421a1c155864570f9a8de9179cedc937bda496b7a8ca338e936
     # via
     #   google-api-core
     #   google-cloud-core
@@ -1502,6 +1502,7 @@ urllib3==1.26.15 \
     # via
     #   botocore
     #   elasticsearch
+    #   google-auth
     #   kombu
     #   requests
     #   sentry-sdk
