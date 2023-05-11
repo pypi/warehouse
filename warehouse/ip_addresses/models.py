@@ -42,21 +42,40 @@ class IpAddress(db.Model):
             "(is_banned AND ban_reason IS NOT NULL AND ban_date IS NOT NULL)"
             "OR (NOT is_banned AND ban_reason IS NULL AND ban_date IS NULL)"
         ),
+        {"comment": "Tracks IP Addresses that have modified PyPI state"},
     )
 
     def __repr__(self):
         return self.ip_address
 
-    ip_address = Column(INET, nullable=False, unique=True)
-    hashed_ip_address = Column(Text, nullable=True, unique=True)
-    geoip_info = Column(JSONB, nullable=True)
+    ip_address = Column(
+        INET, nullable=False, unique=True, comment="Structured IP Address value"
+    )
+    hashed_ip_address = Column(
+        Text, nullable=True, unique=True, comment="Hash that represents an IP Address"
+    )
+    geoip_info = Column(
+        JSONB,
+        nullable=True,
+        comment="JSON containing GeoIP data associated with an IP Address",
+    )
 
-    is_banned = Column(Boolean, nullable=False, server_default=sql.false())
+    is_banned = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+        comment="If True, this IP Address will be marked as banned",
+    )
     ban_reason = Column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
+        comment="Reason for banning, must be contained in the BanReason enumeration",
     )
-    ban_date = Column(DateTime, nullable=True)
+    ban_date = Column(
+        DateTime,
+        nullable=True,
+        comment="Date that IP Address was last marked as banned",
+    )
 
     @validates("ip_address")
     def validate_ip_address(self, key, ip_address):

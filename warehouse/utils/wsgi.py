@@ -136,9 +136,7 @@ def _ip_address(request):
     """Return the IpAddress object for the remote address from the environment."""
     try:
         ip_address = (
-            request.db.query(IpAddress)
-            .filter(IpAddress.ip_address == request.remote_addr)
-            .one()
+            request.db.query(IpAddress).filter_by(ip_address=request.remote_addr).one()
         )
     except NoResultFound:
         ip_address = IpAddress(ip_address=request.remote_addr)

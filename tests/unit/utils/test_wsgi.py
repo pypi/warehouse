@@ -186,26 +186,17 @@ def test_ip_address_exists(db_request):
 
 def test_ip_address_created(db_request):
     with pytest.raises(NoResultFound):
-        db_request.db.query(IpAddress).filter(
-            IpAddress.ip_address == "192.0.2.69"
-        ).one()
+        db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
 
-    db_request.environ["REMOTE_ADDR"] = "192.0.2.69"
     db_request.environ["GEOIP_CITY"] = "Anytown, ST"
     db_request.remote_addr = "192.0.2.69"
+    db_request.remote_addr_hashed = "deadbeef"
 
     wsgi._ip_address(db_request)
 
-    ip_address = (
-        db_request.db.query(IpAddress)
-        .filter(IpAddress.ip_address == "192.0.2.69")
-        .one()
-    )
+    ip_address = db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
     assert ip_address.ip_address == "192.0.2.69"
-    assert (
-        ip_address.hashed_ip_address
-        == "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
-    )
+    assert ip_address.hashed_ip_address == "deadbeef"
     assert ip_address.geoip_info == {"city": "Anytown, ST"}
 
 
