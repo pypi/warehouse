@@ -801,8 +801,8 @@ def _extract_wheel_metadata(path):
     See https://peps.python.org/pep-0491/#file-contents
     """
     filename = os.path.basename(path)
-    name, ver, _, _ = packaging.utils.parse_wheel_filename(filename)
-    metafile = f"{name}-{ver}.dist-info/METADATA"
+    namever = _wheel_file_re.match(filename).group("namever")
+    metafile = f"{namever}.dist-info/METADATA"
     with zipfile.ZipFile(path) as zfp:
         return zfp.read(metafile)
 
@@ -1225,6 +1225,7 @@ def file_upload(request):
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
+            metadata_file_hashes = {}
             for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
@@ -1335,6 +1336,20 @@ def file_upload(request):
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
 
+            wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+            with open(temporary_filename + ".metadata", "wb") as fp:
+                fp.write(wheel_metadata_contents)
+            metadata_file_hashes = {
+                "md5": hashlib.md5(),
+                "sha256": hashlib.sha256(),
+                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+            }
+            for hasher in metadata_file_hashes.values():
+                hasher.update(wheel_metadata_contents)
+            metadata_file_hashes = {
+                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
+            }
+
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
             has_signature = True
@@ -1374,6 +1389,9 @@ def file_upload(request):
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
+            metadata_file_md5_digest=metadata_file_hashes.get("md5"),
+            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
+            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
             # Figure out what our filepath is going to be, we're going to use a
             # directory structure based on the hash of the file contents. This
             # will ensure that the contents of the file cannot change without
@@ -1441,6 +1459,17 @@ def file_upload(request):
             storage.store(
                 file_.pgp_path,
                 os.path.join(tmpdir, filename + ".asc"),
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
+                },
+            )
+        if metadata_file_hashes:
+            storage.store(
+                file_.metadata_path,
+                os.path.join(tmpdir, filename + ".metadata"),
                 meta={
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
