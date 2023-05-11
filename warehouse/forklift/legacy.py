@@ -1340,7 +1340,6 @@ def file_upload(request):
             with open(temporary_filename + ".metadata", "wb") as fp:
                 fp.write(wheel_metadata_contents)
             metadata_file_hashes = {
-                "md5": hashlib.md5(),
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
@@ -1389,7 +1388,6 @@ def file_upload(request):
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
-            metadata_file_md5_digest=metadata_file_hashes.get("md5"),
             metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
             metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
             # Figure out what our filepath is going to be, we're going to use a

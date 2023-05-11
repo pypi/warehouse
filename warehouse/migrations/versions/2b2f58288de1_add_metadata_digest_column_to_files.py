@@ -28,9 +28,6 @@ down_revision = "fd0479fed881"
 
 def upgrade():
     op.add_column(
-        "release_files", sa.Column("metadata_file_md5_digest", sa.Text(), nullable=True)
-    )
-    op.add_column(
         "release_files",
         sa.Column("metadata_file_sha256_digest", citext.CIText(), nullable=True),
     )
@@ -43,4 +40,3 @@ def upgrade():
 def downgrade():
     op.drop_column("release_files", "metadata_file_blake2_256_digest")
     op.drop_column("release_files", "metadata_file_sha256_digest")
-    op.drop_column("release_files", "metadata_file_md5_digest")

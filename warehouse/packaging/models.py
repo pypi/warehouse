@@ -670,7 +670,6 @@ class File(HasEvents, db.Model):
     uploaded_via = Column(Text)
 
     # PEP 658
-    metadata_file_md5_digest = Column(Text, nullable=True)
     metadata_file_sha256_digest = Column(CIText, nullable=True)
     metadata_file_blake2_256_digest = Column(CIText, nullable=True)
 
