@@ -25,10 +25,10 @@ if TYPE_CHECKING:
 
 
 GEOIP_FIELDS = {
-    "continent_code": "CONTINENT",
+    "continent_code": "CONTINENT_CODE",
     "country_code": "COUNTRY_CODE",
-    "country_code3": "COUNTRY_CODE_3",
-    "country_name": "COUNTRY",
+    "country_code3": "COUNTRY_CODE3",
+    "country_name": "COUNTRY_NAME",
     "region": "REGION",
     "city": "CITY",
 }
