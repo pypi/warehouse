@@ -5507,6 +5507,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5570,15 +5571,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:119
 msgid "Un-yank release"
-msgstr ""
-
-#: warehouse/templates/manage/project/releases.html:140
-#, python-format
-msgid ""
-"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">yanking</a> this release, making a new release or a <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">post release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:151
