@@ -1336,7 +1336,18 @@ def file_upload(request):
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
 
-            wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+            try:
+                wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+            except KeyError:
+                namever = wheel_info.group("namever")
+                metadata_filename = f"{namever}.dist-info/METADATA"
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Wheel '{filename}' does not contain the required "
+                    "METADATA file: {metadata_filename}".format(
+                        filename=filename, metadata_filename=metadata_filename
+                    ),
+                )
             with open(temporary_filename + ".metadata", "wb") as fp:
                 fp.write(wheel_metadata_contents)
             metadata_file_hashes = {

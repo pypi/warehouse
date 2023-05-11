@@ -3076,6 +3076,55 @@ class TestFileUpload:
             "400 Binary wheel .* has an unsupported platform tag .*", resp.status
         )
 
+    def test_upload_fails_with_missing_metadata_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr(
+                f"{project.name.lower()}-{release.version}.dist-info/METADATA",
+                "Fake metadata",
+            )
+
+        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert re.match(
+            "400 Wheel .* does not contain the required METADATA file: .*", resp.status
+        )
+
     def test_upload_updates_existing_project_name(
         self, pyramid_config, db_request, metrics
     ):
