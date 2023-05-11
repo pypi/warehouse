@@ -358,7 +358,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
-            pretend.call(".malware"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
             pretend.call(".subscriptions"),

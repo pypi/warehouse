@@ -190,29 +190,6 @@ def includeme(config):
     config.add_route("admin.flags", "/admin/flags/", domain=warehouse)
     config.add_route("admin.flags.edit", "/admin/flags/edit/", domain=warehouse)
 
-    # Malware checks
-    config.add_route("admin.checks.list", "/admin/checks/", domain=warehouse)
-    config.add_route(
-        "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
-    )
-    config.add_route(
-        "admin.checks.change_state",
-        "/admin/checks/{check_name}/change_state",
-        domain=warehouse,
-    )
-    config.add_route(
-        "admin.checks.run_evaluation",
-        "/admin/checks/{check_name}/run_evaluation",
-        domain=warehouse,
-    )
-    config.add_route("admin.verdicts.list", "/admin/verdicts/", domain=warehouse)
-    config.add_route(
-        "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
-    )
-    config.add_route(
-        "admin.verdicts.review", "/admin/verdicts/{verdict_id}/review", domain=warehouse
-    )
-
     # Sponsor related Admin pages
     config.add_route("admin.sponsor.list", "/admin/sponsors/", domain=warehouse)
     config.add_route(
