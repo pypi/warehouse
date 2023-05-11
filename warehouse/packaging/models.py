@@ -669,6 +669,10 @@ class File(HasEvents, db.Model):
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
 
+    # PEP 658
+    metadata_file_sha256_digest = Column(CIText, nullable=True)
+    metadata_file_blake2_256_digest = Column(CIText, nullable=True)
+
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
@@ -688,6 +692,14 @@ class File(HasEvents, db.Model):
     @pgp_path.expression  # type: ignore
     def pgp_path(self):
         return func.concat(self.path, ".asc")
+
+    @hybrid_property
+    def metadata_path(self):
+        return self.path + ".metadata"
+
+    @metadata_path.expression  # type: ignore
+    def metadata_path(self):
+        return func.concat(self.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):

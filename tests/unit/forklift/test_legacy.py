@@ -72,19 +72,26 @@ def _get_tar_testdata(compression_type=""):
     return temp_f.getvalue()
 
 
+def _get_whl_testdata(name="fake_package", version="1.0"):
+    temp_f = io.BytesIO()
+    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+        zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
+    return temp_f.getvalue()
+
+
+def _storage_hash(data):
+    return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
+
+
 _TAR_GZ_PKG_TESTDATA = _get_tar_testdata("gz")
 _TAR_GZ_PKG_MD5 = hashlib.md5(_TAR_GZ_PKG_TESTDATA).hexdigest()
 _TAR_GZ_PKG_SHA256 = hashlib.sha256(_TAR_GZ_PKG_TESTDATA).hexdigest()
-_TAR_GZ_PKG_STORAGE_HASH = hashlib.blake2b(
-    _TAR_GZ_PKG_TESTDATA, digest_size=256 // 8
-).hexdigest()
+_TAR_GZ_PKG_STORAGE_HASH = _storage_hash(_TAR_GZ_PKG_TESTDATA)
 
 _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
-_TAR_BZ2_PKG_STORAGE_HASH = hashlib.blake2b(
-    _TAR_BZ2_PKG_TESTDATA, digest_size=256 // 8
-).hexdigest()
+_TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -2771,6 +2778,8 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = f"{project.name}-{release.version}-cp34-none-{plat}.whl"
+        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2782,11 +2791,11 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": _TAR_GZ_PKG_MD5,
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
                 ),
             }
         )
@@ -2794,7 +2803,10 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == _TAR_GZ_PKG_TESTDATA
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
 
@@ -2818,9 +2830,9 @@ class TestFileUpload:
             pretend.call(
                 "/".join(
                     [
-                        _TAR_GZ_PKG_STORAGE_HASH[:2],
-                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
-                        _TAR_GZ_PKG_STORAGE_HASH[4:],
+                        filestoragehash[:2],
+                        filestoragehash[2:4],
+                        filestoragehash[4:],
                         filename,
                     ]
                 ),
@@ -2831,7 +2843,24 @@ class TestFileUpload:
                     "package-type": "bdist_wheel",
                     "python-version": "cp34",
                 },
-            )
+            ),
+            pretend.call(
+                "/".join(
+                    [
+                        filestoragehash[:2],
+                        filestoragehash[2:4],
+                        filestoragehash[4:],
+                        filename + ".metadata",
+                    ]
+                ),
+                mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package-type": "bdist_wheel",
+                    "python-version": "cp34",
+                },
+            ),
         ]
 
         # Ensure that a File object has been created.
@@ -2884,6 +2913,8 @@ class TestFileUpload:
         RoleFactory.create(user=user, project=project)
 
         filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filebody = _get_whl_testdata(name=project.name, version=release.version)
+        filestoragehash = _storage_hash(filebody)
 
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
@@ -2895,11 +2926,11 @@ class TestFileUpload:
                 "version": release.version,
                 "filetype": "bdist_wheel",
                 "pyversion": "cp34",
-                "md5_digest": "335c476dc930b959dda9ec82bd65ef19",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"A fake file."),
-                    type="application/tar",
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
                 ),
             }
         )
@@ -2907,7 +2938,10 @@ class TestFileUpload:
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
             with open(file_path, "rb") as fp:
-                assert fp.read() == b"A fake file."
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
 
         storage_service = pretend.stub(store=storage_service_store)
         db_request.find_service = pretend.call_recorder(
@@ -2930,9 +2964,9 @@ class TestFileUpload:
             pretend.call(
                 "/".join(
                     [
-                        "4e",
-                        "6e",
-                        "fa4c0ee2bbad071b4f5b5ea68f1aea89fa716e7754eb13e2314d45a5916e",
+                        filestoragehash[:2],
+                        filestoragehash[2:4],
+                        filestoragehash[4:],
                         filename,
                     ]
                 ),
@@ -2943,7 +2977,24 @@ class TestFileUpload:
                     "package-type": "bdist_wheel",
                     "python-version": "cp34",
                 },
-            )
+            ),
+            pretend.call(
+                "/".join(
+                    [
+                        filestoragehash[:2],
+                        filestoragehash[2:4],
+                        filestoragehash[4:],
+                        filename + ".metadata",
+                    ]
+                ),
+                mock.ANY,
+                meta={
+                    "project": project.normalized_name,
+                    "version": release.version,
+                    "package-type": "bdist_wheel",
+                    "python-version": "cp34",
+                },
+            ),
         ]
 
         # Ensure that a File object has been created.
@@ -3023,6 +3074,55 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert re.match(
             "400 Binary wheel .* has an unsupported platform tag .*", resp.status
+        )
+
+    def test_upload_fails_with_missing_metadata_wheel(
+        self, monkeypatch, pyramid_config, db_request
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        temp_f = io.BytesIO()
+        with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+            zfp.writestr(
+                f"{project.name.lower()}-{release.version}.dist-info/METADATA",
+                "Fake metadata",
+            )
+
+        filename = f"{project.name}-{release.version}-cp34-none-any.whl"
+        filebody = temp_f.getvalue()
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert re.match(
+            "400 Wheel .* does not contain the required METADATA file: .*", resp.status
         )
 
     def test_upload_updates_existing_project_name(
