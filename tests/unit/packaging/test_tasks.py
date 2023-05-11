@@ -84,7 +84,65 @@ def test_sync_file_to_archive(db_request, monkeypatch, archived):
         assert primary_stub.get_metadata.calls == [pretend.call(file.path)]
         assert primary_stub.get.calls == [pretend.call(file.path)]
         assert archive_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"})
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+        ]
+    else:
+        assert primary_stub.get_metadata.calls == []
+        assert primary_stub.get.calls == []
+        assert archive_stub.store.calls == []
+
+
+@pytest.mark.parametrize("archived", [True, False])
+def test_sync_file_to_archive_includes_bonus_files(db_request, monkeypatch, archived):
+    file = FileFactory(
+        archived=archived,
+        has_signature=True,
+        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+    )
+    primary_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    archive_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"primary": primary_stub, "archive": archive_stub}[
+            name
+        ]
+    )
+
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
+        )
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+
+    sync_file_to_archive(db_request, file.id)
+
+    assert file.archived
+
+    if not archived:
+        assert primary_stub.get_metadata.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert primary_stub.get.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert archive_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.pgp_path, "/tmp/wutang", meta={"fizz": "buzz"}),
         ]
     else:
         assert primary_stub.get_metadata.calls == []

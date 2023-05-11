@@ -29,18 +29,28 @@ from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
 
 
+def _copy_file_to_archive(primary_storage, archive_storage, path):
+    metadata = primary_storage.get_metadata(path)
+    file_obj = primary_storage.get(path)
+    with tempfile.NamedTemporaryFile() as file_for_archive:
+        file_for_archive.write(file_obj.read())
+        file_for_archive.flush()
+        archive_storage.store(path, file_for_archive.name, meta=metadata)
+
+
 @tasks.task(ignore_result=True, acks_late=True)
 def sync_file_to_archive(request, file_id):
     file = request.db.get(File, file_id)
     if not file.archived:
         primary_storage = request.find_service(IFileStorage, name="primary")
         archive_storage = request.find_service(IFileStorage, name="archive")
-        metadata = primary_storage.get_metadata(file.path)
-        file_obj = primary_storage.get(file.path)
-        with tempfile.NamedTemporaryFile() as file_for_archive:
-            file_for_archive.write(file_obj.read())
-            file_for_archive.flush()
-            archive_storage.store(file.path, file_for_archive.name, meta=metadata)
+
+        _copy_file_to_archive(primary_storage, archive_storage, file.path)
+        if file.metadata_file_sha256_digest is not None:
+            _copy_file_to_archive(primary_storage, archive_storage, file.metadata_path)
+        if file.has_signature:
+            _copy_file_to_archive(primary_storage, archive_storage, file.pgp_path)
+
         file.archived = True
 
 
