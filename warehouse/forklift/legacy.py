@@ -794,6 +794,19 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _extract_wheel_metadata(path):
+    """
+    Extract METADATA file from a wheel and return it as a content.
+    The name of the .whl file is used to find the corresponding .dist-info dir.
+    See https://peps.python.org/pep-0491/#file-contents
+    """
+    filename = os.path.basename(path)
+    name, ver, _, _ = packaging.utils.parse_wheel_filename(filename)
+    metafile = f"{name}-{ver}.dist-info/METADATA"
+    with zipfile.ZipFile(path) as zfp:
+        return zfp.read(metafile)
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
