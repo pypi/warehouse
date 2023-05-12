@@ -638,6 +638,7 @@ class File(HasEvents, db.Model):
             ),
             Index("release_files_release_id_idx", "release_id"),
             Index("release_files_archived_idx", "archived"),
+            Index("release_files_cached_idx", "cached"),
         )
 
     release_id = Column(
@@ -678,6 +679,12 @@ class File(HasEvents, db.Model):
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
 
+    cached = Column(
+        Boolean,
+        comment="If True, the object has been populated to our cache bucket.",
+        nullable=False,
+        server_default=sql.false(),
+    )
     archived = Column(
         Boolean,
         comment="If True, the object has been archived to our archival bucket.",
