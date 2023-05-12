@@ -277,6 +277,7 @@ class TestSimpleDetail:
                     "yanked": False,
                     "size": f.size,
                     "upload-time": f.upload_time.isoformat() + "Z",
+                    "data-dist-info-metadata": False,
                 }
                 for f in files
             ],
@@ -323,6 +324,7 @@ class TestSimpleDetail:
                     "yanked": False,
                     "size": f.size,
                     "upload-time": f.upload_time.isoformat() + "Z",
+                    "data-dist-info-metadata": False,
                 }
                 for f in files
             ],
@@ -370,6 +372,7 @@ class TestSimpleDetail:
                 release=r,
                 filename=f"{project.name}-{r.version}.whl",
                 packagetype="bdist_wheel",
+                metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
             )
             for r in releases
         ]
@@ -405,6 +408,11 @@ class TestSimpleDetail:
                     "yanked": False,
                     "size": f.size,
                     "upload-time": f.upload_time.isoformat() + "Z",
+                    "data-dist-info-metadata": {
+                        "sha256": "deadbeefdeadbeefdeadbeefdeadbeef"
+                    }
+                    if f.metadata_file_sha256_digest is not None
+                    else False,
                 }
                 for f in files
             ],

@@ -9,6 +9,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
+
+import typing
 
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -19,6 +22,9 @@ from sqlalchemy.orm import declared_attr
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 class Event(AbstractConcreteBase):
@@ -99,6 +105,8 @@ class Event(AbstractConcreteBase):
 
 
 class HasEvents:
+    Event: typing.ClassVar[type]
+
     def __init_subclass__(cls, /, **kwargs):
         super().__init_subclass__(**kwargs)
         cls.Event = type(
@@ -116,7 +124,10 @@ class HasEvents:
             back_populates="source",
         )
 
-    def record_event(self, *, tag, ip_address, additional=None):
+    def record_event(
+        self, *, tag, ip_address, request: Request = None, additional=None
+    ):
+        """Records an Event record on the associated model."""
         session = orm.object_session(self)
         event = self.Event(
             source=self,

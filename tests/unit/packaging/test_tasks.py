@@ -26,11 +26,11 @@ import warehouse.packaging.tasks
 from warehouse.accounts.models import WebAuthn
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
-    check_file_archive_tasks_outstanding,
+    check_file_cache_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
     sync_bigquery_release_files,
-    sync_file_to_archive,
+    sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
 )
@@ -48,22 +48,20 @@ from ...common.db.packaging import (
 )
 
 
-@pytest.mark.parametrize("archived", [True, False])
-def test_sync_file_to_archive(db_request, monkeypatch, archived):
-    file = FileFactory(archived=archived)
-    primary_stub = pretend.stub(
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache(db_request, monkeypatch, cached):
+    file = FileFactory(cached=cached)
+    archive_stub = pretend.stub(
         get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
         get=pretend.call_recorder(
             lambda path: pretend.stub(read=lambda: b"my content")
         ),
     )
-    archive_stub = pretend.stub(
+    cache_stub = pretend.stub(
         store=pretend.call_recorder(lambda filename, path, meta=None: None)
     )
     db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"primary": primary_stub, "archive": archive_stub}[
-            name
-        ]
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
     )
 
     @contextmanager
@@ -76,30 +74,86 @@ def test_sync_file_to_archive(db_request, monkeypatch, archived):
 
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
 
-    sync_file_to_archive(db_request, file.id)
+    sync_file_to_cache(db_request, file.id)
 
-    assert file.archived
+    assert file.cached
 
-    if not archived:
-        assert primary_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert primary_stub.get.calls == [pretend.call(file.path)]
-        assert archive_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"})
+    if not cached:
+        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
+        assert archive_stub.get.calls == [pretend.call(file.path)]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
         ]
     else:
-        assert primary_stub.get_metadata.calls == []
-        assert primary_stub.get.calls == []
-        assert archive_stub.store.calls == []
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
 
 
-def test_check_file_archive_tasks_outstanding(db_request, metrics):
-    [FileFactory(archived=True) for _ in range(12)]
-    [FileFactory(archived=False) for _ in range(3)]
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
+    file = FileFactory(
+        cached=cached,
+        has_signature=True,
+        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+    )
+    archive_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    cache_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
+    )
 
-    check_file_archive_tasks_outstanding(db_request)
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
+        )
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+
+    sync_file_to_cache(db_request, file.id)
+
+    assert file.cached
+
+    if not cached:
+        assert archive_stub.get_metadata.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert archive_stub.get.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.pgp_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+        ]
+    else:
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
+
+
+def test_check_file_cache_tasks_outstanding(db_request, metrics):
+    [FileFactory(cached=True) for _ in range(12)]
+    [FileFactory(cached=False) for _ in range(3)]
+
+    check_file_cache_tasks_outstanding(db_request)
 
     assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.files.not_archived", 3)
+        pretend.call("warehouse.packaging.files.not_cached", 3)
     ]
 
 

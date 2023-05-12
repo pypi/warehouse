@@ -47,7 +47,7 @@ to PyPI's traditional authentication methods:
   API tokens on PyPI and copy-paste them into their CI provider. The only
   manual step is configuring the publisher on PyPI.
 * Security: PyPI's normal API tokens are long-lived, meaning that an attacker
-  who compromises a package's release can use it until its legitimate user
+  who compromises a package's release token can use it until its legitimate user
   notices and manually revokes it. Similarly, uploading with a password means
   that an attacker can upload to *any* project associated with the account.
   Trusted publishing avoids both of these problems: the tokens minted expire
