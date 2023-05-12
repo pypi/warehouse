@@ -69,7 +69,7 @@ class IpAddress(db.Model):
     ban_reason = Column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
-        comment="Reason for banning, must be contained in the BanReason enumeration",
+        comment="Reason for banning, must be in the BanReason enumeration",
     )
     ban_date = Column(
         DateTime,
