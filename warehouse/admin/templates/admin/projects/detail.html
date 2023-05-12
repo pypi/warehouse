@@ -328,7 +328,7 @@
         <tr>
           <td>{{ event.tag }}</td>
           <td>{{ event.time }}</td>
-          <td>{{ event.ip_address }}</td>
+          <td>{{ event.ip_address.hashed_ip_address if event.ip_address.hashed_ip_address else event.ip_address }}</td>
           <td>{{ event.additional }}</td>
         </tr>
         {% endfor %}
