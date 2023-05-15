@@ -444,7 +444,9 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
             "fakedomain",
             f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
-                caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid", oidc_claims=claims),
+                caveats.OIDCPublisher(
+                    oidc_publisher_id="fakepublisherid", oidc_claims=claims
+                ),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],

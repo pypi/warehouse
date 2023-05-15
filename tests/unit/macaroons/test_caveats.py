@@ -94,7 +94,8 @@ class TestDeserialization:
             (
                 b'[4,"somepublisher",{"foo": "bar"}]',
                 OIDCPublisher(
-                    oidc_publisher_id="somepublisher", oidc_claims={"foo": "bar"},
+                    oidc_publisher_id="somepublisher",
+                    oidc_claims={"foo": "bar"},
                 ),
             ),
             # Legacy Caveat Style
