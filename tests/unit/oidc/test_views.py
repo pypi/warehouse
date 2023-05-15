@@ -379,7 +379,17 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ]
 
 
-def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
+@pytest.mark.parametrize(
+    ("claims_in_token", "claims_in_caveat"),
+    [
+        ({"ref": "someref", "sha": "somesha"}, {"ref": "someref", "sha": "somesha"}),
+        ({"ref": "someref"}, {"ref": "someref", "sha": None}),
+        ({"sha": "somesha"}, {"ref": None, "sha": "somesha"}),
+    ],
+)
+def test_mint_token_from_oidc_no_pending_publisher_ok(
+    monkeypatch, claims_in_token, claims_in_caveat
+):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
@@ -396,9 +406,8 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
-    claims = {"ref": "someref", "sha": "somesha"}
     oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
         find_publisher=pretend.call_recorder(
             lambda claims, pending=False: publisher if not pending else None
         ),
@@ -436,8 +445,8 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
 
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
     assert oidc_service.find_publisher.calls == [
-        pretend.call(claims, pending=True),
-        pretend.call(claims, pending=False),
+        pretend.call(claims_in_token, pending=True),
+        pretend.call(claims_in_token, pending=False),
     ]
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
@@ -445,7 +454,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
             f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
-                    oidc_publisher_id="fakepublisherid", oidc_claims=claims
+                    oidc_publisher_id="fakepublisherid", oidc_claims=claims_in_caveat
                 ),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
