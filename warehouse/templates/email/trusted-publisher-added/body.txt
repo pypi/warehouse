@@ -25,8 +25,9 @@ users and can create project releases automatically.
 * {% trans %}Publisher{% endtrans %}: {{ publisher_name }}
 * {% trans %}Workflow{% endtrans %}: {{ publisher_workflow }}
 * {% trans %}Repository{% endtrans %}: {{ publisher_repository }}
-{% if publisher_environment %}* {% trans %}Environment{% endtrans %}: {{ publisher_environment }}
-{% endif %}
+{%- if publisher_environment %}
+* {% trans %}Environment{% endtrans %}: {{ publisher_environment }}
+{%- endif %}
 
 {% trans %}
 If you did not make this change and you think it was made maliciously, you can
