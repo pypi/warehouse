@@ -191,7 +191,9 @@ def mint_token_from_oidc(request):
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [
-            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id), oidc_claims=claims),
+            caveats.OIDCPublisher(
+                oidc_publisher_id=str(publisher.id), oidc_claims=claims
+            ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],

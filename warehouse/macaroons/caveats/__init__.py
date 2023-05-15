@@ -12,7 +12,7 @@
 
 import time
 
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import StrictInt, StrictStr
 from pydantic.dataclasses import dataclass
@@ -106,7 +106,7 @@ class RequestUser(Caveat):
 @dataclass(frozen=True)
 class OIDCPublisher(Caveat):
     oidc_publisher_id: StrictStr
-    oidc_claims: Optional[SignedClaims]
+    oidc_claims: SignedClaims | None
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         # If the identity associated with this macaroon is not an OpenID publisher,
