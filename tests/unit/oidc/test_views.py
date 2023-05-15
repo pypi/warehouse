@@ -396,7 +396,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
-    claims = {"foo": "bar"}
+    claims = {"ref": "someref", "sha": "somesha"}
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
         find_publisher=pretend.call_recorder(
