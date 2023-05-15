@@ -175,17 +175,17 @@ mkdocs==1.4.3 \
     --hash=sha256:5955093bbd4dd2e9403c5afaf57324ad8b04f16886512a3ee6ef828956481c57 \
     --hash=sha256:6ee46d309bda331aac915cd24aab882c179a933bd9e77b80ce7d2eaaa3f689dd
     # via
-    #   -r requirements/docs-user.in
+    #   -r docs-user.in
     #   mkdocs-macros-plugin
     #   mkdocs-material
 mkdocs-macros-plugin==0.7.0 \
     --hash=sha256:96bdabeb98b96139544f0048ea2f5cb80c7befde6b21e94c6d4596c22774cbcf \
     --hash=sha256:9e64e1cabcf6925359de29fe54f62d5847fb455c2528c440b87f8f1240650608
-    # via -r requirements/docs-user.in
+    # via -r docs-user.in
 mkdocs-material==9.1.11 \
     --hash=sha256:f5d473eb79d6640a5e668d4b2ab5b9de5e76ae0a0e2d864112df0cfe9016dc1d \
     --hash=sha256:fbc86d50ec2cf34d40d5c4365780f290ceedde23f1a0704323b34e7f16b0c0dd
-    # via -r requirements/docs-user.in
+    # via -r docs-user.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
@@ -198,9 +198,9 @@ pygments==2.15.1 \
     --hash=sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c \
     --hash=sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1
     # via mkdocs-material
-pymdown-extensions==9.11 \
-    --hash=sha256:a499191d8d869f30339de86fcf072a787e86c42b6f16f280f5c2cf174182b7f3 \
-    --hash=sha256:f7e86c1d3981f23d9dc43294488ecb54abadd05b0be4bf8f0e15efc90f7853ff
+pymdown-extensions==10.0 \
+    --hash=sha256:9a77955e63528c2ee98073a1fb3207c1a45607bc74a34ef21acd098f46c3aa8a \
+    --hash=sha256:e6cbe8ace7d8feda30bc4fd6a21a073893a9a0e90c373e92d69ce5b653051f55
     # via mkdocs-material
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \

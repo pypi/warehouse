@@ -14,7 +14,7 @@ cairocffi==1.5.1 \
 cairosvg==2.7.0 \
     --hash=sha256:17cb96423a896258848322a95c80160e714a58f1af3dd73b8e1750994519b9f9 \
     --hash=sha256:ac4dc7c1d38b3a15717db2633a3a383012e0be664c727c911637e6af6a49293c
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 certifi==2023.5.7 \
     --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
     --hash=sha256:c6c2e98f5c7869efca1f8916fed228dd91539f9f1b444c314c06eef02980c716
@@ -270,18 +270,18 @@ mkdocs==1.4.3 \
     --hash=sha256:5955093bbd4dd2e9403c5afaf57324ad8b04f16886512a3ee6ef828956481c57 \
     --hash=sha256:6ee46d309bda331aac915cd24aab882c179a933bd9e77b80ce7d2eaaa3f689dd
     # via
-    #   -r requirements/docs-blog.in
+    #   -r docs-blog.in
     #   mkdocs-blogging-plugin
     #   mkdocs-material
     #   mkdocs-rss-plugin
 mkdocs-blogging-plugin==2.2.5 \
     --hash=sha256:2cd8fce95ef912dd9aebf32304a07ce116adcc69b13ae412252a31f3b462c8c2 \
     --hash=sha256:ba4718a4dad49e093e1e1e7a7bd05cd91e6dc9429c27dd6081f9a290a865bc5b
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 mkdocs-material==9.1.11 \
     --hash=sha256:f5d473eb79d6640a5e668d4b2ab5b9de5e76ae0a0e2d864112df0cfe9016dc1d \
     --hash=sha256:fbc86d50ec2cf34d40d5c4365780f290ceedde23f1a0704323b34e7f16b0c0dd
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
@@ -289,7 +289,7 @@ mkdocs-material-extensions==1.1.1 \
 mkdocs-rss-plugin==1.6.0 \
     --hash=sha256:7e7f08e7ea947d98042b9c05885d93c0f26b236865fc5b36a2261bb112a5d766 \
     --hash=sha256:93644af3b9800842a5849ed5481e225f443bf0cda74843c9e81f6a62f6d14113
-    # via -r requirements/docs-blog.in
+    # via -r docs-blog.in
 packaging==23.1 \
     --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
     --hash=sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f
@@ -362,7 +362,7 @@ pillow==9.5.0 \
     --hash=sha256:fe7e1c262d3392afcf5071df9afa574544f28eac825284596ac6db56e6d11062 \
     --hash=sha256:fed1e1cf6a42577953abbe8e6cf2fe2f566daebde7c34724ec8803c4c0cda579
     # via
-    #   -r requirements/docs-blog.in
+    #   -r docs-blog.in
     #   cairosvg
 pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
@@ -372,9 +372,9 @@ pygments==2.15.1 \
     --hash=sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c \
     --hash=sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1
     # via mkdocs-material
-pymdown-extensions==9.11 \
-    --hash=sha256:a499191d8d869f30339de86fcf072a787e86c42b6f16f280f5c2cf174182b7f3 \
-    --hash=sha256:f7e86c1d3981f23d9dc43294488ecb54abadd05b0be4bf8f0e15efc90f7853ff
+pymdown-extensions==10.0 \
+    --hash=sha256:9a77955e63528c2ee98073a1fb3207c1a45607bc74a34ef21acd098f46c3aa8a \
+    --hash=sha256:e6cbe8ace7d8feda30bc4fd6a21a073893a9a0e90c373e92d69ce5b653051f55
     # via mkdocs-material
 python-dateutil==2.8.2 \
     --hash=sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86 \
