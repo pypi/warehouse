@@ -396,7 +396,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
-    claims = pretend.stub()
+    claims = {"foo": "bar"}
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
         find_publisher=pretend.call_recorder(
@@ -444,7 +444,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(monkeypatch):
             "fakedomain",
             f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
-                caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid"),
+                caveats.OIDCPublisher(oidc_publisher_id="fakepublisherid", oidc_claims=claims),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],

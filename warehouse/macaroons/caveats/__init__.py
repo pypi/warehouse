@@ -106,7 +106,7 @@ class RequestUser(Caveat):
 @dataclass(frozen=True)
 class OIDCPublisher(Caveat):
     oidc_publisher_id: StrictStr
-    oidc_claims: SignedClaims | None
+    oidc_claims: SignedClaims | None = None
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         # If the identity associated with this macaroon is not an OpenID publisher,
