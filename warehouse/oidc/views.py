@@ -192,7 +192,8 @@ def mint_token_from_oidc(request):
         ),
         [
             caveats.OIDCPublisher(
-                oidc_publisher_id=str(publisher.id), oidc_claims=claims
+                oidc_publisher_id=str(publisher.id),
+                oidc_claims={"ref": claims.ref, "sha": claims.sha},
             ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
