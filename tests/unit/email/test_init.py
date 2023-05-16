@@ -5724,9 +5724,11 @@ class TestTrustedPublisherEmails:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         project_name = "test_project"
-        fakepublisher = pretend.stub(publisher_name="fakepublisher",
-                                     repository_name="fakerepository",
-                                     environment="fakeenvironment")
+        fakepublisher = pretend.stub(
+            publisher_name="fakepublisher",
+            repository_name="fakerepository",
+            environment="fakeenvironment",
+        )
         # NOTE: Can't set __str__ using pretend.stub()
         monkeypatch.setattr(
             fakepublisher.__class__, "__str__", lambda s: "fakespecifier"
