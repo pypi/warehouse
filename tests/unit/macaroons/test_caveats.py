@@ -419,7 +419,7 @@ class TestOIDCClaimExtraction:
     def test_extract_claims_has_publisher(self, claimset):
         caveat = OIDCPublisher(oidc_publisher_id="somepublisher", oidc_claims=claimset)
 
-        m = pretend.stub(caveats=[serialize(caveat)])
+        m = pretend.stub(caveats=[pretend.stub(caveat_id=serialize(caveat))])
         claims = extract_oidc_claims(m)
 
         assert claims == claimset
@@ -427,12 +427,12 @@ class TestOIDCClaimExtraction:
     def test_extract_claims_no_publisher(self):
         caveat = RequestUser(user_id="someuser")
 
-        m = pretend.stub(caveats=[serialize(caveat)])
+        m = pretend.stub(caveats=[pretend.stub(caveat_id=serialize(caveat))])
         claims = extract_oidc_claims(m)
 
         assert claims is None
 
     def test_extract_claims_bad_caveat(self):
-        m = pretend.stub(caveats=[b"invalid serialized caveat"])
+        m = pretend.stub(caveats=[pretend.stub(caveat_id=b'"not a valid caveat"')])
         claims = extract_oidc_claims(m)
         assert claims is None

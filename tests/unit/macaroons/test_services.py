@@ -180,15 +180,17 @@ class TestDatabaseMacaroonService:
         assert user.id == user_id
 
     def test_extract_oidc_claims(self, macaroon_service):
+        publisher = GitHubPublisherFactory.create()
         oidc_claims = {"foo": "bar"}
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
             [
                 caveats.OIDCPublisher(
-                    oidc_publisher_id="fake publisher", oidc_claims=oidc_claims
-                )
+                    oidc_publisher_id=str(publisher.id), oidc_claims=oidc_claims
+                ),
             ],
+            oidc_publisher_id=publisher.id,
         )
 
         output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)

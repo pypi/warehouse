@@ -181,7 +181,7 @@ def verify(
 def extract_oidc_claims(macaroon: Macaroon) -> SignedClaims | None:
     for raw in macaroon.caveats:
         try:
-            caveat = deserialize(raw)
+            caveat = deserialize(raw.caveat_id)
         except CaveatError:
             return None
 

@@ -145,7 +145,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         user = pretend.stub()
-        macaroon = pretend.stub(user=user)
+        macaroon = pretend.stub(user=user, oidc_publisher=None)
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
         )
