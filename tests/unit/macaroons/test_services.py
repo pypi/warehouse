@@ -179,6 +179,17 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
+    def test_extract_oidc_claims(self, macaroon_service):
+        oidc_claims = {"foo": "bar"}
+        raw_macaroon, _ = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.OIDCPublisher(oidc_publisher_id="fake publisher", oidc_claims=oidc_claims)]
+        )
+
+        output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
+        assert oidc_claims == output_claims
+
     def test_verify_unprefixed_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",

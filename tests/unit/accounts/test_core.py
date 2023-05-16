@@ -36,6 +36,7 @@ from warehouse.accounts.services import (
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import OIDCContext
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -326,23 +327,28 @@ class TestUser:
         assert accounts._user(request) is None
 
 
-class TestOIDCPublisher:
+class TestOIDCPublisherAndClaims:
     def test_with_oidc_publisher(self, db_request):
         publisher = GitHubPublisherFactory.create()
         assert isinstance(publisher, OIDCPublisher)
-        request = pretend.stub(identity=OIDCContext(publisher, None))
+        claims = SignedClaims({"foo": "bar"})
+
+        request = pretend.stub(identity=OIDCContext(publisher, claims))
 
         assert accounts._oidc_publisher(request) is publisher
+        assert accounts._oidc_claims(request) is claims
 
     def test_without_oidc_publisher_identity(self):
         nonpublisher = pretend.stub()
         request = pretend.stub(identity=nonpublisher)
 
         assert accounts._oidc_publisher(request) is None
+        assert accounts._oidc_claims(request) is None
 
     def test_without_identity(self):
         request = pretend.stub(identity=None)
         assert accounts._oidc_publisher(request) is None
+        assert accounts._oidc_claims(request) is None
 
 
 class TestOrganizationAccess:

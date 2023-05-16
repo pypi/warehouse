@@ -31,6 +31,7 @@ from warehouse.macaroons.caveats import (
     RequestUser,
     Success,
     deserialize,
+    extract_oidc_claims,
     serialize,
     verify,
 )
@@ -405,3 +406,33 @@ class TestVerification:
         )
         assert not status
         assert status.msg == "unknown error"
+
+
+class TestOIDCClaimExtraction:
+    @pytest.mark.parametrize(
+        "claimset",
+        [
+            None,
+            {"ref": "someref", "sha": "somesha"},
+        ],
+    )
+    def test_extract_claims_has_publisher(self, claimset):
+        caveat = OIDCPublisher(oidc_publisher_id="somepublisher", oidc_claims=claimset)
+
+        m = pretend.stub(caveats=[serialize(caveat)])
+        claims = extract_oidc_claims(m)
+
+        assert claims == claimset
+
+    def test_extract_claims_no_publisher(self):
+        caveat = RequestUser(user_id="someuser")
+
+        m = pretend.stub(caveats=[serialize(caveat)])
+        claims = extract_oidc_claims(m)
+
+        assert claims is None
+
+    def test_extract_claims_bad_caveat(self):
+        m = pretend.stub(caveats=[b"invalid serialized caveat"])
+        claims = extract_oidc_claims(m)
+        assert claims is None
