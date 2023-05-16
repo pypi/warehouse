@@ -21,8 +21,12 @@ PyPI user {{ username }} has removed a trusted publisher from a project
 
 {% trans %}Publisher information{% endtrans %}:
 
-* {% trans %}Publisher name{% endtrans %}: {{ publisher_name }}
-* {% trans %}Publisher specification{% endtrans %}: {{ publisher_spec }}
+* {% trans %}Publisher{% endtrans %}: {{ publisher_name }}
+* {% trans %}Workflow{% endtrans %}: {{ publisher_workflow }}
+* {% trans %}Repository{% endtrans %}: {{ publisher_repository }}
+{%- if publisher_environment %}
+* {% trans %}Environment{% endtrans %}: {{ publisher_environment }}
+{% endif %}
 
 {% trans %}
 If you did not make this change and you think it was made in error, you can
