@@ -99,4 +99,4 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
 @dataclass
 class OIDCContext:
     publisher: OIDCPublisher
-    claims: SignedClaims
+    claims: SignedClaims | None

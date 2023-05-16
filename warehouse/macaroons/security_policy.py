@@ -91,13 +91,18 @@ class MacaroonSecurityPolicy:
 
         try:
             dm = macaroon_service.find_from_raw(macaroon)
-            oidc_claims = macaroon_service.extract_oidc_claims(macaroon)
         except InvalidMacaroonError:
             return None
 
         # Every Macaroon is either associated with a user or an OIDC publisher.
         if dm.user is not None:
             return dm.user
+
+        # If this is an OIDC publisher, extract the claims embedded in caveats.
+        try:
+            oidc_claims = macaroon_service.extract_oidc_claims(macaroon)
+        except InvalidMacaroonError:
+            return None
 
         return OIDCContext(dm.oidc_publisher, oidc_claims)
 

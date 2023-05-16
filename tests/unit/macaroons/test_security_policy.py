@@ -21,6 +21,8 @@ from zope.interface.verify import verifyClass
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.utils import OIDCContext
 
 
 @pytest.mark.parametrize(
@@ -177,9 +179,11 @@ class TestMacaroonSecurityPolicy:
         )
 
         oidc_publisher = pretend.stub()
+        oidc_claims = {"foo": "bar"}
         macaroon = pretend.stub(user=None, oidc_publisher=oidc_publisher)
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
+            extract_oidc_claims=pretend.call_recorder(lambda rm: oidc_claims),
         )
 
         request = pretend.stub(
@@ -187,12 +191,19 @@ class TestMacaroonSecurityPolicy:
             find_service=pretend.call_recorder(lambda iface, **kw: macaroon_service),
         )
 
-        assert policy.identity(request) is oidc_publisher
+        identity = policy.identity(request)
+        assert identity
+        assert identity.publisher is oidc_publisher
+        assert identity == OIDCContext(oidc_publisher, SignedClaims(oidc_claims))
+
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None),
         ]
         assert macaroon_service.find_from_raw.calls == [pretend.call(raw_macaroon)]
+        assert macaroon_service.extract_oidc_claims.calls == [
+            pretend.call(raw_macaroon)
+        ]
 
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]

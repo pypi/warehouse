@@ -37,6 +37,7 @@ from warehouse.accounts.services import (
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
 from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.utils import OIDCContext
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -329,7 +330,7 @@ class TestOIDCPublisher:
     def test_with_oidc_publisher(self, db_request):
         publisher = GitHubPublisherFactory.create()
         assert isinstance(publisher, OIDCPublisher)
-        request = pretend.stub(identity=publisher)
+        request = pretend.stub(identity=OIDCContext(publisher, None))
 
         assert accounts._oidc_publisher(request) is publisher
 
@@ -452,6 +453,7 @@ def test_includeme(monkeypatch):
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
         pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
+        pretend.call(accounts._oidc_claims, name="oidc_claims", reify=True),
         pretend.call(
             accounts._organization_access, name="organization_access", reify=True
         ),

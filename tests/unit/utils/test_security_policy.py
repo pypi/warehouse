@@ -16,6 +16,7 @@ import pytest
 from pyramid.authorization import Authenticated
 from pyramid.security import Denied
 
+from warehouse.oidc.utils import OIDCContext
 from warehouse.utils import security_policy
 
 from ...common.db.accounts import UserFactory
@@ -219,7 +220,7 @@ class TestMultiSecurityPolicy:
         policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
 
         publisher = GitHubPublisherFactory.create()
-        request = pretend.stub(identity=publisher)
+        request = pretend.stub(identity=OIDCContext(publisher, None))
         context = pretend.stub()
         permission = pretend.stub()
         assert policy.permits(request, context, permission) is status
