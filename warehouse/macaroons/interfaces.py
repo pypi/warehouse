@@ -32,6 +32,12 @@ class IMacaroonService(Interface):
         macaroon.
         """
 
+    def extract_oidc_claims(raw_macaroon):
+        """
+        Returns the OIDC claims embedded in the raw macaroon's caveats.
+        Returns None if the macaroon does not contain OIDC claims.
+        """
+
     def verify(raw_macaroon, request, context, permission):
         """
         Returns True if the given raw (serialized) macaroon is

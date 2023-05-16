@@ -37,7 +37,7 @@ from warehouse.oidc import models as oidc_models
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
-__all__ = ["deserialize", "serialize", "verify"]
+__all__ = ["deserialize", "serialize", "verify", "extract_oidc_claims"]
 
 
 @as_caveat(tag=0)
@@ -176,3 +176,18 @@ def verify(
     if not result:
         return WarehouseDenied("unknown error", reason="invalid_api_token")
     return Allowed("signature and caveats OK")
+
+
+def extract_oidc_claims(macaroon: Macaroon) -> SignedClaims | None:
+    for raw in macaroon.caveats:
+        try:
+            caveat = deserialize(raw)
+        except CaveatError:
+            return None
+
+        if not isinstance(caveat, OIDCPublisher):
+            continue
+
+        return caveat.oidc_claims
+
+    return None

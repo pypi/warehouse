@@ -12,9 +12,12 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from sqlalchemy.sql.expression import func, literal
 
-from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.models import GitHubPublisher, OIDCPublisher, PendingGitHubPublisher
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 
@@ -91,3 +94,9 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
     else:
         # Unreachable; same logic error as above.
         return None  # pragma: no cover
+
+
+@dataclass
+class OIDCContext:
+    publisher: OIDCPublisher
+    claims: SignedClaims
