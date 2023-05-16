@@ -184,7 +184,11 @@ class TestDatabaseMacaroonService:
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.OIDCPublisher(oidc_publisher_id="fake publisher", oidc_claims=oidc_claims)]
+            [
+                caveats.OIDCPublisher(
+                    oidc_publisher_id="fake publisher", oidc_claims=oidc_claims
+                )
+            ],
         )
 
         output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
