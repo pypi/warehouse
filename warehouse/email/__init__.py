@@ -987,7 +987,9 @@ def send_trusted_publisher_added_email(request, user, project_name, publisher):
         "username": request.user.username,
         "project_name": project_name,
         "publisher_name": publisher.publisher_name,
-        "publisher_spec": str(publisher),
+        "publisher_workflow": str(publisher),
+        "publisher_repository": publisher.repository_name,
+        "publisher_environment": publisher.environment,
     }
 
 
@@ -998,7 +1000,9 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
         "username": request.user.username,
         "project_name": project_name,
         "publisher_name": publisher.publisher_name,
-        "publisher_spec": str(publisher),
+        "publisher_workflow": str(publisher),
+        "publisher_repository": publisher.repository_name,
+        "publisher_environment": publisher.environment,
     }
 
 
