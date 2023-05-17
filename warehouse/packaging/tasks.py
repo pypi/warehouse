@@ -11,8 +11,10 @@
 # limitations under the License.
 
 import datetime
+import logging
 import tempfile
 
+from collections import namedtuple
 from itertools import product
 
 import pip_api
@@ -27,6 +29,8 @@ from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
+
+logger = logging.getLogger(__name__)
 
 
 def _copy_file_to_cache(archive_storage, cache_storage, path):
@@ -64,6 +68,147 @@ def check_file_cache_tasks_outstanding(request):
         "warehouse.packaging.files.not_cached",
         files_not_cached,
     )
+
+
+Checksums = namedtuple("Checksums", ["file", "metadata_file", "pgp_file"])
+
+
+def fetch_checksums(storage, file):
+    try:
+        file_checksum = storage.get_checksum(file.path)
+    except FileNotFoundError:
+        file_checksum = None
+
+    try:
+        file_metadata_checksum = storage.get_checksum(file.metadata_path)
+    except FileNotFoundError:
+        file_metadata_checksum = None
+
+    try:
+        file_signature_checksum = storage.get_checksum(file.pgp_path)
+    except FileNotFoundError:
+        file_signature_checksum = None
+
+    return Checksums(file_checksum, file_metadata_checksum, file_signature_checksum)
+
+
+@tasks.task(ignore_results=True, acks_late=True)
+def reconcile_file_storages(request):
+    metrics = request.find_service(IMetricsService, context=None)
+    cache_storage = request.find_service(IFileStorage, name="cache")
+    archive_storage = request.find_service(IFileStorage, name="archive")
+
+    batch_size = request.registry.settings["reconcile_file_storages.batch_size"]
+
+    logger.info(f"Running reconcile_file_storages with batch_size {batch_size}...")
+
+    files_batch = request.db.query(File).filter_by(cached=False).limit(batch_size)
+
+    for file in files_batch.all():
+        logger.info(f"Checking File<{file.id}> ({file.path})...")
+        archive_checksums = fetch_checksums(archive_storage, file)
+        cache_checksums = fetch_checksums(cache_storage, file)
+
+        # Note: We don't store md5 digest for METADATA file or pgp signature
+        # in our database, record boolean for if we should expect values.
+        expected_checksums = Checksums(
+            file.md5_digest,
+            bool(file.metadata_file_sha256_digest),
+            bool(file.has_signature),
+        )
+
+        if (
+            (archive_checksums == cache_checksums)
+            and (archive_checksums.file == expected_checksums.file)
+            and (
+                bool(archive_checksums.metadata_file)
+                == expected_checksums.metadata_file
+            )
+            and (bool(archive_checksums.pgp_file) == expected_checksums.pgp_file)
+        ):
+            logger.info(f"    File<{file.id}> ({file.path}) is all good ✨")
+            file.cached = True
+        else:
+            errors = []
+
+            if (archive_checksums.file != cache_checksums.file) and (
+                archive_checksums.file == expected_checksums.file
+            ):
+                # No worries, a consistent file is in archive but not cache
+                _copy_file_to_cache(archive_storage, cache_storage, file.path)
+                logger.info(
+                    f"    File<{file.id}> distribution ({file.path}) "
+                    "pulled from archive ⬆️"
+                )
+                metrics.increment(
+                    "warehouse.filestorage.reconciled", tags=["type:dist"]
+                )
+            elif archive_checksums.file == cache_checksums.file:
+                logger.info(f"    File<{file.id}> distribution ({file.path}) is ok ✅")
+            else:
+                metrics.increment(
+                    "warehouse.filestorage.unreconciled", tags=["type:dist"]
+                )
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> distribution "
+                    "({file.path}) ❌"
+                )
+                errors.append(file.path)
+
+            if expected_checksums.metadata_file and (
+                archive_checksums.metadata_file is not None
+                and cache_checksums.metadata_file is None
+            ):
+                # The only file we have is in archive, so use that for cache
+                _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
+                logger.info(
+                    f"    File<{file.id}> METADATA ({file.metadata_path}) "
+                    "pulled from archive ⬆️"
+                )
+                metrics.increment(
+                    "warehouse.filestorage.reconciled", tags=["type:metadata"]
+                )
+            elif archive_checksums.metadata_file == cache_checksums.metadata_file:
+                logger.info(
+                    f"    File<{file.id}> METADATA ({file.metadata_path}) is ok ✅"
+                )
+            else:
+                metrics.increment(
+                    "warehouse.filestorage.unreconciled", tags=["type:metadata"]
+                )
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> METADATA "
+                    f"({file.metadata_path}) ❌"
+                )
+                errors.append(file.metadata_path)
+
+            if expected_checksums.pgp_file and (
+                archive_checksums.pgp_file is not None
+                and cache_checksums.pgp_file is None
+            ):
+                # The only file we have is in archive, so use that for cache
+                _copy_file_to_cache(archive_storage, cache_storage, file.pgp_path)
+                logger.info(
+                    f"    File<{file.id}> pgp signature ({file.pgp_path}) "
+                    "pulled from archive ⬆️"
+                )
+                metrics.increment("warehouse.filestorage.reconciled", tags=["type:pgp"])
+            elif archive_checksums.pgp_file == cache_checksums.pgp_file:
+                logger.info(
+                    f"    File<{file.id}> pgp signature ({file.pgp_path}) is ok ✅"
+                )
+            else:
+                metrics.increment(
+                    "warehouse.filestorage.unreconciled", tags=["type:pgp"]
+                )
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> pgp signature "
+                    f"({file.pgp_path}) ❌"
+                )
+                errors.append(file.pgp_path)
+
+            if len(errors) == 0:
+                file.cached = True
 
 
 @tasks.task(ignore_result=True, acks_late=True)
