@@ -1462,7 +1462,8 @@ class ManageAccountPublishingViews:
         publisher_already_exists = (
             self.request.db.query(PendingGitHubPublisher)
             .filter_by(
-                repository=form.repository.data,
+                repository_name=form.repository.data,
+                repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
                 environment=form.normalized_environment,
             )
