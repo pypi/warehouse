@@ -126,8 +126,23 @@ class DatabaseMacaroonService:
         Returns None if the macaroon does not contain OIDC claims.
         """
 
-        m = self._deserialize_raw_macaroon(raw_macaroon)
-        return caveats.extract_oidc_claims(m)
+        try:
+            m = self._deserialize_raw_macaroon(raw_macaroon)
+        except InvalidMacaroonError:
+            return None
+
+        for raw in m.caveats:
+            try:
+                caveat = caveats.deserialize(raw.caveat_id)
+            except caveats.CaveatError:
+                return None
+
+            if not isinstance(caveat, caveats.OIDCPublisher):
+                continue
+
+            return caveat.oidc_claims
+
+        return None
 
     def verify(self, raw_macaroon, request, context, permission):
         """
