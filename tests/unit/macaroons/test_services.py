@@ -224,7 +224,7 @@ class TestDatabaseMacaroonService:
     def test_extract_claims_bad_claim(self, monkeypatch, macaroon_service):
         publisher = GitHubPublisherFactory.create()
 
-        serialize = pretend.callrecorder(lambda caveat: b'"thiswillnotdeserialize"')
+        serialize = pretend.call_recorder(lambda caveat: b'"thiswillnotdeserialize"')
         monkeypatch.setattr(caveats, "serialize", serialize)
         claims = {"some": "claims"}
         raw_macaroon, _ = macaroon_service.create_macaroon(
