@@ -11,13 +11,13 @@
 # limitations under the License.
 
 import datetime
+import logging
 import tempfile
 
 from collections import namedtuple
 from itertools import product
 
 import pip_api
-import sentry_sdk
 
 from google.cloud.bigquery import LoadJobConfig
 from packaging.utils import canonicalize_name
@@ -29,6 +29,8 @@ from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
+
+logger = logging.getLogger(__name__)
 
 
 def _copy_file_to_cache(archive_storage, cache_storage, path):
@@ -96,13 +98,14 @@ def reconcile_file_storages(request):
     cache_storage = request.find_service(IFileStorage, name="cache")
     archive_storage = request.find_service(IFileStorage, name="archive")
 
-    files_batch = (
-        request.db.query(File)
-        .filter_by(cached=False)
-        .limit(request.registry.settings["reconcile_file_storages.batch_size"])
-    )
+    batch_size = request.registry.settings["reconcile_file_storages.batch_size"]
+
+    logger.info(f"Running reconcile_file_storages with batch_size {batch_size}...")
+
+    files_batch = request.db.query(File).filter_by(cached=False).limit(batch_size)
 
     for file in files_batch.all():
+        logger.info(f"Checking File<{file.id}> ({file.path})...")
         archive_checksums = fetch_checksums(archive_storage, file)
         cache_checksums = fetch_checksums(cache_storage, file)
 
@@ -123,6 +126,7 @@ def reconcile_file_storages(request):
             )
             and (bool(archive_checksums.pgp_file) == expected_checksums.pgp_file)
         ):
+            logger.info(f"    File<{file.id}> ({file.path}) is all good ✨")
             file.cached = True
         else:
             errors = []
@@ -132,17 +136,22 @@ def reconcile_file_storages(request):
             ):
                 # No worries, a consistent file is in archive but not cache
                 _copy_file_to_cache(archive_storage, cache_storage, file.path)
+                logger.info(
+                    f"    File<{file.id}> distribution ({file.path}) "
+                    "pulled from archive ⬆️"
+                )
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:dist"]
                 )
             elif archive_checksums.file == cache_checksums.file:
-                pass
+                logger.info(f"    File<{file.id}> distribution ({file.path}) is ok ✅")
             else:
                 metrics.increment(
                     "warehouse.filestorage.unreconciled", tags=["type:dist"]
                 )
-                sentry_sdk.capture_message(
-                    f"Unable to reconcile stored File<{file.id}> {file.path}"
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> distribution "
+                    "({file.path}) ❌"
                 )
                 errors.append(file.path)
 
@@ -152,17 +161,24 @@ def reconcile_file_storages(request):
             ):
                 # The only file we have is in archive, so use that for cache
                 _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
+                logger.info(
+                    f"    File<{file.id}> METADATA ({file.metadata_path}) "
+                    "pulled from archive ⬆️"
+                )
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:metadata"]
                 )
             elif archive_checksums.metadata_file == cache_checksums.metadata_file:
-                pass
+                logger.info(
+                    f"    File<{file.id}> METADATA ({file.metadata_path}) is ok ✅"
+                )
             else:
                 metrics.increment(
                     "warehouse.filestorage.unreconciled", tags=["type:metadata"]
                 )
-                sentry_sdk.capture_message(
-                    f"Unable to reconcile stored File<{file.id}> {file.metadata_path}"
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> METADATA "
+                    f"({file.metadata_path}) ❌"
                 )
                 errors.append(file.metadata_path)
 
@@ -172,15 +188,22 @@ def reconcile_file_storages(request):
             ):
                 # The only file we have is in archive, so use that for cache
                 _copy_file_to_cache(archive_storage, cache_storage, file.pgp_path)
+                logger.info(
+                    f"    File<{file.id}> pgp signature ({file.pgp_path}) "
+                    "pulled from archive ⬆️"
+                )
                 metrics.increment("warehouse.filestorage.reconciled", tags=["type:pgp"])
             elif archive_checksums.pgp_file == cache_checksums.pgp_file:
-                pass
+                logger.info(
+                    f"    File<{file.id}> pgp signature ({file.pgp_path}) is ok ✅"
+                )
             else:
                 metrics.increment(
                     "warehouse.filestorage.unreconciled", tags=["type:pgp"]
                 )
-                sentry_sdk.capture_message(
-                    f"Unable to reconcile stored File<{file.id}> {file.pgp_path}"
+                logger.error(
+                    f"Unable to reconcile stored File<{file.id}> pgp signature "
+                    f"({file.pgp_path}) ❌"
                 )
                 errors.append(file.pgp_path)
 
