@@ -226,19 +226,17 @@ class TestDatabaseMacaroonService:
 
         serialize = pretend.call_recorder(lambda caveat: b'"thiswillnotdeserialize"')
         monkeypatch.setattr(caveats, "serialize", serialize)
-        claims = {"some": "claims"}
+        caveat = caveats.OIDCPublisher(
+            oidc_publisher_id=str(publisher.id),
+            oidc_claims={"some": "claims"},
+        )
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [
-                caveats.OIDCPublisher(
-                    oidc_publisher_id=str(publisher.id),
-                    oidc_claims=claims,
-                ),
-            ],
+            [caveat],
             oidc_publisher_id=publisher.id,
         )
-        assert serialize.calls == [pretend.call(claims)]
+        assert serialize.calls == [pretend.call(caveat)]
 
         output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
         assert output_claims is None
