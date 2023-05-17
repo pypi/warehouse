@@ -3337,7 +3337,8 @@ class TestFileUpload:
                     if test_with_user
                     else "OpenID created token",
                     "canonical_version": release.canonical_version,
-                    "publisher_url": f"{identity.publisher.publisher_url}/commit/somesha"
+                    "publisher_url": identity.publisher.publisher_url
+                    + "/commit/somesha"
                     if not test_with_user
                     else None,
                 },
@@ -3352,7 +3353,8 @@ class TestFileUpload:
                     if test_with_user
                     else "OpenID created token",
                     "canonical_version": release.canonical_version,
-                    "publisher_url": f"{identity.publisher.publisher_url}/commit/somesha"
+                    "publisher_url": identity.publisher.publisher_url
+                    + "/commit/somesha"
                     if not test_with_user
                     else None,
                     "project_id": str(project.id),
