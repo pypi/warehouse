@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import collections
+import hashlib
 import io
 import json
 import logging
@@ -69,6 +70,9 @@ class GenericLocalBlobStorage:
 
     def get_metadata(self, path):
         return json.loads(open(os.path.join(self.base, path + ".meta")).read())
+
+    def get_checksum(self, path):
+        return hashlib.md5(open(os.path.join(self.base, path), "rb").read()).hexdigest()
 
     def store(self, path, file_path, *, meta=None):
         destination = os.path.join(self.base, path)
@@ -164,6 +168,15 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
+    def get_checksum(self, path):
+        path = self._get_path(path)
+        try:
+            return self.bucket.get_file_info_by_id(
+                self.bucket.get_file_info_by_name(path).id_
+            ).content_md5
+        except b2sdk.v2.exception.FileNotPresent:
+            raise FileNotFoundError(f"No such key: {path!r}") from None
+
     def store(self, path, file_path, *, meta=None):
         path = self._get_path(path)
         self.bucket.upload_local_file(
@@ -198,6 +211,16 @@ class GenericS3BlobStorage(GenericBlobStorage):
     def get_metadata(self, path):
         try:
             return self.bucket.Object(self._get_path(path)).metadata
+        except botocore.exceptions.ClientError as exc:
+            if exc.response["Error"]["Code"] != "NoSuchKey":
+                raise
+            raise FileNotFoundError(f"No such key: {path!r}") from None
+
+    def get_checksum(self, path):
+        try:
+            return (
+                self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
+            )
         except botocore.exceptions.ClientError as exc:
             if exc.response["Error"]["Code"] != "NoSuchKey":
                 raise
@@ -276,6 +299,9 @@ class GenericGCSBlobStorage(GenericBlobStorage):
         raise NotImplementedError
 
     def get_metadata(self, path):
+        raise NotImplementedError
+
+    def get_checksum(self, path):
         raise NotImplementedError
 
     @google.api_core.retry.Retry(

@@ -157,6 +157,162 @@ def test_check_file_cache_tasks_outstanding(db_request, metrics):
     ]
 
 
+def test_fetch_checksums():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+        pgp_path="/path.asc",
+    )
+    storage_stub = pretend.stub(
+        get_checksum=lambda pth: f"{pth}-deadbeef",
+    )
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        "/path-deadbeef",
+        "/path.metadata-deadbeef",
+        "/path.asc-deadbeef",
+    )
+
+
+def test_fetch_checksums_none():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+        pgp_path="/path.asc",
+    )
+    storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        None,
+        None,
+        None,
+    )
+
+
+def test_reconcile_file_storages_all_good(db_request, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    all_good = FileFactory.create(release=release, cached=False)
+    all_good.md5_digest = f"{all_good.path}-deadbeef"
+    all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
+    all_good.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == []
+    assert all_good.cached is True
+
+
+def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    fixable = FileFactory.create(release=release, cached=False)
+    fixable.md5_digest = f"{fixable.path}-deadbeef"
+    fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
+    fixable.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": broke_storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:pgp"]),
+    ]
+    assert copy_file.calls == [
+        pretend.call(storage_service, broke_storage_service, fixable.path),
+        pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
+        pretend.call(storage_service, broke_storage_service, fixable.pgp_path),
+    ]
+    assert fixable.cached is True
+
+
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            "",
+            "type:dist",
+        ),
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+        (
+            ".asc",
+            "type:pgp",
+        ),
+    ],
+)
+def test_reconcile_file_storages_borked(
+    db_request, monkeypatch, metrics, borked_ext, metrics_tag
+):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    borked = FileFactory.create(release=release, cached=False)
+    borked.md5_digest = f"{borked.path}-deadbeef"
+    borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
+    borked.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == borked.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.unreconciled", tags=[metrics_tag])
+    ]
+    assert borked.cached is False
+
+
 def test_update_description_html(monkeypatch, db_request):
     current_version = "24.0"
     previous_version = "23.0"
