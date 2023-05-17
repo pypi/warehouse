@@ -221,6 +221,28 @@ class TestDatabaseMacaroonService:
         claims = macaroon_service.extract_oidc_claims(raw_macaroon)
         assert claims is None
 
+    def test_extract_claims_bad_claim(self, monkeypatch, macaroon_service):
+        publisher = GitHubPublisherFactory.create()
+
+        serialize = pretend.callrecorder(lambda caveat: b'"thiswillnotdeserialize"')
+        monkeypatch.setattr(caveats, "serialize", serialize)
+        claims = {"some": "claims"}
+        raw_macaroon, _ = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [
+                caveats.OIDCPublisher(
+                    oidc_publisher_id=str(publisher.id),
+                    oidc_claims=claims,
+                ),
+            ],
+            oidc_publisher_id=publisher.id,
+        )
+        assert serialize.calls == [pretend.call(claims)]
+
+        output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
+        assert output_claims is None
+
     def test_verify_unprefixed_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
