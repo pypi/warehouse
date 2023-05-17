@@ -133,10 +133,15 @@ class DatabaseMacaroonService:
 
         for raw in m.caveats:
             try:
+                # NB: We don't have an API that takes a PyMacaroons Caveat
+                # object and returns a Warehouse caveat object. We pull the
+                # serialized caveat from the `caveat_id` field here.
                 caveat = caveats.deserialize(raw.caveat_id)
             except caveats.CaveatError:
                 return None
 
+            # NB: We might benefit from adding some kind of `find_caveat` API
+            # over a macaroon that replaces this loop and check in the future.
             if not isinstance(caveat, caveats.OIDCPublisher):
                 continue
 

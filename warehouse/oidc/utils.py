@@ -98,5 +98,21 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
 
 @dataclass
 class OIDCContext:
+    """
+    This class supports `MacaroonSecurityPolicy` in `warehouse.macaroons.security_policy`.
+
+    It is a wrapper containing both the signed claims associated with an OIDC
+    authenticated request and its `OIDCPublisher` DB model. We use it to smuggle
+    claims from the identity provider through to a session. `request.identity`
+    in an OIDC authenticated request should return this type.
+    """
+
     publisher: OIDCPublisher
+    """
+    The associated OIDC publisher.
+    """
+
     claims: SignedClaims | None
+    """
+    Pertinent OIDC claims from the token, if they exist.
+    """
