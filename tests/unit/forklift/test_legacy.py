@@ -37,6 +37,8 @@ from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.utils import OIDCContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -3185,21 +3187,45 @@ class TestFileUpload:
             ("v1.0", "1.0"),
         ],
     )
+    @pytest.mark.parametrize(
+        "test_with_user",
+        [
+            True,
+            False,
+        ],
+    )
     def test_upload_succeeds_creates_release(
-        self, pyramid_config, db_request, metrics, version, expected_version
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        version,
+        expected_version,
+        test_with_user,
     ):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
+        from warehouse.events.models import HasEvents
+        from warehouse.events.tags import EventTag
+
         project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
+        if test_with_user:
+            identity = UserFactory.create()
+            EmailFactory.create(user=identity)
+            RoleFactory.create(user=identity, project=project)
+        else:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            claims = {"sha": "somesha"}
+            identity = OIDCContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = identity if test_with_user else None
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -3233,6 +3259,11 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, ip_address, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
 
         resp = legacy.file_upload(db_request)
 
@@ -3282,15 +3313,50 @@ class TestFileUpload:
                 release.project.name,
                 release.version,
                 "new release",
-                user,
+                identity if test_with_user else None,
                 db_request.remote_addr,
             ),
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
-                user,
+                identity if test_with_user else None,
                 db_request.remote_addr,
+            ),
+        ]
+
+        # Ensure that all of our events have been created
+
+        assert record_event.calls == [
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.Project.ReleaseAdd,
+                ip_address=mock.ANY,
+                additional={
+                    "submitted_by": identity.username
+                    if test_with_user
+                    else "OpenID created token",
+                    "canonical_version": release.canonical_version,
+                    "publisher_url": f"{identity.publisher.publisher_url}/commit/somesha"
+                    if not test_with_user
+                    else None,
+                },
+            ),
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.File.FileAdd,
+                ip_address=mock.ANY,
+                additional={
+                    "filename": filename,
+                    "submitted_by": identity.username
+                    if test_with_user
+                    else "OpenID created token",
+                    "canonical_version": release.canonical_version,
+                    "publisher_url": f"{identity.publisher.publisher_url}/commit/somesha"
+                    if not test_with_user
+                    else None,
+                    "project_id": str(project.id),
+                },
             ),
         ]
 
