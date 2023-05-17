@@ -313,6 +313,55 @@ def test_reconcile_file_storages_borked(
     assert borked.cached is False
 
 
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+        (
+            ".asc",
+            "type:pgp",
+        ),
+    ],
+)
+def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    just_dist = FileFactory.create(release=release, cached=False)
+    just_dist.md5_digest = f"{just_dist.path}-deadbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == just_dist.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == []
+    assert just_dist.cached is True
+
+
 def test_update_description_html(monkeypatch, db_request):
     current_version = "24.0"
     previous_version = "23.0"
