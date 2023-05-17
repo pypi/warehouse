@@ -80,7 +80,7 @@
         </label>
         {{ github_publisher_form.repository(placeholder=gettext("user/repo"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
         <p class="form-group__help-text">
-          {% trans %}The GitHub repository (user/repo) that contains the publishing workflow{% endtrans %}
+          {% trans %}The GitHub repository (in user/repo format) that contains the publishing workflow{% endtrans %}
         </p>
         <div id="repository-errors">
           {{ field_errors(github_publisher_form.repository) }}

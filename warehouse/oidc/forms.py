@@ -25,21 +25,12 @@ _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
 
 
 class GitHubPublisherBase(forms.Form):
-    __params__ = ["owner", "repository", "workflow_filename", "environment"]
+    __params__ = ["repo_slug", "workflow_filename", "environment"]
 
-    owner = wtforms.StringField(
+    repo_slug = wtforms.StringField(
         validators=[
             wtforms.validators.DataRequired(
-                message=_("Specify GitHub repository owner (username or organization)"),
-            ),
-        ]
-    )
-
-    repository = wtforms.StringField(
-        validators=[
-            wtforms.validators.DataRequired(message=_("Specify repository name")),
-            wtforms.validators.Regexp(
-                _VALID_GITHUB_REPO, message=_("Invalid repository name")
+                message=_("Specify GitHub repo slug (in user/repo format)"),
             ),
         ]
     )

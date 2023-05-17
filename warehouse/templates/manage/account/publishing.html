@@ -137,16 +137,17 @@
     <div class="form-group">
       <label for="repository" class="form-group__label">
         {% trans %}Repository{% endtrans %}
-        {% if pending_github_publisher_form.repository.flags.required %}
+        {% if pending_github_publisher_form.repo_slug.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.owner(placeholder=gettext("user/repo"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="owner-errors") }}
+      {{ pending_github_publisher_form.repo_slug(placeholder=gettext("user/repo"), autocomplete="off",
+      autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="repo-slug-errors") }}
       <p class="form-group__help-text">
-        {% trans %}The GitHub repository (user/repo) that contains the publishing workflow{% endtrans %}
+        {% trans %}The GitHub repository (in user/repo format) that contains the publishing workflow{% endtrans %}
       </p>
-      <div id="owner-errors">
-        {{ field_errors(pending_github_publisher_form.repository) }}
+      <div id="repo-slug-errors">
+        {{ field_errors(pending_github_publisher_form.repo_slug) }}
       </div>
     </div>
     <div class="form-group">
