@@ -1161,6 +1161,7 @@ def file_upload(request):
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
                 "publisher_url": request.oidc_publisher.publisher_url
+                + f"@{request.oidc_claims.get('sha', 'unknown')}"
                 if request.oidc_publisher
                 else None,
             },
@@ -1425,6 +1426,7 @@ def file_upload(request):
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
                 "publisher_url": request.oidc_publisher.publisher_url
+                + f"@{request.oidc_claims.get('sha', 'unknown')}"
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),
