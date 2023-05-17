@@ -495,7 +495,7 @@ class TestS3FileStorage:
     def test_get_checksum_raises_when_key_non_existent(self):
         def raiser(*a, **kw):
             raise botocore.exceptions.ClientError(
-                {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}}, "some operation"
+                {"ResponseMetadata": {"HTTPStatusCode": 404}}, "some operation"
             )
 
         bucket = pretend.stub(Object=raiser)
@@ -534,7 +534,7 @@ class TestS3FileStorage:
     def test_get_checksum_passes_up_error_when_not_no_such_key(self):
         def raiser(*a, **kw):
             raise botocore.exceptions.ClientError(
-                {"Error": {"Code": "SomeOtherError", "Message": "Who Knows!"}},
+                {"ResponseMetadata": {"HTTPStatusCode": 666}},
                 "some operation",
             )
 
