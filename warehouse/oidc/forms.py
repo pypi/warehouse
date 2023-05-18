@@ -20,8 +20,9 @@ from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.utils.project import PROJECT_NAME_RE
 
-_VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
-_VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
+_VALID_GITHUB_REPO = "[a-zA-Z0-9-_.]+"
+_VALID_GITHUB_OWNER = "[a-zA-Z0-9][a-zA-Z0-9-]*"
+_VALID_GITHUB_SLUG = re.compile(rf"^{_VALID_GITHUB_OWNER}/{_VALID_GITHUB_REPO}$")
 
 
 class GitHubPublisherBase(forms.Form):
@@ -31,6 +32,9 @@ class GitHubPublisherBase(forms.Form):
         validators=[
             wtforms.validators.DataRequired(
                 message=_("Specify GitHub repo slug (in user/repo format)"),
+            ),
+            wtforms.validators.Regexp(
+                _VALID_GITHUB_SLUG, message=_("Invalid repository")
             ),
         ]
     )
@@ -113,21 +117,17 @@ class GitHubPublisherBase(forms.Form):
 
         return response.json()
 
-    def validate_owner(self, field):
-        owner = field.data
-
-        # We pre-filter owners with a regex, to avoid loading GitHub's API
-        # with usernames/org names that will never be valid.
-        if not _VALID_GITHUB_OWNER.match(owner):
-            raise wtforms.validators.ValidationError(
-                _("Invalid GitHub user or organization name.")
-            )
+    def validate_repo_slug(self, field):
+        # Compute DB's `repository_name` `repository_owner` from the form's `repo_slug`.
+        repo_slug = field.data.split("/")
+        (owner, repository) = (repo_slug[0], repo_slug[1])
 
         owner_info = self._lookup_owner(owner)
 
         # NOTE: Use the normalized owner name as provided by GitHub.
         self.normalized_owner = owner_info["login"]
         self.owner_id = owner_info["id"]
+        self.normalized_repository = repository
 
     def validate_workflow_filename(self, field):
         workflow_filename = field.data

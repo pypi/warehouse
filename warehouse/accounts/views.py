@@ -1459,16 +1459,11 @@ class ManageAccountPublishingViews:
             )
             return response
 
-        # Compute the DB's `repository_name` `repository_owner` from the form's `repo_slug`.
-        repo_slug = form.repo_slug.data.split("/")
-        assert len(repo_slug) == 2
-        (repository_owner, repository_name) = (repo_slug[0], repo_slug[1])
-
         publisher_already_exists = (
             self.request.db.query(PendingGitHubPublisher)
             .filter_by(
-                repository_name=repository_name,
-                repository_owner=repository_owner,
+                repository_name=form.normalized_repository,
+                repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
                 environment=form.normalized_environment,
             )
@@ -1489,8 +1484,8 @@ class ManageAccountPublishingViews:
         pending_publisher = PendingGitHubPublisher(
             project_name=form.project_name.data,
             added_by=self.request.user,
-            repository_name=repository_name,
-            repository_owner=repository_owner,
+            repository_name=form.normalized_repository,
+            repository_owner=form.normalized_owner,
             repository_owner_id=form.owner_id,
             workflow_filename=form.workflow_filename.data,
             environment=form.normalized_environment,
