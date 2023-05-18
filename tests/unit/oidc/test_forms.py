@@ -286,21 +286,31 @@ class TestGitHubPublisherForm:
 
         assert form.validate()
 
-    def test_validate_repo_slug(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "repo_slug", ["missing", "missing_repo/" "/missing_user", "", "/excess/slash/"]
+    )
+    def test_validate_repo_slug(self, monkeypatch, repo_slug):
         form = forms.GitHubPublisherForm(api_token=pretend.stub())
 
         owner_info = {"login": "some-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        field = pretend.stub(data="SOME-USERNAME/SOME_REPOSITORY")
-        form.validate_repo_slug(field)
+        field = pretend.stub(data=repo_slug)
 
-        assert form.normalized_owner == "some-username"
-        assert form.owner_id == "1234"
-        assert form.normalized_repository == "SOME_REPOSITORY"
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_repo_slug(field)
 
     @pytest.mark.parametrize(
-        "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
+        "workflow_filename",
+        [
+            "missing_suffix",
+            "/slash",
+            "/many/slashes",
+            "/slash.yml",
+            "repo@/badsym",
+            "user/@badsym",
+            "-user/..."
+        ],
     )
     def test_validate_workflow_filename(self, workflow_filename):
         form = forms.GitHubPublisherForm(api_token=pretend.stub())

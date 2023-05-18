@@ -1268,7 +1268,7 @@ class ManageOIDCPublisherViews:
         publisher = (
             self.request.db.query(GitHubPublisher)
             .filter(
-                GitHubPublisher.repository_name == form.normalized_repository,
+                GitHubPublisher.repository_name == form.repository,
                 GitHubPublisher.repository_owner == form.normalized_owner,
                 GitHubPublisher.workflow_filename == form.workflow_filename.data,
                 GitHubPublisher.environment == form.normalized_environment,
@@ -1277,7 +1277,7 @@ class ManageOIDCPublisherViews:
         )
         if publisher is None:
             publisher = GitHubPublisher(
-                repository_name=form.normalized_repository,
+                repository_name=form.repository,
                 repository_owner=form.normalized_owner,
                 repository_owner_id=form.owner_id,
                 workflow_filename=form.workflow_filename.data,

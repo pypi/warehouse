@@ -6106,7 +6106,7 @@ class TestManageOIDCPublisherViews:
 
         github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            normalized_repository=pretend.stub(data=publisher.repository_name),
+            repository=pretend.stub(data=publisher.repository_name),
             normalized_owner=publisher.owner,
             workflow_filename=pretend.stub(data=publisher.workflow_filename),
             normalized_environment=publisher.environment,
@@ -6196,7 +6196,7 @@ class TestManageOIDCPublisherViews:
 
         github_publisher_form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
-            normalized_repository="fakerepo",
+            repository="fakerepo",
             normalized_owner="fakeowner",
             owner_id="1234",
             workflow_filename=pretend.stub(data="fakeworkflow.yml"),
