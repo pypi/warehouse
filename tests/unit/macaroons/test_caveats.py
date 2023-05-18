@@ -19,6 +19,7 @@ import pytest
 from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
 
+from warehouse.accounts import _oidc_publisher
 from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
@@ -35,6 +36,7 @@ from warehouse.macaroons.caveats import (
     verify,
 )
 from warehouse.macaroons.caveats._core import _CaveatRegistry
+from warehouse.oidc.utils import OIDCContext
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -290,7 +292,9 @@ class TestOIDCPublisherCaveat:
     def test_verify_no_identity(self):
         caveat = OIDCPublisher(oidc_publisher_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=None), pretend.stub(), pretend.stub()
+            pretend.stub(identity=None, oidc_publisher=None),
+            pretend.stub(),
+            pretend.stub(),
         )
 
         assert result == Failure(
@@ -298,24 +302,24 @@ class TestOIDCPublisherCaveat:
         )
 
     def test_verify_invalid_publisher_id(self, db_request):
-        publisher = GitHubPublisherFactory.create()
+        identity = OIDCContext(GitHubPublisherFactory.create(), None)
+        request = pretend.stub(identity=identity)
+        request.oidc_publisher = _oidc_publisher(request)
 
         caveat = OIDCPublisher(oidc_publisher_id="invalid")
-        result = caveat.verify(
-            pretend.stub(identity=publisher), pretend.stub(), pretend.stub()
-        )
+        result = caveat.verify(request, pretend.stub(), pretend.stub())
 
         assert result == Failure(
             "current OIDC publisher does not match publisher restriction in token"
         )
 
     def test_verify_invalid_context(self, db_request):
-        publisher = GitHubPublisherFactory.create()
+        identity = OIDCContext(GitHubPublisherFactory.create(), None)
+        request = pretend.stub(identity=identity)
+        request.oidc_publisher = _oidc_publisher(request)
 
-        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
-        result = caveat.verify(
-            pretend.stub(identity=publisher), pretend.stub(), pretend.stub()
-        )
+        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
+        result = caveat.verify(request, pretend.stub(), pretend.stub())
 
         assert result == Failure("OIDC scoped token used outside of a project context")
 
@@ -325,10 +329,12 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        publisher = GitHubPublisherFactory.create(projects=[foobar])
-        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
+        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
+        request = pretend.stub(identity=identity)
+        request.oidc_publisher = _oidc_publisher(request)
+        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
 
-        result = caveat.verify(pretend.stub(identity=publisher), foobaz, pretend.stub())
+        result = caveat.verify(request, foobaz, pretend.stub())
 
         assert result == Failure("OIDC scoped token is not valid for project 'foobaz'")
 
@@ -337,10 +343,12 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        publisher = GitHubPublisherFactory.create(projects=[foobar])
-        caveat = OIDCPublisher(oidc_publisher_id=str(publisher.id))
+        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
+        request = pretend.stub(identity=identity)
+        request.oidc_publisher = _oidc_publisher(request)
+        caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
 
-        result = caveat.verify(pretend.stub(identity=publisher), foobar, pretend.stub())
+        result = caveat.verify(request, foobar, pretend.stub())
 
         assert result == Success()
 
