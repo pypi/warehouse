@@ -77,7 +77,10 @@ class TestGitHubPublisher:
 
         assert str(publisher) == "fakeworkflow.yml"
         assert publisher.publisher_url() == "https://github.com/fakeowner/fakerepo"
-        assert publisher.publisher_url({"sha": "somesha"}) == "https://github.com/fakeowner/fakerepo/commit/somesha"
+        assert (
+            publisher.publisher_url({"sha": "somesha"})
+            == "https://github.com/fakeowner/fakerepo/commit/somesha"
+        )
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
         publisher = github.GitHubPublisher(
