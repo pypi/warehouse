@@ -401,7 +401,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         id="fakepublisherid",
         projects=[project],
         publisher_name="fakepublishername",
-        publisher_url="https://fake/url",
+        publisher_url=lambda x=None: "https://fake/url",
     )
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")

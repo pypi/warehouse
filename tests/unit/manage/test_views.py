@@ -6062,7 +6062,7 @@ class TestManageOIDCPublisherViews:
             id="fakeid",
             publisher_name="GitHub",
             repository_name="fakerepo",
-            publisher_url="https://github.com/fakeowner/fakerepo",
+            publisher_url=lambda x=None: "https://github.com/fakeowner/fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
@@ -6525,7 +6525,7 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )
@@ -6616,7 +6616,7 @@ class TestManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )

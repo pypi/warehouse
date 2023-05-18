@@ -207,7 +207,7 @@ def mint_token_from_oidc(request):
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
-                "publisher_url": publisher.publisher_url,
+                "publisher_url": publisher.publisher_url(),
             },
         )
     return {"success": True, "token": serialized}

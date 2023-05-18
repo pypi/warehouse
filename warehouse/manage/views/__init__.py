@@ -1314,13 +1314,13 @@ class ManageOIDCPublisherViews:
                 "publisher": publisher.publisher_name,
                 "id": str(publisher.id),
                 "specifier": str(publisher),
-                "url": publisher.publisher_url,
+                "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )
 
         self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url} to {self.project.name}",
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
             queue="success",
         )
 
@@ -1385,7 +1385,7 @@ class ManageOIDCPublisherViews:
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.publisher_url(),
                     "submitted_by": self.request.user.username,
                 },
             )

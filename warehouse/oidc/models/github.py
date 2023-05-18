@@ -138,16 +138,18 @@ class GitHubPublisherMixin:
         return f"{self.repository_owner}/{self.repository_name}"
 
     @property
-    def publisher_url(self):
-        return f"https://github.com/{self.repository}"
-
-    @property
     def job_workflow_ref(self):
         return f"{self.repository}/{self._workflow_slug}"
 
     @property
     def sub(self):
         return f"repo:{self.repository}"
+
+    def publisher_url(self, claims=None):
+        sha = claims.get("sha") if claims else None
+        suffix = f"/commit/{sha}" if sha else ""
+
+        return f"https://github.com/{self.repository}{suffix}"
 
     def __str__(self):
         return self.workflow_filename

@@ -3326,39 +3326,40 @@ class TestFileUpload:
         ]
 
         # Ensure that all of our events have been created
+        release_event = {
+            "submitted_by": identity.username
+            if test_with_user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
+            if not test_with_user
+            else None,
+        }
+
+        fileadd_event = {
+            "filename": filename,
+            "submitted_by": identity.username
+            if test_with_user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
+            if not test_with_user
+            else None,
+            "project_id": str(project.id),
+        }
 
         assert record_event.calls == [
             pretend.call(
                 mock.ANY,
                 tag=EventTag.Project.ReleaseAdd,
                 ip_address=mock.ANY,
-                additional={
-                    "submitted_by": identity.username
-                    if test_with_user
-                    else "OpenID created token",
-                    "canonical_version": release.canonical_version,
-                    "publisher_url": identity.publisher.publisher_url
-                    + "/commit/somesha"
-                    if not test_with_user
-                    else None,
-                },
+                additional=release_event,
             ),
             pretend.call(
                 mock.ANY,
                 tag=EventTag.File.FileAdd,
                 ip_address=mock.ANY,
-                additional={
-                    "filename": filename,
-                    "submitted_by": identity.username
-                    if test_with_user
-                    else "OpenID created token",
-                    "canonical_version": release.canonical_version,
-                    "publisher_url": identity.publisher.publisher_url
-                    + "/commit/somesha"
-                    if not test_with_user
-                    else None,
-                    "project_id": str(project.id),
-                },
+                additional=fileadd_event,
             ),
         ]
 
