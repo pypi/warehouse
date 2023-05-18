@@ -331,7 +331,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:166
 msgid "Specify project name"
 msgstr ""
 
@@ -508,67 +508,59 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms.py:33
-msgid "Specify GitHub repository owner (username or organization)"
+#: warehouse/oidc/forms.py:34
+msgid "Specify GitHub repo slug (in user/repo format)"
 msgstr ""
 
-#: warehouse/oidc/forms.py:40
-msgid "Specify repository name"
-msgstr ""
-
-#: warehouse/oidc/forms.py:42
-msgid "Invalid repository name"
-msgstr ""
-
-#: warehouse/oidc/forms.py:49
+#: warehouse/oidc/forms.py:41
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:75
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:85
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:95
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:102
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:112
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:132
-msgid "Invalid GitHub user or organization name."
+#: warehouse/oidc/forms.py:120
+msgid "Invalid repository: not in user/repo format"
 msgstr ""
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:141
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:146
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:168
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:182
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:195
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:196
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1209,9 +1201,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:402
 #: warehouse/templates/manage/account/publishing.html:126
 #: warehouse/templates/manage/account/publishing.html:141
-#: warehouse/templates/manage/account/publishing.html:156
-#: warehouse/templates/manage/account/publishing.html:171
-#: warehouse/templates/manage/account/publishing.html:186
+#: warehouse/templates/manage/account/publishing.html:157
+#: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1234,7 +1225,6 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
-#: warehouse/templates/manage/project/publishing.html:123
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -2345,7 +2335,9 @@ msgstr ""
 #: warehouse/templates/email/trusted-publisher-added/body.html:32
 #: warehouse/templates/email/trusted-publisher-removed/body.html:30
 #: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/project/publishing.html:45
+#: warehouse/templates/manage/project/publishing.html:76
 msgid "Repository"
 msgstr ""
 
@@ -2759,11 +2751,9 @@ msgid "Requires:"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:117
-#: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:89
-#: warehouse/templates/manage/project/publishing.html:76
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -3980,9 +3970,9 @@ msgid "Publisher"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:78
-#: warehouse/templates/manage/account/publishing.html:184
+#: warehouse/templates/manage/account/publishing.html:170
 #: warehouse/templates/manage/project/publishing.html:47
-#: warehouse/templates/manage/project/publishing.html:121
+#: warehouse/templates/manage/project/publishing.html:106
 msgid "Environment name"
 msgstr ""
 
@@ -4025,59 +4015,46 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:144
 #: warehouse/templates/manage/project/publishing.html:81
-msgid "owner"
+msgid "user/repo"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:146
+#: warehouse/templates/manage/account/publishing.html:147
 #: warehouse/templates/manage/project/publishing.html:83
-msgid "The GitHub organization name or GitHub username that owns the repository"
+msgid ""
+"The GitHub repository (in user/repo format) that contains the publishing "
+"workflow"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:154
+#: warehouse/templates/manage/account/publishing.html:155
 #: warehouse/templates/manage/project/publishing.html:91
-msgid "Repository name"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:159
-#: warehouse/templates/manage/project/publishing.html:96
-msgid "repository"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:161
-#: warehouse/templates/manage/project/publishing.html:98
-msgid "The name of the GitHub repository that contains the publishing workflow"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:169
-#: warehouse/templates/manage/project/publishing.html:106
 msgid "Workflow name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:174
-#: warehouse/templates/manage/project/publishing.html:111
+#: warehouse/templates/manage/account/publishing.html:160
+#: warehouse/templates/manage/project/publishing.html:96
 msgid "workflow.yml"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:176
-#: warehouse/templates/manage/project/publishing.html:113
+#: warehouse/templates/manage/account/publishing.html:162
+#: warehouse/templates/manage/project/publishing.html:98
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured "
 "above."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:188
-#: warehouse/templates/manage/project/publishing.html:125
+#: warehouse/templates/manage/account/publishing.html:174
+#: warehouse/templates/manage/project/publishing.html:110
 msgid "(optional)"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:191
-#: warehouse/templates/manage/project/publishing.html:128
+#: warehouse/templates/manage/account/publishing.html:177
+#: warehouse/templates/manage/project/publishing.html:113
 msgid "release"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:193
-#: warehouse/templates/manage/project/publishing.html:130
+#: warehouse/templates/manage/account/publishing.html:179
+#: warehouse/templates/manage/project/publishing.html:115
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
@@ -4088,8 +4065,8 @@ msgid ""
 "commit access who shouldn't have PyPI publishing access."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:208
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/account/publishing.html:194
+#: warehouse/templates/manage/project/publishing.html:130
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
