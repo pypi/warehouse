@@ -42,8 +42,7 @@ class TestPendingGitHubPublisherForm:
     def test_validate(self, monkeypatch):
         data = MultiDict(
             {
-                "owner": "some-owner",
-                "repository": "some-repo",
+                "repo_slug": "some-owner/some-repo",
                 "workflow_filename": "some-workflow.yml",
                 "project_name": "some-project",
             }
@@ -275,8 +274,7 @@ class TestGitHubPublisherForm:
     def test_validate(self, monkeypatch):
         data = MultiDict(
             {
-                "owner": "some-owner",
-                "repository": "some-repo",
+                "repo_slug": "some-owner/some-repo",
                 "workflow_filename": "some-workflow.yml",
             }
         )
@@ -288,17 +286,18 @@ class TestGitHubPublisherForm:
 
         assert form.validate()
 
-    def test_validate_owner(self, monkeypatch):
+    def test_validate_repo_slug(self, monkeypatch):
         form = forms.GitHubPublisherForm(api_token=pretend.stub())
 
         owner_info = {"login": "some-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        field = pretend.stub(data="SOME-USERNAME")
-        form.validate_owner(field)
+        field = pretend.stub(data="SOME-USERNAME/SOME_REPOSITORY")
+        form.validate_repo_slug(field)
 
         assert form.normalized_owner == "some-username"
         assert form.owner_id == "1234"
+        assert form.normalized_repository == "SOME_REPOSITORY"
 
     @pytest.mark.parametrize(
         "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]

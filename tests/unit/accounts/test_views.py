@@ -3447,8 +3447,7 @@ class TestManageAccountPublishingViews:
         )
         db_request.POST = MultiDict(
             {
-                "owner": "some-owner",
-                "repository": "some-repository",
+                "repo_slug": "some-owner/some-repository",
                 "workflow_filename": "some-workflow-filename.yml",
                 "environment": "some-environment",
                 "project_name": "some-project-name",
@@ -3510,8 +3509,7 @@ class TestManageAccountPublishingViews:
         )
         db_request.POST = MultiDict(
             {
-                "owner": "some-owner",
-                "repository": "some-repository",
+                "repo_slug": "some-owner/some-repository",
                 "workflow_filename": "some-workflow-filename.yml",
                 "environment": "some-environment",
                 "project_name": "some-project-name",
