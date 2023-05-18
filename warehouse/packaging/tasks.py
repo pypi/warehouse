@@ -143,7 +143,10 @@ def reconcile_file_storages(request):
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:dist"]
                 )
-            elif archive_checksums.file == cache_checksums.file:
+            elif (
+                archive_checksums.file == cache_checksums.file
+                and archive_checksums.file is not None
+            ):
                 logger.info(f"    File<{file.id}> distribution ({file.path}) is ok ✅")
             else:
                 metrics.increment(
@@ -151,7 +154,7 @@ def reconcile_file_storages(request):
                 )
                 logger.error(
                     f"Unable to reconcile stored File<{file.id}> distribution "
-                    "({file.path}) ❌"
+                    f"({file.path}) ❌"
                 )
                 errors.append(file.path)
 
@@ -168,19 +171,20 @@ def reconcile_file_storages(request):
                 metrics.increment(
                     "warehouse.filestorage.reconciled", tags=["type:metadata"]
                 )
-            elif archive_checksums.metadata_file == cache_checksums.metadata_file:
-                logger.info(
-                    f"    File<{file.id}> METADATA ({file.metadata_path}) is ok ✅"
-                )
-            else:
-                metrics.increment(
-                    "warehouse.filestorage.unreconciled", tags=["type:metadata"]
-                )
-                logger.error(
-                    f"Unable to reconcile stored File<{file.id}> METADATA "
-                    f"({file.metadata_path}) ❌"
-                )
-                errors.append(file.metadata_path)
+            elif expected_checksums.metadata_file:
+                if archive_checksums.metadata_file == cache_checksums.metadata_file:
+                    logger.info(
+                        f"    File<{file.id}> METADATA ({file.metadata_path}) is ok ✅"
+                    )
+                else:
+                    metrics.increment(
+                        "warehouse.filestorage.unreconciled", tags=["type:metadata"]
+                    )
+                    logger.error(
+                        f"Unable to reconcile stored File<{file.id}> METADATA "
+                        f"({file.metadata_path}) ❌"
+                    )
+                    errors.append(file.metadata_path)
 
             if expected_checksums.pgp_file and (
                 archive_checksums.pgp_file is not None
@@ -193,19 +197,20 @@ def reconcile_file_storages(request):
                     "pulled from archive ⬆️"
                 )
                 metrics.increment("warehouse.filestorage.reconciled", tags=["type:pgp"])
-            elif archive_checksums.pgp_file == cache_checksums.pgp_file:
-                logger.info(
-                    f"    File<{file.id}> pgp signature ({file.pgp_path}) is ok ✅"
-                )
-            else:
-                metrics.increment(
-                    "warehouse.filestorage.unreconciled", tags=["type:pgp"]
-                )
-                logger.error(
-                    f"Unable to reconcile stored File<{file.id}> pgp signature "
-                    f"({file.pgp_path}) ❌"
-                )
-                errors.append(file.pgp_path)
+            elif expected_checksums.pgp_file:
+                if archive_checksums.pgp_file == cache_checksums.pgp_file:
+                    logger.info(
+                        f"    File<{file.id}> pgp signature ({file.pgp_path}) is ok ✅"
+                    )
+                else:
+                    metrics.increment(
+                        "warehouse.filestorage.unreconciled", tags=["type:pgp"]
+                    )
+                    logger.error(
+                        f"Unable to reconcile stored File<{file.id}> pgp signature "
+                        f"({file.pgp_path}) ❌"
+                    )
+                    errors.append(file.pgp_path)
 
             if len(errors) == 0:
                 file.cached = True

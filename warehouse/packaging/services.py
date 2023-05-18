@@ -222,7 +222,8 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 self.bucket.Object(self._get_path(path)).e_tag.rstrip('"').lstrip('"')
             )
         except botocore.exceptions.ClientError as exc:
-            if exc.response["Error"]["Code"] != "NoSuchKey":
+            if exc.response["ResponseMetadata"]["HTTPStatusCode"] != 404:
+                #  https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html#API_HeadObject_RequestBody
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
