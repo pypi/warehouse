@@ -148,7 +148,7 @@ class GitHubPublisherMixin:
     def publisher_url(self, claims=None):
         base = f"https://github.com/{self.repository}"
         sha = claims.get("sha") if claims else None
-        
+
         if sha:
             return f"{base}/commit/{sha}"
         return base
