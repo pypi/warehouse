@@ -309,7 +309,7 @@ class TestGitHubPublisherForm:
             "/slash.yml",
             "repo@/badsym",
             "user/@badsym",
-            "-user/..."
+            "-user/...",
         ],
     )
     def test_validate_workflow_filename(self, workflow_filename):
