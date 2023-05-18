@@ -146,10 +146,12 @@ class GitHubPublisherMixin:
         return f"repo:{self.repository}"
 
     def publisher_url(self, claims=None):
+        base = f"https://github.com/{self.repository}"
         sha = claims.get("sha") if claims else None
-        suffix = f"/commit/{sha}" if sha else ""
-
-        return f"https://github.com/{self.repository}{suffix}"
+        
+        if sha:
+            return f"{base}/commit/{sha}"
+        return base
 
     def __str__(self):
         return self.workflow_filename
