@@ -287,7 +287,20 @@ class TestGitHubPublisherForm:
         assert form.validate()
 
     @pytest.mark.parametrize(
-        "repo_slug", ["missing", "missing_repo/" "/missing_user", "", "/excess/slash/"]
+        "repo_slug",
+        [
+            "missing",
+            "missing_repo/" "/missing_user",
+            "",
+            "/excess/slash/",
+            "repo@/badsym",
+            "user/@badsym",
+            "-user/...",
+            "spa ce/repo",
+            "user/spa ce",
+            " / ",
+            "///",
+        ],
     )
     def test_validate_repo_slug(self, monkeypatch, repo_slug):
         form = forms.GitHubPublisherForm(api_token=pretend.stub())
@@ -307,9 +320,6 @@ class TestGitHubPublisherForm:
             "/slash",
             "/many/slashes",
             "/slash.yml",
-            "repo@/badsym",
-            "user/@badsym",
-            "-user/...",
         ],
     )
     def test_validate_workflow_filename(self, workflow_filename):
