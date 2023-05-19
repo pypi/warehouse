@@ -17,13 +17,13 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-web: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt
-	# Build our web container for this project.
-	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
+.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt
+	# Build our base container for this project.
+	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
-	touch .state/docker-build-web
+	touch .state/docker-build-base
 
 .state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
 	# Build our static container for this project.
@@ -41,7 +41,7 @@ default:
 	mkdir -p .state
 	touch .state/docker-build-docs
 
-.state/docker-build: .state/docker-build-web .state/docker-build-static .state/docker-build-docs
+.state/docker-build: .state/docker-build-base .state/docker-build-static .state/docker-build-docs
 	# Build the worker container for this project
 	docker compose build --force-rm worker
 
@@ -57,10 +57,10 @@ build:
 serve: .state/docker-build
 	docker compose up --remove-orphans
 
-debug: .state/docker-build-web
+debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
-tests: .state/docker-build-web
+tests: .state/docker-build-base
 	docker compose run --rm web bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
@@ -69,10 +69,10 @@ static_tests: .state/docker-build-static
 static_pipeline: .state/docker-build-static
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/docker-build-web
+reformat: .state/docker-build-base
 	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build-web
+lint: .state/docker-build-base
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
@@ -85,19 +85,19 @@ user-docs: .state/docker-build-docs
 blog: .state/docker-build-docs
 	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
-licenses: .state/docker-build-web
+licenses: .state/docker-build-base
 	docker compose run --rm base bin/licenses
 
-deps: .state/docker-build-web
+deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
 
-translations: .state/docker-build-web
+translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
-initdb: .state/docker-build-web
+initdb: .state/docker-build-base
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
@@ -108,13 +108,13 @@ initdb: .state/docker-build-web
 	docker compose run --rm web python -m warehouse classifiers sync
 	$(MAKE) reindex
 
-reindex: .state/docker-build-web
+reindex: .state/docker-build-base
 	docker compose run --rm web python -m warehouse search reindex
 
-shell: .state/docker-build-web
+shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
 
-dbshell: .state/docker-build-web
+dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 
 clean:
