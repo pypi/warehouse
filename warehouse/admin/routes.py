@@ -76,6 +76,14 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # IP Address related Admin pages
+    config.add_route("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse)
+    config.add_route(
+        "admin.ip_address.detail",
+        "/admin/ip-addresses/{ip_address_id}",
+        domain=warehouse,
+    )
+
     # Project related Admin pages
     config.add_route("admin.project.list", "/admin/projects/", domain=warehouse)
     config.add_route(

@@ -78,6 +78,12 @@ def test_includeme():
             "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
         ),
+        pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
+        pretend.call(
+            "admin.ip_address.detail",
+            "/admin/ip-addresses/{ip_address_id}",
+            domain=warehouse,
+        ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
         pretend.call(
             "admin.project.detail",
