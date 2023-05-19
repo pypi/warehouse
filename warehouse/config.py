@@ -231,6 +231,13 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set(
+        settings,
+        "reconcile_file_storages.batch_size",
+        "RECONCILE_FILE_STORAGES_BATCH_SIZE",
+        coercer=int,
+        default=100,
+    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")

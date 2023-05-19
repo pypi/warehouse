@@ -638,6 +638,7 @@ class File(HasEvents, db.Model):
             ),
             Index("release_files_release_id_idx", "release_id"),
             Index("release_files_archived_idx", "archived"),
+            Index("release_files_cached_idx", "cached"),
         )
 
     release_id = Column(
@@ -669,11 +670,21 @@ class File(HasEvents, db.Model):
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
 
+    # PEP 658
+    metadata_file_sha256_digest = Column(CIText, nullable=True)
+    metadata_file_blake2_256_digest = Column(CIText, nullable=True)
+
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
 
+    cached = Column(
+        Boolean,
+        comment="If True, the object has been populated to our cache bucket.",
+        nullable=False,
+        server_default=sql.false(),
+    )
     archived = Column(
         Boolean,
         comment="If True, the object has been archived to our archival bucket.",
@@ -688,6 +699,14 @@ class File(HasEvents, db.Model):
     @pgp_path.expression  # type: ignore
     def pgp_path(self):
         return func.concat(self.path, ".asc")
+
+    @hybrid_property
+    def metadata_path(self):
+        return self.path + ".metadata"
+
+    @metadata_path.expression  # type: ignore
+    def metadata_path(self):
+        return func.concat(self.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):

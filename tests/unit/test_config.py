@@ -267,6 +267,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.oidc.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "warehouse.two_factor_mandate.cohort_size": 0,
+        "reconcile_file_storages.batch_size": 100,
     }
     if environment == config.Environment.development:
         expected_settings.update(

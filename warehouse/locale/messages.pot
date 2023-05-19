@@ -2337,18 +2337,32 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:31
 #: warehouse/templates/email/trusted-publisher-removed/body.html:29
-msgid "Publisher specification"
+#: warehouse/templates/manage/account/publishing.html:77
+#: warehouse/templates/manage/project/publishing.html:46
+msgid "Workflow"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
+#: warehouse/templates/email/trusted-publisher-added/body.html:32
+#: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:45
+msgid "Repository"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+msgid "Environment"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:40
 msgid ""
 "If you did not make this change and you think it was made maliciously, "
 "you can remove it from the project via the \"Publishing\" tab on the "
 "project's page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:43
-#: warehouse/templates/email/trusted-publisher-removed/body.html:41
+#: warehouse/templates/email/trusted-publisher-added/body.html:47
+#: warehouse/templates/email/trusted-publisher-removed/body.html:45
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email "
@@ -2363,7 +2377,7 @@ msgid ""
 "from a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:38
 msgid ""
 "If you did not make this change and you think it was made in error, you "
 "can check the \"Security history\" tab on the project's page."
@@ -3965,16 +3979,6 @@ msgstr ""
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:76
-#: warehouse/templates/manage/project/publishing.html:45
-msgid "Repository"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:46
-msgid "Workflow"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:78
 #: warehouse/templates/manage/account/publishing.html:184
 #: warehouse/templates/manage/project/publishing.html:47
@@ -5507,6 +5511,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -5570,15 +5575,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:119
 msgid "Un-yank release"
-msgstr ""
-
-#: warehouse/templates/manage/project/releases.html:140
-#, python-format
-msgid ""
-"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">yanking</a> this release, making a new release or a <a "
-"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">post release</a> instead."
 msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:151

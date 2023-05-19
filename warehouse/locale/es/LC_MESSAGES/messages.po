@@ -577,7 +577,7 @@ msgstr ""
 "tiene verificada ninguna dirección de correo principal"
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -585,7 +585,7 @@ msgstr ""
 "adelante."
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "Se envió la invitación a «${username}»"
 
@@ -598,15 +598,15 @@ msgid "Invitation already expired."
 msgstr "Ya caducó la invitación."
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "Se revocó la invitación para «${username}»."
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:858
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "«${username}» ya funge como ${role_name} en la organización"
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:869
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -614,16 +614,16 @@ msgstr ""
 "No se puede añadir a «${username}» como ${role_name} de la organización "
 "porque no tiene verificada ninguna dirección de correo principal"
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1030
+#: warehouse/manage/views/organizations.py:1072
 msgid "Could not find organization invitation."
 msgstr "No se encontró la invitación a la organización."
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1040
 msgid "Organization invitation could not be re-sent."
 msgstr "La invitación a la organización no puede ser re-enviada."
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1087
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Invitación caducada para '${username}' eliminada."
 
@@ -761,13 +761,13 @@ msgstr "Monty Python, escena «La quesería»"
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
 #: warehouse/templates/accounts/two-factor.html:55
-#: warehouse/templates/base.html:274 warehouse/templates/base.html:275
-#: warehouse/templates/base.html:276 warehouse/templates/base.html:277
-#: warehouse/templates/base.html:287 warehouse/templates/base.html:288
-#: warehouse/templates/base.html:301 warehouse/templates/base.html:302
-#: warehouse/templates/base.html:304 warehouse/templates/base.html:313
-#: warehouse/templates/base.html:315 warehouse/templates/base.html:327
-#: warehouse/templates/base.html:340
+#: warehouse/templates/base.html:278 warehouse/templates/base.html:279
+#: warehouse/templates/base.html:280 warehouse/templates/base.html:281
+#: warehouse/templates/base.html:291 warehouse/templates/base.html:292
+#: warehouse/templates/base.html:305 warehouse/templates/base.html:306
+#: warehouse/templates/base.html:308 warehouse/templates/base.html:317
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
@@ -941,7 +941,7 @@ msgid "Main navigation"
 msgstr "Navegación principal"
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
-#: warehouse/templates/base.html:271
+#: warehouse/templates/base.html:275
 #: warehouse/templates/includes/current-user-indicator.html:63
 #: warehouse/templates/pages/help.html:109
 #: warehouse/templates/pages/sitemap.html:27
@@ -1031,21 +1031,21 @@ msgstr "RSS: 40 actualizaciones más recientes"
 msgid "RSS: 40 newest packages"
 msgstr "RSS: 40 paquetes más recientes"
 
-#: warehouse/templates/base.html:156
+#: warehouse/templates/base.html:160
 msgid "Skip to main content"
 msgstr "Saltar al contenido principal"
 
-#: warehouse/templates/base.html:159
+#: warehouse/templates/base.html:163
 msgid "Switch to mobile version"
 msgstr "Cambiar a la versión para móviles"
 
-#: warehouse/templates/base.html:168 warehouse/templates/base.html:177
-#: warehouse/templates/base.html:187
+#: warehouse/templates/base.html:172 warehouse/templates/base.html:181
+#: warehouse/templates/base.html:191
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:742
-#: warehouse/templates/manage/manage_base.html:313
-#: warehouse/templates/manage/manage_base.html:372
+#: warehouse/templates/manage/manage_base.html:321
+#: warehouse/templates/manage/manage_base.html:380
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1058,13 +1058,13 @@ msgstr "Cambiar a la versión para móviles"
 msgid "Warning"
 msgstr "Aviso"
 
-#: warehouse/templates/base.html:170
+#: warehouse/templates/base.html:174
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
 "Está utilizando un navegador no admitido. Actualícelo a una versión más "
 "reciente."
 
-#: warehouse/templates/base.html:179
+#: warehouse/templates/base.html:183
 msgid ""
 "You are using TestPyPI – a separate instance of the Python Package Index "
 "that allows you to try distribution tools and processes without affecting "
@@ -1074,7 +1074,7 @@ msgstr ""
 "Índice de paquetes de Python que le permite poner a prueba las herramientas "
 "y los procesos de distribución sin afectar el Índice real."
 
-#: warehouse/templates/base.html:189
+#: warehouse/templates/base.html:193
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
@@ -1082,65 +1082,65 @@ msgstr ""
 "Algunas prestaciones pueden no funcionar sin JavaScript. Pruebe a activarlo "
 "si tiene problemas."
 
-#: warehouse/templates/base.html:227 warehouse/templates/base.html:248
+#: warehouse/templates/base.html:231 warehouse/templates/base.html:252
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
 msgstr "Buscar en PyPI"
 
-#: warehouse/templates/base.html:228 warehouse/templates/base.html:249
+#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
 msgstr "Buscar proyectos"
 
-#: warehouse/templates/base.html:232 warehouse/templates/base.html:253
+#: warehouse/templates/base.html:236 warehouse/templates/base.html:257
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
 msgstr "Buscar"
 
-#: warehouse/templates/base.html:272
+#: warehouse/templates/base.html:276
 msgid "Help navigation"
 msgstr "Navegación por la ayuda"
 
-#: warehouse/templates/base.html:274
+#: warehouse/templates/base.html:278
 msgid "Installing packages"
 msgstr "Instalación de paquetes"
 
-#: warehouse/templates/base.html:275
+#: warehouse/templates/base.html:279
 msgid "Uploading packages"
 msgstr "Carga de paquetes"
 
-#: warehouse/templates/base.html:276
+#: warehouse/templates/base.html:280
 msgid "User guide"
 msgstr "Manual de uso"
 
-#: warehouse/templates/base.html:277
+#: warehouse/templates/base.html:281
 msgid "Project name retention"
 msgstr "Retención de nombres de proyecto"
 
-#: warehouse/templates/base.html:278
+#: warehouse/templates/base.html:282
 msgid "FAQs"
 msgstr "Preguntas frecuentes"
 
-#: warehouse/templates/base.html:284 warehouse/templates/pages/sitemap.html:37
+#: warehouse/templates/base.html:288 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
 msgstr "Acerca de PyPI"
 
-#: warehouse/templates/base.html:285
+#: warehouse/templates/base.html:289
 msgid "About PyPI navigation"
 msgstr "Navegación por Acerca de PyPI"
 
-#: warehouse/templates/base.html:287
+#: warehouse/templates/base.html:291
 msgid "PyPI on Twitter"
 msgstr "PyPI en Twitter"
 
-#: warehouse/templates/base.html:288
+#: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
 msgstr "Cuadro de mando de infraestructura"
 
-#: warehouse/templates/base.html:289
+#: warehouse/templates/base.html:293
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
 #: warehouse/templates/includes/packaging/project-data.html:33
@@ -1149,94 +1149,94 @@ msgstr "Cuadro de mando de infraestructura"
 msgid "Statistics"
 msgstr "Estadísticas"
 
-#: warehouse/templates/base.html:290
+#: warehouse/templates/base.html:294
 msgid "Logos & trademarks"
 msgstr "Logos y trademarks"
 
-#: warehouse/templates/base.html:291
+#: warehouse/templates/base.html:295
 msgid "Our sponsors"
 msgstr "Nuestros patrocinadores"
 
-#: warehouse/templates/base.html:297
+#: warehouse/templates/base.html:301
 msgid "Contributing to PyPI"
 msgstr "Contribuir con PyPI"
 
-#: warehouse/templates/base.html:298
+#: warehouse/templates/base.html:302
 msgid "How to contribute navigation"
 msgstr "Navegación por Cómo contribuir"
 
-#: warehouse/templates/base.html:300
+#: warehouse/templates/base.html:304
 msgid "Bugs and feedback"
 msgstr "Defectos y comentarios"
 
-#: warehouse/templates/base.html:301
+#: warehouse/templates/base.html:305
 msgid "Contribute on GitHub"
 msgstr "Contribuir en GitHub"
 
-#: warehouse/templates/base.html:302
+#: warehouse/templates/base.html:306
 msgid "Translate PyPI"
 msgstr "Traducir PyPI"
 
-#: warehouse/templates/base.html:303
+#: warehouse/templates/base.html:307
 msgid "Sponsor PyPI"
 msgstr "Patrocinar a PyPI"
 
-#: warehouse/templates/base.html:304
+#: warehouse/templates/base.html:308
 msgid "Development credits"
 msgstr "Créditos de desarrollo"
 
-#: warehouse/templates/base.html:310 warehouse/templates/pages/sitemap.html:23
+#: warehouse/templates/base.html:314 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
 msgstr "Uso de PyPI"
 
-#: warehouse/templates/base.html:311
+#: warehouse/templates/base.html:315
 msgid "Using PyPI navigation"
 msgstr "Navegación por Uso de PyPI"
 
-#: warehouse/templates/base.html:313
+#: warehouse/templates/base.html:317
 msgid "Code of conduct"
 msgstr "Código de conducta"
 
-#: warehouse/templates/base.html:314
+#: warehouse/templates/base.html:318
 msgid "Report security issue"
 msgstr "Informar de un problema de seguridad"
 
-#: warehouse/templates/base.html:315
+#: warehouse/templates/base.html:319
 msgid "Privacy policy"
 msgstr "Normativa de privacidad"
 
-#: warehouse/templates/base.html:316 warehouse/templates/pages/sitemap.html:43
+#: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
 msgstr "Términos de uso"
 
-#: warehouse/templates/base.html:317
+#: warehouse/templates/base.html:321
 msgid "Acceptable Use Policy"
 msgstr "Políticas de Uso Aceptable"
 
-#: warehouse/templates/base.html:327
+#: warehouse/templates/base.html:331
 msgid "Status:"
 msgstr "Estado:"
 
-#: warehouse/templates/base.html:328
+#: warehouse/templates/base.html:332
 msgid "all systems operational"
 msgstr "todos los sistemas en servicio"
 
-#: warehouse/templates/base.html:332
+#: warehouse/templates/base.html:336
 msgid ""
 "Developed and maintained by the Python community, for the Python community."
 msgstr ""
 "Desarrollado y mantenido por la comunidad de Python para la comunidad de "
 "Python."
 
-#: warehouse/templates/base.html:334
+#: warehouse/templates/base.html:338
 msgid "Donate today!"
 msgstr "¡Done hoy mismo!"
 
-#: warehouse/templates/base.html:341 warehouse/templates/pages/sitemap.html:16
+#: warehouse/templates/base.html:345 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
 msgstr "Mapa del sitio"
 
-#: warehouse/templates/base.html:347
+#: warehouse/templates/base.html:351
 msgid "Switch to desktop version"
 msgstr "Cambiar a la versión de escritorio"
 
@@ -1360,7 +1360,7 @@ msgstr "Confirme la contraseña para continuar"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:381
+#: warehouse/templates/manage/manage_base.html:389
 #: warehouse/templates/re-auth.html:49
 msgid "Password"
 msgstr "Contraseña"
@@ -1429,7 +1429,7 @@ msgid "Your password"
 msgstr "Su contraseña"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:384
+#: warehouse/templates/manage/manage_base.html:392
 #: warehouse/templates/re-auth.html:72
 msgid "Show password"
 msgstr "Mostrar contraseña"
@@ -2990,8 +2990,8 @@ msgstr "Descartar esta notificación"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:302
-#: warehouse/templates/manage/manage_base.html:304
+#: warehouse/templates/manage/manage_base.html:310
+#: warehouse/templates/manage/manage_base.html:312
 #: warehouse/templates/manage/project/release.html:137
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -3209,6 +3209,7 @@ msgstr "Documentación"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:52
 #: warehouse/templates/manage/manage_base.html:237
+#: warehouse/templates/manage/manage_base.html:273
 msgid "Publishing"
 msgstr ""
 
@@ -4078,7 +4079,7 @@ msgstr "Método de dos fases"
 
 #: warehouse/templates/manage/manage_base.html:64
 #: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:524
+#: warehouse/templates/manage/manage_base.html:532
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4253,54 +4254,54 @@ msgstr "Su cuenta"
 msgid "Account navigation"
 msgstr "Navegación de la cuenta"
 
-#: warehouse/templates/manage/manage_base.html:314
-#: warehouse/templates/manage/manage_base.html:373
+#: warehouse/templates/manage/manage_base.html:322
+#: warehouse/templates/manage/manage_base.html:381
 msgid "This action cannot be undone!"
 msgstr "No puede deshacerse esta acción."
 
-#: warehouse/templates/manage/manage_base.html:326
+#: warehouse/templates/manage/manage_base.html:334
 msgid "Confirm your username to continue."
 msgstr "Confirme su nombre de usuario para continuar."
 
-#: warehouse/templates/manage/manage_base.html:328
+#: warehouse/templates/manage/manage_base.html:336
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Confirme %(item)s para continuar."
 
-#: warehouse/templates/manage/manage_base.html:339
-#: warehouse/templates/manage/manage_base.html:391
+#: warehouse/templates/manage/manage_base.html:347
+#: warehouse/templates/manage/manage_base.html:399
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "Cancelar"
 
-#: warehouse/templates/manage/manage_base.html:362
+#: warehouse/templates/manage/manage_base.html:370
 msgid "close"
 msgstr "cerrar"
 
-#: warehouse/templates/manage/manage_base.html:378
+#: warehouse/templates/manage/manage_base.html:386
 msgid "Enter your password to continue."
 msgstr "Proporcione su contraseña para continuar."
 
-#: warehouse/templates/manage/manage_base.html:461
+#: warehouse/templates/manage/manage_base.html:469
 #, fuzzy
 #| msgid "Publisher name"
 msgid "Trusted Publisher Management"
 msgstr "Nombre del editor"
 
-#: warehouse/templates/manage/manage_base.html:466
+#: warehouse/templates/manage/manage_base.html:474
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:474
+#: warehouse/templates/manage/manage_base.html:482
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:481
+#: warehouse/templates/manage/manage_base.html:489
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -4312,11 +4313,11 @@ msgstr ""
 "Para recuperar el acceso a su cuenta, <a href=\"%(href)s\">restablezca su "
 "contraseña</a> en PyPI."
 
-#: warehouse/templates/manage/manage_base.html:520
+#: warehouse/templates/manage/manage_base.html:528
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:531
+#: warehouse/templates/manage/manage_base.html:539
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:91
@@ -4327,7 +4328,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Añadido por:"
 
-#: warehouse/templates/manage/manage_base.html:533
+#: warehouse/templates/manage/manage_base.html:541
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:56
 #: warehouse/templates/manage/project/history.html:116
@@ -4338,32 +4339,32 @@ msgstr "Añadido por:"
 msgid "Removed by:"
 msgstr "Eliminada por:"
 
-#: warehouse/templates/manage/manage_base.html:535
+#: warehouse/templates/manage/manage_base.html:543
 #, fuzzy
 #| msgid "Invite"
 msgid "Submitted by:"
 msgstr "Invitar"
 
-#: warehouse/templates/manage/manage_base.html:538
+#: warehouse/templates/manage/manage_base.html:546
 #: warehouse/templates/manage/project/history.html:231
 #, fuzzy
 #| msgid "Workflow name"
 msgid "Workflow:"
 msgstr "Nombre del flujo de trabajo"
 
-#: warehouse/templates/manage/manage_base.html:540
+#: warehouse/templates/manage/manage_base.html:548
 #, fuzzy
 #| msgid "Specification"
 msgid "Specifier:"
 msgstr "Especificación"
 
-#: warehouse/templates/manage/manage_base.html:543
+#: warehouse/templates/manage/manage_base.html:551
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Nombre de usuario"
 
-#: warehouse/templates/manage/manage_base.html:545
+#: warehouse/templates/manage/manage_base.html:553
 #, fuzzy
 #| msgid "Old URL:"
 msgid "URL:"
@@ -6653,6 +6654,7 @@ msgstr ""
 "problemas legales o para suprimir versiones perjudiciales."
 
 #: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
@@ -6722,19 +6724,6 @@ msgstr "Retirar"
 #: warehouse/templates/manage/project/releases.html:119
 msgid "Un-yank release"
 msgstr "Anular retirada de versión"
-
-#: warehouse/templates/manage/project/releases.html:140
-#, python-format
-msgid ""
-"Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">yanking</a> this release, making a new release or a <a href="
-"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">post "
-"release</a> instead."
-msgstr ""
-"En lugar de esto, considere <a href=\"%(yank_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">retirar</a> esta versión o crear una "
-"versión o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
-"\"noopener\">revisión</a> nueva."
 
 #: warehouse/templates/manage/project/releases.html:151
 #, python-format
@@ -10398,6 +10387,18 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "«%(term)s» no arrojó ningún resultado"
 msgstr[1] "«%(term)s» no arrojó ningún resultado"
+
+#, python-format
+#~ msgid ""
+#~ "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">yanking</a> this release, making a new release or a <a "
+#~ "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+#~ "\">post release</a> instead."
+#~ msgstr ""
+#~ "En lugar de esto, considere <a href=\"%(yank_href)s\" title=\"%(title)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">retirar</a> esta versión o crear una "
+#~ "versión o <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel="
+#~ "\"noopener\">revisión</a> nueva."
 
 #, fuzzy
 #~| msgid "How can I use API tokens to authenticate with PyPI?"
