@@ -129,6 +129,18 @@ class HasEvents:
     ):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
+
+        if request is not None:
+            # Add `request.ip_address` data to `Event.additional` as a nested key
+            additional = additional or {}
+            additional["ip_address"] = {}
+            additional["ip_address"]["hashed_ip_address"] = (
+                request.ip_address.hashed_ip_address or None
+            )
+            additional["ip_address"]["geoip_info"] = (
+                request.ip_address.geoip_info or None
+            )
+
         event = self.Event(
             source=self,
             tag=tag,

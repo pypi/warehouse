@@ -178,6 +178,11 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
     dummy_request.remote_addr_hashed = remote_addr_hashed
+    dummy_request.ip_address = pretend.stub(
+        ip_address=remote_addr,
+        hashed_ip_address=remote_addr_hashed,
+        geoip_info={"country_code": "US", "country_name": "United States"},
+    )
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.oidc_publisher = None
