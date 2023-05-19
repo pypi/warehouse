@@ -34,6 +34,7 @@ from warehouse.macaroons.caveats._core import (
     serialize,
 )
 from warehouse.oidc import models as oidc_models
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
 __all__ = ["deserialize", "serialize", "verify"]
@@ -105,6 +106,7 @@ class RequestUser(Caveat):
 @dataclass(frozen=True)
 class OIDCPublisher(Caveat):
     oidc_publisher_id: StrictStr
+    oidc_claims: SignedClaims | None = None
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         # If the identity associated with this macaroon is not an OpenID publisher,
