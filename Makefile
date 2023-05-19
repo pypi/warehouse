@@ -70,10 +70,10 @@ static_pipeline: .state/docker-build-static
 	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
 reformat: .state/docker-build-web
-	docker compose run --rm web bin/reformat
+	docker compose run --rm base bin/reformat
 
 lint: .state/docker-build-web
-	docker compose run --rm web bin/lint
+	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
 dev-docs: .state/docker-build-docs
@@ -86,16 +86,16 @@ blog: .state/docker-build-docs
 	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
 licenses: .state/docker-build-web
-	docker compose run --rm web bin/licenses
+	docker compose run --rm base bin/licenses
 
 deps: .state/docker-build-web
-	docker compose run --rm web bin/deps
+	docker compose run --rm base bin/deps
 
 translations: .state/docker-build-web
-	docker compose run --rm web bin/translations
+	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	docker compose run --rm base bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
 
 initdb: .state/docker-build-web
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
