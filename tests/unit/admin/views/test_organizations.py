@@ -528,6 +528,7 @@ class TestOrganizationDetail:
             pretend.call(
                 tag=EventTag.Organization.OrganizationApprove,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"approved_by_user_id": str(admin.id)},
             ),
         ]
@@ -675,6 +676,7 @@ class TestOrganizationDetail:
             pretend.call(
                 tag=EventTag.Organization.OrganizationDecline,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"declined_by_user_id": str(admin.id)},
             ),
         ]
