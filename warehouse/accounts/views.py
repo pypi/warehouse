@@ -94,7 +94,7 @@ def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
             "There have been too many unsuccessful login attempts. "
-            "You have been locked out for {0}. "
+            "You have been locked out for {}. "
             "Please try again later.".format(
                 humanize.naturaldelta(exc.resets_in.total_seconds())
             )
