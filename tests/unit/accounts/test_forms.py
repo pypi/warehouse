@@ -217,7 +217,7 @@ class TestLoginForm:
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
-                pretend.raiser(TooManyFailedLogins(resets_in=None))
+                pretend.raiser(TooManyFailedLogins(resets_in=datetime.timedelta(seconds=600)))
             ),
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
