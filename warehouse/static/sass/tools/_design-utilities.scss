@@ -14,7 +14,7 @@
 
 @mixin card {
   border: 1px solid $border-color;
-  box-shadow: 1px 1px 2px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: 1px 1px 2px 1px rgb(0 0 0 / 5%);
   background-color: $white;
   background-image: none;
 
@@ -27,10 +27,7 @@
 
 @mixin overlay {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
+  inset: 0;
   background-color: transparentize($black, 0.5);
   z-index: index($z-index-scale, "dark-overlay");
   pointer-events: none;

@@ -16,13 +16,12 @@ import re
 import xmlrpc.client
 import xmlrpc.server
 
-from typing import List, Mapping, Union
+from collections.abc import Mapping
 
-import elasticsearch
 import typeguard
 
-from elasticsearch_dsl import Q
 from packaging.utils import canonicalize_name
+from pyramid.httpexceptions import HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
@@ -32,7 +31,7 @@ from pyramid_rpc.xmlrpc import (
     xmlrpc_method as _xmlrpc_method,
 )
 from sqlalchemy import func, orm, select
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
@@ -45,7 +44,7 @@ from warehouse.packaging.models import (
     Role,
     release_classifiers,
 )
-from warehouse.search.queries import SEARCH_BOOSTS
+from warehouse.rate_limiting import IRateLimiter
 
 # From https://stackoverflow.com/a/22273639
 _illegal_ranges = [
@@ -75,9 +74,13 @@ _illegal_ranges = [
 ]
 _illegal_xml_chars_re = re.compile("[%s]" % "".join(_illegal_ranges))
 
+XMLRPC_DEPRECATION_URL = (
+    "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods"
+)
+
 
 def _clean_for_xml(data):
-    """ Sanitize any user-submitted data to ensure that it can be used in XML """
+    """Sanitize any user-submitted data to ensure that it can be used in XML"""
 
     # If data is None or an empty string, don't bother
     if data:
@@ -108,6 +111,33 @@ def submit_xmlrpc_metrics(method=None):
     return decorator
 
 
+def ratelimit():
+    def decorator(f):
+        def wrapped(context, request):
+            ratelimiter = request.find_service(
+                IRateLimiter, name="xmlrpc.client", context=None
+            )
+            metrics = request.find_service(IMetricsService, context=None)
+            ratelimiter.hit(request.remote_addr)
+            if not ratelimiter.test(request.remote_addr):
+                metrics.increment("warehouse.xmlrpc.ratelimiter.exceeded", tags=[])
+                message = (
+                    "The action could not be performed because there were too "
+                    "many requests by the client."
+                )
+                _resets_in = ratelimiter.resets_in(request.remote_addr)
+                if _resets_in is not None:
+                    _resets_in = max(1, int(_resets_in.total_seconds()))
+                    message += f" Limit may reset in {_resets_in} seconds."
+                raise XMLRPCWrappedError(HTTPTooManyRequests(message))
+            metrics.increment("warehouse.xmlrpc.ratelimiter.hit", tags=[])
+            return f(context, request)
+
+        return wrapped
+
+    return decorator
+
+
 def xmlrpc_method(**kwargs):
     """
     Support multiple endpoints serving the same views by chaining calls to
@@ -117,14 +147,14 @@ def xmlrpc_method(**kwargs):
     kwargs.update(
         require_csrf=False,
         require_methods=["POST"],
-        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]),),
+        decorator=(submit_xmlrpc_metrics(method=kwargs["method"]), ratelimit()),
         mapper=TypedMapplyViewMapper,
     )
 
     def decorator(f):
-        rpc2 = _xmlrpc_method(endpoint="RPC2", **kwargs)
-        pypi = _xmlrpc_method(endpoint="pypi", **kwargs)
-        pypi_slash = _xmlrpc_method(endpoint="pypi_slash", **kwargs)
+        rpc2 = _xmlrpc_method(endpoint="xmlrpc.RPC2", **kwargs)
+        pypi = _xmlrpc_method(endpoint="xmlrpc.pypi", **kwargs)
+        pypi_slash = _xmlrpc_method(endpoint="xmlrpc.pypi_slash", **kwargs)
         return rpc2(pypi_slash(pypi(f)))
 
     return decorator
@@ -166,7 +196,7 @@ class XMLRPCInvalidParamTypes(XmlRpcInvalidMethodParams):
         return f"client error; {self.exc}"
 
 
-class XMLRPCWrappedError(xmlrpc.server.Fault):
+class XMLRPCWrappedError(xmlrpc.client.Fault):
     def __init__(self, exc):
         # NOQA due to N815 'mixedCase variable in class scope',
         # This is the interface for specifying fault code and string for XmlRpcError
@@ -186,96 +216,26 @@ class TypedMapplyViewMapper(MapplyViewMapper):
             memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
             typeguard.check_argument_types(memo)
         except TypeError as exc:
-            print(exc)
             raise XMLRPCInvalidParamTypes(exc)
 
         return super().mapply(fn, args, kwargs)
 
 
-@view_config(route_name="pypi", context=Exception, renderer="xmlrpc")
+@view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
     return _exception_view(exc, request)
 
 
 @xmlrpc_method(method="search")
-def search(request, spec: Mapping[str, Union[str, List[str]]], operator: str = "and"):
-    if operator not in {"and", "or"}:
-        raise XMLRPCWrappedError(
-            ValueError("Invalid operator, must be one of 'and' or 'or'.")
+def search(request, spec: Mapping[str, str | list[str]], operator: str = "and"):
+    domain = request.registry.settings.get("warehouse.domain", request.domain)
+    raise XMLRPCWrappedError(
+        RuntimeError(
+            "PyPI no longer supports 'pip search' (or XML-RPC search). "
+            f"Please use https://{domain}/search (via a browser) instead. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
-
-    metrics = request.find_service(IMetricsService, context=None)
-
-    # Remove any invalid spec fields
-    spec = {
-        k: [v] if isinstance(v, str) else v
-        for k, v in spec.items()
-        if v
-        and k
-        in {
-            "name",
-            "version",
-            "author",
-            "author_email",
-            "maintainer",
-            "maintainer_email",
-            "home_page",
-            "license",
-            "summary",
-            "description",
-            "keywords",
-            "platform",
-            "download_url",
-        }
-    }
-
-    queries = []
-    for field, value in sorted(spec.items()):
-        q = None
-        for item in value:
-            kw = {"query": item}
-            if field in SEARCH_BOOSTS:
-                kw["boost"] = SEARCH_BOOSTS[field]
-            if q is None:
-                q = Q("match", **{field: kw})
-            else:
-                q |= Q("match", **{field: kw})
-        queries.append(q)
-
-    if operator == "and":
-        query = request.es.query("bool", must=queries)
-    else:
-        query = request.es.query("bool", should=queries)
-
-    try:
-        results = query[:100].execute()
-    except elasticsearch.TransportError:
-        metrics.increment("warehouse.xmlrpc.search.error")
-        raise XMLRPCServiceUnavailable
-
-    metrics.histogram("warehouse.xmlrpc.search.results", len(results))
-
-    if "version" in spec.keys():
-        return [
-            {
-                "name": r.name,
-                "summary": _clean_for_xml(getattr(r, "summary", None)),
-                "version": v,
-                "_pypi_ordering": False,
-            }
-            for r in results
-            for v in r.version
-            if v in spec.get("version", [v])
-        ]
-    return [
-        {
-            "name": r.name,
-            "summary": _clean_for_xml(getattr(r, "summary", None)),
-            "version": r.latest_version,
-            "_pypi_ordering": False,
-        }
-        for r in results
-    ]
+    )
 
 
 @xmlrpc_cache_all_projects(method="list_packages")
@@ -287,7 +247,7 @@ def list_packages(request):
 @xmlrpc_cache_all_projects(method="list_packages_with_serial")
 def list_packages_with_serial(request):
     serials = request.db.query(Project.name, Project.last_serial).all()
-    return dict((serial[0], serial[1]) for serial in serials)
+    return {serial[0]: serial[1] for serial in serials}
 
 
 @xmlrpc_method(method="package_hosting_mode")
@@ -310,7 +270,10 @@ def user_packages(request, username: str):
 @xmlrpc_method(method="top_packages")
 def top_packages(request, num=None):
     raise XMLRPCWrappedError(
-        RuntimeError("This API has been removed. Use BigQuery instead.")
+        RuntimeError(
+            "This API has been removed. Use BigQuery instead. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
+        )
     )
 
 
@@ -340,16 +303,10 @@ def package_releases(request, package_name: str, show_hidden: bool = False):
 
 @xmlrpc_method(method="package_data")
 def package_data(request, package_name, version):
-    settings = request.registry.settings
-    domain = settings.get("warehouse.domain", request.domain)
     raise XMLRPCWrappedError(
         RuntimeError(
-            (
-                "This API has been deprecated. Use "
-                f"https://{domain}/{package_name}/{version}/json "
-                "instead. The XMLRPC method release_data can be used in the "
-                "interim, but will be deprecated in the future."
-            )
+            "This API has been deprecated. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
     )
 
@@ -384,7 +341,10 @@ def release_data(request, package_name: str, version: str):
         "docs_url": _clean_for_xml(release.project.documentation_url),
         "home_page": _clean_for_xml(release.home_page),
         "download_url": _clean_for_xml(release.download_url),
-        "project_url": [_clean_for_xml(url) for url in release.project_urls],
+        "project_url": [
+            _clean_for_xml(f"{label}, {url}")
+            for label, url in release.project_urls.items()
+        ],
         "author": _clean_for_xml(release.author),
         "author_email": _clean_for_xml(release.author_email),
         "maintainer": _clean_for_xml(release.maintainer),
@@ -413,16 +373,10 @@ def release_data(request, package_name: str, version: str):
 
 @xmlrpc_method(method="package_urls")
 def package_urls(request, package_name, version):
-    settings = request.registry.settings
-    domain = settings.get("warehouse.domain", request.domain)
     raise XMLRPCWrappedError(
         RuntimeError(
-            (
-                "This API has been deprecated. Use "
-                f"https://{domain}/{package_name}/{version}/json "
-                "instead. The XMLRPC method release_urls can be used in the "
-                "interim, but will be deprecated in the future."
-            )
+            "This API has been deprecated. "
+            f"See {XMLRPC_DEPRECATION_URL} for more information."
         )
     )
 
@@ -492,7 +446,7 @@ def changelog_since_serial(request, serial: int):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             _clean_for_xml(e.action),
             e.id,
         )
@@ -502,10 +456,10 @@ def changelog_since_serial(request, serial: int):
 
 @xmlrpc_method(method="changelog")
 def changelog(request, since: int, with_ids: bool = False):
-    since = datetime.datetime.utcfromtimestamp(since)
+    since_dt = datetime.datetime.utcfromtimestamp(since)
     entries = (
         request.db.query(JournalEntry)
-        .filter(JournalEntry.submitted_date > since)
+        .filter(JournalEntry.submitted_date > since_dt)
         .order_by(JournalEntry.id)
         .limit(50000)
     )
@@ -514,7 +468,7 @@ def changelog(request, since: int, with_ids: bool = False):
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             e.action,
             e.id,
         )
@@ -528,7 +482,7 @@ def changelog(request, since: int, with_ids: bool = False):
 
 
 @xmlrpc_method(method="browse")
-def browse(request, classifiers: List[str]):
+def browse(request, classifiers: list[str]):
     classifiers_q = (
         request.db.query(Classifier)
         .filter(Classifier.classifier.in_(classifiers))

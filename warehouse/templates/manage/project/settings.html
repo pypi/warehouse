@@ -1,0 +1,287 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "manage_project_base.html" %}
+
+{% set active_tab = 'settings' %}
+
+{% block title %}{% trans project_name=project.name %}Manage '{{ project_name }}' settings{% endtrans %}{% endblock %}
+
+{% block main %}
+  <h2>{% trans %}Project settings{% endtrans %}</h2>
+  <ul>
+    <li>{% trans  %}Project size:{% endtrans %}
+    {{ project.total_size|filesizeformat(binary=True) }}</li>
+    <li>Project upload limit:
+    {% if project.upload_limit %}
+      {{ project.upload_limit|filesizeformat(binary=True) }}
+    {% else %}
+      Default ({{  MAX_FILESIZE|filesizeformat(binary=True) }})
+    {% endif %}
+    {% trans help_url=request.help_url(_anchor='file-size-limit') %}
+    <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
+    <li>Project total size limit:
+    {% if project.total_size_limit %}
+      {{ project.total_size_limit|filesizeformat(binary=True) }}
+    {% else %}
+      Default ({{  MAX_PROJECT_SIZE|filesizeformat(binary=True) }})
+    {% endif %}
+    {% trans help_url=request.help_url(_anchor='project-size-limit') %}
+    <a href="{{ help_url }}"> (request an increase) </a>{% endtrans %}</li>
+  </ul>
+
+  <h3>{% trans %}API tokens{% endtrans %}</h3>
+  <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
+  {% if user.has_primary_verified_email %}
+    <p class="no-bottom-padding">
+      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">
+        {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
+      </a>
+    </p>
+  {% else %}
+    <p class="no-bottom-padding">
+      {% trans href='{url}#account-emails'.format(url=request.route_path('manage.account')), project_name=project.name %}
+      <a href="{{ href }}">Verify your primary email address</a> to add an API token for {{ project_name }}.
+      {% endtrans %}
+    </p>
+  {% endif %}
+
+  {% if request.registry.settings["warehouse.two_factor_requirement.enabled"] %}
+  <h3>{% trans %}<abbr title="two factor authentication">2FA</abbr> requirement{% endtrans %}</h3>
+  <p>{% trans %}Requiring 2FA for this project will require all collaborators to have 2FA enabled for their individual account. Any collaborator who does not have 2FA enabled will not be able to manage the project until they enable 2FA.{% endtrans %}</p>
+
+  {% set disabled = False %}
+  {% if project.pypi_mandates_2fa %}
+    {% if request.registry.settings["warehouse.two_factor_mandate.enabled"] %}
+      {% set disabled = True %}
+      <div class="callout-block">
+        <p>
+        {% trans %}This project is part of PyPI's two-factor authentication mandate for critical projects. As a result, this setting cannot be disabled for this project.{% endtrans %}
+        </p>
+      </div>
+    {% elif request.registry.settings["warehouse.two_factor_mandate.available"] %}
+      {% set disabled = True %}
+      <div class="callout-block">
+        <p>
+        {% trans %}This project will be part of PyPI's two-factor authentication mandate for critical projects. As a result, this setting cannot be disabled for this project.{% endtrans %}
+        </p>
+      </div>
+    {% endif %}
+  {% elif not user.has_two_factor %}
+    {% set disabled = True %}
+    <div class="callout-block">
+      <p>
+      {% trans %}You must enable 2FA for your account before you can modify this setting.{% endtrans %}
+      </p>
+      <a href="{{ request.route_path("manage.account.two-factor") }}" class="button button--primary">Enable 2FA for your account</a>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ toggle_2fa_form.two_factor_requirement_sentinel }}
+      {% if project.pypi_mandates_2fa or project.owners_require_2fa %}
+      <input type="submit" class="button button--danger" {{ "disabled" if disabled else ""}} value="{% trans project_name=project.name %}Disable 2FA requirement for {{ project_name }}{% endtrans %}">
+      {% else %}
+      <input type="submit" class="button button--primary" {{ "disabled" if disabled else ""}} value="{% trans project_name=project.name %}Enable 2FA requirement for {{ project_name }}{% endtrans %}">
+      {% endif %}
+    </form>
+  {% endif %}
+
+  <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
+    <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
+    <p>
+      {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-pyproject-toml', twine_docs_href='https://twine.readthedocs.io/en/latest/', distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
+        To set the '{{ project_name }}' description, author, links, classifiers, and other details for your next release, use the <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>setup()</code> arguments in your <code>setup.py</code> file</a>.
+        Updating these fields will not change the metadata for past releases.
+        Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.
+        See <a href="{{ distribution_href }}" rel="noopener" target="_blank">the Python Packaging User Guide</a> for more help.
+      {% endtrans %}
+    </p>
+    <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
+  </div>
+
+  <hr>
+
+  {#
+   # To remove project from an organization:
+   # 1. User must be organization owner.
+   # 2. There must be an individual project owner.
+   #}
+  {% if request.organization_access and (project.organization and request.user in project.organization.owners) %}
+    {% if (project.owners|length) %}
+    <div class="callout-block callout-block--danger">
+      <h3>{% trans %}Remove project from organization{% endtrans %}</h3>
+      <p>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}Removing this project from the organization will:{% endtrans %}
+      </p>
+      <ul>
+        <li>
+          {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+        <li>
+          {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+      </ul>
+      <p>
+        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+      </p>
+      {% set action = request.route_path('manage.project.remove_organization_project', project_name=project.normalized_name) %}
+      {% set extra_description %}
+      <p>
+        {% trans organization_name=project.organization.name %}This will remove the project from the '{{ organization_name }}' organization.{% endtrans %}
+        {% trans %}Individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+      </p>
+      {% endset %}
+      {{ confirm_button(gettext("Remove project"), gettext("Project Name"), "remove_organization_project_name", project.name, extra_description=extra_description, action=action) }}
+    </div>
+    {% else %}
+    <div class="callout-block">
+      <h3>{% trans %}Cannot remove project from organization{% endtrans %}</h3>
+      <p>
+        {% trans %}Your organization is currently the <strong>sole owner</strong> of the project. You must add an individual owner to the project before you can remove the project from your organization.{% endtrans %}
+      </p>
+    </div>
+    {% endif %}
+  {% endif %}
+
+  {#
+   # To transfer project to an organization:
+   # 1. If project is currently in an organization, the user must be organization owner.
+   # 2. User must have an organization to transfer the project to.
+   #}
+  {% if request.organization_access %}
+    {% if (not project.organization or request.user in project.organization.owners) and (transfer_organization_project_form.organization.choices|length > 1) %}
+    <div class="callout-block callout-block--danger">
+      <h3>
+        {% if project.organization %}
+        {% trans %}Transfer project to another organization{% endtrans %}
+        {% else %}
+        {% trans %}Transfer project to an organization{% endtrans %}
+        {% endif %}
+      </h3>
+      <p>
+        <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+        {% trans %}Transferring this project will:{% endtrans %}
+      </p>
+      <ul>
+        {% if project.organization %}
+        <li>
+          {% trans organization_name=project.organization.name %}Remove this project from the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+        <li>
+          {% trans organization_name=project.organization.name %}Revoke project permissions for teams in the '{{ organization_name }}' organization.{% endtrans %}
+        </li>
+        {% else %}
+        <li>
+          {% trans %}Revoke your direct Owner role on the project.{% endtrans %}
+        </li>
+        <li>
+          {% trans %}You will retain Owner permissions on the project through your organization role.{% endtrans %}
+        </li>
+        {% endif %}
+        <li>
+          {% if project.organization %}
+          {% trans %}Add the project to another organization that you own.{% endtrans %}
+          {% else %}
+          {% trans %}Add the project to an organization that you own.{% endtrans %}
+          {% endif %}
+        </li>
+        <li>
+          {% trans %}Grant full project permissions to owners of the organization.{% endtrans %}
+        </li>
+      </ul>
+      <p>
+        {% trans %}All other individual owners and maintainers of the project will retain their project permissions.{% endtrans %}
+      </p>
+      {% set action = request.route_path('manage.project.transfer_organization_project', project_name=project.normalized_name) %}
+      {% set extra_fields %}
+        <label for="transfer-project-modal-organization">Organization account name</label>
+        {{ transfer_organization_project_form.organization(id="transfer-project-modal-organization", class_="form-group__field") }}
+      {% endset %}
+      {% set extra_description %}
+      <p>
+        This will transfer the project to the organization that you select below. You can transfer the project to organizations that you own.
+      </p>
+      {% endset %}
+      {{ confirm_button(gettext("Transfer project"), gettext("Project Name"), "transfer_organization_project_name", project.name, action=action, extra_fields=extra_fields, extra_description=extra_description) }}
+    </div>
+    {% else %}
+    <div class="callout-block">
+      <h3>
+        {% if project.organization %}
+        {% trans %}Cannot transfer project to another organization{% endtrans %}
+        {% else %}
+        {% trans %}Cannot transfer project to an organization{% endtrans %}
+        {% endif %}
+      </h3>
+      <p>
+        {% if project.organization %}
+        {% trans %}Organization owners can transfer the project to organizations that they own or manage.{% endtrans %}
+        {% trans %}You are not an owner or manager of any other organizations.{% endtrans %}
+        {% else %}
+        {% trans %}Project owners can transfer the project to organizations that they own or manage.{% endtrans %}
+        {% trans %}You are not an owner or manager of any organizations.{% endtrans %}
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+
+  <hr>
+  {% endif %}
+
+  <div class="callout-block callout-block--danger" data-controller="delete-confirm">
+    <h3>{% trans %}Delete project{% endtrans %}</h3>
+    <p>
+      <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
+      {% trans %}Deleting this project will:{% endtrans %}
+    </p>
+    <ul>
+      <li>
+        {% if project.releases %}
+        {% trans count=project.releases|length(), href=request.route_path('manage.project.releases', project_name=project.name) %}
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} release</a>
+        {% pluralize %}
+          Irreversibly delete the project along with <a href="{{ href }}">{{ count }} releases</a>
+        {% endtrans %}
+        {% else %}
+        {% trans %}Irreversibly delete the project{% endtrans %}
+        {% endif %}
+      </li>
+      <li>
+        {% trans %}Make the project name available to <strong>any other PyPI</strong> user{% endtrans %}<br>
+        <small class="margin-left display-block margin-top margin-bottom">
+          {% trans %}
+            This user will be able to make new releases under this project name,
+            so long as the distribution filenames do not match filenames from a
+            previously released distribution (all PyPI distribution filenames
+            are unique, as they are generated by combining the
+            project name + version number + distribution type)
+          {% endtrans %}
+        </small>
+      </li>
+    </ul>
+    <ul class="no-bullets">
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am permanently deleting all releases for this project.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that my users will no longer be able to install this project.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I will <a href="https://pypi.org/help/#file-name-reuse">not be able to re-upload any deleted versions</a>.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I am releasing this project name for use by any other PyPI user.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I may not be able to re-register the project name <a href="https://pypi.org/help/#project-name">under some circumstances</a>.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that I will not be able to undo this.</li>
+      <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> I understand that the PyPI administrators will not be able to undo this.</li>
+    </ul>
+    {% set action = request.route_path('manage.project.delete_project', project_name=project.normalized_name) %}
+    {{ confirm_button(gettext("Delete project"), gettext("Project Name"), "project_name", project.name, action=action, additional_attributes="data-delete-confirm-target=button") }}
+  </div>
+{% endblock %}

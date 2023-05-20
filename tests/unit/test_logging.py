@@ -101,6 +101,7 @@ def test_includeme(monkeypatch, settings, expected_level):
                         "formatter": "structlog",
                     },
                 },
+                "loggers": {"datadog.dogstatsd": {"level": "ERROR"}},
                 "root": {"level": expected_level, "handlers": ["primary"]},
             }
         )

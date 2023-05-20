@@ -25,7 +25,20 @@
 
 
 .breadcrumbs {
-  padding-bottom: ($spacing-unit / 2);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: $half-spacing-unit;
+  margin-top: $spacing-unit;
+  padding-left: $half-spacing-unit;
+  padding-right: $half-spacing-unit;
+
+  + div {
+    margin-top: $half-spacing-unit;
+  }
+
+  @media only screen and (max-width: $tablet) {
+    display: none;
+  }
 
   ul {
     margin: 0;
@@ -34,15 +47,30 @@
   }
 
   &__breadcrumb {
-    list-style-type: none;
+    color: grayscale($primary-color);
     display: inline-block;
     float: left;
+    list-style-type: none;
 
-    &:not(:last-child):after {
+    &:first-child {
+      color: $text-color;
+    }
+
+    a {
+      @include link-without-underline;
+    }
+
+    .fa {
+      margin-left: 0.1em;
+      margin-right: 0.1em;
+    }
+
+    &:not(:last-child)::after {
       content: "\f054";
-      font-family: "Font Awesome 5 Free";
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
-      margin: 0 5px;
+      margin-left: 4px;
+      margin-right: 6px;
       color: $light-grey;
       font-size: 12px;
     }

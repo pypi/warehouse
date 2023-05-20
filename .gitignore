@@ -8,12 +8,15 @@
 .coverage
 .state
 .idea
+.envrc
 
-docs/_build/
+docs/dev/_build/
+docs/user/_build/
 build/
 dist/*.tar.gz
 dist/*.whl
 htmlcov/
+coverage/
 
 docker-compose.override.yaml
 
@@ -33,3 +36,4 @@ tags
 *.sw*
 
 .DS_Store
+.stylelintcache

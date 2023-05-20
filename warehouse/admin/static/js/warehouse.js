@@ -11,6 +11,14 @@
  * limitations under the License.
  */
 
+// Import the AdminLTE version of Bootstrap JS (4.x) to avoid namespace
+// conflicts with other bootstrap packages.
+// Related: https://github.com/ColorlibHQ/AdminLTE/commit/4f1546acb25dc73b034cb15a598171f4c2b3d835
+import "admin-lte/node_modules/bootstrap";
+// Import AdminLTE JS
+import "admin-lte/build/js/AdminLTE";
+
+
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
     // We're turning this element into a form submission, so instead of the
@@ -19,5 +27,76 @@ document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
 
     // Find the form identified by our formSubmit, and submit it.
     document.querySelector("form#" + element.dataset.formSubmit).submit();
+  });
+});
+
+document.querySelectorAll("a[data-input][data-append]").forEach(function (element) {
+  element.addEventListener("click", function(event) {
+    // We're turning this element into an input edit, so instead of the
+    // default action, this event will handle things.
+    event.preventDefault();
+
+    // Find the input identified by data-input, and append string.
+    const input = document.querySelector("input#" + element.dataset.input);
+    if (!input.value) {
+      input.value = element.dataset.append;
+    } else if (input.value.endsWith(" ")) {
+      input.value = input.value + element.dataset.append;
+    } else {
+      input.value = input.value + " " + element.dataset.append;
+    }
+
+    // Set cursor at end of input.
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
+  });
+});
+
+document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function (btnGroup) {
+  // Get options within the button group.
+  const btns = btnGroup.querySelectorAll(".btn[data-" + btnGroup.dataset.state + "]");
+  const options = Array.prototype.map.call(btns, btn => btn.dataset[btnGroup.dataset.state]);
+
+  // Toggle options with each button click.
+  btns.forEach(function (btn) {
+    btn.addEventListener("click", function (event) {
+      // We're turning this button into an input edit, so instead of the
+      // default action, this event will handle things.
+      event.preventDefault();
+
+      // Find the input identified by data-input, and toggle option.
+      const input = document.querySelector("input#" + btnGroup.dataset.input);
+      const option = btn.dataset[btnGroup.dataset.state];
+      let tokens = input.value.length ? input.value.split(" ") : [];
+      if (btn.classList.contains("active")) {
+        tokens = tokens.filter(token => token !== option);
+      } else {
+        tokens = tokens.map(token => options.includes(token) ? option : token);
+        tokens = tokens.filter((token, i) => token !== option || i === tokens.indexOf(option));
+        if (!tokens.includes(option)) tokens.push(option);
+      }
+      input.value = tokens.join(" ");
+
+      // Find the form for the input, and submit it.
+      input.form.submit();
+    });
+  });
+});
+
+// Copy handler for copying text, e.g.
+//   - prohibited project names confirmation page
+//
+document.querySelectorAll(".copy-text").forEach(function (element) {
+  function copy(text, target) {
+    setTimeout(function () {
+      $("#copied_tip").remove();
+    }, 1000);
+    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+    navigator.clipboard.writeText(text);
+  }
+
+  element.addEventListener("click", function(event) {
+    event.preventDefault();
+    copy(element.dataset.copyText, element);
   });
 });

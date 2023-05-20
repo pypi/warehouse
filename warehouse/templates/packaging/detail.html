@@ -22,12 +22,12 @@
 {% elif name|lower in ["home", "homepage", "home page"] %}
   {% set icon = "fas fa-home" %}
 {% elif name|lower in ["changelog", "change log", "changes", "release notes", "news", "what's new", "history"] %}
-  {% set icon = "fas fa-gift" %}
+  {% set icon = "fas fa-scroll" %}
 {% elif name.lower().startswith(("docs", "documentation")) or parsed.netloc in ["readthedocs.io", "readthedocs.org", "rtfd.io", "rtfd.org"] or parsed.netloc.endswith((".readthedocs.io", ".readthedocs.org", ".rtfd.io", ".rtfd.org")) or parsed.netloc.startswith(("docs.", "documentation.")) %}
   {% set icon = "fas fa-book" %}
 {% elif name.lower().startswith(("bug", "issue", "tracker", "report")) %}
   {% set icon = "fas fa-bug" %}
-{% elif name.lower().startswith(("funding", "donate", "donation")) %}
+{% elif name.lower().startswith(("funding", "donate", "donation", "sponsor")) %}
   {% set icon = "fas fa-donate" %}
 {% elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")) %}
   {% set icon = "fab fa-github" %}
@@ -53,6 +53,10 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
+{% elif parsed.netloc == "youtube.com" or parsed.netloc.endswith(".youtube.com") %}
+  {% set icon = "fab fa-youtube" %}
+{% elif name|lower == "mastodon" %}
+  {% set icon = "fab fa-mastodon" %}
 {% else %}
   {% set icon = "fas fa-external-link-square-alt" %}
 {% endif %}
@@ -82,7 +86,38 @@
     {% set project_version = "==" + release.version %}
   {%- endif -%}
 
-  pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- if release.version.epoch -%}
+    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+  {%- else -%}
+    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro file_table(files) -%}
+  {% for file in files %}
+    <div class="file">
+      <div class="file__graphic">
+        <i class="far fa-file" aria-hidden="true"></i>
+      </div>
+
+      <div class="card file__card">
+        <a href="{{ request.route_url('packaging.file', path=file.path) }}">
+          {{ file.filename }}
+        </a>
+        ({{ file.size|filesizeformat() if file.size else 0|filesizeformat() }}
+        <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
+        <p class="file__meta">
+          Uploaded {{ humanize(file.upload_time) }}
+          {% if file.python_version %}
+          {% for tag in file.python_version.split('.') %}
+          <code>{{ tag }}</code>
+          {% endfor %}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  {% endfor %}
+
 {%- endmacro -%}
 
 {% block title %}{{ release.project.name }}{% endblock %}
@@ -95,7 +130,24 @@
 
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
+{% block extra_meta %}
+{% if release.project.created|is_recent %}
+<meta name="googlebot" content="noindex">
+{% endif %}
+{% endblock %}
+
 {% block content %}
+{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
+{% endcsi %}
+{% if release.github_repo_info_url and release.github_open_issue_info_url %}
+<div class="hidden"
+  data-controller="github-repo-stats"
+  data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
+  data-github-repo-stats-url-value="{{release.github_repo_info_url}}"
+  data-github-repo-stats-issue-url-value="{{release.github_open_issue_info_url}}">
+</div>
+{% endif %}
+
 <div class="banner">
   <div class="package-header">
     <div class="package-header__left">
@@ -104,13 +156,15 @@
       </h1>
 
       {% if files %}
-      <p class="package-header__pip-instructions">
-        <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
-        <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
-          <i class="fa fa-copy" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
-        </button>
-      </p>
+      <div data-controller="clipboard">
+        <p class="package-header__pip-instructions">
+          <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <button type="button" class="copy-tooltip copy-tooltip-s" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+          </button>
+        </p>
+      </div>
       {% endif %}
     </div>
 
@@ -166,20 +220,20 @@
           <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
             <ul class="vertical-tabs__list" role="tablist">
               <li role="tab">
-                <a id="description-tab" href="#description" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                   <i class="fa fa-align-left" aria-hidden="true"></i>
                   {% trans %}Project description{% endtrans %}
                 </a>
               </li>
               <li role="tab">
-                <a id="history-tab" href="#history" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
                   <i class="fa fa-history" aria-hidden="true"></i>
                   {% trans %}Release history{% endtrans %}
                 </a>
               </li>
               {% if files %}
               <li role="tab">
-                <a id="files-tab" href="#files" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+                <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   {% trans %}Download files{% endtrans %}
                 </a>
@@ -189,6 +243,8 @@
           </nav>
         </div>
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
+        {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
+        {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
 
       </div>
       <div class="vertical-tabs__panel">
@@ -196,26 +252,26 @@
         <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
           <ul class="vertical-tabs__list" role="tablist">
             <li role="tab">
-              <a id="mobile-description-tab" href="#description" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+              <a id="mobile-description-tab" href="#description" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                 <i class="fa fa-align-left" aria-hidden="true"></i>
                 {% trans %}Project description{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-data-tab" href="#data" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
+              <a id="mobile-data-tab" href="#data" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                 {% trans %}Project details{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-history-tab" href="#history" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+              <a id="mobile-history-tab" href="#history" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
               <i class="fa fa-history" aria-hidden="true"></i>
               {% trans %}Release history{% endtrans %}
             </a>
             </li>
             {% if files %}
             <li role="tab">
-              <a id="mobile-files-tab" href="#files" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                 <i class="fa fa-download" aria-hidden="true"></i>
                 {% trans %}Download files{% endtrans %}
               </a>
@@ -225,7 +281,7 @@
         </nav>
 
         {# Tab: Project description #}
-        <div id="description" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+        <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
           <h2 class="page-title">{% trans %}Project description{% endtrans %}</h2>
           {% if description %}
           <div class="project-description">
@@ -239,14 +295,14 @@
         </div>
 
         {# Tab: project details #}
-        <div id="data" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
+        <div id="data" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
           <h2 class="page-title">{% trans %}Project details{% endtrans %}</h2>
           {% include "warehouse:templates/includes/packaging/project-data.html" %}
           <br>
         </div>
 
         {# Tab: Release history #}
-        <div id="history" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
+        <div id="history" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>{% trans %}Release history{% endtrans %}</span>
             <span class="reset-text margin-top">
@@ -282,12 +338,12 @@
                 <p class="release__version">
                   {{ hversion.version }}
                   {% if hversion.is_prerelease %}
-                  <span class="badge badge--warning release__version-badge">
+                  <span class="badge badge--warning">
                     {% trans %}pre-release{% endtrans %}
                   </span>
                   {% endif %}
                   {% if hversion.yanked %}
-                  <span class="badge badge--danger release__version-badge">
+                  <span class="badge badge--danger">
                     {% trans %}yanked{% endtrans %}
                   </span>
                   {% endif %}
@@ -303,57 +359,43 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <div id="files" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+          <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
+            <h3>
+              {% trans count=sdists|length %}
+                Source Distribution
+              {% pluralize %}
+                Source Distributions
+              {% endtrans %}
+            </h3>
 
-            <table class="table table--downloads">
-              <caption class="sr-only">{% trans project_name=release.project.name, version=release.version %}Files for {{ project_name }}, version {{ version }}{% endtrans %}</caption>
-              <thead>
-                <tr>
-                  <th scope="col">{% trans %}Filename, size{% endtrans %}</th>
-                  <th scope="col">{% trans %}File type{% endtrans %}</th>
-                  <th scope="col">{% trans %}Python version{% endtrans %}</th>
-                  <th scope="col">{% trans %}Upload date{% endtrans %}</th>
-                  <th scope="col" class="table__align-right">{% trans %}Hashes{% endtrans %}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for file in files %}
-                <tr>
-                  <th scope="row">
-                    <span class="table__mobile-label">{% trans %}Filename, size{% endtrans %}</span>
-                    <a href="{{ request.route_url('packaging.file', path=file.path) }}">
-                      {{ file.filename }}
-                    </a>
-                    {% if file.size %} ({{ file.size|filesizeformat() }}){% endif %}
-                  </th>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}File type{% endtrans %}</span>
-                    {{ file.packagetype|format_package_type }}
-                  </td>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}Python version{% endtrans %}</span>
-                    {% if file.python_version != "source" %}
-                      {{ file.python_version }}
-                    {% else %}
-                      {% trans %}None{% endtrans %}
-                    {% endif %}
-                  </td>
-                  <td>
-                    <span class="table__mobile-label">{% trans %}Upload date{% endtrans %}</span>
-                    {{ humanize(file.upload_time) }}
-                  </td>
-                  <td class="table__align-right">
-                    <span class="table__mobile-label table__mobile-label--hashes">{% trans %}Hashes{% endtrans %}</span>
-                    <a href="#copy-hash-modal-{{ file.id }}" class="button button--small button--primary">
-                      {% trans %}View{% endtrans %}
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+            {% if sdists %}
+              {{ file_table(sdists) }}
+            {% else %}
+              <div class="file">
+                <div class="file__graphic">
+                  <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+
+                <div class="card">
+                  {% trans %}No source distribution files available for this release.{% endtrans %}
+                  {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
+                </div>
+              </div>
+            {% endif %}
+
+            {% if bdists %}
+            <h3>
+              {% trans count=bdists|length %}
+                Built Distribution
+              {% pluralize %}
+                Built Distributions
+              {% endtrans %}
+            </h3>
+
+            {{ file_table(bdists) }}
+            {% endif %}
           </div>
 
           {% for file in files %}
@@ -365,4 +407,19 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+};
+</script>
+<script async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"
+  integrity="sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII="
+  crossorigin="anonymous"
+></script>
 {% endblock %}

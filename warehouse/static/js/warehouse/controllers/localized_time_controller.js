@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
 import format from "date-fns/format";
 
@@ -31,7 +31,7 @@ export default class extends Controller {
     const timestamp = this.element.getAttribute("datetime");
     const locale = document.documentElement.lang;
     let localTime = this.getLocalTimeFromTimestamp(timestamp);
-    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss");
+    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss (Z)");
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 

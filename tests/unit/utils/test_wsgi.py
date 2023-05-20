@@ -11,8 +11,14 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
+from sqlalchemy.exc import NoResultFound
+
+from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
+
+from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 
 class TestProxyFixer:
@@ -41,7 +47,9 @@ class TestProxyFixer:
             "HTTP_WAREHOUSE_TOKEN": "1234",
             "HTTP_WAREHOUSE_PROTO": "http",
             "HTTP_WAREHOUSE_IP": "1.2.3.4",
+            "HTTP_WAREHOUSE_HASHED_IP": "hashbrowns",
             "HTTP_WAREHOUSE_HOST": "example.com",
+            "HTTP_WAREHOUSE_CITY": "Anytown, ST",
         }
         start_response = pretend.stub()
 
@@ -52,7 +60,9 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": "hashbrowns",
                     "HTTP_HOST": "example.com",
+                    "GEOIP_CITY": "Anytown, ST",
                     "wsgi.url_scheme": "http",
                 },
                 start_response,
@@ -71,7 +81,7 @@ class TestProxyFixer:
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
 
-    def test_accepts_x_forwarded_headers(self):
+    def test_accepts_x_forwarded_headers(self, remote_addr_hashed):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -91,6 +101,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -112,7 +123,7 @@ class TestProxyFixer:
             pretend.call({"HTTP_SOME_OTHER_HEADER": "woop"}, start_response)
         ]
 
-    def test_selects_right_x_forwarded_value(self):
+    def test_selects_right_x_forwarded_value(self, remote_addr_hashed):
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
@@ -132,6 +143,7 @@ class TestProxyFixer:
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
+                    "REMOTE_ADDR_HASHED": remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -164,27 +176,39 @@ class TestVhmRootRemover:
         assert app.calls == [pretend.call({"HTTP_X_FOOBAR": "wat"}, start_response)]
 
 
-class TestHostRewrite:
-    def test_rewrites_host(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
-        environ = {"HTTP_HOST": "upload.pypi.io"}
-        start_response = pretend.stub()
+def test_ip_address_exists(db_request):
+    ip_address = DBIpAddressFactory(ip_address="192.0.2.69")
+    db_request.environ["REMOTE_ADDR"] = "192.0.2.69"
+    db_request.remote_addr = "192.0.2.69"
 
-        resp = wsgi.HostRewrite(app)(environ, start_response)
+    assert wsgi._ip_address(db_request) == ip_address
 
-        assert resp is response
-        assert app.calls == [
-            pretend.call({"HTTP_HOST": "upload.pypi.org"}, start_response)
-        ]
 
-    def test_ignores_other_hosts(self):
-        response = pretend.stub()
-        app = pretend.call_recorder(lambda e, s: response)
-        environ = {"HTTP_HOST": "example.com"}
-        start_response = pretend.stub()
+def test_ip_address_created(db_request):
+    with pytest.raises(NoResultFound):
+        db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
 
-        resp = wsgi.HostRewrite(app)(environ, start_response)
+    db_request.environ["GEOIP_CITY"] = "Anytown, ST"
+    db_request.remote_addr = "192.0.2.69"
+    db_request.remote_addr_hashed = "deadbeef"
 
-        assert resp is response
-        assert app.calls == [pretend.call({"HTTP_HOST": "example.com"}, start_response)]
+    wsgi._ip_address(db_request)
+
+    ip_address = db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
+    assert ip_address.ip_address == "192.0.2.69"
+    assert ip_address.hashed_ip_address == "deadbeef"
+    assert ip_address.geoip_info == {"city": "Anytown, ST"}
+
+
+def test_remote_addr_hashed(remote_addr_hashed):
+    environ = {"REMOTE_ADDR_HASHED": remote_addr_hashed}
+    request = pretend.stub(environ=environ)
+
+    assert wsgi._remote_addr_hashed(request) == remote_addr_hashed
+
+
+def test_remote_addr_hashed_missing():
+    environ = {}
+    request = pretend.stub(environ=environ)
+
+    assert wsgi._remote_addr_hashed(request) == ""

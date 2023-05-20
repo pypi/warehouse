@@ -24,9 +24,6 @@
       <div class="sponsor-grid__sponsor-activity">
         <p>Information about what the sponsor gives us</p>
       </div>
-      <div class="sponsor-grid__sponsor-description">
-        <p>Sponsor marketing snippet</p>
-      </div>
       <a>Visit sponsor</a>
     </div>
   </div>
@@ -43,6 +40,11 @@
     padding: $spacing-unit;
     text-align: center;
     margin-bottom: $spacing-unit;
+
+    &--invitation,
+    &--invitation:hover {
+      border-color: $primary-color;
+    }
   }
 
   &__sponsor-img {
@@ -59,12 +61,6 @@
     font-size: 1.15rem;
     max-width: 700px;
     margin: 0 auto;
-  }
-
-  &__sponsor-description {
-    margin-top: $spacing-unit / 2;
-    max-width: 700px;
-    margin: ($spacing-unit / 2) auto 0;
   }
 
   &__sponsor-link {
@@ -94,7 +90,7 @@
     }
 
     &__sponsor-img {
-      height: 150px;
+      height: 200px;
       width: 250px;
       max-width: 100%;
       margin: 0 auto;
@@ -105,16 +101,15 @@
       @media screen and (max-width: $mobile) {
         height: 130px;
       }
+
+      img {
+        padding: 2em;
+      }
     }
 
-    &__sponsor-activity,
-    &__sponsor-description {
+    &__sponsor-activity {
       max-width: 100%;
       margin: 0;
-    }
-
-    &__sponsor-description {
-      margin-top: $spacing-unit / 2;
     }
 
     &__sponsor-link {

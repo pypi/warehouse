@@ -10,17 +10,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
+
 from unittest import mock
 
+import orjson
 import pretend
 import pytest
 
 from pyramid import renderers
+from pyramid.authorization import Allow, Authenticated
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword
-from warehouse.utils.wsgi import HostRewrite, ProxyFixer, VhmRootRemover
+from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
 class TestRequireHTTPSTween:
@@ -77,7 +82,10 @@ def test_activate_hook(path, expected):
     [
         (None, False),
         ((ValueError, ValueError(), None), True),
+        ((HTTPForbidden, HTTPForbidden(), None), True),
+        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
         ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
+        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
     ],
 )
 def test_commit_veto(exc_info, expected):
@@ -152,18 +160,17 @@ def test_maybe_set_compound(monkeypatch, environ, base, name, envvar, expected):
 
 
 @pytest.mark.parametrize(
-    ("settings", "environment", "other_settings"),
+    ("settings", "environment"),
     [
-        (None, config.Environment.production, {}),
-        ({}, config.Environment.production, {}),
-        ({"my settings": "the settings value"}, config.Environment.production, {}),
-        (None, config.Environment.development, {}),
-        ({}, config.Environment.development, {}),
-        ({"my settings": "the settings value"}, config.Environment.development, {}),
-        (None, config.Environment.production, {"warehouse.theme": "my_theme"}),
+        (None, config.Environment.production),
+        ({}, config.Environment.production),
+        ({"my settings": "the settings value"}, config.Environment.production),
+        (None, config.Environment.development),
+        ({}, config.Environment.development),
+        ({"my settings": "the settings value"}, config.Environment.development),
     ],
 )
-def test_configure(monkeypatch, settings, environment, other_settings):
+def test_configure(monkeypatch, settings, environment):
     json_renderer_obj = pretend.stub()
     json_renderer_cls = pretend.call_recorder(lambda **kw: json_renderer_obj)
     monkeypatch.setattr(renderers, "JSON", json_renderer_cls)
@@ -172,8 +179,17 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     xmlrpc_renderer_cls = pretend.call_recorder(lambda **kw: xmlrpc_renderer_obj)
     monkeypatch.setattr(config, "XMLRPCRenderer", xmlrpc_renderer_cls)
 
-    if environment == config.Environment.development:
-        monkeypatch.setenv("WAREHOUSE_ENV", "development")
+    # Ignore all environment variables in the test environment, except for WAREHOUSE_ENV
+    monkeypatch.setattr(
+        os,
+        "environ",
+        {
+            "WAREHOUSE_ENV": {
+                config.Environment.development: "development",
+                config.Environment.production: "production",
+            }[environment],
+        },
+    )
 
     class FakeRegistry(dict):
         def __init__(self):
@@ -183,9 +199,10 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
                 "dirs.packages": "/srv/data/pypi/packages/",
+                "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
             }
 
-    configurator_settings = other_settings.copy()
+    configurator_settings = dict()
     configurator_obj = pretend.stub(
         registry=FakeRegistry(),
         set_root_factory=pretend.call_recorder(lambda rf: None),
@@ -204,7 +221,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         whitenoise_serve_static=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_files=pretend.call_recorder(lambda *a, **kw: None),
         whitenoise_add_manifest=pretend.call_recorder(lambda *a, **kw: None),
-        scan=pretend.call_recorder(lambda ignore: None),
+        scan=pretend.call_recorder(lambda categories, ignore: None),
         commit=pretend.call_recorder(lambda: None),
     )
     configurator_cls = pretend.call_recorder(lambda settings: configurator_obj)
@@ -220,7 +237,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     )
     monkeypatch.setattr(config, "transaction", transaction)
 
-    result = config.configure(settings=settings)
+    result = config.configure(settings=settings.copy() if settings else None)
 
     expected_settings = {
         "warehouse.env": environment,
@@ -228,8 +245,30 @@ def test_configure(monkeypatch, settings, environment, other_settings):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
+        "pythondotorg.host": "python.org",
+        "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
+        "warehouse.xmlrpc.search.enabled": True,
+        "github.token_scanning_meta_api.url": (
+            "https://api.github.com/meta/public_keys/token_scanning"
+        ),
+        "warehouse.account.user_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.ip_login_ratelimit_string": "10 per 5 minutes",
+        "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
+        "warehouse.account.email_add_ratelimit_string": "2 per day",
+        "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+        "warehouse.account.password_reset_ratelimit_string": "5 per day",
+        "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
+        "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
+        "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
+        "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
+        "warehouse.two_factor_requirement.enabled": False,
+        "warehouse.two_factor_mandate.available": False,
+        "warehouse.two_factor_mandate.enabled": False,
+        "warehouse.oidc.enabled": False,
+        "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
+        "warehouse.two_factor_mandate.cohort_size": 0,
+        "reconcile_file_storages.batch_size": 100,
     }
-
     if environment == config.Environment.development:
         expected_settings.update(
             {
@@ -260,6 +299,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
                         "IntrospectionDebugPanel"
                     ),
                 ],
+                "livereload.url": "http://localhost:35729",
             }
         )
 
@@ -272,7 +312,6 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     assert configurator_obj.add_wsgi_middleware.calls == [
         pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
         pretend.call(VhmRootRemover),
-        pretend.call(HostRewrite),
     ]
     assert configurator_obj.include.calls == (
         [
@@ -298,10 +337,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call("pyramid_mailer"),
             pretend.call("pyramid_retry"),
             pretend.call("pyramid_tm"),
+            pretend.call(".legacy.api.xmlrpc"),
             pretend.call(".legacy.api.xmlrpc.cache"),
             pretend.call("pyramid_rpc.xmlrpc"),
             pretend.call(".legacy.action_routing"),
-            pretend.call(".domain"),
+            pretend.call(".predicates"),
             pretend.call(".i18n"),
             pretend.call(".db"),
             pretend.call(".tasks"),
@@ -310,6 +350,7 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
+            pretend.call(".b2"),
             pretend.call(".gcloud"),
             pretend.call(".sessions"),
             pretend.call(".cache.http"),
@@ -317,16 +358,23 @@ def test_configure(monkeypatch, settings, environment, other_settings):
             pretend.call(".email"),
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
+            pretend.call(".oidc"),
             pretend.call(".malware"),
             pretend.call(".manage"),
+            pretend.call(".organizations"),
+            pretend.call(".subscriptions"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
             pretend.call(".routes"),
+            pretend.call(".sponsors"),
+            pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
+            pretend.call(".utils.wsgi"),
             pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
+            pretend.call(".recaptcha"),
             pretend.call(".http"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
@@ -392,7 +440,11 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
     assert configurator_obj.scan.calls == [
         pretend.call(
-            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"]
+            categories=(
+                "pyramid",
+                "warehouse",
+            ),
+            ignore=["warehouse.migrations.env", "warehouse.celery", "warehouse.wsgi"],
         )
     ]
     assert configurator_obj.commit.calls == [pretend.call()]
@@ -402,7 +454,25 @@ def test_configure(monkeypatch, settings, environment, other_settings):
     ]
 
     assert json_renderer_cls.calls == [
-        pretend.call(sort_keys=True, separators=(",", ":"))
+        pretend.call(
+            serializer=orjson.dumps,
+            option=orjson.OPT_SORT_KEYS | orjson.OPT_APPEND_NEWLINE,
+        )
     ]
 
     assert xmlrpc_renderer_cls.calls == [pretend.call(allow_none=True)]
+
+
+def test_root_factory_access_control_list():
+    acl = config.RootFactory.__acl__
+
+    assert len(acl) == 5
+    assert acl[0] == (Allow, "group:admins", "admin")
+    assert acl[1] == (Allow, "group:moderators", "moderator")
+    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
+    assert acl[3] == (
+        Allow,
+        "group:with_admin_dashboard_access",
+        "admin_dashboard_access",
+    )
+    assert acl[4] == (Allow, Authenticated, "manage:user")

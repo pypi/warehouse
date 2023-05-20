@@ -1,0 +1,108 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  A card that contains information about a package or an organization.
+  - Extended by .package-snippet and often found in package lists.
+  - Extended by .organization-snippet and often found in package lists.
+*/
+
+@mixin snippet($snippet-icon-png, $snippet-icon-svg) {
+  @include card;
+  direction: ltr;
+  text-align: left;
+  display: block;
+  padding: $half-spacing-unit 20px $half-spacing-unit 75px;
+  margin: 0 0 20px;
+
+  @media only screen and (max-width: $tablet) {
+    padding: $half-spacing-unit;
+  }
+
+  @media only screen and (min-width: $tablet + 1px) {
+    &,
+    &:hover {
+      // Use png fallback
+      background: $white $snippet-icon-png no-repeat;
+
+      // Or svg if the browser supports it
+      background-image: $snippet-icon-svg, linear-gradient(transparent, transparent);
+      background-position: 18px;
+      background-size: 45px;
+    }
+  }
+
+  &__title {
+    @include h3;
+    padding-bottom: 0;
+    display: block;
+
+    &--page-title,
+    &--page-title:first-child {
+      @include h1-title;
+      padding-top: 1px;
+      padding-bottom: 5px;
+    }
+  }
+
+  &__meta {
+    padding: 1px 0 2px;
+  }
+
+  &__version {
+    font-weight: $bold-font-weight;
+  }
+
+  &__created {
+    font-weight: $base-font-weight;
+    float: right;
+    color: $text-color;
+    font-size: 1rem;
+
+    @media only screen and (max-width: $tablet) {
+      float: none;
+      display: block;
+    }
+  }
+
+  &__description {
+    clear: both;
+    color: $text-color;
+  }
+
+  &__buttons {
+    flex-shrink: 0;
+
+    > form,
+    .button {
+      display: inline-block;
+      float: left;
+      line-height: 1.15;
+      pointer-events: auto;
+    }
+
+    .button--primary,
+    .button--danger {
+      margin-right: 5px;
+    }
+  }
+
+  &--margin-bottom {
+    margin-bottom: 10px;
+
+    @media only screen and (max-width: $tablet) {
+      margin-bottom: 30px;
+    }
+  }
+}

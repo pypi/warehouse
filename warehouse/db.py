@@ -14,8 +14,6 @@ import functools
 import logging
 
 import alembic.config
-import psycopg2
-import psycopg2.extensions
 import pyramid_retry
 import sqlalchemy
 import venusian
@@ -24,8 +22,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
@@ -62,25 +59,8 @@ pyramid_retry.mark_error_retryable(IntegrityError)
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
 # use this so we can catch it later and turn it into a generic 5xx error.
-class DatabaseNotAvailable(Exception):
+class DatabaseNotAvailableError(Exception):
     ...
-
-
-# We'll add a basic predicate that won't do anything except allow marking a
-# route as read only (or not).
-class ReadOnlyPredicate:
-    def __init__(self, val, config):
-        self.val = val
-
-    def text(self):
-        return "read_only = {!r}".format(self.val)
-
-    phash = text
-
-    # This predicate doesn't actually participate in the route selection
-    # process, so we'll just always return True.
-    def __call__(self, info, request):
-        return True
 
 
 class ModelBase:
@@ -97,11 +77,10 @@ metadata = sqlalchemy.MetaData()
 
 
 # Base class for models using declarative syntax
-ModelBase = declarative_base(cls=ModelBase, metadata=metadata)
+ModelBase = declarative_base(cls=ModelBase, metadata=metadata)  # type: ignore
 
 
 class Model(ModelBase):
-
     __abstract__ = True
 
     id = sqlalchemy.Column(
@@ -123,7 +102,7 @@ def listens_for(target, identifier, *args, **kwargs):
             wrapped = functools.partial(wrapped, scanner.config)
             event.listen(target, identifier, wrapped, *args, **kwargs)
 
-        venusian.attach(wrapped, callback)
+        venusian.attach(wrapped, callback, category="warehouse")
 
         return wrapped
 
@@ -134,29 +113,12 @@ def _configure_alembic(config):
     alembic_cfg = alembic.config.Config()
     alembic_cfg.set_main_option("script_location", "warehouse:migrations")
     alembic_cfg.set_main_option("url", config.registry.settings["database.url"])
+    alembic_cfg.set_section_option("post_write_hooks", "hooks", "black, isort")
+    alembic_cfg.set_section_option("post_write_hooks", "black.type", "console_scripts")
+    alembic_cfg.set_section_option("post_write_hooks", "black.entrypoint", "black")
+    alembic_cfg.set_section_option("post_write_hooks", "isort.type", "console_scripts")
+    alembic_cfg.set_section_option("post_write_hooks", "isort.entrypoint", "isort")
     return alembic_cfg
-
-
-def _reset(dbapi_connection, connection_record):
-    # Determine if we need to reset the connection, and if so go ahead and
-    # set it back to our default isolation level.
-    needs_reset = connection_record.info.pop("warehouse.needs_reset", False)
-    if needs_reset:
-        dbapi_connection.set_session(
-            isolation_level=DEFAULT_ISOLATION, readonly=False, deferrable=False
-        )
-
-
-def _create_engine(url):
-    engine = sqlalchemy.create_engine(
-        url,
-        isolation_level=DEFAULT_ISOLATION,
-        pool_size=35,
-        max_overflow=65,
-        pool_timeout=20,
-    )
-    event.listen(engine, "reset", _reset)
-    return engine
 
 
 def _create_session(request):
@@ -173,25 +135,7 @@ def _create_session(request):
         # this is a transient error that will go away.
         logger.warning("Got an error connecting to PostgreSQL", exc_info=True)
         metrics.increment("warehouse.db.session.error", tags=["error_in:connecting"])
-        raise DatabaseNotAvailable()
-
-    if (
-        connection.connection.get_transaction_status()
-        != psycopg2.extensions.TRANSACTION_STATUS_IDLE
-    ):
-        # Work around a bug where SQLALchemy leaves the initial connection in
-        # a pool inside of a transaction.
-        # TODO: Remove this in the future, brand new connections on a fresh
-        #       instance should not raise an Exception.
-        connection.connection.rollback()
-
-    # Now that we have a connection, we're going to go and set it to the
-    # correct isolation level.
-    if request.read_only:
-        connection.info["warehouse.needs_reset"] = True
-        connection.connection.set_session(
-            isolation_level="SERIALIZABLE", readonly=True, deferrable=True
-        )
+        raise DatabaseNotAvailableError()
 
     # Now, create a session from our connection
     session = Session(bind=connection)
@@ -210,21 +154,12 @@ def _create_session(request):
     # Check if we're in read-only mode
     from warehouse.admin.flags import AdminFlag, AdminFlagValue
 
-    flag = session.query(AdminFlag).get(AdminFlagValue.READ_ONLY.value)
-    if flag and flag.enabled and not request.user.is_superuser:
+    flag = session.get(AdminFlag, AdminFlagValue.READ_ONLY.value)
+    if flag and flag.enabled:
         request.tm.doom()
 
     # Return our session now that it's created and registered
     return session
-
-
-def _readonly(request):
-    if request.matched_route is not None:
-        for predicate in request.matched_route.predicates:
-            if isinstance(predicate, ReadOnlyPredicate) and predicate.val:
-                return True
-
-    return False
 
 
 def includeme(config):
@@ -232,16 +167,13 @@ def includeme(config):
     config.add_directive("alembic_config", _configure_alembic)
 
     # Create our SQLAlchemy Engine.
-    config.registry["sqlalchemy.engine"] = _create_engine(
-        config.registry.settings["database.url"]
+    config.registry["sqlalchemy.engine"] = sqlalchemy.create_engine(
+        config.registry.settings["database.url"],
+        isolation_level=DEFAULT_ISOLATION,
+        pool_size=35,
+        max_overflow=65,
+        pool_timeout=20,
     )
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
-
-    # Add a route predicate to mark a route as read only.
-    config.add_route_predicate("read_only", ReadOnlyPredicate)
-
-    # Add a request.read_only property which can be used to determine if a
-    # request is being acted upon as a read-only request or not.
-    config.add_request_method(_readonly, name="read_only", reify=True)

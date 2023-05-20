@@ -18,11 +18,12 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import String, cast, or_
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.email import send_email
 from warehouse.email.ses.models import EmailMessage
+from warehouse.events.tags import EventTag
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -63,7 +64,8 @@ def email_list(request):
             else:
                 filters.append(EmailMessage.to.ilike(term))
 
-        email_query = email_query.filter(or_(*filters))
+        filters = filters or [True]
+        email_query = email_query.filter(or_(False, *filters))
 
     emails = SQLAlchemyORMPage(
         email_query,
@@ -88,7 +90,7 @@ def email_mass(request):
     rows = list(csv.DictReader(wrapper))
     if rows:
         for row in rows:
-            user = request.db.query(User).get(row["user_id"])
+            user = request.db.get(User, row["user_id"])
             email = user.primary_email
 
             if email:
@@ -100,9 +102,8 @@ def email_mass(request):
                         "body_html": row.get("body_html"),
                     },
                     {
-                        "tag": "account:email:sent",
+                        "tag": EventTag.Account.EmailSent,
                         "user_id": user.id,
-                        "ip_address": request.remote_addr,
                         "additional": {
                             "from_": request.registry.settings.get("mail.sender"),
                             "to": email.email,

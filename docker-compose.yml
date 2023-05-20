@@ -1,63 +1,92 @@
-version: '3'
+version: '3.9'
 
 volumes:
+  simple:
   packages:
+  packages-archive:
+  sponsorlogos:
+  policies:
+  vault:
+  caches:
 
 services:
+  vault:
+    # NOTE: pinned for consistency with whats available in our deployment
+    image: vault:1.12.3
+    restart: on-failure
+    entrypoint: /bin/sh
+    command: ["/etc/vault/entry.sh"]
+    environment:
+      VAULT_DEV_LISTEN_ADDRESS: 0.0.0.0:8200
+      VAULT_DEV_ROOT_TOKEN_ID: "an insecure vault access token"
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault:/vault/file
+      - ./dev/vault:/etc/vault
+
   db:
-    image: postgres:10.1
+    image: postgres:14.4
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
+      interval: 1s
+
+  stripe:
+    image: stripe/stripe-mock:v0.158.0
+    ports:
+      - "12111:12111"
 
   redis:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:0.8.7
+    image: localstack/localstack:1.4
     environment:
       SERVICES: "sqs"
       HOSTNAME: "localstack"
       HOSTNAME_EXTERNAL: "localstack"
       DEFAULT_REGION: "us-east-2"
+      LS_LOG: "error"
     ports:
-      - "4576:4576"
+      - "4566:4566"
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.8.7
+    image: elasticsearch:7.10.1
     environment:
       - xpack.security.enabled=false
+      - discovery.type=single-node
     ulimits:
       nofile:
         soft: 65536
         hard: 65536
 
   camo:
-    image: pypa/warehouse-camo:latest
+    image: pypa/warehouse-camo:2.0.0
+    command: /bin/go-camo --listen=0.0.0.0:9000
     ports:
       - "9000:9000"
     environment:
-      CAMO_KEY: "insecurecamokey"
+      GOCAMO_HMAC: "insecurecamokey"
+      GOCAMO_MAXSIZE: 10000
+      GOCAMO_MAXSIZEREDIRECT: "https://warehouse-camo.ingress.cmh1.psfhosted.org/d1e139dd79d95783a48690c79813071314e45a69/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f707970692d6173736574732f696d6167652d746f6f2d6c617267652d31306d622e706e67"
 
-  web:
+  base:
     build:
       context: .
       args:
         DEVEL: "yes"
         IPYTHON: "no"
-        # Uncomment the line below and add the private repo URL if you're
-        # working on pypi-theme, this is a private repository due to the fact
-        # that other people's IP is contained in it.
-        #THEME_REPO:
-    command: gunicorn --reload -b 0.0.0.0:8000 warehouse.wsgi:application
-    env_file: dev/environment
+    image: warehouse:docker-compose
     volumes:
-      # We specify all of these directories instead of just . because we want to
-      # avoid having ./node_modules from the host OS being shared with the docker
-      # container, and since there's no way to exclude a directory, the only way
-      # to make this work is to share multiple, smaller directories. These cover
-      # the important things that we want to share, but changes to requirements
-      # or any file not in these directories will require a rebuild.
+      # We specify paths explicitly to only add what we need, and to avoid
+      # adding the entire repository.
       # The :z option fixes permission issues with SELinux by setting a
       # permissive security context.
       - ./dev:/opt/warehouse/src/dev:z
@@ -65,74 +94,140 @@ services:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
+      - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
       - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - policies:/var/opt/warehouse/policies
+      - simple:/var/opt/warehouse/simple
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./requirements:/opt/warehouse/src/requirements:z
+      - caches:/root/.cache
+      - caches:/opt/warehouse/src/.mypy_cache
+      - caches:/opt/warehouse/src/.pytest_cache
+      # Included to support linters during development
+      - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
+      - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+
+  web:
+    image: warehouse:docker-compose
+    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    env_file: dev/environment
+    pull_policy: never
+    volumes_from:
+      - base
     ports:
-      - "80:8000"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - notdatadog
+      - "${WEB_PORT:-80}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_started
+      redis:
+        condition: service_started
+      stripe:
+        condition: service_started
 
   files:
-    build:
-      context: .
+    image: warehouse:docker-compose
+    pull_policy: never
     working_dir: /var/opt/warehouse
     command: python -m http.server 9001
     volumes:
       - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
+      - sponsorlogos:/var/opt/warehouse/sponsorlogos
+      - simple:/var/opt/warehouse/simple
     ports:
       - "9001:9001"
 
   worker:
-    build:
-      context: .
-      args:
-        DEVEL: "yes"
+    image: warehouse:docker-compose
+    pull_policy: never
     command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
+      - packages:/var/opt/warehouse/packages
+      - packages-archive:/var/opt/warehouse/packages-archive
     env_file: dev/environment
     environment:
       C_FORCE_ROOT: "1"
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
-    links:
-      - db
-      - redis
-      - localstack
-      - elasticsearch
-      - smtp
-      - notdatadog
+      ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
+      SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   static:
     build:
       context: .
-      dockerfile: Dockerfile.static
-    command: bash -c "node --trace-warnings `which gulp` watch"
+      target: static-deps
+    image: warehouse:docker-compose-static
+    ports:
+      - "35729:35729" # LiveReload
+    environment:
+      NODE_ENV: "development"
+    command: bash -c "npm run watch"
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
-      - ./Gulpfile.babel.js:/opt/warehouse/src/Gulpfile.babel.js:z
+      - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
-      - ./.sass-lint.yml:/opt/warehouse/src/.sass-lint.yml:z
+      - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - caches:/opt/warehouse/src/.stylelintcache
 
-  smtp:
-    build:
-      context: .
-    command: python /opt/warehouse/dev/smtp.py 0.0.0.0:2525
+  maildev:
+    image: maildev/maildev:2.0.2
     ports:
-      - "2525:2525"
-    volumes:
-      - ./dev/smtp.py:/opt/warehouse/dev/smtp.py
+      - "1080:1080"
+      - "1025:1025"
 
   notdatadog:
-    build:
-      context: .
+    image: warehouse:docker-compose
+    pull_policy: never
     command: python /opt/warehouse/dev/notdatadog.py 0.0.0.0:8125
+    environment:
+      METRICS_OUTPUT: "false"
     ports:
       - "8125:8125/udp"
     volumes:
       - ./dev/notdatadog.py:/opt/warehouse/dev/notdatadog.py
+
+  notgithub:
+    image: ewjoachim/notgithub-token-scanning
+    environment:
+      NOTGITHUB_DEFAULT_URL: "http://web:8000/_/github/disclose-token"
+    ports:
+      - "8964:8000"
+
+  dev-docs:
+    build:
+      context: .
+      target: docs
+    image: warehouse:docker-compose-docs
+    volumes:
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./docs:/opt/warehouse/src/docs:z
+
+  user-docs:
+    image: warehouse:docker-compose-docs
+    pull_policy: never
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-user-docs.yml
+    volumes:
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./docs/mkdocs-user-docs.yml:/opt/warehouse/src/docs/mkdocs-user-docs.yml:z
+      - ./docs:/opt/warehouse/src/docs:z
+    ports:
+      - "10000:8000"
+
+  blog:
+    image: warehouse:docker-compose-docs
+    pull_policy: never
+    command: mkdocs serve -a 0.0.0.0:8000 -f docs/mkdocs-blog.yml
+    volumes:
+      # we mount git because rss, thanks feed nerds
+      - ./.git:/opt/warehouse/src/.git:ro
+      - ./bin:/opt/warehouse/src/bin:z
+      - ./docs:/opt/warehouse/src/docs:z
+    ports:
+      - "10001:8000"

@@ -13,9 +13,7 @@
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
 from email.utils import parseaddr
-from typing import Optional
 
-import attr
 import premailer
 
 from jinja2.exceptions import TemplateNotFound
@@ -33,16 +31,17 @@ def _format_sender(sitename, sender):
         return str(Address(sitename, addr_spec=sender))
 
 
-@attr.s(auto_attribs=True, frozen=True, slots=True)
 class EmailMessage:
-
-    subject: str
-    body_text: str
-    body_html: Optional[str] = None
+    def __init__(self, subject: str, body_text: str, body_html: str | None = None):
+        self.subject = subject
+        self.body_text = body_text
+        self.body_html = body_html
 
     @classmethod
     def from_template(cls, email_name, context, *, request):
-        subject = render(f"email/{email_name}/subject.txt", context, request=request)
+        subject = render(
+            f"email/{email_name}/subject.txt", context, request=request
+        ).replace("\n", "")
         body_text = render(f"email/{email_name}/body.txt", context, request=request)
 
         try:
@@ -80,6 +79,10 @@ class SMTPEmailSender:
                 sender=self.sender,
             )
         )
+
+    def last_sent(self, to, subject):
+        # We don't store previously sent emails, so nothing to comapre against
+        return None
 
 
 @implementer(IEmailSender)
@@ -127,4 +130,30 @@ class SESEmailSender:
                 to=parseaddr(recipient)[1],
                 subject=message.subject,
             )
+        )
+
+    def last_sent(self, to, subject):
+        last_email = (
+            self._db.query(SESEmailMessage)
+            .filter(
+                SESEmailMessage.to == to,
+                SESEmailMessage.subject == subject,
+            )
+            .order_by(SESEmailMessage.created.desc())
+            .first()
+        )
+        if last_email:
+            return last_email.created
+
+
+class ConsoleAndSMTPEmailSender(SMTPEmailSender):
+    def send(self, recipient, message):
+        super().send(recipient=recipient, message=message)
+        print(
+            f"""Email sent
+Subject: {message.subject}
+From: {self.sender}
+To: {recipient}
+HTML: Visualize at http://localhost:1080
+Text: {message.body_text}"""
         )

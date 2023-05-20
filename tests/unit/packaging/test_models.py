@@ -15,17 +15,41 @@ from collections import OrderedDict
 import pretend
 import pytest
 
+from pyramid.authorization import Allow
 from pyramid.location import lineage
-from pyramid.security import Allow
 
-from warehouse.packaging.models import Dependency, DependencyKind, File, ProjectFactory
+from warehouse.organizations.models import TeamProjectRoleType
+from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
+from ...common.db.oidc import GitHubPublisherFactory
+from ...common.db.organizations import (
+    OrganizationFactory as DBOrganizationFactory,
+    OrganizationProjectFactory as DBOrganizationProjectFactory,
+    OrganizationRoleFactory as DBOrganizationRoleFactory,
+    TeamFactory as DBTeamFactory,
+    TeamProjectRoleFactory as DBTeamProjectRoleFactory,
+    TeamRoleFactory as DBTeamRoleFactory,
+)
 from ...common.db.packaging import (
+    DependencyFactory as DBDependencyFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
     RoleFactory as DBRoleFactory,
+    RoleInvitationFactory as DBRoleInvitationFactory,
 )
+
+
+class TestRole:
+    def test_repr(self, db_request):
+        role = DBRoleFactory()
+        assert isinstance(repr(role), str)
+
+
+class TestRoleInvitation:
+    def test_repr(self, db_request):
+        role_invitation = DBRoleInvitationFactory()
+        assert isinstance(repr(role_invitation), str)
 
 
 class TestProjectFactory:
@@ -42,6 +66,13 @@ class TestProjectFactory:
 
         with pytest.raises(KeyError):
             root[project.name + "invalid"]
+
+    def test_contains(self, db_request):
+        DBProjectFactory.create(name="foo")
+        root = ProjectFactory(db_request)
+
+        assert "foo" in root
+        assert "bar" not in root
 
 
 class TestProject:
@@ -101,6 +132,18 @@ class TestProject:
         maintainer1 = DBRoleFactory.create(project=project, role_name="Maintainer")
         maintainer2 = DBRoleFactory.create(project=project, role_name="Maintainer")
 
+        organization = DBOrganizationFactory.create()
+        owner3 = DBOrganizationRoleFactory.create(organization=organization)
+        DBOrganizationProjectFactory.create(organization=organization, project=project)
+
+        team = DBTeamFactory.create()
+        owner4 = DBTeamRoleFactory.create(team=team)
+        DBTeamProjectRoleFactory.create(
+            team=team, project=project, role_name=TeamProjectRoleType.Owner
+        )
+
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
         acls = []
         for location in lineage(project):
             try:
@@ -117,18 +160,67 @@ class TestProject:
             (Allow, "group:admins", "admin"),
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
+            [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
+        ) + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (
+                    Allow,
+                    f"user:{owner1.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner2.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner3.user.id}",
+                    ["manage:project", "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner4.user.id}",
+                    ["manage:project", "upload"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (
+                    Allow,
+                    f"user:{maintainer1.user.id}",
+                    ["upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{maintainer2.user.id}",
+                    ["upload"],
+                ),
             ],
             key=lambda x: x[1],
         )
+
+    def test_repr(self, db_request):
+        project = DBProjectFactory()
+        assert isinstance(repr(project), str)
+
+
+class TestDependency:
+    def test_repr(self, db_session):
+        dependency = DBDependencyFactory.create()
+        assert isinstance(repr(dependency), str)
+
+
+class TestReleaseURL:
+    def test_repr(self, db_session):
+        release = DBReleaseFactory.create()
+        release_url = ReleaseURL(
+            release=release,
+            name="Homepage",
+            url="https://example.com/",
+        )
+        assert isinstance(repr(release_url), str)
 
 
 class TestRelease:
@@ -252,17 +344,34 @@ class TestRelease:
                     ]
                 ),
             ),
-            # ignore invalid links
+            # similar spellings of homepage/download label doesn't duplicate urls
             (
-                None,
+                "https://example.com/home/",
+                "https://example.com/download/",
+                [
+                    "homepage, https://example.com/home/",
+                    "download-URL ,https://example.com/download/",
+                ],
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home/"),
+                        ("Download", "https://example.com/download/"),
+                    ]
+                ),
+            ),
+            # the duplicate removal only happens if the urls are equal too!
+            (
+                "https://example.com/home1/",
                 None,
                 [
-                    " ,https://example.com/home/",
-                    ",https://example.com/home/",
-                    "https://example.com/home/",
-                    "Download,https://example.com/download/",
+                    "homepage, https://example.com/home2/",
                 ],
-                OrderedDict([("Download", "https://example.com/download/")]),
+                OrderedDict(
+                    [
+                        ("Homepage", "https://example.com/home1/"),
+                        ("homepage", "https://example.com/home2/"),
+                    ]
+                ),
             ),
         ],
     )
@@ -272,11 +381,12 @@ class TestRelease:
         )
 
         for urlspec in project_urls:
+            label, _, url = urlspec.partition(",")
             db_session.add(
-                Dependency(
+                ReleaseURL(
                     release=release,
-                    kind=DependencyKind.project_url.value,
-                    specifier=urlspec,
+                    name=label.strip(),
+                    url=url.strip(),
                 )
             )
 
@@ -308,14 +418,14 @@ class TestRelease:
             (Allow, "group:moderators", "moderator"),
         ] + sorted(
             [
-                (Allow, str(owner1.user.id), ["manage:project", "upload"]),
-                (Allow, str(owner2.user.id), ["manage:project", "upload"]),
+                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
+                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, str(maintainer1.user.id), ["upload"]),
-                (Allow, str(maintainer2.user.id), ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
             ],
             key=lambda x: x[1],
         )
@@ -325,43 +435,98 @@ class TestRelease:
         [
             (None, None),
             (
-                "https://github.com/pypa/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse/",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://github.com/pypa/warehouse/tree/master",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://github.com/pypi/warehouse/tree/main",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             (
-                "https://www.github.com/pypa/warehouse",
-                "https://api.github.com/repos/pypa/warehouse",
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/repos/pypi/warehouse",
             ),
             ("https://github.com/pypa/", None),
-            ("https://google.com/pypa/warehouse/tree/master", None),
+            ("https://github.com/sponsors/pypa/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
             ("https://google.com", None),
             ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/repos/pypi/warehouse",
+            ),
         ],
     )
     def test_github_repo_info_url(self, db_session, home_page, expected):
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_repo_info_url == expected
 
+    @pytest.mark.parametrize(
+        ("home_page", "expected"),
+        [
+            (None, None),
+            (
+                "https://github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://github.com/pypi/warehouse/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse+"
+                "type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://github.com/pypi/warehouse/tree/main",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            ("https://github.com/pypa/", None),
+            ("https://github.com/sponsors/pypa/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+            (
+                "https://www.github.com/pypi/warehouse.git",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+            (
+                "https://www.github.com/pypi/warehouse.git/",
+                "https://api.github.com/search/issues?q=repo:pypi/warehouse"
+                "+type:issue+state:open&per_page=1",
+            ),
+        ],
+    )
+    def test_github_open_issue_info_url(self, db_session, home_page, expected):
+        release = DBReleaseFactory.create(home_page=home_page)
+        assert release.github_open_issue_info_url == expected
+
 
 class TestFile:
     def test_requires_python(self, db_session):
-        """ Attempt to write a File by setting requires_python directly,
-            which should fail to validate (it should only be set in Release).
+        """
+        Attempt to write a File by setting requires_python directly, which
+        should fail to validate (it should only be set in Release).
         """
         with pytest.raises(RuntimeError):
             project = DBProjectFactory.create()
             release = DBReleaseFactory.create(project=project)
             DBFileFactory.create(
                 release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
+                filename=f"{project.name}-{release.version}.tar.gz",
                 python_version="source",
                 requires_python="1.0",
             )
@@ -371,7 +536,7 @@ class TestFile:
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
@@ -386,13 +551,14 @@ class TestFile:
 
         assert rfile.path == expected
         assert rfile.pgp_path == expected + ".asc"
+        assert rfile.metadata_path == expected + ".metadata"
 
     def test_query_paths(self, db_session):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
             release=release,
-            filename="{}-{}.tar.gz".format(project.name, release.version),
+            filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
         )
 
@@ -406,10 +572,10 @@ class TestFile:
         )
 
         results = (
-            db_session.query(File.path, File.pgp_path)
+            db_session.query(File.path, File.pgp_path, File.metadata_path)
             .filter(File.id == rfile.id)
             .limit(1)
             .one()
         )
 
-        assert results == (expected, expected + ".asc")
+        assert results == (expected, expected + ".asc", expected + ".metadata")

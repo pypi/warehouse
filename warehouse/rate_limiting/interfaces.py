@@ -38,3 +38,10 @@ class IRateLimiter(Interface):
         """
         Clears the rate limiter identified by the identifiers.
         """
+
+
+class RateLimiterException(Exception):
+    def __init__(self, *args, resets_in, **kwargs):
+        self.resets_in = resets_in
+
+        return super().__init__(*args, **kwargs)

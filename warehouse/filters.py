@@ -12,19 +12,23 @@
 
 import binascii
 import collections
+import datetime
 import enum
 import hmac
 import json
 import re
 import urllib.parse
 
+from email.utils import getaddresses
+
 import html5lib
 import html5lib.serializer
 import html5lib.treewalkers
 import jinja2
-import packaging.version
+import packaging_legacy.version
 import pytz
 
+from natsort import natsorted
 from pyramid.threadlocal import get_current_request
 
 from warehouse.utils.http import is_valid_uri
@@ -63,7 +67,7 @@ def _camo_url(request, url):
     return urllib.parse.urljoin(camo_url, path)
 
 
-@jinja2.contextfilter
+@jinja2.pass_context
 def camoify(ctx, value):
     request = ctx.get("request") or get_current_request()
 
@@ -92,7 +96,7 @@ def shorten_number(value):
     for i, symbol in enumerate(_SI_SYMBOLS):
         magnitude = value / (1000 ** (i + 1))
         if magnitude >= 1 and magnitude < 1000:
-            return "{:.3g}{}".format(magnitude, symbol)
+            return f"{magnitude:.3g}{symbol}"
 
     return str(value)
 
@@ -124,22 +128,19 @@ def format_tags(tags):
 
 
 def format_classifiers(classifiers):
-    structured = collections.defaultdict(list)
+    structured = collections.OrderedDict()
 
     # Split up our classifiers into our data structure
     for classifier in classifiers:
         key, *value = classifier.split(" :: ", 1)
         if value:
+            if key not in structured:
+                structured[key] = []
             structured[key].append(value[0])
 
-    # Go through and ensure that all of the lists in our classifiers are in
-    # sorted order.
-    structured = {k: sorted(v) for k, v in structured.items()}
-
-    # Now, we'll ensure that our keys themselves are in sorted order, using an
-    # OrderedDict to preserve this ordering when we pass this data back up to
-    # our caller.
-    structured = collections.OrderedDict(sorted(structured.items()))
+    # Sort all the values in our data structure
+    for key, value in structured.items():
+        structured[key] = natsorted(value)
 
     return structured
 
@@ -156,11 +157,45 @@ def contains_valid_uris(items):
 
 
 def parse_version(version_str):
-    return packaging.version.parse(version_str)
+    return packaging_legacy.version.parse(version_str)
 
 
 def localize_datetime(timestamp):
     return pytz.utc.localize(timestamp)
+
+
+def ctime(timestamp):
+    return datetime.datetime.fromtimestamp(timestamp)
+
+
+def is_recent(timestamp):
+    if timestamp:
+        return timestamp + datetime.timedelta(days=30) > datetime.datetime.now()
+    return False
+
+
+def format_email(metadata_email: str) -> tuple[str, str]:
+    """
+    Return the name and email address from a metadata RFC-822 string.
+    Use Jinja's `first` and `last` to access each part in a template.
+    TODO: Support more than one email address, per RFC-822.
+    """
+    emails = []
+    for name, email in getaddresses([metadata_email]):
+        if "@" not in email:
+            return name, ""
+        emails.append((name, email))
+    return emails[0][0], emails[0][1]
+
+
+def remove_invalid_xml_unicode(value: str | None) -> str | None:
+    """
+    Remove invalid unicode characters from a string.
+    Useful for XML Templates.
+
+    Ref: https://www.w3.org/TR/REC-xml/#NT-Char
+    """
+    return "".join(c for c in value if ord(c) >= 32) if value else value
 
 
 def includeme(config):

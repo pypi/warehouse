@@ -21,7 +21,7 @@ def test_build_search():
     release = pretend.stub(
         name="Foobar",
         normalized_name="foobar",
-        all_versions=["5.0.dev0", "4.0", "3.0", "2.0", "1.0"],
+        all_versions=["5.0.dev0", "4.0", "3.0", "2.0", "1.0", "dog"],
         latest_version="4.0",
         summary="This is my summary",
         description="This is my description",
@@ -35,13 +35,12 @@ def test_build_search():
         platform="any platform",
         created=datetime.datetime(1956, 1, 31),
         classifiers=["Alpha", "Beta"],
-        zscore=None,
     )
     obj = Project.from_db(release)
 
     assert obj.meta.id == "foobar"
     assert obj["name"] == "Foobar"
-    assert obj["version"] == ["5.0.dev0", "4.0", "3.0", "2.0", "1.0"]
+    assert obj["version"] == ["5.0.dev0", "4.0", "3.0", "2.0", "1.0", "dog"]
     assert obj["latest_version"] == "4.0"
     assert obj["summary"] == "This is my summary"
     assert obj["description"] == "This is my description"
@@ -55,4 +54,3 @@ def test_build_search():
     assert obj["platform"] == "any platform"
     assert obj["created"] == datetime.datetime(1956, 1, 31)
     assert obj["classifiers"] == ["Alpha", "Beta"]
-    assert obj["zscore"] is None

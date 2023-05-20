@@ -6,7 +6,7 @@
     <item>
       <title>{{ release.project.name }} {{ release.version }}</title>
       <link>{{ request.route_url('packaging.release', name=release.project.normalized_name, version=release.version) }}</link>
-      <description>{{ release.summary }}</description>
+      <description>{{ release.summary | remove_invalid_xml_unicode }}</description>
       {% if author %}<author>{{ author }}</author>{% endif %}
       <pubDate>{{ release.created|format_rfc822_datetime() }}</pubDate>
     </item>

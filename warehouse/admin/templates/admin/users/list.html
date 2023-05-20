@@ -18,26 +18,34 @@
 {% block title %}Users{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Users</li>
+  <li class="breadcrumb-item active">Users</li>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn">
+        <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
     </form>
   </div>
+  <div class="card-footer">
+    <div class="row">
+      <span class="small">
+        Search defaults to username. Prefix search with <code>email:</code> or <code>id:</code> for specific searches.
+      </span>
+    </div>
+  </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-striped table-hover">
+      <thead>
       <tr>
         <th>Image</th>
         <th>Username</th>
@@ -45,38 +53,43 @@
         <th>Email</th>
         <th>Admin</th>
         <th>Moderator</th>
+        <th>PSF Staff</th>
         <th>Active</th>
         <th>2FA</th>
       </tr>
-
+      </thead>
+      <tbody>
       {% for user in users %}
       <tr>
         <td><img src="{{ gravatar(request, user.email, size=20) }}" class="img-circle" alt="User Image"></td>
         <td>
-          <a href="{{ request.route_path('admin.user.detail', user_id=user.id) }}">{{ user.username }}</a>
+          <a href="{{ request.route_path('admin.user.detail', username=user.username) }}">{{ user.username }}</a>
         </td>
         <td>{{ user.name }}</td>
         <td>{{ user.email }}</td>
         <td>{% if user.is_superuser %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.is_moderator %}<i class="fa fa-check text-green"></i>{% endif %}</td>
+        <td>{% if user.is_psf_staff %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.is_active %}<i class="fa fa-check text-green"></i>{% endif %}</td>
         <td>{% if user.has_two_factor %}<i class="fa fa-check text-green"></i>{% endif %}</td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
+  </div>
 
-    <div class="box-footer">
+  <div class="card-footer">
+    <div class="row">
       <div class="col-sm-5">
-          {{ pagination.summary(users) }}
+        {{ pagination.summary(users) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
-            {{ pagination.paginate(users) }}
+        <div class="float-right">
+          {{ pagination.paginate(users) }}
         </div>
       </div>
     </div>
-
   </div>
 </div>
 {% endblock content %}

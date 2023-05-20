@@ -214,6 +214,17 @@ class TestEmailStatus:
 
         assert em.missing
 
+    def test_delivery_after_hard_bounce(self, db_session):
+        email = EmailFactory.create(transient_bounces=3)
+        em = EmailMessageFactory.create(to=email.email)
+
+        status = EmailStatus.load(em)
+        status.bounce()
+        status.deliver()
+
+        assert email.transient_bounces == 0
+        assert not email.verified
+
     @pytest.mark.parametrize(
         "start_status",
         ["Accepted", "Delivered", "Bounced", "Soft Bounced", "Complained"],

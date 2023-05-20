@@ -172,7 +172,6 @@ class TestRunEvaluation:
         ("check_type"), [MalwareCheckType.EventHook, MalwareCheckType.Scheduled]
     )
     def test_success(self, db_request, check_type):
-
         check = MalwareCheckFactory.create(
             check_type=check_type, state=MalwareCheckState.Enabled
         )
@@ -206,7 +205,7 @@ class TestRunEvaluation:
             assert backfill_recorder.delay.calls == [pretend.call(check.name, 10000)]
         elif check_type == MalwareCheckType.Scheduled:
             assert db_request.session.flash.calls == [
-                pretend.call("Running %s now!" % check.name, queue="success",)
+                pretend.call("Running %s now!" % check.name, queue="success")
             ]
             assert db_request.task.calls == [pretend.call(run_scheduled_check)]
             assert backfill_recorder.delay.calls == [

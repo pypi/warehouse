@@ -43,7 +43,7 @@
 
 // RESETS LAYER: applies CSS resets and sensible defaults
 @import "resets/boxsizing";
-@import "resets/normalize";
+@import "node_modules/normalize.css/normalize";
 @import "resets/reset";
 
 // BASE LAYER: adds styles to anything without a class
@@ -65,6 +65,7 @@
 // blocks LAYER: some warehouse specific, some generic/reusable
 @import "blocks/about-pypi";
 @import "blocks/accordion";
+@import "blocks/admin-include";
 @import "blocks/applied-filters";
 @import "blocks/author-profile";
 @import "blocks/badge";
@@ -98,7 +99,9 @@
 @import "blocks/mobile-search-bar";
 @import "blocks/modal";
 @import "blocks/notification-bar";
+@import "blocks/org-roles";
 /*rtl:begin:ignore*/
+@import "blocks/organization-snippet";
 @import "blocks/package-description";
 @import "blocks/package-header";
 @import "blocks/package-snippet";
@@ -107,6 +110,8 @@
 /*rtl:begin:ignore*/
 @import "blocks/project-description";
 /*rtl:end:ignore*/
+@import "blocks/files";
+@import "blocks/radio-toggle-form";
 @import "blocks/release";
 @import "blocks/release-timeline";
 @import "blocks/search-form";
@@ -123,10 +128,14 @@
 /*rtl:end:ignore*/
 @import "blocks/statistics-bar";
 @import "blocks/table";
+/*rtl:begin:ignore*/
+@import "blocks/team-snippet";
+/*rtl:end:ignore*/
 @import "blocks/totp-form";
 @import "blocks/twofa-login";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
+@import "blocks/copyable";
 
 // TRUMPS LAYER: Overwrites everything else
 
@@ -151,6 +160,7 @@
 
 .public-email {
   @include ellipsis;
+
   max-width: 85%;
   position: relative;
   top: 3px;
@@ -194,42 +204,42 @@
 
 // Add small margin to the top of elements
 .margin-top {
-  margin-top: $spacing-unit / 4;
+  margin-top: $quarter-spacing-unit;
 }
 
 // Add larger margin to the top of elements
 .margin-top--large {
-  margin-top: $spacing-unit / 2;
+  margin-top: $half-spacing-unit;
 }
 
 // Add small margin to the bottom of elements
 .margin-bottom {
-  margin-bottom: $spacing-unit / 4;
+  margin-bottom: $quarter-spacing-unit;
 }
 
 // Add larger margin to the bottom of elements
 .margin-bottom--large {
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: $half-spacing-unit;
 }
 
 // Add small margin to the left of elements
 .margin-left {
-  margin-left: $spacing-unit / 4;
+  margin-left: $quarter-spacing-unit;
 }
 
 // Add larger margin to the left of elements
 .margin-left--large {
-  margin-left: $spacing-unit / 2;
+  margin-left: $half-spacing-unit;
 }
 
 // Add small margin to the right of elements
 .margin-right {
-  margin-right: $spacing-unit / 4;
+  margin-right: $quarter-spacing-unit;
 }
 
 // Add larger margin to the right of elements
 .margin-right--large {
-  margin-right: $spacing-unit / 2;
+  margin-right: $half-spacing-unit;
 }
 
 // Apply spacing between elements when they wrap (usually on mobile)
@@ -294,8 +304,8 @@
 // RTL SUPPORT. See https://rtlcss.com/
 /*rtl:begin:ignore*/
 // fix padding on split layouts
-html[dir="rtl"] .package-snippet .split-layout>:first-child,
-html[dir="rtl"] .package-description.split-layout>:first-child {
+html[dir="rtl"] .package-snippet .split-layout > :first-child,
+html[dir="rtl"] .package-description.split-layout > :first-child {
   padding-left: 0;
   padding-right: $spacing-unit;
 }
@@ -308,7 +318,7 @@ time {
 
 // force email select to display ltr
 // Remove when/if this is marked for translation
-#public_email {  // sass-lint:disable-line id-name-format
+#public_email {  // stylelint-disable-line selector-id-pattern -- remove when translated
   direction: ltr;
 }
 
@@ -320,6 +330,7 @@ time {
 /*rtl:end:ignore*/
 
 // ACCESSIBILITY
+
 /*
   Apply this class to anything you want to hide visually, but that you want
   screen readers to be able to read. Great for extra labels, etc.
@@ -333,4 +344,9 @@ time {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+// Class for unstyled lists
+.no-bullets {
+  list-style-type: none;
 }

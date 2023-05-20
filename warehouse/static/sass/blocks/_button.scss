@@ -35,7 +35,7 @@
   position: relative;
   font-weight: $bold-font-weight;
   cursor: pointer;
-  padding: 8.5px ($spacing-unit / 2);
+  padding: 8.5px $half-spacing-unit;
   background-color: transparent;
   color: lighten($text-color, 10);
   border: 1px solid $accessible-border-color;

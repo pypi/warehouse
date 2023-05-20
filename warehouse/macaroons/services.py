@@ -11,18 +11,17 @@
 # limitations under the License.
 
 import datetime
-import json
 import uuid
 
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
-from warehouse.macaroons.caveats import InvalidMacaroon, Verifier
+from warehouse.macaroons import caveats
+from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
@@ -55,22 +54,19 @@ class DatabaseMacaroonService:
         Returns None if no macaroon has the given ID.
         """
         try:
-            dm = (
-                self.db.query(Macaroon)
-                .options(joinedload("user"))
-                .filter(Macaroon.id == uuid.UUID(macaroon_id))
-                .one()
-            )
-        except NoResultFound:
+            uuid.UUID(macaroon_id)
+        except ValueError:
             return None
 
-        return dm
+        return self.db.get(
+            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_publisher"))
+        )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
         raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
 
         if raw_macaroon is None:
-            raise InvalidMacaroon("malformed or nonexistent macaroon")
+            raise InvalidMacaroonError("malformed or nonexistent macaroon")
 
         try:
             return pymacaroons.Macaroon.deserialize(raw_macaroon)
@@ -78,7 +74,7 @@ class DatabaseMacaroonService:
             MacaroonDeserializationException,
             Exception,  # https://github.com/ecordell/pymacaroons/issues/50
         ):
-            raise InvalidMacaroon("malformed macaroon")
+            raise InvalidMacaroonError("malformed macaroon")
 
     def find_userid(self, raw_macaroon):
         """
@@ -87,47 +83,96 @@ class DatabaseMacaroonService:
         """
         try:
             m = self._deserialize_raw_macaroon(raw_macaroon)
-        except InvalidMacaroon:
+        except InvalidMacaroonError:
             return None
 
-        dm = self.find_macaroon(m.identifier.decode())
+        try:
+            identifier = m.identifier.decode()
+        except UnicodeDecodeError:
+            return None
+
+        dm = self.find_macaroon(identifier)
 
         if dm is None:
             return None
 
+        # This can be None if the macaroon has no associated user
+        # (e.g., an OIDC-minted macaroon).
+        if dm.user is None:
+            return None
+
         return dm.user.id
 
-    def verify(self, raw_macaroon, context, principals, permission):
+    def find_from_raw(self, raw_macaroon):
+        """
+        Returns a DB macaroon matching the input, or raises InvalidMacaroonError
+        """
+        m = self._deserialize_raw_macaroon(raw_macaroon)
+
+        try:
+            identifier = m.identifier.decode()
+        except UnicodeDecodeError:
+            raise InvalidMacaroonError("Macaroon not found")
+
+        dm = self.find_macaroon(identifier)
+
+        if not dm:
+            raise InvalidMacaroonError("Macaroon not found")
+        return dm
+
+    def verify(self, raw_macaroon, request, context, permission):
         """
         Returns True if the given raw (serialized) macaroon is
-        valid for the context, principals, and requested permission.
+        valid for the request, context, and requested permission.
 
-        Raises InvalidMacaroon if the macaroon is not valid.
+        Raises InvalidMacaroonError if the macaroon is not valid.
         """
         m = self._deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
-            raise InvalidMacaroon("deleted or nonexistent macaroon")
+            raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
-        verifier = Verifier(m, context, principals, permission)
-        if verifier.verify(dm.key):
+        verified = caveats.verify(m, dm.key, request, context, permission)
+        if verified:
             dm.last_used = datetime.datetime.now()
             return True
 
-        raise InvalidMacaroon("invalid macaroon")
+        raise InvalidMacaroonError(verified.msg)
 
-    def create_macaroon(self, location, user_id, description, caveats):
+    def create_macaroon(
+        self, location, description, scopes, *, user_id=None, oidc_publisher_id=None
+    ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
         The description provided is not embedded into the macaroon, only stored
         in the DB model.
-        """
-        user = self.db.query(User).filter(User.id == user_id).one()
 
-        dm = Macaroon(user=user, description=description, caveats=caveats)
+        An associated identity (either a user or macaroon, by ID) must be specified.
+        """
+        if not all(isinstance(c, caveats.Caveat) for c in scopes):
+            raise TypeError("scopes must be a list of Caveat instances")
+
+        # NOTE: This is a bit of a hack: we keep a separate copy of the
+        # permissions caveat in the DB, so that we can display scope information
+        # in the UI.
+        permissions = {}
+        for caveat in scopes:
+            if isinstance(caveat, caveats.ProjectName):
+                projects = permissions.setdefault("projects", [])
+                projects.extend(caveat.normalized_names)
+            elif isinstance(caveat, caveats.RequestUser):
+                permissions = "user"
+                break
+
+        dm = Macaroon(
+            user_id=user_id,
+            oidc_publisher_id=oidc_publisher_id,
+            description=description,
+            permissions_caveat={"permissions": permissions},
+        )
         self.db.add(dm)
-        self.db.flush()
+        self.db.flush()  # flush db now so dm.id is available
 
         m = pymacaroons.Macaroon(
             location=location,
@@ -135,7 +180,8 @@ class DatabaseMacaroonService:
             key=dm.key,
             version=pymacaroons.MACAROON_V2,
         )
-        m.add_first_party_caveat(json.dumps(caveats))
+        for caveat in scopes:
+            m.add_first_party_caveat(caveats.serialize(caveat))
         serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 
@@ -145,7 +191,6 @@ class DatabaseMacaroonService:
         """
         dm = self.find_macaroon(macaroon_id)
         self.db.delete(dm)
-        self.db.flush()
 
     def get_macaroon_by_description(self, user_id, description):
         """

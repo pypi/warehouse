@@ -32,7 +32,7 @@ from cryptography.hazmat.primitives.serialization import (
 )
 from cryptography.x509.oid import NameOID
 
-from warehouse.utils.sns import InvalidMessage, MessageVerifier
+from warehouse.utils.sns import InvalidMessageError, MessageVerifier
 
 VALID_SIGNATURE = object()
 
@@ -41,7 +41,7 @@ VALID_SIGNATURE = object()
 def sns_privatekey():
     key = rsa.generate_private_key(
         public_exponent=65537,
-        key_size=1024,  # 1024 shouldn't be used, but for tests it's fine.
+        key_size=2048,
         backend=default_backend(),
     )
     return key.private_bytes(Encoding.PEM, PrivateFormat.PKCS8, NoEncryption())
@@ -202,7 +202,7 @@ class TestMessageVerifier:
             )
             data["Signature"] = base64.b64encode(signature_bytes)
 
-        with pytest.raises(InvalidMessage, match=error):
+        with pytest.raises(InvalidMessageError, match=error):
             verifier.verify(data)
 
     @pytest.mark.parametrize(

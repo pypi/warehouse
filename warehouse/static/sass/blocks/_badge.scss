@@ -22,7 +22,9 @@
 */
 
 .badge {
-  font-size: $small-font-size;
+  font-size: 0.7em;
+  margin-left: 0.5em;
+  vertical-align: 0.15em;
   text-transform: uppercase;
   border: 1px solid $primary-color;
   background-color: $primary-color;
@@ -30,7 +32,12 @@
   padding: 0 7px;
   border-radius: 3px;
   font-weight: 600;
+  white-space: nowrap;
   @include link-without-underline;
+
+  .fa {
+    margin-right: 0.4em;
+  }
 
   &:hover {
     color: $white;
@@ -74,6 +81,21 @@
     &:focus,
     &:active {
       outline: 1px solid $warning-color;
+    }
+  }
+
+  &--neutral {
+    background-color: $base-grey;
+    border-color: $base-grey;
+    color: darken($base-grey, 50);
+
+    &:hover {
+      color: darken($base-grey, 60);
+    }
+
+    &:focus,
+    &:active {
+      outline: 1px solid darken($base-grey, 50);
     }
   }
 }

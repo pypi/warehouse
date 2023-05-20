@@ -43,7 +43,7 @@
     img {
       width: 220px;
       max-width: 100%;
-      margin: -($spacing-unit / 2) 50px 0 0;
+      margin: -$half-spacing-unit 50px 0 0;
 
       @media only screen and (max-width: $small-tablet) {
         display: none;

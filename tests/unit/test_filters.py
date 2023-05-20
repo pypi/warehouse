@@ -16,6 +16,7 @@ import urllib.parse
 from functools import partial
 
 import packaging.version
+import packaging_legacy.version
 import pretend
 import pytest
 
@@ -143,8 +144,21 @@ def test_format_tags(inp, expected):
             [("Foo", ["Bar :: Baz", "Bar :: Qux"])],
         ),
         (
-            ["Vleep :: Foo", "Foo :: Bar :: Qux", "Foo :: Bar :: Baz"],
+            ["Foo :: Bar :: Baz", "Vleep :: Foo", "Foo :: Bar :: Qux"],
             [("Foo", ["Bar :: Baz", "Bar :: Qux"]), ("Vleep", ["Foo"])],
+        ),
+        (
+            [
+                "Programming Language :: Python :: 3.11",
+                "Programming Language :: Python :: 3.10",
+                "Programming Language :: Python :: 3.8",
+            ],
+            [
+                (
+                    "Programming Language",
+                    ["Python :: 3.8", "Python :: 3.10", "Python :: 3.11"],
+                )
+            ],
         ),
     ],
 )
@@ -190,7 +204,11 @@ def test_format_package_type(inp, expected):
 
 
 @pytest.mark.parametrize(
-    ("inp", "expected"), [("1.0", packaging.version.Version("1.0"))]
+    ("inp", "expected"),
+    [
+        ("1.0", packaging.version.Version("1.0")),
+        ("dog", packaging_legacy.version.LegacyVersion("dog")),
+    ],
 )
 def test_parse_version(inp, expected):
     assert filters.parse_version(inp) == expected
@@ -208,3 +226,67 @@ def test_parse_version(inp, expected):
 def test_localize_datetime(inp, expected):
     datetime_format = "%Y-%m-%d %H:%M:%S.%f %Z"
     assert filters.localize_datetime(inp).strftime(datetime_format) == expected
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        (
+            1667404296,
+            datetime.datetime(2022, 11, 2, 15, 51, 36),
+        )
+    ],
+)
+def test_ctime(inp, expected):
+    assert filters.ctime(inp) == expected
+
+
+@pytest.mark.parametrize(
+    "delta, expected",
+    [
+        (datetime.timedelta(days=31), False),
+        (datetime.timedelta(days=30), False),
+        (datetime.timedelta(days=29), True),
+        (datetime.timedelta(), True),
+        (datetime.timedelta(days=-1), True),
+    ],
+)
+def test_is_recent(delta, expected):
+    timestamp = datetime.datetime.now() - delta
+    assert filters.is_recent(timestamp) == expected
+
+
+def test_is_recent_none():
+    assert filters.is_recent(None) is False
+
+
+@pytest.mark.parametrize(
+    ("meta_email", "expected_name", "expected_email"),
+    [
+        ("not-an-email-address", "", ""),
+        ("foo@bar.com", "", "foo@bar.com"),
+        ('"Foo Bar" <foo@bar.com>', "Foo Bar", "foo@bar.com"),
+    ],
+)
+def test_format_email(meta_email, expected_name, expected_email):
+    name, email = filters.format_email(meta_email)
+    assert name == expected_name
+    assert email == expected_email
+
+
+@pytest.mark.parametrize(
+    ("inp", "expected"),
+    [
+        ("foo", "foo"),  # no change
+        (" foo  bar ", " foo  bar "),  # U+001B : <control> ESCAPE [ESC]
+        ("foo \x1b bar", "foo  bar"),  # U+001B : <control> ESCAPE [ESC]
+        ("foo \x00 bar", "foo  bar"),  # U+0000 : <control> NULL
+        ("foo 🐍 bar", "foo 🐍 bar"),  # U+1F40D : SNAKE [snake] (emoji) [Python]
+        (None, None),  # no change
+    ],
+)
+def test_remove_invalid_xml_unicode(inp, expected):
+    """
+    Test that invalid XML unicode characters are removed.
+    """
+    assert filters.remove_invalid_xml_unicode(inp) == expected

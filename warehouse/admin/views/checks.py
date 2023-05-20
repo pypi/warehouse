@@ -12,7 +12,7 @@
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.malware.models import MalwareCheck, MalwareCheckState, MalwareCheckType
 from warehouse.malware.tasks import backfill, remove_verdicts, run_scheduled_check
@@ -86,8 +86,8 @@ def run_evaluation(request):
 
     if check.check_type == MalwareCheckType.EventHook:
         request.session.flash(
-            f"Running {check.name} on {EVALUATION_RUN_SIZE} {check.hooked_object.value}s\
-!",
+            f"Running {check.name} on {EVALUATION_RUN_SIZE} "
+            f"{check.hooked_object.value}s!",
             queue="success",
         )
         request.task(backfill).delay(check.name, EVALUATION_RUN_SIZE)

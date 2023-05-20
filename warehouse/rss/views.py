@@ -67,7 +67,7 @@ def rss_updates(request):
         request.db.query(Release)
         .options(joinedload(Release.project))
         .order_by(Release.created.desc())
-        .limit(40)
+        .limit(100)
         .all()
     )
     release_authors = [_format_author(release) for release in latest_releases]

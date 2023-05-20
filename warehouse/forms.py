@@ -40,7 +40,6 @@ class URIValidator:
 
 
 class PasswordStrengthValidator:
-
     # From the zxcvbn documentation, a score of 2 is:
     #       somewhat guessable: protection from unthrottled online attacks.
     #       (guesses < 10^8)
@@ -58,7 +57,7 @@ class PasswordStrengthValidator:
             try:
                 user_inputs.append(form[fieldname].data)
             except KeyError:
-                raise ValidationError("Invalid field name: {!r}".format(fieldname))
+                raise ValidationError(f"Invalid field name: {fieldname!r}")
 
         # Actually ask zxcvbn to check the strength of the given field's data.
         results = zxcvbn(field.data, user_inputs=user_inputs)

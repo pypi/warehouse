@@ -10,5 +10,6 @@ Disallow: /_includes/
 Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
+Disallow: /search*
 {%- endif %}
 

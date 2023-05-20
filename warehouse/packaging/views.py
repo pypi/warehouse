@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.utils import readme
 
 
@@ -116,16 +117,34 @@ def release_detail(release, request):
     # first line only.
     short_license = release.license.split("\n")[0] if release.license else None
 
+    # Truncate the short license if we were unable to shorten it with newlines
+    if short_license and len(short_license) > 100 and short_license == release.license:
+        short_license = short_license[:100] + "..."
+
     if license_classifiers and short_license:
         license = f"{license_classifiers} ({short_license})"
     else:
         license = license_classifiers or short_license or None
 
+    # We cannot easily sort naturally in SQL, sort here and pass to template
+    sdists = natsorted(
+        release.files.filter(File.packagetype == "sdist").all(),
+        reverse=True,
+        key=lambda f: f.filename,
+    )
+    bdists = natsorted(
+        release.files.filter(File.packagetype != "sdist").all(),
+        reverse=True,
+        key=lambda f: f.filename,
+    )
+
     return {
         "project": project,
         "release": release,
         "description": description,
-        "files": release.files.all(),
+        "files": sdists + bdists,
+        "sdists": sdists,
+        "bdists": bdists,
         "latest_version": project.latest_version,
         "all_versions": project.all_versions,
         "maintainers": maintainers,
@@ -138,7 +157,6 @@ def release_detail(release, request):
     context=Project,
     renderer="includes/manage-project-button.html",
     uses_session=True,
-    permission="manage:project",
     has_translations=True,
 )
 def edit_project_button(project, request):

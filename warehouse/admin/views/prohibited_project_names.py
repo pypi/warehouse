@@ -12,12 +12,14 @@
 
 import shlex
 
+from collections import defaultdict
+
 from packaging.utils import canonicalize_name
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, literal, or_
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.packaging.models import (
@@ -60,8 +62,9 @@ def prohibited_project_names(request):
                 ProhibitedProjectName.name.ilike(func.normalize_pep426_name(term))
             )
 
+        filters = filters or [True]
         prohibited_project_names_query = prohibited_project_names_query.filter(
-            or_(*filters)
+            or_(False, *filters)
         )
 
     prohibited_project_names = SQLAlchemyORMPage(
@@ -124,15 +127,83 @@ def confirm_prohibited_project_names(request):
         files = []
         roles = []
 
+    releases_by_date = defaultdict(list)
+    for release in releases:
+        releases_by_date[release.created.strftime("%Y-%m-%d")].append(release)
+
     return {
         "prohibited_project_names": {"project": project_name, "comment": comment},
         "existing": {
             "project": project,
             "releases": releases,
+            "releases_by_date": releases_by_date,
             "files": files,
             "roles": roles,
         },
     }
+
+
+@view_config(
+    route_name="admin.prohibited_project_names.release",
+    permission="admin",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def release_prohibited_project_name(request):
+    project_name = request.POST.get("project_name")
+    if project_name is None:
+        request.session.flash("Provide a project name", queue="error")
+        return HTTPSeeOther(request.current_route_path())
+
+    prohibited_project_name = (
+        request.db.query(ProhibitedProjectName)
+        .filter(ProhibitedProjectName.name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+    if prohibited_project_name is None:
+        request.session.flash(
+            f"{project_name!r} does not exist on prohibited project name list.",
+            queue="error",
+        )
+        return HTTPSeeOther(request.current_route_path())
+
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+    if project is not None:
+        request.session.flash(
+            f"{project_name!r} exists and is not on the prohibited project name list.",
+            queue="error",
+        )
+        return HTTPSeeOther(request.current_route_path())
+
+    username = request.POST.get("username")
+    if not username:
+        request.session.flash("Provide a username", queue="error")
+        return HTTPSeeOther(request.current_route_path())
+
+    user = request.db.query(User).filter(User.username == username).first()
+    if user is None:
+        request.session.flash(f"Unknown username '{username}'", queue="error")
+        return HTTPSeeOther(request.current_route_path())
+
+    project = Project(name=project_name)
+    request.db.add(project)
+    request.db.add(Role(project=project, user=user, role_name="Owner"))
+    request.db.delete(prohibited_project_name)
+
+    request.session.flash(
+        f"{project.name!r} released to {user.username!r}.", queue="success"
+    )
+
+    request.db.flush()  # flush db now so project.normalized_name is available
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
 
 
 @view_config(
@@ -166,7 +237,9 @@ def add_prohibited_project_names(request):
         request.db.query(literal(True))
         .filter(
             request.db.query(ProhibitedProjectName)
-            .filter(ProhibitedProjectName.name == project_name)
+            .filter(
+                ProhibitedProjectName.name == func.normalize_pep426_name(project_name)
+            )
             .exists()
         )
         .scalar()
@@ -233,3 +306,58 @@ def remove_prohibited_project_names(request):
         redirect_to = request.route_path("admin.prohibited_project_names.list")
 
     return HTTPSeeOther(redirect_to)
+
+
+@view_config(
+    route_name="admin.prohibited_project_names.bulk_add",
+    renderer="admin/prohibited_project_names/bulk.html",
+    permission="admin",
+    uses_session=True,
+    require_methods=False,
+)
+def bulk_add_prohibited_project_names(request):
+    if request.method == "POST":
+        project_names = request.POST.get("projects", "").split()
+        comment = request.POST.get("comment", "")
+
+        for project_name in project_names:
+            # Check to make sure the object doesn't already exist.
+            if (
+                request.db.query(literal(True))
+                .filter(
+                    request.db.query(ProhibitedProjectName)
+                    .filter(ProhibitedProjectName.name == project_name)
+                    .exists()
+                )
+                .scalar()
+            ):
+                continue
+
+            # Add our requested prohibition.
+            request.db.add(
+                ProhibitedProjectName(
+                    name=project_name, comment=comment, prohibited_by=request.user
+                )
+            )
+
+            # Go through and delete the project and everything related to it so that
+            # our prohibition actually blocks things and isn't ignored (since the
+            # prohibition only takes effect on new project registration).
+            project = (
+                request.db.query(Project)
+                .filter(
+                    Project.normalized_name == func.normalize_pep426_name(project_name)
+                )
+                .first()
+            )
+            if project is not None:
+                remove_project(project, request, flash=False)
+
+        request.session.flash(
+            f"Prohibited {len(project_names)!r} projects", queue="success"
+        )
+
+        return HTTPSeeOther(
+            request.route_path("admin.prohibited_project_names.bulk_add")
+        )
+    return {}

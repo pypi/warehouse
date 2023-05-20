@@ -13,6 +13,7 @@
 import os
 
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     ForeignKey,
@@ -31,29 +32,41 @@ def _generate_key():
 
 
 class Macaroon(db.Model):
-
     __tablename__ = "macaroons"
     __table_args__ = (
         UniqueConstraint(
             "description", "user_id", name="_user_macaroons_description_uc"
         ),
+        CheckConstraint(
+            "(user_id::text IS NULL) <> (oidc_publisher_id::text IS NULL)",
+            name="_user_xor_oidc_publisher_macaroon",
+        ),
     )
 
-    # All of our Macaroons belong to a specific user, because a caveat-less
-    # Macaroon should act the same as their password does, instead of as a
-    # global permission to upload files.
-    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    # Macaroons come in two forms: they either belong to a user, or they
+    # authenticate for one or more projects.
+    # * In the user case, a Macaroon has an associated user, and *might* have
+    #   additional project scope restrictions as part of its caveats.
+    # * In the project case, a Macaroon does *not* have an explicit associated
+    #   project. Instead, depending on how its used (its request context),
+    #   it identifies one of the projects scoped in its caveats.
+    user_id = Column(
+        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    )
+
+    oidc_publisher_id = Column(
+        UUID(as_uuid=True), ForeignKey("oidc_publishers.id"), nullable=True, index=True
+    )
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
-    description = Column(String(100), nullable=False)
+    description = Column(String, nullable=False)
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
     last_used = Column(DateTime, nullable=True)
 
-    # We'll store the caveats that were added to the Macaroon during generation
-    # to allow users to see in their management UI what the total possible
-    # scope of their macaroon is.
-    caveats = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
+    # Human-readable "permissions" for this macaroon, corresponding to the
+    # body of the permissions ("V1") caveat.
+    permissions_caveat = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
 
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the

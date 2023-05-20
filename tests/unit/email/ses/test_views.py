@@ -66,7 +66,7 @@ class TestVerifySNSMessageHelper:
             @staticmethod
             @pretend.call_recorder
             def verify(message):
-                raise views.sns.InvalidMessage("This is an Invalid Message")
+                raise views.sns.InvalidMessageError("This is an Invalid Message")
 
         monkeypatch.setattr(views.sns, "MessageVerifier", FakeMessageVerifier)
 

@@ -17,7 +17,7 @@ import requests
 from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql import exists
 
 from warehouse.email.ses.models import EmailMessage, EmailStatus, Event, EventTypes
@@ -32,7 +32,7 @@ def _verify_sns_message(request, message):
 
     try:
         verifier.verify(message)
-    except sns.InvalidMessage as exc:
+    except sns.InvalidMessageError as exc:
         raise HTTPBadRequest(str(exc)) from None
 
 

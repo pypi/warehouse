@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import io
 import os.path
 
+import b2sdk.v2
 import boto3.session
 import botocore.exceptions
 import pretend
@@ -20,13 +22,22 @@ import pytest
 
 from zope.interface.verify import verifyClass
 
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage
+import warehouse.packaging.services
+
+from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
 from warehouse.packaging.services import (
+    B2FileStorage,
     GCSFileStorage,
+    GCSSimpleStorage,
+    GenericLocalBlobStorage,
+    LocalArchiveFileStorage,
     LocalDocsStorage,
     LocalFileStorage,
+    LocalSimpleStorage,
+    S3ArchiveFileStorage,
     S3DocsStorage,
     S3FileStorage,
+    project_service_factory,
 )
 
 
@@ -70,6 +81,36 @@ class TestLocalFileStorage:
         with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
             assert fp.read() == b"Test File!"
 
+    def test_stores_and_gets_metadata(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/bar.txt", filename, meta={"foo": "bar", "wu": "tang"})
+
+        with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
+            assert fp.read() == b"Test File!"
+        with open(os.path.join(storage_dir, "foo/bar.txt.meta"), "rb") as fp:
+            assert fp.read() == b'{"foo": "bar", "wu": "tang"}'
+
+        assert storage.get_metadata("foo/bar.txt") == {"foo": "bar", "wu": "tang"}
+
+    def test_gets_metadata(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/bar.txt", filename)
+
+        assert (
+            storage.get_checksum("foo/bar.txt")
+            == hashlib.md5(b"Test File!").hexdigest()
+        )
+
     def test_stores_two_files(self, tmpdir):
         filename1 = str(tmpdir.join("testfile1.txt"))
         with open(filename1, "wb") as fp:
@@ -89,6 +130,18 @@ class TestLocalFileStorage:
 
         with open(os.path.join(storage_dir, "foo/second.txt"), "rb") as fp:
             assert fp.read() == b"Second Test File!"
+
+
+class TestLocalArchiveFileStorage:
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, LocalArchiveFileStorage)
+
+    def test_create_service(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"archive_files.path": "/the/one/two/"})
+        )
+        storage = LocalArchiveFileStorage.create_service(None, request)
+        assert storage.base == "/the/one/two/"
 
 
 class TestLocalDocsStorage:
@@ -135,6 +188,231 @@ class TestLocalDocsStorage:
         assert response is None
 
 
+class TestLocalSimpleStorage:
+    def test_verify_service(self):
+        assert verifyClass(ISimpleStorage, LocalSimpleStorage)
+
+    def test_basic_init(self):
+        storage = LocalSimpleStorage("/foo/bar/")
+        assert storage.base == "/foo/bar/"
+
+    def test_create_service(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"simple.path": "/simple/one/two/"})
+        )
+        storage = LocalSimpleStorage.create_service(None, request)
+        assert storage.base == "/simple/one/two/"
+
+    def test_gets_file(self, tmpdir):
+        with open(str(tmpdir.join("file.txt")), "wb") as fp:
+            fp.write(b"my test file contents")
+
+        storage = LocalSimpleStorage(str(tmpdir))
+        file_object = storage.get("file.txt")
+        assert file_object.read() == b"my test file contents"
+
+    def test_raises_when_file_non_existent(self, tmpdir):
+        storage = LocalSimpleStorage(str(tmpdir))
+        with pytest.raises(FileNotFoundError):
+            storage.get("file.txt")
+
+    def test_stores_file(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalSimpleStorage(storage_dir)
+        storage.store("foo/bar.txt", filename)
+
+        with open(os.path.join(storage_dir, "foo/bar.txt"), "rb") as fp:
+            assert fp.read() == b"Test File!"
+
+    def test_stores_two_files(self, tmpdir):
+        filename1 = str(tmpdir.join("testfile1.txt"))
+        with open(filename1, "wb") as fp:
+            fp.write(b"First Test File!")
+
+        filename2 = str(tmpdir.join("testfile2.txt"))
+        with open(filename2, "wb") as fp:
+            fp.write(b"Second Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalSimpleStorage(storage_dir)
+        storage.store("foo/first.txt", filename1)
+        storage.store("foo/second.txt", filename2)
+
+        with open(os.path.join(storage_dir, "foo/first.txt"), "rb") as fp:
+            assert fp.read() == b"First Test File!"
+
+        with open(os.path.join(storage_dir, "foo/second.txt"), "rb") as fp:
+            assert fp.read() == b"Second Test File!"
+
+
+class TestB2FileStorage:
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, B2FileStorage)
+
+    def test_basic_init(self):
+        bucket = pretend.stub()
+        prefix = "segakcap"
+        storage = B2FileStorage(bucket, prefix=prefix)
+        assert storage.bucket is bucket
+        assert storage.prefix == "segakcap"
+
+    def test_create_service(self):
+        bucket_stub = pretend.stub()
+        mock_b2_api = pretend.stub(
+            get_bucket_by_name=pretend.call_recorder(lambda bucket_name: bucket_stub)
+        )
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        assert request.find_service.calls == [pretend.call(name="b2.api")]
+        assert storage.bucket == bucket_stub
+        assert mock_b2_api.get_bucket_by_name.calls == [pretend.call("froblob")]
+
+    def test_gets_file(self):
+        bucket_stub = pretend.stub(
+            download_file_by_name=pretend.call_recorder(
+                lambda path: pretend.stub(
+                    save=lambda file_obj: file_obj.write(b"my contents")
+                )
+            )
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        file_object = storage.get("file.txt")
+
+        assert file_object.read() == b"my contents"
+        assert bucket_stub.download_file_by_name.calls == [pretend.call("file.txt")]
+
+    def test_gets_metadata(self):
+        bucket_stub = pretend.stub(
+            get_file_info_by_name=pretend.call_recorder(
+                lambda path: pretend.stub(file_info={"foo": "bar", "wu": "tang"})
+            )
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        metadata = storage.get_metadata("file.txt")
+
+        assert metadata == {"foo": "bar", "wu": "tang"}
+        assert bucket_stub.get_file_info_by_name.calls == [pretend.call("file.txt")]
+
+    def test_gets_checksum(self):
+        bucket_stub = pretend.stub(
+            get_file_info_by_name=pretend.call_recorder(
+                lambda path: pretend.stub(id_="froblob"),
+            ),
+            get_file_info_by_id=pretend.call_recorder(
+                lambda id_: pretend.stub(content_md5="deadbeef"),
+            ),
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        checksum = storage.get_checksum("file.txt")
+
+        assert checksum == "deadbeef"
+        assert bucket_stub.get_file_info_by_name.calls == [pretend.call("file.txt")]
+
+    def test_raises_when_key_non_existent(self):
+        def raiser(path):
+            raise b2sdk.v2.exception.FileNotPresent()
+
+        bucket_stub = pretend.stub(download_file_by_name=raiser)
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get("file.txt")
+
+    def test_get_metadata_raises_when_key_non_existent(self):
+        def raiser(path):
+            raise b2sdk.v2.exception.FileNotPresent()
+
+        bucket_stub = pretend.stub(get_file_info_by_name=raiser)
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_metadata("file.txt")
+
+    def test_get_checksum_raises_when_key_non_existent(self):
+        def raiser(path):
+            raise b2sdk.v2.exception.FileNotPresent()
+
+        bucket_stub = pretend.stub(
+            get_file_info_by_id=raiser, get_file_info_by_name=raiser
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_checksum("file.txt")
+
+    def test_stores_file(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        bucket_stub = pretend.stub(
+            upload_local_file=pretend.call_recorder(
+                lambda local_file=None, file_name=None, file_infos=None: None
+            )
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        storage.store("foo/bar.txt", filename)
+
+        assert bucket_stub.upload_local_file.calls == [
+            pretend.call(local_file=filename, file_name="foo/bar.txt", file_infos=None)
+        ]
+
+
 class TestS3FileStorage:
     def test_verify_service(self):
         assert verifyClass(IFileStorage, S3FileStorage)
@@ -145,7 +423,9 @@ class TestS3FileStorage:
         assert storage.bucket is bucket
 
     def test_create_service(self):
-        session = boto3.session.Session()
+        session = boto3.session.Session(
+            aws_access_key_id="foo", aws_secret_access_key="bar"
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"files.bucket": "froblob"}),
@@ -165,6 +445,26 @@ class TestS3FileStorage:
         assert file_object.read() == b"my contents"
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
+    def test_gets_metadata(self):
+        s3key = pretend.stub(metadata={"foo": "bar", "wu": "tang"})
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        metadata = storage.get_metadata("file.txt")
+
+        assert metadata == {"foo": "bar", "wu": "tang"}
+        assert bucket.Object.calls == [pretend.call("file.txt")]
+
+    def test_gets_checksum(self):
+        s3key = pretend.stub(e_tag="deadbeef")
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        checksum = storage.get_checksum("file.txt")
+
+        assert checksum == "deadbeef"
+        assert bucket.Object.calls == [pretend.call("file.txt")]
+
     def test_raises_when_key_non_existent(self):
         def raiser():
             raise botocore.exceptions.ClientError(
@@ -180,6 +480,30 @@ class TestS3FileStorage:
 
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
+    def test_get_metadata_raises_when_key_non_existent(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"Error": {"Code": "NoSuchKey", "Message": "No Key!"}}, "some operation"
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_metadata("file.txt")
+
+    def test_get_checksum_raises_when_key_non_existent(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"ResponseMetadata": {"HTTPStatusCode": 404}}, "some operation"
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_checksum("file.txt")
+
     def test_passes_up_error_when_not_no_such_key(self):
         def raiser():
             raise botocore.exceptions.ClientError(
@@ -193,6 +517,32 @@ class TestS3FileStorage:
 
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get("file.txt")
+
+    def test_get_metadata_passes_up_error_when_not_no_such_key(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"Error": {"Code": "SomeOtherError", "Message": "Who Knows!"}},
+                "some operation",
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(botocore.exceptions.ClientError):
+            storage.get_metadata("file.txt")
+
+    def test_get_checksum_passes_up_error_when_not_no_such_key(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"ResponseMetadata": {"HTTPStatusCode": 666}},
+                "some operation",
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(botocore.exceptions.ClientError):
+            storage.get_checksum("file.txt")
 
     def test_stores_file(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
@@ -268,6 +618,24 @@ class TestS3FileStorage:
         assert bucket.Object.calls == [pretend.call("ab/file.txt")]
 
 
+class TestS3ArchiveFileStorage:
+    def test_verify_service(self):
+        assert verifyClass(IFileStorage, S3ArchiveFileStorage)
+
+    def test_create_service(self):
+        session = boto3.session.Session(
+            aws_access_key_id="foo", aws_secret_access_key="bar"
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: session),
+            registry=pretend.stub(settings={"archive_files.bucket": "froblob"}),
+        )
+        storage = S3ArchiveFileStorage.create_service(None, request)
+
+        assert request.find_service.calls == [pretend.call(name="aws.session")]
+        assert storage.bucket.name == "froblob"
+
+
 class TestGCSFileStorage:
     def test_verify_service(self):
         assert verifyClass(IFileStorage, GCSFileStorage)
@@ -296,19 +664,55 @@ class TestGCSFileStorage:
         with pytest.raises(NotImplementedError):
             storage.get("file.txt")
 
+    def test_get_metadata_raises(self):
+        storage = GCSFileStorage(pretend.stub())
+
+        with pytest.raises(NotImplementedError):
+            storage.get_metadata("file.txt")
+
+    def test_get_checksum_raises(self):
+        storage = GCSFileStorage(pretend.stub())
+
+        with pytest.raises(NotImplementedError):
+            storage.get_checksum("file.txt")
+
     def test_stores_file(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
         with open(filename, "wb") as fp:
             fp.write(b"Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
         storage.store("foo/bar.txt", filename)
 
         assert bucket.blob.calls == [pretend.call("foo/bar.txt")]
+        assert blob.upload_from_filename.calls == [pretend.call(filename)]
+
+    @pytest.mark.parametrize(
+        "path, expected",
+        [
+            ("xx/foo/bar.txt", "myprefix/xx/foo/bar.txt"),
+            ("foo/bar.txt", "myprefix/foo/bar.txt"),
+        ],
+    )
+    def test_stores_file_with_prefix(self, tmpdir, path, expected):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSFileStorage(bucket, prefix="myprefix/")
+        storage.store(path, filename)
+
+        assert bucket.blob.calls == [pretend.call(expected)]
         assert blob.upload_from_filename.calls == [pretend.call(filename)]
 
     def test_stores_two_files(self, tmpdir):
@@ -321,7 +725,8 @@ class TestGCSFileStorage:
             fp.write(b"Second Test File!")
 
         blob = pretend.stub(
-            upload_from_filename=pretend.call_recorder(lambda file_path: None)
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
@@ -345,6 +750,7 @@ class TestGCSFileStorage:
         blob = pretend.stub(
             upload_from_filename=pretend.call_recorder(lambda file_path: None),
             patch=pretend.call_recorder(lambda: None),
+            exists=lambda: False,
         )
         bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
         storage = GCSFileStorage(bucket)
@@ -353,13 +759,39 @@ class TestGCSFileStorage:
 
         assert blob.metadata == meta
 
+    def test_skips_upload_if_file_exists(self, tmpdir, monkeypatch):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: True,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSFileStorage(bucket)
+        capture_message = pretend.call_recorder(lambda message: None)
+        monkeypatch.setattr(
+            warehouse.packaging.services.sentry_sdk, "capture_message", capture_message
+        )
+
+        storage.store("foo/bar.txt", filename)
+
+        assert bucket.blob.calls == [pretend.call("foo/bar.txt")]
+        assert blob.upload_from_filename.calls == []
+        assert capture_message.calls == [
+            pretend.call(f"Skipped uploading duplicate file: {filename}")
+        ]
+
 
 class TestS3DocsStorage:
     def test_verify_service(self):
         assert verifyClass(IDocsStorage, S3DocsStorage)
 
     def test_create_service(self):
-        session = boto3.session.Session()
+        session = boto3.session.Session(
+            aws_access_key_id="foo", aws_secret_access_key="bar"
+        )
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda name: session),
             registry=pretend.stub(settings={"docs.bucket": "froblob"}),
@@ -450,3 +882,112 @@ class TestS3DocsStorage:
                 },
             ),
         ]
+
+
+class TestGCSSimpleStorage:
+    def test_verify_service(self):
+        assert verifyClass(ISimpleStorage, GCSSimpleStorage)
+
+    def test_basic_init(self):
+        bucket = pretend.stub()
+        storage = GCSSimpleStorage(bucket)
+        assert storage.bucket is bucket
+
+    def test_create_service(self):
+        service = pretend.stub(
+            get_bucket=pretend.call_recorder(lambda bucket_name: pretend.stub())
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: service),
+            registry=pretend.stub(settings={"simple.bucket": "froblob"}),
+        )
+        GCSSimpleStorage.create_service(None, request)
+
+        assert request.find_service.calls == [pretend.call(name="gcloud.gcs")]
+        assert service.get_bucket.calls == [pretend.call("froblob")]
+
+    def test_gets_file_raises(self):
+        storage = GCSSimpleStorage(pretend.stub())
+
+        with pytest.raises(NotImplementedError):
+            storage.get("file.txt")
+
+    def test_stores_file(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSSimpleStorage(bucket)
+        storage.store("foo/bar.txt", filename)
+
+        assert bucket.blob.calls == [pretend.call("foo/bar.txt")]
+        assert blob.upload_from_filename.calls == [pretend.call(filename)]
+
+    def test_stores_two_files(self, tmpdir):
+        filename1 = str(tmpdir.join("testfile1.txt"))
+        with open(filename1, "wb") as fp:
+            fp.write(b"First Test File!")
+
+        filename2 = str(tmpdir.join("testfile2.txt"))
+        with open(filename2, "wb") as fp:
+            fp.write(b"Second Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            exists=lambda: False,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSSimpleStorage(bucket)
+        storage.store("foo/first.txt", filename1)
+        storage.store("foo/second.txt", filename2)
+
+        assert bucket.blob.calls == [
+            pretend.call("foo/first.txt"),
+            pretend.call("foo/second.txt"),
+        ]
+        assert blob.upload_from_filename.calls == [
+            pretend.call(filename1),
+            pretend.call(filename2),
+        ]
+
+    def test_stores_metadata(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        blob = pretend.stub(
+            upload_from_filename=pretend.call_recorder(lambda file_path: None),
+            patch=pretend.call_recorder(lambda: None),
+            exists=lambda: False,
+        )
+        bucket = pretend.stub(blob=pretend.call_recorder(lambda path: blob))
+        storage = GCSSimpleStorage(bucket)
+        meta = {"foo": "bar"}
+        storage.store("foo/bar.txt", filename, meta=meta)
+
+        assert blob.metadata == meta
+
+
+class TestGenericLocalBlobStorage:
+    def test_notimplementederror(self):
+        with pytest.raises(NotImplementedError):
+            GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+def test_project_service_factory():
+    db = pretend.stub()
+    remote_addr = pretend.stub()
+    request = pretend.stub(
+        db=db,
+        remote_addr=remote_addr,
+        find_service=lambda iface, name=None, context=None: None,
+    )
+
+    service = project_service_factory(pretend.stub(), request)
+    assert service.db == db
+    assert service.remote_addr == remote_addr

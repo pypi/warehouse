@@ -18,15 +18,16 @@ from warehouse import db
 
 
 class AdminFlagValue(enum.Enum):
+    DISABLE_ORGANIZATIONS = "disable-organizations"
     DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    DISALLOW_OIDC = "disallow-oidc"
     READ_ONLY = "read-only"
 
 
 class AdminFlag(db.ModelBase):
-
     __tablename__ = "admin_flags"
 
     id = Column(Text, primary_key=True, nullable=False)
@@ -47,7 +48,7 @@ class Flags:
         )
 
     def enabled(self, flag_member):
-        flag = self.request.db.query(AdminFlag).get(flag_member.value)
+        flag = self.request.db.get(AdminFlag, flag_member.value)
         return flag.enabled if flag else False
 
 

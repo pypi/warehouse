@@ -21,6 +21,8 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.manage import forms
 
+from ...common.db.packaging import ProjectFactory
+
 
 class TestCreateRoleForm:
     def test_creation(self):
@@ -54,8 +56,8 @@ class TestCreateRoleForm:
         ("value", "expected"),
         [
             ("", "Select role"),
-            ("invalid", "Not a valid choice"),
-            (None, "Not a valid choice"),
+            ("invalid", "Not a valid choice."),
+            (None, "Not a valid choice."),
         ],
     )
     def test_validate_role_name_fails(self, value, expected):
@@ -122,11 +124,12 @@ class TestAddEmailForm:
 
 class TestChangePasswordForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
         breach_service = pretend.stub()
 
         form = forms.ChangePasswordForm(
-            user_service=user_service, breach_service=breach_service
+            request=request, user_service=user_service, breach_service=breach_service
         )
 
         assert form.user_service is user_service
@@ -162,12 +165,16 @@ class TestProvisionTOTPForm:
 
 class TestDeleteTOTPForm:
     def test_creation(self):
+        request = pretend.stub()
         user_service = pretend.stub()
-        form = forms.DeleteTOTPForm(user_service=user_service)
+        form = forms.DeleteTOTPForm(request=request, user_service=user_service)
 
         assert form.user_service is user_service
 
     def test_validate_confirm_password(self):
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
             check_password=pretend.call_recorder(
@@ -175,7 +182,10 @@ class TestDeleteTOTPForm:
             ),
         )
         form = forms.DeleteTOTPForm(
-            username="username", user_service=user_service, password="password"
+            username="username",
+            request=request,
+            user_service=user_service,
+            password="password",
         )
 
         assert form.validate()
@@ -224,7 +234,7 @@ class TestProvisionWebAuthnForm:
     def test_verify_assertion_invalid(self):
         user_service = pretend.stub(
             verify_webauthn_credential=pretend.raiser(
-                webauthn.RegistrationRejectedException("Fake exception")
+                webauthn.RegistrationRejectedError("Fake exception")
             ),
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
@@ -446,9 +456,12 @@ class TestCreateMacaroonForm:
 class TestDeleteMacaroonForm:
     def test_creation(self):
         macaroon_service = pretend.stub()
+        request = pretend.stub()
         user_service = pretend.stub()
         form = forms.DeleteMacaroonForm(
-            macaroon_service=macaroon_service, user_service=user_service
+            request=request,
+            macaroon_service=macaroon_service,
+            user_service=user_service,
         )
 
         assert form.macaroon_service is macaroon_service
@@ -461,8 +474,12 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             user_service=user_service,
             username="username",
@@ -478,8 +495,12 @@ class TestDeleteMacaroonForm:
         user_service = pretend.stub(
             find_userid=lambda *a, **kw: 1, check_password=lambda *a, **kw: True
         )
+        request = pretend.stub(
+            remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
+        )
         form = forms.DeleteMacaroonForm(
             data={"macaroon_id": pretend.stub(), "password": "password"},
+            request=request,
             macaroon_service=macaroon_service,
             username="username",
             user_service=user_service,
@@ -488,12 +509,132 @@ class TestDeleteMacaroonForm:
         assert form.validate()
 
 
+class TestCreateOrganizationForm:
+    def test_creation(self):
+        organization_service = pretend.stub()
+        form = forms.CreateOrganizationForm(
+            organization_service=organization_service,
+        )
+
+        assert form.organization_service is organization_service
+
+    def test_validate_name_with_no_organization(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None)
+        )
+        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        field = pretend.stub(data="my_organization_name")
+        forms._ = lambda string: string
+
+        form.validate_name(field)
+
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_organization_name")
+        ]
+
+    def test_validate_name_with_organization(self):
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: 1)
+        )
+        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        field = pretend.stub(data="my_organization_name")
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_name(field)
+
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_organization_name")
+        ]
+
+
+class TestAddOrganizationProjectForm:
+    def test_creation(self, pyramid_request):
+        pyramid_request.POST = MultiDict()
+        project_choices = {"foo"}
+        project_factory = pretend.stub()
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert form.existing_project_name.choices == [
+            ("", "Select project"),
+            ("foo", "foo"),
+        ]
+
+    @pytest.mark.parametrize(
+        ("add_existing_project", "existing_project_name", "new_project_name", "errors"),
+        [
+            # Validate existing project name.
+            ("true", "foo", "", {}),
+            # Validate existing project name missing.
+            ("true", "", "", {"existing_project_name": ["Select project"]}),
+            # Validate new project name.
+            ("false", "", "bar", {}),
+            # Validate new project name missing.
+            ("false", "", "", {"new_project_name": ["Specify project name"]}),
+            # Validate new project name invalid character.
+            (
+                "false",
+                "",
+                "@",
+                {
+                    "new_project_name": [
+                        "Start and end with a letter or numeral containing "
+                        "only ASCII numeric and '.', '_' and '-'."
+                    ]
+                },
+            ),
+            # Validate new project name already used.
+            (
+                "false",
+                "",
+                "foo",
+                {
+                    "new_project_name": [
+                        "This project name has already been used. "
+                        "Choose a different project name."
+                    ]
+                },
+            ),
+        ],
+    )
+    def test_validate(
+        self,
+        pyramid_request,
+        add_existing_project,
+        existing_project_name,
+        new_project_name,
+        errors,
+    ):
+        pyramid_request.POST = MultiDict(
+            {
+                "add_existing_project": add_existing_project,
+                "existing_project_name": existing_project_name,
+                "new_project_name": new_project_name,
+            }
+        )
+        project_choices = {"foo"}
+        project_factory = {"foo": ProjectFactory.create(name="foo")}
+
+        form = forms.AddOrganizationProjectForm(
+            pyramid_request.POST,
+            project_choices=project_choices,
+            project_factory=project_factory,
+        )
+
+        assert not form.validate() if errors else form.validate()
+        assert form.errors == errors
+
+
 class TestSaveAccountForm:
     def test_public_email_verified(self):
         email = pretend.stub(verified=True, public=False, email="foo@example.com")
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
@@ -504,10 +645,26 @@ class TestSaveAccountForm:
         email = pretend.stub(verified=False, public=False, email=pretend.stub())
         user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
         form = forms.SaveAccountForm(
-            name=pretend.stub(),
+            name="some name",
             public_email=email.email,
             user_service=pretend.stub(get_user=lambda _: user),
             user_id=user.id,
         )
         assert not form.validate()
         assert "is not a verified email for" in form.public_email.errors.pop()
+
+    def test_name_too_long(self, pyramid_config):
+        email = pretend.stub(verified=True, public=False, email="foo@example.com")
+        user = pretend.stub(id=1, username=pretend.stub(), emails=[email])
+        form = forms.SaveAccountForm(
+            name="x" * 101,
+            public_email=email.email,
+            user_service=pretend.stub(get_user=lambda _: user),
+            user_id=user.id,
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.name.errors.pop())
+            == "The name is too long. Choose a name with 100 characters or less."
+        )

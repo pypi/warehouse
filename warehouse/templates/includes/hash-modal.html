@@ -20,7 +20,7 @@
     </a>
     <div class="modal__body">
       <h3 class="modal__title">
-        {% trans trimmed href='https://pip.pypa.io/en/stable/reference/pip_install/#hash-checking-mode', title=gettext('External link'), filename=file.filename %}
+        {% trans href='https://pip.pypa.io/en/stable/cli/pip_install/#hash-checking-mode', title=gettext('External link'), filename=file.filename %}
         <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Hashes</a> for {{ filename }}
         {% endtrans %}
       </h3>
@@ -34,29 +34,29 @@
           </tr>
         </thead>
         <tbody>
-          <tr>
+          <tr data-controller="clipboard">
             <th scope="row">SHA256</th>
-            <td><code>{{ file.sha256_digest }}</code></td>
+            <td><code data-clipboard-target="source">{{ file.sha256_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.sha256_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
-          <tr>
+          <tr data-controller="clipboard">
             <th scope="row">MD5</th>
-            <td><code>{{ file.md5_digest }}</code></td>
+            <td><code data-clipboard-target="source">{{ file.md5_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.md5_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>
           </tr>
-          <tr>
-            <th scope="row">BLAKE2-256</th>
-            <td><code>{{ file.blake2_256_digest }}</code></td>
+          <tr data-controller="clipboard">
+            <th scope="row">BLAKE2b-256</th>
+            <td><code data-clipboard-target="source">{{ file.blake2_256_digest }}</code></td>
             <td class="table__align-right">
-              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}" data-clipboard-text="{{ file.blake2_256_digest }}">
+              <button type="button" class="button button--small copy-tooltip copy-tooltip-w" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
                 {% trans %}Copy{% endtrans %}
               </button>
             </td>

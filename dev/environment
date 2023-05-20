@@ -1,13 +1,12 @@
+ENCODING=C.UTF-8
+PATH=/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
 WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
 
-# Uncomment the line below if you're working on pypi-theme, this is a private
-# repository due to the fact that other people's IP is contained in it.
-#WAREHOUSE_THEME=pypi_theme.pypi
-
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo
-BROKER_URL=sqs://localstack:4576/?region=us-east-1&queue_name_prefix=warehouse-dev
+BROKER_URL=sqs://localstack:4566/?region=us-east-1&queue_name_prefix=warehouse-dev
 
 DATABASE_URL=postgresql://postgres@db/warehouse
 
@@ -17,19 +16,36 @@ REDIS_URL=redis://redis:6379/0
 
 SESSION_SECRET="an insecure development secret"
 
+# Use stripe-mock local billing service for development.
+# Use Stripe billing service with test keys for development.
+# See Stripe Dashboard for keys. https://dashboard.stripe.com/apikeys
+# See Stripe Docs for more information. https://stripe.com/docs/keys
+BILLING_BACKEND=warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+# BILLING_BACKEND=warehouse.subscriptions.services.StripeBillingService api_version=2020-08-27 publishable_key=pk_test_123 secret_key=sk_test_123 webhook_key=whsec_123
+
 CAMO_URL={request.scheme}://{request.domain}:9000/
 CAMO_KEY=insecurecamokey
+
+# Example of a Live Reload URL for remote development
+# LIVERELOAD_URL=http://some-remote-hostname:35729
+
+HIBP_API_KEY="something-not-real"
 
 DOCS_URL="https://pythonhosted.org/{project}/"
 
 FILES_BACKEND=warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://localhost:9001/packages/{path}
+ARCHIVE_FILES_BACKEND=warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://localhost:9001/packages-archive/{path}
+SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://localhost:9001/simple/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
+SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
 
-MAIL_BACKEND=warehouse.email.services.SMTPEmailSender host=smtp port=2525 ssl=false sender=noreply@pypi.org
+MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=1025 ssl=false sender=noreply@pypi.org
 
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 MALWARE_CHECK_BACKEND=warehouse.malware.services.PrinterMalwareCheckService
+
+OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
 
 METRICS_BACKEND=warehouse.metrics.DataDogMetrics host=notdatadog
 
@@ -40,3 +56,17 @@ TOKEN_EMAIL_SECRET="an insecure email verification secret key"
 TOKEN_TWO_FACTOR_SECRET="an insecure two-factor auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
+
+VAULT_URL="http://vault:8200"
+VAULT_TOKEN="an insecure vault access token"
+
+GITHUB_TOKEN_SCANNING_META_API_URL="http://notgithub:8000/meta/public_keys/token_scanning"
+TWOFACTORREQUIREMENT_ENABLED=true
+TWOFACTORMANDATE_AVAILABLE=true
+TWOFACTORMANDATE_ENABLED=true
+OIDC_ENABLED=true
+OIDC_AUDIENCE=pypi
+
+# Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
+RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe

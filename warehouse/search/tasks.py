@@ -21,7 +21,7 @@ import requests_aws4auth
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
-from sqlalchemy import func
+from sqlalchemy import func, text
 from sqlalchemy.orm import aliased
 
 from warehouse import tasks
@@ -38,7 +38,6 @@ from warehouse.utils.db import windowed_query
 
 
 def _project_docs(db, project_name=None):
-
     releases_list = (
         db.query(Release.id)
         .filter(Release.yanked.is_(False), Release.files)
@@ -61,7 +60,7 @@ def _project_docs(db, project_name=None):
         db.query(func.array_agg(r.version))
         .filter(r.project_id == Release.project_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("all_versions")
     )
 
@@ -71,7 +70,7 @@ def _project_docs(db, project_name=None):
         .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
         .filter(Release.id == release_classifiers.c.release_id)
         .correlate(Release)
-        .as_scalar()
+        .scalar_subquery()
         .label("classifiers")
     )
 
@@ -93,7 +92,6 @@ def _project_docs(db, project_name=None):
             classifiers,
             Project.normalized_name,
             Project.name,
-            Project.zscore,
         )
         .select_from(releases_list)
         .join(Release, Release.id == releases_list.c.id)
@@ -101,7 +99,7 @@ def _project_docs(db, project_name=None):
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(release_data, Release.project_id, 50000):
+    for release in windowed_query(release_data, Project.id, 25000):
         p = ProjectDocument.from_db(release)
         p._index = None
         p.full_clean()
@@ -166,7 +164,7 @@ def reindex(self, request):
             # Create the new index and associate all of our doc types with it.
             index_base = request.registry["elasticsearch.index"]
             random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
-            new_index_name = "{}-{}".format(index_base, random_token)
+            new_index_name = f"{index_base}-{random_token}"
             doc_types = request.registry.get("search.doc_types", set())
             shards = request.registry.get("elasticsearch.shards", 1)
 
@@ -185,7 +183,7 @@ def reindex(self, request):
             # From this point on, if any error occurs, we want to be able to delete our
             # in progress index.
             try:
-                request.db.execute("SET statement_timeout = '600s'")
+                request.db.execute(text("SET statement_timeout = '600s'"))
 
                 for _ in parallel_bulk(
                     client, _project_docs(request.db), index=new_index_name
@@ -196,7 +194,7 @@ def reindex(self, request):
                 raise
             finally:
                 request.db.rollback()
-                request.db.close()
+                request.db.close()  # pragma: no cover
 
             # Now that we've finished indexing all of our data we can update the
             # replicas and refresh intervals.
@@ -258,7 +256,7 @@ def unindex_project(self, request, project_name):
             client = request.registry["elasticsearch.client"]
             index_name = request.registry["elasticsearch.index"]
             try:
-                client.delete(index=index_name, doc_type="doc", id=project_name)
+                client.delete(index=index_name, id=project_name)
             except elasticsearch.exceptions.NotFoundError:
                 pass
     except redis.exceptions.LockError as exc:

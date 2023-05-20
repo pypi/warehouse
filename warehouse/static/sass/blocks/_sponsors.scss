@@ -32,7 +32,7 @@
   text-align: center;
   border-top: 1px solid darken($primary-color, 2);
   background-color: $primary-color;
-  padding: ($spacing-unit / 2);
+  padding: $half-spacing-unit;
 
   &__title {
     display: none;
@@ -49,7 +49,7 @@
   &__sponsor {
     display: inline-block;
     text-align: center;
-    padding: ($spacing-unit / 2) 13px 10px 13px;
+    padding: $half-spacing-unit 13px 10px 13px;
     opacity: 0.95;
     @include link-without-underline;
     @include link-focus-state($white);
@@ -72,7 +72,7 @@
   }
 
   &__image {
-    max-height: 45px;
+    max-width: 100px;
     opacity: 0.8;
 
     @media only screen and (max-width: $tablet) {

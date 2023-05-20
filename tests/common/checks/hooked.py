@@ -11,12 +11,11 @@
 # limitations under the License.
 
 from warehouse.malware.checks.base import MalwareCheckBase
-from warehouse.malware.errors import FatalCheckException
+from warehouse.malware.errors import FatalCheckError
 from warehouse.malware.models import VerdictClassification, VerdictConfidence
 
 
 class ExampleHookedCheck(MalwareCheckBase):
-
     version = 1
     short_description = "An example hook-based check"
     long_description = "The purpose of this check is to test the \
@@ -30,7 +29,7 @@ implementation of a hook-based check. This check will generate verdicts if enabl
     def scan(self, **kwargs):
         file_id = kwargs.get("obj_id")
         if file_id is None:
-            raise FatalCheckException("Missing required kwarg `obj_id`")
+            raise FatalCheckError("Missing required kwarg `obj_id`")
 
         self.add_verdict(
             file_id=file_id,

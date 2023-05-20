@@ -76,6 +76,27 @@ class TestWarehouseTask:
         assert prepare.calls == [pretend.call(registry=registry)]
         assert runner.calls == [pretend.call(request)]
 
+    def test_retry(self, monkeypatch, metrics):
+        def runner(self):
+            raise self.retry(exc=Exception())
+
+        request = pretend.stub(
+            find_service=lambda *a, **kw: metrics,
+        )
+        monkeypatch.setattr(tasks, "get_current_request", lambda: request)
+
+        task = tasks.WarehouseTask()
+        task.app = Celery()
+        task.name = "warehouse.test.task"
+        task.run = runner
+
+        with pytest.raises(Exception):
+            task.run(task)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+        ]
+
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
         apply_async = pretend.call_recorder(lambda *a, **kw: async_result)
@@ -167,11 +188,14 @@ class TestWarehouseTask:
         assert obj.request.pyramid_env == pyramid_env
         assert request is pyramid_env["request"]
         assert isinstance(request.tm, transaction.TransactionManager)
+        assert 1.5e12 < request.timings["new_request_start"] < 1e13
+        assert request.remote_addr == "127.0.0.1"
 
     def test_reuses_request(self):
         pyramid_env = {"request": pretend.stub()}
 
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.update(pyramid_env=pyramid_env)
 
         assert obj.get_request() is pyramid_env["request"]
@@ -216,14 +240,14 @@ class TestWarehouseTask:
         ]
 
     def test_run_retries_failed_transaction(self, metrics):
-        class RetryThisException(RetryableException):
+        class RetryThisError(RetryableException):
             pass
 
-        class Retry(Exception):
+        class RetryError(Exception):
             pass
 
         def run():
-            raise RetryThisException
+            raise RetryThisError
 
         task_type = type(
             "Foo",
@@ -231,7 +255,7 @@ class TestWarehouseTask:
             {
                 "name": "warehouse.test.task",
                 "run": staticmethod(run),
-                "retry": lambda *a, **kw: Retry(),
+                "retry": lambda *a, **kw: RetryError(),
             },
         )
 
@@ -246,11 +270,13 @@ class TestWarehouseTask:
         obj = task_type()
         obj.get_request = lambda: request
 
-        with pytest.raises(Retry):
+        with pytest.raises(RetryError):
             obj.run()
 
         assert request.tm.__enter__.calls == [pretend.call()]
-        assert request.tm.__exit__.calls == [pretend.call(Retry, mock.ANY, mock.ANY)]
+        assert request.tm.__exit__.calls == [
+            pretend.call(RetryError, mock.ANY, mock.ANY)
+        ]
         assert metrics.timed.calls == [
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
         ]
@@ -259,11 +285,11 @@ class TestWarehouseTask:
         ]
 
     def test_run_doesnt_retries_failed_transaction(self, metrics):
-        class DontRetryThisException(Exception):
+        class DontRetryThisError(Exception):
             pass
 
         def run():
-            raise DontRetryThisException
+            raise DontRetryThisError
 
         task_type = type(
             "Foo",
@@ -282,12 +308,12 @@ class TestWarehouseTask:
         obj = task_type()
         obj.get_request = lambda: request
 
-        with pytest.raises(DontRetryThisException):
+        with pytest.raises(DontRetryThisError):
             obj.run()
 
         assert request.tm.__enter__.calls == [pretend.call()]
         assert request.tm.__exit__.calls == [
-            pretend.call(DontRetryThisException, mock.ANY, mock.ANY)
+            pretend.call(DontRetryThisError, mock.ANY, mock.ANY)
         ]
         assert metrics.timed.calls == [
             pretend.call("warehouse.task.run", tags=["task:warehouse.test.task"])
@@ -298,6 +324,7 @@ class TestWarehouseTask:
 
     def test_after_return_without_pyramid_env(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         assert (
             obj.after_return(
                 pretend.stub(),
@@ -312,6 +339,7 @@ class TestWarehouseTask:
 
     def test_after_return_closes_env_runs_request_callbacks(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.pyramid_env = {
             "request": pretend.stub(
                 _process_finished_callbacks=pretend.call_recorder(lambda: None)

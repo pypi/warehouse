@@ -10,8 +10,11 @@ for fn in $(find . -type f \( \
           ! -name "*.min.js" \
             -name "*.js" \) \
           ! -path "./.state*" \
-          ! -path "./node_modules*" \
+          ! -path "./docs*" \
           ! -path "./htmlcov*" \
+          ! -path "./node_modules*" \
+          ! -path "./warehouse/admin/static/dist*" \
+          ! -path "./warehouse/static/dist*" \
           ! -path "./warehouse/static/html*" \
           ! -path "./warehouse/static/js/vendor*"); do
     # Check for license in first 5 lines (allows for shebang, encoding and handles comment character in various languages)

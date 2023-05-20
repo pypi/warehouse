@@ -31,12 +31,36 @@
 
   .sidebar-section__title {
     font-size: 1.1rem;
+    padding-top: 0;
   }
 
   .sidebar-section__user-gravatar {
     @include link-without-underline;
     @include link-focus-state($primary-color);
+  }
 
+  .ethical-sidebar {
+    border: 2px solid $border-color;
+    border-radius: 5px;
+    padding: 1rem 1rem 0.25rem 1em;
+  }
+
+  .ethical-content {
+    text-align: center;
+
+    img {
+      width: 60%;
+      display: inline-block;
+    }
+  }
+
+  .ethical-image-link {
+    @include link-without-underline;
+  }
+
+  .ethical-text {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
   }
 
   &:last-of-type {
@@ -67,7 +91,7 @@
     li {
       margin: 0;
       padding: 0;
-      margin-top: $spacing-unit / 2;
+      margin-top: $half-spacing-unit;
 
       &:first-of-type,
       ul li {

@@ -110,7 +110,7 @@ class TestRateLimiter:
             metrics=metrics,
         )
 
-        current = datetime.datetime.now(tz=datetime.timezone.utc)
+        current = datetime.datetime.now(tz=datetime.UTC)
         stats = iter(
             [
                 (0, 0),
@@ -119,7 +119,7 @@ class TestRateLimiter:
             ]
         )
 
-        limiter._window = pretend.stub(get_window_stats=lambda l, *a: next(stats))
+        limiter._window = pretend.stub(get_window_stats=lambda L, *a: next(stats))
 
         resets_in = limiter.resets_in("foo")
 
@@ -158,6 +158,12 @@ class TestRateLimit:
                 metrics=metrics,
             )
         ]
+
+    def test_repr(self):
+        assert repr(RateLimit("one per hour")) == (
+            'RateLimit("one per hour", identifiers=None, '
+            "limiter_class=<class 'warehouse.rate_limiting.RateLimiter'>)"
+        )
 
     def test_eq(self):
         assert RateLimit("1 per 5 minutes", identifiers=["foo"]) == RateLimit(

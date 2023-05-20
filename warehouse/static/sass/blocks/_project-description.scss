@@ -55,27 +55,13 @@
 
   // Remove top margin on elements at the top of the description
   > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
-  > *:first-child,
-  > div:first-child > *:first-child,
   > *:first-child {
     margin-top: 0;
   }
 
   p {
     padding: 0;
-    margin-top: $spacing-unit / 2;
-  }
-
-  li p:first-child {
-    margin-top: 0;
+    margin-top: $half-spacing-unit;
   }
 
   strong,
@@ -85,13 +71,14 @@
 
   em,
   i {
-    font-style: italic
+    font-style: italic;
   }
 
   pre {
     display: block;
-    padding: $spacing-unit / 2;
+    padding: $half-spacing-unit;
     margin: $spacing-unit 0 0;
+    overflow-x: auto;
   }
 
   pre code {
@@ -104,11 +91,11 @@
 
   ol,
   ul {
-    margin: ($spacing-unit / 2) 0 0 $spacing-unit;
+    margin: $half-spacing-unit 0 0 $spacing-unit;
     padding-bottom: 0;
 
     @media only screen and (max-width: $mobile) {
-      margin-left: $spacing-unit / 2;
+      margin-left: $half-spacing-unit;
     }
 
     ul,
@@ -116,7 +103,7 @@
       margin: 0 0 0 $spacing-unit;
 
       @media only screen and (max-width: $mobile) {
-        margin-left: $spacing-unit / 2;
+        margin-left: $half-spacing-unit;
       }
     }
   }
@@ -129,11 +116,19 @@
     padding: 2px 0;
   }
 
+  li p:first-child {
+    margin-top: 0;
+  }
+
+  li pre {
+    margin-bottom: 15px;
+  }
+
   blockquote {
-    margin: ($spacing-unit / 2) 0 0 ($spacing-unit / 2);
+    margin: $half-spacing-unit 0 0 $half-spacing-unit;
     border-left: 3px solid $light-grey;
     font-style: italic;
-    padding-left: ($spacing-unit / 2);
+    padding-left: $half-spacing-unit;
     color: lighten($text-color, 20);
 
     @media only screen and (max-width: $tablet) {
@@ -142,14 +137,32 @@
   }
 
   dl {
-    margin: ($spacing-unit / 2) 0 0 0;
+    margin: $half-spacing-unit 0 0 0;
+
+    &.docinfo,
+    &.field-list {
+      display: grid;
+      grid-template-columns: max-content auto;
+
+      dt {
+        grid-column-start: 1;
+
+        &:first-of-type {
+          margin-top: $half-spacing-unit; // override inherited _lists.scss
+        }
+      }
+
+      dd {
+        grid-column-start: 2;
+      }
+    }
 
     dt {
       font-weight: $bold-font-weight;
     }
 
     dd {
-      margin: 0 0 5px ($spacing-unit / 2);
+      margin: 0 0 5px $half-spacing-unit;
     }
   }
 
@@ -172,6 +185,10 @@
       border: 0;
       padding: 10px 7px;
       border-right: 1px solid $border-color;
+
+      p {
+        margin: inherit;
+      }
     }
 
     thead tr {
@@ -195,13 +212,13 @@
   }
 
   hr {
-    margin: ($spacing-unit / 2) 0 0;
+    margin: $half-spacing-unit 0 0;
     border: 1px solid $light-grey;
   }
 
   // Add a margin at the top of commonly included status badges
-  > a  {
-    margin-top: $spacing-unit / 2;
+  > a {
+    margin-top: $half-spacing-unit;
   }
 
   img.align-left,
@@ -209,8 +226,8 @@
   object.align-left {
     clear: left;
     float: left;
-    margin-top: $spacing-unit / 2;
-    margin-right: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
+    margin-right: $half-spacing-unit;
   }
 
   img.align-right,
@@ -218,42 +235,55 @@
   object.align-right {
     clear: right;
     float: right;
-    margin-top: $spacing-unit / 2;
-    margin-left: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
+    margin-left: $half-spacing-unit;
   }
 
   img.align-center,
   .figure.align-center,
   object.align-center {
     display: block;
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
     margin-left: auto;
     margin-right: auto;
   }
 
+  s { /* pygments Literal.String */
+
+    /* Override browser default behavior */
+    text-decoration: none;
+  }
+
+  aside.footnote p {
+    display: inline;
+  }
+
+  aside.footnote {
+    padding-left: 2em;
+    text-indent: -2em;
+  }
 }
 
 
 // PYGMENTS THEME
 
 $blue:          $primary-color;
-$light-blue:    #0078BD;
+$light-blue:    #0078bd;
 $dark-blue:     darken($primary-color, 10);
 $darkest-blue:  darken($primary-color, 20);
 $green:         darken($success-color, 5);
 $light-green:   $success-color;
 $red:           $danger-color;
 $dark-red:      darken($danger-color, 20);
-$purple:        #bb0066;
-$orange:        #A36200;
+$purple:        #b06;
+$orange:        #a36200;
 $brown:         darken($orange, 7);
-
 $light-grey:    #737373;
 $mid-grey:      #575757;
 $dark-grey:     #303030;
 $black:         #000;
 
-.project-description {
+.project-description { // stylelint-disable-line no-duplicate-selectors -- Allow for visual organization
   .c { /* Comment */
     color: $light-grey;
   }

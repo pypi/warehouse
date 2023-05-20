@@ -19,37 +19,39 @@ import tarfile
 import tempfile
 import zipfile
 
-from cgi import FieldStorage, parse_header
-from itertools import chain
+from cgi import FieldStorage
 
 import packaging.requirements
 import packaging.specifiers
 import packaging.utils
 import packaging.version
+import packaging_legacy.version
 import pkg_resources
 import requests
-import stdlib_list
 import wtforms
 import wtforms.validators
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
+    HTTPException,
     HTTPForbidden,
     HTTPGone,
     HTTPPermanentRedirect,
+    HTTPTooManyRequests,
 )
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import exists, func, orm
-from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
+from sqlalchemy import func, orm
+from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.admin.squats import Squat
 from warehouse.classifiers.models import Classifier
+from warehouse.email import send_basic_auth_with_two_factor_email
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.interfaces import IFileStorage
+from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -57,13 +59,14 @@ from warehouse.packaging.models import (
     File,
     Filename,
     JournalEntry,
-    ProhibitedProjectName,
     Project,
     Release,
-    Role,
 )
-from warehouse.packaging.tasks import update_bigquery_release_files
+from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
+from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
+from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
@@ -74,21 +77,6 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
-
-def namespace_stdlib_list(module_list):
-    for module_name in module_list:
-        parts = module_name.split(".")
-        for i, part in enumerate(parts):
-            yield ".".join(parts[: i + 1])
-
-
-STDLIB_PROHIBITED = {
-    packaging.utils.canonicalize_name(s.rstrip("-_.").lstrip("-_."))
-    for s in chain.from_iterable(
-        namespace_stdlib_list(stdlib_list.stdlib_list(version))
-        for version in stdlib_list.short_versions
-    )
-}
 
 # Wheel platform checking
 
@@ -108,6 +96,7 @@ STDLIB_PROHIBITED = {
 _allowed_platforms = {
     "any",
     "win32",
+    "win_arm64",
     "win_amd64",
     "win_ia64",
     "manylinux1_x86_64",
@@ -125,18 +114,39 @@ _allowed_platforms = {
     "linux_armv7l",
 }
 # macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_10_(\d+)+_(?P<arch>.*)")
+_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
 _macosx_arches = {
     "ppc",
     "ppc64",
     "i386",
     "x86_64",
+    "arm64",
     "intel",
     "fat",
     "fat32",
     "fat64",
     "universal",
+    "universal2",
 }
+_macosx_major_versions = {
+    "10",
+    "11",
+    "12",
+    "13",
+}
+
+# manylinux pep600 and musllinux pep656 are a little more complicated:
+_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
+_jointlinux_arches = {
+    "x86_64",
+    "i686",
+    "aarch64",
+    "armv7l",
+    "ppc64le",
+    "s390x",
+}
+_manylinux_arches = _jointlinux_arches | {"ppc64"}
+_musllinux_arches = _jointlinux_arches
 
 
 # Actual checking code;
@@ -144,8 +154,17 @@ def _valid_platform_tag(platform_tag):
     if platform_tag in _allowed_platforms:
         return True
     m = _macosx_platform_re.match(platform_tag)
-    if m and m.group("arch") in _macosx_arches:
+    if (
+        m
+        and m.group("major") in _macosx_major_versions
+        and m.group("arch") in _macosx_arches
+    ):
         return True
+    m = _linux_platform_re.match(platform_tag)
+    if m and m.group("libc") == "musl":
+        return m.group("arch") in _musllinux_arches
+    if m and m.group("libc") == "many":
+        return m.group("arch") in _manylinux_arches
     return False
 
 
@@ -172,11 +191,6 @@ _wheel_file_re = re.compile(
 )
 
 
-_project_name_re = re.compile(
-    r"^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$", re.IGNORECASE
-)
-
-
 _legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
 
 
@@ -189,15 +203,19 @@ def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(detail=message, **kwargs)
-    resp.status = "{} {}".format(resp.status_code, message)
+    # We need to guard against characters outside of iso-8859-1 per RFC.
+    # Specifically here, where user-supplied text may appear in the message,
+    # which our WSGI server may not appropriately handle (indeed gunicorn does not).
+    status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
+    resp.status = f"{resp.status_code} {status_message}"
     return resp
 
 
 def _validate_pep440_version(form, field):
-    parsed = packaging.version.parse(field.data)
-
     # Check that this version is a valid PEP 440 version at all.
-    if not isinstance(parsed, packaging.version.Version):
+    try:
+        parsed = packaging.version.parse(field.data)
+    except packaging.version.InvalidVersion:
         raise wtforms.validators.ValidationError(
             "Start and end with a letter or numeral containing only "
             "ASCII numeric and '.', '_' and '-'."
@@ -234,12 +252,12 @@ def _validate_legacy_non_dist_req(requirement):
         req = packaging.requirements.Requirement(requirement.replace("_", ""))
     except packaging.requirements.InvalidRequirement:
         raise wtforms.validators.ValidationError(
-            "Invalid requirement: {!r}".format(requirement)
+            f"Invalid requirement: {requirement!r}"
         ) from None
 
     if req.url is not None:
         raise wtforms.validators.ValidationError(
-            "Can't direct dependency: {!r}".format(requirement)
+            f"Can't direct dependency: {requirement!r}"
         )
 
     if any(
@@ -259,12 +277,12 @@ def _validate_legacy_dist_req(requirement):
         req = packaging.requirements.Requirement(requirement)
     except packaging.requirements.InvalidRequirement:
         raise wtforms.validators.ValidationError(
-            "Invalid requirement: {!r}.".format(requirement)
+            f"Invalid requirement: {requirement!r}."
         ) from None
 
     if req.url is not None:
         raise wtforms.validators.ValidationError(
-            "Can't have direct dependency: {!r}".format(requirement)
+            f"Can't have direct dependency: {requirement!r}"
         )
 
 
@@ -288,7 +306,7 @@ def _validate_requires_external_list(form, field):
 
 def _validate_project_url(value):
     try:
-        label, url = value.split(", ", 1)
+        label, url = (x.strip() for x in value.split(",", maxsplit=1))
     except ValueError:
         raise wtforms.validators.ValidationError(
             "Use both a label and an URL."
@@ -326,7 +344,9 @@ def _validate_description_content_type(form, field):
             f"Invalid description content type: {message}"
         )
 
-    content_type, parameters = parse_header(field.data)
+    msg = email.message.EmailMessage()
+    msg["content-type"] = field.data
+    content_type, parameters = msg.get_content_type(), msg["content-type"].params
     if content_type not in _valid_description_content_types:
         _raise("type/subtype is not valid")
 
@@ -394,7 +414,6 @@ class ListField(wtforms.Field):
 #       library and we should just call that. However until PEP 426 is done
 #       that library won't have an API for this.
 class MetadataForm(forms.Form):
-
     # Metadata version
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
@@ -416,7 +435,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.Regexp(
-                _project_name_re,
+                PROJECT_NAME_RE,
                 re.IGNORECASE,
                 message=(
                     "Start and end with a letter or numeral containing "
@@ -506,7 +525,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.DataRequired(),
             wtforms.validators.AnyOf(
-                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type.",
+                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
         ]
     )
@@ -589,10 +608,48 @@ class MetadataForm(forms.Form):
                 )
 
         # We *must* have at least one digest to verify against.
-        if not self.md5_digest.data and not self.sha256_digest.data:
+        if (
+            not self.md5_digest.data
+            and not self.sha256_digest.data
+            and not self.blake2_256_digest.data
+        ):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
+
+
+def _validate_filename(filename):
+    # Our object storage does not tolerate some specific characters
+    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
+    #
+    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
+    # or completely by mistake.
+    disallowed = [*(chr(x) for x in range(32)), chr(127)]
+    if [char for char in filename if char in disallowed]:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Cannot upload a file with "
+                "non-printable characters (ordinals 0-31) "
+                "or the DEL character (ordinal 127) "
+                "in the name."
+            ),
+        )
+
+    # Make sure that the filename does not contain any path separators.
+    if "/" in filename or "\\" in filename:
+        raise _exc_with_message(
+            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
+        )
+
+    # Make sure the filename ends with an allowed extension.
+    if _dist_file_re.search(filename) is None:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information.",
+        )
 
 
 _safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
@@ -634,7 +691,7 @@ def _is_valid_dist_file(filename, filetype):
                     member = tar.next()
                 if bad_tar:
                     return False
-        except tarfile.ReadError:
+        except (tarfile.ReadError, EOFError):
             return False
     elif filename.endswith(".exe"):
         # The only valid filetype for a .exe file is "bdist_wininst".
@@ -734,6 +791,19 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _extract_wheel_metadata(path):
+    """
+    Extract METADATA file from a wheel and return it as a content.
+    The name of the .whl file is used to find the corresponding .dist-info dir.
+    See https://peps.python.org/pep-0491/#file-contents
+    """
+    filename = os.path.basename(path)
+    namever = _wheel_file_re.match(filename).group("namever")
+    metafile = f"{namever}.dist-info/METADATA"
+    with zipfile.ZipFile(path) as zfp:
+        return zfp.read(metafile)
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -761,9 +831,9 @@ def file_upload(request):
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
 
-    # Before we do anything, if there isn't an authenticated user with this
-    # request, then we'll go ahead and bomb out.
-    if request.authenticated_userid is None:
+    # Before we do anything, if there isn't an authenticated identity with
+    # this request, then we'll go ahead and bomb out.
+    if request.identity is None:
         raise _exc_with_message(
             HTTPForbidden,
             "Invalid or non-existent authentication information. "
@@ -772,24 +842,27 @@ def file_upload(request):
             ),
         )
 
-    # Ensure that user has a verified, primary email address. This should both
-    # reduce the ease of spam account creation and activity, as well as act as
-    # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-    # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
-    #       we might consider a different condition, possibly looking at
-    #       User.is_active instead.
-    if not (request.user.primary_email and request.user.primary_email.verified):
-        raise _exc_with_message(
-            HTTPBadRequest,
-            (
-                "User {!r} does not have a verified primary email address. "
-                "Please add a verified primary email before attempting to "
-                "upload to PyPI. See {project_help} for more information."
-            ).format(
-                request.user.username,
-                project_help=request.help_url(_anchor="verified-email"),
-            ),
-        ) from None
+    # These checks only make sense when our authenticated identity is a user,
+    # not a project identity (like OIDC-minted tokens.)
+    if request.user:
+        # Ensure that user has a verified, primary email address. This should both
+        # reduce the ease of spam account creation and activity, as well as act as
+        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+        #       we might consider a different condition, possibly looking at
+        #       User.is_active instead.
+        if not (request.user.primary_email and request.user.primary_email.verified):
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have a verified primary email address. "
+                    "Please add a verified primary email before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
 
     # Do some cleanup of the various form fields
     for key in list(request.POST):
@@ -814,8 +887,8 @@ def file_upload(request):
     # Check if any fields were supplied as a tuple and have become a
     # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
     # FieldStorage, however.
-    # ref: https://github.com/pypa/warehouse/issues/2185
-    # ref: https://github.com/pypa/warehouse/issues/2491
+    # ref: https://github.com/pypi/warehouse/issues/2185
+    # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
@@ -836,9 +909,14 @@ def file_upload(request):
             if field.description and isinstance(field, wtforms.StringField):
                 error_message = (
                     "{value!r} is an invalid value for {field}. ".format(
-                        value=field.data, field=field.description
+                        value=(
+                            field.data[:30] + "..." + field.data[-30:]
+                            if field.data and len(field.data) > 60
+                            else field.data or ""
+                        ),
+                        field=field.description,
                     )
-                    + "Error: {} ".format(form.errors[field_name][0])
+                    + f"Error: {form.errors[field_name][0]} "
                     + "See "
                     "https://packaging.python.org/specifications/core-metadata"
                     + " for more information."
@@ -848,7 +926,7 @@ def file_upload(request):
                     field=field_name, msgs=form.errors[field_name]
                 )
         else:
-            error_message = "Error: {}".format(form.errors[field_name][0])
+            error_message = f"Error: {form.errors[field_name][0]}"
 
         raise _exc_with_message(HTTPBadRequest, error_message)
 
@@ -859,138 +937,83 @@ def file_upload(request):
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
     # going any further.
-    try:
-        project = (
-            request.db.query(Project)
-            .filter(
-                Project.normalized_name == func.normalize_pep426_name(form.name.data)
-            )
-            .one()
-        )
-    except NoResultFound:
-        # Check for AdminFlag set by a PyPI Administrator disabling new project
-        # registration, reasons for this include Spammers, security
-        # vulnerabilities, or just wanting to be lazy and not worry ;)
-        if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
-            raise _exc_with_message(
-                HTTPForbidden,
-                (
-                    "New project registration temporarily disabled. "
-                    "See {projecthelp} for more information."
-                ).format(projecthelp=request.help_url(_anchor="admin-intervention")),
-            ) from None
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(form.name.data))
+        .first()
+    )
 
-        # Before we create the project, we're going to check our prohibited names to
-        # see if this project is even allowed to be registered. If it is not,
-        # then we're going to deny the request to create this project.
-        if request.db.query(
-            exists().where(
-                ProhibitedProjectName.name == func.normalize_pep426_name(form.name.data)
-            )
-        ).scalar():
+    if project is None:
+        # Another sanity check: we should be preventing non-user identities
+        # from creating projects in the first place with scoped tokens,
+        # but double-check anyways.
+        if not request.user:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
-                    "The name {name!r} isn't allowed. "
-                    "See {projecthelp} for more information."
-                ).format(
-                    name=form.name.data,
-                    projecthelp=request.help_url(_anchor="project-name"),
+                    "Non-user identities cannot create new projects. "
+                    "You must first create a project as a user, and then "
+                    "configure the project to use trusted publishers."
                 ),
-            ) from None
-
-        # Also check for collisions with Python Standard Library modules.
-        if packaging.utils.canonicalize_name(form.name.data) in STDLIB_PROHIBITED:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "The name {name!r} isn't allowed (conflict with Python "
-                    "Standard Library module name). See "
-                    "{projecthelp} for more information."
-                ).format(
-                    name=form.name.data,
-                    projecthelp=request.help_url(_anchor="project-name"),
-                ),
-            ) from None
-
-        # The project doesn't exist in our database, so first we'll check for
-        # projects with a similar name
-        squattees = (
-            request.db.query(Project)
-            .filter(
-                func.levenshtein(
-                    Project.normalized_name, func.normalize_pep426_name(form.name.data)
-                )
-                <= 2
             )
-            .all()
-        )
 
-        # Next we'll create the project
-        project = Project(name=form.name.data)
-        request.db.add(project)
+        # We attempt to create the project.
+        try:
+            validate_project_name(form.name.data, request)
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
 
-        # Now that the project exists, add any squats which it is the squatter for
-        for squattee in squattees:
-            request.db.add(Squat(squatter=project, squattee=squattee))
+        project_service = request.find_service(IProjectService)
+        try:
+            project = project_service.create_project(form.name.data, request.user)
+        except RateLimiterException:
+            msg = "Too many new projects created"
+            raise _exc_with_message(HTTPTooManyRequests, msg)
 
-        # Then we'll add a role setting the current user as the "Owner" of the
-        # project.
-        request.db.add(Role(user=request.user, project=project, role_name="Owner"))
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action="create",
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-        request.db.add(
-            JournalEntry(
-                name=project.name,
-                action="add Owner {}".format(request.user.username),
-                submitted_by=request.user,
-                submitted_from=request.remote_addr,
-            )
-        )
-
-        project.record_event(
-            tag="project:create",
-            ip_address=request.remote_addr,
-            additional={"created_by": request.user.username},
-        )
-        project.record_event(
-            tag="project:role:add",
-            ip_address=request.remote_addr,
-            additional={
-                "submitted_by": request.user.username,
-                "role_name": "Owner",
-                "target_user": request.user.username,
-            },
-        )
-
-    # Check that the user has permission to do things to this project, if this
+    # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
     allowed = request.has_permission("upload", project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
-        msg = (
-            (
-                "The user '{0}' isn't allowed to upload to project '{1}'. "
-                "See {2} for more information."
-            ).format(
-                request.user.username,
-                project.name,
-                request.help_url(_anchor="project-name"),
+        if request.user:
+            msg = (
+                (
+                    "The user '{}' isn't allowed to upload to project '{}'. "
+                    "See {} for more information."
+                ).format(
+                    request.user.username,
+                    project.name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
             )
-            if reason is None
-            else allowed.msg
-        )
+        else:
+            msg = (
+                (
+                    "The given token isn't allowed to upload to project '{}'. "
+                    "See {} for more information."
+                ).format(
+                    project.name,
+                    request.help_url(_anchor="project-name"),
+                )
+                if reason is None
+                else allowed.msg
+            )
         raise _exc_with_message(HTTPForbidden, msg)
+
+    # Check if the user has 2FA and used basic auth
+    # NOTE: We don't need to guard request.user here because basic auth
+    # can only be used with user identities.
+    if (
+        request.authentication_method == AuthenticationMethod.BASIC_AUTH
+        and request.user.has_two_factor
+    ):
+        # Eventually, raise here to disable basic auth with 2FA enabled
+        send_basic_auth_with_two_factor_email(
+            request, request.user, project_name=project.name
+        )
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -1052,25 +1075,18 @@ def file_upload(request):
             .one()
         )
     except NoResultFound:
-        # Look up all of the valid classifiers
-        all_classifiers = request.db.query(Classifier).all()
-
         # Get all the classifiers for this release
-        release_classifiers = [
-            c for c in all_classifiers if c.classifier in form.classifiers.data
-        ]
-
-        # Determine if we need to add any new classifiers to the database
-        missing_classifiers = set(form.classifiers.data or []) - set(
-            c.classifier for c in release_classifiers
+        release_classifiers = (
+            request.db.query(Classifier)
+            .filter(Classifier.classifier.in_(form.classifiers.data))
+            .all()
         )
 
-        # Add any new classifiers to the database
-        if missing_classifiers:
-            for missing_classifier_name in missing_classifiers:
-                missing_classifier = Classifier(classifier=missing_classifier_name)
-                request.db.add(missing_classifier)
-                release_classifiers.append(missing_classifier)
+        # Parse the Project URLs structure into a key/value dict
+        project_urls = {
+            name.strip(): url.strip()
+            for name, _, url in (us.partition(",") for us in form.project_urls.data)
+        }
 
         release = Release(
             project=project,
@@ -1086,10 +1102,12 @@ def file_upload(request):
                         "provides_dist": DependencyKind.provides_dist,
                         "obsoletes_dist": DependencyKind.obsoletes_dist,
                         "requires_external": DependencyKind.requires_external,
-                        "project_urls": DependencyKind.project_url,
                     },
                 )
             ),
+            # This has the effect of removing any preceding v character
+            # https://www.python.org/dev/peps/pep-0440/#preceding-v-character
+            version=str(packaging.version.parse(form.version.data)),
             canonical_version=canonical_version,
             description=Description(
                 content_type=form.description_content_type.data,
@@ -1097,12 +1115,12 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
+            project_urls=project_urls,
             **{
                 k: getattr(form, k).data
                 for k in {
                     # This is a list of all the fields in the form that we
                     # should pull off and insert into our new release.
-                    "version",
                     "summary",
                     "license",
                     "author",
@@ -1116,10 +1134,11 @@ def file_upload(request):
                     "requires_python",
                 }
             },
-            uploader=request.user,
+            uploader=request.user if request.user else None,
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -1128,17 +1147,22 @@ def file_upload(request):
                 name=release.project.name,
                 version=release.version,
                 action="new release",
-                submitted_by=request.user,
+                submitted_by=request.user if request.user else None,
                 submitted_from=request.remote_addr,
             )
         )
 
         project.record_event(
-            tag="project:release:add",
+            tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
             additional={
-                "submitted_by": request.user.username,
+                "submitted_by": request.user.username
+                if request.user
+                else "OpenID created token",
                 "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
             },
         )
 
@@ -1154,27 +1178,15 @@ def file_upload(request):
         .all()
     )
     for i, r in enumerate(
-        sorted(releases, key=lambda x: packaging.version.parse(x.version))
+        sorted(releases, key=lambda x: packaging_legacy.version.parse(x.version))
     ):
         r._pypi_ordering = i
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
 
-    # Make sure that the filename does not contain any path separators.
-    if "/" in filename or "\\" in filename:
-        raise _exc_with_message(
-            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
-        )
-
-    # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information.",
-        )
+    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
+    _validate_filename(filename)
 
     # Make sure that our filename matches the project that it is being uploaded
     # to.
@@ -1182,7 +1194,7 @@ def file_upload(request):
     if not pkg_resources.safe_name(filename).lower().startswith(prefix):
         raise _exc_with_message(
             HTTPBadRequest,
-            "Start filename for {!r} with {!r}.".format(project.name, prefix),
+            f"Start filename for {project.name!r} with {prefix!r}.",
         )
 
     # Check the content type of what is being uploaded
@@ -1210,6 +1222,7 @@ def file_upload(request):
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
+            metadata_file_hashes = {}
             for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
@@ -1228,7 +1241,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB,
+                            name=project.name, limit=project_size_limit // ONE_GB
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
@@ -1247,11 +1260,11 @@ def file_upload(request):
         if not all(
             [
                 hmac.compare_digest(
-                    getattr(form, "{}_digest".format(digest_name)).data.lower(),
+                    getattr(form, f"{digest_name}_digest").data.lower(),
                     digest_value,
                 )
                 for digest_name, digest_value in file_hashes.items()
-                if getattr(form, "{}_digest".format(digest_name)).data
+                if getattr(form, f"{digest_name}_digest").data
             ]
         ):
             raise _exc_with_message(
@@ -1270,7 +1283,7 @@ def file_upload(request):
                 # Note: Changing this error message to something that doesn't
                 # start with "File already exists" will break the
                 # --skip-existing functionality in twine
-                # ref: https://github.com/pypa/warehouse/issues/3482
+                # ref: https://github.com/pypi/warehouse/issues/3482
                 # ref: https://github.com/pypa/twine/issues/332
                 "File already exists. See "
                 + request.help_url(_anchor="file-name-reuse")
@@ -1320,6 +1333,30 @@ def file_upload(request):
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
 
+            try:
+                wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+            except KeyError:
+                namever = wheel_info.group("namever")
+                metadata_filename = f"{namever}.dist-info/METADATA"
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Wheel '{filename}' does not contain the required "
+                    "METADATA file: {metadata_filename}".format(
+                        filename=filename, metadata_filename=metadata_filename
+                    ),
+                )
+            with open(temporary_filename + ".metadata", "wb") as fp:
+                fp.write(wheel_metadata_contents)
+            metadata_file_hashes = {
+                "sha256": hashlib.sha256(),
+                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+            }
+            for hasher in metadata_file_hashes.values():
+                hasher.update(wheel_metadata_contents)
+            metadata_file_hashes = {
+                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
+            }
+
         # Also buffer the entire signature file to disk.
         if "gpg_signature" in request.POST:
             has_signature = True
@@ -1359,6 +1396,8 @@ def file_upload(request):
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
+            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
+            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
             # Figure out what our filepath is going to be, we're going to use a
             # directory structure based on the hash of the file contents. This
             # will ensure that the contents of the file cannot change without
@@ -1376,6 +1415,22 @@ def file_upload(request):
         file_data = file_
         request.db.add(file_)
 
+        file_.record_event(
+            tag=EventTag.File.FileAdd,
+            ip_address=request.remote_addr,
+            additional={
+                "filename": file_.filename,
+                "submitted_by": request.user.username
+                if request.user
+                else "OpenID created token",
+                "canonical_version": release.canonical_version,
+                "publisher_url": request.oidc_publisher.publisher_url
+                if request.oidc_publisher
+                else None,
+                "project_id": str(project.id),
+            },
+        )
+
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1386,7 +1441,7 @@ def file_upload(request):
                 action="add {python_version} file {filename}".format(
                     python_version=file_.python_version, filename=file_.filename
                 ),
-                submitted_by=request.user,
+                submitted_by=request.user if request.user else None,
                 submitted_from=request.remote_addr,
             )
         )
@@ -1395,7 +1450,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage)
+        storage = request.find_service(IFileStorage, name="archive")
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),
@@ -1417,11 +1472,19 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+        if metadata_file_hashes:
+            storage.store(
+                file_.metadata_path,
+                os.path.join(tmpdir, filename + ".metadata"),
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
+                },
+            )
 
-    # We are flushing the database requests so that we
-    # can access the server default values when initiating celery
-    # tasks.
-    request.db.flush()
+    request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
     dist_metadata = {
@@ -1471,6 +1534,9 @@ def file_upload(request):
 
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
+
+    # Dispatch our task to sync this to cache as soon as possible
+    request.task(sync_file_to_cache).delay(file_.id)
 
     return Response()
 

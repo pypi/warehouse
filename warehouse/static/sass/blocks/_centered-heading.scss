@@ -20,10 +20,6 @@
     <p class="centered-heading__subtitle">Subtitle</p>
     <hr class="centered-heading__rule">
   </div>
-
-  Note: This style is used in a template defined separately in pypi-theme,
-  which is a private repository due to the fact that other people's IP is
-  contained in it.
 */
 
 .centered-heading {
@@ -36,7 +32,7 @@
 
   &__rule {
     max-width: 300px;
-    margin: ($spacing-unit / 2) auto ($spacing-unit * 2);
+    margin: $half-spacing-unit auto ($spacing-unit * 2);
     background: $base-grey;
 
     @media only screen and (max-width: $tablet) {

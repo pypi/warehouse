@@ -22,6 +22,7 @@ from zope.interface.verify import verifyClass
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import (
+    ConsoleAndSMTPEmailSender,
     EmailMessage,
     SESEmailSender,
     SMTPEmailSender,
@@ -93,12 +94,31 @@ class TestEmailMessage:
             "<html>\n<head></head>\n<body><p>Email HTML Body</p></body>\n</html>\n"
         )
 
+    def test_strips_newlines_from_subject(self, pyramid_config, pyramid_request):
+        subject_renderer = pyramid_config.testing_add_renderer("email/foo/subject.txt")
+        subject_renderer.string_response = "Email Subject\n"
 
+        body_renderer = pyramid_config.testing_add_renderer("email/foo/body.txt")
+        body_renderer.string_response = "Email Body"
+
+        html_renderer = pyramid_config.testing_add_renderer("email/foo/body.html")
+        html_renderer.string_response = "<p>Email HTML Body</p>"
+
+        msg = EmailMessage.from_template(
+            "foo", {"my_var": "my value"}, request=pyramid_request
+        )
+
+        subject_renderer.assert_(my_var="my value")
+
+        assert msg.subject == "Email Subject"
+
+
+@pytest.mark.parametrize("sender_class", [SMTPEmailSender, ConsoleAndSMTPEmailSender])
 class TestSMTPEmailSender:
-    def test_verify_service(self):
-        assert verifyClass(IEmailSender, SMTPEmailSender)
+    def test_verify_service(self, sender_class):
+        assert verifyClass(IEmailSender, sender_class)
 
-    def test_creates_service(self):
+    def test_creates_service(self, sender_class):
         mailer = pretend.stub()
         context = pretend.stub()
         request = pretend.stub(
@@ -108,15 +128,15 @@ class TestSMTPEmailSender:
             )
         )
 
-        service = SMTPEmailSender.create_service(context, request)
+        service = sender_class.create_service(context, request)
 
-        assert isinstance(service, SMTPEmailSender)
+        assert isinstance(service, sender_class)
         assert service.mailer is mailer
         assert service.sender == "DevPyPI <noreply@example.com>"
 
-    def test_send(self):
+    def test_send(self, sender_class):
         mailer = DummyMailer()
-        service = SMTPEmailSender(mailer, sender="DevPyPI <noreply@example.com>")
+        service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
 
         service.send(
             "sombody@example.com",
@@ -134,6 +154,36 @@ class TestSMTPEmailSender:
         assert msg.html == "a html body"
         assert msg.recipients == ["sombody@example.com"]
         assert msg.sender == "DevPyPI <noreply@example.com>"
+
+    def test_last_sent(self, sender_class):
+        mailer = DummyMailer()
+        service = sender_class(mailer, sender="DevPyPI <noreply@example.com>")
+
+        assert service.last_sent(to=pretend.stub(), subject=pretend.stub) is None
+
+
+class TestConsoleAndSMTPEmailSender:
+    def test_send(self, capsys):
+        mailer = DummyMailer()
+        service = ConsoleAndSMTPEmailSender(
+            mailer, sender="DevPyPI <noreply@example.com>"
+        )
+
+        service.send(
+            "sombody@example.com",
+            EmailMessage(
+                subject="a subject", body_text="a body", body_html="a html body"
+            ),
+        )
+        captured = capsys.readouterr()
+        expected = """
+Email sent
+Subject: a subject
+From: DevPyPI <noreply@example.com>
+To: sombody@example.com
+HTML: Visualize at http://localhost:1080
+Text: a body"""
+        assert captured.out.strip() == expected.strip()
 
 
 class TestSESEmailSender:
@@ -280,3 +330,53 @@ class TestSESEmailSender:
         assert em.from_ == "noreply@example.com"
         assert em.to == "somebody@example.com"
         assert em.subject == "This is a Subject"
+
+    def test_last_sent(self, db_session):
+        to = "me@example.com"
+        subject = "I care about this"
+
+        # Send some random emails
+        aws_client = pretend.stub(
+            send_raw_email=pretend.call_recorder(
+                lambda *a, **kw: {"MessageId": str(uuid.uuid4()) + "-ses"}
+            )
+        )
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+        for address in [to, "somebody_else@example.com"]:
+            for subject in [subject, "I do not care about this"]:
+                sender.send(
+                    f"Foobar <{ to }>",
+                    EmailMessage(
+                        subject=subject, body_text="This is a plain text body"
+                    ),
+                )
+
+        # Send the last email that we care about
+        resp = {"MessageId": str(uuid.uuid4()) + "-ses"}
+        aws_client = pretend.stub(
+            send_raw_email=pretend.call_recorder(lambda *a, **kw: resp)
+        )
+        sender = SESEmailSender(
+            aws_client, sender="DevPyPI <noreply@example.com>", db=db_session
+        )
+        sender.send(
+            f"Foobar <{ to }>",
+            EmailMessage(subject=subject, body_text="This is a plain text body"),
+        )
+
+        em = (
+            db_session.query(SESEmailMessage)
+            .filter_by(message_id=resp["MessageId"])
+            .one()
+        )
+
+        assert sender.last_sent(to, subject) == em.created
+
+    def test_last_sent_none(self, db_session):
+        to = "me@example.com"
+        subject = "I care about this"
+        sender = SESEmailSender(pretend.stub(), sender=pretend.stub(), db=db_session)
+
+        assert sender.last_sent(to, subject) is None

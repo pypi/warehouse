@@ -1,0 +1,38 @@
+name: Node CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:  # generally only for the "combine-prs" workflow
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+jobs:
+  test:
+    strategy:
+      matrix:
+        include:
+          - name: Static Tests
+            command: bin/static_tests
+          - name: Static Lint
+            command: bin/static_lint
+          - name: Static Pipeline
+            command: bin/static_pipeline
+    runs-on: ubuntu-latest
+    name: ${{ matrix.name }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 20.2.0
+          cache: 'npm'
+      - name: Install Node dependencies
+        run: npm ci
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}

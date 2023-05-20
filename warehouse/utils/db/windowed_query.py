@@ -11,7 +11,7 @@
 # limitations under the License.
 
 # Taken from "Theatrum Chemicum" at
-# https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/WindowedRangeQuery
+# https://github.com/sqlalchemy/sqlalchemy/wiki/RangeQuery-and-WindowedRangeQuery
 
 from sqlalchemy import and_, func, text
 
@@ -57,10 +57,9 @@ def column_windows(session, column, windowsize):
 
 
 def windowed_query(q, column, windowsize):
-    """"
+    """
     Break a Query into windows on a given column.
     """
 
     for whereclause in column_windows(q.session, column, windowsize):
-        for row in q.filter(whereclause).order_by(column):
-            yield row
+        yield from q.filter(whereclause).order_by(column)

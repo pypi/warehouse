@@ -14,12 +14,13 @@
 /* global expect, beforeEach, describe, it */
 
 import format from "date-fns/format";
-import { Application } from "stimulus";
+import { Application } from "@hotwired/stimulus";
 import LocalizedTimeController from "../../warehouse/static/js/warehouse/controllers/localized_time_controller";
 
 describe("Localized time controller", () => {
   describe("not relative and not showing time", () => {
     beforeEach(() => {
+      // localized-time controller handles datetime in UTC only
       document.documentElement.lang = "en";
       document.body.innerHTML = `
       <time
@@ -39,14 +40,17 @@ describe("Localized time controller", () => {
       expect(el).toHaveTextContent("Sep 20, 2019");
       // The expected ISO string in the title is localized
       const date = new Date(el.getAttribute("datetime"));
-      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss");
+      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
+      // Expect +00:00 because static tests run in UTC
+      expect(expectedDate.endsWith("(+00:00)")).toBeTruthy();
     });
   });
 
   describe("relative and showing time", () => {
     beforeEach(() => {
+      // localized-time controller handles datetime in UTC only
       const date = new Date();
       document.body.innerHTML = `
       <time
@@ -70,9 +74,11 @@ describe("Localized time controller", () => {
       // if the setup is not placed on the beforeEach causing the test to fail
       // To avoid this we add the date in the beforeEach and re-parse it here
       const date = new Date(el.getAttribute("datetime"));
-      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss");
+      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
+      // Expect +00:00 because static tests run in UTC
+      expect(expectedDate.endsWith("(+00:00)")).toBeTruthy();
     });
   });
 });

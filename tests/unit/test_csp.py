@@ -13,6 +13,7 @@
 import collections
 
 import pretend
+import pytest
 
 from warehouse import csp
 
@@ -164,10 +165,25 @@ class TestCSPPolicy:
         policy = csp.CSPPolicy({"foo": ["bar"]})
         assert isinstance(policy, collections.defaultdict)
 
-    def test_merge(self):
-        policy = csp.CSPPolicy({"foo": ["bar"]})
-        policy.merge({"foo": ["baz"], "something": ["else"]})
-        assert policy == {"foo": ["bar", "baz"], "something": ["else"]}
+    @pytest.mark.parametrize(
+        "existing, incoming, expected",
+        [
+            (
+                {"foo": ["bar"]},
+                {"foo": ["baz"], "something": ["else"]},
+                {"foo": ["bar", "baz"], "something": ["else"]},
+            ),
+            (
+                {"foo": [csp.NONE]},
+                {"foo": ["baz"]},
+                {"foo": ["baz"]},
+            ),
+        ],
+    )
+    def test_merge(self, existing, incoming, expected):
+        policy = csp.CSPPolicy(existing)
+        policy.merge(incoming)
+        assert policy == expected
 
 
 def test_includeme():
@@ -201,35 +217,85 @@ def test_includeme():
                     "connect-src": [
                         "'self'",
                         "https://api.github.com/repos/",
+                        "https://api.github.com/search/issues",
+                        "https://*.google-analytics.com",
+                        "https://*.analytics.google.com",
+                        "https://*.googletagmanager.com",
+                        "fastly-insights.com",
                         "*.fastly-insights.com",
-                        "sentry.io",
+                        "*.ethicalads.io",
                         "https://api.pwnedpasswords.com",
+                        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
                         "https://2p66nmmycsj3.statuspage.io",
                     ],
                     "default-src": ["'none'"],
                     "font-src": ["'self'", "fonts.gstatic.com"],
-                    "form-action": ["'self'"],
+                    "form-action": ["'self'", "https://checkout.stripe.com"],
                     "frame-ancestors": ["'none'"],
                     "frame-src": ["'none'"],
                     "img-src": [
                         "'self'",
                         "camo.url.value",
-                        "www.google-analytics.com",
+                        "https://*.google-analytics.com",
+                        "https://*.googletagmanager.com",
                         "*.fastly-insights.com",
+                        "*.ethicalads.io",
                     ],
                     "script-src": [
                         "'self'",
-                        "www.googletagmanager.com",
-                        "www.google-analytics.com",
+                        "https://*.googletagmanager.com",
+                        "https://www.google-analytics.com",
+                        "https://ssl.google-analytics.com",
                         "*.fastly-insights.com",
-                        "https://cdn.ravenjs.com",
+                        "*.ethicalads.io",
+                        "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
+                        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
+                        "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+                        "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
                     ],
-                    "style-src": ["'self'", "fonts.googleapis.com"],
+                    "style-src": [
+                        "'self'",
+                        "fonts.googleapis.com",
+                        "*.ethicalads.io",
+                        "'sha256-2YHqZokjiizkHi1Zt+6ar0XJ0OeEy/egBnlm+MDMtrM='",
+                        "'sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU='",
+                        "'sha256-JLEjeN9e5dGsz5475WyRaoA4eQOdNPxDIeUhclnJDCE='",
+                        "'sha256-mQyxHEuwZJqpxCw3SLmc4YOySNKXunyu2Oiz1r3/wAE='",
+                        "'sha256-OCf+kv5Asiwp++8PIevKBYSgnNLNUZvxAp4a7wMLuKA='",
+                        "'sha256-h5LOiLhk6wiJrGsG5ItM0KimwzWQH/yAcmoJDJL//bY='",
+                    ],
                     "worker-src": ["*.fastly-insights.com"],
                 }
             }
         )
     ]
+
+
+def test_includeme_development():
+    """
+    Tests for development-centric CSP settings.
+    Not as extensive as the production tests.
+    """
+    config = pretend.stub(
+        register_service_factory=pretend.call_recorder(lambda fact, name: None),
+        add_settings=pretend.call_recorder(lambda settings: None),
+        add_tween=pretend.call_recorder(lambda tween: None),
+        registry=pretend.stub(
+            settings={
+                "camo.url": "camo.url.value",
+                "warehouse.env": "development",
+                "livereload.url": "http://localhost:35729",
+            }
+        ),
+    )
+    csp.includeme(config)
+
+    rendered_csp = config.add_settings.calls[0].args[0]["csp"]
+
+    assert config.registry.settings.get("warehouse.env") == "development"
+
+    assert "ws://localhost:35729/livereload" in rendered_csp["connect-src"]
+    assert "http://localhost:35729/livereload.js" in rendered_csp["script-src"]
 
 
 class TestFactory:

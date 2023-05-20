@@ -13,7 +13,7 @@
 from pyramid.httpexceptions import HTTPGone, HTTPMovedPermanently, HTTPNotFound
 from pyramid.response import Response
 from pyramid.view import forbidden_view_config, view_config
-from trove_classifiers import classifiers
+from trove_classifiers import sorted_classifiers
 
 from warehouse.classifiers.models import Classifier
 
@@ -22,7 +22,7 @@ def _exc_with_message(exc, message):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
     resp = exc(message)
-    resp.status = "{} {}".format(resp.status_code, message)
+    resp.status = f"{resp.status_code} {message}"
     return resp
 
 
@@ -76,7 +76,7 @@ def forbidden_legacy(exc, request):
 @view_config(route_name="legacy.api.pypi.list_classifiers")
 def list_classifiers(request):
     return Response(
-        text="\n".join(sorted(classifiers)), content_type="text/plain; charset=utf-8",
+        text="\n".join(sorted_classifiers), content_type="text/plain; charset=utf-8"
     )
 
 
@@ -100,7 +100,7 @@ def browse(request):
     except ValueError:
         raise HTTPNotFound
 
-    classifier = request.db.query(Classifier).get(classifier_id)
+    classifier = request.db.get(Classifier, classifier_id)
 
     if not classifier:
         raise HTTPNotFound

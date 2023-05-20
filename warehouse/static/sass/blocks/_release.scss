@@ -41,7 +41,7 @@
   table-layout: fixed;
   width: 100%;
   border-left: 1px solid $background-color;
-  padding: 0 ($spacing-unit / 2);
+  padding: 0 $half-spacing-unit;
 
   &__meta {
     width: 110px;
@@ -97,18 +97,14 @@
   &__card {
     display: block;
     @include card;
-    padding: $spacing-unit / 2;
-    margin: ($spacing-unit / 2) 0;
+    padding: $half-spacing-unit;
+    margin: $half-spacing-unit 0;
   }
 
   &__version {
     padding-bottom: 0;
     font-size: 1.25rem;
     font-weight: $bold-font-weight;
-  }
-
-  &__version-badge {
-    margin-left: 4px;
   }
 
   &--current {

@@ -24,7 +24,7 @@ class IXMLRPCCache(Interface):
         created for.
         """
 
-    def fetch(self, func, args, kwargs, key, tag, expire):
+    def fetch(func, args, kwargs, key, tag, expire):
         """
         Gets cached function return value from the cache or calls func with the
         supplied args and kwargs, stashing it in the cache. Cache is drawn from
@@ -33,13 +33,13 @@ class IXMLRPCCache(Interface):
         expiration.
         """
 
-    def purge(self, tag):
+    def purge(tag):
         """
         Issues a purge, clearing all cached objects associated with the tag
         from the cache.
         """
 
-    def purge_tags(self, tags):
+    def purge_tags(tags):
         """
         Issues a purge, clearing all cached objects associated with each tag
         in the iterable tags.

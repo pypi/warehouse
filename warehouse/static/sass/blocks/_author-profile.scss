@@ -41,11 +41,17 @@
   @media only screen and (max-width: $desktop) and (min-width: $mobile) {
     padding: 0 0 ($spacing-unit * 1.5) 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
 
     img {
       height: 175px;
       margin-right: $spacing-unit;
+    }
+  }
+
+  @media only screen and (max-width: $desktop) {
+    &__info {
+      padding-top: 0 !important;
     }
   }
 
@@ -63,7 +69,7 @@
 
   &__name {
     @include h2;
-    padding: 0 0 $spacing-unit / 2;
+    padding: 0 0 $half-spacing-unit;
     word-wrap: break-word;
 
     @media only screen and (max-width: $desktop) {
@@ -79,7 +85,7 @@
   }
 
   &__metadiv {
-    margin-bottom: $spacing-unit / 2;
+    margin-bottom: $half-spacing-unit;
     word-wrap: break-word;
   }
 

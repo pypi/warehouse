@@ -12,6 +12,8 @@
 
 import functools
 import logging
+import os
+import time
 import urllib.parse
 
 import celery
@@ -90,6 +92,8 @@ class WarehouseTask(celery.Task):
             registry = self.app.pyramid_config.registry
             env = pyramid.scripting.prepare(registry=registry)
             env["request"].tm = transaction.TransactionManager(explicit=True)
+            env["request"].timings = {"new_request_start": time.time() * 1000}
+            env["request"].remote_addr = "127.0.0.1"
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
@@ -118,6 +122,12 @@ class WarehouseTask(celery.Task):
             self._after_commit_hook, args=args, kws=kwargs
         )
 
+    def retry(self, *args, **kwargs):
+        request = get_current_request()
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment("warehouse.task.retried", tags=[f"task:{self.name}"])
+        return super().retry(*args, **kwargs)
+
     def _after_commit_hook(self, success, *args, **kwargs):
         if success:
             super().apply_async(*args, **kwargs)
@@ -131,7 +141,7 @@ def task(**kwargs):
             celery_app = scanner.config.registry["celery.app"]
             celery_app.task(**kwargs)(wrapped)
 
-        venusian.attach(wrapped, callback)
+        venusian.attach(wrapped, callback, category="warehouse")
 
         return wrapped
 
@@ -178,6 +188,7 @@ def includeme(config):
         # Celery doesn't handle paths/query arms being passed into the SQS broker,
         # so we'll just remove them from here.
         broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+        os.environ["BROKER_URL"] = broker_url
 
         if "queue_name_prefix" in parsed_query:
             broker_transport_options["queue_name_prefix"] = (

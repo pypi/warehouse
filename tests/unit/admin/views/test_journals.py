@@ -62,12 +62,12 @@ class TestProjectList:
         )
         [JournalEntryFactory.create(name=project1.normalized_name) for _ in range(30)]
 
-        db_request.GET["q"] = "{}".format(project0.name)
+        db_request.GET["q"] = f"{project0.name}"
         result = views.journals_list(db_request)
 
         assert result == {
             "journals": journals0[:25],
-            "query": "{}".format(project0.name),
+            "query": f"{project0.name}",
         }
 
     def test_query_term_project(self, db_request):
@@ -83,12 +83,12 @@ class TestProjectList:
         )
         [JournalEntryFactory.create(name=project1.normalized_name) for _ in range(30)]
 
-        db_request.GET["q"] = "project:{}".format(project0.name)
+        db_request.GET["q"] = f"project:{project0.name}"
         result = views.journals_list(db_request)
 
         assert result == {
             "journals": journals0[:25],
-            "query": "project:{}".format(project0.name),
+            "query": f"project:{project0.name}",
         }
 
     def test_query_term_user(self, db_request):
@@ -101,23 +101,23 @@ class TestProjectList:
         )
         [JournalEntryFactory.create(submitted_by=user1) for _ in range(30)]
 
-        db_request.GET["q"] = "user:{}".format(user0.username)
+        db_request.GET["q"] = f"user:{user0.username}"
         result = views.journals_list(db_request)
 
         assert result == {
             "journals": journals0[:25],
-            "query": "user:{}".format(user0.username),
+            "query": f"user:{user0.username}",
         }
 
     def test_query_term_version(self, db_request):
         journals = [JournalEntryFactory.create() for _ in range(10)]
 
-        db_request.GET["q"] = "version:{}".format(journals[0].version)
+        db_request.GET["q"] = f"version:{journals[0].version}"
         result = views.journals_list(db_request)
 
         assert result == {
             "journals": [journals[0]],
-            "query": "version:{}".format(journals[0].version),
+            "query": f"version:{journals[0].version}",
         }
 
     def test_query_term_ip(self, db_request):
@@ -134,12 +134,12 @@ class TestProjectList:
             reverse=True,
         )
 
-        db_request.GET["q"] = "ip:{}".format(ipv4)
+        db_request.GET["q"] = f"ip:{ipv4}"
         result = views.journals_list(db_request)
 
-        assert result == {"journals": journals0, "query": "ip:{}".format(ipv4)}
+        assert result == {"journals": journals0, "query": f"ip:{ipv4}"}
 
-        db_request.GET["q"] = "ip:{}".format(ipv6)
+        db_request.GET["q"] = f"ip:{ipv6}"
         result = views.journals_list(db_request)
 
-        assert result == {"journals": journals1, "query": "ip:{}".format(ipv6)}
+        assert result == {"journals": journals1, "query": f"ip:{ipv6}"}

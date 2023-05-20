@@ -14,13 +14,10 @@ from zope.interface import Interface
 
 
 class IMacaroonService(Interface):
-    def _extract_raw_macaroon(raw_macaroon):
+    def find_from_raw(raw_macaroon):
         """
-        Returns the base64-encoded macaroon component of a PyPI macaroon,
-        dropping the prefix.
-
-        Returns None if the macaroon is None, has no prefix, or has the
-        wrong prefix.
+        Returns a macaroon model from the DB from a raw macaroon, or raises
+        InvalidMacaroon if not found or for malformed macaroons.
         """
 
     def find_macaroon(macaroon_id):
@@ -35,18 +32,23 @@ class IMacaroonService(Interface):
         macaroon.
         """
 
-    def verify(raw_macaroon, context, principals, permission):
+    def verify(raw_macaroon, request, context, permission):
         """
         Returns True if the given raw (serialized) macaroon is
-        valid for the context, principals, and requested permission.
+        valid for the request, context, and requested permission.
 
-        Raises InvalidMacaroon if the macaroon is not valid.
+        Raises InvalidMacaroonError if the macaroon is not valid.
         """
 
-    def create_macaroon(location, user_id, description, caveats):
+    def create_macaroon(
+        location, description, scopes, *, user_id=None, oidc_publisher_id=None
+    ):
         """
-        Returns a new raw (serialized) macaroon. The description provided
-        is not embedded into the macaroon, only stored in the DB model.
+        Returns a tuple of a new raw (serialized) macaroon and its DB model.
+        The description provided is not embedded into the macaroon, only stored
+        in the DB model.
+
+        An associated identity (either a user or macaroon, by ID) must be specified.
         """
 
     def delete_macaroon(macaroon_id):

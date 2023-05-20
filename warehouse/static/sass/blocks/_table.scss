@@ -120,6 +120,7 @@
   box-sizing: border-box;
   box-shadow: none;
   background-color: transparent;
+  text-align: left;
 
   thead tr {
     background-color: transparent;
@@ -153,6 +154,14 @@
     border-bottom: 0;
   }
 
+  &__align-left {
+    text-align: left;
+  }
+
+  &__align-center {
+    text-align: center;
+  }
+
   &__align-right {
     text-align: right;
   }
@@ -166,7 +175,7 @@
 
   &--downloads {
     word-wrap: break-word;
-    margin-top: ($spacing-unit / 2);
+    margin-top: $half-spacing-unit;
 
     td .button span {
       display: none;
@@ -174,7 +183,7 @@
 
     @media only screen and (max-width: $tablet) {
       @include mobile-friendly-table;
-      margin-bottom: ($spacing-unit / 2);
+      margin-bottom: $half-spacing-unit;
     }
   }
 
@@ -184,13 +193,13 @@
 
     @media only screen and (max-width: $small-tablet) {
       @include mobile-friendly-table;
-      margin-bottom: ($spacing-unit / 2);
+      margin-bottom: $half-spacing-unit;
     }
   }
 
   &--files,
   &--history {
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
 
     @media only screen and (max-width: $tablet) {
       @include mobile-friendly-table;
@@ -198,7 +207,7 @@
   }
 
   &--hashes {
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
 
     td code {
       word-break: break-all;
@@ -219,10 +228,7 @@
         }
 
         &::before {
-          top: auto;
-          left: auto;
-          right: 50%;
-          bottom: -5px;
+          inset: auto, 50%, -5px, auto;
           margin-right: -5px;
           border-color: transparent;
           border-bottom-color: transparentize($black, 0.3);
@@ -232,6 +238,10 @@
   }
 
   &--collaborators {
+    td:empty::after {
+      content: "—";
+    }
+
     .table__user-details {
       display: flex;
       align-items: center;
@@ -242,10 +252,12 @@
       display: block;
       width: 50px;
       flex-shrink: 0;
+      text-align: center;
     }
 
     .table__user-text {
       margin-left: 10px;
+      text-align: left;
 
       > * {
         display: inline-block;
@@ -256,9 +268,15 @@
       }
     }
 
+    .table__change-field {
+      margin-left: -10px;
+      width: 120px;
+    }
+
     .table__change-button {
-      display: none;
+      margin-left: 10px;
       margin-top: 5px;
+      visibility: hidden;
     }
 
     @media only screen and (max-width: $small-tablet) {
@@ -272,7 +290,8 @@
         width: 100%;
 
         .table__change-field,
-        .tabel__change-button {
+        .table__change-button {
+          margin-left: 0;
           width: 100%;
         }
       }
@@ -327,6 +346,35 @@
       word-break: break-all;
       font-family: $code-font;
       font-size: 95%;
+    }
+
+    td {
+      small,
+      strong {
+        display: block;
+      }
+    }
+
+    @media only screen and (max-width: $small-tablet) {
+      @include mobile-friendly-table;
+    }
+  }
+
+  &--publisher-list {
+    margin-top: 0;
+
+    .table__monospace {
+      word-wrap: break-word;
+      word-break: break-all;
+      font-family: $code-font;
+      font-size: 95%;
+    }
+
+    td {
+      small,
+      strong {
+        display: block;
+      }
     }
 
     @media only screen and (max-width: $small-tablet) {

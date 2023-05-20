@@ -10,19 +10,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import tempfile
+
+from contextlib import contextmanager
 from itertools import product
 
 import pretend
 import pytest
 
-from google.cloud.bigquery import Row, SchemaField
+from google.cloud.bigquery import SchemaField
 from wtforms import Field, Form, StringField
 
-from warehouse.cache.origin import IOriginCache
-from warehouse.packaging.models import Description, Project
+import warehouse.packaging.tasks
+
+from warehouse.accounts.models import WebAuthn
+from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
-    compute_trending,
+    check_file_cache_tasks_outstanding,
+    compute_2fa_mandate,
+    compute_2fa_metrics,
     sync_bigquery_release_files,
+    sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
 )
@@ -35,95 +43,323 @@ from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
+    RoleFactory,
+    UserFactory,
 )
 
 
-class TestComputeTrending:
-    @pytest.mark.parametrize("with_purges", [True, False])
-    def test_computes_trending(self, db_request, with_purges):
-        projects = [
-            ProjectFactory.create(zscore=1 if not i else None) for i in range(3)
-        ]
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache(db_request, monkeypatch, cached):
+    file = FileFactory(cached=cached)
+    archive_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    cache_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
+    )
 
-        results = iter(
-            [
-                Row((projects[1].normalized_name, 2), {"project": 0, "zscore": 1}),
-                Row((projects[2].normalized_name, -1), {"project": 0, "zscore": 1}),
-            ]
-        )
-        query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
-        bigquery = pretend.stub(query=pretend.call_recorder(lambda q: query))
-
-        cacher = pretend.stub(purge=pretend.call_recorder(lambda keys: None))
-
-        def find_service(iface=None, name=None):
-            if iface is None and name == "gcloud.bigquery":
-                return bigquery
-
-            if with_purges and issubclass(iface, IOriginCache):
-                return cacher
-
-            raise LookupError
-
-        db_request.find_service = find_service
-        db_request.registry.settings = {
-            "warehouse.trending_table": "example.pypi.downloads*"
-        }
-
-        compute_trending(db_request)
-
-        assert bigquery.query.calls == [
-            pretend.call(
-                """ SELECT project,
-                   IF(
-                        STDDEV(downloads) > 0,
-                        (todays_downloads - AVG(downloads))/STDDEV(downloads),
-                        NULL
-                    ) as zscore
-            FROM (
-                SELECT project,
-                       date,
-                       downloads,
-                       FIRST_VALUE(downloads) OVER (
-                            PARTITION BY project
-                            ORDER BY DATE DESC
-                            ROWS BETWEEN UNBOUNDED PRECEDING
-                                AND UNBOUNDED FOLLOWING
-                        ) as todays_downloads
-                FROM (
-                    SELECT file.project as project,
-                           DATE(timestamp) AS date,
-                           COUNT(*) as downloads
-                    FROM `example.pypi.downloads*`
-                    WHERE _TABLE_SUFFIX BETWEEN
-                        FORMAT_DATE(
-                            "%Y%m%d",
-                            DATE_ADD(CURRENT_DATE(), INTERVAL -31 day))
-                        AND
-                        FORMAT_DATE(
-                            "%Y%m%d",
-                            DATE_ADD(CURRENT_DATE(), INTERVAL -1 day))
-                    GROUP BY file.project, date
-                )
-            )
-            GROUP BY project, todays_downloads
-            HAVING SUM(downloads) >= 5000
-            ORDER BY zscore DESC
-        """
-            )
-        ]
-        assert query.result.calls == [pretend.call()]
-        assert cacher.purge.calls == (
-            [pretend.call(["trending"])] if with_purges else []
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
         )
 
-        results = dict(db_request.db.query(Project.name, Project.zscore).all())
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
 
-        assert results == {
-            projects[0].name: None,
-            projects[1].name: 2,
-            projects[2].name: -1,
-        }
+    sync_file_to_cache(db_request, file.id)
+
+    assert file.cached
+
+    if not cached:
+        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
+        assert archive_stub.get.calls == [pretend.call(file.path)]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+        ]
+    else:
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
+
+
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
+    file = FileFactory(
+        cached=cached,
+        has_signature=True,
+        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+    )
+    archive_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    cache_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
+    )
+
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
+        )
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+
+    sync_file_to_cache(db_request, file.id)
+
+    assert file.cached
+
+    if not cached:
+        assert archive_stub.get_metadata.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert archive_stub.get.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+            pretend.call(file.pgp_path),
+        ]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.pgp_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+        ]
+    else:
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
+
+
+def test_check_file_cache_tasks_outstanding(db_request, metrics):
+    [FileFactory(cached=True) for _ in range(12)]
+    [FileFactory(cached=False) for _ in range(3)]
+
+    check_file_cache_tasks_outstanding(db_request)
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.files.not_cached", 3)
+    ]
+
+
+def test_fetch_checksums():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+        pgp_path="/path.asc",
+    )
+    storage_stub = pretend.stub(
+        get_checksum=lambda pth: f"{pth}-deadbeef",
+    )
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        "/path-deadbeef",
+        "/path.metadata-deadbeef",
+        "/path.asc-deadbeef",
+    )
+
+
+def test_fetch_checksums_none():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+        pgp_path="/path.asc",
+    )
+    storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        None,
+        None,
+        None,
+    )
+
+
+def test_reconcile_file_storages_all_good(db_request, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    all_good = FileFactory.create(release=release, cached=False)
+    all_good.md5_digest = f"{all_good.path}-deadbeef"
+    all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
+    all_good.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == []
+    assert all_good.cached is True
+
+
+def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    fixable = FileFactory.create(release=release, cached=False)
+    fixable.md5_digest = f"{fixable.path}-deadbeef"
+    fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
+    fixable.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": broke_storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:pgp"]),
+    ]
+    assert copy_file.calls == [
+        pretend.call(storage_service, broke_storage_service, fixable.path),
+        pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
+        pretend.call(storage_service, broke_storage_service, fixable.pgp_path),
+    ]
+    assert fixable.cached is True
+
+
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            "",
+            "type:dist",
+        ),
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+        (
+            ".asc",
+            "type:pgp",
+        ),
+    ],
+)
+def test_reconcile_file_storages_borked(
+    db_request, monkeypatch, metrics, borked_ext, metrics_tag
+):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    borked = FileFactory.create(release=release, cached=False)
+    borked.md5_digest = f"{borked.path}-deadbeef"
+    borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
+    borked.has_signature = True
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == borked.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.unreconciled", tags=[metrics_tag])
+    ]
+    assert borked.cached is False
+
+
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+        (
+            ".asc",
+            "type:pgp",
+        ),
+    ],
+)
+def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    just_dist = FileFactory.create(release=release, cached=False)
+    just_dist.md5_digest = f"{just_dist.path}-deadbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == just_dist.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == []
+    assert just_dist.cached is True
 
 
 def test_update_description_html(monkeypatch, db_request):
@@ -247,8 +483,31 @@ class TestUpdateBigQueryMetadata:
         )
     ]
 
+    @pytest.mark.parametrize(
+        ("release_files_table", "expected_get_table_calls"),
+        [
+            (
+                "example.pypi.distributions",
+                [pretend.call("example.pypi.distributions")],
+            ),
+            (
+                "example.pypi.distributions some.other.table",
+                [
+                    pretend.call("example.pypi.distributions"),
+                    pretend.call("some.other.table"),
+                ],
+            ),
+        ],
+    )
     @pytest.mark.parametrize(("form_factory", "bq_schema"), input_parameters)
-    def test_insert_new_row(self, db_request, form_factory, bq_schema):
+    def test_insert_new_row(
+        self,
+        db_request,
+        release_files_table,
+        expected_get_table_calls,
+        form_factory,
+        bq_schema,
+    ):
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
         release_file = FileFactory.create(
@@ -260,16 +519,10 @@ class TestUpdateBigQueryMetadata:
             if isinstance(value, StringField) or isinstance(value, self.ListField):
                 value.process(None)
 
-        @pretend.call_recorder
-        def insert_rows(table, json_rows):
-            if table != "example.pypi.distributions":
-                raise Exception("Incorrect table name")
-            return []
-
         get_table = pretend.stub(schema=bq_schema)
         bigquery = pretend.stub(
             get_table=pretend.call_recorder(lambda t: get_table),
-            insert_rows_json=insert_rows,
+            insert_rows_json=pretend.call_recorder(lambda *a, **kw: []),
         )
 
         @pretend.call_recorder
@@ -280,7 +533,7 @@ class TestUpdateBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
+            "warehouse.release_files_table": release_files_table
         }
 
         dist_metadata = {
@@ -330,10 +583,10 @@ class TestUpdateBigQueryMetadata:
         update_bigquery_release_files(task, db_request, dist_metadata)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == expected_get_table_calls
         assert bigquery.insert_rows_json.calls == [
             pretend.call(
-                table="example.pypi.distributions",
+                table=table,
                 json_rows=[
                     {
                         "metadata_version": form_factory["metadata_version"].data,
@@ -382,12 +635,47 @@ class TestUpdateBigQueryMetadata:
                     },
                 ],
             )
+            for table in release_files_table.split()
         ]
+
+    def test_var_is_none(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+        )
+        task = pretend.stub()
+        dist_metadata = pretend.stub()
+        update_bigquery_release_files(task, request, dist_metadata)
 
 
 class TestSyncBigQueryMetadata:
+    @pytest.mark.filterwarnings(
+        "ignore:This collection has been invalidated.:sqlalchemy.exc.SAWarning"
+    )
+    @pytest.mark.parametrize(
+        ("release_files_table", "expected_get_table_calls"),
+        [
+            (
+                "example.pypi.distributions",
+                [pretend.call("example.pypi.distributions")],
+            ),
+            (
+                "example.pypi.distributions some.other.table",
+                [
+                    pretend.call("example.pypi.distributions"),
+                    pretend.call("some.other.table"),
+                ],
+            ),
+        ],
+    )
     @pytest.mark.parametrize("bq_schema", [bq_schema])
-    def test_sync_rows(self, db_request, monkeypatch, bq_schema):
+    def test_sync_rows(
+        self,
+        db_request,
+        monkeypatch,
+        release_files_table,
+        expected_get_table_calls,
+        bq_schema,
+    ):
         project = ProjectFactory.create()
         description = DescriptionFactory.create()
         release = ReleaseFactory.create(project=project, description=description)
@@ -434,24 +722,20 @@ class TestSyncBigQueryMetadata:
 
         db_request.find_service = find_service
         db_request.registry.settings = {
-            "warehouse.release_files_table": "example.pypi.distributions"
+            "warehouse.release_files_table": release_files_table
         }
 
         sync_bigquery_release_files(db_request)
 
         assert db_request.find_service.calls == [pretend.call(name="gcloud.bigquery")]
-        assert bigquery.get_table.calls == [pretend.call("example.pypi.distributions")]
+        assert bigquery.get_table.calls == expected_get_table_calls
         assert bigquery.query.calls == [
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'ff%'"
-            ),
-            pretend.call(
-                "SELECT md5_digest "
-                "FROM example.pypi.distributions "
-                "WHERE md5_digest LIKE 'fe%'"
-            ),
+            pretend.call(query.format(table))
+            for table in release_files_table.split()
+            for query in [
+                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'ff%'",
+                "SELECT md5_digest FROM {} WHERE md5_digest LIKE 'fe%'",
+            ]
         ]
         assert bigquery.load_table_from_json.calls == [
             pretend.call(
@@ -496,9 +780,10 @@ class TestSyncBigQueryMetadata:
                         "blake2_256_digest": release_file.blake2_256_digest,
                     },
                 ],
-                "example.pypi.distributions",
+                table,
                 job_config=None,
             )
+            for table in release_files_table.split()
         ]
 
     @pytest.mark.parametrize("bq_schema", [bq_schema])
@@ -543,3 +828,156 @@ class TestSyncBigQueryMetadata:
             )
             for first, second in product("fedcba9876543210", repeat=2)
         ]
+
+    def test_var_is_none(self):
+        request = pretend.stub(
+            registry=pretend.stub(settings={"warehouse.release_files_table": None})
+        )
+        sync_bigquery_release_files(request)
+
+
+def test_compute_2fa_mandate(db_request, monkeypatch):
+    # A dependency in our requirements/main.txt
+    main_dependency = ProjectFactory.create(name="pyramid", pypi_mandates_2fa=False)
+    main_dependency_maintainer = UserFactory.create()
+    RoleFactory.create(user=main_dependency_maintainer, project=main_dependency)
+
+    # A dependency in our requirements/deploy.txt
+    deploy_dependency = ProjectFactory.create(name="gunicorn", pypi_mandates_2fa=False)
+    deploy_dependency_maintainer = UserFactory.create()
+    RoleFactory.create(user=deploy_dependency_maintainer, project=deploy_dependency)
+
+    # A project previously declared to be critical
+    previous_critical_project = ProjectFactory.create(
+        name="previous_critical_project", pypi_mandates_2fa=True
+    )
+    previous_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=previous_critical_project_maintainer, project=previous_critical_project
+    )
+
+    # A project that will be newly declared to be critical
+    new_critical_project = ProjectFactory.create(
+        name="new_critical_project", pypi_mandates_2fa=False
+    )
+    new_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=new_critical_project_maintainer, project=new_critical_project
+    )
+
+    # A regular non-critical project
+    non_critical_project = ProjectFactory.create(
+        name="non_critical_project", pypi_mandates_2fa=False
+    )
+    non_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(
+        user=non_critical_project_maintainer, project=non_critical_project
+    )
+
+    send_two_factor_mandate_email = pretend.call_recorder(lambda request, user: None)
+
+    monkeypatch.setattr(
+        warehouse.packaging.tasks,
+        "send_two_factor_mandate_email",
+        send_two_factor_mandate_email,
+    )
+
+    results = [
+        {"project_name": "new_critical_project"},
+        {"project_name": "previous_critical_project"},
+    ]
+    query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
+    bigquery = pretend.stub(query=pretend.call_recorder(lambda q: query))
+
+    def find_service(iface=None, name=None):
+        if iface is None and name == "gcloud.bigquery":
+            return bigquery
+
+        raise LookupError
+
+    db_request.find_service = find_service
+    db_request.registry.settings = {
+        "warehouse.downloads_table": "downloads_table",
+        "warehouse.two_factor_mandate.cohort_size": 666,
+    }
+
+    compute_2fa_mandate(db_request)
+
+    assert main_dependency.pypi_mandates_2fa
+    assert deploy_dependency.pypi_mandates_2fa
+    assert previous_critical_project.pypi_mandates_2fa
+    assert new_critical_project.pypi_mandates_2fa
+    assert not non_critical_project.pypi_mandates_2fa
+
+    assert set(send_two_factor_mandate_email.calls) == {
+        pretend.call(db_request, main_dependency_maintainer),
+        pretend.call(db_request, deploy_dependency_maintainer),
+        pretend.call(db_request, new_critical_project_maintainer),
+    }
+
+
+def test_compute_2fa_metrics(db_request, monkeypatch):
+    # A project declared to be critical
+    critical_project = ProjectFactory.create(
+        name="critical_project", pypi_mandates_2fa=True
+    )
+
+    # A critical maintainer without 2FA enabled
+    critical_project_maintainer = UserFactory.create(totp_secret=None, webauthn=[])
+    RoleFactory.create(user=critical_project_maintainer, project=critical_project)
+
+    # A critical maintainer with TOTP enabled
+    second_critical_project_maintainer = UserFactory.create(
+        totp_secret=b"foo", webauthn=[]
+    )
+    RoleFactory.create(
+        user=second_critical_project_maintainer, project=critical_project
+    )
+
+    # A critical maintainer with two WebAuthn methods enabled
+    third_critical_project_maintainer = UserFactory.create()
+    RoleFactory.create(user=third_critical_project_maintainer, project=critical_project)
+    webauthn = WebAuthn(
+        user_id=third_critical_project_maintainer.id,
+        label="wu",
+        credential_id="wu",
+        public_key="wu",
+    )
+    webauthn2 = WebAuthn(
+        user_id=third_critical_project_maintainer.id,
+        label="tang",
+        credential_id="tang",
+        public_key="tang",
+    )
+    db_request.db.add(webauthn)
+    db_request.db.add(webauthn2)
+    third_critical_project_maintainer.webauthn = [webauthn, webauthn2]
+
+    # A regular project opted in to 2FA
+    non_critical_project = ProjectFactory.create(
+        name="non_critical_project", owners_require_2fa=True
+    )
+    non_critical_project_maintainer = UserFactory.create(totp_secret=b"foo")
+    RoleFactory.create(
+        user=non_critical_project_maintainer, project=non_critical_project
+    )
+
+    gauge = pretend.call_recorder(lambda metric, value: None)
+    db_request.find_service = lambda *a, **kw: pretend.stub(gauge=gauge)
+
+    compute_2fa_metrics(db_request)
+
+    assert gauge.calls == [
+        pretend.call("warehouse.2fa.total_critical_projects", 1),
+        pretend.call("warehouse.2fa.total_critical_maintainers", 3),
+        pretend.call("warehouse.2fa.total_critical_maintainers_with_totp_enabled", 1),
+        pretend.call(
+            "warehouse.2fa.total_critical_maintainers_with_webauthn_enabled", 1
+        ),
+        pretend.call("warehouse.2fa.total_critical_maintainers_with_2fa_enabled", 2),
+        pretend.call("warehouse.2fa.total_projects_with_2fa_opt_in", 1),
+        pretend.call("warehouse.2fa.total_projects_with_two_factor_required", 2),
+        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 2),
+        pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
+        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
+    ]

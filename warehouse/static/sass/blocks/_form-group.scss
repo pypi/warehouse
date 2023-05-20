@@ -27,7 +27,7 @@
 */
 
 .form-group {
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: $half-spacing-unit;
   max-width: 350px;
 
   &__label {
@@ -63,5 +63,9 @@
     width: 350px;
     max-width: 100%;
     font-size: $small-font-size;
+
+    > code {
+      font-size: 0.7rem;
+    }
   }
 }

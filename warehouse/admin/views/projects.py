@@ -16,17 +16,19 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy import func, or_
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
 
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
+UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
 
 
 @view_config(
@@ -45,15 +47,16 @@ def project_list(request):
         raise HTTPBadRequest("'page' must be an integer.") from None
 
     projects_query = request.db.query(Project).order_by(Project.normalized_name)
+    exact_match = None
 
     if q:
-        terms = shlex.split(q)
+        projects_query = projects_query.filter(
+            func.ultranormalize_name(Project.name) == func.ultranormalize_name(q)
+        )
 
-        filters = []
-        for term in terms:
-            filters.append(Project.name.ilike(term))
-
-        projects_query = projects_query.filter(or_(*filters))
+        exact_match = (
+            request.db.query(Project).filter(Project.normalized_name == q).one_or_none()
+        )
 
     projects = SQLAlchemyORMPage(
         projects_query,
@@ -62,7 +65,7 @@ def project_list(request):
         url_maker=paginate_url_factory(request),
     )
 
-    return {"projects": projects, "query": q}
+    return {"projects": projects, "query": q, "exact_match": exact_match}
 
 
 @view_config(
@@ -121,31 +124,17 @@ def project_detail(project, request):
         )
     ]
 
-    squattees = (
-        request.db.query(Project)
-        .filter(Project.created < project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
-    squatters = (
-        request.db.query(Project)
-        .filter(Project.created > project.created)
-        .filter(func.levenshtein(Project.normalized_name, project.normalized_name) <= 2)
-        .all()
-    )
-
     return {
         "project": project,
         "releases": releases,
         "maintainers": maintainers,
         "journal": journal,
-        "squatters": squatters,
-        "squattees": squattees,
+        "oidc_publishers": project.oidc_publishers,
         "ONE_MB": ONE_MB,
         "MAX_FILESIZE": MAX_FILESIZE,
         "ONE_GB": ONE_GB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
+        "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
     }
 
 
@@ -186,7 +175,8 @@ def releases_list(project, request):
                 if field.lower() == "version":
                     filters.append(Release.version.ilike(value))
 
-        releases_query = releases_query.filter(or_(*filters))
+        filters = filters or [True]
+        releases_query = releases_query.filter(or_(False, *filters))
 
     releases = SQLAlchemyORMPage(
         releases_query,
@@ -255,7 +245,8 @@ def journals_list(project, request):
                 if field.lower() == "version":
                     filters.append(JournalEntry.version.ilike(value))
 
-        journals_query = journals_query.filter(or_(*filters))
+        filters = filters or [True]
+        journals_query = journals_query.filter(or_(False, *filters))
 
     journals = SQLAlchemyORMPage(
         journals_query,
@@ -293,6 +284,12 @@ def set_upload_limit(project, request):
 
         # The form is in MB, but the database field is in bytes.
         upload_limit *= ONE_MB
+
+        if upload_limit > UPLOAD_LIMIT_CAP:
+            raise HTTPBadRequest(
+                f"Upload limit can not be more than the overall limit of "
+                f"{UPLOAD_LIMIT_CAP / ONE_MB}MiB."
+            )
 
         if upload_limit < MAX_FILESIZE:
             raise HTTPBadRequest(
@@ -352,7 +349,7 @@ def set_total_size_limit(project, request):
 
 @view_config(
     route_name="admin.project.add_role",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -423,7 +420,7 @@ def add_role(project, request):
 
 @view_config(
     route_name="admin.project.delete_role",
-    permission="admin",
+    permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -432,7 +429,7 @@ def delete_role(project, request):
     confirm = request.POST.get("username")
     role_id = request.matchdict.get("role_id")
 
-    role = request.db.query(Role).get(role_id)
+    role = request.db.get(Role, role_id)
     if not role:
         request.session.flash("This role no longer exists", queue="error")
         raise HTTPSeeOther(
@@ -481,3 +478,20 @@ def delete_project(project, request):
     remove_project(project, request)
 
     return HTTPSeeOther(request.route_path("admin.project.list"))
+
+
+@view_config(
+    route_name="admin.project.reindex",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_methods=False,
+)
+def reindex_project(project, request):
+    request.task(_reindex_project).delay(project.normalized_name)
+    request.session.flash(
+        f"Task sent to reindex the project {project.name!r}", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )

@@ -19,6 +19,8 @@ from pyramid.threadlocal import get_current_request
 
 from warehouse.cache.http import add_vary
 
+from .extensions import FallbackInternationalizationExtension
+
 KNOWN_LOCALES = {
     identifier: Locale.parse(identifier, sep="_")
     for identifier in [
@@ -31,8 +33,10 @@ KNOWN_LOCALES = {
         "el",  # Greek
         "de",  # German
         "zh_Hans",  # Simplified Chinese
+        "zh_Hant",  # Traditional Chinese
         "ru",  # Russian
         "he",  # Hebrew
+        "eo",  # Esperanto
     ]
 }
 
@@ -58,6 +62,13 @@ class LazyString:
 
     def __str__(self):
         return self.fn(*self.args, **self.kwargs)
+
+    def __eq__(self, other):
+        return (
+            self.args == other.args and self.kwargs == other.kwargs
+            if isinstance(other, LazyString)
+            else self.args == (other,) and not self.kwargs
+        )
 
 
 def _locale(request):
@@ -168,7 +179,7 @@ def translated_view(view, info):
         return wrapped
 
 
-translated_view.options = {"has_translations"}
+translated_view.options = {"has_translations"}  # type: ignore
 
 
 def includeme(config):
@@ -180,6 +191,10 @@ def includeme(config):
     config.add_translation_dirs("warehouse:locale/")
 
     config.set_locale_negotiator(_negotiate_locale)
+
+    config.get_settings().setdefault(
+        "jinja2.i18n_extension", FallbackInternationalizationExtension
+    )
 
     # Register our i18n/l10n filters for Jinja2
     filters = config.get_settings().setdefault("jinja2.filters", {})

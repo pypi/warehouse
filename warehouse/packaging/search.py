@@ -10,28 +10,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import packaging.version
+import packaging_legacy.version
 
-from elasticsearch_dsl import Date, Document, Float, Keyword, Text, analyzer
+from elasticsearch_dsl import Date, Document, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
 
 EmailAnalyzer = analyzer(
     "email",
     tokenizer="uax_url_email",
-    filter=["standard", "lowercase", "stop", "snowball"],
+    filter=["lowercase", "stop", "snowball"],
 )
 
 NameAnalyzer = analyzer(
     "normalized_name",
     tokenizer="lowercase",
-    filter=["standard", "lowercase", "word_delimiter"],
+    filter=["lowercase", "word_delimiter"],
 )
 
 
 @doc_type
 class Project(Document):
-
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
     version = Keyword(multi=True)
@@ -49,7 +48,6 @@ class Project(Document):
     platform = Keyword()
     created = Date()
     classifiers = Keyword(multi=True)
-    zscore = Float()
 
     @classmethod
     def from_db(cls, release):
@@ -57,7 +55,9 @@ class Project(Document):
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
         obj["version"] = sorted(
-            release.all_versions, key=lambda r: packaging.version.parse(r), reverse=True
+            release.all_versions,
+            key=lambda r: packaging_legacy.version.parse(r),
+            reverse=True,
         )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
@@ -72,7 +72,6 @@ class Project(Document):
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
-        obj["zscore"] = release.zscore
 
         return obj
 

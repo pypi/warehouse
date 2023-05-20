@@ -26,7 +26,6 @@ MAX_TRANSIENT_BOUNCES = 5
 
 
 class EmailStatuses(enum.Enum):
-
     Accepted = "Accepted"
     Delivered = "Delivered"
     Bounced = "Bounced"
@@ -35,7 +34,6 @@ class EmailStatuses(enum.Enum):
 
 
 class EmailStatus:
-
     _machine = automat.MethodicalMachine()
 
     def __init__(self, email_message):
@@ -177,6 +175,15 @@ class EmailStatus:
         collector=lambda iterable: list(iterable)[-1],
     )
 
+    # This happens sometimes. The email will stay unverfied, but this allows us
+    # to record the event
+    bounced.upon(
+        deliver,
+        enter=delivered,
+        outputs=[_reset_transient_bounce],
+        collector=lambda iterable: list(iterable)[-1],
+    )
+
     # Serialization / Deserialization
 
     @_machine.serializer()
@@ -220,7 +227,6 @@ class EmailStatus:
 
 
 class EmailMessage(db.Model):
-
     __tablename__ = "ses_emails"
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -242,19 +248,17 @@ class EmailMessage(db.Model):
         backref="email",
         cascade="all, delete-orphan",
         lazy=False,
-        order_by=lambda: Event.created,
+        order_by=lambda: Event.created,  # type: ignore
     )
 
 
 class EventTypes(enum.Enum):
-
     Delivery = "Delivery"
     Bounce = "Bounce"
     Complaint = "Complaint"
 
 
 class Event(db.Model):
-
     __tablename__ = "ses_events"
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())

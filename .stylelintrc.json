@@ -1,0 +1,45 @@
+{
+  "extends": [
+    "stylelint-config-standard-scss"
+  ],
+  "plugins": [
+    "stylelint-selector-bem-pattern"
+  ],
+  "ignoreFiles": [
+    "warehouse/static/sass/tools/bourbon/**/*",
+    "warehouse/static/sass/tools/neat/**/*",
+    "warehouse/static/sass/resets/_boxsizing.scss",
+    "warehouse/static/sass/resets/_reset.scss"
+  ],
+  "reportDescriptionlessDisables": true,
+  "reportInvalidScopeDisables": true,
+  "reportNeedlessDisables": true,
+  "rules": {
+    "at-rule-empty-line-before": null,
+    "comment-empty-line-before": [
+      "always",
+      {
+        "ignoreComments": [
+          "/rtl/"
+        ]
+      }
+    ],
+    "comment-whitespace-inside": null,
+    "declaration-empty-line-before": null,
+    "font-family-no-missing-generic-family-keyword": [
+      true,
+      {
+        "ignoreFontFamilies": [
+          "/^Font Awesome.*$/"
+        ]
+      }
+    ],
+    "no-descending-specificity": null,
+    "plugin/selector-bem-pattern": {
+      "preset": "bem"
+    },
+    "selector-class-pattern": null,
+    "scss/dollar-variable-colon-space-after": "at-least-one-space",
+    "scss/no-global-function-names": null
+  }
+}

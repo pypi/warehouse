@@ -32,11 +32,9 @@ from warehouse.utils.paginate import paginate_url_factory
 )
 def get_verdicts(request):
     result = {}
-    result["check_names"] = set(
-        [name for (name,) in request.db.query(MalwareCheck.name)]
-    )
-    result["classifications"] = set([c.value for c in VerdictClassification])
-    result["confidences"] = set([c.value for c in VerdictConfidence])
+    result["check_names"] = {name for (name,) in request.db.query(MalwareCheck.name)}
+    result["classifications"] = {c.value for c in VerdictClassification}
+    result["confidences"] = {c.value for c in VerdictConfidence}
 
     validate_fields(request, result)
 
@@ -58,7 +56,7 @@ def get_verdicts(request):
     uses_session=True,
 )
 def get_verdict(request):
-    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
+    verdict = request.db.get(MalwareVerdict, request.matchdict["verdict_id"])
 
     if verdict:
         return {
@@ -78,7 +76,7 @@ def get_verdict(request):
     require_csrf=True,
 )
 def review_verdict(request):
-    verdict = request.db.query(MalwareVerdict).get(request.matchdict["verdict_id"])
+    verdict = request.db.get(MalwareVerdict, request.matchdict["verdict_id"])
 
     try:
         classification = getattr(VerdictClassification, request.POST["classification"])
@@ -104,16 +102,14 @@ def validate_fields(request, validators):
     except ValueError:
         raise HTTPBadRequest("'page' must be an integer.") from None
 
-    validators = {**validators, **{"manually_revieweds": set(["0", "1"])}}
+    validators = {**validators, **{"manually_revieweds": {"0", "1"}}}
 
     for key, possible_values in validators.items():
         # Remove the trailing 's'
         value = request.params.get(key[:-1])
-        additional_values = set([None, ""])
+        additional_values = {None, ""}
         if value not in possible_values | additional_values:
-            raise HTTPBadRequest(
-                "Invalid value for '%s': %s." % (key[:-1], value)
-            ) from None
+            raise HTTPBadRequest(f"Invalid value for '{key[:-1]}': {value}.") from None
 
 
 def generate_query(db, params):

@@ -17,7 +17,6 @@ from warehouse.utils.attrs import make_repr
 
 
 class Classifier(db.ModelBase):
-
     __tablename__ = "trove_classifiers"
     __tableargs__ = CheckConstraint(
         "classifier not ilike 'private ::%'",
@@ -28,3 +27,4 @@ class Classifier(db.ModelBase):
 
     id = Column(Integer, primary_key=True, nullable=False)
     classifier = Column(Text, unique=True)
+    ordering = Column(Integer, nullable=True)

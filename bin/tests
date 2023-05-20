@@ -7,7 +7,7 @@ set -e
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
-COMMAND_ARGS=$@
+COMMAND_ARGS="$@"
 
 # Test the postgres connection
 while [ $# -gt 0 ]; do
@@ -29,10 +29,10 @@ if [ $ATTEMPTS -eq 5 ]; then
   exit 1
 fi
 
-# Print all the followng commands
+# Print all the following commands
 set -x
 
 # Actually run our tests.
-python -m coverage run -m pytest --strict $COMMAND_ARGS
-python -m coverage html
+python -m coverage run -m pytest --strict-markers $COMMAND_ARGS
+python -m coverage html --show-contexts
 python -m coverage report -m --fail-under 100

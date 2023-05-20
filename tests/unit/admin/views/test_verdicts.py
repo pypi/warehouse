@@ -37,8 +37,8 @@ class TestListVerdicts:
         assert views.get_verdicts(db_request) == {
             "verdicts": [],
             "check_names": set(),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
     def test_some(self, db_request):
@@ -59,9 +59,9 @@ class TestListVerdicts:
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
     def test_some_with_multipage(self, db_request):
@@ -84,14 +84,12 @@ class TestListVerdicts:
 
         assert views.get_verdicts(db_request) == {
             "verdicts": verdicts,
-            "check_names": set([check1.name, check2.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check1.name, check2.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
-    @pytest.mark.parametrize(
-        "check_name", ["check0", "check1", ""],
-    )
+    @pytest.mark.parametrize("check_name", ["check0", "check1", ""])
     def test_check_name_filter(self, db_request, check_name):
         for i in range(3):
             check = MalwareCheckFactory.create(name="check%d" % i)
@@ -112,16 +110,16 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set(["check0", "check1", "check2"]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {"check0", "check1", "check2"},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         db_request.GET["check_name"] = check_name
         assert views.get_verdicts(db_request) == response
 
     @pytest.mark.parametrize(
-        "classification", ["benign", "indeterminate", "threat", ""],
+        "classification", ["benign", "indeterminate", "threat", ""]
     )
     def test_classification_filter(self, db_request, classification):
         check = MalwareCheckFactory.create()
@@ -145,15 +143,13 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
         assert views.get_verdicts(db_request) == response
 
-    @pytest.mark.parametrize(
-        "confidence", ["low", "medium", "high", ""],
-    )
+    @pytest.mark.parametrize("confidence", ["low", "medium", "high", ""])
     def test_confidence_filter(self, db_request, confidence):
         check = MalwareCheckFactory.create()
         for c in VerdictConfidence:
@@ -176,16 +172,14 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         assert views.get_verdicts(db_request) == response
 
-    @pytest.mark.parametrize(
-        "manually_reviewed", [1, 0],
-    )
+    @pytest.mark.parametrize("manually_reviewed", [1, 0])
     def test_manually_reviewed_filter(self, db_request, manually_reviewed):
         check = MalwareCheckFactory.create()
         for _ in range(5):
@@ -216,9 +210,9 @@ class TestListVerdicts:
 
         response = {
             "verdicts": verdicts,
-            "check_names": set([check.name]),
-            "classifications": set(["threat", "indeterminate", "benign"]),
-            "confidences": set(["low", "medium", "high"]),
+            "check_names": {check.name},
+            "classifications": {"threat", "indeterminate", "benign"},
+            "confidences": {"low", "medium", "high"},
         }
 
         assert views.get_verdicts(db_request) == response
@@ -268,7 +262,7 @@ class TestReviewVerdict:
     )
     def test_set_classification(self, db_request, manually_reviewed, reviewer_verdict):
         verdict = MalwareVerdictFactory.create(
-            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict,
+            manually_reviewed=manually_reviewed, reviewer_verdict=reviewer_verdict
         )
 
         db_request.matchdict["verdict_id"] = verdict.id

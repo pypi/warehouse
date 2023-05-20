@@ -27,7 +27,7 @@ down_revision = "c4a1ee483bb3"
 
 def upgrade():
     op.add_column(
-        "users", sa.Column("totp_secret", sa.Binary(length=20), nullable=True)
+        "users", sa.Column("totp_secret", sa.LargeBinary(length=20), nullable=True)
     )
     op.add_column(
         "users",

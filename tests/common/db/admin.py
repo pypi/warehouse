@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import factory.fuzzy
+import factory
 
 from warehouse.admin.flags import AdminFlag
 
@@ -21,6 +21,6 @@ class AdminFlagFactory(WarehouseFactory):
     class Meta:
         model = AdminFlag
 
-    id = factory.fuzzy.FuzzyText(length=12)
-    description = factory.fuzzy.FuzzyText(length=24)
+    id = factory.Faker("text", max_nb_chars=12)
+    description = factory.Faker("sentence")
     enabled = True

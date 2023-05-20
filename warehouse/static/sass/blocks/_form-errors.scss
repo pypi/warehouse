@@ -33,7 +33,7 @@
 */
 
 .form-errors {
-  margin: 5px 0 0 0;
+  margin: 5px 0 0;
   padding-bottom: 5px;
   list-style-type: none;
   color: $danger-color;
@@ -41,8 +41,8 @@
   li {
     max-width: 350px;
 
-    &:before {
-      font-family: "Font Awesome 5 Free";
+    &::before {
+      font-family: "Font Awesome 6 Free";
       font-weight: 900;
       content: "\f06a";
       /*rtl:ignore*/
@@ -65,8 +65,8 @@
     &--valid {
       color: $success-color;
 
-      &:before {
-        font-family: "Font Awesome 5 Free";
+      &::before {
+        font-family: "Font Awesome 6 Free";
         font-weight: 900;
         content: "\f00c"; // Check / Tick
         /*rtl:ignore*/

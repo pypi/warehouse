@@ -1,9 +1,10 @@
 ---
 name: Friction logging
 about: Use this template to log issues (good, bad and ugly) during sprints and events
+labels: ["requires triaging"]
 ---
 
-<!-- 
+<!--
   More information on friction logging: https://devrel.net/developer-experience/an-introduction-to-friction-logging
 -->
 

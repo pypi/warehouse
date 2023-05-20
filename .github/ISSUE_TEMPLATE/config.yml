@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: "(Maintainers Only) Blank issue"
+    url: https://github.com/pypi/warehouse/issues/new
+    about: For maintainers only.

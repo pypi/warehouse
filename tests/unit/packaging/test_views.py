@@ -13,6 +13,7 @@
 import pretend
 import pytest
 
+from natsort import natsorted
 from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.packaging import views
@@ -175,7 +176,7 @@ class TestReleaseDetail:
             pretend.call(name=release.project.name, version=release.version)
         ]
 
-    def test_detail_rendered(self, db_request):
+    def test_detail_render_plain(self, db_request):
         users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
         project = ProjectFactory.create()
         releases = [
@@ -183,8 +184,8 @@ class TestReleaseDetail:
                 project=project,
                 version=v,
                 description=DescriptionFactory.create(
-                    raw="unrendered description",
-                    html="rendered description",
+                    raw="plaintext description",
+                    html="",
                     content_type="text/plain",
                 ),
             )
@@ -193,8 +194,9 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
+                packagetype="sdist",
             )
             for r in releases
         ]
@@ -209,6 +211,55 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
+            "description": "<pre>plaintext description</pre>",
+            "latest_version": project.latest_version,
+            "all_versions": [
+                (r.version, r.created, r.is_prerelease, r.yanked)
+                for r in reversed(releases)
+            ],
+            "maintainers": sorted(users, key=lambda u: u.username.lower()),
+            "license": None,
+        }
+
+    def test_detail_rendered(self, db_request):
+        users = [UserFactory.create(), UserFactory.create(), UserFactory.create()]
+        project = ProjectFactory.create()
+        releases = [
+            ReleaseFactory.create(
+                project=project,
+                version=v,
+                description=DescriptionFactory.create(
+                    raw="unrendered description",
+                    html="rendered description",
+                    content_type="text/html",
+                ),
+            )
+            for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ]
+        files = [
+            FileFactory.create(
+                release=r,
+                filename=f"{project.name}-{r.version}.tar.gz",
+                python_version="source",
+                packagetype="sdist",
+            )
+            for r in releases
+        ]
+
+        # Create a role for each user
+        for user in users:
+            RoleFactory.create(user=user, project=project)
+
+        result = views.release_detail(releases[1], db_request)
+
+        assert result == {
+            "project": project,
+            "release": releases[1],
+            "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
@@ -227,7 +278,7 @@ class TestReleaseDetail:
                 project=project,
                 version=v,
                 description=DescriptionFactory.create(
-                    raw="unrendered description", html="", content_type="text/plain"
+                    raw="unrendered description", html="", content_type="text/html"
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
@@ -235,8 +286,9 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
+                packagetype="sdist",
             )
             for r in releases
         ]
@@ -257,6 +309,8 @@ class TestReleaseDetail:
             "project": project,
             "release": releases[1],
             "files": [files[1]],
+            "sdists": [files[1]],
+            "bdists": [],
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
@@ -268,8 +322,28 @@ class TestReleaseDetail:
         }
 
         assert render_description.calls == [
-            pretend.call("unrendered description", "text/plain")
+            pretend.call("unrendered description", "text/html")
         ]
+
+    def test_detail_renders_files_natural_sort(self, db_request):
+        """Tests that when a release has multiple versions of Python,
+        the sort order is most recent Python version first."""
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="3.0")
+        files = [
+            FileFactory.create(
+                release=release,
+                filename=f"{project.name}-{release.version}-{py_ver}.whl",
+                python_version="py2.py3",
+                packagetype="bdist_wheel",
+            )
+            for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
+        ]
+        sorted_files = natsorted(files, reverse=True, key=lambda f: f.filename)
+
+        result = views.release_detail(release, db_request)
+
+        assert result["files"] == sorted_files
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
@@ -325,6 +399,20 @@ class TestReleaseDetail:
         result = views.release_detail(release, db_request)
 
         assert result["license"] == "BSD License, MIT License"
+
+    def test_long_singleline_license(self, db_request):
+        """When license metadata contains no newlines, it gets truncated"""
+        release = ReleaseFactory.create(
+            license="Multiline License is very long, so long that it is far longer than"
+            " 100 characters, it's really so long, how terrible"
+        )
+
+        result = views.release_detail(release, db_request)
+
+        assert result["license"] == (
+            "Multiline License is very long, so long that it is far longer than 100 "
+            "characters, it's really so lo..."
+        )
 
 
 class TestEditProjectButton:
