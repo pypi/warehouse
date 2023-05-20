@@ -11,12 +11,12 @@
 # limitations under the License.
 
 import json
-import humanize
 
 from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
+import humanize
 import markupsafe
 import wtforms
 import wtforms.fields
@@ -168,9 +168,10 @@ class PasswordMixin:
                     _(
                         "There have been too many unsuccessful login attempts. "
                         "You have been locked out for ${time}. "
-                        "Please try again later.", mapping={
-                            "time":
-                                humanize.naturaldelta(err.resets_in.total_seconds())}
+                        "Please try again later.",
+                        mapping={
+                            "time": humanize.naturaldelta(err.resets_in.total_seconds())
+                        },
                     )
                 ) from None
 
