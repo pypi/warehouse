@@ -19,10 +19,12 @@ The related API fields such as `has_sig` have all been hardcoded to always be
 
 Historically PyPI has supported uploading PGP signatures alongside the release
 artifacts in an attempt to provide some level of package signing. However, the
-approach used long standing, [documented issues](https://caremad.io/posts/2013/07/packaging-signing-not-holy-grail/) which had lead us to demphasize the support
+approach used long standing,
+[documented issues](https://caremad.io/posts/2013/07/packaging-signing-not-holy-grail/)
+which had lead us to demphasize the support
 for PGP signatures over time by removing them from the UI.
 
-PyPI did still support uploading these signatures in the hope that there
+PyPI continued to support uploading these signatures in the hope that there
 might be some systems out there that found them useful.
 
 However, a
@@ -47,7 +49,7 @@ PyPI.
 
 ---
 
-_Donald Stufft is a maintainer of the Python Package Index since 2013._
+_Donald Stufft is a PyPI administrator and maintainer of the Python Package Index since 2013._
 
 
 [^1]: For now, but they may be removed in the future.
