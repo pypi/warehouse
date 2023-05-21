@@ -33,12 +33,13 @@ shows us that the current support for PGP signatures is not providing useful.
 
 In the last 3 years, about 50k signatures had been uploaded to PyPI by 1069
 unique keys. Of those 1069 unique keys, about 30% of them were not discoverable
-on major public keyservers, making it difficult or impossible to actually verify
-those signatures. Of the remaining 71%, nearly half of them were unable to be
-verified at the time of the audit (2023-05-19) [^2].
+on major public keyservers, making it difficult or impossible to meaningfully
+verify those signatures. Of the remaining 71%, nearly half of them were unable
+to be meaningfully verified at the time of the audit (2023-05-19) [^2].
 
 In other words, out of all of the unique keys that had uploaded signatures to
-PyPI, only 36% of them were capable of being verified at the time of audit.
+PyPI, only 36% of them were capable of being meaningfully verified [^3] at the
+time of audit.
 
 Given all of this, the continued support of uploading PGP signatures to PyPI is
 no longer defenfsible. While it doesn't represent a *massive* operational burden
@@ -56,3 +57,6 @@ _Donald Stufft is a PyPI administrator and maintainer of the Python Package Inde
 [^2]: These could bebecause the original signature was made incorrectly and
       never had a binding signature to a associated key identity, or because
       the signature that was present but it had since expired.
+[^3]: We use meaningfully verified to mean that the signature was valid and the
+      key that made it was not expired and had binding identify information that
+      could tell us if this key was the correct key.
