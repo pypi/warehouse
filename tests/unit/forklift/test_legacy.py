@@ -1653,44 +1653,6 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == "400 Only one sdist may be uploaded per release."
 
-    @pytest.mark.parametrize("sig", [b"lol nope"])
-    def test_upload_fails_with_invalid_signature(self, pyramid_config, db_request, sig):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc", file=io.BytesIO(sig)
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 PGP signature isn't ASCII armored."
-
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2177,44 +2139,6 @@ class TestFileUpload:
                 db_request.remote_addr,
             ),
         ]
-
-    def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc",
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Signature too large."
 
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request

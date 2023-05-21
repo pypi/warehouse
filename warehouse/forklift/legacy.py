@@ -885,11 +885,10 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
-    # FieldStorage, however.
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content", "gpg_signature"}:
+    for field in set(request.POST) - {"content"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")

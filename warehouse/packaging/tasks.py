@@ -481,6 +481,7 @@ def sync_bigquery_release_files(request):
                         row_data[sch.name] = list(field_data)
                 else:
                     row_data[sch.name] = field_data
+            row_data["has_signature"] = False
             return row_data
 
         for first, second in product("fedcba9876543210", repeat=2):

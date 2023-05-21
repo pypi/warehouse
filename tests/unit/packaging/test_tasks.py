@@ -165,7 +165,6 @@ def test_fetch_checksums():
     assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
         "/path-deadbeef",
         "/path.metadata-deadbeef",
-        "/path.asc-deadbeef",
     )
 
 
@@ -177,7 +176,6 @@ def test_fetch_checksums_none():
     storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
 
     assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        None,
         None,
         None,
     )
