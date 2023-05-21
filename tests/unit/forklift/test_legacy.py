@@ -1346,19 +1346,23 @@ class TestFileUpload:
         assert "\x00" not in db_request.POST["summary"]
 
     @pytest.mark.parametrize(
-        ("has_signature", "digests"),
+        ("digests",),
         [
-            (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (True, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
-            (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (False, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
             (
-                True,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
             (
-                False,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
         ],
     )
@@ -1368,7 +1372,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        has_signature,
         digests,
         metrics,
     ):
@@ -1407,24 +1410,9 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
         db_request.POST.update(digests)
 
-        if has_signature:
-            gpg_signature = FieldStorage()
-            gpg_signature.filename = filename + ".asc"
-            gpg_signature.file = io.BytesIO(
-                b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-            )
-            db_request.POST["gpg_signature"] = gpg_signature
-            assert isinstance(db_request.POST["gpg_signature"], FieldStorage)
-
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
-            if file_path.endswith(".asc"):
-                expected = (
-                    b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-                )
-            else:
-                expected = _TAR_GZ_PKG_TESTDATA
-
+            expected = _TAR_GZ_PKG_TESTDATA
             with open(file_path, "rb") as fp:
                 assert fp.read() == expected
 
@@ -1446,7 +1434,7 @@ class TestFileUpload:
             pretend.call(IMetricsService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
-        assert len(storage_service.store.calls) == 2 if has_signature else 1
+        assert len(storage_service.store.calls) == 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join(
                 [
@@ -1464,25 +1452,6 @@ class TestFileUpload:
                 "python-version": "source",
             },
         )
-
-        if has_signature:
-            assert storage_service.store.calls[1] == pretend.call(
-                "/".join(
-                    [
-                        _TAR_GZ_PKG_STORAGE_HASH[:2],
-                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
-                        _TAR_GZ_PKG_STORAGE_HASH[4:],
-                        filename + ".asc",
-                    ]
-                ),
-                mock.ANY,
-                meta={
-                    "project": project.normalized_name,
-                    "version": release.version,
-                    "package-type": "sdist",
-                    "python-version": "source",
-                },
-            )
 
         # Ensure that a File object has been created.
         uploaded_file = (

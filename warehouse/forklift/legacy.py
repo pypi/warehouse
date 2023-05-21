@@ -1357,28 +1357,6 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        # Also buffer the entire signature file to disk.
-        if "gpg_signature" in request.POST:
-            has_signature = True
-            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
-                signature_size = 0
-                for chunk in iter(
-                    lambda: request.POST["gpg_signature"].file.read(8096), b""
-                ):
-                    signature_size += len(chunk)
-                    if signature_size > MAX_SIGSIZE:
-                        raise _exc_with_message(HTTPBadRequest, "Signature too large.")
-                    fp.write(chunk)
-
-            # Check whether signature is ASCII armored
-            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
-                if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
-                    raise _exc_with_message(
-                        HTTPBadRequest, "PGP signature isn't ASCII armored."
-                    )
-        else:
-            has_signature = False
-
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1392,7 +1370,6 @@ def file_upload(request):
             packagetype=form.filetype.data,
             comment_text=form.comment.data,
             size=file_size,
-            has_signature=bool(has_signature),
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
@@ -1461,17 +1438,7 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-        if has_signature:
-            storage.store(
-                file_.pgp_path,
-                os.path.join(tmpdir, filename + ".asc"),
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
+
         if metadata_file_hashes:
             storage.store(
                 file_.metadata_path,
@@ -1521,7 +1488,7 @@ def file_upload(request):
         "packagetype": file_data.packagetype,
         "comment_text": file_data.comment_text,
         "size": file_data.size,
-        "has_signature": file_data.has_signature,
+        "has_signature": False,
         "md5_digest": file_data.md5_digest,
         "sha256_digest": file_data.sha256_digest,
         "blake2_256_digest": file_data.blake2_256_digest,

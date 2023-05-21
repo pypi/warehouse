@@ -195,7 +195,6 @@ class TestJSONProject:
                 filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
-                has_signature=True,
             )
             for r in releases[1:]
         ]
@@ -503,7 +502,6 @@ class TestJSONRelease:
                 filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
-                has_signature=True,
             )
             for r in releases[1:]
         ]
@@ -595,7 +593,6 @@ class TestJSONRelease:
             filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
             size=200,
-            has_signature=True,
         )
 
         user = UserFactory.create()
