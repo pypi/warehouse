@@ -366,7 +366,7 @@ def test_dbml_command(monkeypatch, cli):
 EXPECTED_DBML = """Table _clan {
   id varchar [pk, not null, default: `gen_random_uuid()`]
   name text [unique, not null]
-  fetched text [default: `FetchedValue()`, note: "fetched value"]
+  fetched text [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
   Note: "various clans"

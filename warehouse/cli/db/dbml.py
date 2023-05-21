@@ -13,13 +13,11 @@
 import json
 
 from collections.abc import Iterator
-from pathlib import Path
 from typing import Literal, NotRequired, TypedDict
 
 import click
 
 from citext import CIText
-from rich.console import Console
 from sqlalchemy.dialects.postgresql.array import ARRAY
 from sqlalchemy.dialects.postgresql.base import INET, TIMESTAMP, UUID
 from sqlalchemy.dialects.postgresql.json import JSONB
@@ -100,49 +98,54 @@ class TableInfo(TypedDict):
     comment: NotRequired[str]
 
 
-def generate_dbml_file(tables: Iterator[Table], _output: Path | None) -> None:
-    file = _output.open("w") if _output else None
-    console = Console(file=file)
+def generate_dbml_file(tables: Iterator[Table], _output: str | None) -> None:
+    file = click.open_file(_output, "w") if _output else click.open_file("-", "w")
 
     tables_info = {}
     for table in tables:
         try:
             tables_info[table.name] = extract_table_info(table)
         except TypeError as exc:
-            console.print(
-                f"{exc.args[0]} is not supported.",
-                "Please fill an issue on https://github.com/Kludex/dbml.",
+            click.echo(
+                (
+                    f"{exc.args[0]} is not supported."
+                    "Please fill an issue on https://github.com/Kludex/dbml."
+                ),
+                file=file,
             )
             raise SystemExit(1)
 
     for num, (table_name, info) in enumerate(tables_info.items()):
-        console.print("[blue]Table", f"{table_name}", "[bold white]{")
+        click.echo(
+            click.style("Table", fg="blue")
+            + f" {table_name} "
+            + click.style("{", fg="white", bold=True),
+            file=file,
+        )
         for name, field in info["fields"].items():
             attrs = get_attrs_from_field(field)
-            output = [f"  {name}", f'[orange4]{field["type"]}']
+            output = f"  {name} " + click.style(field["type"], fg="yellow")
             if attrs:
-                output.append(attrs)
-            console.print(*output)
+                output += attrs
+            click.echo(output, file=file)
         if info.get("comment"):
-            console.print(f"  Note: {json.dumps(info['comment'])}")
-        console.print("[bold white]}", end="\n")
+            click.echo(f"  Note: {json.dumps(info['comment'])}", file=file)
+        click.echo(click.style("}", fg="white", bold=True), file=file)
 
         if info["relationships"]:
-            console.print()
+            click.echo(file=file)
 
         for relation in info["relationships"]:
             # One to Many
-            console.print(
-                "[blue]Ref:",
-                f"{relation['table_from']}.{relation['table_from_field']}",
-                "[green]>",
-                f"{relation['table_to']}.{relation['table_to_field']}",
+            click.echo(
+                click.style("Ref:", fg="blue")
+                + f" {relation['table_from']}.{relation['table_from_field']} "
+                + click.style(">", fg="green")
+                + f" {relation['table_to']}.{relation['table_to_field']}",
+                file=file,
             )
         if num < len(tables_info) - 1:
-            console.print()
-
-    if file:
-        file.close()
+            click.echo(file=file)
 
 
 def extract_table_info(table: Table) -> TableInfo:
@@ -190,18 +193,32 @@ def extract_table_info(table: Table) -> TableInfo:
 def get_attrs_from_field(field: FieldInfo) -> str:
     attrs = []
     if field["pk"]:
-        attrs.append("pk")
+        attrs.append(click.style("pk", fg="blue"))
     if field["unique"]:
-        attrs.append("unique")
+        attrs.append(click.style("unique", fg="blue"))
     if field["nullable"] is False:
-        attrs.append("not null")
+        attrs.append(click.style("not null", fg="blue"))
     if field["default"] is not None:
-        attrs.append(f"default: `{field['default']}`")
+        attrs.append(
+            click.style("default", fg="blue")
+            + ": "
+            + click.style(f"`{field['default']}`", fg="yellow")
+        )
     if field["comment"] is not None:
-        attrs.append(f"note: {json.dumps(field['comment'])}")
+        attrs.append(
+            click.style("Note", fg="blue")
+            + ": "
+            + click.style(f"{json.dumps(field['comment'])}", fg="magenta")
+        )
     if not attrs:
         return ""
-    return "\\[{}]".format(", ".join(attrs))
+    _str = " ["
+    for i, attr in enumerate(attrs):
+        if i != 0:
+            _str += ", "
+        _str += attr
+    _str += "]"
+    return _str
 
 
 ###############################################################################
@@ -211,5 +228,6 @@ def get_attrs_from_field(field: FieldInfo) -> str:
 
 @db.command()
 @click.pass_obj
-def dbml(config, **kwargs):
-    generate_dbml_file(warehouse.db.ModelBase.metadata.tables.values(), None)
+@click.option("--output-file")
+def dbml(config, output_file, **kwargs):
+    generate_dbml_file(warehouse.db.ModelBase.metadata.tables.values(), output_file)
