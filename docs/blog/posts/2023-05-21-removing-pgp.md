@@ -1,0 +1,56 @@
+---
+title: Removing PGP from PyPI.
+description: PyPI has removed support for PGP signatures.
+author: Donald Stufft
+publish_date: 2023-05-21
+date: "2023-05-21 00:00"
+tags:
+  - security
+---
+
+PyPI has removed support for uploading PGP signatures.
+
+If you are someone who is currently uploading signatures, your uploads will
+continue to succeed, but any PGP signatures will be silently ignored. If you are
+someone who is currently downloading PGP signatures, existing signatures
+*SHOULD* continue to work [^1], but no new signatures will be made available.
+The related API fields such as `has_sig` have all been hardcoded to always be
+`False`.
+
+Historically PyPI has supported uploading PGP signatures alongside the release
+artifacts in an attempt to provide some level of package signing. However, the
+approach used long standing, [documented issues](https://caremad.io/posts/2013/07/packaging-signing-not-holy-grail/) which had lead us to demphasize the support
+for PGP signatures over time by removing them from the UI.
+
+PyPI did still support uploading these signatures in the hope that there
+might be some systems out there that found them useful.
+
+However, a
+[recent look at the signatures on PyPI ](https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless)
+shows us that the current support for PGP signatures is not providing useful.
+
+In the last 3 years, about 50k signatures had been uploaded to PyPI by 1069
+unique keys. Of those 1069 unique keys, about 30% of them were not discoverable
+on major public keyservers, making it difficult or impossible to actually verify
+those signatures. Of the remaining 71%, nearly half of them were unable to be
+verified at the time of the audit (2023-05-19) [^2].
+
+In other words, out of all of the unique keys that had uploaded signatures to
+PyPI, only 36% of them were capable of being verified at the time of audit.
+
+Given all of this, the continued support of uploading PGP signatures to PyPI is
+no longer defenfsible. While it doesn't represent a *massive* operational burden
+to continue to support it, it does require any new features that touch the
+storage of files to be made aware of and capable of handling these PGP
+signatures, which is a non zero cost on the maintainers and contributors of
+PyPI.
+
+---
+
+_Donald Stufft is a maintainer of the Python Package Index since 2013._
+
+
+[^1]: For now, but they may be removed in the future.
+[^2]: These could bebecause the original signature was made incorrectly and
+      never had a binding signature to a associated key identity, or because
+      the signature that was present but it had since expired.
