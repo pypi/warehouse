@@ -469,7 +469,7 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
-    filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
+    filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
