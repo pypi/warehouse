@@ -26,27 +26,27 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Sprog opdateret"
 
-#: warehouse/accounts/forms.py:46
+#: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
 msgstr "Adgangskoden er ugyldig. Prøv igen."
 
-#: warehouse/accounts/forms.py:57
+#: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
 msgstr "Ingen bruger fundet med dette brugernavn"
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kode skal være mindst ${totp_length} tal."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid "Choose a username with 50 characters or less."
 msgstr "Vælg et brugernavn på maksimum 50 tegn."
 
-#: warehouse/accounts/forms.py:106
+#: warehouse/accounts/forms.py:107
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -56,76 +56,90 @@ msgstr ""
 "punktummer, bindestreger og understreger, og skal også starte og slutte med "
 "et bogstav eller tal. Vælg et andet brugernavn."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "Dette brugernavn bruges allerede af en anden konto. Vælg et andet brugernavn."
 
-#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
-#: warehouse/accounts/forms.py:193
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Styrke af adgangskode:"
 
-#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
-msgid "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/forms.py:173
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for ${time}. Please try again later."
 msgstr "Der har været for mange mislykkede loginforsøg. Prøv igen senere."
 
-#: warehouse/accounts/forms.py:196
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "Dine adgangskoder stemmer ikke overens. Prøv igen."
 
-#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:231 warehouse/accounts/forms.py:242
 msgid "The email address isn't valid. Try again."
 msgstr "E-mail-adressen er ugyldig. Prøv igen."
 
-#: warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:250
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Du kan ikke bruge en e-mail-adresse fra dette domæne. Brug en anden e-mail."
 
-#: warehouse/accounts/forms.py:256
+#: warehouse/accounts/forms.py:261
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "Denne e-mail-adresse bruges allerede af denne konto. Brug en anden e-mail."
 
-#: warehouse/accounts/forms.py:263
+#: warehouse/accounts/forms.py:268
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "Denne e-mail-adresse bruges allerede af en anden konto. Brug en anden e-mail."
 
-#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:289 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Navnet er for langt. Vælg et navn på 100 tegn eller mindre"
 
-#: warehouse/accounts/forms.py:373
+#: warehouse/accounts/forms.py:378
 msgid "Invalid TOTP code."
 msgstr "Invalid TOTP-kode"
 
-#: warehouse/accounts/forms.py:390
+#: warehouse/accounts/forms.py:395
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ugyldig WebAuthn assertion: Forkert payload"
 
-#: warehouse/accounts/forms.py:450
+#: warehouse/accounts/forms.py:455
 msgid "Invalid recovery code."
 msgstr "Ugyldig gendannelseskode."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:464
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:478
+#: warehouse/accounts/forms.py:483
 msgid "No user found with that username or email"
 msgstr "Ingen brugere fundet med dette brugernavn eller e-mail"
 
-#: warehouse/accounts/views.py:111
+#: warehouse/accounts/views.py:99
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for {}. Please try again later."
+msgstr "Der har været for mange mislykkede loginforsøg. Prøv igen senere."
+
+#: warehouse/accounts/views.py:116
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -133,7 +147,7 @@ msgstr ""
 "For mange e-mailadresser er blevet føjet til denne konto uden at bekræfte "
 "dem. Tjek din indbakke, og følg bekræftelseslinkene. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:128
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -146,25 +160,25 @@ msgstr ""
 "For mange e-mailadresser er blevet føjet til denne konto uden at bekræfte "
 "dem. Tjek din indbakke, og følg bekræftelseslinkene. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:327
-#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:356
-#: warehouse/accounts/views.py:358 warehouse/accounts/views.py:424
+#: warehouse/accounts/views.py:268 warehouse/accounts/views.py:332
+#: warehouse/accounts/views.py:334 warehouse/accounts/views.py:361
+#: warehouse/accounts/views.py:363 warehouse/accounts/views.py:429
 msgid "Invalid or expired two factor login."
 msgstr "Ugyldigt eller udløbet to-faktor login."
 
-#: warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:326
 msgid "Already authenticated"
 msgstr "Allerede godkendt"
 
-#: warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:405
 msgid "Successful WebAuthn assertion"
 msgstr "Succesfuld WebAuthn assertion"
 
-#: warehouse/accounts/views.py:454 warehouse/manage/views/__init__.py:805
+#: warehouse/accounts/views.py:459 warehouse/manage/views/__init__.py:805
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Gendannelseskode accepteret. Koden kan ikke bruges igen."
 
-#: warehouse/accounts/views.py:540
+#: warehouse/accounts/views.py:545
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -172,33 +186,33 @@ msgstr ""
 "Registrering af nye brugere er midlertidigt deaktiveret. Se https://pypi.org/"
 "help#admin-intervention for flere detaljer."
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:674
 msgid "Expired token: request a new password reset link"
 msgstr "Udløbet token: anmod om et nyt link til nulstilling af adgangskode"
 
-#: warehouse/accounts/views.py:671
+#: warehouse/accounts/views.py:676
 msgid "Invalid token: request a new password reset link"
 msgstr "Ugyldig token: anmod om et nyt link til nulstilling af adgangskode"
 
-#: warehouse/accounts/views.py:673 warehouse/accounts/views.py:774
-#: warehouse/accounts/views.py:873 warehouse/accounts/views.py:1042
+#: warehouse/accounts/views.py:678 warehouse/accounts/views.py:779
+#: warehouse/accounts/views.py:878 warehouse/accounts/views.py:1047
 msgid "Invalid token: no token supplied"
 msgstr "Ugyldig token: ingen token blev givet"
 
-#: warehouse/accounts/views.py:677
+#: warehouse/accounts/views.py:682
 msgid "Invalid token: not a password reset token"
 msgstr "Ugyldig token: Ikke en token til gendannelse af adgangskode"
 
-#: warehouse/accounts/views.py:682
+#: warehouse/accounts/views.py:687
 msgid "Invalid token: user not found"
 msgstr "Ugyldig token: brugeren blev ikke fundet"
 
-#: warehouse/accounts/views.py:693
+#: warehouse/accounts/views.py:698
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Ugyldig token: Brugeren har logget ind siden denne token blev anmodet om"
 
-#: warehouse/accounts/views.py:711
+#: warehouse/accounts/views.py:716
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -206,118 +220,118 @@ msgstr ""
 "Ugyldig token: adgangskoden er allerede blevet ændret, siden denne token "
 "blev anmodet om"
 
-#: warehouse/accounts/views.py:742
+#: warehouse/accounts/views.py:747
 msgid "You have reset your password"
 msgstr "Du har nulstillet din adgangskode"
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new email verification link"
 msgstr "Udløbet token: anmod om et nyt link til bekræftelse af e-mail"
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new email verification link"
 msgstr "Ugyldig token: anmod om et nyt e-mail-bekræftelseslink"
 
-#: warehouse/accounts/views.py:778
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not an email verification token"
 msgstr "Ugyldig token: ikke en e-mail-bekræftelsestoken"
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:792
 msgid "Email not found"
 msgstr "E-mail ikke fundet"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:795
 msgid "Email already verified"
 msgstr "E-mail allerede bekræftet"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:812
 msgid "You can now set this email as your primary address"
 msgstr "Du kan nu sætte denne e-mail som din primære adresse"
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:816
 msgid "This is your primary address"
 msgstr "Dette er din primære adresse"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:821
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mail adresse ${email_address} verificeret. ${confirm_message}."
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:874
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Udløbe token: anmod om en ny projektrolleinvitation"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:876
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Ugyldig token: anmod om en ny projektrolleinvitation"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Ugyldig token: ikke en token til invitation til samarbejde"
 
-#: warehouse/accounts/views.py:881
+#: warehouse/accounts/views.py:886
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Rolleinvitationen er ikke gyldig."
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:895
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Rolleinvitationen findes ikke længere."
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:946
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invitationen til '${project_name}' er blevet afvist."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1009
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Du er nu ${role} for '${project_name}' projektet."
 
-#: warehouse/accounts/views.py:1038
+#: warehouse/accounts/views.py:1043
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Udløbe token: anmod om en ny projektrolleinvitation"
 
-#: warehouse/accounts/views.py:1040
+#: warehouse/accounts/views.py:1045
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Ugyldig token: anmod om en ny projektrolleinvitation"
 
-#: warehouse/accounts/views.py:1046
+#: warehouse/accounts/views.py:1051
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ugyldig token: ikke en token til invitation til samarbejde"
 
-#: warehouse/accounts/views.py:1050
+#: warehouse/accounts/views.py:1055
 msgid "Role invitation is not valid."
 msgstr "Rolleinvitationen er ikke gyldig."
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1070
 msgid "Role invitation no longer exists."
 msgstr "Rolleinvitationen findes ikke længere."
 
-#: warehouse/accounts/views.py:1096
+#: warehouse/accounts/views.py:1101
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invitationen til '${project_name}' er blevet afvist."
 
-#: warehouse/accounts/views.py:1163
+#: warehouse/accounts/views.py:1168
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Du er nu ${role} for '${project_name}' projektet."
 
-#: warehouse/accounts/views.py:1380 warehouse/accounts/views.py:1400
-#: warehouse/accounts/views.py:1534 warehouse/manage/views/__init__.py:1208
+#: warehouse/accounts/views.py:1385 warehouse/accounts/views.py:1405
+#: warehouse/accounts/views.py:1539 warehouse/manage/views/__init__.py:1208
 #: warehouse/manage/views/__init__.py:1227
 #, fuzzy
 #| msgid ""
@@ -330,17 +344,17 @@ msgstr ""
 "Registrering af nye brugere er midlertidigt deaktiveret. Se https://pypi.org/"
 "help#admin-intervention for flere detaljer."
 
-#: warehouse/accounts/views.py:1414
+#: warehouse/accounts/views.py:1419
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1427
+#: warehouse/accounts/views.py:1432
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1443 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1448 warehouse/manage/views/__init__.py:1246
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -349,26 +363,26 @@ msgid ""
 "again later."
 msgstr "Der har været for mange mislykkede loginforsøg. Prøv igen senere."
 
-#: warehouse/accounts/views.py:1457 warehouse/manage/views/__init__.py:1260
+#: warehouse/accounts/views.py:1462 warehouse/manage/views/__init__.py:1260
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1476
+#: warehouse/accounts/views.py:1481
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1511
+#: warehouse/accounts/views.py:1516
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1561
-#: warehouse/accounts/views.py:1568
+#: warehouse/accounts/views.py:1553 warehouse/accounts/views.py:1566
+#: warehouse/accounts/views.py:1573
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1574
+#: warehouse/accounts/views.py:1579
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -2544,18 +2558,34 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:31
 #: warehouse/templates/email/trusted-publisher-removed/body.html:29
-msgid "Publisher specification"
+#: warehouse/templates/manage/account/publishing.html:77
+#: warehouse/templates/manage/project/publishing.html:46
+msgid "Workflow"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
+#: warehouse/templates/email/trusted-publisher-added/body.html:32
+#: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:45
+msgid "Repository"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Environment"
+msgstr "Ugyldig gendannelseskode."
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:40
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:43
-#: warehouse/templates/email/trusted-publisher-removed/body.html:41
+#: warehouse/templates/email/trusted-publisher-added/body.html:47
+#: warehouse/templates/email/trusted-publisher-removed/body.html:45
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email <a "
@@ -2570,7 +2600,7 @@ msgid ""
 "a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:38
 msgid ""
 "If you did not make this change and you think it was made in error, you can "
 "check the \"Security history\" tab on the project's page."
@@ -4210,16 +4240,6 @@ msgstr "Populære projekter"
 #: warehouse/templates/manage/account/publishing.html:75
 #: warehouse/templates/manage/project/publishing.html:44
 msgid "Publisher"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:76
-#: warehouse/templates/manage/project/publishing.html:45
-msgid "Repository"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:46
-msgid "Workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:78

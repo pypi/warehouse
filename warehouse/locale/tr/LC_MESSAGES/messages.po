@@ -46,27 +46,27 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Yerel ayarlarlar güncellendi"
 
-#: warehouse/accounts/forms.py:46
+#: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
 msgstr "Geçersiz parola. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:57
+#: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
 msgstr "Bu kullanıcı adıyla kayıtlı bir kullanıcı bulunamadı"
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kodu ${totp_length} rakamdan oluşmalıdır."
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Kurtarma Kodları ${recovery_code_length} karakterlerinden oluşmalıdır."
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid "Choose a username with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:106
+#: warehouse/accounts/forms.py:107
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -76,7 +76,7 @@ msgstr ""
 "çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile başlayıp "
 "bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -84,30 +84,35 @@ msgstr ""
 "Bu kullanıcı adı başka bir hesap tarafından kullanılıyor. Başka bir "
 "kullanıcı adı seçin."
 
-#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
-#: warehouse/accounts/forms.py:193
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 msgid "Password too long."
 msgstr "Parola çok uzun."
 
-#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
-msgid "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/forms.py:173
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for ${time}. Please try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
-#: warehouse/accounts/forms.py:196
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "Parolalarınız eşleşmiyor. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:231 warehouse/accounts/forms.py:242
 msgid "The email address isn't valid. Try again."
 msgstr "E-posta adresi geçerli değil. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:250
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:256
+#: warehouse/accounts/forms.py:261
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -115,7 +120,7 @@ msgstr ""
 "Bu e-posta adresi zaten bu hesap tarafından kullanılıyor. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:263
+#: warehouse/accounts/forms.py:268
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -123,32 +128,41 @@ msgstr ""
 "Bu e-posta adresi farklı bir hesap tarafından kullanılıyor. Başka bir e-"
 "posta kullanın."
 
-#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:289 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "İsim çok uzun. En fazla 100 karakter olacak şekilde başka bir isim seçin."
 
-#: warehouse/accounts/forms.py:373
+#: warehouse/accounts/forms.py:378
 msgid "Invalid TOTP code."
 msgstr "Geçersiz TOTP kodu."
 
-#: warehouse/accounts/forms.py:390
+#: warehouse/accounts/forms.py:395
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
-#: warehouse/accounts/forms.py:450
+#: warehouse/accounts/forms.py:455
 msgid "Invalid recovery code."
 msgstr "Geçersiz kurtarma kodu."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:464
 msgid "Recovery code has been previously used."
 msgstr "Kurtarma kodu daha önceden kullanıldı."
 
-#: warehouse/accounts/forms.py:478
+#: warehouse/accounts/forms.py:483
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:111
+#: warehouse/accounts/views.py:99
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for {}. Please try again later."
+msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
+
+#: warehouse/accounts/views.py:116
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -156,7 +170,7 @@ msgstr ""
 "Bu hesaba, doğrulanmamış çok fazla e-posta eklendi. Gelen kutunuzu kontrol "
 "edin ve doğrulama bağlantılarını takip edin. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:128
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -166,25 +180,25 @@ msgstr ""
 "Gelen kutunuzu kontrol edin ve doğrulama bağlantılarını kontrol edin. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:327
-#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:356
-#: warehouse/accounts/views.py:358 warehouse/accounts/views.py:424
+#: warehouse/accounts/views.py:268 warehouse/accounts/views.py:332
+#: warehouse/accounts/views.py:334 warehouse/accounts/views.py:361
+#: warehouse/accounts/views.py:363 warehouse/accounts/views.py:429
 msgid "Invalid or expired two factor login."
 msgstr "Geçersiz veya süresi dolmuş 2-aşamalı giriş."
 
-#: warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:326
 msgid "Already authenticated"
 msgstr "Zaten giriş yapılmış"
 
-#: warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:405
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:454 warehouse/manage/views/__init__.py:805
+#: warehouse/accounts/views.py:459 warehouse/manage/views/__init__.py:805
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
-#: warehouse/accounts/views.py:540
+#: warehouse/accounts/views.py:545
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -192,131 +206,131 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:674
 msgid "Expired token: request a new password reset link"
 msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:671
+#: warehouse/accounts/views.py:676
 msgid "Invalid token: request a new password reset link"
 msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:673 warehouse/accounts/views.py:774
-#: warehouse/accounts/views.py:873 warehouse/accounts/views.py:1042
+#: warehouse/accounts/views.py:678 warehouse/accounts/views.py:779
+#: warehouse/accounts/views.py:878 warehouse/accounts/views.py:1047
 msgid "Invalid token: no token supplied"
 msgstr "Geçersiz belirteç: belirteç verilmedi"
 
-#: warehouse/accounts/views.py:677
+#: warehouse/accounts/views.py:682
 msgid "Invalid token: not a password reset token"
 msgstr "Geçersiz belirteç: bir parola sıfırlama belirteci değil"
 
-#: warehouse/accounts/views.py:682
+#: warehouse/accounts/views.py:687
 msgid "Invalid token: user not found"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:693
+#: warehouse/accounts/views.py:698
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Geçersiz belirteç: kullanıcı bu belirteç istendikten sonra giriş yaptı"
 
-#: warehouse/accounts/views.py:711
+#: warehouse/accounts/views.py:716
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Geçersiz belirteç: parola bu belirteç istendikten sonra zaten değişti"
 
-#: warehouse/accounts/views.py:742
+#: warehouse/accounts/views.py:747
 msgid "You have reset your password"
 msgstr "Parolanızı sıfırladınız"
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new email verification link"
 msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new email verification link"
 msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:778
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not an email verification token"
 msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:792
 msgid "Email not found"
 msgstr "E-posta bulunamadı"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:795
 msgid "Email already verified"
 msgstr "E-posta zaten onaylanmış"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:812
 msgid "You can now set this email as your primary address"
 msgstr "Artık sen bu e-postayı birincil adresin olarak ayarlayabilirsin"
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:816
 msgid "This is your primary address"
 msgstr "Bu senin birincil adresin"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:821
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:874
 msgid "Expired token: request a new organization invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:876
 msgid "Invalid token: request a new organization invitation"
 msgstr "Geçersiz anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "Invalid token: not an organization invitation token"
 msgstr "Geçersiz anahtar: organizasyon davetiyesi geçersiz"
 
-#: warehouse/accounts/views.py:881
+#: warehouse/accounts/views.py:886
 msgid "Organization invitation is not valid."
 msgstr "Organizasyon davetiyesi geçerli değil."
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:895
 msgid "Organization invitation no longer exists."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:946
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1009
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1038
+#: warehouse/accounts/views.py:1043
 msgid "Expired token: request a new project role invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1040
+#: warehouse/accounts/views.py:1045
 msgid "Invalid token: request a new project role invitation"
 msgstr "Geçersiz anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1046
+#: warehouse/accounts/views.py:1051
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:1050
+#: warehouse/accounts/views.py:1055
 msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1070
 msgid "Role invitation no longer exists."
 msgstr "Görev daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:1096
+#: warehouse/accounts/views.py:1101
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' proje davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1163
+#: warehouse/accounts/views.py:1168
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1380 warehouse/accounts/views.py:1400
-#: warehouse/accounts/views.py:1534 warehouse/manage/views/__init__.py:1208
+#: warehouse/accounts/views.py:1385 warehouse/accounts/views.py:1405
+#: warehouse/accounts/views.py:1539 warehouse/manage/views/__init__.py:1208
 #: warehouse/manage/views/__init__.py:1227
 #, fuzzy
 #| msgid ""
@@ -329,7 +343,7 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:1414
+#: warehouse/accounts/views.py:1419
 #, fuzzy
 #| msgid ""
 #| "You must have a verified email in order to register a pending OpenID "
@@ -342,7 +356,7 @@ msgstr ""
 "postanız olmalıdır. Ayrıntılar için https://pypi.org/help#openid-connect'e "
 "bakın."
 
-#: warehouse/accounts/views.py:1427
+#: warehouse/accounts/views.py:1432
 #, fuzzy
 #| msgid ""
 #| "You can't register more than 3 pending OpenID Connect providers at once."
@@ -350,7 +364,7 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Aynı anda 3'ten fazla bekleyen OpenID Connect sağlayıcısını kaydedemezsiniz."
 
-#: warehouse/accounts/views.py:1443 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1448 warehouse/manage/views/__init__.py:1246
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -361,11 +375,11 @@ msgid ""
 msgstr ""
 "Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
 
-#: warehouse/accounts/views.py:1457 warehouse/manage/views/__init__.py:1260
+#: warehouse/accounts/views.py:1462 warehouse/manage/views/__init__.py:1260
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1476
+#: warehouse/accounts/views.py:1481
 #, fuzzy
 #| msgid ""
 #| "This OpenID Connect provider has already been registered. Please contact "
@@ -377,18 +391,18 @@ msgstr ""
 "Bu OpenID Connect sağlayıcısı zaten kayıtlı. Bu kasıtlı değilse lütfen PyPI "
 "yöneticileriyle iletişime geçin."
 
-#: warehouse/accounts/views.py:1511
+#: warehouse/accounts/views.py:1516
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1561
-#: warehouse/accounts/views.py:1568
+#: warehouse/accounts/views.py:1553 warehouse/accounts/views.py:1566
+#: warehouse/accounts/views.py:1573
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Sürümü Yönet"
 
-#: warehouse/accounts/views.py:1574
+#: warehouse/accounts/views.py:1579
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -2813,18 +2827,38 @@ msgstr "Kullanıcı adı"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:31
 #: warehouse/templates/email/trusted-publisher-removed/body.html:29
-msgid "Publisher specification"
-msgstr ""
+#: warehouse/templates/manage/account/publishing.html:77
+#: warehouse/templates/manage/project/publishing.html:46
+#, fuzzy
+#| msgid "Your name"
+msgid "Workflow"
+msgstr "Sizin adınız"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
+#: warehouse/templates/email/trusted-publisher-added/body.html:32
+#: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:45
+#, fuzzy
+#| msgid "Release history"
+msgid "Repository"
+msgstr "Yayın geçmişi"
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+#, fuzzy
+#| msgid "Invalid project name"
+msgid "Environment"
+msgstr "Geçersiz proje adı"
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:40
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:43
-#: warehouse/templates/email/trusted-publisher-removed/body.html:41
+#: warehouse/templates/email/trusted-publisher-added/body.html:47
+#: warehouse/templates/email/trusted-publisher-removed/body.html:45
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a href=\"%(href)s\">"
@@ -2844,7 +2878,7 @@ msgid ""
 "a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:38
 msgid ""
 "If you did not make this change and you think it was made in error, you can "
 "check the \"Security history\" tab on the project's page."
@@ -4685,20 +4719,6 @@ msgstr "Trend olan projeler"
 #: warehouse/templates/manage/project/publishing.html:44
 msgid "Publisher"
 msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:76
-#: warehouse/templates/manage/project/publishing.html:45
-#, fuzzy
-#| msgid "Release history"
-msgid "Repository"
-msgstr "Yayın geçmişi"
-
-#: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:46
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow"
-msgstr "Sizin adınız"
 
 #: warehouse/templates/manage/account/publishing.html:78
 #: warehouse/templates/manage/account/publishing.html:184

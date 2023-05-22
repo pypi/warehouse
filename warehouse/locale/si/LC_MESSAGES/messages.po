@@ -25,27 +25,27 @@ msgstr ""
 msgid "Locale updated"
 msgstr ""
 
-#: warehouse/accounts/forms.py:46
+#: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
 msgstr "මුරපදය අවලංගුය. නැවත උත්සහා කරන්න."
 
-#: warehouse/accounts/forms.py:57
+#: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
 msgstr "එම පරිශීලක නාමය සමඟ කිසිදු පරිශීලකයෙකු හමු නොවීය"
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "TOTP code must be ${totp_length} digits."
 msgstr ""
 
-#: warehouse/accounts/forms.py:86
+#: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:101
 msgid "Choose a username with 50 characters or less."
 msgstr "අක්ෂර 50 ක් හෝ ඊට අඩු පරිශීලක නාමයක් තෝරන්න."
 
-#: warehouse/accounts/forms.py:106
+#: warehouse/accounts/forms.py:107
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -54,73 +54,87 @@ msgstr ""
 "පරිශීලක නාමය අවලංගුය. පරිශීලක නාම අකුරු, අංක, තිත්, යටි ඉර සහ යටි ඉරි වලින් සමන්විත විය යුතුය. "
 "තවද අකුරකින් හෝ අංකයකින් ආරම්භ කර අවසන් කළ යුතුය. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
-#: warehouse/accounts/forms.py:123
+#: warehouse/accounts/forms.py:124
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "මෙම පරිශීලක නාමය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් පරිශීලක නාමයක් තෝරන්න."
 
-#: warehouse/accounts/forms.py:136 warehouse/accounts/forms.py:180
-#: warehouse/accounts/forms.py:193
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:167 warehouse/accounts/views.py:94
-msgid "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/forms.py:173
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for ${time}. Please try again later."
 msgstr "පුරනය වීමේ උත්සාහයන් අසාර්ථක වී ඇත. පසුව නැවත උත්සාහ කරන්න."
 
-#: warehouse/accounts/forms.py:196
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "ඔබගේ මුරපද නොගැලපේ. නැවත උත්සහා කරන්න."
 
-#: warehouse/accounts/forms.py:226 warehouse/accounts/forms.py:237
+#: warehouse/accounts/forms.py:231 warehouse/accounts/forms.py:242
 msgid "The email address isn't valid. Try again."
 msgstr "විද්‍යුත් තැපැල් ලිපිනය වලංගු නොවේ. නැවත උත්සහා කරන්න."
 
-#: warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:250
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "ඔබට මෙම වසමෙන් විද්‍යුත් තැපැල් ලිපිනයක් භාවිතා කළ නොහැක. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
-#: warehouse/accounts/forms.py:256
+#: warehouse/accounts/forms.py:261
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "මෙම විද්‍යුත් තැපැල් ලිපිනය දැනටමත් මෙම ගිණුම භාවිතා කරයි. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
-#: warehouse/accounts/forms.py:263
+#: warehouse/accounts/forms.py:268
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
 "මෙම විද්‍යුත් තැපැල් ලිපිනය දැනටමත් වෙනත් ගිණුමක් භාවිතා කරයි. වෙනස් විද්‍යුත් තැපෑලක් භාවිතා කරන්න."
 
-#: warehouse/accounts/forms.py:284 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:289 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "නම දිග වැඩියි. අක්ෂර 100 ක් හෝ ඊට අඩු නමක් තෝරන්න."
 
-#: warehouse/accounts/forms.py:373
+#: warehouse/accounts/forms.py:378
 msgid "Invalid TOTP code."
 msgstr "TOTP කේතය අවලංගුයි."
 
-#: warehouse/accounts/forms.py:390
+#: warehouse/accounts/forms.py:395
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:450
+#: warehouse/accounts/forms.py:455
 msgid "Invalid recovery code."
 msgstr "ප්‍රතිසාධන කේතය අවලංගුයි."
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:464
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:478
+#: warehouse/accounts/forms.py:483
 msgid "No user found with that username or email"
 msgstr "එම පරිශීලක නාමය හෝ විද්‍යුත් තැපෑල සමඟ කිසිදු පරිශීලකයෙකු හමු නොවීය"
 
-#: warehouse/accounts/views.py:111
+#: warehouse/accounts/views.py:99
+#, fuzzy
+#| msgid ""
+#| "There have been too many unsuccessful login attempts. Try again later."
+msgid ""
+"There have been too many unsuccessful login attempts. You have been locked "
+"out for {}. Please try again later."
+msgstr "පුරනය වීමේ උත්සාහයන් අසාර්ථක වී ඇත. පසුව නැවත උත්සාහ කරන්න."
+
+#: warehouse/accounts/views.py:116
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -128,7 +142,7 @@ msgstr ""
 "සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර සත්‍"
 "යාපන සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:128
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -141,25 +155,25 @@ msgstr ""
 "සත්‍යාපනය නොකර ඊමේල් විශාල ප්‍රමාණයක් මෙම ගිණුමට එකතු කර ඇත. ඔබගේ එන ලිපි පරීක්ෂා කර සත්‍"
 "යාපන සබැඳි අනුගමනය කරන්න. (IP: $ {ip})"
 
-#: warehouse/accounts/views.py:263 warehouse/accounts/views.py:327
-#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:356
-#: warehouse/accounts/views.py:358 warehouse/accounts/views.py:424
+#: warehouse/accounts/views.py:268 warehouse/accounts/views.py:332
+#: warehouse/accounts/views.py:334 warehouse/accounts/views.py:361
+#: warehouse/accounts/views.py:363 warehouse/accounts/views.py:429
 msgid "Invalid or expired two factor login."
 msgstr "අවලංගු හෝ කල් ඉකුත් වූ සාධක දෙකක පිවිසුම."
 
-#: warehouse/accounts/views.py:321
+#: warehouse/accounts/views.py:326
 msgid "Already authenticated"
 msgstr "සත්‍යාපනය"
 
-#: warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:405
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn ප්‍රකාශය සාර්ථකයි"
 
-#: warehouse/accounts/views.py:454 warehouse/manage/views/__init__.py:805
+#: warehouse/accounts/views.py:459 warehouse/manage/views/__init__.py:805
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ප්‍රතිසාධන කේතය පිළිගෙන ඇත. සැපයූ කේතය නැවත භාවිතා කළ නොහැක."
 
-#: warehouse/accounts/views.py:540
+#: warehouse/accounts/views.py:545
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -167,143 +181,143 @@ msgstr ""
 "නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
 "help#admin-intervention බලන්න."
 
-#: warehouse/accounts/views.py:669
+#: warehouse/accounts/views.py:674
 msgid "Expired token: request a new password reset link"
 msgstr "කල් ඉකුත් වූ ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:671
+#: warehouse/accounts/views.py:676
 msgid "Invalid token: request a new password reset link"
 msgstr "අවලංගු ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:673 warehouse/accounts/views.py:774
-#: warehouse/accounts/views.py:873 warehouse/accounts/views.py:1042
+#: warehouse/accounts/views.py:678 warehouse/accounts/views.py:779
+#: warehouse/accounts/views.py:878 warehouse/accounts/views.py:1047
 msgid "Invalid token: no token supplied"
 msgstr "අවලංගු ටෝකනය: ටෝකනයක් සපයා නැත"
 
-#: warehouse/accounts/views.py:677
+#: warehouse/accounts/views.py:682
 msgid "Invalid token: not a password reset token"
 msgstr "වලංගු නොවන ටෝකනය: මුරපද යළි පිහිටුවීමේ ටෝකනයක් නොවේ"
 
-#: warehouse/accounts/views.py:682
+#: warehouse/accounts/views.py:687
 msgid "Invalid token: user not found"
 msgstr "වලංගු නොවන ටෝකනය: පරිශීලකයා හමු නොවීය"
 
-#: warehouse/accounts/views.py:693
+#: warehouse/accounts/views.py:698
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "වලංගු නොවන ටෝකනය: මෙම ටෝකනය ඉල්ලා සිටි දින සිට පරිශීලකයා පුරනය වී ඇත"
 
-#: warehouse/accounts/views.py:711
+#: warehouse/accounts/views.py:716
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "වලංගු නොවන ටෝකනය: මෙම ටෝකනය ඉල්ලූ දා සිට මුරපදය දැනටමත් වෙනස් කර ඇත"
 
-#: warehouse/accounts/views.py:742
+#: warehouse/accounts/views.py:747
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:770
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:772
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:778
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:792
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:795
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:812
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:811
+#: warehouse/accounts/views.py:816
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:821
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:869
+#: warehouse/accounts/views.py:874
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
 msgstr "කල් ඉකුත් වූ ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:876
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "අවලංගු ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 #, fuzzy
 #| msgid "Invalid token: not a password reset token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "වලංගු නොවන ටෝකනය: මුරපද යළි පිහිටුවීමේ ටෝකනයක් නොවේ"
 
-#: warehouse/accounts/views.py:881
+#: warehouse/accounts/views.py:886
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:895
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:946
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1009
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1038
+#: warehouse/accounts/views.py:1043
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
 msgstr "කල් ඉකුත් වූ ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:1040
+#: warehouse/accounts/views.py:1045
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "අවලංගු ටෝකනය: නව මුරපද යළි පිහිටුවීමේ සබැඳියක් ඉල්ලන්න"
 
-#: warehouse/accounts/views.py:1046
+#: warehouse/accounts/views.py:1051
 #, fuzzy
 #| msgid "Invalid token: not a password reset token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "වලංගු නොවන ටෝකනය: මුරපද යළි පිහිටුවීමේ ටෝකනයක් නොවේ"
 
-#: warehouse/accounts/views.py:1050
+#: warehouse/accounts/views.py:1055
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1070
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1096
+#: warehouse/accounts/views.py:1101
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1163
+#: warehouse/accounts/views.py:1168
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1380 warehouse/accounts/views.py:1400
-#: warehouse/accounts/views.py:1534 warehouse/manage/views/__init__.py:1208
+#: warehouse/accounts/views.py:1385 warehouse/accounts/views.py:1405
+#: warehouse/accounts/views.py:1539 warehouse/manage/views/__init__.py:1208
 #: warehouse/manage/views/__init__.py:1227
 #, fuzzy
 #| msgid ""
@@ -316,17 +330,17 @@ msgstr ""
 "නව පරිශීලක ලියාපදිංචිය තාවකාලිකව අබල කර ඇත. වැඩි විස්තර සඳහා https://pypi.org/"
 "help#admin-intervention බලන්න."
 
-#: warehouse/accounts/views.py:1414
+#: warehouse/accounts/views.py:1419
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1427
+#: warehouse/accounts/views.py:1432
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1443 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1448 warehouse/manage/views/__init__.py:1246
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -335,26 +349,26 @@ msgid ""
 "again later."
 msgstr "පුරනය වීමේ උත්සාහයන් අසාර්ථක වී ඇත. පසුව නැවත උත්සාහ කරන්න."
 
-#: warehouse/accounts/views.py:1457 warehouse/manage/views/__init__.py:1260
+#: warehouse/accounts/views.py:1462 warehouse/manage/views/__init__.py:1260
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1476
+#: warehouse/accounts/views.py:1481
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1511
+#: warehouse/accounts/views.py:1516
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1548 warehouse/accounts/views.py:1561
-#: warehouse/accounts/views.py:1568
+#: warehouse/accounts/views.py:1553 warehouse/accounts/views.py:1566
+#: warehouse/accounts/views.py:1573
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1574
+#: warehouse/accounts/views.py:1579
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -2424,18 +2438,34 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:31
 #: warehouse/templates/email/trusted-publisher-removed/body.html:29
-msgid "Publisher specification"
+#: warehouse/templates/manage/account/publishing.html:77
+#: warehouse/templates/manage/project/publishing.html:46
+msgid "Workflow"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
+#: warehouse/templates/email/trusted-publisher-added/body.html:32
+#: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/manage/account/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:45
+msgid "Repository"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+#, fuzzy
+#| msgid "Invalid recovery code."
+msgid "Environment"
+msgstr "ප්‍රතිසාධන කේතය අවලංගුයි."
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:40
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:43
-#: warehouse/templates/email/trusted-publisher-removed/body.html:41
+#: warehouse/templates/email/trusted-publisher-added/body.html:47
+#: warehouse/templates/email/trusted-publisher-removed/body.html:45
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email <a "
@@ -2450,7 +2480,7 @@ msgid ""
 "a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:38
 msgid ""
 "If you did not make this change and you think it was made in error, you can "
 "check the \"Security history\" tab on the project's page."
@@ -4061,16 +4091,6 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:75
 #: warehouse/templates/manage/project/publishing.html:44
 msgid "Publisher"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:76
-#: warehouse/templates/manage/project/publishing.html:45
-msgid "Repository"
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:46
-msgid "Workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:78
