@@ -41,6 +41,9 @@ In the context of trusted publishing, the machinery is as follows:
       `environment: release`, indicating that a presented OIDC token **must**
       contain exactly those claims to be considered valid.
 
+    * PyPI also checks the `repository_owner_id` claim to prevent
+      [account resurrection attacks].
+
 * *Token exchange* is how PyPI converts OIDC tokens into credentials
   (PyPI API tokens) that can be used to authenticate against the package upload
   endpoint.
@@ -176,7 +179,30 @@ used by the Python packaging community:
    can be published from both `release-linux.yml` and `release-macos.yml`
    without needing to be refactored into a single `release.yml`.
 
+### What are account resurrection attacks, and how does PyPI protect against them?
+
+Some OIDC providers support username changes, so a claim of
+`repository_owner: octo-org` might not necessarily refer to the same `octo-org`
+that a user initially authorized in a trusted publisher configuration.
+
+If a repository owner changes their username or deletes their account, a
+malicious actor can take the freed username and create their own repositories
+under the original trusted name. This is known as an *account resurrection
+attack*.
+
+To solve this issue, PyPI worked with GitHub to add the `repository_owner_id`
+claim to OIDC tokens. This claim attests to the ID of the repository owner,
+which is stable and permanent unlike usernames. When a trusted publisher is
+configured, PyPI looks up the configured username's ID and stores it. During
+API token minting, PyPI checks the `repository_owner_id` claim against the
+stored ID and fails if they don't match. Through this process, only the original
+GitHub user remains authorized to publish to their PyPI projects, even if they
+change their username or delete their account.
+
 [OpenID Connect]: https://openid.net/connect/
+
+[account resurrection attacks]:
+#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [Macaroons]: https://en.wikipedia.org/wiki/Macaroons_(computer_science)
 
