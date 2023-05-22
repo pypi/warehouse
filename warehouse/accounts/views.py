@@ -15,6 +15,7 @@ import hashlib
 import json
 import uuid
 
+import humanize
 import pytz
 
 from first import first
@@ -92,7 +93,11 @@ USER_ID_INSECURE_COOKIE = "user_id__insecure"
 def failed_logins(exc, request):
     resp = HTTPTooManyRequests(
         request._(
-            "There have been too many unsuccessful login attempts. Try again later."
+            "There have been too many unsuccessful login attempts. "
+            "You have been locked out for {}. "
+            "Please try again later.".format(
+                humanize.naturaldelta(exc.resets_in.total_seconds())
+            )
         ),
         retry_after=exc.resets_in.total_seconds(),
     )

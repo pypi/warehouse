@@ -17,7 +17,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt
+.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
 	# Build our base container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
 
@@ -103,10 +103,13 @@ initdb: .state/docker-build-base
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
 	docker compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
 	docker compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
-	docker compose run --rm web python -m warehouse db upgrade head
+	$(MAKE) runmigrations
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
 	$(MAKE) reindex
+
+runmigrations: .state/docker-build-base
+	docker compose run --rm web python -m warehouse db upgrade head
 
 reindex: .state/docker-build-base
 	docker compose run --rm web python -m warehouse search reindex
@@ -128,4 +131,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot
+.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
