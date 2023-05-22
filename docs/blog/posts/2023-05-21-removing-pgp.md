@@ -10,10 +10,10 @@ tags:
 
 PyPI has removed support for uploading PGP signatures.
 
-If you are someone who is currently uploading signatures, your uploads will
+If you are someone who is currently uploading signatures, your package uploads will
 continue to succeed, but any PGP signatures will be silently ignored. If you are
 someone who is currently downloading PGP signatures, existing signatures
-*SHOULD* continue to work [^1], but no new signatures will be made available.
+*SHOULD* continue to be available [^1], but no new signatures will be made available.
 The related API fields such as `has_sig` have all been hardcoded to always be
 `False`.
 
