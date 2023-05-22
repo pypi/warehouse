@@ -71,7 +71,7 @@ jobs:
         # Set health checks to wait until postgres has started
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       stripe:
-        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.140.0' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
           - 12111:12111
     name: ${{ matrix.name }}

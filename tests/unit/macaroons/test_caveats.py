@@ -87,6 +87,17 @@ class TestDeserialization:
                 ProjectID(project_ids=["123uuid", "456uuid"]),
             ),
             (b'[3,"a uuid"]', RequestUser(user_id="a uuid")),
+            (
+                b'[4,"somepublisher"]',
+                OIDCPublisher(oidc_publisher_id="somepublisher"),
+            ),
+            (
+                b'[4,"somepublisher",{"foo": "bar"}]',
+                OIDCPublisher(
+                    oidc_publisher_id="somepublisher",
+                    oidc_claims={"foo": "bar"},
+                ),
+            ),
             # Legacy Caveat Style
             (b'{"exp": 50, "nbf": 10}', Expiration(expires_at=50, not_before=10)),
             (
