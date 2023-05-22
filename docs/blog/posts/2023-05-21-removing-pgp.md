@@ -19,7 +19,7 @@ The related API fields such as `has_sig` have all been hardcoded to always be
 
 Historically PyPI has supported uploading PGP signatures alongside the release
 artifacts in an attempt to provide some level of package signing. However, the
-approach used long standing,
+approach used had long standing,
 [documented issues](https://caremad.io/posts/2013/07/packaging-signing-not-holy-grail/)
 which had lead us to demphasize the support
 for PGP signatures over time by removing them from the UI.
@@ -28,8 +28,8 @@ PyPI continued to support uploading these signatures in the hope that there
 might be some systems out there that found them useful.
 
 However, a
-[recent look at the signatures on PyPI ](https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless)
-shows us that the current support for PGP signatures is not providing useful.
+[recent look at the signatures on PyPI](https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless)
+shows us that the current support for PGP signatures is not proving useful.
 
 In the last 3 years, about 50k signatures had been uploaded to PyPI by 1069
 unique keys. Of those 1069 unique keys, about 30% of them were not discoverable
@@ -54,9 +54,9 @@ _Donald Stufft is a PyPI administrator and maintainer of the Python Package Inde
 
 
 [^1]: For now, but they may be removed in the future.
-[^2]: These could bebecause the original signature was made incorrectly and
+[^2]: These could be because the original signature was made incorrectly and
       never had a binding signature to a associated key identity, or because
-      the signature that was present but it had since expired.
+      the signature was present but had since expired.
 [^3]: We use meaningfully verified to mean that the signature was valid and the
       key that made it was not expired and had binding identify information that
       could tell us if this key was the correct key.
