@@ -39,7 +39,7 @@ services:
       interval: 1s
 
   stripe:
-    image: stripe/stripe-mock:v0.158.0
+    image: stripe/stripe-mock:v0.162.0
     ports:
       - "12111:12111"
 
