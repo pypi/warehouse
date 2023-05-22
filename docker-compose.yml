@@ -46,17 +46,6 @@ services:
   redis:
     image: redis:4.0
 
-  localstack:
-    image: localstack/localstack:1.4
-    environment:
-      SERVICES: "sqs"
-      HOSTNAME: "localstack"
-      HOSTNAME_EXTERNAL: "localstack"
-      DEFAULT_REGION: "us-east-2"
-      LS_LOG: "error"
-    ports:
-      - "4566:4566"
-
   elasticsearch:
     image: elasticsearch:7.10.1
     environment:
@@ -156,6 +145,19 @@ services:
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+
+  flower:
+    image: warehouse:docker-compose
+    pull_policy: never
+    command: celery -A warehouse flower
+    ports:
+      - "5555:5555"
+    env_file: dev/environment
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/1
+      CELERY_RESULT_BACKEND: redis://redis:6379/1
+    depends_on:
+      - redis
 
   static:
     build:
