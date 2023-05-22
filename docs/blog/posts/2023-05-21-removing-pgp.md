@@ -35,7 +35,9 @@ to be meaningfully verified at the time of the audit (2023-05-19) [^2].
 
 In other words, out of all of the unique keys that had uploaded signatures to
 PyPI, only 36% of them were capable of being meaningfully verified [^3] at the
-time of audit.
+time of audit. Even if *all* of those signatures uploaded in that 3 year period
+of time were made by one of those 36% of keys that are able to be meaningfully
+verified, that would still represent only 0.3% of all of those files.
 
 Given all of this, the continued support of uploading PGP signatures to PyPI is
 no longer defenfsible. While it doesn't represent a *massive* operational burden
