@@ -1,9 +1,9 @@
 ---
-title: Removing PGP from PyPI.
+title: Removing PGP from PyPI
 description: PyPI has removed support for PGP signatures.
 author: Donald Stufft
-publish_date: 2023-05-21
-date: "2023-05-21 00:00"
+publish_date: 2023-05-23
+date: "2023-05-23 00:00"
 tags:
   - security
 ---
