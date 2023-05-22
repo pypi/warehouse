@@ -16,6 +16,7 @@ from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
+import humanize
 import markupsafe
 import wtforms
 import wtforms.fields
@@ -162,11 +163,15 @@ class PasswordMixin:
                         additional={"reason": "invalid_password"},
                     )
                     raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
-            except TooManyFailedLogins:
+            except TooManyFailedLogins as err:
                 raise wtforms.validators.ValidationError(
                     _(
                         "There have been too many unsuccessful login attempts. "
-                        "Try again later."
+                        "You have been locked out for ${time}. "
+                        "Please try again later.",
+                        mapping={
+                            "time": humanize.naturaldelta(err.resets_in.total_seconds())
+                        },
                     )
                 ) from None
 

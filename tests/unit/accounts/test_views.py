@@ -76,7 +76,9 @@ class TestFailedLoginView:
 
         assert resp.status == "429 Too Many Failed Login Attempts"
         assert resp.detail == (
-            "There have been too many unsuccessful login attempts. Try again later."
+            "There have been too many unsuccessful login attempts. "
+            "You have been locked out for 10 minutes. "
+            "Please try again later."
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
