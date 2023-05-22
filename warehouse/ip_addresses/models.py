@@ -48,6 +48,9 @@ class IpAddress(db.Model):
     def __repr__(self):
         return self.ip_address
 
+    def __lt__(self, other):
+        return self.id < other.id
+
     ip_address = Column(
         INET, nullable=False, unique=True, comment="Structured IP Address value"
     )

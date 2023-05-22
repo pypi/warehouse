@@ -320,6 +320,7 @@
           <th scope="col">Event</th>
           <th scope="col">Time</th>
           <th scope="col">IP address</th>
+          <th scope="col">Hashed IP address</th>
           <th scope="col">Additional information</th>
         </tr>
       </thead>
@@ -329,6 +330,7 @@
           <td>{{ event.tag }}</td>
           <td>{{ event.time }}</td>
           <td>{{ event.ip_address }}</td>
+          <td>{{ event.ip_address.hashed_ip_address }}</td>
           <td>{{ event.additional }}</td>
         </tr>
         {% endfor %}

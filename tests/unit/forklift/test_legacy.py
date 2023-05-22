@@ -48,10 +48,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
 )
-from warehouse.packaging.tasks import (
-    sync_file_to_archive,
-    update_bigquery_release_files,
-)
+from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
@@ -1447,7 +1444,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage, name="primary"),
+            pretend.call(IFileStorage, name="archive"),
         ]
         assert len(storage_service.store.calls) == 2 if has_signature else 1
         assert storage_service.store.calls[0] == pretend.call(
@@ -1521,7 +1518,7 @@ class TestFileUpload:
 
         assert db_request.task.calls == [
             pretend.call(update_bigquery_release_files),
-            pretend.call(sync_file_to_archive),
+            pretend.call(sync_file_to_cache),
         ]
 
         assert metrics.increment.calls == [
@@ -2824,7 +2821,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage, name="primary"),
+            pretend.call(IFileStorage, name="archive"),
         ]
         assert storage_service.store.calls == [
             pretend.call(
@@ -2958,7 +2955,7 @@ class TestFileUpload:
         assert resp.status_code == 200
         assert db_request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
-            pretend.call(IFileStorage, name="primary"),
+            pretend.call(IFileStorage, name="archive"),
         ]
         assert storage_service.store.calls == [
             pretend.call(
