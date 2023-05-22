@@ -1,14 +1,12 @@
 ---
 title: Removing PGP from PyPI
-description: PyPI has removed support for PGP signatures.
+description: PyPI has removed support for uploading PGP signatures with new releases.
 author: Donald Stufft
 publish_date: 2023-05-23
 date: "2023-05-23 00:00"
 tags:
   - security
 ---
-
-PyPI has removed support for uploading PGP signatures.
 
 If you are someone who is currently uploading signatures, your package uploads will
 continue to succeed, but any PGP signatures will be silently ignored. If you are
@@ -17,19 +15,17 @@ someone who is currently downloading PGP signatures, existing signatures
 The related API fields such as `has_sig` have all been hardcoded to always be
 `False`.
 
-Historically PyPI has supported uploading PGP signatures alongside the release
+Historically, PyPI has supported uploading PGP signatures alongside the release
 artifacts in an attempt to provide some level of package signing. However, the
 approach used had long standing,
 [documented issues](https://caremad.io/posts/2013/07/packaging-signing-not-holy-grail/)
-which had lead us to demphasize the support
-for PGP signatures over time by removing them from the UI.
+which had previously lead us to deemphasize the support
+for PGP signatures over time by removing them from the PyPI web user interface.
 
-PyPI continued to support uploading these signatures in the hope that there
-might be some systems out there that found them useful.
-
-However, a
-[recent look at the signatures on PyPI](https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless)
-shows us that the current support for PGP signatures is not proving useful.
+PyPI has continued to support uploading these signatures in the hope that there
+might be some systems out there that found them useful. Recently though,
+[an examination of the signatures on PyPI](https://blog.yossarian.net/2023/05/21/PGP-signatures-on-PyPI-worse-than-useless)
+has revealed to us that the current support for PGP signatures is not proving useful.
 
 In the last 3 years, about 50k signatures had been uploaded to PyPI by 1069
 unique keys. Of those 1069 unique keys, about 30% of them were not discoverable
