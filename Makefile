@@ -17,7 +17,7 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt
+.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
 	# Build our base container for this project.
 	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
 
