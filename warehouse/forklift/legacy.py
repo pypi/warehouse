@@ -48,7 +48,10 @@ from trove_classifiers import classifiers, deprecated_classifiers
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.email import send_basic_auth_with_two_factor_email
+from warehouse.email import (
+    send_basic_auth_with_two_factor_email,
+    send_gpg_signature_uploaded_email,
+)
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -1145,6 +1148,9 @@ def file_upload(request):
             warnings.append(
                 "GPG signature support has been removed from PyPI and the "
                 "provided signature has been discarded."
+            )
+            send_gpg_signature_uploaded_email(
+                request, request.user, project_name=project.name
             )
 
         # TODO: This should be handled by some sort of database trigger or

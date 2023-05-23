@@ -3487,7 +3487,7 @@ class TestFileUpload:
         ]
 
     def test_upload_succeeds_with_signature(
-        self, pyramid_config, db_request, metrics, project_service
+        self, pyramid_config, db_request, metrics, project_service, monkeypatch
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -3520,6 +3520,9 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_gpg_signature_uploaded_email", send_email)
+
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
@@ -3527,6 +3530,10 @@ class TestFileUpload:
             b"GPG signature support has been removed from PyPI and the provided "
             b"signature has been discarded."
         )
+
+        assert send_email.calls == [
+            pretend.call(db_request, user, project_name="example"),
+        ]
 
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
