@@ -894,7 +894,7 @@ def file_upload(request):
     # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content"}:
+    for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
