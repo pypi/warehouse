@@ -40,7 +40,7 @@ of time were made by one of those 36% of keys that are able to be meaningfully
 verified, that would still represent only 0.3% of all of those files.
 
 Given all of this, the continued support of uploading PGP signatures to PyPI is
-no longer defenfsible. While it doesn't represent a *massive* operational burden
+no longer defensible. While it doesn't represent a *massive* operational burden
 to continue to support it, it does require any new features that touch the
 storage of files to be made aware of and capable of handling these PGP
 signatures, which is a non zero cost on the maintainers and contributors of
