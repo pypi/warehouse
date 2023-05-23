@@ -320,6 +320,11 @@ def send_basic_auth_with_two_factor_email(request, user, *, project_name):
     return {"project_name": project_name}
 
 
+@_email("gpg-signature-uploaded", repeat_window=datetime.timedelta(days=1))
+def send_gpg_signature_uploaded_email(request, user, *, project_name):
+    return {"project_name": project_name}
+
+
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}
