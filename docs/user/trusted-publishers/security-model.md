@@ -123,6 +123,6 @@ In addition to the requirements above, you can do the following to
 [Use tag protection rules]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules
 
 [account resurrection attacks]:
-./internals#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
+../internals/#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [required reviewers]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#required-reviewers
