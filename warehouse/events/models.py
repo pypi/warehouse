@@ -131,22 +131,28 @@ class HasEvents:
         session = orm.object_session(self)
 
         if request is not None:
-            # Add `request.ip_address` data to `Event.additional` as a nested key
-            additional = additional or {}
-            additional["ip_address"] = {}
-            additional["ip_address"]["hashed_ip_address"] = (
-                request.ip_address.hashed_ip_address or None
+            # Get-or-create a new IpAddress object
+            ip_address_obj = request.ip_address
+            # Add `request.ip_address.geoip_info` data to `Event.additional`
+            if ip_address_obj.geoip_info is not None:
+                additional = additional or {}
+                additional["geoip_info"] = ip_address_obj.geoip_info
+
+            event = self.Event(
+                source=self,
+                tag=tag,
+                ip_address_obj=ip_address_obj,
+                additional=additional,
             )
-            additional["ip_address"]["geoip_info"] = (
-                request.ip_address.geoip_info or None
+        else:
+            # Our hope is to eventually remove this once `Request` is not None
+            event = self.Event(
+                source=self,
+                tag=tag,
+                ip_address=ip_address,
+                additional=additional,
             )
 
-        event = self.Event(
-            source=self,
-            tag=tag,
-            ip_address=ip_address,
-            additional=additional,
-        )
         session.add(event)
 
         return event

@@ -60,6 +60,7 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
+from .common.db.ip_addresses import IpAddressFactory
 
 
 def pytest_collection_modifyitems(items):
@@ -178,11 +179,6 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request.find_service = pyramid_services.find_service
     dummy_request.remote_addr = remote_addr
     dummy_request.remote_addr_hashed = remote_addr_hashed
-    dummy_request.ip_address = pretend.stub(
-        ip_address=remote_addr,
-        hashed_ip_address=remote_addr_hashed,
-        geoip_info={"country_code": "US", "country_name": "United States"},
-    )
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
     dummy_request.oidc_publisher = None
@@ -452,6 +448,10 @@ def db_request(pyramid_request, db_session):
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
+    pyramid_request.ip_address = IpAddressFactory.create(
+        ip_address=pyramid_request.remote_addr,
+        hashed_ip_address=pyramid_request.remote_addr_hashed,
+    )
     return pyramid_request
 
 
