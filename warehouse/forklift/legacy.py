@@ -812,6 +812,9 @@ def _extract_wheel_metadata(path):
     has_translations=True,
 )
 def file_upload(request):
+    # This is a list of warnings that we'll emit *IF* the request is successful.
+    warnings = []
+
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
@@ -1137,6 +1140,12 @@ def file_upload(request):
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+
+        if "gpg_signature" in request.POST:
+            warnings.append(
+                "GPG signature support has been removed from PyPI and the "
+                "provided signature has been discarded."
+            )
 
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
@@ -1504,7 +1513,8 @@ def file_upload(request):
     # Dispatch our task to sync this to cache as soon as possible
     request.task(sync_file_to_cache).delay(file_.id)
 
-    return Response()
+    # Return any warnings that we've accumulated as the response body.
+    return Response("\n".join(warnings))
 
 
 def _legacy_purge(status, *args, **kwargs):
