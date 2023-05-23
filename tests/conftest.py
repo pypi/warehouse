@@ -289,9 +289,6 @@ def app_config(database):
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
-        "malware_check.backend": (
-            "warehouse.malware.services.PrinterMalwareCheckService"
-        ),
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
