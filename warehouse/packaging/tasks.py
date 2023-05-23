@@ -52,8 +52,6 @@ def sync_file_to_cache(request, file_id):
         _copy_file_to_cache(archive_storage, cache_storage, file.path)
         if file.metadata_file_sha256_digest is not None:
             _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
-        if file.has_signature:
-            _copy_file_to_cache(archive_storage, cache_storage, file.pgp_path)
 
         file.cached = True
 
@@ -70,7 +68,7 @@ def check_file_cache_tasks_outstanding(request):
     )
 
 
-Checksums = namedtuple("Checksums", ["file", "metadata_file", "pgp_file"])
+Checksums = namedtuple("Checksums", ["file", "metadata_file"])
 
 
 def fetch_checksums(storage, file):
@@ -84,12 +82,7 @@ def fetch_checksums(storage, file):
     except FileNotFoundError:
         file_metadata_checksum = None
 
-    try:
-        file_signature_checksum = storage.get_checksum(file.pgp_path)
-    except FileNotFoundError:
-        file_signature_checksum = None
-
-    return Checksums(file_checksum, file_metadata_checksum, file_signature_checksum)
+    return Checksums(file_checksum, file_metadata_checksum)
 
 
 @tasks.task(ignore_results=True, acks_late=True)
@@ -109,12 +102,11 @@ def reconcile_file_storages(request):
         archive_checksums = fetch_checksums(archive_storage, file)
         cache_checksums = fetch_checksums(cache_storage, file)
 
-        # Note: We don't store md5 digest for METADATA file or pgp signature
-        # in our database, record boolean for if we should expect values.
+        # Note: We don't store md5 digest for METADATA file in our database,
+        # record boolean for if we should expect values.
         expected_checksums = Checksums(
             file.md5_digest,
             bool(file.metadata_file_sha256_digest),
-            bool(file.has_signature),
         )
 
         if (
@@ -124,7 +116,6 @@ def reconcile_file_storages(request):
                 bool(archive_checksums.metadata_file)
                 == expected_checksums.metadata_file
             )
-            and (bool(archive_checksums.pgp_file) == expected_checksums.pgp_file)
         ):
             logger.info(f"    File<{file.id}> ({file.path}) is all good ✨")
             file.cached = True
@@ -185,32 +176,6 @@ def reconcile_file_storages(request):
                         f"({file.metadata_path}) ❌"
                     )
                     errors.append(file.metadata_path)
-
-            if expected_checksums.pgp_file and (
-                archive_checksums.pgp_file is not None
-                and cache_checksums.pgp_file is None
-            ):
-                # The only file we have is in archive, so use that for cache
-                _copy_file_to_cache(archive_storage, cache_storage, file.pgp_path)
-                logger.info(
-                    f"    File<{file.id}> pgp signature ({file.pgp_path}) "
-                    "pulled from archive ⬆️"
-                )
-                metrics.increment("warehouse.filestorage.reconciled", tags=["type:pgp"])
-            elif expected_checksums.pgp_file:
-                if archive_checksums.pgp_file == cache_checksums.pgp_file:
-                    logger.info(
-                        f"    File<{file.id}> pgp signature ({file.pgp_path}) is ok ✅"
-                    )
-                else:
-                    metrics.increment(
-                        "warehouse.filestorage.unreconciled", tags=["type:pgp"]
-                    )
-                    logger.error(
-                        f"Unable to reconcile stored File<{file.id}> pgp signature "
-                        f"({file.pgp_path}) ❌"
-                    )
-                    errors.append(file.pgp_path)
 
             if len(errors) == 0:
                 file.cached = True
@@ -516,6 +481,7 @@ def sync_bigquery_release_files(request):
                         row_data[sch.name] = list(field_data)
                 else:
                     row_data[sch.name] = field_data
+            row_data["has_signature"] = False
             return row_data
 
         for first, second in product("fedcba9876543210", repeat=2):

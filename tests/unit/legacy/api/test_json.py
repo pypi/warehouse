@@ -195,7 +195,6 @@ class TestJSONProject:
                 filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
-                has_signature=True,
             )
             for r in releases[1:]
         ]
@@ -258,7 +257,7 @@ class TestJSONProject:
                         "comment_text": None,
                         "downloads": -1,
                         "filename": files[0].filename,
-                        "has_sig": True,
+                        "has_sig": False,
                         "md5_digest": files[0].md5_digest,
                         "digests": {
                             "md5": files[0].md5_digest,
@@ -283,7 +282,7 @@ class TestJSONProject:
                         "comment_text": None,
                         "downloads": -1,
                         "filename": files[1].filename,
-                        "has_sig": True,
+                        "has_sig": False,
                         "md5_digest": files[1].md5_digest,
                         "digests": {
                             "md5": files[1].md5_digest,
@@ -308,7 +307,7 @@ class TestJSONProject:
                         "comment_text": None,
                         "downloads": -1,
                         "filename": files[2].filename,
-                        "has_sig": True,
+                        "has_sig": False,
                         "md5_digest": files[2].md5_digest,
                         "digests": {
                             "blake2b_256": files[2].blake2_256_digest,
@@ -334,7 +333,7 @@ class TestJSONProject:
                     "comment_text": None,
                     "downloads": -1,
                     "filename": files[2].filename,
-                    "has_sig": True,
+                    "has_sig": False,
                     "md5_digest": files[2].md5_digest,
                     "digests": {
                         "md5": files[2].md5_digest,
@@ -503,7 +502,6 @@ class TestJSONRelease:
                 filename=f"{project.name}-{r.version}.tar.gz",
                 python_version="source",
                 size=200,
-                has_signature=True,
             )
             for r in releases[1:]
         ]
@@ -565,7 +563,7 @@ class TestJSONRelease:
                     "comment_text": None,
                     "downloads": -1,
                     "filename": files[-1].filename,
-                    "has_sig": True,
+                    "has_sig": False,
                     "md5_digest": files[-1].md5_digest,
                     "digests": {
                         "md5": files[-1].md5_digest,
@@ -595,7 +593,6 @@ class TestJSONRelease:
             filename=f"{project.name}-{release.version}.tar.gz",
             python_version="source",
             size=200,
-            has_signature=True,
         )
 
         user = UserFactory.create()
@@ -656,7 +653,7 @@ class TestJSONRelease:
                     "comment_text": None,
                     "downloads": -1,
                     "filename": file.filename,
-                    "has_sig": True,
+                    "has_sig": False,
                     "md5_digest": file.md5_digest,
                     "digests": {
                         "md5": file.md5_digest,
