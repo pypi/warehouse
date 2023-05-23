@@ -203,7 +203,7 @@ change their username or delete their account.
 [OpenID Connect]: https://openid.net/connect/
 
 [account resurrection attacks]:
-#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
+./#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [Macaroons]: https://en.wikipedia.org/wiki/Macaroons_(computer_science)
 
