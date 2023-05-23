@@ -254,6 +254,7 @@ def organization_approve(request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationApprove,
         ip_address=request.remote_addr,
+        request=request,
         additional={"approved_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_approved_email(
@@ -319,6 +320,7 @@ def organization_decline(request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationDecline,
         ip_address=request.remote_addr,
+        request=request,
         additional={"declined_by_user_id": str(request.user.id)},
     )
     send_admin_new_organization_declined_email(

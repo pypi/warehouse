@@ -300,6 +300,7 @@ class Organization(HasEvents, db.Model):
         super().record_event(
             tag=tag,
             ip_address=ip_address,
+            request=request,
             additional={"organization_name": self.name, **additional},
         )
 
@@ -619,6 +620,7 @@ class Team(HasEvents, db.Model):
         super().record_event(
             tag=tag,
             ip_address=ip_address,
+            request=request,
             additional={
                 "organization_name": self.organization.name,
                 "team_name": self.name,

@@ -207,11 +207,13 @@ class ManageOrganizationsViews:
             organization.record_event(
                 tag=EventTag.Organization.CatalogEntryAdd,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"submitted_by_user_id": str(self.request.user.id)},
             )
             organization.record_event(
                 tag=EventTag.Organization.OrganizationCreate,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"created_by_user_id": str(self.request.user.id)},
             )
             self.organization_service.add_organization_role(
@@ -222,6 +224,7 @@ class ManageOrganizationsViews:
             organization.record_event(
                 tag=EventTag.Organization.OrganizationRoleAdd,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "role_name": "Owner",
@@ -231,6 +234,7 @@ class ManageOrganizationsViews:
             self.request.user.record_event(
                 tag=EventTag.Account.OrganizationRoleAdd,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
                     "organization_name": organization.name,
@@ -370,11 +374,13 @@ class ManageOrganizationSettingsViews:
             self.organization.record_event(
                 tag=EventTag.Organization.CatalogEntryAdd,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"submitted_by_user_id": str(self.request.user.id)},
             )
             self.organization.record_event(
                 tag=EventTag.Organization.OrganizationRename,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "previous_organization_name": previous_organization_name,
                     "renamed_by_user_id": str(self.request.user.id),
@@ -423,6 +429,7 @@ class ManageOrganizationSettingsViews:
         self.organization.record_event(
             tag=EventTag.Organization.OrganizationDelete,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
             },
@@ -622,6 +629,7 @@ class ManageOrganizationTeamsViews:
         self.organization.record_event(
             tag=EventTag.Organization.TeamCreate,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "created_by_user_id": str(self.request.user.id),
                 "team_name": team.name,
@@ -630,6 +638,7 @@ class ManageOrganizationTeamsViews:
         team.record_event(
             tag=EventTag.Team.TeamCreate,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "created_by_user_id": str(self.request.user.id),
             },
@@ -756,6 +765,7 @@ class ManageOrganizationProjectsViews:
                 project.record_event(
                     tag=EventTag.Project.RoleRemove,
                     ip_address=self.request.remote_addr,
+                    request=self.request,
                     additional={
                         "submitted_by": self.request.user.username,
                         "role_name": role.role_name,
@@ -765,6 +775,7 @@ class ManageOrganizationProjectsViews:
                 role.user.record_event(
                     tag=EventTag.Account.RoleRemove,
                     ip_address=self.request.remote_addr,
+                    request=self.request,
                     additional={
                         "submitted_by": self.request.user.username,
                         "project_name": project.name,
@@ -800,6 +811,7 @@ class ManageOrganizationProjectsViews:
         self.organization.record_event(
             tag=EventTag.Organization.OrganizationProjectAdd,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
                 "project_name": project.name,
@@ -808,6 +820,7 @@ class ManageOrganizationProjectsViews:
         project.record_event(
             tag=EventTag.Project.OrganizationProjectAdd,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
                 "organization_name": self.organization.name,
@@ -908,6 +921,7 @@ def _send_organization_invitation(request, organization, role_name, user):
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "role_name": role_name,
@@ -917,6 +931,7 @@ def _send_organization_invitation(request, organization, role_name, user):
         user.record_event(
             tag=EventTag.Account.OrganizationRoleInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "organization_name": organization.name,
@@ -1101,6 +1116,7 @@ def revoke_organization_invitation(organization, request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleRevokeInvite,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(request.user.id),
             "role_name": role_name,
@@ -1110,6 +1126,7 @@ def revoke_organization_invitation(organization, request):
     user.record_event(
         tag=EventTag.Account.OrganizationRoleRevokeInvite,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(request.user.id),
             "organization_name": organization.name,
@@ -1196,6 +1213,7 @@ def change_organization_role(
             organization.record_event(
                 tag=EventTag.Organization.OrganizationRoleChange,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": form.role_name.data,
@@ -1205,6 +1223,7 @@ def change_organization_role(
             role.user.record_event(
                 tag=EventTag.Account.OrganizationRoleChange,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -1260,6 +1279,7 @@ def delete_organization_role(organization, request):
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "role_name": role.role_name.value,
@@ -1269,6 +1289,7 @@ def delete_organization_role(organization, request):
         role.user.record_event(
             tag=EventTag.Account.OrganizationRoleRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "organization_name": organization.name,
@@ -1399,6 +1420,7 @@ def remove_organization_project(project, request):
         organization.record_event(
             tag=EventTag.Organization.OrganizationProjectRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -1407,6 +1429,7 @@ def remove_organization_project(project, request):
         project.record_event(
             tag=EventTag.Project.OrganizationProjectRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "organization_name": organization.name,
@@ -1534,6 +1557,7 @@ def transfer_organization_project(project, request):
         project.record_event(
             tag=EventTag.Project.RoleRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username,
                 "role_name": role.role_name,
@@ -1548,6 +1572,7 @@ def transfer_organization_project(project, request):
         organization.record_event(
             tag=EventTag.Organization.OrganizationProjectRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -1556,6 +1581,7 @@ def transfer_organization_project(project, request):
         project.record_event(
             tag=EventTag.Project.OrganizationProjectRemove,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "organization_name": organization.name,
@@ -1582,6 +1608,7 @@ def transfer_organization_project(project, request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationProjectAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(request.user.id),
             "project_name": project.name,
@@ -1590,6 +1617,7 @@ def transfer_organization_project(project, request):
     project.record_event(
         tag=EventTag.Project.OrganizationProjectAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(request.user.id),
             "organization_name": organization.name,
