@@ -471,12 +471,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/organizations.py:895
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:947
+#: warehouse/manage/views/organizations.py:962
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -489,30 +489,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1134
+#: warehouse/manage/views/organizations.py:1151
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:858
+#: warehouse/manage/views/organizations.py:871
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1030
-#: warehouse/manage/views/organizations.py:1072
+#: warehouse/manage/views/organizations.py:1045
+#: warehouse/manage/views/organizations.py:1087
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1040
+#: warehouse/manage/views/organizations.py:1055
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1102
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -1734,6 +1734,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
@@ -1757,6 +1758,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
@@ -1789,6 +1791,22 @@ msgstr ""
 msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
+#, python-format
+msgid ""
+"During your recent upload of %(project_name)s to %(site)s, we noticed you"
+" uploaded a GPG signature. However, support for GPG signatures has been "
+"removed from %(site)s."
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
+#, python-format
+msgid ""
+"While uploads will continue to work, any signatures uploaded to %(site)s "
+"will be discarded. It is recommended to no longer upload signatures to "
+"%(site)s."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17

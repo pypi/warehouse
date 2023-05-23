@@ -1348,19 +1348,23 @@ class TestFileUpload:
         assert "\x00" not in db_request.POST["summary"]
 
     @pytest.mark.parametrize(
-        ("has_signature", "digests"),
+        ("digests",),
         [
-            (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (True, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
-            (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (False, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
             (
-                True,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
             (
-                False,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
         ],
     )
@@ -1370,7 +1374,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        has_signature,
         digests,
         metrics,
     ):
@@ -1409,24 +1412,9 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
         db_request.POST.update(digests)
 
-        if has_signature:
-            gpg_signature = FieldStorage()
-            gpg_signature.filename = filename + ".asc"
-            gpg_signature.file = io.BytesIO(
-                b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-            )
-            db_request.POST["gpg_signature"] = gpg_signature
-            assert isinstance(db_request.POST["gpg_signature"], FieldStorage)
-
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
-            if file_path.endswith(".asc"):
-                expected = (
-                    b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-                )
-            else:
-                expected = _TAR_GZ_PKG_TESTDATA
-
+            expected = _TAR_GZ_PKG_TESTDATA
             with open(file_path, "rb") as fp:
                 assert fp.read() == expected
 
@@ -1448,7 +1436,7 @@ class TestFileUpload:
             pretend.call(IMetricsService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
-        assert len(storage_service.store.calls) == 2 if has_signature else 1
+        assert len(storage_service.store.calls) == 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join(
                 [
@@ -1466,25 +1454,6 @@ class TestFileUpload:
                 "python-version": "source",
             },
         )
-
-        if has_signature:
-            assert storage_service.store.calls[1] == pretend.call(
-                "/".join(
-                    [
-                        _TAR_GZ_PKG_STORAGE_HASH[:2],
-                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
-                        _TAR_GZ_PKG_STORAGE_HASH[4:],
-                        filename + ".asc",
-                    ]
-                ),
-                mock.ANY,
-                meta={
-                    "project": project.normalized_name,
-                    "version": release.version,
-                    "package-type": "sdist",
-                    "python-version": "source",
-                },
-            )
 
         # Ensure that a File object has been created.
         uploaded_file = (
@@ -1685,44 +1654,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Only one sdist may be uploaded per release."
-
-    @pytest.mark.parametrize("sig", [b"lol nope"])
-    def test_upload_fails_with_invalid_signature(self, pyramid_config, db_request, sig):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc", file=io.BytesIO(sig)
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 PGP signature isn't ASCII armored."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -2210,44 +2141,6 @@ class TestFileUpload:
                 db_request.remote_addr,
             ),
         ]
-
-    def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc",
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Signature too large."
 
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
@@ -3660,6 +3553,55 @@ class TestFileUpload:
                 user,
                 db_request.remote_addr,
             ),
+        ]
+
+    def test_upload_succeeds_with_signature(
+        self, pyramid_config, db_request, metrics, project_service, monkeypatch
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+                "gpg_signature": "...",
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_gpg_signature_uploaded_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert resp.body == (
+            b"GPG signature support has been removed from PyPI and the provided "
+            b"signature has been discarded."
+        )
+
+        assert send_email.calls == [
+            pretend.call(db_request, user, project_name="example"),
         ]
 
     @pytest.mark.parametrize(

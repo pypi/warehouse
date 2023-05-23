@@ -21,11 +21,10 @@ from ...common.db.ip_addresses import IpAddressFactory
 
 class TestAdminFlag:
     def test_no_ip_not_banned(self, db_request):
-        assert not db_request.banned.by_ip("1.2.3.4")
+        assert not db_request.banned.by_ip("4.3.2.1")
 
     def test_with_ip_not_banned(self, db_request):
-        IpAddressFactory(ip_address="1.2.3.4")
-        assert not db_request.banned.by_ip("1.2.3.4")
+        assert not db_request.banned.by_ip(db_request.ip_address.ip_address)
 
     def test_with_ip_banned(self, db_request):
         user_service = pretend.stub(
@@ -35,13 +34,12 @@ class TestAdminFlag:
             ),
         )
         db_request.find_service = lambda service_name, context=None: user_service
-        IpAddressFactory(
-            ip_address="1.2.3.4",
+        ip_addy = IpAddressFactory(
             is_banned=True,
             ban_reason=BanReason.AUTHENTICATION_ATTEMPTS,
             ban_date=sql.func.now(),
         )
-        assert db_request.banned.by_ip("1.2.3.4")
+        assert db_request.banned.by_ip(ip_addy.ip_address)
         assert user_service._hit_ratelimits.calls == [pretend.call(userid=None)]
         assert user_service._check_ratelimits.calls == [
             pretend.call(userid=None, tags=["banned:by_ip"])

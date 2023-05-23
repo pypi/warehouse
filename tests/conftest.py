@@ -60,6 +60,7 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
+from .common.db.ip_addresses import IpAddressFactory
 
 
 def pytest_collection_modifyitems(items):
@@ -288,9 +289,6 @@ def app_config(database):
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
-        "malware_check.backend": (
-            "warehouse.malware.services.PrinterMalwareCheckService"
-        ),
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -447,6 +445,10 @@ def db_request(pyramid_request, db_session):
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
+    pyramid_request.ip_address = IpAddressFactory.create(
+        ip_address=pyramid_request.remote_addr,
+        hashed_ip_address=pyramid_request.remote_addr_hashed,
+    )
     return pyramid_request
 
 

@@ -248,7 +248,6 @@ def configure(settings=None):
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
-    maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -596,9 +595,6 @@ def configure(settings=None):
 
     # Register support for OIDC based authentication
     config.include(".oidc")
-
-    # Register support for malware checks
-    config.include(".malware")
 
     # Register logged-in views
     config.include(".manage")

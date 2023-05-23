@@ -331,17 +331,17 @@ types-redis==4.5.5.2 \
     --hash=sha256:2fe82f374d9dddf007deaf23d81fddcfd9523d9522bf11523c5c43bc5b27099e \
     --hash=sha256:bf8692252038dbe03b007ca4fde87d3ae8e10610854a6858e3bf5d01721a7c4b
     # via -r requirements/lint.in
-types-requests==2.30.0.0 \
-    --hash=sha256:c6cf08e120ca9f0dc4fa4e32c3f953c3fba222bcc1db6b97695bce8da1ba9864 \
-    --hash=sha256:dec781054324a70ba64430ae9e62e7e9c8e4618c185a5cb3f87a6738251b5a31
+types-requests==2.31.0.0 \
+    --hash=sha256:7c5cea7940f8e92ec560bbc468f65bf684aa3dcf0554a6f8c4710f5f708dc598 \
+    --hash=sha256:c1c29d20ab8d84dff468d7febfe8e0cb0b4664543221b386605e14672b44ea25
     # via -r requirements/lint.in
 types-s3transfer==0.6.1 \
     --hash=sha256:6d1ac1dedac750d570428362acdf60fdd4f277b0788855c3894d3226756b2bfb \
     --hash=sha256:75ac1d7143d58c1e6af467cfd4a96c67ee058a3adf7c249d9309999e1f5f41e4
     # via boto3-stubs
-types-setuptools==67.7.0.3 \
-    --hash=sha256:b3c82ef86c2ff8be238bcec10ba37c194a679f7f8bb075e8d064d8b530b4181e \
-    --hash=sha256:ba59707ba74243aebb0f764d4011f780f0d2dbf60cc1c3efcc20b875d93f43e1
+types-setuptools==67.8.0.0 \
+    --hash=sha256:6df73340d96b238a4188b7b7668814b37e8018168aef1eef94a3b1872e3f60ff \
+    --hash=sha256:95c9ed61871d6c0e258433373a4e1753c0a7c3627a46f4d4058c7b5a08ab844f
     # via -r requirements/lint.in
 types-sqlalchemy-utils==1.0.1 \
     --hash=sha256:37016333faa0abab7d253805ecf9f605c24ea107b32dd3643014efb8e49be76d \
@@ -359,9 +359,9 @@ types-urllib3==1.26.25.13 \
     --hash=sha256:3300538c9dc11dad32eae4827ac313f5d986b8b21494801f1bf97a1ac6c03ae5 \
     --hash=sha256:5dbd1d2bef14efee43f5318b5d36d805a489f6600252bb53626d4bfafd95e27c
     # via types-requests
-typing-extensions==4.5.0 \
-    --hash=sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb \
-    --hash=sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4
+typing-extensions==4.6.0 \
+    --hash=sha256:6ad00b63f849b7dcc313b70b6b304ed67b2b2963b3098a33efe18056b1a9a223 \
+    --hash=sha256:ff6b238610c747e44c268aa4bb23c8c735d665a63726df3f9431ce707f2aa768
     # via
     #   boto3-stubs
     #   celery-types
@@ -410,9 +410,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==67.7.2 \
-    --hash=sha256:23aaf86b85ca52ceb801d32703f12d77517b2556af839621c641fca11287952b \
-    --hash=sha256:f104fa03692a2602fa0fec6c6a9e63b6c8a968de13e17c026957dd1f53d80990
+setuptools==67.8.0 \
+    --hash=sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f \
+    --hash=sha256:62642358adc77ffa87233bc4d2354c4b2682d214048f500964dbe760ccedf102
     # via
     #   zope-event
     #   zope-interface

@@ -152,16 +152,6 @@
               <i class="fa fa-flag nav-icon"></i> <p>Flags</p>
             </a>
           </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.checks.list') }}" class="nav-link">
-              <i class="fa fa-check nav-icon"></i> <p>Checks</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.verdicts.list', _query={'classification':'threat', 'manually_reviewed':'0'}) }}" class="nav-link">
-              <i class="fa fa-gavel nav-icon"></i> <p>Verdicts</p>
-            </a>
-          </li>
           {% endif %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.banner.list') }}" class="nav-link">

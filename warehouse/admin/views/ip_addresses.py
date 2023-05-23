@@ -31,7 +31,7 @@ if typing.TYPE_CHECKING:
     permission="admin",
     uses_session=True,
 )
-def ip_address_list(request: Request):
+def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] | str]:
     # TODO: Add search functionality
     q = request.params.get("q")
 
@@ -58,7 +58,7 @@ def ip_address_list(request: Request):
     permission="admin",
     uses_session=True,
 )
-def ip_address_detail(request: Request):
+def ip_address_detail(request: Request) -> dict[str, IpAddress]:
     ip_address_id = request.matchdict["ip_address_id"]
     try:
         ip_address = request.db.query(IpAddress).filter_by(id=ip_address_id).one()

@@ -178,6 +178,11 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
             path="request-path",
         )
 
@@ -229,16 +234,19 @@ class TestManageOrganizations:
             pretend.call(
                 tag=EventTag.Organization.CatalogEntryAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 tag=EventTag.Organization.OrganizationCreate,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 tag=EventTag.Organization.OrganizationRoleAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -250,6 +258,7 @@ class TestManageOrganizations:
             pretend.call(
                 tag=EventTag.Account.OrganizationRoleAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -320,6 +329,11 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
             route_path=lambda *a, **kw: "manage-subscription-url",
             path="request-path",
         )
@@ -372,16 +386,19 @@ class TestManageOrganizations:
             pretend.call(
                 tag=EventTag.Organization.CatalogEntryAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"submitted_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 tag=EventTag.Organization.OrganizationCreate,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"created_by_user_id": str(request.user.id)},
             ),
             pretend.call(
                 tag=EventTag.Organization.OrganizationRoleAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "role_name": "Owner",
@@ -393,6 +410,7 @@ class TestManageOrganizations:
             pretend.call(
                 tag=EventTag.Account.OrganizationRoleAdd,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
                     "organization_name": organization.name,
@@ -448,6 +466,11 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
         )
 
         create_organization_obj = pretend.stub(
