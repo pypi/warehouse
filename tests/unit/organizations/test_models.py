@@ -183,6 +183,24 @@ class TestOrganization:
             key=lambda x: x[1],
         )
 
+    def test_record_event(self, db_request):
+        """
+        Test to cover condition when record_event is called with geoip_info as
+        part of the inbound request.
+        Possibly could be removed once more comprehensive tests are in place,
+        but nothing explicitly covers `HasEvents.record_event`
+        """
+        db_request.ip_address.geoip_info = {"country_code": "US"}
+
+        organization = DBOrganizationFactory.create()
+
+        organization.record_event(
+            tag="",
+            ip_address=db_request.ip_address.ip_address,
+            request=db_request,
+            additional={},
+        )
+
 
 class TestTeamFactory:
     def test_traversal_finds(self, db_request):
