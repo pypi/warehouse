@@ -124,9 +124,7 @@ class HasEvents:
             back_populates="source",
         )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request, additional=None
-    ):
+    def record_event(self, *, tag, ip_address, request: Request, additional=None):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
 
