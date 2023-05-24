@@ -300,7 +300,7 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None, request=None):
+    def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason

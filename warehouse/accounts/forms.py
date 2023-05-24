@@ -349,8 +349,8 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id,
+                    self.request,
                     reason=DisableReason.CompromisedPassword,
-                    request=self.request,
                 )
                 raise wtforms.validators.ValidationError(
                     markupsafe.Markup(self.breach_service.failure_message)

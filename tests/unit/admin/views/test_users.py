@@ -406,7 +406,7 @@ class TestUserResetPassword:
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user.username),
             disable_password=pretend.call_recorder(
-                lambda userid, reason, request=None: None
+                lambda userid, request, reason: None
             ),
         )
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
@@ -421,9 +421,7 @@ class TestUserResetPassword:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(
-                user.id, reason=DisableReason.CompromisedPassword, request=db_request
-            )
+            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)

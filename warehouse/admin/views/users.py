@@ -290,7 +290,7 @@ def user_reset_password(user, request):
     login_service = request.find_service(IUserService, context=None)
     send_password_compromised_email(request, user)
     login_service.disable_password(
-        user.id, reason=DisableReason.CompromisedPassword, request=request
+        user.id, request, reason=DisableReason.CompromisedPassword
     )
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")

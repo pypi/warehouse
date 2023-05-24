@@ -86,8 +86,8 @@ def _basic_auth_check(username, password, request):
                 send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
                     user.id,
+                    request,
                     reason=DisableReason.CompromisedPassword,
-                    request=request,
                 )
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain

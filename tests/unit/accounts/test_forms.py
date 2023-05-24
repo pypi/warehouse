@@ -259,7 +259,7 @@ class TestLoginForm:
             get_user=lambda _: user,
             check_password=lambda userid, pw, tags=None: True,
             disable_password=pretend.call_recorder(
-                lambda user_id, reason=None, request=None: None
+                lambda user_id, request, reason=None: None
             ),
             is_disabled=lambda userid: (False, None),
         )
@@ -278,8 +278,8 @@ class TestLoginForm:
         assert user_service.disable_password.calls == [
             pretend.call(
                 1,
+                request,
                 reason=DisableReason.CompromisedPassword,
-                request=request,
             )
         ]
         assert send_email.calls == [pretend.call(request, user)]
