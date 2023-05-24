@@ -797,6 +797,7 @@ class ManageOrganizationProjectsViews:
             project = project_service.create_project(
                 form.new_project_name.data,
                 self.request.user,
+                request=self.request,
                 creator_is_owner=False,
                 ratelimited=False,
             )

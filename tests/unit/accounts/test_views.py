@@ -288,6 +288,7 @@ class TestLogin:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -351,6 +352,7 @@ class TestLogin:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -714,6 +716,7 @@ class TestTwoFactor:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1157,6 +1160,7 @@ class TestRecoveryCode:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1165,6 +1169,7 @@ class TestRecoveryCode:
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesUsed,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1411,11 +1416,13 @@ class TestRegister:
             pretend.call(
                 tag=EventTag.Account.AccountCreate,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1524,6 +1531,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -1588,6 +1596,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1663,6 +1672,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1762,6 +1772,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetAttempt,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -3569,6 +3580,7 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherAdded,
                 ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": pending_publisher.publisher_name,
@@ -3802,6 +3814,7 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherRemoved,
                 ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": "GitHub",

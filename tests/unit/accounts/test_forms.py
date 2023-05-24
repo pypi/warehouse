@@ -203,6 +203,7 @@ class TestLoginForm:
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"reason": "invalid_password"},
             )
         ]
@@ -258,7 +259,7 @@ class TestLoginForm:
             get_user=lambda _: user,
             check_password=lambda userid, pw, tags=None: True,
             disable_password=pretend.call_recorder(
-                lambda user_id, reason=None, ip_address="127.0.0.1": None
+                lambda user_id, request, reason=None: None
             ),
             is_disabled=lambda userid: (False, None),
         )
@@ -276,7 +277,9 @@ class TestLoginForm:
         assert form.password.errors.pop() == "Bad Password!"
         assert user_service.disable_password.calls == [
             pretend.call(
-                1, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+                1,
+                request,
+                reason=DisableReason.CompromisedPassword,
             )
         ]
         assert send_email.calls == [pretend.call(request, user)]
@@ -846,6 +849,7 @@ class TestTOTPAuthenticationForm:
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"reason": "invalid_totp"},
             )
         ]
@@ -944,6 +948,7 @@ class TestWebAuthnAuthenticationForm:
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"reason": "invalid_webauthn"},
             )
         ]
@@ -1045,6 +1050,7 @@ class TestRecoveryCodeForm:
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"reason": expected_reason},
             )
         ]
