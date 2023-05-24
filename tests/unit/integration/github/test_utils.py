@@ -610,6 +610,7 @@ def test_analyze_disclosure(monkeypatch):
         pretend.call(
             tag=EventTag.Account.APITokenRemovedLeak,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "macaroon_id": "12",
                 "public_url": "http://example.com",

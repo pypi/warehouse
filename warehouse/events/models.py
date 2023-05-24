@@ -130,28 +130,19 @@ class HasEvents:
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
 
-        if request is not None:
-            # Get-or-create a new IpAddress object
-            ip_address_obj = request.ip_address
-            # Add `request.ip_address.geoip_info` data to `Event.additional`
-            if ip_address_obj.geoip_info is not None:
-                additional = additional or {}
-                additional["geoip_info"] = ip_address_obj.geoip_info
+        # Get-or-create a new IpAddress object
+        ip_address_obj = request.ip_address
+        # Add `request.ip_address.geoip_info` data to `Event.additional`
+        if ip_address_obj.geoip_info is not None:
+            additional = additional or {}
+            additional["geoip_info"] = ip_address_obj.geoip_info
 
-            event = self.Event(
-                source=self,
-                tag=tag,
-                ip_address_obj=ip_address_obj,
-                additional=additional,
-            )
-        else:
-            # Our hope is to eventually remove this once `Request` is not None
-            event = self.Event(
-                source=self,
-                tag=tag,
-                ip_address=ip_address,
-                additional=additional,
-            )
+        event = self.Event(
+            source=self,
+            tag=tag,
+            ip_address_obj=ip_address_obj,
+            additional=additional,
+        )
 
         session.add(event)
 

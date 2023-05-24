@@ -160,6 +160,7 @@ class PasswordMixin:
                     user.record_event(
                         tag=f"account:{self.action}:failure",
                         ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={"reason": "invalid_password"},
                     )
                     raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
@@ -349,7 +350,7 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 self.user_service.disable_password(
                     user.id,
                     reason=DisableReason.CompromisedPassword,
-                    ip_address=self.request.remote_addr,
+                    request=self.request,
                 )
                 raise wtforms.validators.ValidationError(
                     markupsafe.Markup(self.breach_service.failure_message)
@@ -373,6 +374,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -409,6 +411,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -450,6 +453,7 @@ class RecoveryCodeAuthenticationForm(
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
@@ -458,6 +462,7 @@ class RecoveryCodeAuthenticationForm(
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(
