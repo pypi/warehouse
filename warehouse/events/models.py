@@ -125,7 +125,7 @@ class HasEvents:
         )
 
     def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
+        self, *, tag, ip_address, request: Request, additional=None
     ):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
