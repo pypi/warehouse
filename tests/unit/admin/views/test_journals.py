@@ -119,27 +119,3 @@ class TestProjectList:
             "journals": [journals[0]],
             "query": f"version:{journals[0].version}",
         }
-
-    def test_query_term_ip(self, db_request):
-        ipv4 = "10.6.6.6"
-        ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-        journals0 = sorted(
-            [JournalEntryFactory.create(submitted_from=ipv4) for _ in range(10)],
-            key=lambda j: (j.submitted_date, j.id),
-            reverse=True,
-        )
-        journals1 = sorted(
-            [JournalEntryFactory.create(submitted_from=ipv6) for _ in range(10)],
-            key=lambda j: (j.submitted_date, j.id),
-            reverse=True,
-        )
-
-        db_request.GET["q"] = f"ip:{ipv4}"
-        result = views.journals_list(db_request)
-
-        assert result == {"journals": journals0, "query": f"ip:{ipv4}"}
-
-        db_request.GET["q"] = f"ip:{ipv6}"
-        result = views.journals_list(db_request)
-
-        assert result == {"journals": journals1, "query": f"ip:{ipv6}"}

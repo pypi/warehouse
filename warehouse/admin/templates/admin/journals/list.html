@@ -26,7 +26,7 @@
   <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
-        <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are user: project: version: ip:"{% if query %} value="{{ query }}"{% endif %}>
+        <input name="q" type="text" class="form-control input-lg" placeholder="Search: supported terms are user: project: version:"{% if query %} value="{{ query }}"{% endif %}>
         <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
@@ -44,7 +44,6 @@
         <th>Version</th>
         <th>Date</th>
         <th>Submitted By</th>
-        <th>Submitted From</th>
         <th>Action</th>
       </tr>
       </thead>
@@ -55,13 +54,6 @@
         <td>{{ journal.version }}</td>
         <td>{{ journal.submitted_date }}</td>
         <td><a href="{{ request.route_path('admin.user.detail', username=journal.submitted_by.username) }}">{{ journal.submitted_by.username }}</a></td>
-        <td>
-          {% if journal.submitted_from %}
-          <a href="{{ request.route_path('admin.journals.list', _query={'q': 'ip:' + journal.submitted_from}) }}">
-            {{ journal.submitted_from }}
-          </a>
-          {% endif %}
-        </td>
         <td>{{ journal.action }}</td>
       </tr>
       {% endfor %}

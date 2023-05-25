@@ -369,20 +369,18 @@ class GCSSimpleStorage(GenericGCSBlobStorage):
 
 @implementer(IProjectService)
 class ProjectService:
-    def __init__(self, session, remote_addr, metrics=None, ratelimiters=None) -> None:
+    def __init__(self, session, metrics=None, ratelimiters=None) -> None:
         if ratelimiters is None:
             ratelimiters = {}
 
         self.db = session
-        self.remote_addr = remote_addr
         self.ratelimiters = collections.defaultdict(DummyRateLimiter, ratelimiters)
         self._metrics = metrics
 
-    def _check_ratelimits(self, creator):
+    def _check_ratelimits(self, request, creator):
         # First we want to check if a single IP is exceeding our rate limiter.
-        print(self.ratelimiters)
-        if self.remote_addr is not None:
-            if not self.ratelimiters["project.create.ip"].test(self.remote_addr):
+        if request.remote_addr is not None:
+            if not self.ratelimiters["project.create.ip"].test(request.remote_addr):
                 logger.warning("IP failed project create threshold reached.")
                 self._metrics.increment(
                     "warehouse.project.create.ratelimited",
@@ -390,7 +388,7 @@ class ProjectService:
                 )
                 raise TooManyProjectsCreated(
                     resets_in=self.ratelimiters["project.create.ip"].resets_in(
-                        self.remote_addr
+                        request.remote_addr
                     )
                 )
 
@@ -402,17 +400,19 @@ class ProjectService:
             )
             raise TooManyProjectsCreated(
                 resets_in=self.ratelimiters["project.create.user"].resets_in(
-                    self.remote_addr
+                    request.remote_addr
                 )
             )
 
-    def _hit_ratelimits(self, creator):
+    def _hit_ratelimits(self, request, creator):
         self.ratelimiters["project.create.user"].hit(creator.id)
-        self.ratelimiters["project.create.ip"].hit(self.remote_addr)
+        self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
-    def create_project(self, name, creator, *, creator_is_owner=True, ratelimited=True):
+    def create_project(
+        self, name, creator, request, *, creator_is_owner=True, ratelimited=True
+    ):
         if ratelimited:
-            self._check_ratelimits(creator)
+            self._check_ratelimits(request, creator)
 
         project = Project(name=name)
         self.db.add(project)
@@ -425,12 +425,12 @@ class ProjectService:
                 name=project.name,
                 action="create",
                 submitted_by=creator,
-                submitted_from=self.remote_addr,
             )
         )
         project.record_event(
             tag=EventTag.Project.ProjectCreate,
-            ip_address=self.remote_addr,
+            ip_address=request.remote_addr,
+            request=request,
             additional={"created_by": creator.username},
         )
 
@@ -445,12 +445,12 @@ class ProjectService:
                     name=project.name,
                     action=f"add Owner {creator.username}",
                     submitted_by=creator,
-                    submitted_from=self.remote_addr,
                 )
             )
             project.record_event(
                 tag=EventTag.Project.RoleAdd,
-                ip_address=self.remote_addr,
+                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": creator.username,
                     "role_name": "Owner",
@@ -459,7 +459,7 @@ class ProjectService:
             )
 
         if ratelimited:
-            self._hit_ratelimits(creator)
+            self._hit_ratelimits(request, creator)
         return project
 
 
@@ -473,6 +473,4 @@ def project_service_factory(context, request):
             IRateLimiter, name="project.create.ip", context=None
         ),
     }
-    return ProjectService(
-        request.db, request.remote_addr, metrics=metrics, ratelimiters=ratelimiters
-    )
+    return ProjectService(request.db, metrics=metrics, ratelimiters=ratelimiters)

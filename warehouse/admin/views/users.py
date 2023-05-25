@@ -207,7 +207,6 @@ def _nuke_user(user, request):
                 name=project.name,
                 action="remove project",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
     projects.delete(synchronize_session=False)
@@ -239,7 +238,6 @@ def _nuke_user(user, request):
             name=f"user:{user.username}",
             action="nuke user",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 
@@ -289,7 +287,9 @@ def user_reset_password(user, request):
 
     login_service = request.find_service(IUserService, context=None)
     send_password_compromised_email(request, user)
-    login_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+    login_service.disable_password(
+        user.id, request, reason=DisableReason.CompromisedPassword
+    )
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

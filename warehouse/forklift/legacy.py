@@ -970,7 +970,9 @@ def file_upload(request):
 
         project_service = request.find_service(IProjectService)
         try:
-            project = project_service.create_project(form.name.data, request.user)
+            project = project_service.create_project(
+                form.name.data, request.user, request
+            )
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -1162,13 +1164,13 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username
                 if request.user
@@ -1409,6 +1411,7 @@ def file_upload(request):
         file_.record_event(
             tag=EventTag.File.FileAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "filename": file_.filename,
                 "submitted_by": request.user.username
@@ -1433,7 +1436,6 @@ def file_upload(request):
                     python_version=file_.python_version, filename=file_.filename
                 ),
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 

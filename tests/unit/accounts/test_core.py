@@ -105,6 +105,7 @@ class TestLogin:
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 ip_address="1.2.3.4",
+                request=pyramid_request,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
         ]
@@ -245,6 +246,7 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 ip_address="1.2.3.4",
+                request=pyramid_request,
                 tag=EventTag.Account.LoginSuccess,
                 additional={"auth_method": "basic"},
             )
@@ -267,7 +269,7 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
             disable_password=pretend.call_recorder(
-                lambda user_id, reason=None, ip_address="127.0.0.1": None
+                lambda user_id, request, reason=None: None
             ),
         )
         breach_service = pretend.stub(
@@ -301,7 +303,9 @@ class TestLogin:
         ]
         assert service.disable_password.calls == [
             pretend.call(
-                2, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+                2,
+                pyramid_request,
+                reason=DisableReason.CompromisedPassword,
             )
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]

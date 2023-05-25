@@ -74,7 +74,7 @@ class IDocsStorage(Interface):
 
 
 class IProjectService(Interface):
-    def create_project(name, creator, *, creator_is_owner=True):
+    def create_project(name, creator, request, *, creator_is_owner=True):
         """
         Creates a new project, recording a user as its creator.
 
