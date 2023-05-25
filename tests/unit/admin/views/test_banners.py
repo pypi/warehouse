@@ -232,4 +232,7 @@ class TestBannerForm:
             "active": False,
             "link_label": Banner.DEFAULT_BTN_LABEL,
         }
+
+        # Mash the `end` into a date object to match the form's coerced result.
+        banner_data["end"] = datetime.date.fromisoformat(banner_data["end"])
         assert data == {**banner_data, **defaults}
