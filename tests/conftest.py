@@ -281,6 +281,7 @@ def app_config(database):
     settings = {
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
+        "warehouse.ip_salt": "insecure salt",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
         "celery.broker_url": "amqp://",
