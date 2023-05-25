@@ -3214,12 +3214,14 @@ class TestFileUpload:
                 mock.ANY,
                 tag=EventTag.Project.ReleaseAdd,
                 ip_address=mock.ANY,
+                request=db_request,
                 additional=release_event,
             ),
             pretend.call(
                 mock.ANY,
                 tag=EventTag.File.FileAdd,
                 ip_address=mock.ANY,
+                request=db_request,
                 additional=fileadd_event,
             ),
         ]
