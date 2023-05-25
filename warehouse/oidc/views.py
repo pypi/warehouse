@@ -133,6 +133,7 @@ def mint_token_from_oidc(request):
         new_project = project_service.create_project(
             pending_publisher.project_name,
             pending_publisher.added_by,
+            request,
             ratelimited=False,
         )
         oidc_service.reify_pending_publisher(pending_publisher, new_project)
@@ -204,6 +205,7 @@ def mint_token_from_oidc(request):
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,

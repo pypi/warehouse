@@ -752,7 +752,6 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
-    submitted_from = Column(Text)
 
 
 class ProhibitedProjectName(db.Model):

@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import typing
 
+from dataclasses import dataclass
+
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.exc import NoResultFound
@@ -25,6 +27,49 @@ from warehouse.ip_addresses.models import IpAddress
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+
+@dataclass
+class GeoIPInfo:
+    """
+    Optional values passed in from upstream CDN
+    https://github.com/pypi/infra/blob/3e57592ba91205cb5d10c588d529767b101753cd/terraform/warehouse/vcl/main.vcl#L181-L191
+    """
+
+    city: str | None = None
+    continent_code: str | None = None
+    country_code3: str | None = None
+    country_code: str | None = None
+    country_name: str | None = None
+    region: str | None = None
+
+    @property
+    def _city(self) -> str:
+        return self.city.title() if self.city else ""
+
+    @property
+    def _region(self) -> str:
+        return self.region.upper() if self.region else ""
+
+    @property
+    def _country_code(self) -> str:
+        return self.country_code.upper() if self.country_code else ""
+
+    def display(self) -> str:
+        """
+        Construct a reasonable location, depending on optional values
+        """
+        if self.city and self.region and self.country_code:
+            return f"{self._city}, {self._region}, {self._country_code}"
+        elif self.city and self.region:
+            return f"{self._city}, {self._region}"
+        elif self.city and self.country_code:
+            return f"{self._city}, {self._country_code}"
+        elif self.region:
+            return f"{self._region}, {self._country_code}"
+        elif self.country_name:
+            return self.country_name
+        return ""
 
 
 class Event(AbstractConcreteBase):
@@ -99,6 +144,23 @@ class Event(AbstractConcreteBase):
             session.add(_ip_address)
         cls.ip_address_obj = _ip_address
 
+    @property
+    def location_info(cls) -> str:  # noqa: N805
+        """
+        Determine "best" location info to display.
+
+        Dig into `.additional` for `geoip_info` and return that if it exists.
+        It was stored at the time opf the event, and may change in the related
+        `IpAddress` object over time.
+        Otherwise, return the `ip_address_obj` and let its repr decide.
+        """
+        if cls.additional is not None and "geoip_info" in cls.additional:
+            g = GeoIPInfo(**cls.additional["geoip_info"])
+            if g.display():
+                return g.display()
+
+        return cls.ip_address_obj
+
     def __init_subclass__(cls, /, parent_class, **kwargs):
         cls._parent_class = parent_class
         return cls
@@ -124,34 +186,23 @@ class HasEvents:
             back_populates="source",
         )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
-    ):
+    def record_event(self, *, tag, ip_address, request: Request, additional=None):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
 
-        if request is not None:
-            # Get-or-create a new IpAddress object
-            ip_address_obj = request.ip_address
-            # Add `request.ip_address.geoip_info` data to `Event.additional`
-            if ip_address_obj.geoip_info is not None:
-                additional = additional or {}
-                additional["geoip_info"] = ip_address_obj.geoip_info
+        # Get-or-create a new IpAddress object
+        ip_address_obj = request.ip_address
+        # Add `request.ip_address.geoip_info` data to `Event.additional`
+        if ip_address_obj.geoip_info is not None:
+            additional = additional or {}
+            additional["geoip_info"] = ip_address_obj.geoip_info
 
-            event = self.Event(
-                source=self,
-                tag=tag,
-                ip_address_obj=ip_address_obj,
-                additional=additional,
-            )
-        else:
-            # Our hope is to eventually remove this once `Request` is not None
-            event = self.Event(
-                source=self,
-                tag=tag,
-                ip_address=ip_address,
-                additional=additional,
-            )
+        event = self.Event(
+            source=self,
+            tag=tag,
+            ip_address_obj=ip_address_obj,
+            additional=additional,
+        )
 
         session.add(event)
 

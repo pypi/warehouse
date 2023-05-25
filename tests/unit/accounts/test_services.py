@@ -49,6 +49,7 @@ from warehouse.metrics import IMetricsService, NullMetrics
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.ip_addresses import IpAddressFactory
 
 
 class TestDatabaseUserService:
@@ -440,6 +441,10 @@ class TestDatabaseUserService:
         ],
     )
     def test_disable_password(self, user_service, reason, expected):
+        request = pretend.stub(
+            remote_addr="127.0.0.1",
+            ip_address=IpAddressFactory.create(),
+        )
         user = UserFactory.create()
         user.record_event = pretend.call_recorder(lambda *a, **kw: None)
 
@@ -448,13 +453,14 @@ class TestDatabaseUserService:
         assert user.password != "!"
 
         # Now we'll actually test our disable function.
-        user_service.disable_password(user.id, reason=reason)
+        user_service.disable_password(user.id, reason=reason, request=request)
         assert user.password == "!"
 
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordDisabled,
                 ip_address="127.0.0.1",
+                request=request,
                 additional={"reason": expected},
             )
         ]
@@ -464,10 +470,14 @@ class TestDatabaseUserService:
         [(True, None), (True, DisableReason.CompromisedPassword), (False, None)],
     )
     def test_is_disabled(self, user_service, disabled, reason):
+        request = pretend.stub(
+            remote_addr="127.0.0.1",
+            ip_address=IpAddressFactory.create(),
+        )
         user = UserFactory.create()
         user_service.update_user(user.id, password="foo")
         if disabled:
-            user_service.disable_password(user.id, reason=reason)
+            user_service.disable_password(user.id, reason=reason, request=request)
         assert user_service.is_disabled(user.id) == (disabled, reason)
 
     def test_is_disabled_user_frozen(self, user_service):
@@ -475,8 +485,14 @@ class TestDatabaseUserService:
         assert user_service.is_disabled(user.id) == (True, DisableReason.AccountFrozen)
 
     def test_updating_password_undisables(self, user_service):
+        request = pretend.stub(
+            remote_addr="127.0.0.1",
+            ip_address=IpAddressFactory.create(),
+        )
         user = UserFactory.create()
-        user_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+        user_service.disable_password(
+            user.id, reason=DisableReason.CompromisedPassword, request=request
+        )
         assert user_service.is_disabled(user.id) == (
             True,
             DisableReason.CompromisedPassword,

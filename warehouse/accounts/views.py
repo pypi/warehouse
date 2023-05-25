@@ -29,6 +29,7 @@ from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -452,7 +453,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
             user = user_service.get_user(userid)
             user.record_event(
-                tag=EventTag.Account.RecoveryCodesUsed, ip_address=request.remote_addr
+                tag=EventTag.Account.RecoveryCodesUsed,
+                ip_address=request.remote_addr,
+                request=request,
             )
 
             request.session.flash(
@@ -557,10 +560,12 @@ def register(request, _form_class=RegistrationForm):
 
     # the form contains an auto-generated field from recaptcha with
     # hyphens in it. make it play nice with wtforms.
-    post_body = {key.replace("-", "_"): value for key, value in request.POST.items()}
+    post_body = MultiDict(
+        {key.replace("-", "_"): value for key, value in request.POST.items()}
+    )
 
     form = _form_class(
-        data=post_body,
+        formdata=post_body,
         user_service=user_service,
         recaptcha_service=recaptcha_service,
         breach_service=breach_service,
@@ -575,6 +580,7 @@ def register(request, _form_class=RegistrationForm):
         user.record_event(
             tag=EventTag.Account.AccountCreate,
             ip_address=request.remote_addr,
+            request=request,
             additional={"email": form.email.data},
         )
 
@@ -622,6 +628,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=request.remote_addr,
+                request=request,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -632,6 +639,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
                 ip_address=request.remote_addr,
+                request=request,
             )
             request.session.flash(
                 request._(
@@ -735,7 +743,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
         user.record_event(
-            tag=EventTag.Account.PasswordReset, ip_address=request.remote_addr
+            tag=EventTag.Account.PasswordReset,
+            ip_address=request.remote_addr,
+            request=request,
         )
         password_reset_limiter.clear(user.id)
 
@@ -800,6 +810,7 @@ def verify_email(request):
     email.user.record_event(
         tag=EventTag.Account.EmailVerified,
         ip_address=request.remote_addr,
+        request=request,
         additional={"email": email.email, "primary": email.primary},
     )
 
@@ -908,6 +919,7 @@ def verify_organization_role(request):
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
                 "role_name": desired_role,
@@ -917,6 +929,7 @@ def verify_organization_role(request):
         user.record_event(
             tag=EventTag.Account.OrganizationRoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
                 "organization_name": organization.name,
@@ -961,6 +974,7 @@ def verify_organization_role(request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
             "role_name": desired_role,
@@ -970,6 +984,7 @@ def verify_organization_role(request):
     user.record_event(
         tag=EventTag.Account.OrganizationRoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
             "organization_name": organization.name,
@@ -1082,6 +1097,7 @@ def verify_project_role(request):
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": submitter_user.username,
                 "role_name": desired_role,
@@ -1091,6 +1107,7 @@ def verify_project_role(request):
         user.record_event(
             tag=EventTag.Account.RoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": submitter_user.username,
                 "project_name": project.name,
@@ -1113,12 +1130,12 @@ def verify_project_role(request):
             name=project.name,
             action=f"accepted {desired_role} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
     project.record_event(
         tag=EventTag.Project.RoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "role_name": desired_role,
@@ -1128,6 +1145,7 @@ def verify_project_role(request):
     user.record_event(
         tag=EventTag.Account.RoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "project_name": project.name,
@@ -1223,6 +1241,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,
@@ -1502,6 +1521,7 @@ class ManageAccountPublishingViews:
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "project": pending_publisher.project_name,
                 "publisher": pending_publisher.publisher_name,
@@ -1591,6 +1611,7 @@ class ManageAccountPublishingViews:
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "project": pending_publisher.project_name,
                 "publisher": pending_publisher.publisher_name,

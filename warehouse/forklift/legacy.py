@@ -421,7 +421,7 @@ class MetadataForm(forms.Form):
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
@@ -436,7 +436,7 @@ class MetadataForm(forms.Form):
     name = wtforms.StringField(
         description="Name",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE,
                 re.IGNORECASE,
@@ -450,7 +450,7 @@ class MetadataForm(forms.Form):
     version = wtforms.StringField(
         description="Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 r"^(?!\s).*(?<!\s)$",
                 message="Can't have leading or trailing whitespace.",
@@ -526,7 +526,7 @@ class MetadataForm(forms.Form):
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
@@ -894,7 +894,7 @@ def file_upload(request):
     # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content"}:
+    for field in set(request.POST) - {"content", "gpg_signature"}:
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
@@ -970,7 +970,9 @@ def file_upload(request):
 
         project_service = request.find_service(IProjectService)
         try:
-            project = project_service.create_project(form.name.data, request.user)
+            project = project_service.create_project(
+                form.name.data, request.user, request
+            )
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -1162,13 +1164,13 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username
                 if request.user
@@ -1411,6 +1413,7 @@ def file_upload(request):
         file_.record_event(
             tag=EventTag.File.FileAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "filename": file_.filename,
                 "submitted_by": request.user.username
@@ -1437,7 +1440,6 @@ def file_upload(request):
                     python_version=file_.python_version, filename=file_.filename
                 ),
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 

@@ -209,6 +209,7 @@ class ManageAccountViews:
             self.request.user.record_event(
                 tag=EventTag.Account.EmailAdd,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"email": email.email},
             )
 
@@ -252,6 +253,7 @@ class ManageAccountViews:
             self.request.user.record_event(
                 tag=EventTag.Account.EmailRemove,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -288,6 +290,7 @@ class ManageAccountViews:
         self.request.user.record_event(
             tag=EventTag.Account.EmailPrimaryChange,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -334,6 +337,7 @@ class ManageAccountViews:
                 email.user.record_event(
                     tag=EventTag.Account.EmailReverify,
                     ip_address=self.request.remote_addr,
+                    request=self.request,
                     additional={"email": email.email},
                 )
 
@@ -372,6 +376,7 @@ class ManageAccountViews:
             self.request.user.record_event(
                 tag=EventTag.Account.PasswordChange,
                 ip_address=self.request.remote_addr,
+                request=self.request,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.db.flush()  # ensure password_date is available
@@ -550,6 +555,7 @@ class ProvisionTOTPViews:
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -588,6 +594,7 @@ class ProvisionTOTPViews:
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -675,6 +682,7 @@ class ProvisionWebAuthnViews:
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -715,6 +723,7 @@ class ProvisionWebAuthnViews:
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -761,6 +770,7 @@ class ProvisionRecoveryCodesViews:
         self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesGenerated,
             ip_address=self.request.remote_addr,
+            request=self.request,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -777,6 +787,7 @@ class ProvisionRecoveryCodesViews:
         self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesRegenerated,
             ip_address=self.request.remote_addr,
+            request=self.request,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -902,6 +913,7 @@ class ProvisionMacaroonViews:
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenAdded,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "description": form.description.data,
                     "caveats": recorded_caveats,
@@ -921,6 +933,7 @@ class ProvisionMacaroonViews:
                     project.record_event(
                         tag=EventTag.Project.APITokenAdded,
                         ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={
                             "description": form.description.data,
                             "user": self.request.user.username,
@@ -953,6 +966,7 @@ class ProvisionMacaroonViews:
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenRemoved,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.permissions_caveat:
@@ -966,6 +980,7 @@ class ProvisionMacaroonViews:
                     project.record_event(
                         tag=EventTag.Project.APITokenRemoved,
                         ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={
                             "description": macaroon.description,
                             "user": self.request.user.username,
@@ -1109,6 +1124,7 @@ class ManageProjectSettingsViews:
             self.project.record_event(
                 tag=EventTag.Project.OwnersRequire2FADisabled,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
@@ -1120,6 +1136,7 @@ class ManageProjectSettingsViews:
             self.project.record_event(
                 tag=EventTag.Project.OwnersRequire2FAEnabled,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
@@ -1310,6 +1327,7 @@ class ManageOIDCPublisherViews:
         self.project.record_event(
             tag=EventTag.Project.OIDCPublisherAdded,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "publisher": publisher.publisher_name,
                 "id": str(publisher.id),
@@ -1381,6 +1399,7 @@ class ManageOIDCPublisherViews:
             self.project.record_event(
                 tag=EventTag.Project.OIDCPublisherRemoved,
                 ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
@@ -1634,13 +1653,13 @@ class ManageProjectRelease:
                 action="yank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseYank,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1720,13 +1739,13 @@ class ManageProjectRelease:
                 action="unyank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseUnyank,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1822,13 +1841,13 @@ class ManageProjectRelease:
                 action="remove release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseRemove,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1915,13 +1934,13 @@ class ManageProjectRelease:
                 action=f"remove file {release_file.filename}",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         release_file.record_event(
             tag=EventTag.File.FileRemove,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -2074,7 +2093,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name.value} {team_name}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
 
@@ -2082,6 +2100,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         project.record_event(
             tag=EventTag.Project.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "role_name": role_name.value,
@@ -2091,6 +2110,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         team.organization.record_event(
             tag=EventTag.Organization.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -2101,6 +2121,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         team.record_event(
             tag=EventTag.Team.TeamProjectRoleAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -2185,7 +2206,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name} {user.username}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
 
@@ -2193,6 +2213,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         project.record_event(
             tag=EventTag.Project.RoleAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username,
                 "role_name": role_name,
@@ -2202,6 +2223,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         user.record_event(
             tag=EventTag.Account.RoleAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username,
                 "project_name": project.name,
@@ -2310,7 +2332,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     name=project.name,
                     action=f"invite {role_name} {username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
                 )
             )
             send_project_role_verification_email(
@@ -2325,6 +2346,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             project.record_event(
                 tag=EventTag.Project.RoleInvite,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role_name,
@@ -2334,6 +2356,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             user.record_event(
                 tag=EventTag.Account.RoleInvite,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "project_name": project.name,
@@ -2396,12 +2419,12 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             name=project.name,
             action=f"revoke_invite {role_name} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
     project.record_event(
         tag=EventTag.Project.RoleRevokeInvite,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "role_name": role_name,
@@ -2411,6 +2434,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     user.record_event(
         tag=EventTag.Account.RoleRevokeInvite,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "project_name": project.name,
@@ -2461,13 +2485,13 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             role.role_name, role.user.username, form.role_name.data
                         ),
                         submitted_by=request.user,
-                        submitted_from=request.remote_addr,
                     )
                 )
                 role.role_name = form.role_name.data
                 project.record_event(
                     tag=EventTag.Project.RoleChange,
                     ip_address=request.remote_addr,
+                    request=request,
                     additional={
                         "submitted_by": request.user.username,
                         "role_name": form.role_name.data,
@@ -2477,6 +2501,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 role.user.record_event(
                     tag=EventTag.Account.RoleChange,
                     ip_address=request.remote_addr,
+                    request=request,
                     additional={
                         "submitted_by": request.user.username,
                         "project_name": project.name,
@@ -2546,12 +2571,12 @@ def delete_project_role(project, request):
                     name=project.name,
                     action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
                 )
             )
             project.record_event(
                 tag=EventTag.Project.RoleRemove,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role.role_name,

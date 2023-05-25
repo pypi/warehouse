@@ -300,13 +300,14 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None, ip_address="127.0.0.1"):
+    def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
         user.record_event(
             tag=EventTag.Account.PasswordDisabled,
-            ip_address=ip_address,
+            ip_address=request.remote_addr,
+            request=request,
             additional={"reason": reason.value if reason else None},
         )
 

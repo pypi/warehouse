@@ -1474,16 +1474,12 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -2120,26 +2116,11 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
-            ("example", None, "create", user, db_request.remote_addr),
-            (
-                "example",
-                None,
-                f"add Owner {user.username}",
-                user,
-                db_request.remote_addr,
-            ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
-            (
-                "example",
-                "1.0",
-                "add source file example-1.0.tar.gz",
-                user,
-                db_request.remote_addr,
-            ),
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            ("example", None, "create", user),
+            ("example", None, f"add Owner {user.username}", user),
+            ("example", "1.0", "new release", user),
+            ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
 
     def test_upload_fails_with_previously_used_filename(
@@ -2770,16 +2751,12 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -2904,16 +2881,12 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -3198,23 +3171,18 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 "new release",
                 identity if test_with_user else None,
-                db_request.remote_addr,
             ),
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
                 identity if test_with_user else None,
-                db_request.remote_addr,
             ),
         ]
 
@@ -3533,26 +3501,11 @@ class TestFileUpload:
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
-            ("example", None, "create", user, db_request.remote_addr),
-            (
-                "example",
-                None,
-                f"add Owner {user.username}",
-                user,
-                db_request.remote_addr,
-            ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
-            (
-                "example",
-                "1.0",
-                "add source file example-1.0.tar.gz",
-                user,
-                db_request.remote_addr,
-            ),
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            ("example", None, "create", user),
+            ("example", None, f"add Owner {user.username}", user),
+            ("example", "1.0", "new release", user),
+            ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
 
     def test_upload_succeeds_with_signature(

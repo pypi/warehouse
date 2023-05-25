@@ -308,10 +308,11 @@ class TestSendEmail:
             def __init__(self):
                 self.events = []
 
-            def record_event(self, tag, ip_address, additional):
+            def record_event(self, tag, ip_address, request=None, additional=None):
                 self.events.append(
                     {
                         "ip_address": ip_address,
+                        "request": request,
                         "tag": tag,
                         "additional": additional,
                     }
@@ -382,6 +383,7 @@ class TestSendEmail:
             assert user_service.user.events == [
                 {
                     "tag": "account:email:sent",
+                    "request": request,
                     "ip_address": request.remote_addr,
                     "additional": {
                         "from_": "noreply@example.com",

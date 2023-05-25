@@ -759,7 +759,6 @@ class ManageOrganizationProjectsViews:
                         name=project.name,
                         action=f"remove {role.role_name} {role.user.username}",
                         submitted_by=self.request.user,
-                        submitted_from=self.request.remote_addr,
                     )
                 )
                 project.record_event(
@@ -797,6 +796,7 @@ class ManageOrganizationProjectsViews:
             project = project_service.create_project(
                 form.new_project_name.data,
                 self.request.user,
+                request=self.request,
                 creator_is_owner=False,
                 ratelimited=False,
             )
@@ -1551,7 +1551,6 @@ def transfer_organization_project(project, request):
                 name=project.name,
                 action=f"remove {role.role_name} {role.user.username}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
         project.record_event(
