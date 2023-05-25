@@ -537,7 +537,6 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                             form.team_project_role_name.data.value,
                         ),
                         submitted_by=request.user,
-                        submitted_from=request.remote_addr,
                     )
                 )
 
@@ -646,7 +645,6 @@ def delete_team_project_role(project, request):
                     name=project.name,
                     action=f"remove {role_name.value} {team.name}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
                 )
             )
 

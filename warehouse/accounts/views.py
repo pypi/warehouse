@@ -1127,7 +1127,6 @@ def verify_project_role(request):
             name=project.name,
             action=f"accepted {desired_role} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
     project.record_event(

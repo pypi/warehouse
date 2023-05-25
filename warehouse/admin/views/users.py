@@ -207,7 +207,6 @@ def _nuke_user(user, request):
                 name=project.name,
                 action="remove project",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
     projects.delete(synchronize_session=False)
@@ -239,7 +238,6 @@ def _nuke_user(user, request):
             name=f"user:{user.username}",
             action="nuke user",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 
