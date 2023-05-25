@@ -23,7 +23,8 @@ PyPI user {{ username }} has removed a trusted publisher from a project
 
 * {% trans %}Publisher{% endtrans %}: {{ publisher_name }}
 * {% trans %}Workflow{% endtrans %}: {{ publisher_workflow }}
-* {% trans %}Repository{% endtrans %}: {{ publisher_repository }}
+* {% trans %}Owner{% endtrans %}: {{ publisher_repository_owner }}
+* {% trans %}Repository{% endtrans %}: {{ publisher_repository_name }}
 {%- if publisher_environment %}
 * {% trans %}Environment{% endtrans %}: {{ publisher_environment }}
 {% endif %}
