@@ -195,6 +195,7 @@ def test_configure(monkeypatch, settings, environment):
         def __init__(self):
             self.settings = {
                 "warehouse.token": "insecure token",
+                "warehouse.ip_salt": "insecure salt",
                 "warehouse.env": environment,
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
@@ -310,7 +311,9 @@ def test_configure(monkeypatch, settings, environment):
     assert result is configurator_obj
     assert configurator_obj.set_root_factory.calls == [pretend.call(config.RootFactory)]
     assert configurator_obj.add_wsgi_middleware.calls == [
-        pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
+        pretend.call(
+            ProxyFixer, token="insecure token", ip_salt="insecure salt", num_proxies=1
+        ),
         pretend.call(VhmRootRemover),
     ]
     assert configurator_obj.include.calls == (
