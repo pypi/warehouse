@@ -3356,13 +3356,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:685
 #: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/organization/history.html:215
-#: warehouse/templates/manage/project/history.html:290
-#: warehouse/templates/manage/project/history.html:302
-#: warehouse/templates/manage/team/history.html:110
-#: warehouse/templates/manage/team/history.html:122
-msgid "IP address"
+msgid "Location Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:704
@@ -4664,6 +4659,14 @@ msgstr ""
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
+msgstr ""
+
+#: warehouse/templates/manage/organization/history.html:203
+#: warehouse/templates/manage/project/history.html:290
+#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/team/history.html:110
+#: warehouse/templates/manage/team/history.html:122
+msgid "Location info"
 msgstr ""
 
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
