@@ -115,6 +115,14 @@ def remote_addr_hashed():
 
 
 @pytest.fixture
+def remote_addr_salted():
+    """
+    Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
+    """
+    return "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
+
+
+@pytest.fixture
 def jinja():
     dir_name = os.path.join(os.path.dirname(warehouse.__file__))
 

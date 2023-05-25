@@ -41,9 +41,10 @@ def _forwarded_value(values, num_proxies):
 
 
 class ProxyFixer:
-    def __init__(self, app, token, num_proxies=1):
+    def __init__(self, app, token, ip_salt: str, num_proxies=1):
         self.app = app
         self.token = token
+        self.ip_salt = ip_salt
         self.num_proxies = num_proxies
 
     def __call__(self, environ, start_response):
@@ -73,7 +74,7 @@ class ProxyFixer:
                 environ.get("HTTP_X_FORWARDED_FOR", ""), self.num_proxies
             )
             remote_addr_hashed = (
-                hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
+                hashlib.sha256((remote_addr + self.ip_salt).encode("utf8")).hexdigest()
                 if remote_addr
                 else ""
             )

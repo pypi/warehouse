@@ -3,6 +3,7 @@ PATH=/opt/warehouse/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:
 
 WAREHOUSE_ENV=development
 WAREHOUSE_TOKEN=insecuretoken
+WAREHOUSE_IP_SALT="insecure himalayan pink salt"
 
 AWS_ACCESS_KEY_ID=foo
 AWS_SECRET_ACCESS_KEY=foo

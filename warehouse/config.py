@@ -153,6 +153,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
@@ -671,6 +672,7 @@ def configure(settings=None):
     config.add_wsgi_middleware(
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
+        ip_salt=config.registry.settings["warehouse.ip_salt"],
         num_proxies=config.registry.settings.get("warehouse.num_proxies", 1),
     )
 
