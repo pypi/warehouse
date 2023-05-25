@@ -260,29 +260,29 @@ class TestSponsorForm(TestCase):
             assert field in form.errors
 
     def test_valid_data(self):
-        form = views.SponsorForm(data=self.data)
+        form = views.SponsorForm(formdata=MultiDict(self.data))
         assert form.validate() is True
 
     def test_white_logo_is_required_for_footer_display(self):
         self.data["footer"] = True
 
         # don't validate without logo
-        form = views.SponsorForm(data=self.data)
+        form = views.SponsorForm(formdata=MultiDict(self.data))
         assert form.validate() is False
         assert "white_logo" in form.errors
 
         self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
-        form = views.SponsorForm(data=self.data)
+        form = views.SponsorForm(formdata=MultiDict(self.data))
         assert form.validate() is True
 
     def test_white_logo_is_required_for_infra_display(self):
         self.data["infra_sponsor"] = True
 
         # don't validate without logo
-        form = views.SponsorForm(data=self.data)
+        form = views.SponsorForm(formdata=MultiDict(self.data))
         assert form.validate() is False
         assert "white_logo" in form.errors
 
         self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
-        form = views.SponsorForm(data=self.data)
+        form = views.SponsorForm(formdata=MultiDict(self.data))
         assert form.validate() is True
