@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.authorization import ACLAuthorizationPolicy
-
 from warehouse.accounts.interfaces import (
     IEmailBreachedService,
     IPasswordBreachedService,
@@ -22,7 +20,7 @@ from warehouse.accounts.models import User
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
-    TwoFactorAuthorizationPolicy,
+    TwoFactorSecurityPolicy,
 )
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
@@ -33,11 +31,8 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.macaroons.security_policy import (
-    MacaroonAuthorizationPolicy,
-    MacaroonSecurityPolicy,
-)
 from warehouse.oidc.utils import OIDCContext
+from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -127,18 +122,15 @@ def includeme(config):
         breached_email_class.create_service, IEmailBreachedService
     )
 
-    # Register our security policies (AuthN + AuthZ)
-    authz_policy = TwoFactorAuthorizationPolicy(
-        policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
-    )
+    # Register our security policies.
     config.set_security_policy(
         MultiSecurityPolicy(
             [
                 SessionSecurityPolicy(),
                 BasicAuthSecurityPolicy(),
                 MacaroonSecurityPolicy(),
+                TwoFactorSecurityPolicy(),
             ],
-            authz_policy,
         )
     )
 

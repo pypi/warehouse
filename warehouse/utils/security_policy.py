@@ -12,7 +12,7 @@
 
 import enum
 
-from pyramid.authorization import Authenticated
+from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Denied
 from zope.interface import implementer
@@ -62,9 +62,9 @@ class MultiSecurityPolicy:
     These semantics mostly mirror those of `pyramid-multiauth`.
     """
 
-    def __init__(self, policies, authz):
+    def __init__(self, policies):
         self._policies = policies
-        self._authz = authz
+        self._acl = ACLHelper()
 
     def identity(self, request):
         for policy in self._policies:
@@ -96,6 +96,19 @@ class MultiSecurityPolicy:
         return headers
 
     def permits(self, request, context, permission):
+        # First, check if any subpolicy denies the request.
+        for policy in self._policies:
+            try:
+                if not (permits := policy.permits(request, context, permission)):
+                    return permits
+            except NotImplementedError:
+                # Raised when a subpolicy does not support a given request. e.g.
+                # `MacaroonSecurityPolicy` being handed a non-macaroon request.
+                # If a subpolicy raises this, we don't treat it as an explicit
+                # permit or reject decision, just pass and check the next policy.
+                pass
+
+        # Next, construct a list of principals from our request.
         identity = request.identity
         principals = []
         if identity is not None:
@@ -109,9 +122,5 @@ class MultiSecurityPolicy:
             else:
                 return Denied("unknown identity")
 
-        # NOTE: Observe that the parameters passed into the underlying AuthZ
-        # policy here are not the same (or in the same order) as the ones
-        # passed into `permits` above. This is because the underlying AuthZ
-        # policy is a "legacy" Pyramid 1.0 style one that implements the
-        # `IAuthorizationPolicy` interface rather than `ISecurityPolicy`.
-        return self._authz.permits(context, principals, permission)
+        # Finally, check the principals against the context.
+        return self._acl.permits(context, principals, permission)

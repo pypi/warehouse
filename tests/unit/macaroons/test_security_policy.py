@@ -14,8 +14,8 @@
 import pretend
 import pytest
 
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.security import Denied
+from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Allowed, Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.macaroons import security_policy
@@ -68,8 +68,6 @@ class TestMacaroonSecurityPolicy:
         policy = security_policy.MacaroonSecurityPolicy()
         with pytest.raises(NotImplementedError):
             policy.authenticated_userid(pretend.stub())
-        with pytest.raises(NotImplementedError):
-            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
     def test_forget_and_remember(self):
         policy = security_policy.MacaroonSecurityPolicy()
@@ -208,44 +206,23 @@ class TestMacaroonSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-
-class TestMacaroonAuthorizationPolicy:
-    def test_verify(self):
-        assert verifyClass(
-            IAuthorizationPolicy, security_policy.MacaroonAuthorizationPolicy
-        )
-
     def test_permits_no_active_request(self, monkeypatch):
-        get_current_request = pretend.call_recorder(lambda: None)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: pretend.stub())
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+        policy = security_policy.MacaroonSecurityPolicy()
+        result = policy.permits(None, pretend.stub(), pretend.stub())
 
         assert result == Denied("")
         assert result.s == "There was no active request."
 
     def test_permits_no_macaroon(self, monkeypatch):
-        request = pretend.stub()
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
         _extract_http_macaroon = pretend.call_recorder(lambda r: None)
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        permits = pretend.stub()
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits)
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+        policy = security_policy.MacaroonSecurityPolicy()
 
-        assert result == permits
+        with pytest.raises(NotImplementedError):
+            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
     def test_permits_invalid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(
@@ -254,20 +231,13 @@ class TestMacaroonAuthorizationPolicy:
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
         _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        permits = pretend.stub()
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits)
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+        policy = security_policy.MacaroonSecurityPolicy()
+        result = policy.permits(request, pretend.stub(), pretend.stub())
 
         assert result == Denied("")
         assert result.s == "Invalid API Token: foo"
@@ -279,26 +249,19 @@ class TestMacaroonAuthorizationPolicy:
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
         _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        permits = pretend.stub()
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits)
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), "upload")
+        policy = security_policy.MacaroonSecurityPolicy()
+        result = policy.permits(request, pretend.stub(), "upload")
 
-        assert result == permits
+        assert result == Allowed("")
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistant"],
+        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission
@@ -309,36 +272,15 @@ class TestMacaroonAuthorizationPolicy:
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
         _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        permits = pretend.stub()
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits)
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), invalid_permission)
+        policy = security_policy.MacaroonSecurityPolicy()
+        result = policy.permits(request, pretend.stub(), invalid_permission)
 
         assert result == Denied("")
         assert result.s == (
             f"API tokens are not valid for permission: {invalid_permission}!"
-        )
-
-    def test_principals_allowed_by_permission(self):
-        principals = pretend.stub()
-        backing_policy = pretend.stub(
-            principals_allowed_by_permission=pretend.call_recorder(
-                lambda *a: principals
-            )
-        )
-        policy = security_policy.MacaroonAuthorizationPolicy(policy=backing_policy)
-
-        assert (
-            policy.principals_allowed_by_permission(pretend.stub(), pretend.stub())
-            is principals
         )

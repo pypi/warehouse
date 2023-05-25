@@ -12,8 +12,8 @@
 
 import base64
 
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.threadlocal import get_current_request
+from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary_callback
@@ -122,22 +122,6 @@ class MacaroonSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
-
-
-@implementer(IAuthorizationPolicy)
-class MacaroonAuthorizationPolicy:
-    def __init__(self, policy):
-        self.policy = policy
-
-    def permits(self, context, principals, permission):
-        # The Pyramid API doesn't let us access the request here, so we have to pull it
-        # out of the thread local instead.
-        # TODO: Work with Pyramid devs to figure out if there is a better way to support
-        #       the worklow we are using here or not.
-        request = get_current_request()
-
         # Our request could possibly be a None, if there isn't an active request, in
         # that case we're going to always deny, because without a request, we can't
         # determine if this request is authorized or not.
@@ -165,11 +149,11 @@ class MacaroonAuthorizationPolicy:
                     f"Invalid API Token: {exc}", reason="invalid_api_token"
                 )
 
-            # If our Macaroon is verified, and for a valid permission then we'll pass
-            # this request to our underlying Authorization policy, so it can handle its
-            # own authorization logic on the principal.
+            # If our Macaroon is verified, and for a valid permission then we'll
+            # Allow the request, letting MultiSecurityPolicy handle the rest of
+            # the authorization logic against the principal.
             if permission in valid_permissions:
-                return self.policy.permits(context, principals, permission)
+                return Allowed("API token validated")
             else:
                 return WarehouseDenied(
                     f"API tokens are not valid for permission: {permission}!",
@@ -177,10 +161,6 @@ class MacaroonAuthorizationPolicy:
                 )
 
         else:
-            return self.policy.permits(context, principals, permission)
-
-    def principals_allowed_by_permission(self, context, permission):
-        # We just dispatch this, because Macaroons don't restrict what principals are
-        # allowed by a particular permission, they just restrict specific requests
-        # to not have that permission.
-        return self.policy.principals_allowed_by_permission(context, permission)
+            # We can't pass judgement on requests that don't have associated
+            # macaroons.
+            raise NotImplementedError

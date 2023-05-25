@@ -17,8 +17,8 @@ from pyramid.authentication import (
     extract_http_basic_credentials,
 )
 from pyramid.httpexceptions import HTTPUnauthorized
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.threadlocal import get_current_request
+from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
@@ -229,18 +229,30 @@ class BasicAuthSecurityPolicy:
         raise NotImplementedError
 
 
-@implementer(IAuthorizationPolicy)
-class TwoFactorAuthorizationPolicy:
-    def __init__(self, policy):
-        self.policy = policy
+@implementer(ISecurityPolicy)
+class TwoFactorSecurityPolicy:
+    """
+    Security policy that enforces two-factor authentication for specific
+    contexts.
 
-    def permits(self, context, principals, permission):
-        # The Pyramid API doesn't let us access the request here, so we have to pull it
-        # out of the thread local instead.
-        # TODO: Work with Pyramid devs to figure out if there is a better way to support
-        #       the worklow we are using here or not.
-        request = get_current_request()
+    Most member methods, with the exception of `permits`, are no-ops. This is
+    because this security policy solely checks authorization and does not
+    identify/authenticate users.
+    """
 
+    def identity(self, request):
+        return None
+
+    def forget(self, request, **kw):
+        return []
+
+    def remember(self, request, userid, **kw):
+        return []
+
+    def authenticated_userid(self, request):
+        raise NotImplementedError
+
+    def permits(self, request, context, permission):
         # Our request could possibly be a None, if there isn't an active request, in
         # that case we're going to always deny, because without a request, we can't
         # determine if this request is authorized or not.
@@ -248,9 +260,6 @@ class TwoFactorAuthorizationPolicy:
             return WarehouseDenied(
                 "There was no active request.", reason="no_active_request"
             )
-
-        # Check if the subpolicy permits authorization
-        subpolicy_permits = self.policy.permits(context, principals, permission)
 
         # If the request is permitted by the subpolicy, check if the context is
         # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
@@ -260,11 +269,7 @@ class TwoFactorAuthorizationPolicy:
         # this check for non-user identities: the only way a non-user
         # identity can be created is after a 2FA check on a 2FA-mandated
         # project.
-        if (
-            subpolicy_permits
-            and isinstance(context, TwoFactorRequireable)
-            and request.user
-        ):
+        if isinstance(context, TwoFactorRequireable) and request.user:
             if (
                 request.registry.settings["warehouse.two_factor_requirement.enabled"]
                 and context.owners_require_2fa
@@ -297,10 +302,4 @@ class TwoFactorAuthorizationPolicy:
                     queue="warning",
                 )
 
-        return subpolicy_permits
-
-    def principals_allowed_by_permission(self, context, permission):
-        # We just dispatch this, because this policy doesn't restrict what
-        # principals are allowed by a particular permission, it just restricts
-        # specific requests to not have that permission.
-        return self.policy.principals_allowed_by_permission(context, permission)
+        return Allowed("Two factor requirements fulfilled")
