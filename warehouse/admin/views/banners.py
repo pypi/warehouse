@@ -148,18 +148,18 @@ class BannerForm(Form):
     name = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=100),
-            wtforms.validators.InputRequired(),
+            wtforms.validators.DataRequired(),
         ],
     )
     text = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=280),
-            wtforms.validators.InputRequired(),
+            wtforms.validators.DataRequired(),
         ],
     )
     link_url = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.InputRequired(),
+            wtforms.validators.DataRequired(),
             URIValidator(),
         ]
     )
@@ -179,4 +179,4 @@ class BannerForm(Form):
     active = wtforms.fields.BooleanField(
         validators=[wtforms.validators.Optional()], default=False
     )
-    end = wtforms.fields.DateField(validators=[wtforms.validators.InputRequired()])
+    end = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])

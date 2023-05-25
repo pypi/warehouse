@@ -30,7 +30,7 @@ class SponsorForm(Form):
     name = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=100),
-            wtforms.validators.InputRequired(),
+            wtforms.validators.DataRequired(),
         ],
     )
     service = wtforms.fields.StringField(
@@ -39,7 +39,7 @@ class SponsorForm(Form):
 
     link_url = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.InputRequired(),
+            wtforms.validators.DataRequired(),
             URIValidator(),
         ]
     )
