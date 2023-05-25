@@ -54,7 +54,7 @@ person can take include releasing software that might be used by people world
 wide, allowing an attacker to install and execute software on unsuspecting
 user's computers. [Account takeover attacks have been previously used to
 compromise PyPI users in this
-way](https://python-security.readthedocs.io/pypi-vuln/index-2022-05-24-ctx-domain-takeover.html).```
+way](https://python-security.readthedocs.io/pypi-vuln/index-2022-05-24-ctx-domain-takeover.html).
 
 Two-factor authentication immediately neutralizes the risk associated with a
 compromised password. If an attacker has someone's password, that is no longer
