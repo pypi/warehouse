@@ -202,4 +202,4 @@ _Donald Stufft is a PyPI administrator and maintainer of the Python Package Inde
       may get locked out of their account, requiring intervention by administrators.
 [^4]: Not for nothing, but PyPI is also an Open Source project, run largely by
       volunteers, and cleaning up after a compromise on PyPI is something that
-      affects those volunteers signifiantly.
+      affects those volunteers significantly.
