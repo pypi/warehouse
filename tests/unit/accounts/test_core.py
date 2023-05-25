@@ -383,14 +383,8 @@ class TestUnauthenticatedUserid:
 
 
 def test_includeme(monkeypatch):
-    authz_obj = pretend.stub()
-    authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
-    monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
-    monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
-    monkeypatch.setattr(accounts, "TwoFactorAuthorizationPolicy", authz_cls)
-
     multi_policy_obj = pretend.stub()
-    multi_policy_cls = pretend.call_recorder(lambda ps, authz: multi_policy_obj)
+    multi_policy_cls = pretend.call_recorder(lambda ps: multi_policy_obj)
     monkeypatch.setattr(accounts, "MultiSecurityPolicy", multi_policy_cls)
 
     session_policy_obj = pretend.stub()
@@ -404,6 +398,10 @@ def test_includeme(monkeypatch):
     macaroon_policy_obj = pretend.stub()
     macaroon_policy_cls = pretend.call_recorder(lambda: macaroon_policy_obj)
     monkeypatch.setattr(accounts, "MacaroonSecurityPolicy", macaroon_policy_cls)
+
+    twofactor_policy_obj = pretend.stub()
+    twofactor_policy_cls = pretend.call_recorder(lambda: twofactor_policy_obj)
+    monkeypatch.setattr(accounts, "TwoFactorSecurityPolicy", twofactor_policy_cls)
 
     config = pretend.stub(
         registry=pretend.stub(
@@ -464,6 +462,11 @@ def test_includeme(monkeypatch):
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
     assert multi_policy_cls.calls == [
         pretend.call(
-            [session_policy_obj, basic_policy_obj, macaroon_policy_obj], authz_obj
+            [
+                session_policy_obj,
+                basic_policy_obj,
+                macaroon_policy_obj,
+                twofactor_policy_obj,
+            ]
         )
     ]
