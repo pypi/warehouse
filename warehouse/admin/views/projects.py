@@ -404,7 +404,6 @@ def add_role(project, request):
             name=project.name,
             action=f"add {role_name} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 
@@ -455,7 +454,6 @@ def delete_role(project, request):
             name=project.name,
             action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 

@@ -425,7 +425,6 @@ class ProjectService:
                 name=project.name,
                 action="create",
                 submitted_by=creator,
-                submitted_from=request.remote_addr,
             )
         )
         project.record_event(
@@ -446,7 +445,6 @@ class ProjectService:
                     name=project.name,
                     action=f"add Owner {creator.username}",
                     submitted_by=creator,
-                    submitted_from=request.remote_addr,
                 )
             )
             project.record_event(

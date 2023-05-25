@@ -103,7 +103,7 @@
         <tr>
           <td>{{ journal.action }}</td>
           <td>{{ journal.submitted_date|format_datetime() }}</td>
-          <td>{{ journal.submitted_by.username }} from {{ journal.submitted_from }}</td>
+          <td>{{ journal.submitted_by.username }}</td>
         </tr>
         {% endfor %}
         </tbody>
