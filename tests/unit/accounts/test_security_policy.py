@@ -517,7 +517,7 @@ class TestTwoFactorSecurityPolicy:
     def test_noops(self):
         policy = security_policy.TwoFactorSecurityPolicy()
 
-        assert policy.identity(pretend.stub()) == None
+        assert policy.identity(pretend.stub()) is None
         assert policy.forget(pretend.stub()) == []
         assert policy.remember(pretend.stub(), pretend.stub()) == []
 
