@@ -48,7 +48,6 @@ module = [
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
     "venusian.*",
-    "webob.*", # https://github.com/python/typeshed/pull/9874
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
     "yara.*",
