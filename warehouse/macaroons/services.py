@@ -16,7 +16,6 @@ import uuid
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
@@ -199,16 +198,12 @@ class DatabaseMacaroonService:
 
         Returns None if the user doesn't have a macaroon with this description.
         """
-        try:
-            dm = (
-                self.db.query(Macaroon)
-                .options(joinedload("user"))
-                .filter(Macaroon.description == description)
-                .filter(Macaroon.user_id == user_id)
-                .one()
-            )
-        except NoResultFound:
-            return None
+        dm = (
+            self.db.query(Macaroon)
+            .filter(Macaroon.description == description)
+            .filter(Macaroon.user_id == user_id)
+            .one_or_none()
+        )
 
         return dm
 
