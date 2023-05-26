@@ -1389,13 +1389,6 @@ class ManageOIDCPublisherViews:
                     publisher=publisher,
                 )
 
-            # We remove this publisher from the project's list of publishers
-            # and, if there are no projects left associated with the publisher,
-            # we delete it entirely.
-            self.project.oidc_publishers.remove(publisher)
-            if len(publisher.projects) == 0:
-                self.request.db.delete(publisher)
-
             self.project.record_event(
                 tag=EventTag.Project.OIDCPublisherRemoved,
                 ip_address=self.request.remote_addr,
@@ -1408,6 +1401,13 @@ class ManageOIDCPublisherViews:
                     "submitted_by": self.request.user.username,
                 },
             )
+
+            # We remove this publisher from the project's list of publishers
+            # and, if there are no projects left associated with the publisher,
+            # we delete it entirely.
+            self.project.oidc_publishers.remove(publisher)
+            if len(publisher.projects) == 0:
+                self.request.db.delete(publisher)
 
             self.request.session.flash(
                 self.request._(

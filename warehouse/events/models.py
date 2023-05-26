@@ -15,12 +15,14 @@ import typing
 
 from dataclasses import dataclass
 
+from linehaul.ua import parser as linehaul_user_agent_parser
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import AbstractConcreteBase
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import declared_attr
+from ua_parser import user_agent_parser
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
@@ -196,6 +198,34 @@ class HasEvents:
         if ip_address_obj.geoip_info is not None:
             additional = additional or {}
             additional["geoip_info"] = ip_address_obj.geoip_info
+
+        if user_agent := request.headers.get("User-Agent"):
+            try:
+                parsed_user_agent = linehaul_user_agent_parser.parse(user_agent)
+                if parsed_user_agent.installer.name == "Browser":
+                    parsed_user_agent = user_agent_parser.Parse(user_agent)
+                    additional = additional or {}
+                    additional["user_agent_info"] = {
+                        "installer": "Browser",
+                        "device": parsed_user_agent["device"]["family"],
+                        "os": parsed_user_agent["os"]["family"],
+                        "user_agent": parsed_user_agent["user_agent"]["family"],
+                    }
+                else:
+                    additional = additional or {}
+                    additional["user_agent_info"] = {
+                        "installer": parsed_user_agent.installer.name
+                        if parsed_user_agent.installer
+                        else None,
+                        "implementation": parsed_user_agent.implementation.name
+                        if parsed_user_agent.implementation
+                        else None,
+                        "system": parsed_user_agent.system.name
+                        if parsed_user_agent.system
+                        else None,
+                    }
+            except linehaul_user_agent_parser.UnknownUserAgentError:
+                pass
 
         event = self.Event(
             source=self,

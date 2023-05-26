@@ -6589,7 +6589,6 @@ class TestManageOIDCPublisherViews:
         db_request.db.flush()  # To get it in the DB
 
         project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
@@ -6628,20 +6627,18 @@ class TestManageOIDCPublisherViews:
             ),
         ]
 
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                ip_address=db_request.remote_addr,
-                request=db_request,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url(),
-                    "submitted_by": db_request.user.username,
-                },
-            )
-        ]
+        events = project.events.all()
+        assert len(events) == 1
+        event = events[0]
+        assert event.tag == EventTag.Project.OIDCPublisherRemoved
+        assert str(event.ip_address) == db_request.remote_addr
+        assert event.additional == {
+            "publisher": publisher.publisher_name,
+            "id": str(publisher.id),
+            "specifier": str(publisher),
+            "url": publisher.publisher_url(),
+            "submitted_by": db_request.user.username,
+        }
 
         assert db_request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
@@ -6653,8 +6650,7 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-        # The publisher is not actually removed entirely from the DB, since it's
-        # registered to other projects that haven't removed it.
+        # The publisher is actually removed entirely from the DB.
         assert db_request.db.query(GitHubPublisher).all() == []
 
         assert views.send_trusted_publisher_removed_email.calls == [
