@@ -202,7 +202,6 @@ class DatabaseMacaroonService:
         try:
             dm = (
                 self.db.query(Macaroon)
-                .options(joinedload("user"))
                 .filter(Macaroon.description == description)
                 .filter(Macaroon.user_id == user_id)
                 .one()
