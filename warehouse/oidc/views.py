@@ -70,7 +70,7 @@ def oidc_audience(request):
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
-    has_translations=False,
+    has_translations=True,
 )
 def mint_token_from_oidc(request):
     def _invalid(errors):
