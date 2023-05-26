@@ -11,9 +11,9 @@ attrs==23.1.0 \
     #   cattrs
     #   ddtrace
     #   jsonschema
-bytecode==0.14.1 \
-    --hash=sha256:00a8f87d9e2385d445c9ee630a1860b75b4a93d646c6dfb15e769bec827609cc \
-    --hash=sha256:82e99af6b0f9e71ba9c5daba11f370fc93adf97d423e93a22659dfc7895fb6a2
+bytecode==0.14.2 \
+    --hash=sha256:386378d9025d68ddb144870ae74330a492717b11b8c9164c4034e88add808f0c \
+    --hash=sha256:e368a2b9bbd7c986133c951250db94fb32f774cfc49752a9db9073bcf9899762
     # via ddtrace
 cattrs==22.2.0 \
     --hash=sha256:bc12b1f0d000b9f9bee83335887d532a1d3e99a833d1bf0882151c97d3e68c21 \
