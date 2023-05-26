@@ -492,7 +492,7 @@ def browse(request, classifiers: list[str]):
     )
 
     release_classifiers_q = (
-        select([release_classifiers])
+        select(release_classifiers)
         .where(release_classifiers.c.trove_id == classifiers_q.c.id)
         .alias("rc")
     )

@@ -141,7 +141,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     @email.expression  # type: ignore
     def email(self):
         return (
-            select([Email.email])
+            select(Email.email)
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
