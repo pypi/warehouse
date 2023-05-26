@@ -202,7 +202,10 @@ class HasEvents:
         if user_agent := request.headers.get("User-Agent"):
             try:
                 parsed_user_agent = linehaul_user_agent_parser.parse(user_agent)
-                if parsed_user_agent.installer.name == "Browser":
+                if (
+                    parsed_user_agent.installer is not None
+                    and parsed_user_agent.installer.name == "Browser"
+                ):
                     parsed_user_agent = user_agent_parser.Parse(user_agent)
                     additional = additional or {}
                     additional["user_agent_info"] = {
