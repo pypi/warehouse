@@ -5800,6 +5800,7 @@ class TestTrustedPublisherEmails:
         project_name = "test_project"
         fakepublisher = pretend.stub(
             publisher_name="fakepublisher",
+            repository_owner="fakeowner",
             repository_name="fakerepository",
             environment="fakeenvironment",
         )
@@ -5820,7 +5821,8 @@ class TestTrustedPublisherEmails:
             "project_name": project_name,
             "publisher_name": "fakepublisher",
             "publisher_workflow": "fakespecifier",
-            "publisher_repository": "fakerepository",
+            "publisher_repository_owner": "fakeowner",
+            "publisher_repository_name": "fakerepository",
             "publisher_environment": "fakeenvironment",
         }
         subject_renderer.assert_()

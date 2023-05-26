@@ -57,7 +57,7 @@ class TestCreateRoleForm:
         [
             ("", "Select role"),
             ("invalid", "Not a valid choice."),
-            (None, "Select role"),
+            (None, "Not a valid choice."),
         ],
     )
     def test_validate_role_name_fails(self, value, expected):
@@ -81,7 +81,7 @@ class TestAddEmailForm:
     def test_email_exists_error(self, pyramid_config):
         user_id = pretend.stub()
         form = forms.AddEmailForm(
-            formdata=MultiDict({"email": "foo@bar.com"}),
+            data={"email": "foo@bar.com"},
             user_id=user_id,
             user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
         )
@@ -95,7 +95,7 @@ class TestAddEmailForm:
 
     def test_email_exists_other_account_error(self, pyramid_config):
         form = forms.AddEmailForm(
-            formdata=MultiDict({"email": "foo@bar.com"}),
+            data={"email": "foo@bar.com"},
             user_id=pretend.stub(),
             user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
         )
@@ -109,7 +109,7 @@ class TestAddEmailForm:
 
     def test_prohibited_email_error(self, pyramid_config):
         form = forms.AddEmailForm(
-            formdata=MultiDict({"email": "foo@bearsarefuzzy.com"}),
+            data={"email": "foo@bearsarefuzzy.com"},
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
         )
@@ -148,7 +148,7 @@ class TestProvisionTOTPForm:
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         form = forms.ProvisionTOTPForm(
-            formdata=MultiDict({"totp_value": "123456"}), totp_secret=pretend.stub()
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
         )
         assert not form.validate()
         assert form.totp_value.errors.pop() == "Invalid TOTP code. Try again?"
@@ -158,7 +158,7 @@ class TestProvisionTOTPForm:
         monkeypatch.setattr(otp, "verify_totp", verify_totp)
 
         form = forms.ProvisionTOTPForm(
-            formdata=MultiDict({"totp_value": "123456"}), totp_secret=pretend.stub()
+            data={"totp_value": "123456"}, totp_secret=pretend.stub()
         )
         assert form.validate()
 
@@ -182,9 +182,10 @@ class TestDeleteTOTPForm:
             ),
         )
         form = forms.DeleteTOTPForm(
-            formdata=MultiDict({"username": "username", "password": "password"}),
+            username="username",
             request=request,
             user_service=user_service,
+            password="password",
         )
 
         assert form.validate()
@@ -217,7 +218,7 @@ class TestProvisionWebAuthnForm:
         )
 
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "invalid json", "label": "fake label"}),
+            data={"credential": "invalid json", "label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
             challenge=pretend.stub(),
@@ -238,7 +239,7 @@ class TestProvisionWebAuthnForm:
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
+            data={"credential": "{}", "label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
             challenge=pretend.stub(),
@@ -254,7 +255,7 @@ class TestProvisionWebAuthnForm:
             verify_webauthn_credential=lambda *a, **kw: pretend.stub()
         )
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}"}),
+            data={"credential": "{}"},
             user_service=user_service,
             user_id=pretend.stub(),
             challenge=pretend.stub(),
@@ -271,7 +272,7 @@ class TestProvisionWebAuthnForm:
             get_webauthn_by_label=pretend.call_recorder(lambda *a: pretend.stub()),
         )
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
+            data={"credential": "{}", "label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
             challenge=pretend.stub(),
@@ -289,7 +290,7 @@ class TestProvisionWebAuthnForm:
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None),
         )
         form = forms.ProvisionWebAuthnForm(
-            formdata=MultiDict({"credential": "{}", "label": "fake label"}),
+            data={"credential": "{}", "label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
             challenge=pretend.stub(),
@@ -322,7 +323,7 @@ class TestDeleteWebAuthnForm:
             get_webauthn_by_label=pretend.call_recorder(lambda *a: None)
         )
         form = forms.DeleteWebAuthnForm(
-            formdata=MultiDict({"label": "fake label"}),
+            data={"label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
         )
@@ -336,7 +337,7 @@ class TestDeleteWebAuthnForm:
             get_webauthn_by_label=pretend.call_recorder(lambda *a: fake_webauthn)
         )
         form = forms.DeleteWebAuthnForm(
-            formdata=MultiDict({"label": "fake label"}),
+            data={"label": "fake label"},
             user_service=user_service,
             user_id=pretend.stub(),
         )
@@ -362,7 +363,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_description_missing(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"token_scope": "scope:user"}),
+            data={"token_scope": "scope:user"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(),
             project_names=pretend.stub(),
@@ -373,7 +374,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_description_in_use(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": "scope:user"}),
+            data={"description": "dummy", "token_scope": "scope:user"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(
                 get_macaroon_by_description=lambda *a: pretend.stub()
@@ -386,7 +387,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_missing(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy"}),
+            data={"description": "dummy"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
@@ -397,9 +398,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_unspecified(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:unspecified"}
-            ),
+            data={"description": "dummy", "token_scope": "scope:unspecified"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
@@ -413,7 +412,7 @@ class TestCreateMacaroonForm:
     )
     def test_validate_token_scope_invalid_format(self, scope):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": scope}),
+            data={"description": "dummy", "token_scope": scope},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
@@ -424,9 +423,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_invalid_project(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:project:foo"}
-            ),
+            data={"description": "dummy", "token_scope": "scope:project:foo"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["bar"],
@@ -437,7 +434,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_valid_user(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict({"description": "dummy", "token_scope": "scope:user"}),
+            data={"description": "dummy", "token_scope": "scope:user"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=pretend.stub(),
@@ -447,9 +444,7 @@ class TestCreateMacaroonForm:
 
     def test_validate_token_scope_valid_project(self):
         form = forms.CreateMacaroonForm(
-            formdata=MultiDict(
-                {"description": "dummy", "token_scope": "scope:project:foo"}
-            ),
+            data={"description": "dummy", "token_scope": "scope:project:foo"},
             user_id=pretend.stub(),
             macaroon_service=pretend.stub(get_macaroon_by_description=lambda *a: None),
             project_names=["foo"],
@@ -483,7 +478,7 @@ class TestDeleteMacaroonForm:
             remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
-            formdata=MultiDict({"macaroon_id": pretend.stub(), "password": "password"}),
+            data={"macaroon_id": pretend.stub(), "password": "password"},
             request=request,
             macaroon_service=macaroon_service,
             user_service=user_service,
@@ -504,15 +499,10 @@ class TestDeleteMacaroonForm:
             remote_addr="1.2.3.4", banned=pretend.stub(by_ip=lambda ip_address: False)
         )
         form = forms.DeleteMacaroonForm(
-            formdata=MultiDict(
-                {
-                    "macaroon_id": pretend.stub(),
-                    "username": "username",
-                    "password": "password",
-                }
-            ),
+            data={"macaroon_id": pretend.stub(), "password": "password"},
             request=request,
             macaroon_service=macaroon_service,
+            username="username",
             user_service=user_service,
         )
 
