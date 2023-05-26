@@ -14,7 +14,7 @@ import pretend
 import pytest
 
 from pyramid.authorization import Authenticated
-from pyramid.security import Denied
+from pyramid.security import Allowed, Denied
 
 from warehouse.utils import security_policy
 
@@ -204,22 +204,68 @@ class TestMultiSecurityPolicy:
             )
         ]
 
-    def test_permits_subpolicy_denied(self, db_request):
-        def permits_raises(request, context, permission):
+    class SubPolicyHelpers:
+        @staticmethod
+        def subpolicy(fn):
+            return pretend.stub(permits=fn)
+
+        @subpolicy
+        @staticmethod
+        def raises(a, b, c):
             raise NotImplementedError
 
-        denied = Denied("Because")
-        subpolicies = [
-            pretend.stub(permits=permits_raises),
-            pretend.stub(permits=lambda r, c, p: True),
-            pretend.stub(permits=lambda r, c, p: denied),
-        ]
-        policy = security_policy.MultiSecurityPolicy(subpolicies)
+        @subpolicy
+        @staticmethod
+        def passes(a, b, c):
+            return Allowed("subpolicy")
+
+        @subpolicy
+        @staticmethod
+        def denies(a, b, c):
+            return Denied("subpolicy")
+
+    @pytest.mark.parametrize(
+        ("policies", "expected"),
+        [
+            ([], None),
+            ([SubPolicyHelpers.raises], None),
+            ([SubPolicyHelpers.denies], Denied("subpolicy")),
+            ([SubPolicyHelpers.passes], None),
+            (
+                [
+                    SubPolicyHelpers.raises,
+                    SubPolicyHelpers.passes,
+                    SubPolicyHelpers.passes,
+                ],
+                None,
+            ),
+            ([SubPolicyHelpers.passes, SubPolicyHelpers.denies], Denied("subpolicy")),
+            (
+                [
+                    SubPolicyHelpers.raises,
+                    SubPolicyHelpers.passes,
+                    SubPolicyHelpers.denies,
+                ],
+                Denied("subpolicy"),
+            ),
+        ],
+    )
+    def test_permits_subpolicies(self, db_request, monkeypatch, policies, expected):
+        status = pretend.stub(s="")
+        policy = security_policy.MultiSecurityPolicy(policies)
+        acl = pretend.stub(permits=pretend.call_recorder(lambda *a: status))
+        monkeypatch.setattr(policy, "_acl", acl)
         user = UserFactory.create()
-        request = pretend.stub(identity=user)
-        context = pretend.stub()
-        permission = pretend.stub()
-        assert policy.permits(request, context, permission) is denied
+
+        # A parameter of None indicates that the ACL value should be passed through.
+        if expected is None:
+            expected = status
+
+        result = policy.permits(
+            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+        )
+        assert result == expected
+        assert result.s == expected.s
 
     def test_permits_oidc_publisher(self, db_request, monkeypatch):
         status = pretend.stub()
