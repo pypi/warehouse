@@ -48,7 +48,7 @@ module = [
     "rfc3986.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
-    "ua_parser.*",
+    "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
