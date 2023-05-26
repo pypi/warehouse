@@ -1468,7 +1468,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
@@ -2110,7 +2110,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
@@ -2745,7 +2745,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
@@ -2875,7 +2875,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
@@ -3136,7 +3136,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
@@ -3428,7 +3428,7 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )

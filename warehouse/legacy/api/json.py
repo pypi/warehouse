@@ -48,7 +48,10 @@ def _json_data(request, project, release, *, all_releases):
         request.db.query(Release, File)
         .options(
             Load(Release).load_only(
-                "version", "requires_python", "yanked", "yanked_reason"
+                Release.version,
+                Release.requires_python,
+                Release.yanked,
+                Release.yanked_reason,
             )
         )
         .outerjoin(File)

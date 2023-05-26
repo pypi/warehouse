@@ -832,7 +832,9 @@ class TestChangeTeamProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == organization_project.name
@@ -1016,7 +1018,9 @@ class TestDeleteTeamProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == organization_project.name

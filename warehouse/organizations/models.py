@@ -316,7 +316,7 @@ class Organization(HasEvents, db.Model):
         query = session.query(OrganizationRole).filter(
             OrganizationRole.organization == self
         )
-        query = query.options(orm.lazyload("organization"))
+        query = query.options(orm.lazyload(OrganizationRole.organization))
         query = query.join(User).order_by(User.id.asc())
         for role in sorted(
             query.all(),

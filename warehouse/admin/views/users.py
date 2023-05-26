@@ -216,7 +216,7 @@ def _nuke_user(user, request):
 
     journals = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.submitted_by == user)
         .all()
     )
