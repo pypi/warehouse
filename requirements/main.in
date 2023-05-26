@@ -25,6 +25,7 @@ humanize
 itsdangerous
 Jinja2>=2.8
 limits
+linehaul
 lxml
 kombu[sqs]~=5.2.4  # https://github.com/celery/celery/issues/7070
 mistune
@@ -68,6 +69,7 @@ structlog
 transaction
 trove-classifiers
 typeguard
+ua-parser
 webauthn>=1.0.0,<2.0.0
 whitenoise
 WTForms[email]>=2.0.0

@@ -46,7 +46,9 @@ asn1crypto==1.5.1 \
 attrs==23.1.0 \
     --hash=sha256:1f28b4522cdc2fb4256ac1a020c78acf9cba2c6b461ccd2c126f3aa8e8335d04 \
     --hash=sha256:6279836d581513a26f1bf235f9acd333bc9115683f14f7e8fae46c98fc50e015
-    # via automat
+    # via
+    #   automat
+    #   cattrs
 automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
@@ -106,6 +108,10 @@ cachetools==5.3.0 \
     # via
     #   google-auth
     #   premailer
+cattrs==22.2.0 \
+    --hash=sha256:bc12b1f0d000b9f9bee83335887d532a1d3e99a833d1bf0882151c97d3e68c21 \
+    --hash=sha256:f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d
+    # via linehaul
 cbor2==5.4.6 \
     --hash=sha256:0b956f19e93ba3180c336282cd1b6665631f2d3a196a9c19b29a833bf979e7a4 \
     --hash=sha256:0bd12c54a48949d11f5ffc2fa27f5df1b4754111f5207453e5fae3512ebb3cab \
@@ -834,6 +840,10 @@ limits==3.5.0 \
     --hash=sha256:3ad525faeb7e1c63859ca1cae34c9ed22a8f22c9ea9d96e2f412869f6b36beb9 \
     --hash=sha256:b728c9ab3c6163997b1d11a51d252d951efd13f0d248ea2403383952498f8a22
     # via -r requirements/main.in
+linehaul==1.0.1 \
+    --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
+    --hash=sha256:d19ca669008dad910868dfae7f904dfc5362583729bda344799cf7ea2ad5ef12
+    # via -r requirements/main.in
 logfury==1.0.1 \
     --hash=sha256:130a5daceab9ad534924252ddf70482aa2c96662b3a3825a7d30981d03b76a26 \
     --hash=sha256:b4f04be1701a1df644afc3384d6167d64c899f8036b7eefc3b6c570c6a9b290b
@@ -1107,6 +1117,7 @@ packaging==23.1 \
     #   -r requirements/main.in
     #   google-cloud-bigquery
     #   limits
+    #   linehaul
     #   packaging-legacy
 packaging-legacy==23.0 \
     --hash=sha256:7013a4aec35163f76c1d7b55340b0602b2fbe6628b4bb0948ac71c607f454260 \
@@ -1277,6 +1288,10 @@ pyopenssl==23.1.1 \
     --hash=sha256:841498b9bec61623b1b6c47ebbc02367c07d60e0e195f19790817f10cc8db0b7 \
     --hash=sha256:9e0c526404a210df9d2b18cd33364beadb0dc858a739b885677bc65e105d4a4c
     # via webauthn
+pyparsing==3.0.9 \
+    --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
+    --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc
+    # via linehaul
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
     --hash=sha256:fdbf7634733e56b72e27f9bce46e4550b75a3a2c420414035cae9d9d26b234d5
@@ -1501,6 +1516,10 @@ typing-extensions==4.6.2 \
     #   alembic
     #   limits
     #   pydantic
+ua-parser==0.16.1 \
+    --hash=sha256:ed3efc695f475ffe56248c9789b3016247e9c20e3556cfa4d5aadc78ab4b26c6 \
+    --hash=sha256:f97126300df8ac0f8f2c9d8559669532d626a1af529265fd253cba56e73ab36e
+    # via -r requirements/main.in
 urllib3==1.26.15 \
     --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
     --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42
