@@ -38,7 +38,7 @@
     {% if trusted == "trusted" %}
       <div style='color: darkgreen'>{% trans %}This repository is trusted{% endtrans %}</div>
     {% elif trusted == "irrelevant" %}
-      <div style='color: lightgreen'>{% trans %}The GitHub repository cannot confirm the ownership{% endtrans %}</div>
+      <div style='color: grey'>{% trans %}The GitHub repository cannot confirm the ownership{% endtrans %}</div>
     {% elif trusted == "untrusted" %}
       <div style='color: red'>{% trans %}The GitHub repository confirms that this project probably steals statistic information!{% endtrans %}</div>
     {% endif %}
