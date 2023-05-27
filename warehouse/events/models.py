@@ -74,6 +74,49 @@ class GeoIPInfo:
         return ""
 
 
+@dataclass
+class UserAgentInfo:
+    installer: str | None = None
+    device: str | None = None
+    os: str | None = None
+    user_agent: str | None = None
+    implementation: str | None = None
+    system: str | None = None
+
+    def display(self) -> str:
+        """
+        Construct a resonable user-agent description,
+        depending on optional values
+        """
+
+        if self.installer == "Browser":
+            if (
+                self.device != "Other"
+                and self.os != "Other"
+                and self.user_agent != "Other"
+            ):
+                return f"{self.user_agent} ({self.os} on {self.device})"
+            elif self.device != "Other" and self.user_agent != "Other":
+                return f"{self.user_agent} ({self.device})"
+            elif self.os != "Other" and self.user_agent != "Other":
+                return f"{self.user_agent} ({self.os})"
+            elif self.user_agent != "Other":
+                return f"{self.user_agent}"
+            else:
+                return "Unknown Browser"
+        elif self.installer is not None:
+            if self.implementation and self.system:
+                return f"{self.installer} ({self.implementation} " f"on {self.system})"
+            elif self.implementation:
+                return f"{self.installer} ({self.implementation})"
+            elif self.system:
+                return f"{self.installer} ({self.system})"
+            else:
+                return self.installer
+        else:
+            return "Unknown User-Agent"
+
+
 class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
