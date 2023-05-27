@@ -195,7 +195,7 @@ class Event(AbstractConcreteBase):
         Determine "best" location info to display.
 
         Dig into `.additional` for `geoip_info` and return that if it exists.
-        It was stored at the time opf the event, and may change in the related
+        It was stored at the time of the event, and may change in the related
         `IpAddress` object over time.
         Otherwise, return the `ip_address_obj` and let its repr decide.
         """
@@ -205,6 +205,18 @@ class Event(AbstractConcreteBase):
                 return g.display()
 
         return cls.ip_address_obj
+
+    @property
+    def user_agent_info(cls) -> str:  # noqa: N805
+        """
+        Display a summarized User-Agent if available
+
+        Dig into `.additional` for `user_agent_info` and return that if it exists.
+        """
+        if cls.additional is not None and "user_agent_info" in cls.additional:
+            return UserAgentInfo(**cls.additional["user_agent_info"]).display()
+
+        return "No User-Agent"
 
     def __init_subclass__(cls, /, parent_class, **kwargs):
         cls._parent_class = parent_class

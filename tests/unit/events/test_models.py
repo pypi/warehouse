@@ -314,3 +314,25 @@ class TestUserAgentInfo:
         """Create a UserAgentInfo object and test the display method."""
         dataklazz = UserAgentInfo(**test_input)
         assert dataklazz.display() == expected
+
+    @pytest.mark.parametrize(
+        "user_agent, expected",
+        [
+            (
+                (
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) "
+                    "AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 "
+                    "Mobile/15E148 Safari/605.1"
+                ),
+                "Chrome Mobile iOS (iOS on iPhone)",
+            ),
+            ("", "No User-Agent"),
+        ],
+    )
+    def test_user_agent_info(self, db_request, user_agent, expected):
+        db_request.headers["User-Agent"] = user_agent
+        file = FileFactory.create()
+        file.record_event(
+            tag=EventTag.File.FileAdd, ip_address=None, request=db_request
+        )
+        assert file.events[0].user_agent_info == expected
