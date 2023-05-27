@@ -169,6 +169,10 @@ class TestUserAgentInfo:
                 "Python-urllib/3.7",
                 {"implementation": None, "installer": None, "system": None},
             ),
+            (
+                "Go-http-client/1.1",
+                {"implementation": None, "installer": None, "system": None},
+            ),
         ],
     )
     def test_summarizes_user_agents(self, db_request, test_input, expected):
