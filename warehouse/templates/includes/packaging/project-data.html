@@ -34,6 +34,14 @@
   {% if release.github_repo_info_url and release.github_open_issue_info_url %}
   <div class="hidden github-repo-info" data-controller="github-repo-info">
     {% trans %}GitHub statistics:{% endtrans %}
+    {% set trusted = release.repository_ownership_is_trusted %}
+    {% if trusted == "trusted" %}
+      <div style='color: darkgreen'>{% trans %}This repository is trusted{% endtrans %}</div>
+    {% elif trusted == "irrelevant" %}
+      <div style='color: lightgreen'>{% trans %}The GitHub repository cannot confirm the ownership{% endtrans %}</div>
+    {% elif trusted == "untrusted" %}
+      <div style='color: red'>{% trans %}The GitHub repository confirms that this project probably steals statistic information!{% endtrans %}</div>
+    {% endif %}
     <ul class="vertical-tabs__list">
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"

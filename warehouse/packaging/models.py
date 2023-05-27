@@ -436,6 +436,8 @@ class Release(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
+    project = orm.backref("Project", lazy=False)
+
     version = Column(Text, nullable=False)
     canonical_version = Column(Text, nullable=False)
     is_prerelease = Column(Boolean, nullable=False, server_default=sql.false())
@@ -574,8 +576,51 @@ class Release(db.Model):
 
         return _urls
 
-    @staticmethod
-    def get_user_name_and_repo_name(urls):
+    @property
+    def repository_ownership_is_trusted(self):
+        # imports for poc
+        from urllib.request import urlopen, Request
+        import json
+        import base64
+
+        user_name, repo_name = self.get_user_name_and_repo_name(self.urls.values())
+        if not user_name and repo_name:
+            # There are no GitHub info, consider 'irrelevant' because this code is unreachable this way
+            return "irrelevant"
+
+        # todo: need to expose api token & make a proper request, probably not via urllib
+        httprequest = Request(
+            f"https://api.github.com/repos/{user_name}/{repo_name}/contents/.pypi_acknowledged",
+            headers={"Accept": "application/json"},
+        )
+        try:
+            with urlopen(httprequest) as response:
+                response = json.loads(response.read())
+            if not response.get(
+                "content"
+            ):  # there is no .pypi_acknowledged file, consider 'ambiguous'
+                return "ambiguous"
+        except Exception:
+            # on 404. This repo does not exist -> GitHub info is unusable -> consider 'irrelevant'
+            return "irrelevant"
+
+        pypi_acknowledged = (
+            base64.b64decode(response.get("content"))
+            .decode()
+            .replace("\r", "")
+            .lower()
+            .replace(".", "-")
+            .replace("_", "-")
+            .split("\n")
+        )
+        project_name = self.project.name.lower().replace(".", "-").replace("_", "-")
+
+        if project_name not in pypi_acknowledged:
+            # this pypi package is definitely untrusted
+            return "untrusted"
+        return "trusted"  # everything is ok
+
+    def get_user_name_and_repo_name(self, urls):
         for url in urls:
             parsed = urlparse(url)
             segments = parsed.path.strip("/").split("/")
