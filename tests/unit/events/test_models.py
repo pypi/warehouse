@@ -12,7 +12,7 @@
 
 import pytest
 
-from warehouse.events.models import GeoIPInfo
+from warehouse.events.models import GeoIPInfo, UserAgentInfo
 from warehouse.events.tags import EventTag
 
 from ...common.db.packaging import FileFactory
@@ -190,3 +190,153 @@ class TestUserAgentInfo:
             tag=EventTag.File.FileAdd, ip_address=None, request=db_request
         )
         assert file.events[0].additional is None
+
+    @pytest.mark.parametrize(
+        "test_input, expected",
+        [
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Mac",
+                    "os": "Mac OS X",
+                    "user_agent": "Safari",
+                },
+                "Safari (Mac OS X on Mac)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Ubuntu",
+                    "user_agent": "Firefox",
+                },
+                "Firefox (Ubuntu)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Windows",
+                    "user_agent": "Edge",
+                },
+                "Edge (Windows)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Chrome OS",
+                    "user_agent": "Chrome",
+                },
+                "Chrome (Chrome OS)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Windows",
+                    "user_agent": "Chrome",
+                },
+                "Chrome (Windows)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Pixel C",
+                    "os": "Android",
+                    "user_agent": "Chrome Mobile WebView",
+                },
+                "Chrome Mobile WebView (Android on Pixel C)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "iPhone",
+                    "os": "iOS",
+                    "user_agent": "Chrome Mobile iOS",
+                },
+                "Chrome Mobile iOS (iOS on iPhone)",
+            ),
+            (
+                {"installer": "twine", "implementation": "CPython", "system": None},
+                "twine (CPython)",
+            ),
+            (
+                {"implementation": "CPython", "installer": "poetry", "system": "Linux"},
+                "poetry (CPython on Linux)",
+            ),
+            (
+                {
+                    "implementation": "CPython",
+                    "installer": "poetry",
+                    "system": "Darwin",
+                },
+                "poetry (CPython on Darwin)",
+            ),
+            (
+                {"implementation": None, "installer": "maturin", "system": None},
+                "maturin",
+            ),
+            (
+                {"implementation": None, "installer": None, "system": None},
+                "Unknown User-Agent",
+            ),
+            (
+                {"implementation": None, "installer": "magictool", "system": "univac"},
+                "magictool (univac)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "univac",
+                    "os": "Other",
+                    "user_agent": "MagicBrowse",
+                },
+                "MagicBrowse (univac)",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Other",
+                    "user_agent": "Other",
+                },
+                "Unknown Browser",
+            ),
+            (
+                {
+                    "installer": "Browser",
+                    "device": "Other",
+                    "os": "Other",
+                    "user_agent": "MagicBrowse",
+                },
+                "MagicBrowse",
+            ),
+        ],
+    )
+    def test_display_output(self, test_input, expected):
+        """Create a UserAgentInfo object and test the display method."""
+        dataklazz = UserAgentInfo(**test_input)
+        assert dataklazz.display() == expected
+
+    @pytest.mark.parametrize(
+        "user_agent, expected",
+        [
+            (
+                (
+                    "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) "
+                    "AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/69.0.3497.105 "
+                    "Mobile/15E148 Safari/605.1"
+                ),
+                "Chrome Mobile iOS (iOS on iPhone)",
+            ),
+            ("", "No User-Agent"),
+        ],
+    )
+    def test_user_agent_info(self, db_request, user_agent, expected):
+        db_request.headers["User-Agent"] = user_agent
+        file = FileFactory.create()
+        file.record_event(
+            tag=EventTag.File.FileAdd, ip_address=None, request=db_request
+        )
+        assert file.events[0].user_agent_info == expected
