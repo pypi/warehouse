@@ -620,7 +620,8 @@ class Release(db.Model):
             return "untrusted"
         return "trusted"  # everything is ok
 
-    def get_user_name_and_repo_name(self, urls):
+    @staticmethod
+    def get_user_name_and_repo_name(urls):
         for url in urls:
             parsed = urlparse(url)
             segments = parsed.path.strip("/").split("/")
