@@ -20,10 +20,12 @@ import pytz
 
 from first import first
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
@@ -157,6 +159,33 @@ def profile(user, request):
     )
 
     return {"user": user, "projects": projects}
+
+
+@view_config(
+    route_name="accounts.search",
+    renderer="api/account_search.html",
+    uses_session=True,
+)
+def accounts_search(request) -> dict[str, list[User]]:
+    """
+    Search for usernames based on prefix.
+    Used with autocomplete.
+    User must be logged in.
+    """
+    if request.authenticated_userid is None:
+        raise HTTPUnauthorized()
+
+    prefix = request.params.get("q", "").strip()
+    if not prefix:
+        raise HTTPBadRequest()
+
+    user_service = request.find_service(IUserService, context=None)
+    users = user_service.get_users_by_prefix(prefix)
+
+    if not users:
+        raise HTTPNotFound()
+
+    return {"users": users}
 
 
 @view_config(

@@ -419,6 +419,13 @@ class TestDatabaseUserService:
 
         assert user.id == found_user.id
 
+    def test_get_users_by_prefix(self, user_service):
+        user = UserFactory.create()
+        found_users = user_service.get_users_by_prefix(user.username[:3])
+
+        assert len(found_users) == 1
+        assert user.id == found_users[0].id
+
     def test_get_user_by_email_failure(self, user_service):
         found_user = user_service.get_user_by_email("example@email.com")
         user_service.db.flush()
