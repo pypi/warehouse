@@ -27,7 +27,8 @@
     "date-fns": "^2.30.0",
     "debounce": "^1.2.1",
     "jquery": "^3.7.0",
-    "normalize.css": "^8.0.1"
+    "normalize.css": "^8.0.1",
+    "stimulus-autocomplete": "^3.1.0"
   },
   "overrides": {
     "sweetalert2": "11.4.8"
