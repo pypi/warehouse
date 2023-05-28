@@ -6,8 +6,9 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
+    "lint:fix": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
     "stylelint": "stylelint '**/*.scss' --cache",
-    "stylelint-fix": "stylelint '**/*.scss' --cache --fix",
+    "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
     "test": "jest --coverage"
   },
   "jest": {
