@@ -35,10 +35,10 @@ from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_project_docs(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )
@@ -74,10 +74,10 @@ def test_project_docs(db_session):
 
 
 def test_single_project_doc(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )
@@ -114,10 +114,10 @@ def test_single_project_doc(db_session):
 
 
 def test_project_docs_empty(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )

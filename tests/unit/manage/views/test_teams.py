@@ -657,8 +657,9 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(
+            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
+        )
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -687,8 +688,9 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(
+            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
+        )
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -717,8 +719,9 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(
+            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert team_views.manage_team_history(team, db_request)
