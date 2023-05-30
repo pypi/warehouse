@@ -9,7 +9,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import hashlib
 
 import factory
 import pretend
@@ -22,29 +21,39 @@ from ...common.db.accounts import UserEventFactory, UserFactory
 from ...common.db.ip_addresses import IpAddress
 
 
-def remote_addr_salty_hash(remote_addr, salt):
-    return hashlib.sha256(f"{remote_addr}{salt}".encode()).hexdigest()
-
-
 class TestBackfillIpAddresses:
     def test_no_records_to_backfill(self, cli, db_request, monkeypatch):
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        registry_dict = {}
+        config = pretend.stub(
+            registry=pretend.stub(
+                __getitem__=registry_dict.__getitem__,
+                __setitem__=registry_dict.__setitem__,
+                settings={"warehouse.ip_salt": "NaCl"},
+            )
+        )
+        config.registry["sqlalchemy.engine"] = engine
         session_cls = pretend.call_recorder(lambda bind: db_request.db)
         monkeypatch.setattr(db, "Session", session_cls)
 
         assert db_request.db.query(User.Event).count() == 0
 
-        args = ["--salt", "NaCl"]
-
-        result = cli.invoke(hashing.backfill_ipaddrs, args, obj=config)
+        result = cli.invoke(hashing.backfill_ipaddrs, obj=config)
 
         assert result.exit_code == 0
         assert result.output.strip() == "No rows to backfill. Done!"
 
     def test_backfill_with_no_ipaddr_obj(self, cli, db_session, monkeypatch):
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        registry_dict = {}
+        config = pretend.stub(
+            registry=pretend.stub(
+                __getitem__=registry_dict.__getitem__,
+                __setitem__=registry_dict.__setitem__,
+                settings={"warehouse.ip_salt": "NaCl"},
+            )
+        )
+        config.registry["sqlalchemy.engine"] = engine
         session_cls = pretend.call_recorder(lambda bind: db_session)
         monkeypatch.setattr(db, "Session", session_cls)
 
@@ -58,16 +67,22 @@ class TestBackfillIpAddresses:
         assert db_session.query(User.Event).count() == 3
         assert db_session.query(IpAddress).count() == 0
 
-        args = ["--salt", "NaCl"]
-
-        result = cli.invoke(hashing.backfill_ipaddrs, args, obj=config)
+        result = cli.invoke(hashing.backfill_ipaddrs, obj=config)
 
         assert result.exit_code == 0
         assert db_session.query(IpAddress).count() == 3
 
     def tests_backfills_records(self, cli, db_request, remote_addr, monkeypatch):
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        registry_dict = {}
+        config = pretend.stub(
+            registry=pretend.stub(
+                __getitem__=registry_dict.__getitem__,
+                __setitem__=registry_dict.__setitem__,
+                settings={"warehouse.ip_salt": "NaCl"},
+            )
+        )
+        config.registry["sqlalchemy.engine"] = engine
         session_cls = pretend.call_recorder(lambda bind: db_request.db)
         monkeypatch.setattr(db, "Session", session_cls)
 
@@ -81,8 +96,6 @@ class TestBackfillIpAddresses:
         assert db_request.db.query(User.Event).count() == 3
 
         args = [
-            "--salt",
-            "NaCl",
             "--batch-size",
             "2",
         ]
@@ -107,7 +120,15 @@ class TestBackfillIpAddresses:
 
     def test_continue_until_done(self, cli, db_request, remote_addr, monkeypatch):
         engine = pretend.stub()
-        config = pretend.stub(registry={"sqlalchemy.engine": engine})
+        registry_dict = {}
+        config = pretend.stub(
+            registry=pretend.stub(
+                __getitem__=registry_dict.__getitem__,
+                __setitem__=registry_dict.__setitem__,
+                settings={"warehouse.ip_salt": "NaCl"},
+            )
+        )
+        config.registry["sqlalchemy.engine"] = engine
         session_cls = pretend.call_recorder(lambda bind: db_request.db)
         monkeypatch.setattr(db, "Session", session_cls)
 
@@ -120,8 +141,6 @@ class TestBackfillIpAddresses:
         )
 
         args = [
-            "--salt",
-            "NaCl",
             "--batch-size",
             "1",
             "--sleep-time",

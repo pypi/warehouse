@@ -29,13 +29,6 @@ def hashing():
 
 @hashing.command()
 @click.option(
-    "-s",
-    "--salt",
-    prompt=True,
-    hide_input=True,
-    help="Pass value instead of prompting for salt",
-)
-@click.option(
     "-b",
     "--batch-size",
     default=10_000,
@@ -58,7 +51,6 @@ def hashing():
 @click.pass_obj
 def backfill_ipaddrs(
     config,
-    salt: str,
     batch_size: int,
     sleep_time: int,
     continue_until_done: bool,
@@ -73,6 +65,8 @@ def backfill_ipaddrs(
     # This lives in the outer function so we only create a single session per
     # invocation of the CLI command.
     session = Session(bind=config.registry["sqlalchemy.engine"])
+
+    salt = config.registry.settings["warehouse.ip_salt"]
 
     _backfill_ips(session, salt, batch_size, sleep_time, continue_until_done)
 
