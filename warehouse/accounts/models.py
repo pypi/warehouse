@@ -108,7 +108,6 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     macaroons = orm.relationship(
         "Macaroon",
-        backref="user",
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
@@ -141,7 +140,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     @email.expression  # type: ignore
     def email(self):
         return (
-            select([Email.email])
+            select(Email.email)
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
