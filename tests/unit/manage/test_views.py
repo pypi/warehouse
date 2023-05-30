@@ -5818,10 +5818,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5857,10 +5856,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5897,10 +5895,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)

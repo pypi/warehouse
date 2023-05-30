@@ -50,7 +50,7 @@ WHITE_LOGO_FILE.type = "image/png"
 
 class TestSponsorList:
     def test_list_all_sponsors(self, db_request):
-        [SponsorFactory.create() for _ in range(5)]
+        SponsorFactory.create_batch(5)
         sponsors = db_request.db.query(Sponsor).order_by(Sponsor.name).all()
 
         result = views.sponsor_list(db_request)

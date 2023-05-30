@@ -2915,10 +2915,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+        )
         events_query = (
             db_request.db.query(Organization.Event)
             .join(Organization.Event.source)
@@ -2947,10 +2946,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+        )
         events_query = (
             db_request.db.query(Organization.Event)
             .join(Organization.Event.source)
@@ -2979,10 +2977,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert org_views.manage_organization_history(organization, db_request)
