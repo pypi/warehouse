@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TypeVar
 
 import sentry_sdk
 
@@ -24,7 +24,12 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
 
-def _check_claim_binary(binary_func):
+C = TypeVar("C")
+
+
+def check_claim_binary(
+    binary_func: Callable[[C, C], bool]
+) -> Callable[[C, C, Any], bool]:
     """
     Wraps a binary comparison function so that it takes three arguments instead,
     ignoring the third.
@@ -33,13 +38,13 @@ def _check_claim_binary(binary_func):
     comparison checks like `str.__eq__`.
     """
 
-    def wrapper(ground_truth, signed_claim, all_signed_claims):
+    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: Any):
         return binary_func(ground_truth, signed_claim)
 
     return wrapper
 
 
-def _check_claim_invariant(value: Any):
+def check_claim_invariant(value: C) -> Callable[[C, C, Any], bool]:
     """
     Wraps a fixed value comparison into a three-argument function.
 
@@ -47,7 +52,7 @@ def _check_claim_invariant(value: Any):
     comparison checks, like "claim x is always the literal `true` value".
     """
 
-    def wrapper(ground_truth, signed_claim, all_signed_claims):
+    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: Any):
         return ground_truth == signed_claim == value
 
     return wrapper
@@ -174,11 +179,11 @@ class OIDCPublisherMixin:
         return True
 
     @property
-    def publisher_name(self):  # pragma: no cover
+    def publisher_name(self) -> str:  # pragma: no cover
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    def publisher_url(self, claims=None):  # pragma: no cover
+    def publisher_url(self, claims=None) -> str:  # pragma: no cover
         """
         NOTE: This is **NOT** a `@property` because we pass `claims` to it.
         When calling, make sure to use `publisher_url()`

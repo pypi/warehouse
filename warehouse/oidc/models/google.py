@@ -17,8 +17,8 @@ from sqlalchemy.dialects.postgresql import UUID
 from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
-    _check_claim_binary,
-    _check_claim_invariant,
+    check_claim_binary,
+    check_claim_invariant,
 )
 
 
@@ -46,8 +46,8 @@ class GooglePublisherMixin:
     sub = Column(String, nullable=True)
 
     __required_verifiable_claims__ = {
-        "email": _check_claim_binary(str.__eq__),
-        "email_verified": _check_claim_invariant(True),
+        "email": check_claim_binary(str.__eq__),
+        "email_verified": check_claim_invariant(True),
     }
 
     __optional_verifiable_claims__ = {"sub": _check_sub}
