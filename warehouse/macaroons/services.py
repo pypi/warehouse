@@ -58,7 +58,9 @@ class DatabaseMacaroonService:
             return None
 
         return self.db.get(
-            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_publisher"))
+            Macaroon,
+            macaroon_id,
+            (joinedload(Macaroon.user), joinedload(Macaroon.oidc_publisher)),
         )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):

@@ -317,7 +317,7 @@ def search(request):
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
         .filter(
-            exists([release_classifiers.c.trove_id]).where(
+            exists(release_classifiers.c.trove_id).where(
                 release_classifiers.c.trove_id == Classifier.id
             ),
             Classifier.classifier.notin_(deprecated_classifiers.keys()),

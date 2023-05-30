@@ -117,7 +117,7 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
@@ -198,7 +198,7 @@ def releases_list(project, request):
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
@@ -230,7 +230,7 @@ def journals_list(project, request):
 
     journals_query = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )

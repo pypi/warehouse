@@ -821,7 +821,7 @@ class TestManageAccount:
 
         journal = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter_by(id=jid)
             .one()
         )
@@ -3969,7 +3969,9 @@ class TestManageProjectRelease:
             )
         ]
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "yank release"
@@ -4122,7 +4124,9 @@ class TestManageProjectRelease:
         ]
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "unyank release"
@@ -4279,7 +4283,9 @@ class TestManageProjectRelease:
 
         assert db_request.db.query(Release).all() == []
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "remove release"
@@ -5450,7 +5456,9 @@ class TestChangeProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
@@ -5567,7 +5575,9 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
@@ -5662,7 +5672,9 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
