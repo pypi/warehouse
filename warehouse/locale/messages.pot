@@ -891,7 +891,7 @@ msgstr ""
 #: warehouse/templates/base.html:191
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:744
 #: warehouse/templates/manage/manage_base.html:321
 #: warehouse/templates/manage/manage_base.html:380
 #: warehouse/templates/manage/organization/settings.html:194
@@ -3352,29 +3352,50 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/organization/history.html:202
+#: warehouse/templates/manage/organization/history.html:211
+#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:310
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:118
+msgid "Time"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/organization/history.html:203
+#: warehouse/templates/manage/team/history.html:110
+msgid "Additional Info"
+msgstr ""
+
 #: warehouse/templates/manage/account.html:692
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:685
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/organization/history.html:215
 msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:698
+#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/project/history.html:316
+#: warehouse/templates/manage/team/history.html:124
+msgid "Device Info"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:706
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:713
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:716
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:716
+#: warehouse/templates/manage/account.html:718
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -3385,7 +3406,7 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:721
+#: warehouse/templates/manage/account.html:723
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -3395,14 +3416,14 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/account.html:731
+#: warehouse/templates/manage/account.html:733
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a "
 "href=\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:248
@@ -3410,11 +3431,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:743
+#: warehouse/templates/manage/account.html:745
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:745
+#: warehouse/templates/manage/account.html:747
 msgid "Delete your PyPI account"
 msgstr ""
 
@@ -4656,23 +4677,6 @@ msgstr ""
 msgid "Security history for %(source_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:202
-#: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:301
-#: warehouse/templates/manage/project/history.html:310
-#: warehouse/templates/manage/team/history.html:109
-#: warehouse/templates/manage/team/history.html:118
-msgid "Time"
-msgstr ""
-
-#: warehouse/templates/manage/organization/history.html:203
-#: warehouse/templates/manage/project/history.html:302
-#: warehouse/templates/manage/project/history.html:314
-#: warehouse/templates/manage/team/history.html:110
-#: warehouse/templates/manage/team/history.html:122
-msgid "Location info"
-msgstr ""
-
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, python-format
 msgid "Manage '%(organization_name)s'"
@@ -5324,6 +5328,15 @@ msgstr ""
 
 #: warehouse/templates/manage/project/history.html:288
 msgid "Disabled by:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:302
+msgid "Additional info"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:314
+#: warehouse/templates/manage/team/history.html:122
+msgid "Location info"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
