@@ -425,7 +425,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -1553,7 +1553,7 @@ def manage_project_releases(project, request):
     # release version and the package types
     filecounts = (
         request.db.query(Release.version, File.packagetype, func.count(File.id))
-        .options(Load(Release).load_only("version"))
+        .options(Load(Release).load_only(Release.version))
         .outerjoin(File)
         .group_by(Release.id)
         .group_by(File.packagetype)

@@ -134,7 +134,7 @@ def test_remove_project(db_request, flash):
 
     journal_entry = (
         db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == "foo")
         .one()
     )
@@ -157,7 +157,7 @@ def test_destroy_docs(db_request, flash):
 
     journal_entry = (
         db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == "foo")
         .one()
     )

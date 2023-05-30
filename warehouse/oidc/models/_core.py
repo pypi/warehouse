@@ -191,9 +191,7 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
         secondary=OIDCPublisherProjectAssociation.__table__,  # type: ignore
         backref="oidc_publishers",
     )
-    macaroons = orm.relationship(
-        Macaroon, backref="oidc_publisher", cascade="all, delete-orphan", lazy=True
-    )
+    macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_publishers",
