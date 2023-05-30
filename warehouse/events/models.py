@@ -74,6 +74,49 @@ class GeoIPInfo:
         return ""
 
 
+@dataclass
+class UserAgentInfo:
+    installer: str | None = None
+    device: str | None = None
+    os: str | None = None
+    user_agent: str | None = None
+    implementation: str | None = None
+    system: str | None = None
+
+    def display(self) -> str:
+        """
+        Construct a resonable user-agent description,
+        depending on optional values
+        """
+
+        if self.installer == "Browser":
+            if (
+                self.device != "Other"
+                and self.os != "Other"
+                and self.user_agent != "Other"
+            ):
+                return f"{self.user_agent} ({self.os} on {self.device})"
+            elif self.device != "Other" and self.user_agent != "Other":
+                return f"{self.user_agent} ({self.device})"
+            elif self.os != "Other" and self.user_agent != "Other":
+                return f"{self.user_agent} ({self.os})"
+            elif self.user_agent != "Other":
+                return f"{self.user_agent}"
+            else:
+                return "Unknown Browser"
+        elif self.installer is not None:
+            if self.implementation and self.system:
+                return f"{self.installer} ({self.implementation} " f"on {self.system})"
+            elif self.implementation:
+                return f"{self.installer} ({self.implementation})"
+            elif self.system:
+                return f"{self.installer} ({self.system})"
+            else:
+                return self.installer
+        else:
+            return "Unknown User-Agent"
+
+
 class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
@@ -152,7 +195,7 @@ class Event(AbstractConcreteBase):
         Determine "best" location info to display.
 
         Dig into `.additional` for `geoip_info` and return that if it exists.
-        It was stored at the time opf the event, and may change in the related
+        It was stored at the time of the event, and may change in the related
         `IpAddress` object over time.
         Otherwise, return the `ip_address_obj` and let its repr decide.
         """
@@ -162,6 +205,18 @@ class Event(AbstractConcreteBase):
                 return g.display()
 
         return cls.ip_address_obj
+
+    @property
+    def user_agent_info(cls) -> str:  # noqa: N805
+        """
+        Display a summarized User-Agent if available
+
+        Dig into `.additional` for `user_agent_info` and return that if it exists.
+        """
+        if cls.additional is not None and "user_agent_info" in cls.additional:
+            return UserAgentInfo(**cls.additional["user_agent_info"]).display()
+
+        return "No User-Agent"
 
     def __init_subclass__(cls, /, parent_class, **kwargs):
         cls._parent_class = parent_class
@@ -203,7 +258,8 @@ class HasEvents:
             try:
                 parsed_user_agent = linehaul_user_agent_parser.parse(user_agent)
                 if (
-                    parsed_user_agent.installer is not None
+                    parsed_user_agent is not None
+                    and parsed_user_agent.installer is not None
                     and parsed_user_agent.installer.name == "Browser"
                 ):
                     parsed_user_agent = user_agent_parser.Parse(user_agent)
@@ -218,13 +274,13 @@ class HasEvents:
                     additional = additional or {}
                     additional["user_agent_info"] = {
                         "installer": parsed_user_agent.installer.name
-                        if parsed_user_agent.installer
+                        if parsed_user_agent and parsed_user_agent.installer
                         else None,
                         "implementation": parsed_user_agent.implementation.name
-                        if parsed_user_agent.implementation
+                        if parsed_user_agent and parsed_user_agent.implementation
                         else None,
                         "system": parsed_user_agent.system.name
-                        if parsed_user_agent.system
+                        if parsed_user_agent and parsed_user_agent.system
                         else None,
                     }
             except linehaul_user_agent_parser.UnknownUserAgentError:

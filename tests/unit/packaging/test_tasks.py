@@ -143,8 +143,8 @@ def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):
-    [FileFactory(cached=True) for _ in range(12)]
-    [FileFactory(cached=False) for _ in range(3)]
+    FileFactory.create_batch(12, cached=True)
+    FileFactory.create_batch(3, cached=False)
 
     check_file_cache_tasks_outstanding(db_request)
 

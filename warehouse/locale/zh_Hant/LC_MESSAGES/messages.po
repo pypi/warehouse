@@ -84,14 +84,14 @@ msgid ""
 "username."
 msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
 
-#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
-#: warehouse/accounts/forms.py:198
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:186
+#: warehouse/accounts/forms.py:199
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "密碼強度:"
 
-#: warehouse/accounts/forms.py:173
+#: warehouse/accounts/forms.py:174
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -100,51 +100,51 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 msgid "Your passwords don't match. Try again."
 msgstr "您的密碼不匹配。 請再試一次。"
 
-#: warehouse/accounts/forms.py:231 warehouse/accounts/forms.py:242
+#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
 msgid "The email address isn't valid. Try again."
 msgstr "電子郵件地址無效。 請再試一次。"
 
-#: warehouse/accounts/forms.py:250
+#: warehouse/accounts/forms.py:251
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "您不能使用來自該網域的電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:261
+#: warehouse/accounts/forms.py:262
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "此帳戶已使用此電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:268
+#: warehouse/accounts/forms.py:269
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "其他帳戶已使用此電子郵件地址。 請使用其他電子郵件。"
 
-#: warehouse/accounts/forms.py:289 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:290 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/accounts/forms.py:378
+#: warehouse/accounts/forms.py:380
 msgid "Invalid TOTP code."
 msgstr "無效的一次性密碼 (TOTP)。"
 
-#: warehouse/accounts/forms.py:395
+#: warehouse/accounts/forms.py:397
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無效的 WebAuthn 斷言：負載錯誤"
 
-#: warehouse/accounts/forms.py:455
+#: warehouse/accounts/forms.py:459
 msgid "Invalid recovery code."
 msgstr "無效的重設碼。"
 
-#: warehouse/accounts/forms.py:464
+#: warehouse/accounts/forms.py:469
 msgid "Recovery code has been previously used."
 msgstr "重設碼已重新生成。"
 
-#: warehouse/accounts/forms.py:483
+#: warehouse/accounts/forms.py:488
 msgid "No user found with that username or email"
 msgstr "找不到使用該使用者名稱或電子郵件的使用者"
 
@@ -188,161 +188,161 @@ msgstr "已驗證身份"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:459 warehouse/manage/views/__init__.py:805
+#: warehouse/accounts/views.py:461 warehouse/manage/views/__init__.py:816
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "重設碼已接受，提供的重設碼將無法再次使用。"
 
-#: warehouse/accounts/views.py:545
+#: warehouse/accounts/views.py:547
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:679
 msgid "Expired token: request a new password reset link"
 msgstr "密鑰過期：請求新的密碼重設連結"
 
-#: warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:681
 msgid "Invalid token: request a new password reset link"
 msgstr "密鑰無效：請求新的密碼重置連結"
 
-#: warehouse/accounts/views.py:678 warehouse/accounts/views.py:779
-#: warehouse/accounts/views.py:878 warehouse/accounts/views.py:1047
+#: warehouse/accounts/views.py:683 warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:886 warehouse/accounts/views.py:1059
 msgid "Invalid token: no token supplied"
 msgstr "密鑰無效：未提供密鑰"
 
-#: warehouse/accounts/views.py:682
+#: warehouse/accounts/views.py:687
 msgid "Invalid token: not a password reset token"
 msgstr "密鑰無效：不是重置密碼的密鑰"
 
-#: warehouse/accounts/views.py:687
+#: warehouse/accounts/views.py:692
 msgid "Invalid token: user not found"
 msgstr "密鑰無效：找不到使用者"
 
-#: warehouse/accounts/views.py:698
+#: warehouse/accounts/views.py:703
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "密鑰無效：自密鑰申請後，使用者已經登錄"
 
-#: warehouse/accounts/views.py:716
+#: warehouse/accounts/views.py:721
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "密鑰無效：自請求密鑰後，密碼已經被更改"
 
-#: warehouse/accounts/views.py:747
+#: warehouse/accounts/views.py:754
 msgid "You have reset your password"
 msgstr "您已重置密碼"
 
-#: warehouse/accounts/views.py:775
+#: warehouse/accounts/views.py:782
 msgid "Expired token: request a new email verification link"
 msgstr "密鑰過期：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:777
+#: warehouse/accounts/views.py:784
 msgid "Invalid token: request a new email verification link"
 msgstr "密鑰無效：請求新的電子郵件驗證連結"
 
-#: warehouse/accounts/views.py:783
+#: warehouse/accounts/views.py:790
 msgid "Invalid token: not an email verification token"
 msgstr "密鑰無效：不是電子郵件驗證密鑰"
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:799
 msgid "Email not found"
 msgstr "未找到電子郵件"
 
-#: warehouse/accounts/views.py:795
+#: warehouse/accounts/views.py:802
 msgid "Email already verified"
 msgstr "已驗證的電子郵件"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:820
 msgid "You can now set this email as your primary address"
 msgstr "您現在可以將此電子郵件設定為您的主地址"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:824
 msgid "This is your primary address"
 msgstr "這是您的主地址"
 
-#: warehouse/accounts/views.py:821
+#: warehouse/accounts/views.py:829
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "電子郵件地址 ${email_address} 已驗證。${confirm_message}。"
 
-#: warehouse/accounts/views.py:874
+#: warehouse/accounts/views.py:882
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "過期密鑰：請求新專案角色邀請"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:884
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "密鑰無效：請求新的項目角色邀請"
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:890
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "密鑰無效：不是協作邀請密鑰"
 
-#: warehouse/accounts/views.py:886
+#: warehouse/accounts/views.py:894
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "身份邀請已過期。"
 
-#: warehouse/accounts/views.py:895
+#: warehouse/accounts/views.py:903
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "角色邀請不再存在。"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:956
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "邀請加入專案 ${project_name} 被拒絕."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1021
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "你不是此專案的擁有者。"
 
-#: warehouse/accounts/views.py:1043
+#: warehouse/accounts/views.py:1055
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "過期密鑰：請求新專案角色邀請"
 
-#: warehouse/accounts/views.py:1045
+#: warehouse/accounts/views.py:1057
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "密鑰無效：請求新的項目角色邀請"
 
-#: warehouse/accounts/views.py:1051
+#: warehouse/accounts/views.py:1063
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "密鑰無效：不是協作邀請密鑰"
 
-#: warehouse/accounts/views.py:1055
+#: warehouse/accounts/views.py:1067
 msgid "Role invitation is not valid."
 msgstr "身份邀請已過期。"
 
-#: warehouse/accounts/views.py:1070
+#: warehouse/accounts/views.py:1082
 msgid "Role invitation no longer exists."
 msgstr "角色邀請不再存在。"
 
-#: warehouse/accounts/views.py:1101
+#: warehouse/accounts/views.py:1115
 msgid "Invitation for '${project_name}' is declined."
 msgstr "邀請加入專案 ${project_name} 被拒絕."
 
-#: warehouse/accounts/views.py:1168
+#: warehouse/accounts/views.py:1183
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
-#: warehouse/accounts/views.py:1385 warehouse/accounts/views.py:1405
-#: warehouse/accounts/views.py:1539 warehouse/manage/views/__init__.py:1208
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/accounts/views.py:1401 warehouse/accounts/views.py:1421
+#: warehouse/accounts/views.py:1556 warehouse/manage/views/__init__.py:1225
+#: warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -353,17 +353,17 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/accounts/views.py:1419
+#: warehouse/accounts/views.py:1435
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1432
+#: warehouse/accounts/views.py:1448
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1448 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -372,28 +372,28 @@ msgid ""
 "again later."
 msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
 
-#: warehouse/accounts/views.py:1462 warehouse/manage/views/__init__.py:1260
+#: warehouse/accounts/views.py:1478 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1481
+#: warehouse/accounts/views.py:1497
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1516
+#: warehouse/accounts/views.py:1533
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1553 warehouse/accounts/views.py:1566
-#: warehouse/accounts/views.py:1573
+#: warehouse/accounts/views.py:1570 warehouse/accounts/views.py:1583
+#: warehouse/accounts/views.py:1590
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "管理版本"
 
-#: warehouse/accounts/views.py:1579
+#: warehouse/accounts/views.py:1596
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -513,37 +513,37 @@ msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者�
 msgid "Account details updated"
 msgstr "帳戶詳情"
 
-#: warehouse/manage/views/__init__.py:218
+#: warehouse/manage/views/__init__.py:219
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
-#: warehouse/manage/views/__init__.py:753
+#: warehouse/manage/views/__init__.py:762
 msgid "Recovery codes already generated"
 msgstr "重設碼已生成"
 
-#: warehouse/manage/views/__init__.py:754
+#: warehouse/manage/views/__init__.py:763
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "產生新的重置碼會使現有的重置碼失效。"
 
-#: warehouse/manage/views/__init__.py:860
+#: warehouse/manage/views/__init__.py:871
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "驗證你的電郵地址或新增一個新的電郵地址。"
 
-#: warehouse/manage/views/__init__.py:980
+#: warehouse/manage/views/__init__.py:995
 msgid "Invalid credentials. Try again"
 msgstr "憑證無效。請再試一次"
 
-#: warehouse/manage/views/__init__.py:1102
+#: warehouse/manage/views/__init__.py:1117
 #, fuzzy
 #| msgid "2FA requirement disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "已禁用雙因素認證要求"
 
-#: warehouse/manage/views/__init__.py:1468
-#: warehouse/manage/views/__init__.py:1772
-#: warehouse/manage/views/__init__.py:1881
+#: warehouse/manage/views/__init__.py:1487
+#: warehouse/manage/views/__init__.py:1791
+#: warehouse/manage/views/__init__.py:1900
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -554,97 +554,97 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1601
-#: warehouse/manage/views/__init__.py:1687
-#: warehouse/manage/views/__init__.py:1789
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1620
+#: warehouse/manage/views/__init__.py:1706
+#: warehouse/manage/views/__init__.py:1808
+#: warehouse/manage/views/__init__.py:1909
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "確認邀請"
 
-#: warehouse/manage/views/__init__.py:1613
+#: warehouse/manage/views/__init__.py:1632
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1718
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1820
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "刪除版本"
 
-#: warehouse/manage/views/__init__.py:1902
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1925
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2057
+#: warehouse/manage/views/__init__.py:2076
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2165
+#: warehouse/manage/views/__init__.py:2186
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2233
+#: warehouse/manage/views/__init__.py:2255
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
-#: warehouse/manage/views/__init__.py:2265
+#: warehouse/manage/views/__init__.py:2287
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 "用戶“${username}”沒有經過驗證的主電子郵件地址，無法添加為項目的 ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/__init__.py:2300
+#: warehouse/manage/views/organizations.py:895
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "使用者'${username}'已經有一個有效的邀請。請稍後再試。"
 
-#: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:947
+#: warehouse/manage/views/__init__.py:2367
+#: warehouse/manage/views/organizations.py:962
 msgid "Invitation sent to '${username}'"
 msgstr "邀請函已發送至 '${使用者名稱}'"
 
-#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/__init__.py:2400
 msgid "Could not find role invitation."
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:2388
+#: warehouse/manage/views/__init__.py:2411
 msgid "Invitation already expired."
 msgstr "已驗證的電子郵件。"
 
-#: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1134
+#: warehouse/manage/views/__init__.py:2445
+#: warehouse/manage/views/organizations.py:1151
 msgid "Invitation revoked from '${username}'."
 msgstr "來自'${username}'的邀請被撤銷了。"
 
-#: warehouse/manage/views/organizations.py:858
+#: warehouse/manage/views/organizations.py:871
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:882
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -655,20 +655,20 @@ msgid ""
 msgstr ""
 "用戶“${username}”沒有經過驗證的主電子郵件地址，無法添加為項目的 ${role_name}"
 
-#: warehouse/manage/views/organizations.py:1030
-#: warehouse/manage/views/organizations.py:1072
+#: warehouse/manage/views/organizations.py:1045
+#: warehouse/manage/views/organizations.py:1087
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/organizations.py:1040
+#: warehouse/manage/views/organizations.py:1055
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "角色邀請不再存在。"
 
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1102
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -1087,7 +1087,7 @@ msgstr "轉換至行動裝置版本"
 #: warehouse/templates/base.html:191
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:744
 #: warehouse/templates/manage/manage_base.html:321
 #: warehouse/templates/manage/manage_base.html:380
 #: warehouse/templates/manage/organization/settings.html:194
@@ -2004,6 +2004,7 @@ msgid ""
 msgstr "<a href=\"%(href)s\">%(username)s</a> 移除專案角色 %(role_name)s"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
@@ -2034,6 +2035,7 @@ msgstr ""
 "將要求使用API權杖。"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
@@ -2075,6 +2077,28 @@ msgstr ""
 msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
+#, fuzzy, python-format
+#| msgid ""
+#| "During your recent upload or upload attempt to %(site)s, we noticed you "
+#| "used basic authentication (username &amp; password). However, your "
+#| "account has two-factor authentication (2FA) enabled."
+msgid ""
+"During your recent upload of %(project_name)s to %(site)s, we noticed you "
+"uploaded a GPG signature. However, support for GPG signatures has been "
+"removed from %(site)s."
+msgstr ""
+"在您最近嘗試上傳到%（site）s的過程中，我們注意到您使用了基本身份驗證（用戶名"
+"&amp;amp；密碼）。 但是，您的帳戶啟用了兩步驗證（2FA）。"
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
+#, python-format
+msgid ""
+"While uploads will continue to work, any signatures uploaded to %(site)s "
+"will be discarded. It is recommended to no longer upload signatures to "
+"%(site)s."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
@@ -2839,6 +2863,23 @@ msgstr "您的姓名"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:32
 #: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/manage/account/publishing.html:139
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:89
+#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "擁有者"
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:33
+#: warehouse/templates/email/trusted-publisher-removed/body.html:31
 #: warehouse/templates/manage/account/publishing.html:76
 #: warehouse/templates/manage/project/publishing.html:45
 #, fuzzy
@@ -2846,22 +2887,22 @@ msgstr "您的姓名"
 msgid "Repository"
 msgstr "發行歷史"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+#: warehouse/templates/email/trusted-publisher-added/body.html:35
+#: warehouse/templates/email/trusted-publisher-removed/body.html:33
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Environment"
 msgstr "無效的重設碼。"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:40
+#: warehouse/templates/email/trusted-publisher-added/body.html:41
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
+#: warehouse/templates/email/trusted-publisher-added/body.html:48
+#: warehouse/templates/email/trusted-publisher-removed/body.html:46
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -2883,7 +2924,7 @@ msgid ""
 "a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:38
+#: warehouse/templates/email/trusted-publisher-removed/body.html:39
 msgid ""
 "If you did not make this change and you think it was made in error, you can "
 "check the \"Security history\" tab on the project's page."
@@ -3305,21 +3346,6 @@ msgstr "標籤"
 #: warehouse/templates/includes/packaging/project-data.html:109
 msgid "Requires:"
 msgstr "需求："
-
-#: warehouse/templates/includes/packaging/project-data.html:117
-#: warehouse/templates/manage/account/publishing.html:139
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:89
-#: warehouse/templates/manage/project/publishing.html:76
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "擁有者"
 
 #: warehouse/templates/includes/packaging/project-data.html:130
 msgid "Maintainers"
@@ -3890,35 +3916,53 @@ msgid "Event"
 msgstr "事件"
 
 #: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/organization/history.html:202
+#: warehouse/templates/manage/organization/history.html:211
+#: warehouse/templates/manage/project/history.html:289
+#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:118
+msgid "Time"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/organization/history.html:203
+#: warehouse/templates/manage/team/history.html:110
+msgid "Additional Info"
+msgstr ""
+
 #: warehouse/templates/manage/account.html:692
 msgid "Date / time"
 msgstr "日期 / 時間"
 
-#: warehouse/templates/manage/account.html:685
 #: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/organization/history.html:215
-#: warehouse/templates/manage/project/history.html:290
-#: warehouse/templates/manage/project/history.html:302
-#: warehouse/templates/manage/team/history.html:110
-#: warehouse/templates/manage/team/history.html:122
-msgid "IP address"
-msgstr "IP 位址"
+msgid "Location Info"
+msgstr ""
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:698
+#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/team/history.html:124
+#, fuzzy
+#| msgid "Device name"
+msgid "Device Info"
+msgstr "裝置名稱"
+
+#: warehouse/templates/manage/account.html:706
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "與帳戶安全性相關的事件將顯示在此處。"
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:713
 msgid "Delete account"
 msgstr "刪除帳戶"
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:716
 msgid "Cannot delete account"
 msgstr "無法刪除帳戶"
 
-#: warehouse/templates/manage/account.html:716
+#: warehouse/templates/manage/account.html:718
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -3941,7 +3985,7 @@ msgstr[0] ""
 "          你的帳戶目前是 %(count)s 專案的<strong> 單獨擁有者 </strong>。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:721
+#: warehouse/templates/manage/account.html:723
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -3964,7 +4008,7 @@ msgstr[0] ""
 "          在你刪除帳戶前必須先轉移擁有權或刪除這些專案。\n"
 "        "
 
-#: warehouse/templates/manage/account.html:731
+#: warehouse/templates/manage/account.html:733
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
@@ -3973,7 +4017,7 @@ msgstr ""
 "<a href=\"%(transfer_href)s\"> 轉移擁有權</a> 或 <a href=\"%(delete_href)s"
 "\"> 刪除專案 </a>"
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:248
@@ -3981,11 +4025,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr "繼續進行，警告！"
 
-#: warehouse/templates/manage/account.html:743
+#: warehouse/templates/manage/account.html:745
 msgid "You will not be able to recover your account after you delete it"
 msgstr "刪除帳戶後將無法還原"
 
-#: warehouse/templates/manage/account.html:745
+#: warehouse/templates/manage/account.html:747
 msgid "Delete your PyPI account"
 msgstr "刪除 PyPI 帳戶"
 
@@ -5425,15 +5469,6 @@ msgstr "移除者："
 msgid "Security history for %(source_name)s"
 msgstr "%(project_name)s 專案安全歷史紀錄"
 
-#: warehouse/templates/manage/organization/history.html:202
-#: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:289
-#: warehouse/templates/manage/project/history.html:298
-#: warehouse/templates/manage/team/history.html:109
-#: warehouse/templates/manage/team/history.html:118
-msgid "Time"
-msgstr ""
-
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, fuzzy, python-format
 #| msgid "Manage '%(project_name)s'"
@@ -6252,6 +6287,15 @@ msgstr "已禁用雙因素認證要求"
 #: warehouse/templates/manage/project/history.html:276
 msgid "Disabled by:"
 msgstr "禁用人："
+
+#: warehouse/templates/manage/project/history.html:290
+msgid "Additional info"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/team/history.html:122
+msgid "Location info"
+msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
 #, python-format
@@ -9979,6 +10023,9 @@ msgstr "'%(term)s' 沒有結果"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s' 沒有結果"
+
+#~ msgid "IP address"
+#~ msgstr "IP 位址"
 
 #, python-format
 #~ msgid ""

@@ -28,17 +28,13 @@ from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFac
 
 class TestUserList:
     def test_no_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
         result = views.user_list(db_request)
 
         assert result == {"users": users[:25], "query": None}
 
     def test_with_page(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
         db_request.GET["page"] = "2"
         result = views.user_list(db_request)
 
@@ -51,27 +47,21 @@ class TestUserList:
             views.user_list(request)
 
     def test_basic_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = users[0].username
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": users[0].username}
 
     def test_wildcard_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = users[0].username[:-1] + "%"
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": users[0].username[:-1] + "%"}
 
     def test_email_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
         db_request.GET["q"] = "email:" + emails[0].email
         result = views.user_list(db_request)
@@ -79,18 +69,14 @@ class TestUserList:
         assert result == {"users": [users[0]], "query": "email:" + emails[0].email}
 
     def test_id_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = "id:" + str(users[0].id)
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": "id:" + str(users[0].id)}
 
     def test_or_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
         db_request.GET["q"] = " ".join(
             [
@@ -105,9 +91,7 @@ class TestUserList:
         assert result == {"users": users[:4], "query": db_request.GET["q"]}
 
     def test_ignores_invalid_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = "foobar:what"
         result = views.user_list(db_request)
 

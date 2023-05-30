@@ -459,6 +459,7 @@
                 <th scope="col">IP address</th>
                 <th scope="col">Hashed IP address</th>
                 <th scope="col">Location info</th>
+                <th scope="col">User-Agent</th>
                 <th scope="col">Additional information</th>
               </tr>
             </thead>
@@ -470,6 +471,7 @@
                 <td>{{ event.ip_address }}</td>
                 <td>{{ event.ip_address.hashed_ip_address }}</td>
                 <td>{{ event.location_info }}</td>
+                <td>{{ event.user_agent_info }}</td>
                 <td>{{ event.additional }}</td>
               </tr>
               {% endfor %}

@@ -69,14 +69,14 @@ msgid ""
 "username."
 msgstr "ชื่อผู้ใช้งานนี้ได้ถูกใช้งานแล้วโดยบัญชีอื่น กรุณาเลือกชื่อผู้ใช้งานใหม่"
 
-#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
-#: warehouse/accounts/forms.py:198
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:186
+#: warehouse/accounts/forms.py:199
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "ความปลอดภัยของรหัสผ่าน:"
 
-#: warehouse/accounts/forms.py:173
+#: warehouse/accounts/forms.py:174
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -85,53 +85,53 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ในภายหลัง"
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 msgid "Your passwords don't match. Try again."
 msgstr "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
 
-#: warehouse/accounts/forms.py:231 warehouse/accounts/forms.py:242
+#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
 msgid "The email address isn't valid. Try again."
 msgstr "อีเมล์ไม่ถูกต้อง กรุณาลองใหม่อีกครั้ง"
 
-#: warehouse/accounts/forms.py:250
+#: warehouse/accounts/forms.py:251
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "คุณไม่สามารถใช้อีเมล์ที่มาจากโดเมนดังกล่าวได้ กรุณาเลือกอีเมล์ใหม่"
 
-#: warehouse/accounts/forms.py:261
+#: warehouse/accounts/forms.py:262
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "อีเมล์นี้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาเลือกอีเมล์ใหม่"
 
-#: warehouse/accounts/forms.py:268
+#: warehouse/accounts/forms.py:269
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "อีเมล์นี้ได้ถูกใช้งานโดยบัญชีอื่นแล้ว กรุณาเลือกอีเมล์ใหม่"
 
-#: warehouse/accounts/forms.py:289 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:290 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ชื่อยาวเกินไป กรุณาระบุชื่อโดยมีความยาวไม่เกิน 100 ตัวอักษร"
 
-#: warehouse/accounts/forms.py:378
+#: warehouse/accounts/forms.py:380
 msgid "Invalid TOTP code."
 msgstr "รหัส TOTP ไม่ถูกต้อง"
 
-#: warehouse/accounts/forms.py:395
+#: warehouse/accounts/forms.py:397
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "การยืนยัน WebAuthn ไม่ถูกต้อง: Bad Payload"
 
-#: warehouse/accounts/forms.py:455
+#: warehouse/accounts/forms.py:459
 #, fuzzy
 #| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "รหัสกู้คืนไม่ถูกต้อง"
 
-#: warehouse/accounts/forms.py:464
+#: warehouse/accounts/forms.py:469
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:483
+#: warehouse/accounts/forms.py:488
 msgid "No user found with that username or email"
 msgstr "ไม่ค้นพบผู้ใช้งานจากชื่อผู้ใช้งานหรืออีเมล์ดังกล่าว"
 
@@ -183,11 +183,11 @@ msgstr "คุณได้ทำการยืนยันตัวตนไป
 msgid "Successful WebAuthn assertion"
 msgstr "การตรวจสอบ WebAuthn ประสบความสำเร็จ"
 
-#: warehouse/accounts/views.py:459 warehouse/manage/views/__init__.py:805
+#: warehouse/accounts/views.py:461 warehouse/manage/views/__init__.py:816
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "ยอมรับรหัสกู้คืนแล้ว ไม่สามารถใช้รหัสที่ให้มาได้อีก"
 
-#: warehouse/accounts/views.py:545
+#: warehouse/accounts/views.py:547
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -195,144 +195,144 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:674
+#: warehouse/accounts/views.py:679
 msgid "Expired token: request a new password reset link"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:676
+#: warehouse/accounts/views.py:681
 msgid "Invalid token: request a new password reset link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:678 warehouse/accounts/views.py:779
-#: warehouse/accounts/views.py:878 warehouse/accounts/views.py:1047
+#: warehouse/accounts/views.py:683 warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:886 warehouse/accounts/views.py:1059
 msgid "Invalid token: no token supplied"
 msgstr "โทเคนไม่ถูกต้อง: ไม่มีโทเคน"
 
-#: warehouse/accounts/views.py:682
+#: warehouse/accounts/views.py:687
 msgid "Invalid token: not a password reset token"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ใช่โทเคนในการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:687
+#: warehouse/accounts/views.py:692
 msgid "Invalid token: user not found"
 msgstr "โทเคนไม่ถูกต้อง: ไม่ค้นพบผู้ใช้งาน"
 
-#: warehouse/accounts/views.py:698
+#: warehouse/accounts/views.py:703
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "โทเคนไม่ถูกต้อง: ผู้ใช้งานได้ทำการเข้าสู่ระบบหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:716
+#: warehouse/accounts/views.py:721
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "โทเคนไม่ถูกต้อง: รหัสผ่านถูกเปลี่ยนแปลงแล้วหลังจากมีการร้องขอโทเคนนี้"
 
-#: warehouse/accounts/views.py:747
+#: warehouse/accounts/views.py:754
 msgid "You have reset your password"
 msgstr "คุณได้ทำการตั้งค่ารหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:775
+#: warehouse/accounts/views.py:782
 msgid "Expired token: request a new email verification link"
 msgstr "โทเคนหมดอายุ: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:777
+#: warehouse/accounts/views.py:784
 msgid "Invalid token: request a new email verification link"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
 
-#: warehouse/accounts/views.py:783
+#: warehouse/accounts/views.py:790
 msgid "Invalid token: not an email verification token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:799
 msgid "Email not found"
 msgstr "ไม่พบอีเมล์"
 
-#: warehouse/accounts/views.py:795
+#: warehouse/accounts/views.py:802
 msgid "Email already verified"
 msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:820
 msgid "You can now set this email as your primary address"
 msgstr "คุณสามารถตั้งค่าให้อีเมล์นี้เป็นอีเมล์หลักได้"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:824
 msgid "This is your primary address"
 msgstr "นี่คือที่อยู่อีเมล์หลัก"
 
-#: warehouse/accounts/views.py:821
+#: warehouse/accounts/views.py:829
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
 
-#: warehouse/accounts/views.py:874
+#: warehouse/accounts/views.py:882
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:884
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:890
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:886
+#: warehouse/accounts/views.py:894
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:895
+#: warehouse/accounts/views.py:903
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:956
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1021
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1043
+#: warehouse/accounts/views.py:1055
 #, fuzzy
 #| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:1045
+#: warehouse/accounts/views.py:1057
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
 
-#: warehouse/accounts/views.py:1051
+#: warehouse/accounts/views.py:1063
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
 
-#: warehouse/accounts/views.py:1055
+#: warehouse/accounts/views.py:1067
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1070
+#: warehouse/accounts/views.py:1082
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1101
+#: warehouse/accounts/views.py:1115
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1168
+#: warehouse/accounts/views.py:1183
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1385 warehouse/accounts/views.py:1405
-#: warehouse/accounts/views.py:1539 warehouse/manage/views/__init__.py:1208
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/accounts/views.py:1401 warehouse/accounts/views.py:1421
+#: warehouse/accounts/views.py:1556 warehouse/manage/views/__init__.py:1225
+#: warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -344,17 +344,17 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/accounts/views.py:1419
+#: warehouse/accounts/views.py:1435
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1432
+#: warehouse/accounts/views.py:1448
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1448 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -363,26 +363,26 @@ msgid ""
 "again later."
 msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ในภายหลัง"
 
-#: warehouse/accounts/views.py:1462 warehouse/manage/views/__init__.py:1260
+#: warehouse/accounts/views.py:1478 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1481
+#: warehouse/accounts/views.py:1497
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1516
+#: warehouse/accounts/views.py:1533
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1553 warehouse/accounts/views.py:1566
-#: warehouse/accounts/views.py:1573
+#: warehouse/accounts/views.py:1570 warehouse/accounts/views.py:1583
+#: warehouse/accounts/views.py:1590
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1579
+#: warehouse/accounts/views.py:1596
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -503,33 +503,33 @@ msgstr "ชื่อผู้ใช้งานนี้ได้ถูกใช
 msgid "Account details updated"
 msgstr "รายละเอียดบัญชี"
 
-#: warehouse/manage/views/__init__.py:218
+#: warehouse/manage/views/__init__.py:219
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "เพิ่มอีเมล์ ${email_address} แล้ว - กรุณาเช็คลิ้งค์ยืนยันตัวตนในอีเมล์ดังกล่าว"
 
-#: warehouse/manage/views/__init__.py:753
+#: warehouse/manage/views/__init__.py:762
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:754
+#: warehouse/manage/views/__init__.py:763
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:860
+#: warehouse/manage/views/__init__.py:871
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:980
+#: warehouse/manage/views/__init__.py:995
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1102
+#: warehouse/manage/views/__init__.py:1117
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1468
-#: warehouse/manage/views/__init__.py:1772
-#: warehouse/manage/views/__init__.py:1881
+#: warehouse/manage/views/__init__.py:1487
+#: warehouse/manage/views/__init__.py:1791
+#: warehouse/manage/views/__init__.py:1900
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -541,99 +541,99 @@ msgstr ""
 "การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
-#: warehouse/manage/views/__init__.py:1601
-#: warehouse/manage/views/__init__.py:1687
-#: warehouse/manage/views/__init__.py:1789
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1620
+#: warehouse/manage/views/__init__.py:1706
+#: warehouse/manage/views/__init__.py:1808
+#: warehouse/manage/views/__init__.py:1909
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Confirm the request"
 msgstr "แบบฟอร์มยืนยัน"
 
-#: warehouse/manage/views/__init__.py:1613
+#: warehouse/manage/views/__init__.py:1632
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1718
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1820
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1902
+#: warehouse/manage/views/__init__.py:1921
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1925
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2057
+#: warehouse/manage/views/__init__.py:2076
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2165
+#: warehouse/manage/views/__init__.py:2186
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2233
+#: warehouse/manage/views/__init__.py:2255
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2265
+#: warehouse/manage/views/__init__.py:2287
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2278
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/__init__.py:2300
+#: warehouse/manage/views/organizations.py:895
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2344
-#: warehouse/manage/views/organizations.py:947
+#: warehouse/manage/views/__init__.py:2367
+#: warehouse/manage/views/organizations.py:962
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/__init__.py:2400
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2388
+#: warehouse/manage/views/__init__.py:2411
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "อีเมล์ได้ทำการยืนยันไปแล้ว"
 
-#: warehouse/manage/views/__init__.py:2421
-#: warehouse/manage/views/organizations.py:1134
+#: warehouse/manage/views/__init__.py:2445
+#: warehouse/manage/views/organizations.py:1151
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:858
+#: warehouse/manage/views/organizations.py:871
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1030
-#: warehouse/manage/views/organizations.py:1072
+#: warehouse/manage/views/organizations.py:1045
+#: warehouse/manage/views/organizations.py:1087
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1040
+#: warehouse/manage/views/organizations.py:1055
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1102
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -1036,7 +1036,7 @@ msgstr ""
 #: warehouse/templates/base.html:191
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
-#: warehouse/templates/manage/account.html:742
+#: warehouse/templates/manage/account.html:744
 #: warehouse/templates/manage/manage_base.html:321
 #: warehouse/templates/manage/manage_base.html:380
 #: warehouse/templates/manage/organization/settings.html:194
@@ -1885,6 +1885,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
 msgid "What?"
@@ -1907,6 +1908,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
 msgid "What should I do?"
@@ -1940,6 +1942,22 @@ msgstr ""
 msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
+#, python-format
+msgid ""
+"During your recent upload of %(project_name)s to %(site)s, we noticed you "
+"uploaded a GPG signature. However, support for GPG signatures has been "
+"removed from %(site)s."
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
+#, python-format
+msgid ""
+"While uploads will continue to work, any signatures uploaded to %(site)s "
+"will be discarded. It is recommended to no longer upload signatures to "
+"%(site)s."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
@@ -2504,27 +2522,44 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:32
 #: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/manage/account/publishing.html:139
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:89
+#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:33
+#: warehouse/templates/email/trusted-publisher-removed/body.html:31
 #: warehouse/templates/manage/account/publishing.html:76
 #: warehouse/templates/manage/project/publishing.html:45
 msgid "Repository"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
+#: warehouse/templates/email/trusted-publisher-added/body.html:35
+#: warehouse/templates/email/trusted-publisher-removed/body.html:33
 #, fuzzy
 #| msgid "Invalid Recovery Code."
 msgid "Environment"
 msgstr "รหัสกู้คืนไม่ถูกต้อง"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:40
+#: warehouse/templates/email/trusted-publisher-added/body.html:41
 msgid ""
 "If you did not make this change and you think it was made maliciously, you "
 "can remove it from the project via the \"Publishing\" tab on the project's "
 "page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
+#: warehouse/templates/email/trusted-publisher-added/body.html:48
+#: warehouse/templates/email/trusted-publisher-removed/body.html:46
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email <a "
@@ -2539,7 +2574,7 @@ msgid ""
 "a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:38
+#: warehouse/templates/email/trusted-publisher-removed/body.html:39
 msgid ""
 "If you did not make this change and you think it was made in error, you can "
 "check the \"Security history\" tab on the project's page."
@@ -2919,21 +2954,6 @@ msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:109
 msgid "Requires:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:117
-#: warehouse/templates/manage/account/publishing.html:139
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:89
-#: warehouse/templates/manage/project/publishing.html:76
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:130
@@ -3502,35 +3522,51 @@ msgid "Event"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:684
+#: warehouse/templates/manage/organization/history.html:202
+#: warehouse/templates/manage/organization/history.html:211
+#: warehouse/templates/manage/project/history.html:289
+#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/team/history.html:109
+#: warehouse/templates/manage/team/history.html:118
+msgid "Time"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:685
+#: warehouse/templates/manage/organization/history.html:203
+#: warehouse/templates/manage/team/history.html:110
+msgid "Additional Info"
+msgstr ""
+
 #: warehouse/templates/manage/account.html:692
 msgid "Date / time"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:685
 #: warehouse/templates/manage/account.html:696
-#: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/organization/history.html:215
-#: warehouse/templates/manage/project/history.html:290
-#: warehouse/templates/manage/project/history.html:302
-#: warehouse/templates/manage/team/history.html:110
-#: warehouse/templates/manage/team/history.html:122
-msgid "IP address"
+msgid "Location Info"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:704
+#: warehouse/templates/manage/account.html:698
+#: warehouse/templates/manage/organization/history.html:217
+#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/team/history.html:124
+msgid "Device Info"
+msgstr ""
+
+#: warehouse/templates/manage/account.html:706
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
-#: warehouse/templates/manage/account.html:711
+#: warehouse/templates/manage/account.html:713
 msgid "Delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:714
+#: warehouse/templates/manage/account.html:716
 msgid "Cannot delete account"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:716
+#: warehouse/templates/manage/account.html:718
 #, python-format
 msgid ""
 "Your account is currently the <strong>sole owner</strong> of %(count)s "
@@ -3540,7 +3576,7 @@ msgid_plural ""
 "projects."
 msgstr[0] ""
 
-#: warehouse/templates/manage/account.html:721
+#: warehouse/templates/manage/account.html:723
 msgid ""
 "You must transfer ownership or delete this project before you can delete "
 "your account."
@@ -3549,14 +3585,14 @@ msgid_plural ""
 "your account."
 msgstr[0] ""
 
-#: warehouse/templates/manage/account.html:731
+#: warehouse/templates/manage/account.html:733
 #, python-format
 msgid ""
 "<a href=\"%(transfer_href)s\">transfer ownership</a> or <a href="
 "\"%(delete_href)s\">delete project</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:740
+#: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/account/token.html:166
 #: warehouse/templates/manage/organization/settings.html:192
 #: warehouse/templates/manage/organization/settings.html:248
@@ -3564,11 +3600,11 @@ msgstr ""
 msgid "Proceed with caution!"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:743
+#: warehouse/templates/manage/account.html:745
 msgid "You will not be able to recover your account after you delete it"
 msgstr ""
 
-#: warehouse/templates/manage/account.html:745
+#: warehouse/templates/manage/account.html:747
 msgid "Delete your PyPI account"
 msgstr ""
 
@@ -4842,15 +4878,6 @@ msgstr "ลบอีเมล"
 msgid "Security history for %(source_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:202
-#: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:289
-#: warehouse/templates/manage/project/history.html:298
-#: warehouse/templates/manage/team/history.html:109
-#: warehouse/templates/manage/team/history.html:118
-msgid "Time"
-msgstr ""
-
 #: warehouse/templates/manage/organization/manage_organization_base.html:20
 #, python-format
 msgid "Manage '%(organization_name)s'"
@@ -5550,6 +5577,15 @@ msgstr ""
 
 #: warehouse/templates/manage/project/history.html:276
 msgid "Disabled by:"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:290
+msgid "Additional info"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/team/history.html:122
+msgid "Location info"
 msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
