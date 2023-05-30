@@ -821,7 +821,7 @@ class TestManageAccount:
 
         journal = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter_by(id=jid)
             .one()
         )
@@ -3969,7 +3969,9 @@ class TestManageProjectRelease:
             )
         ]
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "yank release"
@@ -4122,7 +4124,9 @@ class TestManageProjectRelease:
         ]
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "unyank release"
@@ -4279,7 +4283,9 @@ class TestManageProjectRelease:
 
         assert db_request.db.query(Release).all() == []
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "remove release"
@@ -5450,7 +5456,9 @@ class TestChangeProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
@@ -5567,7 +5575,9 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
@@ -5662,7 +5672,9 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
@@ -5806,10 +5818,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5845,10 +5856,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5885,10 +5895,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)

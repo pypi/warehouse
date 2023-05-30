@@ -29,7 +29,7 @@ from ....common.db.ses import EmailMessageFactory
 class TestEmailList:
     def test_no_query(self, db_request):
         emails = sorted(
-            [EmailMessageFactory.create() for _ in range(30)],
+            EmailMessageFactory.create_batch(30),
             key=lambda e: e.created,
             reverse=True,
         )
@@ -39,7 +39,7 @@ class TestEmailList:
 
     def test_with_page(self, db_request):
         emails = sorted(
-            [EmailMessageFactory.create() for _ in range(30)],
+            EmailMessageFactory.create_batch(30),
             key=lambda e: e.created,
             reverse=True,
         )
@@ -56,7 +56,7 @@ class TestEmailList:
 
     def test_basic_query(self, db_request):
         emails = sorted(
-            [EmailMessageFactory.create() for _ in range(30)],
+            EmailMessageFactory.create_batch(30),
             key=lambda e: e.created,
             reverse=True,
         )
@@ -103,7 +103,7 @@ class TestEmailList:
 
     def test_wildcard_query(self, db_request):
         emails = sorted(
-            [EmailMessageFactory.create() for _ in range(30)],
+            EmailMessageFactory.create_batch(30),
             key=lambda e: e.created,
             reverse=True,
         )

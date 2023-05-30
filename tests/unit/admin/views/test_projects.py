@@ -36,7 +36,7 @@ from ....common.db.packaging import (
 class TestProjectList:
     def test_no_query(self, db_request):
         projects = sorted(
-            [ProjectFactory.create() for _ in range(30)],
+            ProjectFactory.create_batch(30),
             key=lambda p: p.normalized_name,
         )
         result = views.project_list(db_request)
@@ -45,7 +45,7 @@ class TestProjectList:
 
     def test_with_page(self, db_request):
         projects = sorted(
-            [ProjectFactory.create() for _ in range(30)],
+            ProjectFactory.create_batch(30),
             key=lambda p: p.normalized_name,
         )
         db_request.GET["page"] = "2"
@@ -61,7 +61,7 @@ class TestProjectList:
 
     def test_basic_query(self, db_request):
         projects = sorted(
-            [ProjectFactory.create() for _ in range(5)], key=lambda p: p.normalized_name
+            ProjectFactory.create_batch(5), key=lambda p: p.normalized_name
         )
         db_request.GET["q"] = projects[0].name
         result = views.project_list(db_request)
@@ -77,15 +77,15 @@ class TestProjectDetail:
     def test_gets_project(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(75)],
+            JournalEntryFactory.create_batch(75, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
         roles = sorted(
-            [RoleFactory(project=project) for _ in range(5)],
+            RoleFactory.create_batch(5, project=project),
             key=lambda x: (x.role_name, x.user.username),
         )
-        oidc_publishers = [GitHubPublisherFactory(projects=[project]) for _ in range(5)]
+        oidc_publishers = GitHubPublisherFactory.create_batch(5, projects=[project])
         db_request.matchdict["project_name"] = str(project.normalized_name)
         result = views.project_detail(project, db_request)
 
@@ -117,10 +117,9 @@ class TestReleaseDetail:
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project)
         journals = sorted(
-            [
-                JournalEntryFactory(name=project.name, version=release.version)
-                for _ in range(3)
-            ],
+            JournalEntryFactory.create_batch(
+                3, name=project.name, version=release.version
+            ),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -135,7 +134,7 @@ class TestProjectReleasesList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [ReleaseFactory.create(project=project) for _ in range(30)],
+            ReleaseFactory.create_batch(30, project=project),
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -147,7 +146,7 @@ class TestProjectReleasesList:
     def test_with_page(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [ReleaseFactory.create(project=project) for _ in range(30)],
+            ReleaseFactory.create_batch(30, project=project),
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -168,7 +167,7 @@ class TestProjectReleasesList:
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [ReleaseFactory.create(project=project) for _ in range(30)],
+            ReleaseFactory.create_batch(30, project=project),
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -185,7 +184,7 @@ class TestProjectReleasesList:
     def test_invalid_key_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [ReleaseFactory.create(project=project) for _ in range(30)],
+            ReleaseFactory.create_batch(30, project=project),
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -202,7 +201,7 @@ class TestProjectReleasesList:
     def test_basic_query(self, db_request):
         project = ProjectFactory.create()
         releases = sorted(
-            [ReleaseFactory.create(project=project) for _ in range(30)],
+            ReleaseFactory.create_batch(30, project=project),
             key=lambda x: x._pypi_ordering,
             reverse=True,
         )
@@ -230,7 +229,7 @@ class TestProjectJournalsList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -242,7 +241,7 @@ class TestProjectJournalsList:
     def test_with_page(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -263,7 +262,7 @@ class TestProjectJournalsList:
     def test_version_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -280,7 +279,7 @@ class TestProjectJournalsList:
     def test_invalid_key_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )
@@ -297,7 +296,7 @@ class TestProjectJournalsList:
     def test_basic_query(self, db_request):
         project = ProjectFactory.create()
         journals = sorted(
-            [JournalEntryFactory(name=project.name) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, name=project.name),
             key=lambda x: (x.submitted_date, x.id),
             reverse=True,
         )

@@ -22,7 +22,7 @@ from ....common.db.packaging import ProjectFactory
 
 @pytest.mark.parametrize("window_size", [1, 2])
 def test_windowed_query(db_session, query_recorder, window_size):
-    projects = {ProjectFactory.create() for _ in range(10)}
+    projects = set(ProjectFactory.create_batch(10))
     expected = math.ceil(len(projects) / window_size) + 1
 
     query = db_session.query(Project)
