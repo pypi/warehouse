@@ -38,8 +38,7 @@ plugins:
       time_format: '%Y-%m-%d' # The format used to display the time
       meta_time_format: '%Y-%m-%d %H:%M' # The format used to parse the time from meta
   - rss:
-      abstract_chars_count: 160
-      abstract_delimiter: <!-- more -->
+      abstract_chars_count: -1
       categories:
         - tags
       date_from_meta:
