@@ -179,8 +179,16 @@ def accounts_search(request) -> dict[str, list[User]]:
     if not prefix:
         raise HTTPBadRequest()
 
+    search_limiter = request.find_service(IRateLimiter, name="accounts.search")
+    if not search_limiter.test(request.ip_address):
+        # TODO: This should probably `raise HTTPTooManyRequests` instead,
+        #  but we need to make sure that the client library can handle it.
+        #  See: https://github.com/afcapel/stimulus-autocomplete/issues/136
+        return {"users": []}
+
     user_service = request.find_service(IUserService, context=None)
     users = user_service.get_users_by_prefix(prefix)
+    search_limiter.hit(request.ip_address)
 
     if not users:
         raise HTTPNotFound()

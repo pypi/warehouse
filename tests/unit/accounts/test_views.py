@@ -62,6 +62,7 @@ from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -160,7 +161,12 @@ class TestAccountsSearch:
             authenticated_userid=1,
             find_service=lambda svc, **kw: {
                 IUserService: user_service,
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda ip_address: True),
+                    hit=pretend.call_recorder(lambda ip_address: None),
+                ),
             }[svc],
+            ip_address=IpAddressFactory.build(),
         )
 
         request.params = MultiDict({"q": "f"})
@@ -174,6 +180,24 @@ class TestAccountsSearch:
         request.params = MultiDict({"q": "zzz"})
         with pytest.raises(HTTPNotFound):
             views.accounts_search(request)
+
+    def test_when_rate_limited(self, db_session):
+        search_limiter = pretend.stub(
+            test=pretend.call_recorder(lambda ip_address: False),
+        )
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IRateLimiter: search_limiter,
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "foo"})
+        result = views.accounts_search(request)
+
+        assert search_limiter.test.calls == [pretend.call(request.ip_address)]
+        assert result == {"users": []}
 
 
 class TestLogin:
