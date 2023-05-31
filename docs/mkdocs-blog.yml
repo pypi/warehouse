@@ -48,7 +48,6 @@ plugins:
         default_timezone: "UTC"
         default_time: "06:09"
       enabled: true
-      feed_ttl: 1440
       image: https://blog.pypi.org/assets/logo.png
       length: 20
       pretty_print: true
