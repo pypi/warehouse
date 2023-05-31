@@ -17,14 +17,17 @@ from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
+from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
     OrganizationInvitation,
     OrganizationInvitationStatus,
     OrganizationNameCatalog,
     OrganizationProject,
     OrganizationRole,
+    OrganizationRoleType,
     OrganizationStripeCustomer,
     OrganizationStripeSubscription,
     Team,
@@ -38,9 +41,8 @@ NAME_FIELD = "name"
 
 @implementer(IOrganizationService)
 class DatabaseOrganizationService:
-    def __init__(self, db_session, remote_addr):
+    def __init__(self, db_session):
         self.db = db_session
-        self.remote_addr = remote_addr
 
     def get_organization(self, organization_id):
         """
@@ -57,6 +59,16 @@ class DatabaseOrganizationService:
         organization_id = self.find_organizationid(name)
         return (
             None if organization_id is None else self.get_organization(organization_id)
+        )
+
+    def get_organization_application_by_name(self, name):
+        """
+        Return the organization object corresponding with the given organization name,
+        or None if there is no organization with that name.
+        """
+        normalized_name = func.normalize_pep426_name(name)
+        return self.db.query(OrganizationApplication).filter(
+            OrganizationApplication.normalized_name == normalized_name
         )
 
     def find_organizationid(self, name):
@@ -106,7 +118,9 @@ class DatabaseOrganizationService:
             .all()
         )
 
-    def add_organization(self, name, display_name, orgtype, link_url, description):
+    def add_organization(
+        self, name, display_name, orgtype, link_url, description, initial_user, request
+    ):
         """
         Accepts a organization object, and attempts to create an organization with those
         attributes.
@@ -121,9 +135,66 @@ class DatabaseOrganizationService:
         self.db.add(organization)
         self.db.flush()  # flush the db now so organization.id is available
 
+        organization.record_event(
+            tag=EventTag.Organization.CatalogEntryAdd,
+            ip_address=None,
+            request=request,
+            additional={"submitted_by_user_id": str(initial_user.id)},
+        )
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationCreate,
+            ip_address=None,
+            request=request,
+            additional={"created_by_user_id": str(initial_user.id)},
+        )
+        self.add_organization_role(
+            organization.id,
+            initial_user.id,
+            OrganizationRoleType.Owner,
+        )
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationRoleAdd,
+            ip_address=None,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(initial_user.id),
+                "role_name": "Owner",
+                "target_user_id": str(initial_user.id),
+            },
+        )
+        initial_user.record_event(
+            tag=EventTag.Account.OrganizationRoleAdd,
+            ip_address=None,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(initial_user.id),
+                "organization_name": organization.name,
+                "role_name": "Owner",
+            },
+        )
+
         self.add_catalog_entry(organization.id)
 
         return organization
+
+    def add_organization_application(
+        self, name, display_name, orgtype, link_url, description, submitted_by
+    ):
+        """
+        Accepts a organization object, and attempts to create an organization with those
+        attributes.
+        """
+        organization_application = OrganizationApplication(
+            name=name,
+            display_name=display_name,
+            orgtype=orgtype,
+            link_url=link_url,
+            description=description,
+            submitted_by=submitted_by,
+        )
+        self.db.add(organization_application)
+
+        return organization_application
 
     def add_catalog_entry(self, organization_id):
         """
@@ -634,4 +705,4 @@ class DatabaseOrganizationService:
 
 
 def database_organization_factory(context, request):
-    return DatabaseOrganizationService(request.db, remote_addr=request.remote_addr)
+    return DatabaseOrganizationService(request.db)

@@ -48,7 +48,17 @@ class IOrganizationService(Interface):
         Return a list of all organization objects associated with a given user id.
         """
 
-    def add_organization(name, display_name, orgtype, link_url, description):
+    def add_organization(
+        name, display_name, orgtype, link_url, description, initial_user, request
+    ):
+        """
+        Accepts a organization object, and attempts to create an organization with those
+        attributes.
+        """
+
+    def add_organization_application(
+        name, display_name, orgtype, link_url, description, submitted_by
+    ):
         """
         Accepts a organization object, and attempts to create an organization with those
         attributes.

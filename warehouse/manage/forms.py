@@ -413,6 +413,8 @@ class OrganizationNameMixin:
         ]
     )
 
+    organization_id = None
+
     def validate_name(self, field):
         # Find organization by name.
         organization_id = self.organization_service.find_organizationid(field.data)
@@ -587,8 +589,12 @@ class SaveOrganizationForm(forms.Form):
     )
 
 
-class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
-    __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
+class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
+    __params__ = ["name"] + SaveOrganizationForm.__params__
+
+    def __init__(self, *args, organization_service, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
 
 
 class CreateTeamRoleForm(forms.Form):

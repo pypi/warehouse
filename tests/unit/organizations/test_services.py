@@ -31,6 +31,7 @@ from warehouse.organizations.models import (
 )
 from warehouse.subscriptions.models import StripeSubscription
 
+from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -49,25 +50,22 @@ from ...common.db.subscriptions import StripeCustomerFactory, StripeSubscription
 
 def test_database_organizations_factory():
     db = pretend.stub()
-    remote_addr = pretend.stub()
     context = pretend.stub()
-    request = pretend.stub(db=db, remote_addr=remote_addr)
+    request = pretend.stub(db=db)
 
     service = services.database_organization_factory(context, request)
     assert service.db is db
-    assert service.remote_addr is remote_addr
 
 
 class TestDatabaseOrganizationService:
     def test_verify_service(self):
         assert verifyClass(IOrganizationService, services.DatabaseOrganizationService)
 
-    def test_service_creation(self, remote_addr):
+    def test_service_creation(self):
         session = pretend.stub()
-        service = services.DatabaseOrganizationService(session, remote_addr=remote_addr)
+        service = services.DatabaseOrganizationService(session)
 
         assert service.db is session
-        assert service.remote_addr is remote_addr
 
     def test_get_organization(self, organization_service):
         organization = OrganizationFactory.create()
@@ -141,6 +139,8 @@ class TestDatabaseOrganizationService:
         assert another_user_organization not in user_orgs
 
     def test_add_organization(self, organization_service):
+        user = UserFactory.create()
+        ip_address = IpAddressFactory.create()
         organization = OrganizationFactory.create()
         new_org = organization_service.add_organization(
             name=organization.name,
@@ -148,6 +148,8 @@ class TestDatabaseOrganizationService:
             orgtype=organization.orgtype,
             link_url=organization.link_url,
             description=organization.description,
+            initial_user=user,
+            request=pretend.stub(ip_address=ip_address, headers={}),
         )
         organization_service.db.flush()
         org_from_db = organization_service.get_organization(new_org.id)

@@ -86,13 +86,19 @@ class TestManageOrganizations:
             org_views, "send_new_organization_requested_email", send_email
         )
 
-        org_views.ManageOrganizationsViews(db_request).create_organization()
-        organization = organization_service.get_organization_by_name(
-            db_request.POST["name"]
-        )
+        org_views.ManageOrganizationsViews(db_request).create_organization_application()
+        organization_application = (
+            organization_service.get_organization_application_by_name(
+                db_request.POST["name"]
+            )
+        ).first()
 
-        assert organization.name == db_request.POST["name"]
-        assert organization.display_name == db_request.POST["display_name"]
-        assert organization.orgtype == OrganizationType[db_request.POST["orgtype"]]
-        assert organization.link_url == db_request.POST["link_url"]
-        assert organization.description == db_request.POST["description"]
+        assert organization_application.name == db_request.POST["name"]
+        assert organization_application.display_name == db_request.POST["display_name"]
+        assert (
+            organization_application.orgtype
+            == OrganizationType[db_request.POST["orgtype"]]
+        )
+        assert organization_application.link_url == db_request.POST["link_url"]
+        assert organization_application.description == db_request.POST["description"]
+        assert organization_application.submitted_by == user

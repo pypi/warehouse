@@ -509,10 +509,10 @@ class TestDeleteMacaroonForm:
         assert form.validate()
 
 
-class TestCreateOrganizationForm:
+class TestCreateOrganizationApplicationForm:
     def test_creation(self):
         organization_service = pretend.stub()
-        form = forms.CreateOrganizationForm(
+        form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
         )
 
@@ -522,7 +522,9 @@ class TestCreateOrganizationForm:
         organization_service = pretend.stub(
             find_organizationid=pretend.call_recorder(lambda name: None)
         )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service
+        )
         field = pretend.stub(data="my_organization_name")
         forms._ = lambda string: string
 
@@ -536,7 +538,9 @@ class TestCreateOrganizationForm:
         organization_service = pretend.stub(
             find_organizationid=pretend.call_recorder(lambda name: 1)
         )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service
+        )
         field = pretend.stub(data="my_organization_name")
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -544,6 +548,21 @@ class TestCreateOrganizationForm:
 
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")
+        ]
+
+
+class TestSaveOrganizationNameForm:
+    def test_save(self, pyramid_request):
+        pyramid_request.POST = MultiDict({"name": "my_org_name"})
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None)
+        )
+        form = forms.SaveOrganizationNameForm(
+            pyramid_request.POST, organization_service=organization_service
+        )
+        form.validate()
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_org_name")
         ]
 
 
