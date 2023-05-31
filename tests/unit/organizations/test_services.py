@@ -72,6 +72,15 @@ class TestDatabaseOrganizationService:
         organization = OrganizationFactory.create()
         assert organization_service.get_organization(organization.id) == organization
 
+    def test_get_organization_application(self, organization_service):
+        organization_application = OrganizationApplicationFactory.create()
+        assert (
+            organization_service.get_organization_application(
+                organization_application.id
+            )
+            == organization_application
+        )
+
     def test_get_organization_by_name(self, organization_service):
         organization = OrganizationFactory.create()
         assert (

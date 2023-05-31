@@ -21,7 +21,10 @@ from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationType
 
-from ....common.db.organizations import OrganizationFactory
+from ....common.db.organizations import (
+    OrganizationApplicationFactory,
+    OrganizationFactory,
+)
 
 
 class TestOrganizationList:
@@ -112,63 +115,6 @@ class TestOrganizationList:
         assert organizations[0] in result["organizations"]
         assert result["query"] == f"description:'{organizations[0].description}'"
         assert result["terms"] == [f"description:{organizations[0].description}"]
-
-    def test_is_approved_query(self, enable_organizations, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[0].is_approved = True
-        organizations[1].is_approved = True
-        organizations[2].is_approved = False
-        organizations[3].is_approved = None
-        organizations[4].is_approved = None
-        db_request.GET["q"] = "is:approved"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[:2],
-            "query": "is:approved",
-            "terms": ["is:approved"],
-        }
-
-    def test_is_declined_query(self, enable_organizations, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[0].is_approved = True
-        organizations[1].is_approved = True
-        organizations[2].is_approved = False
-        organizations[3].is_approved = None
-        organizations[4].is_approved = None
-        db_request.GET["q"] = "is:declined"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[2:3],
-            "query": "is:declined",
-            "terms": ["is:declined"],
-        }
-
-    def test_is_submitted_query(self, enable_organizations, db_request):
-        organizations = sorted(
-            OrganizationFactory.create_batch(5),
-            key=lambda o: o.normalized_name,
-        )
-        organizations[0].is_approved = True
-        organizations[1].is_approved = True
-        organizations[2].is_approved = False
-        organizations[3].is_approved = None
-        organizations[4].is_approved = None
-        db_request.GET["q"] = "is:submitted"
-        result = views.organization_list(db_request)
-
-        assert result == {
-            "organizations": organizations[3:],
-            "query": "is:submitted",
-            "terms": ["is:submitted"],
-        }
 
     def test_is_active_query(self, enable_organizations, db_request):
         organizations = sorted(
@@ -450,6 +396,389 @@ class TestOrganizationDetail:
         with pytest.raises(HTTPNotFound):
             views.organization_detail(request)
 
+
+class TestOrganizationApplicationList:
+    def test_no_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(30),
+            key=lambda o: o.normalized_name,
+        )
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[:25],
+            "query": "",
+            "terms": [],
+        }
+
+    def test_with_page(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(30),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET["page"] = "2"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[25:],
+            "query": "",
+            "terms": [],
+        }
+
+    def test_with_invalid_page(self, enable_organizations):
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            params={"page": "not an integer"},
+        )
+
+        with pytest.raises(HTTPBadRequest):
+            views.organization_applications_list(request)
+
+    def test_basic_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET["q"] = organization_applications[0].name
+        result = views.organization_applications_list(db_request)
+
+        assert organization_applications[0] in result["organization_applications"]
+        assert result["query"] == organization_applications[0].name
+        assert result["terms"] == [organization_applications[0].name]
+
+    def test_name_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET["q"] = f"name:{organization_applications[0].name}"
+        result = views.organization_applications_list(db_request)
+
+        assert organization_applications[0] in result["organization_applications"]
+        assert result["query"] == f"name:{organization_applications[0].name}"
+        assert result["terms"] == [f"name:{organization_applications[0].name}"]
+
+    def test_organization_application_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET[
+            "q"
+        ] = f"organization:{organization_applications[0].display_name}"
+        result = views.organization_applications_list(db_request)
+
+        assert organization_applications[0] in result["organization_applications"]
+        assert (
+            result["query"]
+            == f"organization:{organization_applications[0].display_name}"
+        )
+        assert result["terms"] == [
+            f"organization:{organization_applications[0].display_name}"
+        ]
+
+    def test_url_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET["q"] = f"url:{organization_applications[0].link_url}"
+        result = views.organization_applications_list(db_request)
+
+        assert organization_applications[0] in result["organization_applications"]
+        assert result["query"] == f"url:{organization_applications[0].link_url}"
+        assert result["terms"] == [f"url:{organization_applications[0].link_url}"]
+
+    def test_description_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET[
+            "q"
+        ] = f"description:'{organization_applications[0].description}'"
+        result = views.organization_applications_list(db_request)
+
+        assert organization_applications[0] in result["organization_applications"]
+        assert (
+            result["query"]
+            == f"description:'{organization_applications[0].description}'"
+        )
+        assert result["terms"] == [
+            f"description:{organization_applications[0].description}"
+        ]
+
+    def test_is_approved_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        organization_applications[0].is_approved = True
+        organization_applications[1].is_approved = True
+        organization_applications[2].is_approved = False
+        organization_applications[3].is_approved = None
+        organization_applications[4].is_approved = None
+        db_request.GET["q"] = "is:approved"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[:2],
+            "query": "is:approved",
+            "terms": ["is:approved"],
+        }
+
+    def test_is_declined_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        organization_applications[0].is_approved = True
+        organization_applications[1].is_approved = True
+        organization_applications[2].is_approved = False
+        organization_applications[3].is_approved = None
+        organization_applications[4].is_approved = None
+        db_request.GET["q"] = "is:declined"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[2:3],
+            "query": "is:declined",
+            "terms": ["is:declined"],
+        }
+
+    def test_is_submitted_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        organization_applications[0].is_approved = True
+        organization_applications[1].is_approved = True
+        organization_applications[2].is_approved = False
+        organization_applications[3].is_approved = None
+        organization_applications[4].is_approved = None
+        db_request.GET["q"] = "is:submitted"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[3:],
+            "query": "is:submitted",
+            "terms": ["is:submitted"],
+        }
+
+    def test_type_query(self, enable_organizations, db_request):
+        company_org = OrganizationApplicationFactory.create(
+            orgtype=OrganizationType.Company
+        )
+        community_org = OrganizationApplicationFactory.create(
+            orgtype=OrganizationType.Community
+        )
+        db_request.GET["q"] = "type:company"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": [company_org],
+            "query": "type:company",
+            "terms": ["type:company"],
+        }
+
+        db_request.GET["q"] = "type:community"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": [community_org],
+            "query": "type:community",
+            "terms": ["type:community"],
+        }
+
+    def test_invalid_type_query(self, enable_organizations, db_request):
+        company_org = OrganizationApplicationFactory.create(
+            orgtype=OrganizationType.Company
+        )
+
+        db_request.GET["q"] = "type:invalid"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": [company_org],
+            "query": "type:invalid",
+            "terms": ["type:invalid"],
+        }
+
+    def test_is_invalid_query(self, enable_organizations, db_request):
+        organization_applications = sorted(
+            OrganizationApplicationFactory.create_batch(5),
+            key=lambda o: o.normalized_name,
+        )
+        db_request.GET["q"] = "is:not-actually-a-valid-query"
+        result = views.organization_applications_list(db_request)
+
+        assert result == {
+            "organization_applications": organization_applications[:25],
+            "query": "is:not-actually-a-valid-query",
+            "terms": ["is:not-actually-a-valid-query"],
+        }
+
+
+class TestOrganizationApplicationDetail:
+    def test_detail(self, enable_organizations):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
+        user = pretend.stub(
+            id="user-id",
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+        )
+        organization_application = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_approved=None,
+            submitted_by_id=user.id,
+            submitted_by=user,
+        )
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
+            matchdict={"organization_application_id": pretend.stub()},
+        )
+
+        assert views.organization_application_detail(request) == {
+            "user": user,
+            "organization_application": organization_application,
+        }
+
+    def test_detail_is_approved_true(self, enable_organizations):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
+        user = pretend.stub(
+            id="user-id",
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+        )
+        organization_application = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_approved=True,
+            submitted_by_id=user.id,
+            submitted_by=user,
+        )
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
+            matchdict={"organization_application_id": pretend.stub()},
+        )
+
+        assert views.organization_application_detail(request) == {
+            "user": user,
+            "organization_application": organization_application,
+        }
+
+    def test_detail_is_approved_false(self, enable_organizations):
+        admin = pretend.stub(
+            id="admin-id",
+            username="admin",
+            name="Admin",
+            public_email="admin@pypi.org",
+        )
+        user = pretend.stub(
+            id="user-id",
+            username="example",
+            name="Example",
+            public_email="webmaster@example.com",
+        )
+        user_service = pretend.stub(
+            get_user=lambda userid, **kw: {admin.id: admin, user.id: user}[userid],
+        )
+        organization_application = pretend.stub(
+            id=pretend.stub(),
+            name="example",
+            display_name="Example",
+            orgtype=pretend.stub(name="Company"),
+            link_url="https://www.example.com/",
+            description=(
+                "This company is for use in illustrative examples in documents "
+                "You may use this company in literature without prior "
+                "coordination or asking for permission."
+            ),
+            is_approved=False,
+            submitted_by_id=user.id,
+            submitted_by=user,
+        )
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: organization_application,
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            find_service=lambda iface, **kw: {
+                IUserService: user_service,
+                IOrganizationService: organization_service,
+            }[iface],
+            matchdict={"organization_application_id": pretend.stub()},
+        )
+
+        assert views.organization_application_detail(request) == {
+            "user": user,
+            "organization_application": organization_application,
+        }
+
+    def test_detail_not_found(self, enable_organizations):
+        organization_service = pretend.stub(
+            get_organization_application=lambda *a, **kw: None,
+        )
+        request = pretend.stub(
+            flags=pretend.stub(enabled=lambda *a: False),
+            find_service=lambda *a, **kw: organization_service,
+            matchdict={"organization_application_id": pretend.stub()},
+        )
+
+        with pytest.raises(HTTPNotFound):
+            views.organization_application_detail(request)
+
+
+class TestActions:
     def test_approve(self, enable_organizations, monkeypatch):
         admin = pretend.stub(
             id="admin-id",

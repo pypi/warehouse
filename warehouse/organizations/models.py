@@ -244,6 +244,8 @@ class OrganizationMixin:
     link_url = Column(URLType, nullable=False)
     description = Column(Text, nullable=False)
 
+    is_approved = Column(Boolean)
+
 
 class OrganizationApplication(OrganizationMixin, db.Model):
     __tablename__ = "organization_applications"
@@ -279,7 +281,6 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
     __repr__ = make_repr("name")
 
     is_active = Column(Boolean, nullable=False, server_default=sql.false())
-    is_approved = Column(Boolean)
     created = Column(
         DateTime(timezone=False),
         nullable=False,

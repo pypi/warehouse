@@ -51,6 +51,13 @@ class DatabaseOrganizationService:
         """
         return self.db.get(Organization, organization_id)
 
+    def get_organization_application(self, organization_application_id):
+        """
+        Return the organization application object that represents the given
+        organization_application_id, or None if there is no application for that ID.
+        """
+        return self.db.get(OrganizationApplication, organization_application_id)
+
     def get_organization_by_name(self, name):
         """
         Return the organization object corresponding with the given organization name,

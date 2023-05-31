@@ -50,6 +50,7 @@ class OrganizationApplicationFactory(WarehouseFactory):
     orgtype = "Community"
     link_url = factory.Faker("uri")
     description = factory.Faker("sentence")
+    is_approved = None
     submitted_by = factory.SubFactory(UserFactory)
     submitted = factory.Faker(
         "date_time_between_dates",
