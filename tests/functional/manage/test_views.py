@@ -91,7 +91,7 @@ class TestManageOrganizations:
             organization_service.get_organization_application_by_name(
                 db_request.POST["name"]
             )
-        ).first()
+        )[0]
 
         assert organization_application.name == db_request.POST["name"]
         assert organization_application.display_name == db_request.POST["display_name"]

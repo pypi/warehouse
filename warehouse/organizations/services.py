@@ -61,15 +61,18 @@ class DatabaseOrganizationService:
             None if organization_id is None else self.get_organization(organization_id)
         )
 
-    def get_organization_application_by_name(self, name):
+    def get_organization_application_by_name(self, name, submitted_by=None):
         """
         Return the organization object corresponding with the given organization name,
         or None if there is no organization with that name.
         """
         normalized_name = func.normalize_pep426_name(name)
-        return self.db.query(OrganizationApplication).filter(
+        query = self.db.query(OrganizationApplication).filter(
             OrganizationApplication.normalized_name == normalized_name
         )
+        if submitted_by is not None:
+            query = query.filter(OrganizationApplication.submitted_by == submitted_by)
+        return query.all()
 
     def find_organizationid(self, name):
         """

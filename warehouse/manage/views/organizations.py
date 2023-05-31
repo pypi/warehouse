@@ -183,6 +183,7 @@ class ManageOrganizationsViews:
             ),
             "create_organization_application_form": CreateOrganizationApplicationForm(
                 organization_service=self.organization_service,
+                user=self.request.user,
             ),
         }
 
@@ -206,6 +207,7 @@ class ManageOrganizationsViews:
         form = CreateOrganizationApplicationForm(
             self.request.POST,
             organization_service=self.organization_service,
+            user=self.request.user,
         )
 
         if form.validate():

@@ -592,9 +592,28 @@ class SaveOrganizationForm(forms.Form):
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     __params__ = ["name"] + SaveOrganizationForm.__params__
 
-    def __init__(self, *args, organization_service, **kwargs):
+    def __init__(self, *args, organization_service, user, **kwargs):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
+        self.user = user
+
+    def validate_name(self, field):
+        super().validate_name(field)
+        outstanding_applications = (
+            self.organization_service.get_organization_application_by_name(
+                field.data, submitted_by=self.user
+            )
+        )
+
+        # Name is valid if one of the following is true:
+        # - The user has no outstanding applications for the same name
+        if len(outstanding_applications) > 0:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "You have already submitted an application for that name. "
+                    "Choose a different organization account name."
+                )
+            )
 
 
 class CreateTeamRoleForm(forms.Form):
