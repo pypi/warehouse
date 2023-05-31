@@ -29,6 +29,13 @@ def hashing():
 
 @hashing.command()
 @click.option(
+    "-e",
+    "--event-type",
+    type=click.Choice(["user", "project", "file", "organization", "team"]),
+    required=True,
+    help="Type of event to backfill",
+)
+@click.option(
     "-b",
     "--batch-size",
     default=10_000,
@@ -51,6 +58,7 @@ def hashing():
 @click.pass_obj
 def backfill_ipaddrs(
     config,
+    event_type: str,
     batch_size: int,
     sleep_time: int,
     continue_until_done: bool,
@@ -68,12 +76,15 @@ def backfill_ipaddrs(
 
     salt = config.registry.settings["warehouse.ip_salt"]
 
-    _backfill_ips(session, salt, batch_size, sleep_time, continue_until_done)
+    _backfill_ips(
+        session, salt, event_type, batch_size, sleep_time, continue_until_done
+    )
 
 
 def _backfill_ips(
     session,
     salt: str,
+    event_type: str,
     batch_size: int,
     sleep_time: int,
     continue_until_done: bool,
@@ -82,18 +93,26 @@ def _backfill_ips(
     Create missing IPAddress objects for events that don't have them.
 
     Broken out from the CLI command so that it can be called recursively.
-
-    TODO: Currently operates on only User events, but should be expanded to
-     include Project events and others.
     """
     from warehouse.accounts.models import User
     from warehouse.ip_addresses.models import IpAddress
+    from warehouse.organizations.models import Organization, Team
+    from warehouse.packaging.models import File, Project
+
+    has_events = {
+        "user": User,
+        "organization": Organization,
+        "team": Team,
+        "project": Project,
+        "file": File,
+    }
+    model = has_events[event_type]
 
     # Get rows a batch at a time, only if the row doesn't have an `ip_address_id
     no_ip_obj_rows = session.scalars(
-        select(User.Event)
-        .where(User.Event.ip_address_id.is_(None))  # type: ignore[attr-defined]
-        .order_by(User.Event.time)  # type: ignore[attr-defined]
+        select(model.Event)  # type: ignore[attr-defined]
+        .where(model.Event.ip_address_id.is_(None))  # type: ignore[attr-defined]
+        .order_by(model.Event.time)  # type: ignore[attr-defined]
         .limit(batch_size)
     ).all()
 
@@ -137,6 +156,7 @@ def _backfill_ips(
         _backfill_ips(
             session,
             salt,
+            event_type,
             batch_size,
             sleep_time,
             continue_until_done,
