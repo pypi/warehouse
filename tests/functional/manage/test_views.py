@@ -81,6 +81,9 @@ class TestManageOrganizations:
                 ),
             }
         )
+        db_request.registry.settings[
+            "warehouse.organizations.max_oustanding_applications"
+        ] = 3
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             org_views, "send_new_organization_requested_email", send_email

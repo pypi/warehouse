@@ -592,10 +592,13 @@ class SaveOrganizationForm(forms.Form):
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     __params__ = ["name"] + SaveOrganizationForm.__params__
 
-    def __init__(self, *args, organization_service, user, **kwargs):
+    def __init__(
+        self, *args, organization_service, user, max_applications=None, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
         self.user = user
+        self.max_applications = max_applications
 
     def validate_name(self, field):
         super().validate_name(field)
@@ -614,6 +617,20 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
                     "Choose a different organization account name."
                 )
             )
+
+    def validate(self):
+        if (
+            self.max_applications is not None
+            and len(self.user.organization_applications) >= self.max_applications
+        ):
+            self.form_errors.append(
+                _(
+                    "You have already submitted the maximum number of "
+                    "Organization requests."
+                )
+            )
+            return False
+        return True
 
 
 class CreateTeamRoleForm(forms.Form):

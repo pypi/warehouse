@@ -570,6 +570,35 @@ class TestCreateOrganizationApplicationForm:
             pretend.call("my_organization_name")
         ]
 
+    def test_validate_name_with_max_applications(self, db_session):
+        organization_service = pretend.stub(
+            get_organization_application_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None: []
+            ),
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
+        user = pretend.stub(
+            organization_applications=[pretend.stub(), pretend.stub(), pretend.stub()]
+        )
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=user,
+            max_applications=3,
+        )
+        forms._ = lambda string: string
+
+        form.validate()
+
+        assert form.form_errors == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests."
+            )
+        ]
+
+        assert organization_service.get_organization_application_by_name.calls == []
+        assert organization_service.find_organizationid.calls == []
+
     def test_validate_name_with_organization(self):
         organization_service = pretend.stub(
             find_organizationid=pretend.call_recorder(lambda name: 1)

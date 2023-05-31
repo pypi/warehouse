@@ -184,7 +184,12 @@ class ManageOrganizationsViews:
             "create_organization_application_form": CreateOrganizationApplicationForm(
                 organization_service=self.organization_service,
                 user=self.request.user,
-            ),
+            )
+            if len(self.request.user.organization_applications)
+            < self.request.registry.settings[
+                "warehouse.organizations.max_oustanding_applications"
+            ]
+            else None,
         }
 
     @view_config(request_method="GET")
@@ -208,6 +213,9 @@ class ManageOrganizationsViews:
             self.request.POST,
             organization_service=self.organization_service,
             user=self.request.user,
+            max_apps=self.request.registry.settings[
+                "warehouse.organizations.max_oustanding_applications"
+            ],
         )
 
         if form.validate():

@@ -33,6 +33,7 @@ from warehouse.subscriptions.models import StripeSubscription
 
 from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
+    OrganizationApplicationFactory,
     OrganizationFactory,
     OrganizationInvitationFactory,
     OrganizationProjectFactory,
@@ -77,6 +78,22 @@ class TestDatabaseOrganizationService:
             organization_service.get_organization_by_name(organization.name)
             == organization
         )
+
+    def test_get_organization_application_by_name(self, organization_service):
+        app0 = OrganizationApplicationFactory.create(name="pypi")
+        app1 = OrganizationApplicationFactory.create(name="pypi")
+        assert organization_service.get_organization_application_by_name("pypi") == [
+            app0,
+            app1,
+        ]
+
+    def test_get_organization_application_by_name_and_submitter(
+        self, organization_service
+    ):
+        app = OrganizationApplicationFactory.create()
+        assert organization_service.get_organization_application_by_name(
+            app.name, submitted_by=app.submitted_by
+        ) == [app]
 
     def test_find_organizationid(self, organization_service):
         organization = OrganizationFactory.create()

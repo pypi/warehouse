@@ -90,6 +90,9 @@ class TestManageOrganizations:
                 IOrganizationService: organization_service,
                 IUserService: user_service,
             }[interface],
+            registry=pretend.stub(
+                settings={"warehouse.organizations.max_oustanding_applications": 3}
+            ),
         )
 
         view = org_views.ManageOrganizationsViews(request)
@@ -190,6 +193,9 @@ class TestManageOrganizations:
                 geoip_info={"country_code": "US"},
             ),
             path="request-path",
+            registry=pretend.stub(
+                settings={"warehouse.organizations.max_oustanding_applications": 3}
+            ),
         )
 
         create_organization_application_obj = pretend.stub(
@@ -307,6 +313,9 @@ class TestManageOrganizations:
             ),
             route_path=lambda *a, **kw: "manage-subscription-url",
             path="request-path",
+            registry=pretend.stub(
+                settings={"warehouse.organizations.max_oustanding_applications": 3}
+            ),
         )
 
         create_organization_application_obj = pretend.stub(
@@ -406,6 +415,9 @@ class TestManageOrganizations:
                 ip_address="0.0.0.0",
                 hashed_ip_address="deadbeef",
                 geoip_info={"country_code": "US"},
+            ),
+            registry=pretend.stub(
+                settings={"warehouse.organizations.max_oustanding_applications": 3}
             ),
         )
 
