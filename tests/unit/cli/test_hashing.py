@@ -38,7 +38,8 @@ class TestBackfillIpAddresses:
 
         assert db_request.db.query(User.Event).count() == 0
 
-        result = cli.invoke(hashing.backfill_ipaddrs, obj=config)
+        args = ["--event-type", "user"]
+        result = cli.invoke(hashing.backfill_ipaddrs, args, obj=config)
 
         assert result.exit_code == 0
         assert result.output.strip() == "No rows to backfill. Done!"
@@ -67,7 +68,8 @@ class TestBackfillIpAddresses:
         assert db_session.query(User.Event).count() == 3
         assert db_session.query(IpAddress).count() == 0
 
-        result = cli.invoke(hashing.backfill_ipaddrs, obj=config)
+        args = ["--event-type", "user"]
+        result = cli.invoke(hashing.backfill_ipaddrs, args, obj=config)
 
         assert result.exit_code == 0
         assert db_session.query(IpAddress).count() == 3
@@ -96,6 +98,8 @@ class TestBackfillIpAddresses:
         assert db_request.db.query(User.Event).count() == 3
 
         args = [
+            "--event-type",
+            "user",
             "--batch-size",
             "2",
         ]
@@ -141,6 +145,8 @@ class TestBackfillIpAddresses:
         )
 
         args = [
+            "--event-type",
+            "user",
             "--batch-size",
             "1",
             "--sleep-time",
