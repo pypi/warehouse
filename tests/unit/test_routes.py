@@ -155,6 +155,7 @@ def test_routes(warehouse):
             traverse="/{username}",
             domain=warehouse,
         ),
+        pretend.call("accounts.search", "/accounts/search/", domain=warehouse),
         pretend.call(
             "organizations.profile",
             "/org/{organization}/",

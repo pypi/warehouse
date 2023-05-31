@@ -120,6 +120,21 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache
+    def get_users_by_prefix(self, prefix: str) -> list[User]:
+        """
+        Get the first 10 matches by username prefix.
+        No need to apply `ILIKE` here, as the `username` column is already
+        `CIText`.
+        """
+        return (
+            self.db.query(User)
+            .filter(User.username.startswith(prefix))
+            .order_by(User.username)
+            .limit(10)
+            .all()
+        )
+
+    @functools.lru_cache
     def get_admin_user(self):
         """Useful for notifications to the admin@ email address."""
         return self.get_user_by_username("admin")
