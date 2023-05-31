@@ -50,7 +50,6 @@ plugins:
       enabled: true
       image: https://blog.pypi.org/assets/logo.png
       length: 20
-      pretty_print: true
       match_path: "posts/.*"
 extra:
   homepage: https://pypi.org
