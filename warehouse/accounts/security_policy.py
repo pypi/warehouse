@@ -29,7 +29,6 @@ from warehouse.errors import (
     BasicAuthAccountFrozen,
     BasicAuthBreachedPassword,
     BasicAuthFailedPassword,
-    BasicAuthTwoFactorEnabled,
     WarehouseDenied,
 )
 from warehouse.events.tags import EventTag
@@ -76,15 +75,6 @@ def _basic_auth_check(username, password, request):
                 raise _format_exc_status(BasicAuthAccountFrozen(), "Account is frozen.")
             else:
                 raise _format_exc_status(HTTPUnauthorized(), "Account is disabled.")
-        elif login_service.has_two_factor(user.id):
-            raise _format_exc_status(
-                BasicAuthTwoFactorEnabled(),
-                (
-                    f"User {user.username} has two factor auth enabled, "
-                    "an API Token or Trusted Publisher must be used to upload "
-                    "in place of password."
-                ),
-            )
         elif login_service.check_password(
             user.id,
             password,
