@@ -93,13 +93,6 @@ class TestDeserialization:
                 b'[4,"somepublisher"]',
                 OIDCPublisher(oidc_publisher_id="somepublisher"),
             ),
-            (
-                b'[4,"somepublisher",{"foo": "bar"}]',
-                OIDCPublisher(
-                    oidc_publisher_id="somepublisher",
-                    oidc_claims={"foo": "bar"},
-                ),
-            ),
             # Legacy Caveat Style
             (b'{"exp": 50, "nbf": 10}', Expiration(expires_at=50, not_before=10)),
             (

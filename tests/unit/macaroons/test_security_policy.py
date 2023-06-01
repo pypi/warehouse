@@ -180,7 +180,9 @@ class TestMacaroonSecurityPolicy:
 
         oidc_publisher = pretend.stub()
         oidc_claims = {"foo": "bar"}
-        macaroon = pretend.stub(user=None, oidc_publisher=oidc_publisher)
+        macaroon = pretend.stub(
+            user=None, oidc_publisher=oidc_publisher, additional=oidc_claims
+        )
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
         )

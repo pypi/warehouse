@@ -380,7 +380,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
 
 
 @pytest.mark.parametrize(
-    ("claims_in_token", "claims_in_caveat"),
+    ("claims_in_token", "claims_input"),
     [
         ({"ref": "someref", "sha": "somesha"}, {"ref": "someref", "sha": "somesha"}),
         ({"ref": "someref"}, {"ref": "someref", "sha": None}),
@@ -388,7 +388,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ],
 )
 def test_mint_token_from_oidc_no_pending_publisher_ok(
-    monkeypatch, claims_in_token, claims_in_caveat
+    monkeypatch, claims_in_token, claims_input
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -454,12 +454,13 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
             f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
-                    oidc_publisher_id="fakepublisherid", oidc_claims=claims_in_caveat
+                    oidc_publisher_id="fakepublisherid",
                 ),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
             oidc_publisher_id="fakepublisherid",
+            additional=claims_input,
         )
     ]
     assert project.record_event.calls == [

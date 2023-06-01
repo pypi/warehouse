@@ -92,6 +92,28 @@ class TestDatabaseMacaroonService:
         assert isinstance(dm, Macaroon)
         assert macaroon.id == dm.id
         assert macaroon.user == user
+        assert macaroon.additional is None
+
+    def test_find_from_raw_oidc(self, macaroon_service):
+        publisher = GitHubPublisherFactory.create()
+        claims = {"sha": "somesha", "ref": "someref"}
+        (
+            serialized,
+            macaroon,
+        ) = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+            oidc_publisher_id=publisher.id,
+            additional=claims,
+        )
+
+        dm = macaroon_service.find_from_raw(serialized)
+
+        assert isinstance(dm, Macaroon)
+        assert macaroon.id == macaroon.id
+        assert macaroon.oidc_publisher == publisher
+        assert macaroon.additional == claims
 
     @pytest.mark.parametrize(
         "raw_macaroon",
