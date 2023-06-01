@@ -207,9 +207,11 @@ class NewPasswordMixin:
     # These fields are here to provide the various user-defined fields to the
     # PasswordStrengthValidator of the new_password field, to ensure that the
     # newly set password doesn't contain any of them
+    # NOTE: These intentionally use `DataRequired` instead of `InputRequired`,
+    # since they may not be form inputs (i.e., they may be precomputed).
     full_name = wtforms.StringField()  # May be empty
-    username = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
-    email = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
+    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    email = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
 
     def __init__(self, *args, breach_service, **kwargs):
         super().__init__(*args, **kwargs)

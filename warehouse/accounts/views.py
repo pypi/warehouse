@@ -772,7 +772,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     form = _form_class(
-        **request.params,
+        request.POST,
         username=user.username,
         full_name=user.name,
         email=user.email,
