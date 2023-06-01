@@ -268,7 +268,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_mandate.enabled": False,
         "warehouse.oidc.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
-        "warehouse.organizations.max_oustanding_applications": 3,
+        "warehouse.organizations.max_outstanding_applications": 3,
         "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
     }

@@ -193,7 +193,7 @@ class ManageOrganizationsViews:
                 ]
             )
             < self.request.registry.settings[
-                "warehouse.organizations.max_oustanding_applications"
+                "warehouse.organizations.max_outstanding_applications"
             ]
             else None,
         }
@@ -220,7 +220,7 @@ class ManageOrganizationsViews:
             organization_service=self.organization_service,
             user=self.request.user,
             max_apps=self.request.registry.settings[
-                "warehouse.organizations.max_oustanding_applications"
+                "warehouse.organizations.max_outstanding_applications"
             ],
         )
 

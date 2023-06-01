@@ -91,7 +91,7 @@ class TestManageOrganizations:
                 IUserService: user_service,
             }[interface],
             registry=pretend.stub(
-                settings={"warehouse.organizations.max_oustanding_applications": 3}
+                settings={"warehouse.organizations.max_outstanding_applications": 3}
             ),
         )
 
@@ -194,7 +194,7 @@ class TestManageOrganizations:
             ),
             path="request-path",
             registry=pretend.stub(
-                settings={"warehouse.organizations.max_oustanding_applications": 3}
+                settings={"warehouse.organizations.max_outstanding_applications": 3}
             ),
         )
 
@@ -314,7 +314,7 @@ class TestManageOrganizations:
             route_path=lambda *a, **kw: "manage-subscription-url",
             path="request-path",
             registry=pretend.stub(
-                settings={"warehouse.organizations.max_oustanding_applications": 3}
+                settings={"warehouse.organizations.max_outstanding_applications": 3}
             ),
         )
 
@@ -417,7 +417,7 @@ class TestManageOrganizations:
                 geoip_info={"country_code": "US"},
             ),
             registry=pretend.stub(
-                settings={"warehouse.organizations.max_oustanding_applications": 3}
+                settings={"warehouse.organizations.max_outstanding_applications": 3}
             ),
         )
 
