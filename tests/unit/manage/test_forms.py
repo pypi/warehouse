@@ -1023,5 +1023,6 @@ class TestCreateTeamForm:
         assert form.team_id is team_id
         assert form.organization_service is organization_service
         assert not form.validate() if errors else form.validate(), str(form.errors)
-        # NOTE(jleightcap): testing with Regexp validators returns raw objects.
+        # NOTE(jleightcap): testing with Regexp validators returns raw LazyString
+        # objects in the error dict's values. Just assert on keys.
         assert list(form.errors.keys()) == errors

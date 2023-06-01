@@ -33,11 +33,23 @@ from warehouse.utils.webauthn import AuthenticationRejectedError
 
 
 class TestLoginForm:
-    def test_creation(self):
-        request = pretend.stub()
-        user_service = pretend.stub()
-        breach_service = pretend.stub()
+    def test_validate(self):
+        request = pretend.stub(
+            remote_addr="1.2.3.4",
+            banned=pretend.stub(
+                by_ip=lambda ip_address: False,
+            ),
+        )
+        user_service = pretend.stub(
+            check_password=lambda userid, password, tags=None: True,
+            find_userid=lambda userid: 1,
+            is_disabled=lambda id: (False, None),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
         form = forms.LoginForm(
+            MultiDict({"username": "user", "password": "password"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
@@ -46,6 +58,7 @@ class TestLoginForm:
         assert form.request is request
         assert form.user_service is user_service
         assert form.breach_service is breach_service
+        assert form.validate(), str(form.errors)
 
     def test_validate_username_with_no_user(self):
         request = pretend.stub()
@@ -355,13 +368,32 @@ class TestLoginForm:
 
 
 class TestRegistrationForm:
-    def test_create(self):
-        user_service = pretend.stub()
-        recaptcha_service = pretend.stub(enabled=True)
-        breach_service = pretend.stub()
+    def test_validate(self):
+        recaptcha_service = pretend.stub(
+            enabled=False,
+            verify_response=pretend.call_recorder(lambda _: None),
+        )
+        user_service = pretend.stub(
+            check_password=lambda userid, password, tags=None: True,
+            find_userid=lambda userid: None,
+            find_userid_by_email=pretend.call_recorder(lambda email: None),
+            is_disabled=lambda id: (False, None),
+            username_is_prohibited=lambda a: False,
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags: False)
+        )
 
         form = forms.RegistrationForm(
-            formdata=MultiDict(),
+            formdata=MultiDict(
+                {
+                    "username": "myusername",
+                    "new_password": "mysupersecurepassword1!",
+                    "password_confirm": "mysupersecurepassword1!",
+                    "email": "foo@bar.com",
+                    "g_recaptcha_reponse": "",
+                }
+            ),
             user_service=user_service,
             recaptcha_service=recaptcha_service,
             breach_service=breach_service,
@@ -369,6 +401,7 @@ class TestRegistrationForm:
 
         assert form.user_service is user_service
         assert form.recaptcha_service is recaptcha_service
+        assert form.validate(), str(form.errors)
 
     def test_password_confirm_required_error(self):
         form = forms.RegistrationForm(
@@ -664,10 +697,16 @@ class TestRegistrationForm:
 
 
 class TestRequestPasswordResetForm:
-    def test_creation(self):
-        user_service = pretend.stub()
-        form = forms.RequestPasswordResetForm(user_service=user_service)
+    def test_validate(self):
+        user_service = pretend.stub(
+            get_user_by_username=pretend.call_recorder(lambda userid: "1")
+        )
+        form = forms.RequestPasswordResetForm(
+            formdata=MultiDict({"username_or_email": "foo@bar.net"}),
+            user_service=user_service,
+        )
         assert form.user_service is user_service
+        assert form.validate(), str(form.errors)
 
     def test_no_password_field(self):
         user_service = pretend.stub()
@@ -709,6 +748,22 @@ class TestRequestPasswordResetForm:
 
 
 class TestResetPasswordForm:
+    def test_validate(self):
+        form = forms.ResetPasswordForm(
+            formdata=MultiDict(
+                {
+                    "new_password": "MyStr0ng!shPassword",
+                    "password_confirm": "MyStr0ng!shPassword",
+                    "username": "username",
+                    "full_name": "full_name",
+                    "email": "email",
+                }
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
+        )
+
+        assert form.validate(), str(form.errors)
+
     def test_password_confirm_required_error(self):
         form = forms.ResetPasswordForm(
             formdata=MultiDict({"password_confirm": ""}),
@@ -758,22 +813,6 @@ class TestResetPasswordForm:
 
         assert form.validate() == expected
 
-    def test_passwords_match_success(self):
-        form = forms.ResetPasswordForm(
-            formdata=MultiDict(
-                {
-                    "new_password": "MyStr0ng!shPassword",
-                    "password_confirm": "MyStr0ng!shPassword",
-                    "username": "username",
-                    "full_name": "full_name",
-                    "email": "email",
-                }
-            ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
-        )
-
-        assert form.validate()
-
     def test_password_breached(self):
         form = forms.ResetPasswordForm(
             formdata=MultiDict(
@@ -804,7 +843,7 @@ class TestResetPasswordForm:
 
 
 class TestTOTPAuthenticationForm:
-    def test_creation(self):
+    def test_validate(self):
         user_id = pretend.stub()
         user_service = pretend.stub()
         form = forms.TOTPAuthenticationForm(
@@ -812,6 +851,7 @@ class TestTOTPAuthenticationForm:
         )
 
         assert form.user_service is user_service
+        assert form.validate, str(form.errors)
 
     def test_totp_secret_exists(self, pyramid_config):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
@@ -902,24 +942,30 @@ class TestTOTPAuthenticationForm:
 
 
 class TestWebAuthnAuthenticationForm:
-    def test_creation(self):
+    def test_credential_valid(self):
         request = pretend.stub()
-        user_id = pretend.stub()
-        user_service = pretend.stub()
-        challenge = pretend.stub()
-        origin = pretend.stub()
-        rp_id = pretend.stub()
-
+        challenge = (pretend.stub(),)
+        origin = (pretend.stub(),)
+        rp_id = (pretend.stub(),)
         form = forms.WebAuthnAuthenticationForm(
             request=request,
-            user_id=user_id,
-            user_service=user_service,
+            credential=json.dumps({}),
+            user_id=pretend.stub(),
+            user_service=pretend.stub(
+                verify_webauthn_assertion=pretend.call_recorder(
+                    lambda *a, **kw: ("foo", 123456)
+                )
+            ),
             challenge=challenge,
             origin=origin,
             rp_id=rp_id,
         )
 
         assert form.challenge is challenge
+        assert form.origin is origin
+        assert form.rp_id is rp_id
+        assert form.validate(), str(form.errors)
+        assert form.validated_credential == ("foo", 123456)
 
     def test_credential_bad_payload(self, pyramid_config):
         request = pretend.stub()
@@ -969,31 +1015,27 @@ class TestWebAuthnAuthenticationForm:
             )
         ]
 
-    def test_credential_valid(self):
-        request = pretend.stub()
-        form = forms.WebAuthnAuthenticationForm(
-            request=request,
-            credential=json.dumps({}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                verify_webauthn_assertion=pretend.call_recorder(
-                    lambda *a, **kw: ("foo", 123456)
-                )
-            ),
-            challenge=pretend.stub(),
-            origin=pretend.stub(),
-            rp_id=pretend.stub(),
-        )
-        assert form.validate()
-        assert form.validated_credential == ("foo", 123456)
-
 
 class TestReAuthenticateForm:
-    def test_creation(self):
-        user_service = pretend.stub()
+    def test_validate(self):
+        user_service = pretend.stub(
+            find_userid=lambda userid: 1,
+            check_password=lambda userid, password, tags=None: True,
+        )
         request = pretend.stub()
 
-        form = forms.ReAuthenticateForm(request=request, user_service=user_service)
+        form = forms.ReAuthenticateForm(
+            formdata=MultiDict(
+                {
+                    "username": "username",
+                    "password": "mysupersecurepassword1!",
+                    "next_route": pretend.stub(),
+                    "next_route_matchdict": pretend.stub(),
+                }
+            ),
+            request=request,
+            user_service=user_service,
+        )
 
         assert form.user_service is user_service
         assert form.__params__ == [
@@ -1005,19 +1047,35 @@ class TestReAuthenticateForm:
         assert isinstance(form.username, wtforms.StringField)
         assert isinstance(form.next_route, wtforms.StringField)
         assert isinstance(form.next_route_matchdict, wtforms.StringField)
+        assert form.validate(), str(form.errors)
 
 
 class TestRecoveryCodeForm:
-    def test_creation(self):
-        request = pretend.stub()
-        user_id = pretend.stub()
-        user_service = pretend.stub()
+    def test_validate(self, monkeypatch):
+        request = pretend.stub(remote_addr="1.2.3.4")
+        user = pretend.stub(id=pretend.stub(), username="foobar")
+        user_service = pretend.stub(
+            check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
+            get_user=lambda _: user,
+        )
         form = forms.RecoveryCodeAuthenticationForm(
-            request=request, user_id=user_id, user_service=user_service
+            formdata=MultiDict({"recovery_code_value": "deadbeef00001111"}),
+            request=request,
+            user_id=user.id,
+            user_service=user_service,
+        )
+        send_recovery_code_used_email = pretend.call_recorder(
+            lambda request, user: None
+        )
+        monkeypatch.setattr(
+            forms, "send_recovery_code_used_email", send_recovery_code_used_email
         )
 
-        assert form.user_id is user_id
+        assert form.request is request
+        assert form.user_id is user.id
         assert form.user_service is user_service
+        assert form.validate()
+        assert send_recovery_code_used_email.calls == [pretend.call(request, user)]
 
     def test_missing_value(self):
         request = pretend.stub()
@@ -1070,28 +1128,6 @@ class TestRecoveryCodeForm:
                 additional={"reason": expected_reason},
             )
         ]
-
-    def test_valid_recovery_code(self, monkeypatch):
-        request = pretend.stub(remote_addr="1.2.3.4")
-        user = pretend.stub(id=pretend.stub(), username="foobar")
-        form = forms.RecoveryCodeAuthenticationForm(
-            formdata=MultiDict({"recovery_code_value": "deadbeef00001111"}),
-            request=request,
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_recovery_code=pretend.call_recorder(lambda *a, **kw: True),
-                get_user=lambda _: user,
-            ),
-        )
-        send_recovery_code_used_email = pretend.call_recorder(
-            lambda request, user: None
-        )
-        monkeypatch.setattr(
-            forms, "send_recovery_code_used_email", send_recovery_code_used_email
-        )
-
-        assert form.validate()
-        assert send_recovery_code_used_email.calls == [pretend.call(request, user)]
 
     @pytest.mark.parametrize(
         "input_string, validates",
