@@ -35,6 +35,7 @@ from wtforms.validators import ValidationError
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
+from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -2556,7 +2557,7 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(project.name)
 
-    def test_upload_succeeds_with_2fa_enabled(
+    def test_basic_auth_upload_fails_with_2fa_enabled(
         self, pyramid_config, db_request, metrics, monkeypatch
     ):
         user = UserFactory.create(totp_secret=b"secret")
@@ -2593,8 +2594,17 @@ class TestFileUpload:
             IMetricsService: metrics,
         }.get(svc)
 
-        legacy.file_upload(db_request)
+        with pytest.raises(BasicAuthTwoFactorEnabled) as excinfo:
+            legacy.file_upload(db_request)
 
+        resp = excinfo.value
+
+        assert resp.status_code == 401
+        assert resp.status == (
+            f"401 User { user.username } has two factor auth enabled, "
+            "an API Token or Trusted Publisher must be used to upload "
+            "in place of password."
+        )
         assert send_email.calls == [
             pretend.call(db_request, user, project_name=project.name)
         ]
