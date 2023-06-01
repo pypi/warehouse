@@ -13,7 +13,7 @@ tags:
 Beginning today, all uploads from user accounts with 2FA enabled
 will be required to use an [API Token](https://pypi.org/help/#apitoken)
 or [Trusted Publisher](https://docs.pypi.org/trusted-publishers/) configuration
-in place of their pasword.
+in place of their password.
 
 This change has [been planned](https://github.com/pypi/warehouse/issues/7265)
 since 2FA was rolled out in 2019.
@@ -21,7 +21,7 @@ In [February of 2022](https://github.com/pypi/warehouse/pull/10836)
 we began notifying users on upload that this change was coming.
 
 If you have 2FA enabled and have been using only your password to upload,
-the following email is likely failry familiar to you:
+the following email is likely familiar to you:
 
 <figure markdown>
   ![Sample notice email](/assets/2023-06-01-2fa-notice-email.png)
