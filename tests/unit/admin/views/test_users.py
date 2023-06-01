@@ -105,7 +105,7 @@ class TestUserList:
 
 class TestEmailForm:
     def test_validate(self):
-        form = views.EmailForm(formdata=MultiDict({'email': "foo@bar.net"}))
+        form = views.EmailForm(formdata=MultiDict({"email": "foo@bar.net"}))
         assert form.validate(), str(form.errors)
 
 
