@@ -34,7 +34,11 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
-from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.errors import (
+    BasicAuthBreachedPassword,
+    BasicAuthFailedPassword,
+    BasicAuthTwoFactorEnabled,
+)
 from warehouse.events.tags import EventTag
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -76,6 +80,7 @@ class TestLogin:
                 lambda userid, password, tags=None: False
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
+            has_two_factor=pretend.call_recorder(lambda uid: False),
         )
         pyramid_services.register_service(service, IUserService, None)
         pyramid_services.register_service(
@@ -212,6 +217,7 @@ class TestLogin:
             ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
+            has_two_factor=pretend.call_recorder(lambda uid: False),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: False)
@@ -232,6 +238,7 @@ class TestLogin:
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(2)]
         assert service.is_disabled.calls == [pretend.call(2)]
+        assert service.has_two_factor.calls == [pretend.call(2)]
         assert service.check_password.calls == [
             pretend.call(
                 2,
@@ -252,6 +259,52 @@ class TestLogin:
             )
         ]
 
+    def test_via_basic_auth_2fa_enforced(
+        self, monkeypatch, pyramid_request, pyramid_services
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+
+        user = pretend.stub(id=2, username="multiFactor")
+        service = pretend.stub(
+            get_user=pretend.call_recorder(lambda user_id: user),
+            find_userid=pretend.call_recorder(lambda username: 2),
+            check_password=pretend.call_recorder(
+                lambda userid, password, tags=None: True
+            ),
+            is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
+            disable_password=pretend.call_recorder(
+                lambda user_id, request, reason=None: None
+            ),
+            has_two_factor=pretend.call_recorder(lambda uid: True),
+        )
+        breach_service = pretend.stub(
+            check_password=pretend.call_recorder(lambda pw, tags=None: False),
+        )
+
+        pyramid_services.register_service(service, IUserService, None)
+        pyramid_services.register_service(
+            breach_service, IPasswordBreachedService, None
+        )
+
+        pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
+
+        with pytest.raises(BasicAuthTwoFactorEnabled) as excinfo:
+            _basic_auth_check("multiFactor", "mypass", pyramid_request)
+
+        assert excinfo.value.status == (
+            "401 User multiFactor has two factor auth enabled, "
+            "an API Token or Trusted Publisher must be used "
+            "to upload in place of password."
+        )
+        assert service.find_userid.calls == [pretend.call("multiFactor")]
+        assert service.get_user.calls == [pretend.call(2)]
+        assert service.is_disabled.calls == [pretend.call(2)]
+        assert service.has_two_factor.calls == [pretend.call(2)]
+        assert service.check_password.calls == []
+        assert breach_service.check_password.calls == []
+        assert service.disable_password.calls == []
+        assert send_email.calls == []
+
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services
     ):
@@ -271,6 +324,7 @@ class TestLogin:
             disable_password=pretend.call_recorder(
                 lambda user_id, request, reason=None: None
             ),
+            has_two_factor=pretend.call_recorder(lambda uid: False),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: True),
