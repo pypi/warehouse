@@ -182,3 +182,11 @@ def includeme(config):
         IRateLimiter,
         name="email.verify",
     )
+    accounts_search_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.accounts_search_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(accounts_search_ratelimit_string),
+        IRateLimiter,
+        name="accounts.search",
+    )
