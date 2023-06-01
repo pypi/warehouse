@@ -1026,6 +1026,16 @@ def send_two_factor_mandate_email(request, user):
     return {"username": user.username, "has_two_factor": user.has_two_factor}
 
 
+@_email("send_release_yanked_email")
+def send_release_yanked_email(request, user, project_name, release_version):
+    return {"username": user.username, "project_name": project_name, "version": release_version}
+
+
+@_email("send_release_yanked_email")
+def send_release_unyanked_email(request, user, project_name, release_version):
+    return {"username": user.username, "project_name": project_name, "version": release_version}
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
