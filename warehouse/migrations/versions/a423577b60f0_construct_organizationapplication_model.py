@@ -10,11 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Create OrganizationApplication Model
+Construct OrganizationApplication model
 
-Revision ID: 56e822e126bb
+Revision ID: a423577b60f0
 Revises: 60e6b0dd0f47
-Create Date: 2023-05-31 15:30:55.176280
+Create Date: 2023-06-01 11:18:28.044944
 """
 
 import sqlalchemy as sa
@@ -23,7 +23,7 @@ import sqlalchemy_utils.types.url
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "56e822e126bb"
+revision = "a423577b60f0"
 down_revision = "60e6b0dd0f47"
 
 
@@ -45,10 +45,12 @@ def upgrade():
         ),
         sa.Column("link_url", sqlalchemy_utils.types.url.URLType(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
+        sa.Column("is_approved", sa.Boolean(), nullable=True),
         sa.Column("submitted_by_id", postgresql.UUID(as_uuid=True), nullable=False),
         sa.Column(
             "submitted", sa.DateTime(), server_default=sa.text("now()"), nullable=False
         ),
+        sa.Column("organization_id", postgresql.UUID(as_uuid=True), nullable=True),
         sa.CheckConstraint(
             "link_url ~* '^https?://.*'::text",
             name="organization_applications_valid_link_url",
@@ -56,6 +58,13 @@ def upgrade():
         sa.CheckConstraint(
             "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
             name="organization_applications_valid_name",
+        ),
+        sa.ForeignKeyConstraint(
+            ["organization_id"],
+            ["organizations.id"],
+            ondelete="CASCADE",
+            initially="DEFERRED",
+            deferrable=True,
         ),
         sa.ForeignKeyConstraint(
             ["submitted_by_id"],
