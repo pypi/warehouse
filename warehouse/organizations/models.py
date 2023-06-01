@@ -247,32 +247,6 @@ class OrganizationMixin:
     is_approved = Column(Boolean)
 
 
-class OrganizationApplication(OrganizationMixin, db.Model):
-    __tablename__ = "organization_applications"
-    __repr__ = make_repr("name")
-
-    submitted_by_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey(
-            User.id,
-            deferrable=True,
-            initially="DEFERRED",
-            ondelete="CASCADE",
-        ),
-        nullable=False,
-    )
-    submitted = Column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-        index=True,
-    )
-
-    submitted_by = orm.relationship(
-        User, backref="organization_applications"  # type: ignore # noqa
-    )
-
-
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
 # class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 class Organization(OrganizationMixin, HasEvents, db.Model):
@@ -459,6 +433,45 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
+
+
+class OrganizationApplication(OrganizationMixin, db.Model):
+    __tablename__ = "organization_applications"
+    __repr__ = make_repr("name")
+
+    submitted_by_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            User.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+    )
+    submitted = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
+    )
+    organization_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            Organization.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=True,
+    )
+
+    submitted_by = orm.relationship(
+        User, backref="organization_applications"  # type: ignore # noqa
+    )
+    organization = orm.relationship(
+        Organization, backref="application", viewonly=True  # type: ignore # noqa
+    )
 
 
 class OrganizationNameCatalog(db.Model):

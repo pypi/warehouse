@@ -37,23 +37,19 @@ class IOrganizationService(Interface):
         Return a list of all organization objects, or None if there are none.
         """
 
-    def get_organizations_needing_approval():
-        """
-        Return a list of all organization objects in need of approval or None
-        if there are currently no organization requests.
-        """
-
     def get_organizations_by_user(user_id):
         """
         Return a list of all organization objects associated with a given user id.
         """
 
-    def add_organization(
-        name, display_name, orgtype, link_url, description, initial_user, request
-    ):
+    def approve_organization_application(organization_application_id, request):
         """
-        Accepts a organization object, and attempts to create an organization with those
-        attributes.
+        Performs operations necessary to approve an organization
+        """
+
+    def decline_organization_application(organization_application_id, request):
+        """
+        Performs operations necessary to reject approval of an organization
         """
 
     def add_organization_application(
@@ -124,16 +120,6 @@ class IOrganizationService(Interface):
     def delete_organization_invite(organization_invite_id):
         """
         Delete an organization invite for the specified org invite id
-        """
-
-    def approve_organization(organization_id):
-        """
-        Performs operations necessary to approve an organization
-        """
-
-    def decline_organization(organization_id):
-        """
-        Performs operations necessary to reject approval of an organization
         """
 
     def delete_organization(organization_id):

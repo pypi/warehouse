@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import datetime
-
 from sqlalchemy import delete, func, orm, select
 from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
@@ -104,18 +102,6 @@ class DatabaseOrganizationService:
         """
         return self.db.scalars(select(Organization).order_by(Organization.name)).all()
 
-    def get_organizations_needing_approval(self):
-        """
-        Return a list of all organization objects in need of approval or None
-        if there are currently no organization requests.
-        """
-        return (
-            self.db.query(Organization)
-            .filter(Organization.is_approved == None)  # noqa: E711
-            .order_by(Organization.name)
-            .all()
-        )
-
     def get_organizations_by_user(self, user_id):
         """
         Return a list of all organization objects associated with a given user id.
@@ -128,71 +114,12 @@ class DatabaseOrganizationService:
             .all()
         )
 
-    def add_organization(
-        self, name, display_name, orgtype, link_url, description, initial_user, request
-    ):
-        """
-        Accepts a organization object, and attempts to create an organization with those
-        attributes.
-        """
-        organization = Organization(
-            name=name,
-            display_name=display_name,
-            orgtype=orgtype,
-            link_url=link_url,
-            description=description,
-        )
-        self.db.add(organization)
-        self.db.flush()  # flush the db now so organization.id is available
-
-        organization.record_event(
-            tag=EventTag.Organization.CatalogEntryAdd,
-            ip_address=None,
-            request=request,
-            additional={"submitted_by_user_id": str(initial_user.id)},
-        )
-        organization.record_event(
-            tag=EventTag.Organization.OrganizationCreate,
-            ip_address=None,
-            request=request,
-            additional={"created_by_user_id": str(initial_user.id)},
-        )
-        self.add_organization_role(
-            organization.id,
-            initial_user.id,
-            OrganizationRoleType.Owner,
-        )
-        organization.record_event(
-            tag=EventTag.Organization.OrganizationRoleAdd,
-            ip_address=None,
-            request=request,
-            additional={
-                "submitted_by_user_id": str(initial_user.id),
-                "role_name": "Owner",
-                "target_user_id": str(initial_user.id),
-            },
-        )
-        initial_user.record_event(
-            tag=EventTag.Account.OrganizationRoleAdd,
-            ip_address=None,
-            request=request,
-            additional={
-                "submitted_by_user_id": str(initial_user.id),
-                "organization_name": organization.name,
-                "role_name": "Owner",
-            },
-        )
-
-        self.add_catalog_entry(organization.id)
-
-        return organization
-
     def add_organization_application(
         self, name, display_name, orgtype, link_url, description, submitted_by
     ):
         """
-        Accepts a organization object, and attempts to create an organization with those
-        attributes.
+        Accepts organization application details, creates an OrganizationApplication
+        with those attributes.
         """
         organization_application = OrganizationApplication(
             name=name,
@@ -203,6 +130,89 @@ class DatabaseOrganizationService:
             submitted_by=submitted_by,
         )
         self.db.add(organization_application)
+
+        return organization_application
+
+    def approve_organization_application(self, organization_application_id, request):
+        """
+        Performs operations necessary to approve an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+
+        organization = Organization(
+            name=organization_application.name,
+            display_name=organization_application.display_name,
+            orgtype=organization_application.orgtype,
+            link_url=organization_application.link_url,
+            description=organization_application.description,
+            is_approved=True,
+        )
+        self.db.add(organization)
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationCreate,
+            ip_address=None,
+            request=request,
+            additional={
+                "created_by_user_id": str(organization_application.submitted_by.id),
+                "redact_ip": True,
+            },
+        )
+        self.db.flush()  # flush the db now so organization.id is available
+
+        organization_application.is_approved = True
+        organization_application.organization = organization
+
+        self.add_catalog_entry(organization.id)
+        organization.record_event(
+            tag=EventTag.Organization.CatalogEntryAdd,
+            ip_address=None,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(organization_application.submitted_by.id),
+                "redact_ip": True,
+            },
+        )
+
+        self.add_organization_role(
+            organization.id,
+            organization_application.submitted_by.id,
+            OrganizationRoleType.Owner,
+        )
+        organization.record_event(
+            tag=EventTag.Organization.OrganizationRoleAdd,
+            ip_address=None,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(organization_application.submitted_by.id),
+                "role_name": "Owner",
+                "target_user_id": str(organization_application.submitted_by.id),
+                "redact_ip": True,
+            },
+        )
+        organization_application.submitted_by.record_event(
+            tag=EventTag.Account.OrganizationRoleAdd,
+            ip_address=None,
+            request=request,
+            additional={
+                "submitted_by_user_id": str(organization_application.submitted_by.id),
+                "organization_name": organization.name,
+                "role_name": "Owner",
+                "redact_ip": True,
+            },
+        )
+
+        return organization
+
+    def decline_organization_application(self, organization_application_id, request):
+        """
+        Performs operations necessary to decline an OrganizationApplication
+        """
+        organization_application = self.get_organization_application(
+            organization_application_id
+        )
+        organization_application.is_approved = False
 
         return organization_application
 
@@ -362,28 +372,6 @@ class DatabaseOrganizationService:
         organization_invite = self.get_organization_invite(organization_invite_id)
 
         self.db.delete(organization_invite)
-
-    def approve_organization(self, organization_id):
-        """
-        Performs operations necessary to approve an Organization
-        """
-        organization = self.get_organization(organization_id)
-        organization.is_active = True
-        organization.is_approved = True
-        organization.date_approved = datetime.datetime.now()
-
-        return organization
-
-    def decline_organization(self, organization_id):
-        """
-        Performs operations necessary to reject approval of an Organization
-        """
-        organization = self.get_organization(organization_id)
-        organization.is_active = False
-        organization.is_approved = False
-        organization.date_approved = datetime.datetime.now()
-
-        return organization
 
     def delete_organization(self, organization_id):
         """
