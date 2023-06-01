@@ -68,4 +68,32 @@
       font-size: 0.7rem;
     }
   }
+
+  // For use with `stimulus-autocomplete`
+  &__results {
+    font-size: $input-font-size;
+    margin-left: 0;
+    padding: 4px 0 8px;
+
+    li {
+      background-color: $white;
+      border-bottom: 1px solid $border-color;
+      color: $text-color;
+      cursor: pointer;
+      list-style-type: none;
+
+      &:hover,
+      &:active,
+      &:focus {
+        background-color: mix($white, $primary-color-light, 90%);
+        color: $primary-color-dark;
+      }
+
+      &:active,
+      &:focus {
+        outline: 1px solid $primary-color;
+        border-bottom-color: $primary-color;
+      }
+    }
+  }
 }

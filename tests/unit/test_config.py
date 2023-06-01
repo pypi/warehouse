@@ -257,6 +257,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+        "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
