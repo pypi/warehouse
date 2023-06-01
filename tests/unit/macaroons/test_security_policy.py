@@ -183,7 +183,6 @@ class TestMacaroonSecurityPolicy:
         macaroon = pretend.stub(user=None, oidc_publisher=oidc_publisher)
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
-            extract_oidc_claims=pretend.call_recorder(lambda rm: oidc_claims),
         )
 
         request = pretend.stub(
@@ -201,9 +200,6 @@ class TestMacaroonSecurityPolicy:
             pretend.call(IMacaroonService, context=None),
         ]
         assert macaroon_service.find_from_raw.calls == [pretend.call(raw_macaroon)]
-        assert macaroon_service.extract_oidc_claims.calls == [
-            pretend.call(raw_macaroon)
-        ]
 
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]

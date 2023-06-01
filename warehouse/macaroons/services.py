@@ -121,35 +121,6 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
 
-    def extract_oidc_claims(self, raw_macaroon):
-        """
-        Returns the OIDC claims embedded in the raw macaroon's caveats.
-        Returns None if the macaroon does not contain OIDC claims.
-        """
-
-        try:
-            m = self._deserialize_raw_macaroon(raw_macaroon)
-        except InvalidMacaroonError:
-            return None
-
-        for raw in m.caveats:
-            try:
-                # NB: We don't have an API that takes a PyMacaroons Caveat
-                # object and returns a Warehouse caveat object. We pull the
-                # serialized caveat from the `caveat_id` field here.
-                caveat = caveats.deserialize(raw.caveat_id)
-            except caveats.CaveatError:
-                return None
-
-            # NB: We might benefit from adding some kind of `find_caveat` API
-            # over a macaroon that replaces this loop and check in the future.
-            if not isinstance(caveat, caveats.OIDCPublisher):
-                continue
-
-            return caveat.oidc_claims
-
-        return None
-
     def verify(self, raw_macaroon, request, context, permission):
         """
         Returns True if the given raw (serialized) macaroon is
@@ -171,7 +142,14 @@ class DatabaseMacaroonService:
         raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(
-        self, location, description, scopes, *, user_id=None, oidc_publisher_id=None
+        self,
+        location,
+        description,
+        scopes,
+        *,
+        user_id=None,
+        oidc_publisher_id=None,
+        additional=None,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.

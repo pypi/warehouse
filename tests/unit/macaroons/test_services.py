@@ -179,68 +179,6 @@ class TestDatabaseMacaroonService:
 
         assert user.id == user_id
 
-    @pytest.mark.parametrize(
-        "claimset",
-        [
-            None,
-            {"ref": "someref", "sha": "somesha"},
-        ],
-    )
-    def test_extract_oidc_claims(self, macaroon_service, claimset):
-        publisher = GitHubPublisherFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location",
-            "fake description",
-            [
-                caveats.OIDCPublisher(
-                    oidc_publisher_id=str(publisher.id),
-                    oidc_claims=claimset,
-                ),
-            ],
-            oidc_publisher_id=publisher.id,
-        )
-
-        output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
-        assert claimset == output_claims
-
-    def test_extract_claims_no_publisher(self, macaroon_service):
-        user = UserFactory.create()
-        raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location",
-            "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
-            user_id=user.id,
-        )
-
-        claims = macaroon_service.extract_oidc_claims(raw_macaroon)
-
-        assert claims is None
-
-    def test_extract_claims_bad_macaroon(self, macaroon_service):
-        raw_macaroon = "pypi-thiswillnotdeserialize"
-        claims = macaroon_service.extract_oidc_claims(raw_macaroon)
-        assert claims is None
-
-    def test_extract_claims_bad_claim(self, monkeypatch, macaroon_service):
-        publisher = GitHubPublisherFactory.create()
-
-        serialize = pretend.call_recorder(lambda caveat: b'"thiswillnotdeserialize"')
-        monkeypatch.setattr(caveats, "serialize", serialize)
-        caveat = caveats.OIDCPublisher(
-            oidc_publisher_id=str(publisher.id),
-            oidc_claims={"some": "claims"},
-        )
-        raw_macaroon, _ = macaroon_service.create_macaroon(
-            "fake location",
-            "fake description",
-            [caveat],
-            oidc_publisher_id=publisher.id,
-        )
-        assert serialize.calls == [pretend.call(caveat)]
-
-        output_claims = macaroon_service.extract_oidc_claims(raw_macaroon)
-        assert output_claims is None
-
     def test_verify_unprefixed_macaroon(self, macaroon_service):
         raw_macaroon = pymacaroons.Macaroon(
             location="fake location",
