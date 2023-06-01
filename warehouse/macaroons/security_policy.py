@@ -91,7 +91,11 @@ class MacaroonSecurityPolicy:
 
         try:
             dm = macaroon_service.find_from_raw(macaroon)
-            oidc_claims = dm.additional if dm.oidc_publisher else None
+            oidc_claims = (
+                dm.additional.get("oidc")
+                if dm.oidc_publisher and dm.additional
+                else None
+            )
         except InvalidMacaroonError:
             return None
 

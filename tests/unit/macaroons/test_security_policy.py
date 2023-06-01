@@ -179,9 +179,9 @@ class TestMacaroonSecurityPolicy:
         )
 
         oidc_publisher = pretend.stub()
-        oidc_claims = {"foo": "bar"}
+        oidc_additional = {"oidc": {"foo": "bar"}}
         macaroon = pretend.stub(
-            user=None, oidc_publisher=oidc_publisher, additional=oidc_claims
+            user=None, oidc_publisher=oidc_publisher, additional=oidc_additional
         )
         macaroon_service = pretend.stub(
             find_from_raw=pretend.call_recorder(lambda rm: macaroon),
@@ -195,7 +195,9 @@ class TestMacaroonSecurityPolicy:
         identity = policy.identity(request)
         assert identity
         assert identity.publisher is oidc_publisher
-        assert identity == OIDCContext(oidc_publisher, SignedClaims(oidc_claims))
+        assert identity == OIDCContext(
+            oidc_publisher, SignedClaims(oidc_additional["oidc"])
+        )
 
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [

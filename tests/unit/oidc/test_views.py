@@ -460,7 +460,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
             oidc_publisher_id="fakepublisherid",
-            additional=claims_input,
+            additional={"oidc": claims_input},
         )
     ]
     assert project.record_event.calls == [

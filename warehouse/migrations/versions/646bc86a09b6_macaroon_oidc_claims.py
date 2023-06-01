@@ -26,7 +26,6 @@ revision = "646bc86a09b6"
 down_revision = "60e6b0dd0f47"
 
 
-
 def upgrade():
     op.add_column(
         "macaroons",
