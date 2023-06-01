@@ -142,7 +142,14 @@ class DatabaseMacaroonService:
         raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(
-        self, location, description, scopes, *, user_id=None, oidc_publisher_id=None
+        self,
+        location,
+        description,
+        scopes,
+        *,
+        user_id=None,
+        oidc_publisher_id=None,
+        additional=None,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
@@ -171,6 +178,7 @@ class DatabaseMacaroonService:
             oidc_publisher_id=oidc_publisher_id,
             description=description,
             permissions_caveat={"permissions": permissions},
+            additional=additional,
         )
         self.db.add(dm)
         self.db.flush()  # flush db now so dm.id is available
