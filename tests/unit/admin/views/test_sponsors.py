@@ -48,6 +48,16 @@ WHITE_LOGO_FILE.file = io.BytesIO(
 WHITE_LOGO_FILE.type = "image/png"
 
 
+class TestSponsorForm:
+    def test_validate(self):
+        form = views.SponsorForm(MultiDict({
+            'name': "foo",
+            'link_url': "https://foo.bar",
+
+        }))
+        assert form.validate(), str(form.errors)
+
+
 class TestSponsorList:
     def test_list_all_sponsors(self, db_request):
         SponsorFactory.create_batch(5)
