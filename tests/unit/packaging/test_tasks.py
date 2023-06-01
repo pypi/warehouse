@@ -853,14 +853,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
         user=non_critical_project_maintainer, project=non_critical_project
     )
 
-    send_two_factor_mandate_email = pretend.call_recorder(lambda request, user: None)
-
-    monkeypatch.setattr(
-        warehouse.packaging.tasks,
-        "send_two_factor_mandate_email",
-        send_two_factor_mandate_email,
-    )
-
     results = [
         {"project_name": "new_critical_project"},
         {"project_name": "previous_critical_project"},
@@ -887,12 +879,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
     assert previous_critical_project.pypi_mandates_2fa
     assert new_critical_project.pypi_mandates_2fa
     assert not non_critical_project.pypi_mandates_2fa
-
-    assert set(send_two_factor_mandate_email.calls) == {
-        pretend.call(db_request, main_dependency_maintainer),
-        pretend.call(db_request, deploy_dependency_maintainer),
-        pretend.call(db_request, new_critical_project_maintainer),
-    }
 
 
 def test_compute_2fa_metrics(db_request, monkeypatch):

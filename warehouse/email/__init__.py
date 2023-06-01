@@ -1021,11 +1021,6 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     }
 
 
-@_email("two-factor-mandate")
-def send_two_factor_mandate_email(request, user):
-    return {"username": user.username, "has_two_factor": user.has_two_factor}
-
-
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

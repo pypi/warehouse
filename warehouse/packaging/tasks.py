@@ -24,7 +24,6 @@ from packaging.utils import canonicalize_name
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
-from warehouse.email import send_two_factor_mandate_email
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
@@ -224,15 +223,6 @@ def compute_2fa_mandate(request):
     new_projects = request.db.query(Project).filter(
         Project.normalized_name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
     )
-
-    # Get their maintainers
-    users = (
-        request.db.query(User).join(Project.users).join(new_projects.subquery()).all()
-    )
-
-    # Email them
-    for user in users:
-        send_two_factor_mandate_email(request, user)
 
     # Add them to the mandate
     new_projects.update({Project.pypi_mandates_2fa: True})
