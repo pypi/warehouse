@@ -20,10 +20,12 @@ import pytest
 import pytz
 
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
@@ -60,6 +62,7 @@ from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -134,6 +137,67 @@ class TestUserProfile:
     def test_returns_user(self, db_request):
         user = UserFactory.create()
         assert views.profile(user, db_request) == {"user": user, "projects": []}
+
+
+class TestAccountsSearch:
+    def test_unauthenticated_raises_401(self):
+        pyramid_request = pretend.stub(authenticated_userid=None)
+        with pytest.raises(HTTPUnauthorized):
+            views.accounts_search(pyramid_request)
+
+    def test_no_query_string_raises_400(self):
+        pyramid_request = pretend.stub(authenticated_userid=1, params={})
+        with pytest.raises(HTTPBadRequest):
+            views.accounts_search(pyramid_request)
+
+    def test_returns_users_with_prefix(self, db_session, user_service):
+        foo = UserFactory.create(username="foo")
+        bas = [
+            UserFactory.create(username="bar"),
+            UserFactory.create(username="baz"),
+        ]
+
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IUserService: user_service,
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda ip_address: True),
+                    hit=pretend.call_recorder(lambda ip_address: None),
+                ),
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "f"})
+        result = views.accounts_search(request)
+        assert result == {"users": [foo]}
+
+        request.params = MultiDict({"q": "ba"})
+        result = views.accounts_search(request)
+        assert result == {"users": bas}
+
+        request.params = MultiDict({"q": "zzz"})
+        with pytest.raises(HTTPNotFound):
+            views.accounts_search(request)
+
+    def test_when_rate_limited(self, db_session):
+        search_limiter = pretend.stub(
+            test=pretend.call_recorder(lambda ip_address: False),
+        )
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IRateLimiter: search_limiter,
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "foo"})
+        result = views.accounts_search(request)
+
+        assert search_limiter.test.calls == [pretend.call(request.ip_address)]
+        assert result == {"users": []}
 
 
 class TestLogin:
