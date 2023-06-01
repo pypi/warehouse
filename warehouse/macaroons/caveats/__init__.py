@@ -116,6 +116,11 @@ class RequestUser(Caveat):
 class OIDCPublisher(Caveat):
     oidc_publisher_id: StrictStr
     oidc_claims: SignedClaims | None = None
+    """
+    This field is deprecated and should not be used.
+
+    Contains the OIDC claims passed through from token exchange.
+    """
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         # If the identity associated with this macaroon is not an OpenID publisher,
