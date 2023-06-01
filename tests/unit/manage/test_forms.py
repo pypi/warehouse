@@ -524,7 +524,7 @@ class TestCreateOrganizationApplicationForm:
     def test_validate_name_with_no_organization(self):
         organization_service = pretend.stub(
             get_organization_application_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None: []
+                lambda name, submitted_by=None, submitted_only=False: []
             ),
             find_organizationid=pretend.call_recorder(lambda name: None),
         )
@@ -539,7 +539,7 @@ class TestCreateOrganizationApplicationForm:
         form.validate_name(field)
 
         assert organization_service.get_organization_application_by_name.calls == [
-            pretend.call("my_organization_name", submitted_by=user)
+            pretend.call("my_organization_name", submitted_by=user, submitted_only=True)
         ]
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")
@@ -548,7 +548,7 @@ class TestCreateOrganizationApplicationForm:
     def test_validate_name_with_existing_application(self, db_session):
         organization_service = pretend.stub(
             get_organization_application_by_name=pretend.call_recorder(
-                lambda name, submitted_by=None: [pretend.stub()]
+                lambda name, submitted_by=None, submitted_only=False: [pretend.stub()]
             ),
             find_organizationid=pretend.call_recorder(lambda name: None),
         )
@@ -564,7 +564,7 @@ class TestCreateOrganizationApplicationForm:
             form.validate_name(field)
 
         assert organization_service.get_organization_application_by_name.calls == [
-            pretend.call("my_organization_name", submitted_by=user)
+            pretend.call("my_organization_name", submitted_by=user, submitted_only=True)
         ]
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")

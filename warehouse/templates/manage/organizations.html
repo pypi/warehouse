@@ -133,6 +133,7 @@
       </div>
     {% endfor %}
     {% for organization_application in organization_applications %}
+    {% if organization_application.is_approved == None %}
     <div class="organization-snippet">
       <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
         <div>
@@ -149,6 +150,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
     {% endfor %}
   </div>
 

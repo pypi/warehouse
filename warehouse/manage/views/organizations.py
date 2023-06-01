@@ -185,7 +185,13 @@ class ManageOrganizationsViews:
                 organization_service=self.organization_service,
                 user=self.request.user,
             )
-            if len(self.request.user.organization_applications)
+            if len(
+                [
+                    app
+                    for app in self.request.user.organization_applications
+                    if app.is_approved is None
+                ]
+            )
             < self.request.registry.settings[
                 "warehouse.organizations.max_oustanding_applications"
             ]

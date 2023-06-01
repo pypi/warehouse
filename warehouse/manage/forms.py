@@ -604,7 +604,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         super().validate_name(field)
         outstanding_applications = (
             self.organization_service.get_organization_application_by_name(
-                field.data, submitted_by=self.user
+                field.data, submitted_by=self.user, submitted_only=True
             )
         )
 
