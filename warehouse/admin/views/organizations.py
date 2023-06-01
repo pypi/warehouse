@@ -368,34 +368,30 @@ def organization_application_detail(request):
     require_csrf=True,
     require_reauth=True,
 )
-def organization_approve(request):
+def organization_application_approve(request):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
-    organization_id = request.matchdict["organization_id"]
-    organization = organization_service.get_organization(organization_id)
-    if organization is None:
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
         raise HTTPNotFound
-    elif organization.name != request.params.get("organization_name"):
+    elif organization_application.name != request.params.get("organization_name"):
         request.session.flash("Wrong confirmation input", queue="error")
         return HTTPSeeOther(
             request.route_path(
-                "admin.organization.detail", organization_id=organization.id
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
             )
         )
 
-    create_event = (
-        organization.events.filter(
-            Organization.Event.tag == EventTag.Organization.OrganizationCreate
-        )
-        .order_by(Organization.Event.time.desc())
-        .first()
-    )
-    user = user_service.get_user(create_event.additional["created_by_user_id"])
-
     message = request.params.get("message", "")
 
-    organization_service.approve_organization(organization.id)
+    organization = organization_service.approve_organization_application(
+        organization_application.id, request
+    )
     organization.record_event(
         tag=EventTag.Organization.OrganizationApprove,
         ip_address=request.remote_addr,
@@ -406,12 +402,12 @@ def organization_approve(request):
         request,
         user_service.get_admin_user(),
         organization_name=organization.name,
-        initiator_username=user.username,
+        initiator_username=organization_application.submitted_by.username,
         message=message,
     )
     send_new_organization_approved_email(
         request,
-        user,
+        organization_application.submitted_by,
         organization_name=organization.name,
         message=message,
     )
@@ -434,57 +430,51 @@ def organization_approve(request):
     require_csrf=True,
     require_reauth=True,
 )
-def organization_decline(request):
+def organization_application_decline(request):
     organization_service = request.find_service(IOrganizationService, context=None)
     user_service = request.find_service(IUserService, context=None)
 
-    organization_id = request.matchdict["organization_id"]
-    organization = organization_service.get_organization(organization_id)
-    if organization is None:
+    organization_application_id = request.matchdict["organization_application_id"]
+    organization_application = organization_service.get_organization_application(
+        organization_application_id
+    )
+    if organization_application is None:
         raise HTTPNotFound
-    elif organization.name != request.params.get("organization_name"):
+    elif organization_application.name != request.params.get("organization_name"):
         request.session.flash("Wrong confirmation input", queue="error")
         return HTTPSeeOther(
             request.route_path(
-                "admin.organization.detail", organization_id=organization.id
+                "admin.organization_application.detail",
+                organization_application_id=organization_application.id,
             )
         )
 
-    create_event = (
-        organization.events.filter(
-            Organization.Event.tag == EventTag.Organization.OrganizationCreate
-        )
-        .order_by(Organization.Event.time.desc())
-        .first()
-    )
-    user = user_service.get_user(create_event.additional["created_by_user_id"])
-
     message = request.params.get("message", "")
 
-    organization_service.decline_organization(organization.id)
-    organization.record_event(
-        tag=EventTag.Organization.OrganizationDecline,
-        ip_address=request.remote_addr,
-        request=request,
-        additional={"declined_by_user_id": str(request.user.id)},
+    organization_service.decline_organization_application(
+        organization_application.id, request
     )
     send_admin_new_organization_declined_email(
         request,
         user_service.get_admin_user(),
-        organization_name=organization.name,
-        initiator_username=user.username,
+        organization_name=organization_application.name,
+        initiator_username=organization_application.submitted_by.username,
         message=message,
     )
     send_new_organization_declined_email(
         request,
-        user,
-        organization_name=organization.name,
+        organization_application.submitted_by,
+        organization_name=organization_application.name,
         message=message,
     )
     request.session.flash(
-        f'Request for "{organization.name}" organization declined', queue="success"
+        f'Request for "{organization_application.name}" organization declined',
+        queue="success",
     )
 
     return HTTPSeeOther(
-        request.route_path("admin.organization.detail", organization_id=organization.id)
+        request.route_path(
+            "admin.organization_application.detail",
+            organization_application_id=organization_application.id,
+        )
     )

@@ -92,7 +92,7 @@ class TestDatabaseOrganizationService:
 
     def test_get_organization_application_by_name(self, organization_service):
         app0 = OrganizationApplicationFactory.create(name="pypi")
-        app1 = OrganizationApplicationFactory.create(name="pypi")
+        app1 = OrganizationApplicationFactory.create(name="PyPI")
         assert organization_service.get_organization_application_by_name("pypi") == [
             app0,
             app1,
@@ -108,6 +108,19 @@ class TestDatabaseOrganizationService:
 
     def test_approve_organization_application(self, db_request, organization_service):
         organization_application = OrganizationApplicationFactory.create()
+        competing_organization_application = OrganizationApplicationFactory.create(
+            name=organization_application.name.lower()
+        )
+
+        assert organization_application.is_approved is None
+        assert competing_organization_application.is_approved is None
+
+        assert organization_service.get_organization_application_by_name(
+            organization_application.name
+        ) == [organization_application, competing_organization_application]
+        assert organization_service.get_organization_application_by_name(
+            organization_application.name, submitted_only=True
+        ) == [organization_application, competing_organization_application]
 
         assert (
             organization_service.get_organization_by_name(organization_application.name)
@@ -122,6 +135,15 @@ class TestDatabaseOrganizationService:
         )
 
         assert organization is not None
+        assert organization.is_approved is True
+        assert organization.is_active is True
+
+        assert (
+            organization_service.get_organization_application_by_name(
+                organization_application.name, submitted_only=True
+            )
+            == []
+        )
 
         create_event = (
             db_request.db.query(Organization.Event)
@@ -137,6 +159,8 @@ class TestDatabaseOrganizationService:
 
         assert organization_application.is_approved is True
         assert organization_application.organization == organization
+        assert competing_organization_application.is_approved is False
+        assert competing_organization_application.organization is None
 
         catalog_entry = (
             db_request.db.query(OrganizationNameCatalog)

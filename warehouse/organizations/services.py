@@ -66,7 +66,9 @@ class DatabaseOrganizationService:
             None if organization_id is None else self.get_organization(organization_id)
         )
 
-    def get_organization_application_by_name(self, name, submitted_by=None):
+    def get_organization_application_by_name(
+        self, name, submitted_by=None, submitted_only=False
+    ):
         """
         Return the organization object corresponding with the given organization name,
         or None if there is no organization with that name.
@@ -77,6 +79,10 @@ class DatabaseOrganizationService:
         )
         if submitted_by is not None:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
+        if submitted_only is True:
+            query = query.filter(
+                OrganizationApplication.is_approved == None  # noqa: E711
+            )
         return query.all()
 
     def find_organizationid(self, name):
@@ -147,6 +153,7 @@ class DatabaseOrganizationService:
             orgtype=organization_application.orgtype,
             link_url=organization_application.link_url,
             description=organization_application.description,
+            is_active=True,
             is_approved=True,
         )
         self.db.add(organization)
@@ -202,6 +209,11 @@ class DatabaseOrganizationService:
                 "redact_ip": True,
             },
         )
+
+        for competing_application in self.get_organization_application_by_name(
+            organization_application.name, submitted_only=True
+        ):
+            self.decline_organization_application(competing_application.id, request)
 
         return organization
 

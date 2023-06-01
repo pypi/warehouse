@@ -71,7 +71,7 @@
             </button>
             {% if user %}
             <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
-              <form method="POST" action="{{ request.route_path('admin.organization.approve', organization_id=organization_application.id) }}">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
@@ -117,7 +117,7 @@
               </form>
             </div>
             <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
-              <form method="POST" action="{{ request.route_path('admin.organization.decline', organization_id=organization_application.id) }}">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
                   <div class="modal-content">
