@@ -421,6 +421,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
+                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
             }
         ),
         register_service_factory=pretend.call_recorder(
@@ -459,6 +460,7 @@ def test_includeme(monkeypatch):
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
         pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
         pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
+        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),

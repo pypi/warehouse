@@ -20,10 +20,12 @@ import pytz
 
 from first import first
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
@@ -157,6 +159,41 @@ def profile(user, request):
     )
 
     return {"user": user, "projects": projects}
+
+
+@view_config(
+    route_name="accounts.search",
+    renderer="api/account_search.html",
+    uses_session=True,
+)
+def accounts_search(request) -> dict[str, list[User]]:
+    """
+    Search for usernames based on prefix.
+    Used with autocomplete.
+    User must be logged in.
+    """
+    if request.authenticated_userid is None:
+        raise HTTPUnauthorized()
+
+    prefix = request.params.get("q", "").strip()
+    if not prefix:
+        raise HTTPBadRequest()
+
+    search_limiter = request.find_service(IRateLimiter, name="accounts.search")
+    if not search_limiter.test(request.ip_address):
+        # TODO: This should probably `raise HTTPTooManyRequests` instead,
+        #  but we need to make sure that the client library can handle it.
+        #  See: https://github.com/afcapel/stimulus-autocomplete/issues/136
+        return {"users": []}
+
+    user_service = request.find_service(IUserService, context=None)
+    users = user_service.get_users_by_prefix(prefix)
+    search_limiter.hit(request.ip_address)
+
+    if not users:
+        raise HTTPNotFound()
+
+    return {"users": users}
 
 
 @view_config(

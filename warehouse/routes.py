@@ -151,6 +151,7 @@ def includeme(config):
         traverse="/{username}",
         domain=warehouse,
     )
+    config.add_route("accounts.search", "/accounts/search/", domain=warehouse)
     config.add_route(
         "organizations.profile",
         "/org/{organization}/",

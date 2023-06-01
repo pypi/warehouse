@@ -78,6 +78,11 @@ class IUserService(Interface):
         if there is no user with that email.
         """
 
+    def get_users_by_prefix(prefix: str) -> list:
+        """
+        Return a list of user objects that match the given prefix.
+        """
+
     def get_admin_user():
         """
         Returns the `admin` user object.

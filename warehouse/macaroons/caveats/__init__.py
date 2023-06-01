@@ -39,6 +39,16 @@ from warehouse.packaging.models import Project
 __all__ = ["deserialize", "serialize", "verify"]
 
 
+# NOTE: Under the covers, caveat serialization is done as an array
+# of `[TAG, ... fields]`, where the order of `fields` is the order of
+# definition in each caveat class.
+#
+# This means that fields cannot be reordered or deleted, and that new
+# fields *must* be added at the end of the class. New fields *must* also
+# include a default value. If a change can't be made under these constraints,
+# then a new Caveat class (and tag) should be created instead.
+
+
 @as_caveat(tag=0)
 @dataclass(frozen=True)
 class Expiration(Caveat):
