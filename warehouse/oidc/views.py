@@ -199,6 +199,7 @@ def mint_token_from_oidc(request):
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=publisher.id,
+        additional={"ref": claims.get("ref"), "sha": claims.get("sha")},
     )
     for project in publisher.projects:
         project.record_event(

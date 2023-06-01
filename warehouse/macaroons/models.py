@@ -69,6 +69,10 @@ class Macaroon(db.Model):
     # body of the permissions ("V1") caveat.
     permissions_caveat = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
 
+    # OIDC claims associated with this macaroon. Should only exist for OIDC
+    # publisher macaroons.
+    additional = Column(JSONB, nullable=True)
+
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the
     # default would be to generate a random key). However, it appears the

@@ -178,6 +178,7 @@ class DatabaseMacaroonService:
             oidc_publisher_id=oidc_publisher_id,
             description=description,
             permissions_caveat={"permissions": permissions},
+            additional=additional,
         )
         self.db.add(dm)
         self.db.flush()  # flush db now so dm.id is available
