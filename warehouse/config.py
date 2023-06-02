@@ -370,8 +370,8 @@ def configure(settings=None):
 
     maybe_set(
         settings,
-        "warehouse.organizations.max_outstanding_applications",
-        "ORG_MAX_APPS",
+        "warehouse.organizations.max_undecided_organization_applications",
+        "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
         coercer=int,
         default=3,
     )

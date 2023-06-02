@@ -82,7 +82,7 @@ class TestManageOrganizations:
             }
         )
         db_request.registry.settings[
-            "warehouse.organizations.max_outstanding_applications"
+            "warehouse.organizations.max_undecided_organization_applications"
         ] = 3
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(

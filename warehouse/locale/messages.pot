@@ -375,27 +375,27 @@ msgid ""
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:615
+#: warehouse/manage/forms.py:614
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:627
+#: warehouse/manage/forms.py:626
 msgid "You have already submitted the maximum number of Organization requests."
 msgstr ""
 
-#: warehouse/manage/forms.py:657
+#: warehouse/manage/forms.py:656
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:663
+#: warehouse/manage/forms.py:662
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:691
+#: warehouse/manage/forms.py:690
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
