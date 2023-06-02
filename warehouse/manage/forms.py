@@ -413,6 +413,8 @@ class OrganizationNameMixin:
         ]
     )
 
+    organization_id = None
+
     def validate_name(self, field):
         # Find organization by name.
         organization_id = self.organization_service.find_organizationid(field.data)
@@ -587,8 +589,47 @@ class SaveOrganizationForm(forms.Form):
     )
 
 
-class CreateOrganizationForm(SaveOrganizationNameForm, SaveOrganizationForm):
-    __params__ = SaveOrganizationNameForm.__params__ + SaveOrganizationForm.__params__
+class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
+    __params__ = ["name"] + SaveOrganizationForm.__params__
+
+    def __init__(
+        self, *args, organization_service, user, max_applications=None, **kwargs
+    ):
+        super().__init__(*args, **kwargs)
+        self.organization_service = organization_service
+        self.user = user
+        self.max_applications = max_applications
+
+    def validate_name(self, field):
+        super().validate_name(field)
+        outstanding_applications = (
+            self.organization_service.get_organization_applications_by_name(
+                field.data, submitted_by=self.user, undecided=True
+            )
+        )
+
+        # Name is valid if the user has no outstanding applications for the same name
+        if len(outstanding_applications) > 0:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "You have already submitted an application for that name. "
+                    "Choose a different organization account name."
+                )
+            )
+
+    def validate(self):
+        if (
+            self.max_applications is not None
+            and len(self.user.organization_applications) >= self.max_applications
+        ):
+            self.form_errors.append(
+                _(
+                    "You have already submitted the maximum number of "
+                    "Organization requests."
+                )
+            )
+            return False
+        return True
 
 
 class CreateTeamRoleForm(forms.Form):

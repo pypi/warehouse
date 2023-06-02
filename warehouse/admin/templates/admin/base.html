@@ -113,8 +113,13 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           {% if request.has_permission('moderator') %}
           <li class="nav-item">
+            <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
+              <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications <span class="right badge badge-danger">New</span></p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization.list') }}" class="nav-link">
-              <i class="fa fa-sitemap nav-icon"></i> <p>Organizations <span class="right badge badge-danger">New</span></p>
+              <i class="fa fa-sitemap nav-icon"></i> <p>Organizations</p>
             </a>
           </li>
           <li class="nav-item">
@@ -124,7 +129,7 @@
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.ip_address.list') }}" class="nav-link">
-              <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses <span class="right badge badge-danger">New</span></p>
+              <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</span></p>
             </a>
           </li>
           <li class="nav-item">

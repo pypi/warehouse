@@ -509,34 +509,104 @@ class TestDeleteMacaroonForm:
         assert form.validate()
 
 
-class TestCreateOrganizationForm:
+class TestCreateOrganizationApplicationForm:
     def test_creation(self):
         organization_service = pretend.stub()
-        form = forms.CreateOrganizationForm(
+        user = pretend.stub()
+        form = forms.CreateOrganizationApplicationForm(
             organization_service=organization_service,
+            user=user,
         )
 
         assert form.organization_service is organization_service
+        assert form.user is user
 
     def test_validate_name_with_no_organization(self):
         organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None)
+            get_organization_applications_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None, undecided=False: []
+            ),
+            find_organizationid=pretend.call_recorder(lambda name: None),
         )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        user = pretend.stub()
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=user,
+        )
         field = pretend.stub(data="my_organization_name")
         forms._ = lambda string: string
 
         form.validate_name(field)
 
+        assert organization_service.get_organization_applications_by_name.calls == [
+            pretend.call("my_organization_name", submitted_by=user, undecided=True)
+        ]
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")
         ]
+
+    def test_validate_name_with_existing_application(self, db_session):
+        organization_service = pretend.stub(
+            get_organization_applications_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None, undecided=False: [pretend.stub()]
+            ),
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
+        user = pretend.stub()
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=user,
+        )
+        field = pretend.stub(data="my_organization_name")
+        forms._ = lambda string: string
+
+        with pytest.raises(wtforms.validators.ValidationError):
+            form.validate_name(field)
+
+        assert organization_service.get_organization_applications_by_name.calls == [
+            pretend.call("my_organization_name", submitted_by=user, undecided=True)
+        ]
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_organization_name")
+        ]
+
+    def test_validate_name_with_max_applications(self, db_session):
+        organization_service = pretend.stub(
+            get_organization_applications_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None: []
+            ),
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
+        user = pretend.stub(
+            organization_applications=[pretend.stub(), pretend.stub(), pretend.stub()]
+        )
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=user,
+            max_applications=3,
+        )
+        forms._ = lambda string: string
+
+        form.validate()
+
+        assert form.form_errors == [
+            (
+                "You have already submitted the maximum number of "
+                "Organization requests."
+            )
+        ]
+
+        assert organization_service.get_organization_applications_by_name.calls == []
+        assert organization_service.find_organizationid.calls == []
 
     def test_validate_name_with_organization(self):
         organization_service = pretend.stub(
             find_organizationid=pretend.call_recorder(lambda name: 1)
         )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=pretend.stub(),
+        )
         field = pretend.stub(data="my_organization_name")
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -544,6 +614,21 @@ class TestCreateOrganizationForm:
 
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")
+        ]
+
+
+class TestSaveOrganizationNameForm:
+    def test_save(self, pyramid_request):
+        pyramid_request.POST = MultiDict({"name": "my_org_name"})
+        organization_service = pretend.stub(
+            find_organizationid=pretend.call_recorder(lambda name: None)
+        )
+        form = forms.SaveOrganizationNameForm(
+            pyramid_request.POST, organization_service=organization_service
+        )
+        form.validate()
+        assert organization_service.find_organizationid.calls == [
+            pretend.call("my_org_name")
         ]
 
 

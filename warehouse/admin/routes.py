@@ -29,14 +29,25 @@ def includeme(config):
         "/admin/organizations/{organization_id}/",
         domain=warehouse,
     )
+
     config.add_route(
-        "admin.organization.approve",
-        "/admin/organizations/{organization_id}/approve/",
+        "admin.organization_application.list",
+        "/admin/organization_applications/",
         domain=warehouse,
     )
     config.add_route(
-        "admin.organization.decline",
-        "/admin/organizations/{organization_id}/decline/",
+        "admin.organization_application.detail",
+        "/admin/organization_applications/{organization_application_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.approve",
+        "/admin/organization_applications/{organization_application_id}/approve/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.organization_application.decline",
+        "/admin/organization_applications/{organization_application_id}/decline/",
         domain=warehouse,
     )
 

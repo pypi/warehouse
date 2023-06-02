@@ -368,6 +368,14 @@ def configure(settings=None):
         default=False,
     )
 
+    maybe_set(
+        settings,
+        "warehouse.organizations.max_undecided_organization_applications",
+        "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
+        coercer=int,
+        default=3,
+    )
+
     # Add the settings we use when the environment is set to development.
     if settings["warehouse.env"] == Environment.development:
         settings.setdefault("enforce_https", False)

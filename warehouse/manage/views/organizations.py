@@ -46,7 +46,7 @@ from warehouse.events.tags import EventTag
 from warehouse.manage.forms import (
     AddOrganizationProjectForm,
     ChangeOrganizationRoleForm,
-    CreateOrganizationForm,
+    CreateOrganizationApplicationForm,
     CreateOrganizationRoleForm,
     CreateTeamForm,
     SaveOrganizationForm,
@@ -141,6 +141,9 @@ class ManageOrganizationsViews:
     def default_response(self):
         all_user_organizations = user_organizations(self.request)
 
+        # Get list of applications for Organizations
+        organization_applications = self.request.user.organization_applications
+
         # Get list of invites as (organization, token) tuples.
         organization_invites = (
             self.organization_service.get_organization_invites_by_user(
@@ -164,6 +167,7 @@ class ManageOrganizationsViews:
 
         return {
             "organization_invites": organization_invites,
+            "organization_applications": organization_applications,
             "organizations": organizations,
             "organizations_managed": list(
                 organization.name
@@ -177,9 +181,21 @@ class ManageOrganizationsViews:
                 organization.name
                 for organization in all_user_organizations["organizations_billing"]
             ),
-            "create_organization_form": CreateOrganizationForm(
+            "create_organization_application_form": CreateOrganizationApplicationForm(
                 organization_service=self.organization_service,
-            ),
+                user=self.request.user,
+            )
+            if len(
+                [
+                    app
+                    for app in self.request.user.organization_applications
+                    if app.is_approved is None
+                ]
+            )
+            < self.request.registry.settings[
+                "warehouse.organizations.max_undecided_organization_applications"
+            ]
+            else None,
         }
 
     @view_config(request_method="GET")
@@ -190,57 +206,30 @@ class ManageOrganizationsViews:
 
         return self.default_response
 
-    @view_config(request_method="POST", request_param=CreateOrganizationForm.__params__)
-    def create_organization(self):
+    @view_config(
+        request_method="POST",
+        request_param=CreateOrganizationApplicationForm.__params__,
+    )
+    def create_organization_application(self):
         # Organizations must be enabled.
         if not self.request.organization_access:
             raise HTTPNotFound()
 
-        form = CreateOrganizationForm(
+        form = CreateOrganizationApplicationForm(
             self.request.POST,
             organization_service=self.organization_service,
+            user=self.request.user,
+            max_apps=self.request.registry.settings[
+                "warehouse.organizations.max_undecided_organization_applications"
+            ],
         )
 
         if form.validate():
             data = form.data
-            organization = self.organization_service.add_organization(**data)
-            organization.record_event(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                ip_address=self.request.remote_addr,
-                request=self.request,
-                additional={"submitted_by_user_id": str(self.request.user.id)},
+            organization = self.organization_service.add_organization_application(
+                **data, submitted_by=self.request.user
             )
-            organization.record_event(
-                tag=EventTag.Organization.OrganizationCreate,
-                ip_address=self.request.remote_addr,
-                request=self.request,
-                additional={"created_by_user_id": str(self.request.user.id)},
-            )
-            self.organization_service.add_organization_role(
-                organization.id,
-                self.request.user.id,
-                OrganizationRoleType.Owner,
-            )
-            organization.record_event(
-                tag=EventTag.Organization.OrganizationRoleAdd,
-                ip_address=self.request.remote_addr,
-                request=self.request,
-                additional={
-                    "submitted_by_user_id": str(self.request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(self.request.user.id),
-                },
-            )
-            self.request.user.record_event(
-                tag=EventTag.Account.OrganizationRoleAdd,
-                ip_address=self.request.remote_addr,
-                request=self.request,
-                additional={
-                    "submitted_by_user_id": str(self.request.user.id),
-                    "organization_name": organization.name,
-                    "role_name": "Owner",
-                },
-            )
+
             send_new_organization_requested_email(
                 self.request, self.request.user, organization_name=organization.name
             )
@@ -248,7 +237,7 @@ class ManageOrganizationsViews:
                 "Request for new organization submitted", queue="success"
             )
         else:
-            return {"create_organization_form": form}
+            return {"create_organization_application_form": form}
 
         return HTTPSeeOther(self.request.path)
 

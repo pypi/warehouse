@@ -375,10 +375,8 @@ def macaroon_service(db_session):
 
 
 @pytest.fixture
-def organization_service(db_session, remote_addr):
-    return organization_services.DatabaseOrganizationService(
-        db_session, remote_addr=remote_addr
-    )
+def organization_service(db_session):
+    return organization_services.DatabaseOrganizationService(db_session)
 
 
 @pytest.fixture

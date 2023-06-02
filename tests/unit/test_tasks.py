@@ -51,7 +51,7 @@ class TestWarehouseTask:
 
     def test_call(self, monkeypatch):
         request = pretend.stub()
-        registry = pretend.stub()
+        registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         result = pretend.stub()
 
         prepared = {
@@ -175,7 +175,7 @@ class TestWarehouseTask:
             assert apply_async.calls == []
 
     def test_creates_request(self, monkeypatch):
-        registry = pretend.stub()
+        registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         pyramid_env = {"request": pretend.stub()}
 
         monkeypatch.setattr(scripting, "prepare", lambda *a, **k: pyramid_env)
@@ -190,6 +190,10 @@ class TestWarehouseTask:
         assert isinstance(request.tm, transaction.TransactionManager)
         assert 1.5e12 < request.timings["new_request_start"] < 1e13
         assert request.remote_addr == "127.0.0.1"
+        assert (
+            request.remote_addr_hashed
+            == "cc9dfe9c4e6b6579bbf789d04339bd2d7f10aadf84ff4394193d99f14a0333f0"
+        )
 
     def test_reuses_request(self):
         pyramid_env = {"request": pretend.stub()}

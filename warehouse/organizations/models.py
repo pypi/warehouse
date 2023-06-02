@@ -32,6 +32,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
@@ -215,44 +216,71 @@ class OrganizationFactory:
             raise KeyError from None
 
 
-# TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
-# class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
-class Organization(HasEvents, db.Model):
-    __tablename__ = "organizations"
-    __table_args__ = (
-        CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="organizations_valid_name",
-        ),
-        CheckConstraint(
-            "link_url ~* '^https?://.*'::text",
-            name="organizations_valid_link_url",
-        ),
-    )
+class OrganizationMixin:
+    @declared_attr
+    def __table_args__(cls):  # noqa: N805
+        return (
+            CheckConstraint(
+                "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+                name="%s_valid_name" % cls.__tablename__,
+            ),
+            CheckConstraint(
+                "link_url ~* '^https?://.*'::text",
+                name="%s_valid_link_url" % cls.__tablename__,
+            ),
+        )
 
-    __repr__ = make_repr("name")
+    name = Column(Text, nullable=False, comment="The account name used in URLS")
 
-    name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_pep426_name(name))
-    display_name = Column(Text, nullable=False)
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return orm.column_property(func.normalize_pep426_name(cls.name))
+
+    display_name = Column(Text, nullable=False, comment="Display name used in UI")
     orgtype = Column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
+        comment="What type of organization such as Community or Company",
     )
-    link_url = Column(URLType, nullable=False)
-    description = Column(Text, nullable=False)
-    is_active = Column(Boolean, nullable=False, server_default=sql.false())
-    is_approved = Column(Boolean)
+    link_url = Column(
+        URLType, nullable=False, comment="External URL associated with the organization"
+    )
+    description = Column(
+        Text,
+        nullable=False,
+        comment="Description of the business or project the organization represents",
+    )
+
+    is_approved = Column(
+        Boolean, comment="Status of administrator approval of the request"
+    )
+
+
+# TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
+# class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+class Organization(OrganizationMixin, HasEvents, db.Model):
+    __tablename__ = "organizations"
+
+    __repr__ = make_repr("name")
+
+    is_active = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+        comment="When True, the organization is active and all features are available.",
+    )
     created = Column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
+        comment="Datetime the organization was created.",
     )
     date_approved = Column(
         DateTime(timezone=False),
         nullable=True,
         onupdate=func.now(),
+        comment="Datetime the organization was approved by administrators.",
     )
 
     users = orm.relationship(
@@ -421,6 +449,48 @@ class Organization(HasEvents, db.Model):
 
     def customer_name(self, site_name="PyPI"):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
+
+
+class OrganizationApplication(OrganizationMixin, db.Model):
+    __tablename__ = "organization_applications"
+    __repr__ = make_repr("name")
+
+    submitted_by_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            User.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        comment="ID of the User which submitted the request",
+    )
+    submitted = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
+        comment="Datetime the request was submitted",
+    )
+    organization_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            Organization.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=True,
+        comment="If the request was approved, ID of resulting Organization",
+    )
+
+    submitted_by = orm.relationship(
+        User, backref="organization_applications"  # type: ignore # noqa
+    )
+    organization = orm.relationship(
+        Organization, backref="application", viewonly=True  # type: ignore # noqa
+    )
 
 
 class OrganizationNameCatalog(db.Model):
