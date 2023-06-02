@@ -91,7 +91,7 @@ class TestManageOrganizations:
 
         org_views.ManageOrganizationsViews(db_request).create_organization_application()
         organization_application = (
-            organization_service.get_organization_application_by_name(
+            organization_service.get_organization_applications_by_name(
                 db_request.POST["name"]
             )
         )[0]

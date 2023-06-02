@@ -66,7 +66,7 @@ class DatabaseOrganizationService:
             None if organization_id is None else self.get_organization(organization_id)
         )
 
-    def get_organization_application_by_name(
+    def get_organization_applications_by_name(
         self, name, submitted_by=None, submitted_only=False
     ):
         """
@@ -210,7 +210,7 @@ class DatabaseOrganizationService:
             },
         )
 
-        for competing_application in self.get_organization_application_by_name(
+        for competing_application in self.get_organization_applications_by_name(
             organization_application.name, submitted_only=True
         ):
             self.decline_organization_application(competing_application.id, request)

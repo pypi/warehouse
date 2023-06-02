@@ -26,6 +26,18 @@ class IOrganizationService(Interface):
         if there is no organization with that name.
         """
 
+    def get_organization_application(organization_application_id):
+        """
+        Return the organization application object that represents the given
+        organization_application_id, or None if there is no organization application
+        for that ID.
+        """
+
+    def get_organization_applications_by_name(name):
+        """
+        Return any organization application object that represents the given name
+        """
+
     def find_organizationid(name):
         """
         Find the unique organization identifier for the given name or None if there
