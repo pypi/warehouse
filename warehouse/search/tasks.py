@@ -21,7 +21,8 @@ import requests_aws4auth
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
-from sqlalchemy import func, text
+from sqlalchemy import func, select, text
+from sqlalchemy.orm import aliased
 
 from warehouse import tasks
 from warehouse.packaging.models import (
@@ -38,7 +39,7 @@ from warehouse.utils.db import windowed_query
 
 def _project_docs(db, project_name=None):
     releases_list = (
-        db.query(Release.id)
+        select(Release.id)
         .filter(Release.yanked.is_(False), Release.files)
         .order_by(
             Release.project_id,
@@ -52,9 +53,10 @@ def _project_docs(db, project_name=None):
         releases_list = releases_list.join(Project).filter(Project.name == project_name)
 
     releases_list = releases_list.subquery()
+    rlist = aliased(Release, releases_list)
 
     classifiers = (
-        db.query(func.array_agg(Classifier.classifier))
+        select(func.array_agg(Classifier.classifier))
         .select_from(release_classifiers)
         .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
         .filter(Release.id == release_classifiers.c.release_id)
@@ -64,7 +66,7 @@ def _project_docs(db, project_name=None):
     )
 
     release_data = (
-        db.query(
+        select(
             Description.raw.label("description"),
             Release.version.label("latest_version"),
             Release.author,
@@ -81,13 +83,13 @@ def _project_docs(db, project_name=None):
             Project.normalized_name,
             Project.name,
         )
-        .select_from(releases_list)
-        .join(Release, Release.id == releases_list.c.id)
+        .select_from(rlist)
+        .join(Release, Release.id == rlist.id)
         .join(Description)
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(release_data, Project.id, 25000):
+    for release in windowed_query(db, release_data, Project.id, 25000):
         p = ProjectDocument.from_db(release)
         p._index = None
         p.full_clean()
