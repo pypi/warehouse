@@ -841,7 +841,20 @@ class ProvisionMacaroonViews:
 
     @property
     def project_names(self):
-        return sorted(project.normalized_name for project in self.request.user.projects)
+        return sorted(
+            [project.normalized_name for project in self.request.user.projects]
+            + [
+                project.normalized_name
+                for team in self.request.user.teams
+                for project in team.projects
+            ]
+            + [
+                project.normalized_name
+                for org in self.request.user.organizations
+                if self.request.user in org.owners
+                for project in org.projects
+            ]
+        )
 
     @property
     def default_response(self):
