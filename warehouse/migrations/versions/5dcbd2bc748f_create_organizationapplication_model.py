@@ -10,86 +10,112 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-create organization and organization_application comments
+Create OrganizationApplication model
 
-Revision ID: 89022e31695e
-Revises: a423577b60f0
-Create Date: 2023-06-02 17:35:22.644363
+Revision ID: 5dcbd2bc748f
+Revises: 646bc86a09b6
+Create Date: 2023-06-02 22:38:01.308198
 """
 
 import sqlalchemy as sa
+import sqlalchemy_utils.types.url
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
 
-revision = "89022e31695e"
-down_revision = "a423577b60f0"
+revision = "5dcbd2bc748f"
+down_revision = "646bc86a09b6"
 
 
 def upgrade():
-    op.alter_column(
+    op.create_table(
         "organization_applications",
-        "name",
-        existing_type=sa.TEXT(),
-        comment="The account name used in URLS",
-        existing_nullable=False,
+        sa.Column(
+            "id",
+            postgresql.UUID(as_uuid=True),
+            server_default=sa.text("gen_random_uuid()"),
+            nullable=False,
+        ),
+        sa.Column(
+            "name", sa.Text(), nullable=False, comment="The account name used in URLS"
+        ),
+        sa.Column(
+            "display_name", sa.Text(), nullable=False, comment="Display name used in UI"
+        ),
+        sa.Column(
+            "orgtype",
+            sa.Enum("Community", "Company", name="organizationtype"),
+            nullable=False,
+            comment="What type of organization such as Community or Company",
+        ),
+        sa.Column(
+            "link_url",
+            sqlalchemy_utils.types.url.URLType(),
+            nullable=False,
+            comment="External URL associated with the organization",
+        ),
+        sa.Column(
+            "description",
+            sa.Text(),
+            nullable=False,
+            comment=(
+                "Description of the business or project the organization represents"
+            ),
+        ),
+        sa.Column(
+            "is_approved",
+            sa.Boolean(),
+            nullable=True,
+            comment="Status of administrator approval of the request",
+        ),
+        sa.Column(
+            "submitted_by_id",
+            postgresql.UUID(as_uuid=True),
+            nullable=False,
+            comment="ID of the User which submitted the request",
+        ),
+        sa.Column(
+            "submitted",
+            sa.DateTime(),
+            server_default=sa.text("now()"),
+            nullable=False,
+            comment="Datetime the request was submitted",
+        ),
+        sa.Column(
+            "organization_id",
+            postgresql.UUID(as_uuid=True),
+            nullable=True,
+            comment="If the request was approved, ID of resulting Organization",
+        ),
+        sa.CheckConstraint(
+            "link_url ~* '^https?://.*'::text",
+            name="organization_applications_valid_link_url",
+        ),
+        sa.CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="organization_applications_valid_name",
+        ),
+        sa.ForeignKeyConstraint(
+            ["organization_id"],
+            ["organizations.id"],
+            ondelete="CASCADE",
+            initially="DEFERRED",
+            deferrable=True,
+        ),
+        sa.ForeignKeyConstraint(
+            ["submitted_by_id"],
+            ["users.id"],
+            ondelete="CASCADE",
+            initially="DEFERRED",
+            deferrable=True,
+        ),
+        sa.PrimaryKeyConstraint("id"),
     )
-    op.alter_column(
+    op.create_index(
+        op.f("ix_organization_applications_submitted"),
         "organization_applications",
-        "display_name",
-        existing_type=sa.TEXT(),
-        comment="Display name used in UI",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "orgtype",
-        existing_type=postgresql.ENUM("Community", "Company", name="organizationtype"),
-        comment="What type of organization such as Community or Company",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "link_url",
-        existing_type=sa.TEXT(),
-        comment="External URL associated with the organization",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "description",
-        existing_type=sa.TEXT(),
-        comment="Description of the business or project the organization represents",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "is_approved",
-        existing_type=sa.BOOLEAN(),
-        comment="Status of administrator approval of the request",
-        existing_nullable=True,
-    )
-    op.alter_column(
-        "organization_applications",
-        "submitted_by_id",
-        existing_type=postgresql.UUID(),
-        comment="ID of the User which submitted the request",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "submitted",
-        existing_type=postgresql.TIMESTAMP(),
-        comment="Datetime the request was submitted",
-        existing_nullable=False,
-        existing_server_default=sa.text("now()"),
-    )
-    op.alter_column(
-        "organization_applications",
-        "organization_id",
-        existing_type=postgresql.UUID(),
-        comment="If the request was approved, ID of resulting Organization",
-        existing_nullable=True,
+        ["submitted"],
+        unique=False,
     )
     op.alter_column(
         "organizations",
@@ -237,78 +263,8 @@ def downgrade():
         existing_comment="The account name used in URLS",
         existing_nullable=False,
     )
-    op.alter_column(
-        "organization_applications",
-        "organization_id",
-        existing_type=postgresql.UUID(),
-        comment=None,
-        existing_comment="If the request was approved, ID of resulting Organization",
-        existing_nullable=True,
+    op.drop_index(
+        op.f("ix_organization_applications_submitted"),
+        table_name="organization_applications",
     )
-    op.alter_column(
-        "organization_applications",
-        "submitted",
-        existing_type=postgresql.TIMESTAMP(),
-        comment=None,
-        existing_comment="Datetime the request was submitted",
-        existing_nullable=False,
-        existing_server_default=sa.text("now()"),
-    )
-    op.alter_column(
-        "organization_applications",
-        "submitted_by_id",
-        existing_type=postgresql.UUID(),
-        comment=None,
-        existing_comment="ID of the User which submitted the request",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "is_approved",
-        existing_type=sa.BOOLEAN(),
-        comment=None,
-        existing_comment="Status of administrator approval of the request",
-        existing_nullable=True,
-    )
-    op.alter_column(
-        "organization_applications",
-        "description",
-        existing_type=sa.TEXT(),
-        comment=None,
-        existing_comment=(
-            "Description of the business or project the organization represents"
-        ),
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "link_url",
-        existing_type=sa.TEXT(),
-        comment=None,
-        existing_comment="External URL associated with the organization",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "orgtype",
-        existing_type=postgresql.ENUM("Community", "Company", name="organizationtype"),
-        comment=None,
-        existing_comment="What type of organization such as Community or Company",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "display_name",
-        existing_type=sa.TEXT(),
-        comment=None,
-        existing_comment="Display name used in UI",
-        existing_nullable=False,
-    )
-    op.alter_column(
-        "organization_applications",
-        "name",
-        existing_type=sa.TEXT(),
-        comment=None,
-        existing_comment="The account name used in URLS",
-        existing_nullable=False,
-    )
+    op.drop_table("organization_applications")
