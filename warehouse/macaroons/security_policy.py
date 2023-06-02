@@ -20,6 +20,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.oidc.utils import OIDCContext
 from warehouse.utils.security_policy import AuthenticationMethod
 
 
@@ -90,13 +91,19 @@ class MacaroonSecurityPolicy:
 
         try:
             dm = macaroon_service.find_from_raw(macaroon)
+            oidc_claims = (
+                dm.additional.get("oidc")
+                if dm.oidc_publisher and dm.additional
+                else None
+            )
         except InvalidMacaroonError:
             return None
 
         # Every Macaroon is either associated with a user or an OIDC publisher.
         if dm.user is not None:
             return dm.user
-        return dm.oidc_publisher
+
+        return OIDCContext(dm.oidc_publisher, oidc_claims)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow

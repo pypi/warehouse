@@ -47,6 +47,12 @@
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       {% endif %}
     </small>
+    <small>
+    {% if event.additional.publisher_url %}
+      {% trans %}URL:{% endtrans %}
+      <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
+    {% endif %}
+    </small>
     {% elif event.tag == EventTag.Project.ReleaseRemove %}
     <strong>
       {# No link to removed release #}
@@ -94,6 +100,12 @@
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       {% endif %}
+    </small>
+    <small>
+    {% if event.additional.publisher_url %}
+      {% trans %}URL:{% endtrans %}
+      <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
+    {% endif %}
     </small>
     {# NOTE: "project:release:file:remove" is deprecated #}
     {% elif event.tag == EventTag.File.FileRemove or event.tag == "project:release:file:remove" %}

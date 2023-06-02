@@ -31,8 +31,10 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
-from warehouse.oidc.models import OIDCPublisher
+from warehouse.macaroons.security_policy import (
+    MacaroonSecurityPolicy,
+)
+from warehouse.oidc.utils import OIDCContext
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -59,7 +61,17 @@ def _user(request):
 
 
 def _oidc_publisher(request):
-    return request.identity if isinstance(request.identity, OIDCPublisher) else None
+    return (
+        request.identity.publisher
+        if isinstance(request.identity, OIDCContext)
+        else None
+    )
+
+
+def _oidc_claims(request):
+    return (
+        request.identity.claims if isinstance(request.identity, OIDCContext) else None
+    )
 
 
 def _organization_access(request):
@@ -128,6 +140,7 @@ def includeme(config):
     # request identity by type, if they know it.
     config.add_request_method(_user, name="user", reify=True)
     config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
+    config.add_request_method(_oidc_claims, name="oidc_claims", reify=True)
     config.add_request_method(
         _organization_access, name="organization_access", reify=True
     )

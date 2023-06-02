@@ -194,12 +194,12 @@ def mint_token_from_oidc(request):
         [
             caveats.OIDCPublisher(
                 oidc_publisher_id=str(publisher.id),
-                oidc_claims={"ref": claims.get("ref"), "sha": claims.get("sha")},
             ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=publisher.id,
+        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
     )
     for project in publisher.projects:
         project.record_event(
@@ -209,7 +209,7 @@ def mint_token_from_oidc(request):
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
-                "publisher_url": publisher.publisher_url,
+                "publisher_url": publisher.publisher_url(),
             },
         )
     return {"success": True, "token": serialized}

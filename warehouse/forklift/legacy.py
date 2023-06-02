@@ -52,6 +52,7 @@ from warehouse.email import (
     send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
 )
+from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -1017,9 +1018,16 @@ def file_upload(request):
         request.authentication_method == AuthenticationMethod.BASIC_AUTH
         and request.user.has_two_factor
     ):
-        # Eventually, raise here to disable basic auth with 2FA enabled
         send_basic_auth_with_two_factor_email(
             request, request.user, project_name=project.name
+        )
+        raise _exc_with_message(
+            BasicAuthTwoFactorEnabled,
+            (
+                f"User { request.user.username } has two factor auth enabled, "
+                "an API Token or Trusted Publisher must be used to upload "
+                "in place of password."
+            ),
         )
 
     # Update name if it differs but is still equivalent. We don't need to check if
@@ -1176,7 +1184,9 @@ def file_upload(request):
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
             },
@@ -1418,7 +1428,9 @@ def file_upload(request):
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),

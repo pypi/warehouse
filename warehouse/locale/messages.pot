@@ -581,7 +581,7 @@ msgid "Publisher must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
-#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:230
 msgid "Active"
 msgstr ""
 
@@ -1744,17 +1744,17 @@ msgstr ""
 #, python-format
 msgid ""
 "During your recent upload or upload attempt of %(project_name)s to "
-"%(site)s, we noticed you used basic authentication (username &amp; "
-"password). However, your account has two-factor authentication (2FA) "
-"enabled."
+"%(site)s, we noticed you attempted to use basic authentication (username "
+"&amp; password). However, your account has two-factor authentication "
+"(2FA) enabled."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
 #, python-format
 msgid ""
-"In the near future, %(site)s will begin prohibiting uploads using basic "
-"authentication for accounts with two-factor authentication enabled. "
-"Instead, we will require API tokens to be used."
+"%(site)s now prohibits uploads using basic authentication for accounts "
+"with two-factor authentication enabled. Instead, we require API tokens or"
+" Trusted Publishers to be used instead."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
@@ -1767,10 +1767,15 @@ msgstr ""
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:27
 #, python-format
 msgid ""
-"First, generate an API token for your account or project at "
-"%(new_token_url)s. Then, use this token when publishing instead of your "
+"If using API tokens, generate an API token for your account or project at"
+" %(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens "
 "to publish."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:30
+#, python-format
+msgid "If using Trusted Publishers (preferred), see %(tp_url)s to get started."
 msgstr ""
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
@@ -3147,7 +3152,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:256
+#: warehouse/templates/manage/project/history.html:268
 msgid "Reason:"
 msgstr ""
 
@@ -3288,13 +3293,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:620
 #: warehouse/templates/manage/account.html:643
-#: warehouse/templates/manage/project/history.html:247
-#: warehouse/templates/manage/project/history.html:254
+#: warehouse/templates/manage/project/history.html:259
+#: warehouse/templates/manage/project/history.html:266
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:637
-#: warehouse/templates/manage/project/history.html:249
+#: warehouse/templates/manage/project/history.html:261
 msgid "API token removed"
 msgstr ""
 
@@ -3346,7 +3351,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:288
+#: warehouse/templates/manage/project/history.html:300
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr ""
@@ -3354,8 +3359,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:289
-#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:310
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -3378,7 +3383,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/organization/history.html:217
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:316
 #: warehouse/templates/manage/team/history.html:124
 msgid "Device Info"
 msgstr ""
@@ -3690,21 +3695,21 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:539
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:91
-#: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/history.html:170
-#: warehouse/templates/manage/project/history.html:196
+#: warehouse/templates/manage/project/history.html:97
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:541
 #: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:56
-#: warehouse/templates/manage/project/history.html:116
-#: warehouse/templates/manage/project/history.html:132
-#: warehouse/templates/manage/project/history.html:178
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:62
+#: warehouse/templates/manage/project/history.html:128
+#: warehouse/templates/manage/project/history.html:144
+#: warehouse/templates/manage/project/history.html:190
+#: warehouse/templates/manage/project/history.html:216
 #: warehouse/templates/manage/team/history.html:93
 msgid "Removed by:"
 msgstr ""
@@ -3714,7 +3719,7 @@ msgid "Submitted by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:243
 msgid "Workflow:"
 msgstr ""
 
@@ -3727,6 +3732,8 @@ msgid "Publisher:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:553
+#: warehouse/templates/manage/project/history.html:52
+#: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
 msgstr ""
 
@@ -4650,26 +4657,26 @@ msgid "Declined by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/project/history.html:139
-#: warehouse/templates/manage/project/history.html:186
+#: warehouse/templates/manage/project/history.html:151
+#: warehouse/templates/manage/project/history.html:198
 #: warehouse/templates/manage/team/history.html:98
 msgid "Changed by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:181
 #: warehouse/templates/manage/organization/history.html:186
-#: warehouse/templates/manage/project/history.html:146
-#: warehouse/templates/manage/project/history.html:153
+#: warehouse/templates/manage/project/history.html:158
+#: warehouse/templates/manage/project/history.html:165
 msgid "Invited by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:191
-#: warehouse/templates/manage/project/history.html:160
+#: warehouse/templates/manage/project/history.html:172
 msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:285
+#: warehouse/templates/manage/project/history.html:297
 #: warehouse/templates/manage/team/history.html:105
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -5171,168 +5178,168 @@ msgstr ""
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:53
+#: warehouse/templates/manage/project/history.html:59
 #, python-format
 msgid "Version %(version)s removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:60
+#: warehouse/templates/manage/project/history.html:66
 #, python-format
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:63
-#: warehouse/templates/manage/project/history.html:70
+#: warehouse/templates/manage/project/history.html:69
+#: warehouse/templates/manage/project/history.html:76
 msgid "Yanked by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:67
+#: warehouse/templates/manage/project/history.html:73
 #, python-format
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:82
 #, python-format
 msgid "File added to <a href=\"%(href)s\">version %(version)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:88
-#: warehouse/templates/manage/project/history.html:113
+#: warehouse/templates/manage/project/history.html:94
+#: warehouse/templates/manage/project/history.html:125
 #: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:101
+#: warehouse/templates/manage/project/history.html:113
 #, python-format
 msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:122
+#: warehouse/templates/manage/project/history.html:134
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:129
+#: warehouse/templates/manage/project/history.html:141
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:136
+#: warehouse/templates/manage/project/history.html:148
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:143
+#: warehouse/templates/manage/project/history.html:155
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as project "
 "%(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:150
+#: warehouse/templates/manage/project/history.html:162
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:157
+#: warehouse/templates/manage/project/history.html:169
 #, python-format
 msgid ""
 "Revoked invitation for <a href=\"%(href)s\">%(username)s</a> to join as "
 "project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:167
+#: warehouse/templates/manage/project/history.html:179
 #, python-format
 msgid "%(team_name)s team added as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:175
+#: warehouse/templates/manage/project/history.html:187
 #, python-format
 msgid "%(team_name)s team changed to project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:183
+#: warehouse/templates/manage/project/history.html:195
 #, python-format
 msgid "%(team_name)s team removed as project %(role_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:193
+#: warehouse/templates/manage/project/history.html:205
 #, python-format
 msgid "Project added to %(organization_name)s organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:201
+#: warehouse/templates/manage/project/history.html:213
 #, python-format
 msgid "Project removed from %(organization_name)s organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:209
+#: warehouse/templates/manage/project/history.html:221
 msgid "Short-lived API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:210
-#: warehouse/templates/manage/project/history.html:236
-#: warehouse/templates/manage/project/history.html:250
+#: warehouse/templates/manage/project/history.html:222
+#: warehouse/templates/manage/project/history.html:248
+#: warehouse/templates/manage/project/history.html:262
 msgid "Permissions: Can upload to this project"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:213
-#: warehouse/templates/manage/project/history.html:244
+#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:256
 msgid "Expiration:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:216
+#: warehouse/templates/manage/project/history.html:228
 msgid "Expiration Status:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:220
+#: warehouse/templates/manage/project/history.html:232
 msgid "Expired"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:237
 msgid "Creator:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:235
+#: warehouse/templates/manage/project/history.html:247
 msgid "API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:239
-#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/project/history.html:264
 msgid "Controlled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:261
+#: warehouse/templates/manage/project/history.html:273
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:264
+#: warehouse/templates/manage/project/history.html:276
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:269
+#: warehouse/templates/manage/project/history.html:281
 msgid "2FA requirement enabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:283
 msgid "Enabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:274
+#: warehouse/templates/manage/project/history.html:286
 msgid "2FA requirement disabled"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:276
+#: warehouse/templates/manage/project/history.html:288
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:290
+#: warehouse/templates/manage/project/history.html:302
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
 msgstr ""

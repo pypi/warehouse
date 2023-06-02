@@ -1561,7 +1561,7 @@ class ManageAccountPublishingViews:
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )
@@ -1651,7 +1651,7 @@ class ManageAccountPublishingViews:
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )

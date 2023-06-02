@@ -9,29 +9,29 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+"""
+macaroon oidc claims
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
-from pyramid.security import Denied
+Revision ID: 646bc86a09b6
+Revises: 60e6b0dd0f47
+Create Date: 2023-06-01 16:50:32.765849
+"""
 
+import sqlalchemy as sa
 
-class BasicAuthFailedPassword(HTTPForbidden):
-    pass
+from alembic import op
+from sqlalchemy.dialects import postgresql
 
-
-class BasicAuthBreachedPassword(HTTPUnauthorized):
-    pass
-
-
-class BasicAuthAccountFrozen(HTTPUnauthorized):
-    pass
-
-
-class BasicAuthTwoFactorEnabled(HTTPUnauthorized):
-    pass
+revision = "646bc86a09b6"
+down_revision = "60e6b0dd0f47"
 
 
-class WarehouseDenied(Denied):
-    def __new__(cls, s, *args, reason=None, **kwargs):
-        inner = super().__new__(cls, s, *args, **kwargs)
-        inner.reason = reason
-        return inner
+def upgrade():
+    op.add_column(
+        "macaroons",
+        sa.Column("additional", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+    )
+
+
+def downgrade():
+    op.drop_column("macaroons", "additional")
