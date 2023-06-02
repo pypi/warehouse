@@ -67,7 +67,7 @@ class DatabaseOrganizationService:
         )
 
     def get_organization_applications_by_name(
-        self, name, submitted_by=None, submitted_only=False
+        self, name, submitted_by=None, undecided=False
     ):
         """
         Return the organization object corresponding with the given organization name,
@@ -79,7 +79,7 @@ class DatabaseOrganizationService:
         )
         if submitted_by is not None:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
-        if submitted_only is True:
+        if undecided is True:
             query = query.filter(OrganizationApplication.is_approved.is_(None))
         return query.all()
 
@@ -209,7 +209,7 @@ class DatabaseOrganizationService:
         )
 
         for competing_application in self.get_organization_applications_by_name(
-            organization_application.name, submitted_only=True
+            organization_application.name, undecided=True
         ):
             self.decline_organization_application(competing_application.id, request)
 

@@ -119,7 +119,7 @@ class TestDatabaseOrganizationService:
             organization_application.name
         ) == [organization_application, competing_organization_application]
         assert organization_service.get_organization_applications_by_name(
-            organization_application.name, submitted_only=True
+            organization_application.name, undecided=True
         ) == [organization_application, competing_organization_application]
 
         assert (
@@ -140,7 +140,7 @@ class TestDatabaseOrganizationService:
 
         assert (
             organization_service.get_organization_applications_by_name(
-                organization_application.name, submitted_only=True
+                organization_application.name, undecided=True
             )
             == []
         )
