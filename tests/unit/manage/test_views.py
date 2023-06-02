@@ -5720,7 +5720,6 @@ class TestManageProjectHistory:
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
@@ -5729,19 +5728,16 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             ),
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2019, 2, 5, 17, 18, 18, 462_634),
             ),
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2016, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
@@ -5822,9 +5818,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5860,9 +5854,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5899,9 +5891,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)

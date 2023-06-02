@@ -2836,13 +2836,11 @@ class TestManageOrganizationHistory:
         older_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
@@ -2884,7 +2882,7 @@ class TestManageOrganizationHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         OrganizationEventFactory.create_batch(
-            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+            total_items, source=organization, tag="fake:event"
         )
         events_query = (
             db_request.db.query(Organization.Event)
@@ -2915,7 +2913,7 @@ class TestManageOrganizationHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         OrganizationEventFactory.create_batch(
-            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+            total_items, source=organization, tag="fake:event"
         )
         events_query = (
             db_request.db.query(Organization.Event)
@@ -2946,7 +2944,7 @@ class TestManageOrganizationHistory:
         items_per_page = 25
         total_items = items_per_page + 2
         OrganizationEventFactory.create_batch(
-            total_items, source=organization, tag="fake:event", ip_address="0.0.0.0"
+            total_items, source=organization, tag="fake:event"
         )
 
         with pytest.raises(HTTPNotFound):
