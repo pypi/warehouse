@@ -277,17 +277,11 @@ def organization_applications_list(request):
             elif field == "is":
                 # Add filter for `is_approved` field.
                 if "approved".startswith(value):
-                    filters.append(
-                        OrganizationApplication.is_approved == True  # noqa: E712
-                    )
+                    filters.append(OrganizationApplication.is_approved.is_(True))
                 elif "declined".startswith(value):
-                    filters.append(
-                        OrganizationApplication.is_approved == False  # noqa: E712
-                    )
+                    filters.append(OrganizationApplication.is_approved.is_(False))
                 elif "submitted".startswith(value):
-                    filters.append(
-                        OrganizationApplication.is_approved == None  # noqa: E711
-                    )
+                    filters.append(OrganizationApplication.is_approved.is_(None))
             else:
                 # Add filter for any field.
                 filters.append(
