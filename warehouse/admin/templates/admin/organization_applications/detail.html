@@ -189,7 +189,7 @@
               <div class="col-sm-7">
                 {% if user %}
                 <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
-                <a href="mailto:{{ user.email }}">{{ user.email }}</a>
+                <a href="mailto:{{ user.email }}">{{ user.email }} <i class="fa-solid fa-envelope"></i></a>
                 {% else %}
                 <i>n/a</i>
                 {% endif %}
