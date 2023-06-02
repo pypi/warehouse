@@ -43,9 +43,9 @@ botocore-stubs==1.29.77 \
     --hash=sha256:315ea248f45994aeee888f5c3fe484565bc6fa919406a39ce58bc4a2771c2f8a \
     --hash=sha256:8f102b2bb881948bda18c3d4d4bd92d82125c9632ef11311594a2dd6c5981afc
     # via boto3-stubs
-celery-types==0.15.0 \
-    --hash=sha256:1bcdd44614248cca1ac962017cf76392e16a86e2f9a0404e683063fe4e6a10b1 \
-    --hash=sha256:806a5a62aeeebc59f20d96fb075b1c1fe28a31bfc6cb57ae9b4e2e4cceb38f88
+celery-types==0.17.0 \
+    --hash=sha256:324f52a936d36636236c8caca48f4dddb2d5077971d04275ac0959018a9d3d5e \
+    --hash=sha256:c130770514e68069363ca3b27759bb9d34bd7e99fcfa7ad2469588f9f55478b4
     # via -r requirements/lint.in
 cffi==1.15.1 \
     --hash=sha256:00a9ed42e88df81ffae7a8ab6d9356b371399b91dbdf0c3cb1e84c03a13aceb5 \
@@ -275,9 +275,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.16.18 \
-    --hash=sha256:537fb0d61f2c3d28c9c2cd7bab1cb57a7aa4fba22072391202ff4cd923b0d95e \
-    --hash=sha256:a9c34dcb1c0040c626fc5a8b770edb98d4382c5a5ea326d595913878498fdc63
+types-awscrt==0.16.19 \
+    --hash=sha256:50fe7610aa40550a23d79d6167b2b8536281f038f42846eda0e520d6e3e01787 \
+    --hash=sha256:763d8d543f145d51cd16ea407d079608b126941d24525e16cb1de31d949ff563
     # via
     #   botocore-stubs
     #   types-s3transfer
@@ -313,9 +313,9 @@ types-psycopg2==2.9.21.10 \
     --hash=sha256:918224a0731a3650832e46633e720703b5beef7693a064e777d9748654fcf5e5 \
     --hash=sha256:c2600892312ae1c34e12f145749795d93dc4eac3ef7dbf8a9c1bfd45385e80d7
     # via -r requirements/lint.in
-types-pyopenssl==23.1.0.3 \
-    --hash=sha256:ad024b07a1f4bffbca44699543c71efd04733a6c22781fa9673a971e410a3086 \
-    --hash=sha256:e7211088eff3e20d359888dedecb0994f7181d5cce0f26354dd47ca0484dc8a6
+types-pyopenssl==23.2.0.0 \
+    --hash=sha256:43e307e8dfb3a7a8208a19874ca060305f460c529d4eaca8a2669ea89499f244 \
+    --hash=sha256:ba803a99440b0c2e9ab4e197084aeefc55bdfe8a580d367b2aa4210810a21240
     # via types-redis
 types-python-slugify==8.0.0.2 \
     --hash=sha256:9e81f49eac8c805f924695de559fb8dc123ccbd15adb47d40ceaec51c739f044 \
@@ -359,9 +359,9 @@ types-urllib3==1.26.25.13 \
     --hash=sha256:3300538c9dc11dad32eae4827ac313f5d986b8b21494801f1bf97a1ac6c03ae5 \
     --hash=sha256:5dbd1d2bef14efee43f5318b5d36d805a489f6600252bb53626d4bfafd95e27c
     # via types-requests
-typing-extensions==4.6.2 \
-    --hash=sha256:06006244c70ac8ee83fa8282cb188f697b8db25bc8b4df07be1873c43897060c \
-    --hash=sha256:3a8b36f13dd5fdc5d1b16fe317f5668545de77fa0b8e02006381fd49d731ab98
+typing-extensions==4.6.3 \
+    --hash=sha256:88a4153d8505aabbb4e13aacb7c486c2b4a33ca3b3f807914a9b4c844c471c26 \
+    --hash=sha256:d91d5919357fe7f681a9f2b5b4cb2a5f1ef0a1e9f59c4d8ff0d3491e05c0ffd5
     # via
     #   boto3-stubs
     #   celery-types
