@@ -3852,7 +3852,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:162
 #: warehouse/templates/manage/organizations.html:273
-msgid "Create new organization"
+msgid "Request a new organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:29

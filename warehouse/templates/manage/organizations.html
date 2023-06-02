@@ -159,7 +159,7 @@
   {% if create_organization_application_form %}
   {{ form_error_anchor(create_organization_application_form) }}
   <section id="create-organization">
-    <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
+    <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_organization_application_form) }}
@@ -270,7 +270,7 @@
   </section>
   {% else %}
     <section id="create-organization">
-      <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
+      <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
       <p>
         {% trans %}Your request(s) for a new PyPI organization(s) have been submitted.{% endtrans %}
       </p>
