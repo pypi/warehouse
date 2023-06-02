@@ -608,8 +608,7 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
             )
         )
 
-        # Name is valid if one of the following is true:
-        # - The user has no outstanding applications for the same name
+        # Name is valid if the user has no outstanding applications for the same name
         if len(outstanding_applications) > 0:
             raise wtforms.validators.ValidationError(
                 _(
