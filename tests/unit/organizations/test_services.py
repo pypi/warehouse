@@ -106,7 +106,26 @@ class TestDatabaseOrganizationService:
             app.name, submitted_by=app.submitted_by
         ) == [app]
 
-    def test_approve_organization_application(self, db_request, organization_service):
+    def test_approve_organization_application(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            services, "send_admin_new_organization_approved_email", send_email
+        )
+        monkeypatch.setattr(
+            services, "send_new_organization_approved_email", send_email
+        )
+        monkeypatch.setattr(
+            services, "send_admin_new_organization_declined_email", send_email
+        )
+        monkeypatch.setattr(
+            services, "send_new_organization_declined_email", send_email
+        )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
         organization_application = OrganizationApplicationFactory.create()
         competing_organization_application = OrganizationApplicationFactory.create(
             name=organization_application.name.lower()
@@ -162,6 +181,37 @@ class TestDatabaseOrganizationService:
         assert competing_organization_application.is_approved is False
         assert competing_organization_application.organization is None
 
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admin,
+                organization_name=organization.name,
+                initiator_username=organization_application.submitted_by.username,
+                message="",
+            ),
+            pretend.call(
+                db_request,
+                organization_application.submitted_by,
+                organization_name=organization.name,
+                message="",
+            ),
+            pretend.call(
+                db_request,
+                admin,
+                organization_name=competing_organization_application.name,
+                initiator_username=(
+                    competing_organization_application.submitted_by.username
+                ),
+                message="",
+            ),
+            pretend.call(
+                db_request,
+                competing_organization_application.submitted_by,
+                organization_name=competing_organization_application.name,
+                message="",
+            ),
+        ]
+
         catalog_entry = (
             db_request.db.query(OrganizationNameCatalog)
             .filter_by(normalized_name=organization_application.normalized_name)
@@ -203,13 +253,41 @@ class TestDatabaseOrganizationService:
             "redact_ip": True,
         }
 
-    def test_decline_organization_application(self, db_request, organization_service):
+    def test_decline_organization_application(
+        self, db_request, organization_service, monkeypatch
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            services, "send_admin_new_organization_declined_email", send_email
+        )
+        monkeypatch.setattr(
+            services, "send_new_organization_declined_email", send_email
+        )
+
+        admin = UserFactory(username="admin", is_superuser=True)
+        db_request.user = admin
+
         organization_application = OrganizationApplicationFactory.create()
         organization_service.decline_organization_application(
             organization_application.id, db_request
         )
 
         assert organization_application.is_approved is False
+        assert send_email.calls == [
+            pretend.call(
+                db_request,
+                admin,
+                organization_name=organization_application.name,
+                initiator_username=organization_application.submitted_by.username,
+                message="",
+            ),
+            pretend.call(
+                db_request,
+                organization_application.submitted_by,
+                organization_name=organization_application.name,
+                message="",
+            ),
+        ]
 
     def test_find_organizationid(self, organization_service):
         organization = OrganizationFactory.create()

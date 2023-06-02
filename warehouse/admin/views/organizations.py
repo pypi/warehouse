@@ -18,12 +18,6 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.email import (
-    send_admin_new_organization_approved_email,
-    send_admin_new_organization_declined_email,
-    send_new_organization_approved_email,
-    send_new_organization_declined_email,
-)
 from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -364,7 +358,6 @@ def organization_application_detail(request):
 )
 def organization_application_approve(request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    user_service = request.find_service(IUserService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
     organization_application = organization_service.get_organization_application(
@@ -381,30 +374,10 @@ def organization_application_approve(request):
             )
         )
 
-    message = request.params.get("message", "")
-
     organization = organization_service.approve_organization_application(
         organization_application.id, request
     )
-    organization.record_event(
-        tag=EventTag.Organization.OrganizationApprove,
-        ip_address=request.remote_addr,
-        request=request,
-        additional={"approved_by_user_id": str(request.user.id)},
-    )
-    send_admin_new_organization_approved_email(
-        request,
-        user_service.get_admin_user(),
-        organization_name=organization.name,
-        initiator_username=organization_application.submitted_by.username,
-        message=message,
-    )
-    send_new_organization_approved_email(
-        request,
-        organization_application.submitted_by,
-        organization_name=organization.name,
-        message=message,
-    )
+
     request.session.flash(
         f'Request for "{organization.name}" organization approved', queue="success"
     )
@@ -426,7 +399,6 @@ def organization_application_approve(request):
 )
 def organization_application_decline(request):
     organization_service = request.find_service(IOrganizationService, context=None)
-    user_service = request.find_service(IUserService, context=None)
 
     organization_application_id = request.matchdict["organization_application_id"]
     organization_application = organization_service.get_organization_application(
@@ -443,24 +415,10 @@ def organization_application_decline(request):
             )
         )
 
-    message = request.params.get("message", "")
-
     organization_service.decline_organization_application(
         organization_application.id, request
     )
-    send_admin_new_organization_declined_email(
-        request,
-        user_service.get_admin_user(),
-        organization_name=organization_application.name,
-        initiator_username=organization_application.submitted_by.username,
-        message=message,
-    )
-    send_new_organization_declined_email(
-        request,
-        organization_application.submitted_by,
-        organization_name=organization_application.name,
-        message=message,
-    )
+
     request.session.flash(
         f'Request for "{organization_application.name}" organization declined',
         queue="success",

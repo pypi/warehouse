@@ -824,11 +824,6 @@ class TestActions:
             remote_addr="0.0.0.0",
             user=admin,
         )
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_admin_new_organization_approved_email", send_email
-        )
-        monkeypatch.setattr(views, "send_new_organization_approved_email", send_email)
 
         result = views.organization_application_approve(request)
 
@@ -839,21 +834,6 @@ class TestActions:
             pretend.call(
                 f'Request for "{organization.name}" organization approved',
                 queue="success",
-            ),
-        ]
-        assert send_email.calls == [
-            pretend.call(
-                request,
-                [admin],
-                organization_name=organization.name,
-                initiator_username=user.username,
-                message=message,
-            ),
-            pretend.call(
-                request,
-                user,
-                organization_name=organization.name,
-                message=message,
             ),
         ]
         assert result.status_code == 303
@@ -952,11 +932,6 @@ class TestActions:
             remote_addr="0.0.0.0",
             user=admin,
         )
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(
-            views, "send_admin_new_organization_declined_email", send_email
-        )
-        monkeypatch.setattr(views, "send_new_organization_declined_email", send_email)
 
         result = views.organization_application_decline(request)
 
@@ -967,21 +942,6 @@ class TestActions:
             pretend.call(
                 f'Request for "{organization_application.name}" organization declined',
                 queue="success",
-            ),
-        ]
-        assert send_email.calls == [
-            pretend.call(
-                request,
-                [admin],
-                organization_name=organization_application.name,
-                initiator_username=user.username,
-                message=message,
-            ),
-            pretend.call(
-                request,
-                user,
-                organization_name=organization_application.name,
-                message=message,
             ),
         ]
         assert result.status_code == 303
