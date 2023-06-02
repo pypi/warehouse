@@ -13,7 +13,7 @@
 Construct OrganizationApplication model
 
 Revision ID: a423577b60f0
-Revises: 60e6b0dd0f47
+Revises: 646bc86a09b6
 Create Date: 2023-06-01 11:18:28.044944
 """
 
@@ -24,7 +24,7 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "a423577b60f0"
-down_revision = "60e6b0dd0f47"
+down_revision = "646bc86a09b6"
 
 
 def upgrade():

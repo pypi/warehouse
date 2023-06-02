@@ -230,21 +230,30 @@ class OrganizationMixin:
             ),
         )
 
-    name = Column(Text, nullable=False)
+    name = Column(Text, nullable=False, comment="The account name used in URLS")
 
     @declared_attr
     def normalized_name(cls):  # noqa: N805
         return orm.column_property(func.normalize_pep426_name(cls.name))
 
-    display_name = Column(Text, nullable=False)
+    display_name = Column(Text, nullable=False, comment="Display name used in UI")
     orgtype = Column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
+        comment="What type of organization such as Community or Company",
     )
-    link_url = Column(URLType, nullable=False)
-    description = Column(Text, nullable=False)
+    link_url = Column(
+        URLType, nullable=False, comment="External URL associated with the organization"
+    )
+    description = Column(
+        Text,
+        nullable=False,
+        comment="Description of the business or project the organization represents",
+    )
 
-    is_approved = Column(Boolean)
+    is_approved = Column(
+        Boolean, comment="Status of administrator approval of the request"
+    )
 
 
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
@@ -254,17 +263,24 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
-    is_active = Column(Boolean, nullable=False, server_default=sql.false())
+    is_active = Column(
+        Boolean,
+        nullable=False,
+        server_default=sql.false(),
+        comment="When True, the organization is active and all features are available.",
+    )
     created = Column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
+        comment="Datetime the organization was created.",
     )
     date_approved = Column(
         DateTime(timezone=False),
         nullable=True,
         onupdate=func.now(),
+        comment="Datetime the organization was approved by administrators.",
     )
 
     users = orm.relationship(
@@ -448,12 +464,14 @@ class OrganizationApplication(OrganizationMixin, db.Model):
             ondelete="CASCADE",
         ),
         nullable=False,
+        comment="ID of the User which submitted the request",
     )
     submitted = Column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
+        comment="Datetime the request was submitted",
     )
     organization_id = Column(
         UUID(as_uuid=True),
@@ -464,6 +482,7 @@ class OrganizationApplication(OrganizationMixin, db.Model):
             ondelete="CASCADE",
         ),
         nullable=True,
+        comment="If the request was approved, ID of resulting Organization",
     )
 
     submitted_by = orm.relationship(
