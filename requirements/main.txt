@@ -108,9 +108,9 @@ cachetools==5.3.1 \
     # via
     #   google-auth
     #   premailer
-cattrs==22.2.0 \
-    --hash=sha256:bc12b1f0d000b9f9bee83335887d532a1d3e99a833d1bf0882151c97d3e68c21 \
-    --hash=sha256:f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d
+cattrs==23.1.2 \
+    --hash=sha256:b2bb14311ac17bed0d58785e5a60f022e5431aca3932e3fc5cc8ed8639de50a4 \
+    --hash=sha256:db1c821b8c537382b2c7c66678c3790091ca0275ac486c76f3c8f3920e83c657
     # via linehaul
 cbor2==5.4.6 \
     --hash=sha256:0b956f19e93ba3180c336282cd1b6665631f2d3a196a9c19b29a833bf979e7a4 \
