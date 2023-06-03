@@ -101,13 +101,13 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
