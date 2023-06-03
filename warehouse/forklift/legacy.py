@@ -45,7 +45,7 @@ from sqlalchemy import func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from trove_classifiers import classifiers, deprecated_classifiers
 
-from warehouse import forms
+from warehouse import forms, perms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
@@ -64,6 +64,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectFactory,
     Release,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -943,13 +944,10 @@ def file_upload(request):
     # Look up the project first before doing anything else, this is so we can
     # automatically register it if we need to and can check permissions before
     # going any further.
-    project = (
-        request.db.query(Project)
-        .filter(Project.normalized_name == func.normalize_pep426_name(form.name.data))
-        .first()
-    )
-
-    if project is None:
+    projects = ProjectFactory(request)
+    try:
+        project = projects[form.name.data]
+    except KeyError:
         # Another sanity check: we should be preventing non-user identities
         # from creating projects in the first place with scoped tokens,
         # but double-check anyways.
@@ -962,6 +960,18 @@ def file_upload(request):
                     "configure the project to use trusted publishers."
                 ),
             )
+
+        # Check if our current request has permission to create new projects
+        if not (allowed := request.has_permission(perms.ProjectCreate, projects)):
+            reason = getattr(allowed, "reason", None)
+            msg = (
+                ("The user '{}' isn't allowed to create new projects.").format(
+                    request.user.username
+                )
+                if reason is None
+                else allowed.msg
+            )
+            raise _exc_with_message(HTTPForbidden, msg)
 
         # We attempt to create the project.
         try:
@@ -978,11 +988,10 @@ def file_upload(request):
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
 
-    # Check that the identity has permission to do things to this project, if this
-    # is a new project this will act as a sanity check for the role we just
-    # added above.
-    allowed = request.has_permission("upload", project)
-    if not allowed:
+    # Check that the identity has permission to upload files for this project,
+    # we check this up front to skip doing work if this is ultimately going to
+    # to fail due to permissions.
+    if not (allowed := request.has_permission(perms.FileUpload, project)):
         reason = getattr(allowed, "reason", None)
         if request.user:
             msg = (
@@ -1033,6 +1042,8 @@ def file_upload(request):
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
+    # TODO: Should we gate renames on the ability to manage the project? Or it's own permission?
+    #       Maybe we should just remove the implicit rename here and let people rename in the UI?
     if project.name != form.name.data:
         project.name = form.name.data
 
@@ -1069,27 +1080,35 @@ def file_upload(request):
             ) from None
 
     try:
-        canonical_version = packaging.utils.canonicalize_version(form.version.data)
-        release = (
-            request.db.query(Release)
-            .filter(
-                (Release.project == project)
-                & (Release.canonical_version == canonical_version)
-            )
-            .one()
-        )
-    except MultipleResultsFound:
-        # There are multiple releases of this project which have the same
-        # canonical version that were uploaded before we checked for
-        # canonical version equivalence, so return the exact match instead
-        release = (
-            request.db.query(Release)
-            .filter(
-                (Release.project == project) & (Release.version == form.version.data)
-            )
-            .one()
-        )
-    except NoResultFound:
+        release = project[form.version.data]
+    except KeyError:
+        # Check if our current request has permission to create new releases for this
+        # project.
+        if not (allowed := request.has_permission(perms.ReleaseCreate, project)):
+            reason = getattr(allowed, "reason", None)
+            if request.user:
+                msg = (
+                    (
+                        "The user '{}' isn't allowed to create new releases for project '{}'."
+                    ).format(
+                        request.user.username,
+                        project.name,
+                    )
+                    if reason is None
+                    else allowed.msg
+                )
+            else:
+                msg = (
+                    (
+                        "The given token isn't allowed to create new releases for project '{}'. "
+                    ).format(
+                        project.name,
+                    )
+                    if reason is None
+                    else allowed.msg
+                )
+            raise _exc_with_message(HTTPForbidden, msg)
+
         # Get all the classifiers for this release
         release_classifiers = (
             request.db.query(Classifier)
@@ -1123,7 +1142,7 @@ def file_upload(request):
             # This has the effect of removing any preceding v character
             # https://www.python.org/dev/peps/pep-0440/#preceding-v-character
             version=str(packaging.version.parse(form.version.data)),
-            canonical_version=canonical_version,
+            canonical_version=packaging.utils.canonicalize_version(form.version.data),
             description=Description(
                 content_type=form.description_content_type.data,
                 raw=form.description.data or "",
