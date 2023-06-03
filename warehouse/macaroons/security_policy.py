@@ -16,6 +16,8 @@ from pyramid.authorization import ACLHelper
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
+from warehouse import perms
+from warehouse.accounts.models import User
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
@@ -161,6 +163,27 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError as exc:
             return WarehouseDenied(
                 f"Invalid API Token: {exc}", reason="invalid_api_token"
+            )
+
+        # Check if our permission requires MFA, and if it does does our user, if we have
+        # one, have MFA. We check this prior to authorizing the request, because there
+        # is nothing context sensitive and this lets us skip checking the ACL if we're
+        # going to fail due to MFA anyways.
+        #
+        # API Tokens themselves are not used with MFA, but we still check if the User
+        # associated with the API Token has MFA so we can enforce MFA on the user even
+        # if they're using API tokens.
+        #
+        # Only users can have MFA, so we'll skip if the request.identity is not a User.
+        #
+        if (
+            isinstance(request.identity, User)
+            and perms.requires_2fa(permission)
+            and not request.identity.has_two_factor
+        ):
+            return WarehouseDenied(
+                "This action requires two factor authentication.",
+                reason="requires_2fa",
             )
 
         # The macaroon is valid, so we can actually see if request.identity is

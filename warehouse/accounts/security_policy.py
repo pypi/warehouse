@@ -22,6 +22,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
 from zope.interface import implementer
 
+from warehouse import perms
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
@@ -236,6 +237,16 @@ def _permits_for_user_policy(acl, request, context, permission):
     # at this point, and we only a User in these policies.
     assert isinstance(request.identity, User)
 
+    # Check if our permission requires MFA, and if it does does our user have MFA.
+    # We check this prior to authorizing the request, because there is nothing context
+    # sensitive and this lets us skip checking the ACL if we're going to fail due to
+    # MFA anyways.
+    if perms.requires_2fa(permission) and not request.identity.has_two_factor:
+        return WarehouseDenied(
+            "This action requires two factor authentication.",
+            reason="requires_2fa",
+        )
+
     # Dispatch to our ACL
     # NOTE: These parameters are in a different order
     res = acl.permits(context, principals_for(request.identity), permission)
@@ -244,6 +255,11 @@ def _permits_for_user_policy(acl, request, context, permission):
     # that might possibly return a reason to deny the request anyways, and if
     # it does we'll return that.
     if isinstance(res, Allowed):
+        # Check if the context object requires MFA, whether from PyPI or from the
+        # owner of the context requiring it. We check this after we've checked the
+        # ACL to avoid leaking whether a project requires MFA or not.
+        # NOTE: This check should eventually go away once we requires 2FA across the
+        #       entire site.
         mfa = _check_for_mfa(request, context)
         if mfa is not None:
             return mfa
