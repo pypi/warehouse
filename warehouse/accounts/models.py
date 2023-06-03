@@ -14,7 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
-from pyramid.authorization import Authenticated, Allow
+from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     Boolean,
     CheckConstraint,

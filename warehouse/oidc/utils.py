@@ -120,4 +120,4 @@ class OIDCContext:
     """
 
     def __principals__(self) -> list[str]:
-        principals = [Authenticated, f"oidc:{self.publisher.id}"]
+        return [Authenticated, f"oidc:{self.publisher.id}"]

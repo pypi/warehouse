@@ -12,14 +12,12 @@
 
 import enum
 
-from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.request import RequestLocalCache
 from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
-from warehouse.oidc.utils import OIDCContext
 
 
 # NOTE: Is there a better place for this to live? It may not even need to exist

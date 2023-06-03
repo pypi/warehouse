@@ -20,7 +20,6 @@ from warehouse.accounts.models import User
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
-    TwoFactorSecurityPolicy,
 )
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
@@ -31,8 +30,8 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.oidc.utils import OIDCContext
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
+from warehouse.oidc.utils import OIDCContext
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -129,7 +128,6 @@ def includeme(config):
                 SessionSecurityPolicy(),
                 BasicAuthSecurityPolicy(),
                 MacaroonSecurityPolicy(),
-                TwoFactorSecurityPolicy(),
             ],
         )
     )

@@ -16,7 +16,7 @@ from pyramid.authentication import (
     SessionAuthenticationHelper,
     extract_http_basic_credentials,
 )
-from pyramid.authorization import ACLHelper, Authenticated
+from pyramid.authorization import ACLHelper
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
@@ -303,3 +303,5 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
                 "perform this action without enabling 2FA for your account",
                 queue="warning",
             )
+
+    return None
