@@ -16,15 +16,11 @@ import pytest
 
 from pyramid.authorization import Allow
 from pyramid.interfaces import ISecurityPolicy
-from pyramid.security import Allowed
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import IUserService
-from warehouse.errors import WarehouseDenied
 from warehouse.utils.security_policy import AuthenticationMethod
-
-from ...common.db.packaging import ProjectFactory
 
 
 class TestBasicAuthSecurityPolicy:

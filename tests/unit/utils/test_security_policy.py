@@ -11,18 +11,11 @@
 # limitations under the License.
 
 import pretend
-import pytest
 
-from pyramid.authorization import Authenticated
-from pyramid.security import Allowed, Denied
-from zope.interface.verify import verifyClass
 from pyramid.interfaces import ISecurityPolicy
+from zope.interface.verify import verifyClass
 
-from warehouse.oidc.utils import OIDCContext
 from warehouse.utils import security_policy
-
-from ...common.db.accounts import UserFactory
-from ...common.db.oidc import GitHubPublisherFactory
 
 
 def test_principals_for():

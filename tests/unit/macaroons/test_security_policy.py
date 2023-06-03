@@ -16,7 +16,7 @@ import pytest
 
 from pyramid.authorization import Allow
 from pyramid.interfaces import ISecurityPolicy
-from pyramid.security import Allowed, Denied
+from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.macaroons import security_policy

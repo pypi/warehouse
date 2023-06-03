@@ -76,7 +76,7 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
     )
 
 
-def test_OIDContext_principals():
+def test_oidc_context_principals():
     assert principals_for(
         utils.OIDCContext(publisher=pretend.stub(id=17), claims=None)
     ) == [
