@@ -470,8 +470,12 @@ def test_configure(monkeypatch, settings, environment):
 def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
-    assert len(acl) == 4
-    assert acl[0] == (Allow, "group:admins", "admin")
-    assert acl[1] == (Allow, "group:moderators", "moderator")
-    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
-    assert acl[3] == (Allow, Authenticated, "manage:user")
+    assert acl == [
+        (Allow, "group:admins", "admin"),
+        (Allow, "group:admins", "admin_dashboard_access"),
+        (Allow, "group:moderators", "moderator"),
+        (Allow, "group:moderators", "admin_dashboard_access"),
+        (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:psf_staff", "admin_dashboard_access"),
+        (Allow, Authenticated, "manage:user"),
+    ]

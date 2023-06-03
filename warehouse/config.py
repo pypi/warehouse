@@ -58,8 +58,11 @@ class RootFactory:
 
     __acl__ = [
         (Allow, "group:admins", "admin"),
+        (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
+        (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:psf_staff", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
