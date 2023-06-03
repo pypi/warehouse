@@ -193,7 +193,7 @@ class User(SitemapMixin, HasEvents, db.Model):
         )
 
     def __principals__(self) -> list[str]:
-        principals = [Authenticated, f"user:{self.id}"]
+        principals = [Authenticated, "type:User", f"user:{self.id}"]
 
         if self.is_superuser:
             principals.append("group:admins")

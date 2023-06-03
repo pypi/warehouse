@@ -948,29 +948,27 @@ def file_upload(request):
     try:
         project = projects[form.name.data]
     except KeyError:
-        # Another sanity check: we should be preventing non-user identities
-        # from creating projects in the first place with scoped tokens,
-        # but double-check anyways.
-        if not request.user:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "Non-user identities cannot create new projects. "
-                    "You must first create a project as a user, and then "
-                    "configure the project to use trusted publishers."
-                ),
-            )
-
         # Check if our current request has permission to create new projects
         if not (allowed := request.has_permission(perms.ProjectCreate, projects)):
             reason = getattr(allowed, "reason", None)
-            msg = (
-                ("The user '{}' isn't allowed to create new projects.").format(
-                    request.user.username
+            if request.user:
+                msg = (
+                    ("The user '{}' isn't allowed to create new projects.").format(
+                        request.user.username,
+                    )
+                    if reason is None
+                    else allowed.msg
                 )
-                if reason is None
-                else allowed.msg
-            )
+            else:
+                msg = (
+                    (
+                        "Non-user identities cannot create new projects. "
+                        "You must first create a project as a user, and then "
+                        "configure the project to use trusted publishers."
+                    )
+                    if reason is None
+                    else allowed.msg
+                )
             raise _exc_with_message(HTTPForbidden, msg)
 
         # We attempt to create the project.

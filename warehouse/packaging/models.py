@@ -48,7 +48,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import validates
 from sqlalchemy.orm.collections import attribute_mapped_collection
 
-from warehouse import db
+from warehouse import db, perms
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -145,6 +145,11 @@ class ProjectFactory:
             return False
         else:
             return True
+
+    def __acl__(self):
+        # We currently allow any user to create a project, but we explicitly don't
+        # allow any OIDC Publishers to create projects.
+        return [perms.allow("type:User", perms.ProjectCreate)]
 
 
 class TwoFactorRequireable:
@@ -258,9 +263,14 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         ]
 
         # The project has zero or more OIDC publishers registered to it,
-        # each of which serves as an identity with the ability to upload releases.
+        # each of which serves as an identity with the ability to upload files
+        # and create any needed new releases.
         for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", ["upload"]))
+            acls.append(
+                perms.allow(
+                    f"oidc:{publisher.id}", perms.ReleaseCreate, perms.FileUpload
+                )
+            )
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -293,9 +303,20 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             if permission_name == "Administer":
-                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
+                acls.append(
+                    perms.allow(
+                        f"user:{user_id}",
+                        perms.ProjectManage,
+                        perms.ReleaseCreate,
+                        perms.FileUpload,
+                    )
+                )
             else:
-                acls.append((Allow, f"user:{user_id}", ["upload"]))
+                acls.append(
+                    perms.allow(
+                        f"user:{user_id}", perms.ReleaseCreate, perms.FileUpload
+                    )
+                )
         return acls
 
     @property

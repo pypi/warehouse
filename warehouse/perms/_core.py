@@ -13,6 +13,8 @@
 from dataclasses import dataclass
 from typing import Any
 
+from pyramid.authorization import Allow
+
 # TODO: should permissions be case sensitive?
 
 
@@ -92,3 +94,15 @@ def requires_2fa(perm: _Permission | str) -> bool:
         perm = lperm
 
     return perm.requires_2fa
+
+
+def allow(principal: str, *perms: _Permission) -> tuple[str, str, list[str]]:
+    permissions = []
+    for perm in perms:
+        # When allowing one of our _Permission objects, we want to allow the permission
+        # name, and anything it aliases.
+        # TODO: Determine if the above is true, we might have to use a __eq__ and that
+        #       might cover this use case anyways.
+        permissions.append(perm.permission)
+        permissions.extend(perm.other)
+    return (Allow, principal, permissions)

@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.perms._core import Permission as P, requires_2fa
+from warehouse.perms._core import Permission as P, allow, requires_2fa
 
 # All permissions are required to be defined in this file prior to use to ensure
 # that we have a single location that references all of our permissions.
@@ -76,4 +76,4 @@ Upload = P("upload", [ProjectCreate, ReleaseCreate, FileUpload])
 
 # Exports
 
-__all__ = ["ProjectCreate", "ReleaseCreate", "FileUpload", "Upload", "requires_2fa"]
+__all__ = ["allow", "requires_2fa"]
