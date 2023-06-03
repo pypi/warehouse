@@ -122,29 +122,8 @@ def _basic_auth_check(username, password, request):
     return False
 
 
-class UserSecurityPolicyMixin:
-    def permits(self, request, context, permission):
-        # It should only be possible for request.identity to be a User object
-        # at this point, and we only a User in these policies.
-        assert isinstance(request.identity, User)
-
-        # Dispatch to our ACL
-        # NOTE: These parameters are in a different order
-        res = self._acl.permits(context, principals_for(request.identity), permission)
-
-        # If our underlying permits allowed this, we will check our 2FA status,
-        # that might possibly return a reason to deny the request anyways, and if
-        # it does we'll return that.
-        if isinstance(res, Allowed):
-            mfa = _check_for_mfa(request, context)
-            if mfa is not None:
-                return mfa
-
-        return res
-
-
 @implementer(ISecurityPolicy)
-class SessionSecurityPolicy(UserSecurityPolicyMixin):
+class SessionSecurityPolicy:
     def __init__(self):
         self._session_helper = SessionAuthenticationHelper()
         self._acl = ACLHelper()
@@ -208,9 +187,12 @@ class SessionSecurityPolicy(UserSecurityPolicyMixin):
         # Handled by MultiSecurityPolicy
         raise NotImplementedError
 
+    def permits(self, request, context, permission):
+        return _permits_for_user_policy(self._acl, request, context, permission)
+
 
 @implementer(ISecurityPolicy)
-class BasicAuthSecurityPolicy(UserSecurityPolicyMixin):
+class BasicAuthSecurityPolicy:
     def __init__(self):
         self._acl = ACLHelper()
 
@@ -247,6 +229,29 @@ class BasicAuthSecurityPolicy(UserSecurityPolicyMixin):
     def authenticated_userid(self, request):
         # Handled by MultiSecurityPolicy
         raise NotImplementedError
+
+    def permits(self, request, context, permission):
+        return _permits_for_user_policy(self._acl, request, context, permission)
+
+
+def _permits_for_user_policy(acl, request, context, permission):
+    # It should only be possible for request.identity to be a User object
+    # at this point, and we only a User in these policies.
+    assert isinstance(request.identity, User)
+
+    # Dispatch to our ACL
+    # NOTE: These parameters are in a different order
+    res = acl.permits(context, principals_for(request.identity), permission)
+
+    # If our underlying permits allowed this, we will check our 2FA status,
+    # that might possibly return a reason to deny the request anyways, and if
+    # it does we'll return that.
+    if isinstance(res, Allowed):
+        mfa = _check_for_mfa(request, context)
+        if mfa is not None:
+            return mfa
+
+    return res
 
 
 def _check_for_mfa(request, context) -> WarehouseDenied | None:
