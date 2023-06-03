@@ -149,10 +149,26 @@ class OIDCPublisher(Caveat):
         return Success()
 
 
+@as_caveat(tag=5)
+@dataclass(frozen=True)
+class Permission(Caveat):
+    permissions: list[StrictStr]
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        # TODO: We need to use the warehouse.perms mechanisms to determine if the
+        #       permission is in our list of permissions so that we can support aliasing
+        #       and such.
+        if permission not in self.permissions:
+            return Failure(f"token not valid for permission: {permission}")
+
+        return Success()
+
+
 def verify(
     macaroon: Macaroon, key: bytes, request: Request, context: Any, permission: str
 ) -> Allowed | WarehouseDenied:
     errors: list[str] = []
+    legacy = {"permissions": True}
 
     def _verify_caveat(predicate: bytes):
         try:
@@ -160,6 +176,12 @@ def verify(
         except CaveatError as exc:
             errors.append(str(exc))
             return False
+
+        # This gross hack is used so that we can see if the token ever had a Permission
+        # caveat applied to it or not. Previously generated tokens were only valid for
+        # upload, but they implemented that restriction outside of the caveat system.
+        if isinstance(caveat, Permission):
+            legacy["permissions"] = False
 
         result = caveat.verify(request, context, permission)
         assert isinstance(result, (Success, Failure))
@@ -189,4 +211,17 @@ def verify(
 
     if not result:
         return WarehouseDenied("unknown error", reason="invalid_api_token")
+
+    # Check any legacy requirements that used to be implied but are now part of the
+    # caveat system. We'll do this by constructing a Caveat so that we don't have to
+    # duplicate the logic.
+
+    # If we're using the legacy permission check, check that our permission matches the
+    # upload permission.
+    if legacy["permissions"]:
+        # TODO: Use perms.Upload not the string upload.
+        caveat = Permission(permissions=["upload"])
+        if not (failure := caveat.verify(request, context, permission)):
+            return WarehouseDenied(failure.reason, reason="invalid_api_token")
+
     return Allowed("signature and caveats OK")
