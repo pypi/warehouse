@@ -18,6 +18,10 @@ from warehouse.perms._core import Permission as P, requires_2fa
 # Permissions SHOULD take the form of $resource:$action, unless a different
 # format is needed for legacy reasons, which should ideally be aliases.
 #
+# The permission should generally only be used in an ACL on a type that matches the
+# resource or one its children. In other words, Project can have project:*, release:*,
+# and file:*, but should not have user:* or org:*.
+#
 # We should also avoid making "catch all" permissions that operate on too many
 # different resources, unless it's an alias for more fine grained permissions.
 #
@@ -30,6 +34,8 @@ from warehouse.perms._core import Permission as P, requires_2fa
 # anyways, the aliases are primarily for use in ACLs or Macaroon Caveats.
 
 # TODO: Audit for places we're not using the permission system, but we should be
+
+UserManage = P("user:manage")
 
 # TODO: Are these scoped to user only projects, or does it affect organizations as well?
 ProjectCreate = P("project:create")
