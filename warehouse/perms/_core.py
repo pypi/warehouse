@@ -97,12 +97,5 @@ def requires_2fa(perm: _Permission | str) -> bool:
 
 
 def allow(principal: str, *perms: _Permission) -> tuple[str, str, list[str]]:
-    permissions = []
-    for perm in perms:
-        # When allowing one of our _Permission objects, we want to allow the permission
-        # name, and anything it aliases.
-        # TODO: Determine if the above is true, we might have to use a __eq__ and that
-        #       might cover this use case anyways.
-        permissions.append(perm.permission)
-        permissions.extend(perm.other)
+    permissions = [p.permission for p in perms]
     return (Allow, principal, permissions)
