@@ -266,6 +266,14 @@ def user_delete(user, request):
     return HTTPSeeOther(request.route_path("admin.user.list"))
 
 
+def _user_reset_password(user, request):
+    login_service = request.find_service(IUserService, context=None)
+    send_password_compromised_email(request, user)
+    login_service.disable_password(
+        user.id, request, reason=DisableReason.CompromisedPassword
+    )
+
+
 @view_config(
     route_name="admin.user.reset_password",
     require_methods=["POST"],
@@ -285,11 +293,7 @@ def user_reset_password(user, request):
             request.route_path("admin.user.detail", username=user.username)
         )
 
-    login_service = request.find_service(IUserService, context=None)
-    send_password_compromised_email(request, user)
-    login_service.disable_password(
-        user.id, request, reason=DisableReason.CompromisedPassword
-    )
+    _user_reset_password(user, request)
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
@@ -317,12 +321,7 @@ def user_wipe_factors(user, request):
     user.totp_secret = None
     user.webauthn = []
     user.recovery_codes = []
-
-    login_service = request.find_service(IUserService, context=None)
-    send_password_compromised_email(request, user)
-    login_service.disable_password(
-        user.id, request, reason=DisableReason.CompromisedPassword
-    )
+    _user_reset_password(user, request)
 
     request.session.flash(
         f"Wiped factors and reset password for {user.username!r}", queue="success"
