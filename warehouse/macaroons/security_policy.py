@@ -12,8 +12,8 @@
 
 import base64
 
+from pyramid.authorization import ACLHelper
 from pyramid.interfaces import ISecurityPolicy
-from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary_callback
@@ -21,7 +21,7 @@ from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.utils import OIDCContext
-from warehouse.utils.security_policy import AuthenticationMethod
+from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
 def _extract_basic_macaroon(auth):
@@ -73,6 +73,9 @@ def _extract_http_macaroon(request):
 
 @implementer(ISecurityPolicy)
 class MacaroonSecurityPolicy:
+    def __init__(self):
+        self._acl = ACLHelper()
+
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -125,6 +128,8 @@ class MacaroonSecurityPolicy:
         # Our request could possibly be a None, if there isn't an active request, in
         # that case we're going to always deny, because without a request, we can't
         # determine if this request is authorized or not.
+        # TODO: This is weird? This feels like it comes from the old AuthZ policies
+        #       which didn't have access to the request.
         if request is None:
             return WarehouseDenied(
                 "There was no active request.", reason="no_active_request"
@@ -135,32 +140,35 @@ class MacaroonSecurityPolicy:
         # a principal-- which doesn't seem to be the right fit for it.
         macaroon = _extract_http_macaroon(request)
 
-        # This logic will only happen on requests that are being authenticated with
-        # Macaroons. Any other request will just fall back to the standard Authorization
-        # policy.
-        if macaroon is not None:
-            valid_permissions = ["upload"]
-            macaroon_service = request.find_service(IMacaroonService, context=None)
+        # It should not be possible to *not* have a macaroon at this point, because we
+        # can't call this function without an identity that came from a macaroon
+        assert isinstance(macaroon, str), "no valid macaroon"
 
-            try:
-                macaroon_service.verify(macaroon, request, context, permission)
-            except InvalidMacaroonError as exc:
-                return WarehouseDenied(
-                    f"Invalid API Token: {exc}", reason="invalid_api_token"
-                )
+        # Check to make sure that the permission we're attempting to permit is one that
+        # is allowed to be used for macaroons.
+        # TODO: This should be moved out of there and into the acaroons themselves, it
+        #       doesn't really make a lot of sense here and it makes things more
+        #       complicated if we want to allow the use of macaroons for actions other
+        #       than uploading.
+        if permission not in ["upload"]:
+            return WarehouseDenied(
+                f"API tokens are not valid for permission: {permission}!",
+                reason="invalid_permission",
+            )
 
-            # If our Macaroon is verified, and for a valid permission then we'll
-            # Allow the request, letting MultiSecurityPolicy handle the rest of
-            # the authorization logic against the principal.
-            if permission in valid_permissions:
-                return Allowed("API token validated")
-            else:
-                return WarehouseDenied(
-                    f"API tokens are not valid for permission: {permission}!",
-                    reason="invalid_permission",
-                )
+        # Check if our macaroon itself is valid. This does not actually check if the
+        # identity bound to that macaroon has permission to do what it's trying to do
+        # but rather that the caveats embedded into the macaroon are valid for the given
+        # request, context, and permission.
+        macaroon_service = request.find_service(IMacaroonService, context=None)
+        try:
+            macaroon_service.verify(macaroon, request, context, permission)
+        except InvalidMacaroonError as exc:
+            return WarehouseDenied(
+                f"Invalid API Token: {exc}", reason="invalid_api_token"
+            )
 
-        else:
-            # We can't pass judgement on requests that don't have associated
-            # macaroons.
-            raise NotImplementedError
+        # The macaroon is valid, so we can actually see if request.identity is
+        # authorized now or not.
+        # NOTE: These parameters are in a different order
+        return self._acl.permits(context, principals_for(request.identity), permission)

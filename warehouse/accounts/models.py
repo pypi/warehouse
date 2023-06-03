@@ -14,7 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
-from pyramid.authorization import Allow
+from pyramid.authorization import Authenticated, Allow
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -191,6 +191,25 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    def __principals__(self) -> list[str]:
+        principals = [Authenticated, f"user:{self.id}"]
+
+        if self.is_superuser:
+            principals.append("group:admins")
+        if self.is_moderator or self.is_superuser:
+            principals.append("group:moderators")
+        if self.is_psf_staff or self.is_superuser:
+            principals.append("group:psf_staff")
+
+        # user must have base admin access if any admin permission
+        # TODO: This feels wrong? Why are we using a group to add dashboard
+        #       access and not a permission? Why are we adding it to every
+        #       user? Something is weird, and we should figure it out.
+        if principals:
+            principals.append("group:with_admin_dashboard_access")
+
+        return principals
 
     def __acl__(self):
         return [

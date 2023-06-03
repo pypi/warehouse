@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+from pyramid.authorization import Authenticated
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.interfaces import SignedClaims
@@ -117,3 +118,6 @@ class OIDCContext:
     """
     Pertinent OIDC claims from the token, if they exist.
     """
+
+    def __principals__(self) -> list[str]:
+        principals = [Authenticated, f"oidc:{self.publisher.id}"]

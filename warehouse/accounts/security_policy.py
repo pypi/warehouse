@@ -16,13 +16,14 @@ from pyramid.authentication import (
     SessionAuthenticationHelper,
     extract_http_basic_credentials,
 )
+from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (
@@ -33,7 +34,7 @@ from warehouse.errors import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.packaging.models import TwoFactorRequireable
-from warehouse.utils.security_policy import AuthenticationMethod
+from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
 def _format_exc_status(exc, message):
@@ -54,6 +55,7 @@ def _basic_auth_check(username, password, request):
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
     userid = login_service.find_userid(username)
+    # TODO: Why are we stashing this here?
     request._unauthenticated_userid = userid
     if userid is not None:
         user = login_service.get_user(userid)
@@ -124,6 +126,7 @@ def _basic_auth_check(username, password, request):
 class SessionSecurityPolicy:
     def __init__(self):
         self._session_helper = SessionAuthenticationHelper()
+        self._acl = ACLHelper()
 
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
@@ -144,6 +147,7 @@ class SessionSecurityPolicy:
             return None
 
         userid = self._session_helper.authenticated_userid(request)
+        # TODO: Why are we stashing this here?
         request._unauthenticated_userid = userid
 
         if userid is None:
@@ -184,12 +188,20 @@ class SessionSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
+        # It should only be possible for request.identity to be a User object
+        # at this point, and we only a User in these policies.
+        assert isinstance(request.identity, User)
+
+        # Dispatch to our ACL
+        # NOTE: These parameters are in a different order
+        return self._acl.permits(context, principals_for(request.identity), permission)
 
 
 @implementer(ISecurityPolicy)
 class BasicAuthSecurityPolicy:
+    def __init__(self):
+        self._acl = ACLHelper()
+
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -225,8 +237,16 @@ class BasicAuthSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
+        # It should only be possible for request.identity to be a User object
+        # at this point, and we only a User in these policies.
+        assert isinstance(request.identity, User)
+
+        # Lookup the principals that should exist for our current user.
+        principals = principals_for(request.identity)
+
+        # Dispatch to our ACL
+        # NOTE: These parameters are in a different order
+        return self._acl.permits(context, principals_for(request.identity), permission)
 
 
 @implementer(ISecurityPolicy)

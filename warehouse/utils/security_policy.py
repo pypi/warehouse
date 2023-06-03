@@ -14,6 +14,7 @@ import enum
 
 from pyramid.authorization import ACLHelper, Authenticated
 from pyramid.interfaces import ISecurityPolicy
+from pyramid.request import RequestLocalCache
 from pyramid.security import Denied
 from zope.interface import implementer
 
@@ -21,27 +22,18 @@ from warehouse.accounts.models import User
 from warehouse.oidc.utils import OIDCContext
 
 
+# NOTE: Is there a better place for this to live? It may not even need to exist
+#       since it's so small, it may be easier to just inline it.
+def principals_for(identity) -> list[str]:
+    if hasattr(identity, "__principals__"):
+        return identity.__principals__()
+    return []
+
+
 class AuthenticationMethod(enum.Enum):
     BASIC_AUTH = "basic-auth"
     SESSION = "session"
     MACAROON = "macaroon"
-
-
-def _principals_for_authenticated_user(user):
-    """Apply the necessary principals to the authenticated user"""
-    principals = []
-    if user.is_superuser:
-        principals.append("group:admins")
-    if user.is_moderator or user.is_superuser:
-        principals.append("group:moderators")
-    if user.is_psf_staff or user.is_superuser:
-        principals.append("group:psf_staff")
-
-    # user must have base admin access if any admin permission
-    if principals:
-        principals.append("group:with_admin_dashboard_access")
-
-    return principals
 
 
 @implementer(ISecurityPolicy)
@@ -54,27 +46,41 @@ class MultiSecurityPolicy:
     with the following semantics:
 
     * `identity`: Selected from the first policy to return non-`None`
-    * `authenticated_userid`: Selected from the first policy to return a user
+    * `authenticated_userid`: Selected from the first policy to return an identity
     * `forget`: Combined from all policies
     * `remember`: Combined from all policies
-    * `permits`: Uses the AuthZ policy passed during initialization
+    * `permits`: Uses the the policy that returned the identity.
 
     These semantics mostly mirror those of `pyramid-multiauth`.
     """
 
     def __init__(self, policies):
         self._policies = policies
-        self._acl = ACLHelper()
+        self._identity_cache = RequestLocalCache(self._get_identity_with_policy)
 
-    def identity(self, request):
+    def _get_identity_with_policy(self, request):
+        # This will be cached per request, which means that we'll have a stable
+        # result for both the identity AND the policy that produced it. Further
+        # uses can then make sure to use the same policy throughout, at least
+        # where it makes sense to.
         for policy in self._policies:
             if ident := policy.identity(request):
-                return ident
+                return ident, policy
 
-        return None
+        return None, None
+
+    def identity(self, request):
+        identity, _policy = self._identity_cache.get_or_create(request)
+        return identity
 
     def authenticated_userid(self, request):
         if ident := self.identity(request):
+            # TODO: Note, this logic breaks the contract of a SecurityPolicy, the
+            #       authenticated_userid is intended to be used to fetch the unique
+            #       identifier that represents the current identity. We're leaving
+            #       it here for now, because there are a number of views directly
+            #       using this to detect user vs not, which we'll need to move to a
+            #       more correct pattern before fixing this.
             if isinstance(ident, User):
                 return str(ident.id)
         return None
@@ -96,31 +102,16 @@ class MultiSecurityPolicy:
         return headers
 
     def permits(self, request, context, permission):
-        # First, check if any subpolicy denies the request.
-        for policy in self._policies:
-            try:
-                if not (permits := policy.permits(request, context, permission)):
-                    return permits
-            except NotImplementedError:
-                # Raised when a subpolicy does not support a given request. e.g.
-                # `MacaroonSecurityPolicy` being handed a non-macaroon request.
-                # If a subpolicy raises this, we don't treat it as an explicit
-                # permit or reject decision, just pass and check the next policy.
-                pass
+        identity, policy = self._identity_cache.get_or_create(request)
+        # Sanity check that somehow our cached identity + policy didn't end up
+        # different than what the request.identity is. This shouldn't be possible
+        # but we'll assert it because if we let it pass silently it may mean that
+        # some kind of confused-deputy attack is possible.
+        assert request.identity == identity, "request has a different identity"
 
-        # Next, construct a list of principals from our request.
-        identity = request.identity
-        principals = []
-        if identity is not None:
-            principals.append(Authenticated)
-
-            if isinstance(identity, User):
-                principals.append(f"user:{identity.id}")
-                principals.extend(_principals_for_authenticated_user(identity))
-            elif isinstance(identity, OIDCContext):
-                principals.append(f"oidc:{identity.publisher.id}")
-            else:
-                return Denied("unknown identity")
-
-        # Finally, check the principals against the context.
-        return self._acl.permits(context, principals, permission)
+        # Dispatch to the underlying policy for the given identity, if there was one
+        # for this request.
+        if policy is not None:
+            return policy.permits(request, context, permission)
+        else:
+            return Denied("unknown identity")
