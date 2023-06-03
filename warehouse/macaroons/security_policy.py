@@ -125,16 +125,6 @@ class MacaroonSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Our request could possibly be a None, if there isn't an active request, in
-        # that case we're going to always deny, because without a request, we can't
-        # determine if this request is authorized or not.
-        # TODO: This is weird? This feels like it comes from the old AuthZ policies
-        #       which didn't have access to the request.
-        if request is None:
-            return WarehouseDenied(
-                "There was no active request.", reason="no_active_request"
-            )
-
         # Re-extract our Macaroon from the request, it sucks to have to do this work
         # twice, but I believe it is inevitable unless we pass the Macaroon back as
         # a principal-- which doesn't seem to be the right fit for it.
