@@ -406,10 +406,6 @@ def test_includeme(monkeypatch):
     macaroon_policy_cls = pretend.call_recorder(lambda: macaroon_policy_obj)
     monkeypatch.setattr(accounts, "MacaroonSecurityPolicy", macaroon_policy_cls)
 
-    twofactor_policy_obj = pretend.stub()
-    twofactor_policy_cls = pretend.call_recorder(lambda: twofactor_policy_obj)
-    monkeypatch.setattr(accounts, "TwoFactorSecurityPolicy", twofactor_policy_cls)
-
     config = pretend.stub(
         registry=pretend.stub(
             settings={
@@ -476,7 +472,6 @@ def test_includeme(monkeypatch):
                 session_policy_obj,
                 basic_policy_obj,
                 macaroon_policy_obj,
-                twofactor_policy_obj,
             ]
         )
     ]

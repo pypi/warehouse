@@ -295,7 +295,7 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         if (
             request.registry.settings["warehouse.two_factor_mandate.available"]
             and context.pypi_mandates_2fa
-            and not request.user.has_two_factor
+            and not request.identity.has_two_factor
         ):
             request.session.flash(
                 "This project is included in PyPI's two-factor mandate "
