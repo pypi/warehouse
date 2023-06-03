@@ -281,6 +281,7 @@ class ManageOrganizationSettingsViews:
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
+                user=self.request.user,
             ),
             "active_projects": self.active_projects,
         }
@@ -291,7 +292,7 @@ class ManageOrganizationSettingsViews:
 
     @view_config(request_method="POST", request_param=SaveOrganizationForm.__params__)
     def save_organization(self):
-        form = SaveOrganizationForm(self.request.POST)
+        form = SaveOrganizationForm(self.request.POST, user=self.request.user)
 
         if form.validate():
             previous_organization_display_name = self.organization.display_name
@@ -352,6 +353,7 @@ class ManageOrganizationSettingsViews:
             self.request.POST,
             organization_service=self.organization_service,
             organization_id=self.organization.id,
+            user=self.request.user,
         )
 
         if form.validate():
