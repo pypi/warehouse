@@ -113,6 +113,7 @@ class TestManageOrganizations:
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
             organization_access=True,
+            user=pretend.stub(),
         )
 
         default_response = {"default": "response"}
@@ -474,6 +475,7 @@ class TestManageOrganizationSettings:
     def test_manage_organization(
         self, db_request, organization_service, enable_organizations, monkeypatch
     ):
+        db_request.user = pretend.stub()
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
@@ -617,6 +619,7 @@ class TestManageOrganizationSettings:
             "description": organization.description,
             "orgtype": organization.orgtype,
         }
+        db_request.user = pretend.stub()
 
         monkeypatch.setattr(
             organization_service,
@@ -770,6 +773,7 @@ class TestManageOrganizationSettings:
             "confirm_current_organization_name": organization.name,
             "name": "FooBar",
         }
+        db_request.user = pretend.stub()
 
         def rename_organization(organization_id, organization_name):
             organization.name = organization_name

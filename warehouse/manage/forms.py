@@ -430,6 +430,21 @@ class OrganizationNameMixin:
                 )
             )
 
+        outstanding_applications = (
+            self.organization_service.get_organization_applications_by_name(
+                field.data, submitted_by=self.user, undecided=True
+            )
+        )
+
+        # Name is valid if the user has no outstanding applications for the same name
+        if len(outstanding_applications) > 0:
+            raise wtforms.validators.ValidationError(
+                _(
+                    "You have already submitted an application for that name. "
+                    "Choose a different organization account name."
+                )
+            )
+
 
 class AddOrganizationProjectForm(forms.Form):
     __params__ = ["add_existing_project", "existing_project_name", "new_project_name"]
@@ -529,10 +544,13 @@ class ChangeOrganizationRoleForm(OrganizationRoleNameMixin, forms.Form):
 class SaveOrganizationNameForm(OrganizationNameMixin, forms.Form):
     __params__ = ["name"]
 
-    def __init__(self, *args, organization_service, organization_id=None, **kwargs):
+    def __init__(
+        self, *args, organization_service, organization_id=None, user, **kwargs
+    ):
         super().__init__(*args, **kwargs)
         self.organization_service = organization_service
         self.organization_id = organization_id
+        self.user = user
 
 
 class SaveOrganizationForm(forms.Form):
@@ -592,6 +610,8 @@ class SaveOrganizationForm(forms.Form):
 class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationForm):
     __params__ = ["name"] + SaveOrganizationForm.__params__
 
+    _max_apps = wtforms.IntegerField()
+
     def __init__(
         self, *args, organization_service, user, max_applications=None, **kwargs
     ):
@@ -600,32 +620,15 @@ class CreateOrganizationApplicationForm(OrganizationNameMixin, SaveOrganizationF
         self.user = user
         self.max_applications = max_applications
 
-    def validate_name(self, field):
-        super().validate_name(field)
-        outstanding_applications = (
-            self.organization_service.get_organization_applications_by_name(
-                field.data, submitted_by=self.user, undecided=True
-            )
-        )
-
-        # Name is valid if the user has no outstanding applications for the same name
-        if len(outstanding_applications) > 0:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "You have already submitted an application for that name. "
-                    "Choose a different organization account name."
-                )
-            )
-
-    def validate(self):
+    def validate__max_apps(self, field):
         if (
             self.max_applications is not None
             and len(self.user.organization_applications) >= self.max_applications
         ):
-            self.form_errors.append(
+            self._form_errors.append(
                 _(
                     "You have already submitted the maximum number of "
-                    "Organization requests."
+                    f"Organization requests ({self.max_applications})."
                 )
             )
             return False
