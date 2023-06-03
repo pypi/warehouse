@@ -37,6 +37,32 @@ class DomainPredicate:
         return is_same_domain(request.domain, self.val)
 
 
+# NOTE: APIPredicate does not actually influence the match, instead we use it
+#       as a way to mark which routes are considered "API", and should support
+#       API authentication methods.
+class APIPredicate:
+    def __init__(self, val, config):
+        self.val = val
+
+    def text(self):
+        return f"is_api = {self.val}"
+
+    phash = text
+
+    def __call__(self, info, request):
+        # Since we're not actually using this for dispatching, we always match
+        return True
+
+
+def _is_api_route(request):
+    if route := request.matched_route:
+        for pred in route.predicates:
+            if isinstance(pred, APIPredicate) and pred.val:
+                return True
+
+    return False
+
+
 class HeadersPredicate:
     def __init__(self, val: list[str], config):
         if not val:
@@ -101,7 +127,10 @@ class ActiveOrganizationPredicate:
 
 
 def includeme(config):
+    config.add_request_method(_is_api_route, name="is_api", reify=True)
+
     config.add_route_predicate("domain", DomainPredicate)
+    config.add_route_predicate("is_api", APIPredicate)
     config.add_view_predicate("require_headers", HeadersPredicate)
     config.add_view_predicate(
         "require_active_organization", ActiveOrganizationPredicate
