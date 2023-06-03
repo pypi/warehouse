@@ -21,6 +21,7 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
 from pyramid.security import Allowed
 
+from warehouse import perms
 from warehouse.accounts.models import User
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
@@ -220,7 +221,7 @@ def verify(
     # upload permission.
     if legacy["permissions"]:
         # TODO: Use perms.Upload not the string upload.
-        caveat = Permission(permissions=["upload"])
+        caveat = Permission(permissions=perms.serialize(perms.Upload))
         if not (failure := caveat.verify(request, context, permission)):
             return WarehouseDenied(failure.reason, reason="invalid_api_token")
 

@@ -149,7 +149,7 @@ class ProjectFactory:
     def __acl__(self):
         # We currently allow any user to create a project, but we explicitly don't
         # allow any OIDC Publishers to create projects.
-        return [perms.allow("type:User", perms.ProjectCreate)]
+        return [(Allow, "type:User", perms.serialize(perms.ProjectCreate))]
 
 
 class TwoFactorRequireable:
@@ -267,8 +267,10 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         # and create any needed new releases.
         for publisher in self.oidc_publishers:
             acls.append(
-                perms.allow(
-                    f"oidc:{publisher.id}", perms.ReleaseCreate, perms.FileUpload
+                (
+                    Allow,
+                    f"oidc:{publisher.id}",
+                    perms.serialize(perms.ReleaseCreate, perms.FileUpload),
                 )
             )
 
@@ -304,17 +306,22 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             if permission_name == "Administer":
                 acls.append(
-                    perms.allow(
+                    (
+                        Allow,
                         f"user:{user_id}",
-                        perms.ProjectManage,
-                        perms.ReleaseCreate,
-                        perms.FileUpload,
+                        perms.serialize(
+                            perms.ProjectManage,
+                            perms.ReleaseCreate,
+                            perms.FileUpload,
+                        ),
                     )
                 )
             else:
                 acls.append(
-                    perms.allow(
-                        f"user:{user_id}", perms.ReleaseCreate, perms.FileUpload
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        perms.serialize(perms.ReleaseCreate, perms.FileUpload),
                     )
                 )
         return acls

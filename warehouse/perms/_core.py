@@ -96,6 +96,5 @@ def requires_2fa(perm: _Permission | str) -> bool:
     return perm.requires_2fa
 
 
-def allow(principal: str, *perms: _Permission) -> tuple[str, str, list[str]]:
-    permissions = [p.permission for p in perms]
-    return (Allow, principal, permissions)
+def serialize(*perms: _Permission) -> list[str]:
+    return [p.permission for p in perms]
