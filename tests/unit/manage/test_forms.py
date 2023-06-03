@@ -592,7 +592,7 @@ class TestCreateOrganizationApplicationForm:
         assert organization_service.get_organization_applications_by_name.calls == []
         assert organization_service.find_organizationid.calls == []
 
-    def test_validate_name_with_less_than_max_applications(self, db_session):
+    def test_validate_name_with_fewer_than_max_applications(self, db_session):
         organization_service = pretend.stub(
             get_organization_applications_by_name=pretend.call_recorder(
                 lambda name, submitted_by=None: []
