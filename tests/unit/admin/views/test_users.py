@@ -18,7 +18,12 @@ from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
-from warehouse.accounts.models import DisableReason, ProhibitedUserName
+from warehouse.accounts.models import (
+    DisableReason,
+    ProhibitedUserName,
+    RecoveryCode,
+    WebAuthn,
+)
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import JournalEntry, Project
 
@@ -448,6 +453,100 @@ class TestUserResetPassword:
         )
 
         result = views.user_reset_password(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
+
+
+class TestUserWipeFactors:
+    def test_wipes_factors(self, db_request, monkeypatch):
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_wipe_factors(user, db_request)
+
+        assert user.totp_secret is None
+        assert len(user.webauthn) == 0
+        assert len(user.recovery_codes.all()) == 0
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert service.disable_password.calls == [
+            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_wipes_factors_bad_confirm(self, db_request, monkeypatch):
+        user = UserFactory.create()
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = UserFactory.create()
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_wipe_factors(user, db_request)
+
+        assert db_request.find_service.calls == []
+        assert send_email.calls == []
+        assert service.disable_password.calls == []
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_user_wipe_factors_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_wipe_factors(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
