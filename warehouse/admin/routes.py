@@ -82,6 +82,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.wipe_factors",
+        "/admin/users/{username}/wipe_factors/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.prohibited_user_names.bulk_add",
         "/admin/prohibited_user_names/bulk/",
         domain=warehouse,
