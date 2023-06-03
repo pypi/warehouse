@@ -14,6 +14,7 @@
 import pretend
 import pytest
 
+from pyramid.authorization import Allow
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed, Denied
 from zope.interface.verify import verifyClass
@@ -206,24 +207,6 @@ class TestMacaroonSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_permits_no_active_request(self, monkeypatch):
-        policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(None, pretend.stub(), pretend.stub())
-
-        assert result == Denied("")
-        assert result.s == "There was no active request."
-
-    def test_permits_no_macaroon(self, monkeypatch):
-        _extract_http_macaroon = pretend.call_recorder(lambda r: None)
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
-        )
-
-        policy = security_policy.MacaroonSecurityPolicy()
-
-        with pytest.raises(NotImplementedError):
-            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-
     def test_permits_invalid_macaroon(self, monkeypatch):
         macaroon_service = pretend.stub(
             verify=pretend.raiser(InvalidMacaroonError("foo"))
@@ -231,25 +214,7 @@ class TestMacaroonSecurityPolicy:
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
         )
-        _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
-        )
-
-        policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, pretend.stub(), pretend.stub())
-
-        assert result == Denied("")
-        assert result.s == "Invalid API Token: foo"
-
-    def test_permits_valid_macaroon(self, monkeypatch):
-        macaroon_service = pretend.stub(
-            verify=pretend.call_recorder(lambda *a: pretend.stub())
-        )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
-        )
-        _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
+        _extract_http_macaroon = pretend.call_recorder(lambda r: "not a real macaroon")
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
@@ -257,7 +222,33 @@ class TestMacaroonSecurityPolicy:
         policy = security_policy.MacaroonSecurityPolicy()
         result = policy.permits(request, pretend.stub(), "upload")
 
-        assert result == Allowed("")
+        assert result == Denied("")
+        assert result.s == "Invalid API Token: foo"
+
+    @pytest.mark.parametrize(
+        "principals,expected", [(["user:5"], True), (["user:1"], False)]
+    )
+    def test_permits_valid_macaroon(self, monkeypatch, principals, expected):
+        macaroon_service = pretend.stub(
+            verify=pretend.call_recorder(lambda *a: pretend.stub())
+        )
+        request = pretend.stub(
+            identity=pretend.stub(__principals__=lambda: principals),
+            find_service=pretend.call_recorder(
+                lambda interface, **kw: macaroon_service
+            ),
+        )
+        _extract_http_macaroon = pretend.call_recorder(lambda r: "not a real macaroon")
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", _extract_http_macaroon
+        )
+
+        context = pretend.stub(__acl__=[(Allow, "user:5", ["upload"])])
+
+        policy = security_policy.MacaroonSecurityPolicy()
+        result = policy.permits(request, context, "upload")
+
+        assert bool(result) == expected
 
     @pytest.mark.parametrize(
         "invalid_permission",
@@ -266,19 +257,13 @@ class TestMacaroonSecurityPolicy:
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission
     ):
-        macaroon_service = pretend.stub(
-            verify=pretend.call_recorder(lambda *a: pretend.stub())
-        )
-        request = pretend.stub(
-            find_service=pretend.call_recorder(lambda interface, **kw: macaroon_service)
-        )
-        _extract_http_macaroon = pretend.call_recorder(lambda r: b"not a real macaroon")
+        _extract_http_macaroon = pretend.call_recorder(lambda r: "not a real macaroon")
         monkeypatch.setattr(
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, pretend.stub(), invalid_permission)
+        result = policy.permits(pretend.stub(), pretend.stub(), invalid_permission)
 
         assert result == Denied("")
         assert result.s == (
