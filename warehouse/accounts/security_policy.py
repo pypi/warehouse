@@ -194,7 +194,17 @@ class SessionSecurityPolicy:
 
         # Dispatch to our ACL
         # NOTE: These parameters are in a different order
-        return self._acl.permits(context, principals_for(request.identity), permission)
+        res = self._acl.permits(context, principals_for(request.identity), permission)
+
+        # If our underlying permits allowed this, we will check our 2FA status,
+        # that might possibly return a reason to deny the request anyways, and if
+        # it does we'll return that.
+        if isinstance(res, Allowed):
+            mfa = _check_for_mfa(request, context)
+            if mfa is not None:
+                return mfa
+
+        return res
 
 
 @implementer(ISecurityPolicy)
@@ -241,85 +251,67 @@ class BasicAuthSecurityPolicy:
         # at this point, and we only a User in these policies.
         assert isinstance(request.identity, User)
 
-        # Lookup the principals that should exist for our current user.
-        principals = principals_for(request.identity)
-
         # Dispatch to our ACL
         # NOTE: These parameters are in a different order
-        return self._acl.permits(context, principals_for(request.identity), permission)
+        res = self._acl.permits(context, principals_for(request.identity), permission)
+
+        # If our underlying permits allowed this, we will check our 2FA status,
+        # that might possibly return a reason to deny the request anyways, and if
+        # it does we'll return that.
+        if isinstance(res, Allowed):
+            mfa = _check_for_mfa(request, context)
+            if mfa is not None:
+                return mfa
+
+        return res
 
 
-@implementer(ISecurityPolicy)
-class TwoFactorSecurityPolicy:
-    """
-    Security policy that enforces two-factor authentication for specific
-    contexts.
+def _check_for_mfa(request, context) -> WarehouseDenied | None:
+    # It should only be possible for request.identity to be a User object
+    # at this point, and we only a User in these policies.
+    assert isinstance(request.identity, User)
 
-    Most member methods, with the exception of `permits`, are no-ops. This is
-    because this security policy solely checks authorization and does not
-    identify/authenticate users.
-    """
-
-    def identity(self, request):
-        return None
-
-    def forget(self, request, **kw):
-        return []
-
-    def remember(self, request, userid, **kw):
-        return []
-
-    def authenticated_userid(self, request):
-        raise NotImplementedError
-
-    def permits(self, request, context, permission):
-        # Our request could possibly be a None, if there isn't an active request, in
-        # that case we're going to always deny, because without a request, we can't
-        # determine if this request is authorized or not.
-        if request is None:
+    # Check if the context is 2FA requireable, if 2FA is indeed required, and if
+    # the user has 2FA enabled.
+    if isinstance(context, TwoFactorRequireable):
+        # Check if we allow owners to require 2FA, and if so does our context owner
+        # require 2FA? And if so does our user have 2FA?
+        if (
+            request.registry.settings["warehouse.two_factor_requirement.enabled"]
+            and context.owners_require_2fa
+            and not request.identity.has_two_factor
+        ):
             return WarehouseDenied(
-                "There was no active request.", reason="no_active_request"
+                "This project requires two factor authentication to be enabled "
+                "for all contributors.",
+                reason="owners_require_2fa",
             )
 
-        # If the request is permitted by the subpolicy, check if the context is
-        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
-        # enabled.
-        #
-        # We check for `request.user` explicitly because we don't perform
-        # this check for non-user identities: the only way a non-user
-        # identity can be created is after a 2FA check on a 2FA-mandated
-        # project.
-        if isinstance(context, TwoFactorRequireable) and request.user:
-            if (
-                request.registry.settings["warehouse.two_factor_requirement.enabled"]
-                and context.owners_require_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "This project requires two factor authentication to be enabled "
-                    "for all contributors.",
-                    reason="owners_require_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.enabled"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "PyPI requires two factor authentication to be enabled "
-                    "for all contributors to this project.",
-                    reason="pypi_mandates_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.available"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                request.session.flash(
-                    "This project is included in PyPI's two-factor mandate "
-                    "for critical projects. In the future, you will be unable to "
-                    "perform this action without enabling 2FA for your account",
-                    queue="warning",
-                )
+        # Check if PyPI is enforcing the 2FA mandate on "critical" projects, and if it
+        # is does our current context require it, and if it does, does our user have
+        # 2FA?
+        if (
+            request.registry.settings["warehouse.two_factor_mandate.enabled"]
+            and context.pypi_mandates_2fa
+            and not request.identity.has_two_factor
+        ):
+            return WarehouseDenied(
+                "PyPI requires two factor authentication to be enabled "
+                "for all contributors to this project.",
+                reason="pypi_mandates_2fa",
+            )
 
-        return Allowed("Two factor requirements fulfilled")
+        # Check if PyPI's 2FA mandate is available, but not enforcing, and if it is and
+        # the current context would require 2FA, and if our user doesn't have have 2FA
+        # then we'll flash a warning.
+        if (
+            request.registry.settings["warehouse.two_factor_mandate.available"]
+            and context.pypi_mandates_2fa
+            and not request.user.has_two_factor
+        ):
+            request.session.flash(
+                "This project is included in PyPI's two-factor mandate "
+                "for critical projects. In the future, you will be unable to "
+                "perform this action without enabling 2FA for your account",
+                queue="warning",
+            )
