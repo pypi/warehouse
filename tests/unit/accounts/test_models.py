@@ -11,10 +11,14 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pytest
 
+from pyramid.authorization import Authenticated
+
 from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
+from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -162,3 +166,77 @@ class TestUser:
             ("Allow", "group:admins", "admin"),
             ("Allow", "group:moderators", "moderator"),
         ]
+
+    @pytest.mark.parametrize(
+        (
+            "is_superuser",
+            "is_moderator",
+            "is_psf_staff",
+            "expected",
+        ),
+        [
+            (False, False, False, ["group:with_admin_dashboard_access"]),
+            (
+                True,
+                False,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                True,
+                False,
+                ["group:moderators", "group:with_admin_dashboard_access"],
+            ),
+            (
+                True,
+                True,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+            (
+                False,
+                False,
+                True,
+                ["group:psf_staff", "group:with_admin_dashboard_access"],
+            ),
+            (
+                False,
+                True,
+                True,
+                [
+                    "group:moderators",
+                    "group:psf_staff",
+                    "group:with_admin_dashboard_access",
+                ],
+            ),
+        ],
+    )
+    def test_principals(
+        self,
+        # db_session,
+        is_superuser,
+        is_moderator,
+        is_psf_staff,
+        expected,
+    ):
+        user = User(
+            id=uuid.uuid4(),
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
+
+        expected = expected[:] + [f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
