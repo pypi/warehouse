@@ -27,6 +27,41 @@ class AuthenticationMethod(enum.Enum):
     MACAROON = "macaroon"
 
 
+class IdentityContext:
+    """
+    A wrapper that contains either a `OIDCContext` or `User`.
+
+    Returned by `MultiSecurityPolicy.identity`.
+    """
+
+    _user: User | None = None
+    _oidc: OIDCContext | None = None
+
+    def __init__(self, identity, policy):
+        if isinstance(identity, User):
+            self._user = identity
+        elif isinstance(identity, OIDCContext):
+            self._oidc = identity
+
+        self._policy = policy
+
+    @property
+    def user(self):
+        return self._user
+
+    @property
+    def oidc_publisher(self):
+        return self._oidc.publisher if self._oidc else None
+
+    @property
+    def oidc_claims(self):
+        return self._oidc.claims if self._oidc else None
+
+    @property
+    def policy(self):
+        return self._policy
+
+
 def _principals_for_authenticated_user(user):
     """Apply the necessary principals to the authenticated user"""
     principals = []
@@ -69,14 +104,14 @@ class MultiSecurityPolicy:
     def identity(self, request):
         for policy in self._policies:
             if ident := policy.identity(request):
-                return ident
+                return IdentityContext(ident, policy)
 
         return None
 
     def authenticated_userid(self, request):
         if ident := self.identity(request):
-            if isinstance(ident, User):
-                return str(ident.id)
+            if ident.user:
+                return str(ident.user.id)
         return None
 
     def unauthenticated_userid(self, request):
@@ -96,29 +131,21 @@ class MultiSecurityPolicy:
         return headers
 
     def permits(self, request, context, permission):
-        # First, check if any subpolicy denies the request.
-        for policy in self._policies:
-            try:
-                if not (permits := policy.permits(request, context, permission)):
-                    return permits
-            except NotImplementedError:
-                # Raised when a subpolicy does not support a given request. e.g.
-                # `MacaroonSecurityPolicy` being handed a non-macaroon request.
-                # If a subpolicy raises this, we don't treat it as an explicit
-                # permit or reject decision, just pass and check the next policy.
-                pass
+        # First, check if our bound subpolicy denies the request.
+        identity = self.identity(request)
+        if identity and not (permits := identity.policy.permits(request, context, permission)):
+            return permits
 
         # Next, construct a list of principals from our request.
-        identity = request.identity
         principals = []
         if identity is not None:
             principals.append(Authenticated)
 
-            if isinstance(identity, User):
-                principals.append(f"user:{identity.id}")
-                principals.extend(_principals_for_authenticated_user(identity))
-            elif isinstance(identity, OIDCContext):
-                principals.append(f"oidc:{identity.publisher.id}")
+            if identity.user:
+                principals.append(f"user:{identity.user.id}")
+                principals.extend(_principals_for_authenticated_user(identity.user))
+            elif identity.oidc_publisher:
+                principals.append(f"oidc:{identity.oidc_publisher.id}")
             else:
                 return Denied("unknown identity")
 

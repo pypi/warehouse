@@ -102,10 +102,10 @@ class RequestUser(Caveat):
     user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        if not isinstance(request.identity, User):
+        if not request.identity.user:
             return Failure("token with user restriction without a user")
 
-        if str(request.identity.id) != self.user_id:
+        if str(request.identity.user.id) != self.user_id:
             return Failure("current user does not match user restriction in token")
 
         return Success()

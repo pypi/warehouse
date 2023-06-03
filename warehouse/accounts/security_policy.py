@@ -120,8 +120,71 @@ def _basic_auth_check(username, password, request):
     return False
 
 
+class TwoFactorMixin:
+    """
+    Security policy that enforces two-factor authentication for specific
+    contexts.
+
+    Most member methods, with the exception of `permits`, are no-ops. This is
+    because this security policy solely checks authorization and does not
+    identify/authenticate users.
+    """
+
+    def permits(self, request, context, permission):
+        # Our request could possibly be a None, if there isn't an active request, in
+        # that case we're going to always deny, because without a request, we can't
+        # determine if this request is authorized or not.
+        if request is None:
+            return WarehouseDenied(
+                "There was no active request.", reason="no_active_request"
+            )
+
+        # If the request is permitted by the subpolicy, check if the context is
+        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
+        # enabled.
+        #
+        # We check for `request.user` explicitly because we don't perform
+        # this check for non-user identities: the only way a non-user
+        # identity can be created is after a 2FA check on a 2FA-mandated
+        # project.
+        if isinstance(context, TwoFactorRequireable) and request.user:
+            if (
+                request.registry.settings["warehouse.two_factor_requirement.enabled"]
+                and context.owners_require_2fa
+                and not request.user.has_two_factor
+            ):
+                return WarehouseDenied(
+                    "This project requires two factor authentication to be enabled "
+                    "for all contributors.",
+                    reason="owners_require_2fa",
+                )
+            if (
+                request.registry.settings["warehouse.two_factor_mandate.enabled"]
+                and context.pypi_mandates_2fa
+                and not request.user.has_two_factor
+            ):
+                return WarehouseDenied(
+                    "PyPI requires two factor authentication to be enabled "
+                    "for all contributors to this project.",
+                    reason="pypi_mandates_2fa",
+                )
+            if (
+                request.registry.settings["warehouse.two_factor_mandate.available"]
+                and context.pypi_mandates_2fa
+                and not request.user.has_two_factor
+            ):
+                request.session.flash(
+                    "This project is included in PyPI's two-factor mandate "
+                    "for critical projects. In the future, you will be unable to "
+                    "perform this action without enabling 2FA for your account",
+                    queue="warning",
+                )
+
+        return Allowed("Two factor requirements fulfilled")
+
+
 @implementer(ISecurityPolicy)
-class SessionSecurityPolicy:
+class SessionSecurityPolicy(TwoFactorMixin):
     def __init__(self):
         self._session_helper = SessionAuthenticationHelper()
 
@@ -183,13 +246,9 @@ class SessionSecurityPolicy:
         # Handled by MultiSecurityPolicy
         raise NotImplementedError
 
-    def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
-
 
 @implementer(ISecurityPolicy)
-class BasicAuthSecurityPolicy:
+class BasicAuthSecurityPolicy(TwoFactorMixin):
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -223,83 +282,3 @@ class BasicAuthSecurityPolicy:
     def authenticated_userid(self, request):
         # Handled by MultiSecurityPolicy
         raise NotImplementedError
-
-    def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
-
-
-@implementer(ISecurityPolicy)
-class TwoFactorSecurityPolicy:
-    """
-    Security policy that enforces two-factor authentication for specific
-    contexts.
-
-    Most member methods, with the exception of `permits`, are no-ops. This is
-    because this security policy solely checks authorization and does not
-    identify/authenticate users.
-    """
-
-    def identity(self, request):
-        return None
-
-    def forget(self, request, **kw):
-        return []
-
-    def remember(self, request, userid, **kw):
-        return []
-
-    def authenticated_userid(self, request):
-        raise NotImplementedError
-
-    def permits(self, request, context, permission):
-        # Our request could possibly be a None, if there isn't an active request, in
-        # that case we're going to always deny, because without a request, we can't
-        # determine if this request is authorized or not.
-        if request is None:
-            return WarehouseDenied(
-                "There was no active request.", reason="no_active_request"
-            )
-
-        # If the request is permitted by the subpolicy, check if the context is
-        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
-        # enabled.
-        #
-        # We check for `request.user` explicitly because we don't perform
-        # this check for non-user identities: the only way a non-user
-        # identity can be created is after a 2FA check on a 2FA-mandated
-        # project.
-        if isinstance(context, TwoFactorRequireable) and request.user:
-            if (
-                request.registry.settings["warehouse.two_factor_requirement.enabled"]
-                and context.owners_require_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "This project requires two factor authentication to be enabled "
-                    "for all contributors.",
-                    reason="owners_require_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.enabled"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "PyPI requires two factor authentication to be enabled "
-                    "for all contributors to this project.",
-                    reason="pypi_mandates_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.available"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                request.session.flash(
-                    "This project is included in PyPI's two-factor mandate "
-                    "for critical projects. In the future, you will be unable to "
-                    "perform this action without enabling 2FA for your account",
-                    queue="warning",
-                )
-
-        return Allowed("Two factor requirements fulfilled")

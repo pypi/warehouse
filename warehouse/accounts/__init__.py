@@ -51,27 +51,15 @@ REDIRECT_FIELD_NAME = "next"
 
 
 def _user(request):
-    if request.identity is None:
-        return None
-
-    if not isinstance(request.identity, User):
-        return None
-
-    return request.identity
+    return request.identity.user
 
 
 def _oidc_publisher(request):
-    return (
-        request.identity.publisher
-        if isinstance(request.identity, OIDCContext)
-        else None
-    )
+    return request.identity.oidc_publisher
 
 
 def _oidc_claims(request):
-    return (
-        request.identity.claims if isinstance(request.identity, OIDCContext) else None
-    )
+    return request.identity.oidc_claims
 
 
 def _organization_access(request):
