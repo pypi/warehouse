@@ -296,6 +296,41 @@ def user_reset_password(user, request):
 
 
 @view_config(
+    route_name="admin.user.wipe_factors",
+    require_methods=["POST"],
+    permission="admin",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_wipe_factors(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user.totp_secret = None
+    user.webauthn = []
+    user.recovery_codes = []
+
+    login_service = request.find_service(IUserService, context=None)
+    send_password_compromised_email(request, user)
+    login_service.disable_password(
+        user.id, request, reason=DisableReason.CompromisedPassword
+    )
+
+    request.session.flash(
+        f"Wiped factors and reset password for {user.username!r}", queue="success"
+    )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
     route_name="admin.prohibited_user_names.bulk_add",
     renderer="admin/prohibited_user_names/bulk.html",
     permission="admin",
