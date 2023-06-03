@@ -577,6 +577,28 @@ class TestCreateOrganizationApplicationForm:
             ),
             find_organizationid=pretend.call_recorder(lambda name: None),
         )
+        user = pretend.stub(organization_applications=[])
+        form = forms.CreateOrganizationApplicationForm(
+            organization_service=organization_service,
+            user=user,
+            max_applications=3,
+        )
+        forms._ = lambda string: string
+
+        form.validate__max_apps(pretend.stub())
+
+        assert form.errors == {}
+
+        assert organization_service.get_organization_applications_by_name.calls == []
+        assert organization_service.find_organizationid.calls == []
+
+    def test_validate_name_with_fewer_than_max_applications(self, db_session):
+        organization_service = pretend.stub(
+            get_organization_applications_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None: []
+            ),
+            find_organizationid=pretend.call_recorder(lambda name: None),
+        )
         user = pretend.stub(
             organization_applications=[pretend.stub(), pretend.stub(), pretend.stub()]
         )
@@ -587,14 +609,16 @@ class TestCreateOrganizationApplicationForm:
         )
         forms._ = lambda string: string
 
-        form.validate()
+        form.validate__max_apps(pretend.stub())
 
-        assert form.form_errors == [
-            (
-                "You have already submitted the maximum number of "
-                "Organization requests."
-            )
-        ]
+        assert form.errors == {
+            "__all__": [
+                (
+                    "You have already submitted the maximum number of "
+                    "Organization requests (3)."
+                )
+            ]
+        }
 
         assert organization_service.get_organization_applications_by_name.calls == []
         assert organization_service.find_organizationid.calls == []
@@ -620,11 +644,15 @@ class TestCreateOrganizationApplicationForm:
 class TestSaveOrganizationNameForm:
     def test_save(self, pyramid_request):
         pyramid_request.POST = MultiDict({"name": "my_org_name"})
+        user = pretend.stub()
         organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None)
+            find_organizationid=pretend.call_recorder(lambda name: None),
+            get_organization_applications_by_name=pretend.call_recorder(
+                lambda name, submitted_by=None, undecided=False: []
+            ),
         )
         form = forms.SaveOrganizationNameForm(
-            pyramid_request.POST, organization_service=organization_service
+            pyramid_request.POST, organization_service=organization_service, user=user
         )
         form.validate()
         assert organization_service.find_organizationid.calls == [

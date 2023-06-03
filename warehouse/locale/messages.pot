@@ -335,67 +335,67 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:463
-msgid "Select project"
-msgstr ""
-
-#: warehouse/manage/forms.py:468 warehouse/oidc/forms.py:173
-msgid "Specify project name"
-msgstr ""
-
-#: warehouse/manage/forms.py:471
-msgid ""
-"Start and end with a letter or numeral containing only ASCII numeric and "
-"'.', '_' and '-'."
-msgstr ""
-
-#: warehouse/manage/forms.py:478
-msgid "This project name has already been used. Choose a different project name."
-msgstr ""
-
-#: warehouse/manage/forms.py:546
-msgid ""
-"The organization name is too long. Choose a organization name with 100 "
-"characters or less."
-msgstr ""
-
-#: warehouse/manage/forms.py:558
-msgid ""
-"The organization URL is too long. Choose a organization URL with 400 "
-"characters or less."
-msgstr ""
-
-#: warehouse/manage/forms.py:565
-msgid "The organization URL must start with http:// or https://"
-msgstr ""
-
-#: warehouse/manage/forms.py:576
-msgid ""
-"The organization description is too long. Choose a organization "
-"description with 400 characters or less."
-msgstr ""
-
-#: warehouse/manage/forms.py:614
+#: warehouse/manage/forms.py:442
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:626
-msgid "You have already submitted the maximum number of Organization requests."
+#: warehouse/manage/forms.py:478
+msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:656
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+msgid "Specify project name"
+msgstr ""
+
+#: warehouse/manage/forms.py:486
+msgid ""
+"Start and end with a letter or numeral containing only ASCII numeric and "
+"'.', '_' and '-'."
+msgstr ""
+
+#: warehouse/manage/forms.py:493
+msgid "This project name has already been used. Choose a different project name."
+msgstr ""
+
+#: warehouse/manage/forms.py:564
+msgid ""
+"The organization name is too long. Choose a organization name with 100 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:576
+msgid ""
+"The organization URL is too long. Choose a organization URL with 400 "
+"characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:583
+msgid "The organization URL must start with http:// or https://"
+msgstr ""
+
+#: warehouse/manage/forms.py:594
+msgid ""
+"The organization description is too long. Choose a organization "
+"description with 400 characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:629
+msgid "You have already submitted the maximum number of "
+msgstr ""
+
+#: warehouse/manage/forms.py:659
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:662
+#: warehouse/manage/forms.py:665
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:690
+#: warehouse/manage/forms.py:693
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
@@ -481,12 +481,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2300
-#: warehouse/manage/views/organizations.py:884
+#: warehouse/manage/views/organizations.py:886
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2367
-#: warehouse/manage/views/organizations.py:951
+#: warehouse/manage/views/organizations.py:953
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -499,30 +499,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2445
-#: warehouse/manage/views/organizations.py:1140
+#: warehouse/manage/views/organizations.py:1142
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:860
+#: warehouse/manage/views/organizations.py:862
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:871
+#: warehouse/manage/views/organizations.py:873
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1034
-#: warehouse/manage/views/organizations.py:1076
+#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1078
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1044
+#: warehouse/manage/views/organizations.py:1046
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1091
+#: warehouse/manage/views/organizations.py:1093
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
