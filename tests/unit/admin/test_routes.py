@@ -84,6 +84,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.wipe_factors",
+            "/admin/users/{username}/wipe_factors/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.prohibited_user_names.bulk_add",
             "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
