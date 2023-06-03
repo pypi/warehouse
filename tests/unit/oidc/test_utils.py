@@ -15,8 +15,11 @@ import uuid
 import pretend
 import pytest
 
+from pyramid.authorization import Authenticated
+
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.oidc import utils
+from warehouse.utils.security_policy import principals_for
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
@@ -71,3 +74,12 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         ).id
         == expected_id
     )
+
+
+def test_OIDContext_principals():
+    assert principals_for(
+        utils.OIDCContext(publisher=pretend.stub(id=17), claims=None)
+    ) == [
+        Authenticated,
+        "oidc:17",
+    ]

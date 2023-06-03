@@ -175,50 +175,36 @@ class TestUser:
             "expected",
         ),
         [
-            (False, False, False, ["group:with_admin_dashboard_access"]),
+            (False, False, False, []),
             (
                 True,
                 False,
                 False,
-                [
-                    "group:admins",
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
+                ["group:admins", "group:moderators", "group:psf_staff"],
             ),
             (
                 False,
                 True,
                 False,
-                ["group:moderators", "group:with_admin_dashboard_access"],
+                ["group:moderators"],
             ),
             (
                 True,
                 True,
                 False,
-                [
-                    "group:admins",
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
+                ["group:admins", "group:moderators", "group:psf_staff"],
             ),
             (
                 False,
                 False,
                 True,
-                ["group:psf_staff", "group:with_admin_dashboard_access"],
+                ["group:psf_staff"],
             ),
             (
                 False,
                 True,
                 True,
-                [
-                    "group:moderators",
-                    "group:psf_staff",
-                    "group:with_admin_dashboard_access",
-                ],
+                ["group:moderators", "group:psf_staff"],
             ),
         ],
     )

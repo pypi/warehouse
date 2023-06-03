@@ -30,6 +30,10 @@ def test_principals_for():
     assert security_policy.principals_for(identity) == ["a", "b", "z"]
 
 
+def test_principals_for_with_none():
+    assert security_policy.principals_for(pretend.stub()) == []
+
+
 class TestMultiSecurityPolicy:
     def test_verify(self):
         assert verifyClass(
@@ -90,7 +94,6 @@ class TestMultiSecurityPolicy:
         assert policy.forget(request, foo=None) == [("ForgetMe", "1")]
 
     def test_remember(self):
-        header = pretend.stub()
         subpolicies = [
             pretend.stub(remember=lambda r, uid, foo, **kw: [("RememberMe", foo)])
         ]
@@ -99,3 +102,43 @@ class TestMultiSecurityPolicy:
         request = pretend.stub()
         userid = pretend.stub()
         assert policy.remember(request, userid, foo="bob") == [("RememberMe", "bob")]
+
+    def test_permits(self):
+        identity1 = pretend.stub()
+        identity2 = pretend.stub()
+        context = pretend.stub()
+
+        subpolicies = [
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(
+                identity=lambda r: identity1,
+                permits=(
+                    lambda r, c, p: r.identity == identity1
+                    and c == context
+                    and p == "myperm"
+                ),
+            ),
+            pretend.stub(identity=lambda r: identity2),
+        ]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+
+        request = pretend.stub(
+            identity=identity1,
+            add_finished_callback=lambda *a, **kw: None,
+        )
+
+        assert policy.permits(request, context, "myperm")
+
+    def test_permits_no_policy(self):
+        subpolicies = [
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(identity=lambda r: None),
+        ]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+        request = pretend.stub(
+            identity=None, add_finished_callback=lambda *a, **kw: None
+        )
+        context = pretend.stub()
+
+        assert not policy.permits(request, context, "myperm")
