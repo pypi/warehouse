@@ -31,6 +31,7 @@ from webauthn.helpers import bytes_to_base64url
 
 import warehouse.utils.otp as otp
 
+from warehouse import perms
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -903,6 +904,9 @@ class ProvisionMacaroonViews:
                     ),
                     caveats.ProjectID(project_ids=project_ids),
                 ]
+
+            # We currently only support macaroons that are scoped to upload only.
+            macaroon_caveats.append(caveats.Permission(permissions=perms.serialize(perms.Upload)))
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(
                 location=self.request.domain,
