@@ -210,7 +210,6 @@ class TestUser:
     )
     def test_principals(
         self,
-        # db_session,
         is_superuser,
         is_moderator,
         is_psf_staff,

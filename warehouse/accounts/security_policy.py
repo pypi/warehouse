@@ -238,7 +238,7 @@ def _permits_for_user_policy(acl, request, context, permission):
     assert isinstance(request.identity, User)
 
     # Dispatch to our ACL
-    # NOTE: These parameters are in a different order
+    # NOTE: These parameters are in a different order than the signature of this method.
     res = acl.permits(context, principals_for(request.identity), permission)
 
     # If our underlying permits allowed this, we will check our 2FA status,

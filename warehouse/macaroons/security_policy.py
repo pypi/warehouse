@@ -136,7 +136,7 @@ class MacaroonSecurityPolicy:
 
         # Check to make sure that the permission we're attempting to permit is one that
         # is allowed to be used for macaroons.
-        # TODO: This should be moved out of there and into the acaroons themselves, it
+        # TODO: This should be moved out of there and into the macaroons themselves, it
         #       doesn't really make a lot of sense here and it makes things more
         #       complicated if we want to allow the use of macaroons for actions other
         #       than uploading.
@@ -160,5 +160,5 @@ class MacaroonSecurityPolicy:
 
         # The macaroon is valid, so we can actually see if request.identity is
         # authorized now or not.
-        # NOTE: These parameters are in a different order
+        # NOTE: These parameters are in a different order than the signature of this method.
         return self._acl.permits(context, principals_for(request.identity), permission)
