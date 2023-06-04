@@ -67,6 +67,9 @@ class MultiSecurityPolicy:
 
         return None, None
 
+    def reset(self, request):
+        self._identity_cache.clear(request)
+
     def identity(self, request):
         identity, _policy = self._identity_cache.get_or_create(request)
         return identity

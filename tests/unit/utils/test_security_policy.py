@@ -34,6 +34,23 @@ class TestMultiSecurityPolicy:
             security_policy.MultiSecurityPolicy,
         )
 
+    def test_reset(self):
+        identity1 = pretend.stub()
+        identity2 = pretend.stub()
+        identities = iter([identity1, identity2])
+
+        subpolicies = [pretend.stub(identity=lambda r: next(identities))]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+
+        assert policy.identity(request) is identity1
+        assert policy.identity(request) is identity1
+
+        policy.reset(request)
+
+        assert policy.identity(request) is identity2
+
     def test_identity_none(self):
         subpolicies = [pretend.stub(identity=lambda r: None)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
