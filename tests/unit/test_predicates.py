@@ -22,8 +22,8 @@ from warehouse.predicates import (
     APIPredicate,
     DomainPredicate,
     HeadersPredicate,
-    includeme,
     _is_api_route,
+    includeme,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
 
