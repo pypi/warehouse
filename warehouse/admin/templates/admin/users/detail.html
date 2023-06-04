@@ -470,7 +470,7 @@
                 <tr>
                   <td>{{ pub.project_name }}</td>
                   <td>{{ pub.publisher_name }}</td>
-                  <td><a href="{{ pub.publisher_url }}">{{ pub.repository }}</a></td>
+                  <td><a href="{{ pub.publisher_url() }}">{{ pub.repository }}</a></td>
                   <td><code>{{ pub }}</code></td>
                 </tr>
                 {% endfor %}
