@@ -401,6 +401,13 @@ class TestLogin:
         )
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
 
+        security_policy = pretend.stub(
+            authenticated_userid=lambda r: None,
+            remember=lambda r, u, **kw: [],
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
@@ -421,6 +428,7 @@ class TestLogin:
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
@@ -1330,6 +1338,11 @@ class TestLogout:
             invalidate=pretend.call_recorder(lambda: None)
         )
 
+        security_policy = pretend.stub(
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -1337,6 +1350,7 @@ class TestLogout:
         assert result.headers["foo"] == "bar"
         assert forget.calls == [pretend.call(pyramid_request)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we

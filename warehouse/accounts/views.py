@@ -27,6 +27,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
     HTTPUnauthorized,
 )
+from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
@@ -549,6 +550,12 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # their account, and then gain access to anything sensitive stored in
         # the session for the original user.
         request.session.invalidate()
+
+        # We've logged the user out, so we want to ensure that we invalid the cache
+        # for our security policy, if we're using one that can be reset during login
+        security_policy = request.registry.queryUtility(ISecurityPolicy)
+        if hasattr(security_policy, "reset"):
+            security_policy.reset(request)
 
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
@@ -1259,6 +1266,12 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         data = dict(request.session.items())
         request.session.invalidate()
         request.session.update(data)
+
+    # We've logged the user in, so we want to ensure that we invalid the cache
+    # for our security policy, if we're using one that can be reset during login
+    security_policy = request.registry.queryUtility(ISecurityPolicy)
+    if hasattr(security_policy, "reset"):
+        security_policy.reset(request)
 
     # Remember the userid using the authentication policy.
     headers = remember(request, str(userid))
