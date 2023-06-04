@@ -160,5 +160,6 @@ class MacaroonSecurityPolicy:
 
         # The macaroon is valid, so we can actually see if request.identity is
         # authorized now or not.
-        # NOTE: These parameters are in a different order than the signature of this method.
+        # NOTE: These parameters are in a different order than the signature of this
+        #       method.
         return self._acl.permits(context, principals_for(request.identity), permission)
