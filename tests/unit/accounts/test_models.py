@@ -11,10 +11,14 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pytest
 
+from pyramid.authorization import Authenticated
+
 from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
+from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -162,3 +166,62 @@ class TestUser:
             ("Allow", "group:admins", "admin"),
             ("Allow", "group:moderators", "moderator"),
         ]
+
+    @pytest.mark.parametrize(
+        (
+            "is_superuser",
+            "is_moderator",
+            "is_psf_staff",
+            "expected",
+        ),
+        [
+            (False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (
+                False,
+                True,
+                False,
+                ["group:moderators"],
+            ),
+            (
+                True,
+                True,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (
+                False,
+                False,
+                True,
+                ["group:psf_staff"],
+            ),
+            (
+                False,
+                True,
+                True,
+                ["group:moderators", "group:psf_staff"],
+            ),
+        ],
+    )
+    def test_principals(
+        self,
+        is_superuser,
+        is_moderator,
+        is_psf_staff,
+        expected,
+    ):
+        user = User(
+            id=uuid.uuid4(),
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
+
+        expected = expected[:] + [f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
