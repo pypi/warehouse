@@ -18,7 +18,12 @@ from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
-from warehouse.accounts.models import DisableReason, ProhibitedUserName
+from warehouse.accounts.models import (
+    DisableReason,
+    ProhibitedUserName,
+    RecoveryCode,
+    WebAuthn,
+)
 from warehouse.admin.views import users as views
 from warehouse.packaging.models import JournalEntry, Project
 
@@ -28,17 +33,13 @@ from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFac
 
 class TestUserList:
     def test_no_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
         result = views.user_list(db_request)
 
         assert result == {"users": users[:25], "query": None}
 
     def test_with_page(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(30)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(30), key=lambda u: u.username.lower())
         db_request.GET["page"] = "2"
         result = views.user_list(db_request)
 
@@ -51,27 +52,21 @@ class TestUserList:
             views.user_list(request)
 
     def test_basic_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = users[0].username
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": users[0].username}
 
     def test_wildcard_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = users[0].username[:-1] + "%"
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": users[0].username[:-1] + "%"}
 
     def test_email_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
         db_request.GET["q"] = "email:" + emails[0].email
         result = views.user_list(db_request)
@@ -79,18 +74,14 @@ class TestUserList:
         assert result == {"users": [users[0]], "query": "email:" + emails[0].email}
 
     def test_id_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = "id:" + str(users[0].id)
         result = views.user_list(db_request)
 
         assert result == {"users": [users[0]], "query": "id:" + str(users[0].id)}
 
     def test_or_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         emails = [EmailFactory.create(user=u, primary=True) for u in users]
         db_request.GET["q"] = " ".join(
             [
@@ -105,13 +96,23 @@ class TestUserList:
         assert result == {"users": users[:4], "query": db_request.GET["q"]}
 
     def test_ignores_invalid_query(self, db_request):
-        users = sorted(
-            [UserFactory.create() for _ in range(5)], key=lambda u: u.username.lower()
-        )
+        users = sorted(UserFactory.create_batch(5), key=lambda u: u.username.lower())
         db_request.GET["q"] = "foobar:what"
         result = views.user_list(db_request)
 
         assert result == {"users": users, "query": "foobar:what"}
+
+
+class TestEmailForm:
+    def test_validate(self):
+        form = views.EmailForm(formdata=MultiDict({"email": "foo@bar.net"}))
+        assert form.validate(), str(form.errors)
+
+
+class TestUserForm:
+    def test_validate(self):
+        form = views.UserForm()
+        assert form.validate(), str(form.erros)
 
 
 class TestUserDetail:
@@ -405,7 +406,9 @@ class TestUserResetPassword:
         db_request.user = UserFactory.create()
         service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user.username),
-            disable_password=pretend.call_recorder(lambda userid, reason: None),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
         )
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
@@ -419,7 +422,7 @@ class TestUserResetPassword:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(user.id, reason=DisableReason.CompromisedPassword)
+            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
@@ -462,6 +465,100 @@ class TestUserResetPassword:
         )
 
         result = views.user_reset_password(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
+
+
+class TestUserWipeFactors:
+    def test_wipes_factors(self, db_request, monkeypatch):
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_wipe_factors(user, db_request)
+
+        assert user.totp_secret is None
+        assert len(user.webauthn) == 0
+        assert len(user.recovery_codes.all()) == 0
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert service.disable_password.calls == [
+            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_wipes_factors_bad_confirm(self, db_request, monkeypatch):
+        user = UserFactory.create()
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = UserFactory.create()
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(lambda userid, reason: None),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+
+        result = views.user_wipe_factors(user, db_request)
+
+        assert db_request.find_service.calls == []
+        assert send_email.calls == []
+        assert service.disable_password.calls == []
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_user_wipe_factors_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_wipe_factors(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"

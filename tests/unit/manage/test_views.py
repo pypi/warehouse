@@ -307,6 +307,7 @@ class TestManageAccount:
             pretend.call(
                 tag=EventTag.Account.EmailAdd,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"email": email_address},
             )
         ]
@@ -381,6 +382,7 @@ class TestManageAccount:
             pretend.call(
                 tag=EventTag.Account.EmailRemove,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"email": email.email},
             )
         ]
@@ -473,6 +475,7 @@ class TestManageAccount:
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
         ]
@@ -508,6 +511,7 @@ class TestManageAccount:
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
         ]
@@ -575,6 +579,7 @@ class TestManageAccount:
             pretend.call(
                 tag=EventTag.Account.EmailReverify,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"email": email.email},
             )
         ]
@@ -737,7 +742,9 @@ class TestManageAccount:
         ]
         assert request.user.record_event.calls == [
             pretend.call(
-                tag=EventTag.Account.PasswordChange, ip_address=request.remote_addr
+                tag=EventTag.Account.PasswordChange,
+                ip_address=request.remote_addr,
+                request=request,
             )
         ]
 
@@ -814,7 +821,7 @@ class TestManageAccount:
 
         journal = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter_by(id=jid)
             .one()
         )
@@ -1143,6 +1150,7 @@ class TestProvisionTOTP:
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"method": "totp"},
             )
         ]
@@ -1300,6 +1308,7 @@ class TestProvisionTOTP:
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={"method": "totp"},
             )
         ]
@@ -1516,6 +1525,7 @@ class TestProvisionWebAuthn:
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "method": "webauthn",
                     "label": provision_webauthn_obj.label.data,
@@ -1608,6 +1618,7 @@ class TestProvisionWebAuthn:
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "method": "webauthn",
                     "label": delete_webauthn_obj.label.data,
@@ -1698,6 +1709,7 @@ class TestProvisionRecoveryCodes:
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesGenerated,
                 ip_address=request.remote_addr,
+                request=request,
             )
         ]
 
@@ -1771,6 +1783,7 @@ class TestProvisionRecoveryCodes:
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesRegenerated,
                 ip_address=request.remote_addr,
+                request=request,
             )
         ]
 
@@ -2070,6 +2083,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2165,6 +2179,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "caveats": [
@@ -2181,6 +2196,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "user": request.user.username,
@@ -2189,6 +2205,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
                     "user": request.user.username,
@@ -2321,6 +2338,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Account.APITokenRemoved,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
         ]
@@ -2388,6 +2406,7 @@ class TestProvisionMacaroonViews:
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
@@ -2396,6 +2415,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
                     "user": pyramid_request.user.username,
@@ -2404,6 +2424,7 @@ class TestProvisionMacaroonViews:
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
                     "user": pyramid_request.user.username,
@@ -3948,13 +3969,14 @@ class TestManageProjectRelease:
             )
         ]
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "yank release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
         assert db_request.session.flash.calls == [
             pretend.call(f"Yanked release {release.version!r}", queue="success")
         ]
@@ -3965,6 +3987,7 @@ class TestManageProjectRelease:
             pretend.call(
                 tag=EventTag.Project.ReleaseYank,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
                     "canonical_version": release.canonical_version,
@@ -4101,13 +4124,14 @@ class TestManageProjectRelease:
         ]
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "unyank release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Un-yanked release {release.version!r}", queue="success")
@@ -4119,6 +4143,7 @@ class TestManageProjectRelease:
             pretend.call(
                 tag=EventTag.Project.ReleaseUnyank,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
                     "canonical_version": release.canonical_version,
@@ -4258,13 +4283,14 @@ class TestManageProjectRelease:
 
         assert db_request.db.query(Release).all() == []
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
         assert entry.name == release.project.name
         assert entry.action == "remove release"
         assert entry.version == release.version
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
         assert db_request.session.flash.calls == [
             pretend.call(f"Deleted release {release.version!r}", queue="success")
@@ -4276,6 +4302,7 @@ class TestManageProjectRelease:
             pretend.call(
                 tag=EventTag.Project.ReleaseRemove,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
                     "canonical_version": release.canonical_version,
@@ -4450,7 +4477,6 @@ class TestManageProjectRelease:
                 version=release.version,
                 action=f"remove file {release_file.filename}",
                 submitted_by=user,
-                submitted_from=db_request.remote_addr,
             )
             .one()
         )
@@ -5430,13 +5456,14 @@ class TestChangeProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
         assert entry.action == "change Owner testuser to Maintainer"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
     def test_change_role_invalid_role_name(self, pyramid_request):
         project = pretend.stub(name="foobar")
@@ -5548,13 +5575,14 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
     def test_delete_missing_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -5644,13 +5672,14 @@ class TestDeleteProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == project.name
         assert entry.action == "remove Owner testuser"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
     def test_delete_non_owner_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
@@ -5789,10 +5818,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5828,10 +5856,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5868,10 +5895,9 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            ProjectEventFactory.create(
-                source=project, tag="fake:event", ip_address="0.0.0.0"
-            )
+        ProjectEventFactory.create_batch(
+            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
@@ -6062,7 +6088,7 @@ class TestManageOIDCPublisherViews:
             id="fakeid",
             publisher_name="GitHub",
             repository_name="fakerepo",
-            publisher_url="https://github.com/fakeowner/fakerepo",
+            publisher_url=lambda x=None: "https://github.com/fakeowner/fakerepo",
             owner="fakeowner",
             owner_id="1234",
             workflow_filename="fakeworkflow.yml",
@@ -6135,6 +6161,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "publisher": "GitHub",
                     "id": "fakeid",
@@ -6231,6 +6258,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
                 ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "publisher": "GitHub",
                     "id": "fakeid",
@@ -6521,11 +6549,12 @@ class TestManageOIDCPublisherViews:
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherRemoved,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={
                     "publisher": publisher.publisher_name,
                     "id": str(publisher.id),
                     "specifier": str(publisher),
-                    "url": publisher.publisher_url,
+                    "url": publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )
@@ -6569,7 +6598,6 @@ class TestManageOIDCPublisherViews:
         db_request.db.flush()  # To get it in the DB
 
         project = ProjectFactory.create(oidc_publishers=[publisher])
-        project.record_event = pretend.call_recorder(lambda *a, **kw: None)
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
@@ -6608,19 +6636,18 @@ class TestManageOIDCPublisherViews:
             ),
         ]
 
-        assert project.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                ip_address=db_request.remote_addr,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url,
-                    "submitted_by": db_request.user.username,
-                },
-            )
-        ]
+        events = project.events.all()
+        assert len(events) == 1
+        event = events[0]
+        assert event.tag == EventTag.Project.OIDCPublisherRemoved
+        assert str(event.ip_address) == db_request.remote_addr
+        assert event.additional == {
+            "publisher": publisher.publisher_name,
+            "id": str(publisher.id),
+            "specifier": str(publisher),
+            "url": publisher.publisher_url(),
+            "submitted_by": db_request.user.username,
+        }
 
         assert db_request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_OIDC)
@@ -6632,8 +6659,7 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-        # The publisher is not actually removed entirely from the DB, since it's
-        # registered to other projects that haven't removed it.
+        # The publisher is actually removed entirely from the DB.
         assert db_request.db.query(GitHubPublisher).all() == []
 
         assert views.send_trusted_publisher_removed_email.calls == [

@@ -48,7 +48,11 @@ from trove_classifiers import classifiers, deprecated_classifiers
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.email import send_basic_auth_with_two_factor_email
+from warehouse.email import (
+    send_basic_auth_with_two_factor_email,
+    send_gpg_signature_uploaded_email,
+)
+from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -418,7 +422,7 @@ class MetadataForm(forms.Form):
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
@@ -433,7 +437,7 @@ class MetadataForm(forms.Form):
     name = wtforms.StringField(
         description="Name",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE,
                 re.IGNORECASE,
@@ -447,7 +451,7 @@ class MetadataForm(forms.Form):
     version = wtforms.StringField(
         description="Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 r"^(?!\s).*(?<!\s)$",
                 message="Can't have leading or trailing whitespace.",
@@ -523,7 +527,7 @@ class MetadataForm(forms.Form):
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
@@ -812,6 +816,9 @@ def _extract_wheel_metadata(path):
     has_translations=True,
 )
 def file_upload(request):
+    # This is a list of warnings that we'll emit *IF* the request is successful.
+    warnings = []
+
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
@@ -885,8 +892,7 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
-    # FieldStorage, however.
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
@@ -965,7 +971,9 @@ def file_upload(request):
 
         project_service = request.find_service(IProjectService)
         try:
-            project = project_service.create_project(form.name.data, request.user)
+            project = project_service.create_project(
+                form.name.data, request.user, request
+            )
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -1010,9 +1018,16 @@ def file_upload(request):
         request.authentication_method == AuthenticationMethod.BASIC_AUTH
         and request.user.has_two_factor
     ):
-        # Eventually, raise here to disable basic auth with 2FA enabled
         send_basic_auth_with_two_factor_email(
             request, request.user, project_name=project.name
+        )
+        raise _exc_with_message(
+            BasicAuthTwoFactorEnabled,
+            (
+                f"User { request.user.username } has two factor auth enabled, "
+                "an API Token or Trusted Publisher must be used to upload "
+                "in place of password."
+            ),
         )
 
     # Update name if it differs but is still equivalent. We don't need to check if
@@ -1139,6 +1154,15 @@ def file_upload(request):
         )
         request.db.add(release)
 
+        if "gpg_signature" in request.POST:
+            warnings.append(
+                "GPG signature support has been removed from PyPI and the "
+                "provided signature has been discarded."
+            )
+            send_gpg_signature_uploaded_email(
+                request, request.user, project_name=project.name
+            )
+
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -1148,19 +1172,21 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
             },
@@ -1357,28 +1383,6 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        # Also buffer the entire signature file to disk.
-        if "gpg_signature" in request.POST:
-            has_signature = True
-            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
-                signature_size = 0
-                for chunk in iter(
-                    lambda: request.POST["gpg_signature"].file.read(8096), b""
-                ):
-                    signature_size += len(chunk)
-                    if signature_size > MAX_SIGSIZE:
-                        raise _exc_with_message(HTTPBadRequest, "Signature too large.")
-                    fp.write(chunk)
-
-            # Check whether signature is ASCII armored
-            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
-                if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
-                    raise _exc_with_message(
-                        HTTPBadRequest, "PGP signature isn't ASCII armored."
-                    )
-        else:
-            has_signature = False
-
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
@@ -1392,7 +1396,6 @@ def file_upload(request):
             packagetype=form.filetype.data,
             comment_text=form.comment.data,
             size=file_size,
-            has_signature=bool(has_signature),
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
@@ -1418,13 +1421,16 @@ def file_upload(request):
         file_.record_event(
             tag=EventTag.File.FileAdd,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "filename": file_.filename,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),
@@ -1442,7 +1448,6 @@ def file_upload(request):
                     python_version=file_.python_version, filename=file_.filename
                 ),
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
@@ -1461,17 +1466,7 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-        if has_signature:
-            storage.store(
-                file_.pgp_path,
-                os.path.join(tmpdir, filename + ".asc"),
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
+
         if metadata_file_hashes:
             storage.store(
                 file_.metadata_path,
@@ -1521,7 +1516,7 @@ def file_upload(request):
         "packagetype": file_data.packagetype,
         "comment_text": file_data.comment_text,
         "size": file_data.size,
-        "has_signature": file_data.has_signature,
+        "has_signature": False,
         "md5_digest": file_data.md5_digest,
         "sha256_digest": file_data.sha256_digest,
         "blake2_256_digest": file_data.blake2_256_digest,
@@ -1538,7 +1533,8 @@ def file_upload(request):
     # Dispatch our task to sync this to cache as soon as possible
     request.task(sync_file_to_cache).delay(file_.id)
 
-    return Response()
+    # Return any warnings that we've accumulated as the response body.
+    return Response("\n".join(warnings))
 
 
 def _legacy_purge(status, *args, **kwargs):

@@ -20,6 +20,7 @@ from sqlalchemy import (
     LargeBinary,
     String,
     UniqueConstraint,
+    orm,
     sql,
 )
 from sqlalchemy.dialects.postgresql import JSONB, UUID
@@ -68,6 +69,10 @@ class Macaroon(db.Model):
     # body of the permissions ("V1") caveat.
     permissions_caveat = Column(JSONB, nullable=False, server_default=sql.text("'{}'"))
 
+    # Additional state associated with this macaroon.
+    # For OIDC publisher-issued macaroons, this will contain a subset of OIDC claims.
+    additional = Column(JSONB, nullable=True)
+
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the
     # default would be to generate a random key). However, it appears the
@@ -76,3 +81,8 @@ class Macaroon(db.Model):
     # prefer to just always use urandom. Thus we'll do this ourselves here
     # in our application.
     key = Column(LargeBinary, nullable=False, default=_generate_key)
+
+    # Intentionally not using a back references here, since we express
+    # relationships in terms of the "other" side of the relationship.
+    user = orm.relationship("User", lazy=True, viewonly=True)
+    oidc_publisher = orm.relationship("OIDCPublisher", lazy=True, viewonly=True)

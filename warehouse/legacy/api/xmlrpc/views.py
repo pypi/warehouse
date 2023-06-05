@@ -259,7 +259,8 @@ def package_hosting_mode(request, package_name: str):
 def user_packages(request, username: str):
     roles = (
         request.db.query(Role)
-        .join(User, Project)
+        .join(User)
+        .join(Project)
         .filter(User.username == username)
         .order_by(Role.role_name.desc(), Project.name)
         .all()
@@ -385,7 +386,8 @@ def package_urls(request, package_name, version):
 def release_urls(request, package_name: str, version: str):
     files = (
         request.db.query(File)
-        .join(Release, Project)
+        .join(Release)
+        .join(Project)
         .filter(
             (Project.normalized_name == func.normalize_pep426_name(package_name))
             & (Release.version == version)
@@ -402,7 +404,9 @@ def release_urls(request, package_name: str, version: str):
             "md5_digest": f.md5_digest,
             "sha256_digest": f.sha256_digest,
             "digests": {"md5": f.md5_digest, "sha256": f.sha256_digest},
-            "has_sig": f.has_signature,
+            # TODO: Remove this once we've had a long enough time with it
+            #       here to consider it no longer in use.
+            "has_sig": False,
             "upload_time": f.upload_time.isoformat() + "Z",
             "upload_time_iso_8601": f.upload_time.isoformat() + "Z",
             "comment_text": f.comment_text,
@@ -420,7 +424,8 @@ def release_urls(request, package_name: str, version: str):
 def package_roles(request, package_name: str):
     roles = (
         request.db.query(Role)
-        .join(User, Project)
+        .join(User)
+        .join(Project)
         .filter(Project.normalized_name == func.normalize_pep426_name(package_name))
         .order_by(Role.role_name.desc(), User.username)
         .all()
@@ -490,7 +495,7 @@ def browse(request, classifiers: list[str]):
     )
 
     release_classifiers_q = (
-        select([release_classifiers])
+        select(release_classifiers)
         .where(release_classifiers.c.trove_id == classifiers_q.c.id)
         .alias("rc")
     )

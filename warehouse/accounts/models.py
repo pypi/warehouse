@@ -14,7 +14,7 @@ import datetime
 import enum
 
 from citext import CIText
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -108,7 +108,6 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     macaroons = orm.relationship(
         "Macaroon",
-        backref="user",
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
@@ -141,7 +140,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     @email.expression  # type: ignore
     def email(self):
         return (
-            select([Email.email])
+            select(Email.email)
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
@@ -192,6 +191,18 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    def __principals__(self) -> list[str]:
+        principals = [Authenticated, f"user:{self.id}"]
+
+        if self.is_superuser:
+            principals.append("group:admins")
+        if self.is_moderator or self.is_superuser:
+            principals.append("group:moderators")
+        if self.is_psf_staff or self.is_superuser:
+            principals.append("group:psf_staff")
+
+        return principals
 
     def __acl__(self):
         return [

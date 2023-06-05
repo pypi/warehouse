@@ -20,10 +20,12 @@ import pytest
 import pytz
 
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
@@ -60,6 +62,7 @@ from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -134,6 +137,67 @@ class TestUserProfile:
     def test_returns_user(self, db_request):
         user = UserFactory.create()
         assert views.profile(user, db_request) == {"user": user, "projects": []}
+
+
+class TestAccountsSearch:
+    def test_unauthenticated_raises_401(self):
+        pyramid_request = pretend.stub(authenticated_userid=None)
+        with pytest.raises(HTTPUnauthorized):
+            views.accounts_search(pyramid_request)
+
+    def test_no_query_string_raises_400(self):
+        pyramid_request = pretend.stub(authenticated_userid=1, params={})
+        with pytest.raises(HTTPBadRequest):
+            views.accounts_search(pyramid_request)
+
+    def test_returns_users_with_prefix(self, db_session, user_service):
+        foo = UserFactory.create(username="foo")
+        bas = [
+            UserFactory.create(username="bar"),
+            UserFactory.create(username="baz"),
+        ]
+
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IUserService: user_service,
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda ip_address: True),
+                    hit=pretend.call_recorder(lambda ip_address: None),
+                ),
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "f"})
+        result = views.accounts_search(request)
+        assert result == {"users": [foo]}
+
+        request.params = MultiDict({"q": "ba"})
+        result = views.accounts_search(request)
+        assert result == {"users": bas}
+
+        request.params = MultiDict({"q": "zzz"})
+        with pytest.raises(HTTPNotFound):
+            views.accounts_search(request)
+
+    def test_when_rate_limited(self, db_session):
+        search_limiter = pretend.stub(
+            test=pretend.call_recorder(lambda ip_address: False),
+        )
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IRateLimiter: search_limiter,
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "foo"})
+        result = views.accounts_search(request)
+
+        assert search_limiter.test.calls == [pretend.call(request.ip_address)]
+        assert result == {"users": []}
 
 
 class TestLogin:
@@ -288,6 +352,7 @@ class TestLogin:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -336,6 +401,13 @@ class TestLogin:
         )
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
 
+        security_policy = pretend.stub(
+            authenticated_userid=lambda r: None,
+            remember=lambda r, u, **kw: [],
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
@@ -351,10 +423,12 @@ class TestLogin:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
@@ -714,6 +788,7 @@ class TestTwoFactor:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1157,6 +1232,7 @@ class TestRecoveryCode:
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1165,6 +1241,7 @@ class TestRecoveryCode:
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesUsed,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1261,6 +1338,11 @@ class TestLogout:
             invalidate=pretend.call_recorder(lambda: None)
         )
 
+        security_policy = pretend.stub(
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -1268,6 +1350,7 @@ class TestLogout:
         assert result.headers["foo"] == "bar"
         assert forget.calls == [pretend.call(pyramid_request)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
@@ -1411,11 +1494,13 @@ class TestRegister:
             pretend.call(
                 tag=EventTag.Account.AccountCreate,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1524,6 +1609,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -1588,6 +1674,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1663,6 +1750,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1762,6 +1850,7 @@ class TestRequestPasswordReset:
             pretend.call(
                 tag=EventTag.Account.PasswordResetAttempt,
                 ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -1810,7 +1899,7 @@ class TestResetPassword:
         assert result["form"] is form_inst
         assert form_class.calls == [
             pretend.call(
-                token=db_request.params["token"],
+                db_request.POST,
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -1875,7 +1964,7 @@ class TestResetPassword:
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(
-                token=db_request.params["token"],
+                db_request.POST,
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -3569,12 +3658,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherAdded,
                 ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": pending_publisher.publisher_name,
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
+                    "url": pending_publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )
@@ -3802,12 +3892,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherRemoved,
                 ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": "GitHub",
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
+                    "url": pending_publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )

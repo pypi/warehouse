@@ -211,8 +211,11 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    @property
-    def publisher_url(self):  # pragma: no cover
+    def publisher_url(self, claims=None):  # pragma: no cover
+        """
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `publisher_url()`
+        """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
@@ -225,9 +228,7 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
         secondary=OIDCPublisherProjectAssociation.__table__,  # type: ignore
         backref="oidc_publishers",
     )
-    macaroons = orm.relationship(
-        Macaroon, backref="oidc_publisher", cascade="all, delete-orphan", lazy=True
-    )
+    macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_publishers",

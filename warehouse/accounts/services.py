@@ -120,6 +120,21 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache
+    def get_users_by_prefix(self, prefix: str) -> list[User]:
+        """
+        Get the first 10 matches by username prefix.
+        No need to apply `ILIKE` here, as the `username` column is already
+        `CIText`.
+        """
+        return (
+            self.db.query(User)
+            .filter(User.username.startswith(prefix))
+            .order_by(User.username)
+            .limit(10)
+            .all()
+        )
+
+    @functools.lru_cache
     def get_admin_user(self):
         """Useful for notifications to the admin@ email address."""
         return self.get_user_by_username("admin")
@@ -300,13 +315,14 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None, ip_address="127.0.0.1"):
+    def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
         user.record_event(
             tag=EventTag.Account.PasswordDisabled,
-            ip_address=ip_address,
+            ip_address=request.remote_addr,
+            request=request,
             additional={"reason": reason.value if reason else None},
         )
 
@@ -849,6 +865,7 @@ class HaveIBeenPwnedEmailBreachedService:
             resp = self._http.get(
                 urllib.parse.urljoin(self._api_base, email),
                 headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+                timeout=(0.25, 0.25),
             )
             resp.raise_for_status()
         except requests.RequestException as exc:

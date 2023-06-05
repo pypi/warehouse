@@ -29,7 +29,8 @@
   <ul>
     <li>{% trans %}Publisher name{% endtrans %}: {{ publisher_name }}</li>
     <li>{% trans %}Workflow{% endtrans %}: {{ publisher_workflow }}</li>
-    <li>{% trans %}Repository{% endtrans %}: {{ publisher_repository }}</li>
+    <li>{% trans %}Owner{% endtrans %}: {{ publisher_repository_owner }}</li>
+    <li>{% trans %}Repository{% endtrans %}: {{ publisher_repository_name }}</li>
     {% if publisher_environment %}
     <li>{% trans %}Environment{% endtrans %}: {{ publisher_environment }}</li>
     {% endif %}

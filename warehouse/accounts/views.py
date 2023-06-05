@@ -20,15 +20,19 @@ import pytz
 
 from first import first
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
+from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -157,6 +161,41 @@ def profile(user, request):
     )
 
     return {"user": user, "projects": projects}
+
+
+@view_config(
+    route_name="accounts.search",
+    renderer="api/account_search.html",
+    uses_session=True,
+)
+def accounts_search(request) -> dict[str, list[User]]:
+    """
+    Search for usernames based on prefix.
+    Used with autocomplete.
+    User must be logged in.
+    """
+    if request.authenticated_userid is None:
+        raise HTTPUnauthorized()
+
+    prefix = request.params.get("q", "").strip()
+    if not prefix:
+        raise HTTPBadRequest()
+
+    search_limiter = request.find_service(IRateLimiter, name="accounts.search")
+    if not search_limiter.test(request.ip_address):
+        # TODO: This should probably `raise HTTPTooManyRequests` instead,
+        #  but we need to make sure that the client library can handle it.
+        #  See: https://github.com/afcapel/stimulus-autocomplete/issues/136
+        return {"users": []}
+
+    user_service = request.find_service(IUserService, context=None)
+    users = user_service.get_users_by_prefix(prefix)
+    search_limiter.hit(request.ip_address)
+
+    if not users:
+        raise HTTPNotFound()
+
+    return {"users": users}
 
 
 @view_config(
@@ -452,7 +491,9 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
 
             user = user_service.get_user(userid)
             user.record_event(
-                tag=EventTag.Account.RecoveryCodesUsed, ip_address=request.remote_addr
+                tag=EventTag.Account.RecoveryCodesUsed,
+                ip_address=request.remote_addr,
+                request=request,
             )
 
             request.session.flash(
@@ -511,6 +552,12 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
         # the session for the original user.
         request.session.invalidate()
 
+        # We've logged the user out, so we want to ensure that we invalid the cache
+        # for our security policy, if we're using one that can be reset during login
+        security_policy = request.registry.queryUtility(ISecurityPolicy)
+        if hasattr(security_policy, "reset"):
+            security_policy.reset(request)
+
         # Now that we're logged out we'll want to redirect the user to either
         # where they were originally, or to the default view.
         resp = HTTPSeeOther(redirect_to, headers=dict(headers))
@@ -557,10 +604,12 @@ def register(request, _form_class=RegistrationForm):
 
     # the form contains an auto-generated field from recaptcha with
     # hyphens in it. make it play nice with wtforms.
-    post_body = {key.replace("-", "_"): value for key, value in request.POST.items()}
+    post_body = MultiDict(
+        {key.replace("-", "_"): value for key, value in request.POST.items()}
+    )
 
     form = _form_class(
-        data=post_body,
+        formdata=post_body,
         user_service=user_service,
         recaptcha_service=recaptcha_service,
         breach_service=breach_service,
@@ -575,6 +624,7 @@ def register(request, _form_class=RegistrationForm):
         user.record_event(
             tag=EventTag.Account.AccountCreate,
             ip_address=request.remote_addr,
+            request=request,
             additional={"email": form.email.data},
         )
 
@@ -622,6 +672,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
                 ip_address=request.remote_addr,
+                request=request,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
 
@@ -632,6 +683,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
                 ip_address=request.remote_addr,
+                request=request,
             )
             request.session.flash(
                 request._(
@@ -720,7 +772,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     form = _form_class(
-        **request.params,
+        request.POST,
         username=user.username,
         full_name=user.name,
         email=user.email,
@@ -735,7 +787,9 @@ def reset_password(request, _form_class=ResetPasswordForm):
         # Update password.
         user_service.update_user(user.id, password=form.new_password.data)
         user.record_event(
-            tag=EventTag.Account.PasswordReset, ip_address=request.remote_addr
+            tag=EventTag.Account.PasswordReset,
+            ip_address=request.remote_addr,
+            request=request,
         )
         password_reset_limiter.clear(user.id)
 
@@ -800,6 +854,7 @@ def verify_email(request):
     email.user.record_event(
         tag=EventTag.Account.EmailVerified,
         ip_address=request.remote_addr,
+        request=request,
         additional={"email": email.email, "primary": email.primary},
     )
 
@@ -908,6 +963,7 @@ def verify_organization_role(request):
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
                 "role_name": desired_role,
@@ -917,6 +973,7 @@ def verify_organization_role(request):
         user.record_event(
             tag=EventTag.Account.OrganizationRoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
                 "organization_name": organization.name,
@@ -961,6 +1018,7 @@ def verify_organization_role(request):
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
             "role_name": desired_role,
@@ -970,6 +1028,7 @@ def verify_organization_role(request):
     user.record_event(
         tag=EventTag.Account.OrganizationRoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
             "organization_name": organization.name,
@@ -1082,6 +1141,7 @@ def verify_project_role(request):
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": submitter_user.username,
                 "role_name": desired_role,
@@ -1091,6 +1151,7 @@ def verify_project_role(request):
         user.record_event(
             tag=EventTag.Account.RoleDeclineInvite,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": submitter_user.username,
                 "project_name": project.name,
@@ -1113,12 +1174,12 @@ def verify_project_role(request):
             name=project.name,
             action=f"accepted {desired_role} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
     project.record_event(
         tag=EventTag.Project.RoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "role_name": desired_role,
@@ -1128,6 +1189,7 @@ def verify_project_role(request):
     user.record_event(
         tag=EventTag.Account.RoleAdd,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "project_name": project.name,
@@ -1208,6 +1270,12 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
         request.session.invalidate()
         request.session.update(data)
 
+    # We've logged the user in, so we want to ensure that we invalid the cache
+    # for our security policy, if we're using one that can be reset during login
+    security_policy = request.registry.queryUtility(ISecurityPolicy)
+    if hasattr(security_policy, "reset"):
+        security_policy.reset(request)
+
     # Remember the userid using the authentication policy.
     headers = remember(request, str(userid))
 
@@ -1223,6 +1291,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
         ip_address=request.remote_addr,
+        request=request,
         additional={
             "two_factor_method": two_factor_method,
             "two_factor_label": two_factor_label,
@@ -1502,12 +1571,13 @@ class ManageAccountPublishingViews:
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "project": pending_publisher.project_name,
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )
@@ -1591,12 +1661,13 @@ class ManageAccountPublishingViews:
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
             ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "project": pending_publisher.project_name,
                 "publisher": pending_publisher.publisher_name,
                 "id": str(pending_publisher.id),
                 "specifier": str(pending_publisher),
-                "url": pending_publisher.publisher_url,
+                "url": pending_publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )

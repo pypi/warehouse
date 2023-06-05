@@ -55,8 +55,7 @@ Warehouse serves four main classes of users:
 3. *PyPI application moderators*. These users have a subset of the
    permissions of *PyPI application administrators* to assist in some
    routine administration tasks such as adding new trove classifiers,
-   adjusting upload limits for distribution packages, and reviewing
-   malware verdicts.
+   and adjusting upload limits for distribution packages.
 4. *PyPI application administrators*, e.g., Ee Durbin,
    Dustin Ingram, and Donald Stufft, who can ban
    spam/malware projects, help users with account recovery, and so
@@ -103,7 +102,6 @@ Directories within the repository:
   - `legacy/ <https://github.com/pypi/warehouse/tree/main/warehouse/legacy>`_ - most of the read-only APIs implemented here
   - `locale/ <https://github.com/pypi/warehouse/tree/main/warehouse/locale>`_ - internationalization
   - `macaroons/ <https://github.com/pypi/warehouse/tree/main/warehouse/macaroons>`_ - API token support
-  - `malware/ <https://github.com/pypi/warehouse/tree/main/warehouse/malware>`_ - automated malware checks
   - `manage/ <https://github.com/pypi/warehouse/tree/main/warehouse/manage>`_ - logged-in user functionality (i.e., manage account &
     owned/maintained projects)
   - `metrics/ <https://github.com/pypi/warehouse/tree/main/warehouse/metrics>`_ - services for recording metrics

@@ -70,7 +70,7 @@ def oidc_audience(request):
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
-    has_translations=False,
+    has_translations=True,
 )
 def mint_token_from_oidc(request):
     def _invalid(errors):
@@ -133,6 +133,7 @@ def mint_token_from_oidc(request):
         new_project = project_service.create_project(
             pending_publisher.project_name,
             pending_publisher.added_by,
+            request,
             ratelimited=False,
         )
         oidc_service.reify_pending_publisher(pending_publisher, new_project)
@@ -193,21 +194,22 @@ def mint_token_from_oidc(request):
         [
             caveats.OIDCPublisher(
                 oidc_publisher_id=str(publisher.id),
-                oidc_claims={"ref": claims.get("ref"), "sha": claims.get("sha")},
             ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=publisher.id,
+        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
     )
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
             ip_address=request.remote_addr,
+            request=request,
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
-                "publisher_url": publisher.publisher_url,
+                "publisher_url": publisher.publisher_url(),
             },
         )
     return {"success": True, "token": serialized}

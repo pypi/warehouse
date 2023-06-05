@@ -12,9 +12,15 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+from pyramid.authorization import Authenticated
+
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
     GitHubPublisher,
     GooglePublisher,
+    OIDCPublisher,
     PendingGitHubPublisher,
     PendingGooglePublisher,
 )
@@ -49,3 +55,29 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
         return None
 
     return publisher_cls.lookup_by_claims(session, signed_claims)
+
+
+@dataclass
+class OIDCContext:
+    """
+    This class supports `MacaroonSecurityPolicy` in
+    `warehouse.macaroons.security_policy`.
+
+    It is a wrapper containing both the signed claims associated with an OIDC
+    authenticated request and its `OIDCPublisher` DB model. We use it to smuggle
+    claims from the identity provider through to a session. `request.identity`
+    in an OIDC authenticated request should return this type.
+    """
+
+    publisher: OIDCPublisher
+    """
+    The associated OIDC publisher.
+    """
+
+    claims: SignedClaims | None
+    """
+    Pertinent OIDC claims from the token, if they exist.
+    """
+
+    def __principals__(self) -> list[str]:
+        return [Authenticated, f"oidc:{self.publisher.id}"]

@@ -16,7 +16,6 @@ import uuid
 import pymacaroons
 
 from pymacaroons.exceptions import MacaroonDeserializationException
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
@@ -59,7 +58,9 @@ class DatabaseMacaroonService:
             return None
 
         return self.db.get(
-            Macaroon, macaroon_id, (joinedload("user"), joinedload("oidc_publisher"))
+            Macaroon,
+            macaroon_id,
+            (joinedload(Macaroon.user), joinedload(Macaroon.oidc_publisher)),
         )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
@@ -141,7 +142,14 @@ class DatabaseMacaroonService:
         raise InvalidMacaroonError(verified.msg)
 
     def create_macaroon(
-        self, location, description, scopes, *, user_id=None, oidc_publisher_id=None
+        self,
+        location,
+        description,
+        scopes,
+        *,
+        user_id=None,
+        oidc_publisher_id=None,
+        additional=None,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
@@ -170,6 +178,7 @@ class DatabaseMacaroonService:
             oidc_publisher_id=oidc_publisher_id,
             description=description,
             permissions_caveat={"permissions": permissions},
+            additional=additional,
         )
         self.db.add(dm)
         self.db.flush()  # flush db now so dm.id is available
@@ -199,16 +208,12 @@ class DatabaseMacaroonService:
 
         Returns None if the user doesn't have a macaroon with this description.
         """
-        try:
-            dm = (
-                self.db.query(Macaroon)
-                .options(joinedload("user"))
-                .filter(Macaroon.description == description)
-                .filter(Macaroon.user_id == user_id)
-                .one()
-            )
-        except NoResultFound:
-            return None
+        dm = (
+            self.db.query(Macaroon)
+            .filter(Macaroon.description == description)
+            .filter(Macaroon.user_id == user_id)
+            .one_or_none()
+        )
 
         return dm
 

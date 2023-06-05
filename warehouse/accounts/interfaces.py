@@ -78,6 +78,11 @@ class IUserService(Interface):
         if there is no user with that email.
         """
 
+    def get_users_by_prefix(prefix: str) -> list:
+        """
+        Return a list of user objects that match the given prefix.
+        """
+
     def get_admin_user():
         """
         Returns the `admin` user object.
@@ -116,7 +121,7 @@ class IUserService(Interface):
         Updates the user object
         """
 
-    def disable_password(user_id, reason=None):
+    def disable_password(user_id, request, reason=None):
         """
         Disables the given user's password, preventing further login until the user
         resets their password. If a reason was given, this will be persisted and reset

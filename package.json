@@ -6,8 +6,9 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
+    "lint:fix": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
     "stylelint": "stylelint '**/*.scss' --cache",
-    "stylelint-fix": "stylelint '**/*.scss' --cache --fix",
+    "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
     "test": "jest --coverage"
   },
   "jest": {
@@ -26,7 +27,8 @@
     "date-fns": "^2.30.0",
     "debounce": "^1.2.1",
     "jquery": "^3.7.0",
-    "normalize.css": "^8.0.1"
+    "normalize.css": "^8.0.1",
+    "stimulus-autocomplete": "^3.1.0"
   },
   "overrides": {
     "sweetalert2": "11.4.8"

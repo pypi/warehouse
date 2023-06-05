@@ -94,7 +94,6 @@ def test_sync_file_to_cache(db_request, monkeypatch, cached):
 def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
     file = FileFactory(
         cached=cached,
-        has_signature=True,
         metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
     )
     archive_stub = pretend.stub(
@@ -128,17 +127,14 @@ def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached
         assert archive_stub.get_metadata.calls == [
             pretend.call(file.path),
             pretend.call(file.metadata_path),
-            pretend.call(file.pgp_path),
         ]
         assert archive_stub.get.calls == [
             pretend.call(file.path),
             pretend.call(file.metadata_path),
-            pretend.call(file.pgp_path),
         ]
         assert cache_stub.store.calls == [
             pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
             pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
-            pretend.call(file.pgp_path, "/tmp/wutang", meta={"fizz": "buzz"}),
         ]
     else:
         assert archive_stub.get_metadata.calls == []
@@ -147,8 +143,8 @@ def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):
-    [FileFactory(cached=True) for _ in range(12)]
-    [FileFactory(cached=False) for _ in range(3)]
+    FileFactory.create_batch(12, cached=True)
+    FileFactory.create_batch(3, cached=False)
 
     check_file_cache_tasks_outstanding(db_request)
 
@@ -161,7 +157,6 @@ def test_fetch_checksums():
     file_stub = pretend.stub(
         path="/path",
         metadata_path="/path.metadata",
-        pgp_path="/path.asc",
     )
     storage_stub = pretend.stub(
         get_checksum=lambda pth: f"{pth}-deadbeef",
@@ -170,7 +165,6 @@ def test_fetch_checksums():
     assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
         "/path-deadbeef",
         "/path.metadata-deadbeef",
-        "/path.asc-deadbeef",
     )
 
 
@@ -178,12 +172,10 @@ def test_fetch_checksums_none():
     file_stub = pretend.stub(
         path="/path",
         metadata_path="/path.metadata",
-        pgp_path="/path.asc",
     )
     storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
 
     assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
-        None,
         None,
         None,
     )
@@ -195,7 +187,6 @@ def test_reconcile_file_storages_all_good(db_request, metrics):
     all_good = FileFactory.create(release=release, cached=False)
     all_good.md5_digest = f"{all_good.path}-deadbeef"
     all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
-    all_good.has_signature = True
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     db_request.find_service = pretend.call_recorder(
@@ -221,7 +212,6 @@ def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
     fixable = FileFactory.create(release=release, cached=False)
     fixable.md5_digest = f"{fixable.path}-deadbeef"
     fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
-    fixable.has_signature = True
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
@@ -244,12 +234,10 @@ def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
     assert metrics.increment.calls == [
         pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
         pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
-        pretend.call("warehouse.filestorage.reconciled", tags=["type:pgp"]),
     ]
     assert copy_file.calls == [
         pretend.call(storage_service, broke_storage_service, fixable.path),
         pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
-        pretend.call(storage_service, broke_storage_service, fixable.pgp_path),
     ]
     assert fixable.cached is True
 
@@ -268,10 +256,6 @@ def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
             ".metadata",
             "type:metadata",
         ),
-        (
-            ".asc",
-            "type:pgp",
-        ),
     ],
 )
 def test_reconcile_file_storages_borked(
@@ -282,7 +266,6 @@ def test_reconcile_file_storages_borked(
     borked = FileFactory.create(release=release, cached=False)
     borked.md5_digest = f"{borked.path}-deadbeef"
     borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
-    borked.has_signature = True
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
@@ -322,10 +305,6 @@ def test_reconcile_file_storages_borked(
         (
             ".metadata",
             "type:metadata",
-        ),
-        (
-            ".asc",
-            "type:pgp",
         ),
     ],
 )
@@ -570,7 +549,7 @@ class TestUpdateBigQueryMetadata:
             "packagetype": release_file.packagetype,
             "comment_text": release_file.comment_text,
             "size": release_file.size,
-            "has_signature": release_file.has_signature,
+            "has_signature": False,
             "md5_digest": release_file.md5_digest,
             "sha256_digest": release_file.sha256_digest,
             "blake2_256_digest": release_file.blake2_256_digest,
@@ -628,7 +607,7 @@ class TestUpdateBigQueryMetadata:
                         "python_version": release_file.python_version,
                         "packagetype": release_file.packagetype,
                         "comment_text": release_file.comment_text or None,
-                        "has_signature": release_file.has_signature,
+                        "has_signature": False,
                         "md5_digest": release_file.md5_digest,
                         "sha256_digest": release_file.sha256_digest,
                         "blake2_256_digest": release_file.blake2_256_digest,
@@ -774,7 +753,7 @@ class TestSyncBigQueryMetadata:
                         "python_version": release_file.python_version,
                         "packagetype": release_file.packagetype,
                         "comment_text": release_file.comment_text or None,
-                        "has_signature": release_file.has_signature,
+                        "has_signature": False,
                         "md5_digest": release_file.md5_digest,
                         "sha256_digest": release_file.sha256_digest,
                         "blake2_256_digest": release_file.blake2_256_digest,
@@ -874,14 +853,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
         user=non_critical_project_maintainer, project=non_critical_project
     )
 
-    send_two_factor_mandate_email = pretend.call_recorder(lambda request, user: None)
-
-    monkeypatch.setattr(
-        warehouse.packaging.tasks,
-        "send_two_factor_mandate_email",
-        send_two_factor_mandate_email,
-    )
-
     results = [
         {"project_name": "new_critical_project"},
         {"project_name": "previous_critical_project"},
@@ -908,12 +879,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
     assert previous_critical_project.pypi_mandates_2fa
     assert new_critical_project.pypi_mandates_2fa
     assert not non_critical_project.pypi_mandates_2fa
-
-    assert set(send_two_factor_mandate_email.calls) == {
-        pretend.call(db_request, main_dependency_maintainer),
-        pretend.call(db_request, deploy_dependency_maintainer),
-        pretend.call(db_request, new_critical_project_maintainer),
-    }
 
 
 def test_compute_2fa_metrics(db_request, monkeypatch):

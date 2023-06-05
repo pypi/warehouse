@@ -22,6 +22,8 @@ theme:
 markdown_extensions:
   - footnotes
   - pymdownx.superfences
+  - attr_list
+  - md_in_html
 extra_css:
   - stylesheets/extra.css
 plugins:
@@ -38,8 +40,7 @@ plugins:
       time_format: '%Y-%m-%d' # The format used to display the time
       meta_time_format: '%Y-%m-%d %H:%M' # The format used to parse the time from meta
   - rss:
-      abstract_chars_count: 160
-      abstract_delimiter: <!-- more -->
+      abstract_chars_count: -1
       categories:
         - tags
       date_from_meta:
@@ -49,10 +50,8 @@ plugins:
         default_timezone: "UTC"
         default_time: "06:09"
       enabled: true
-      feed_ttl: 1440
       image: https://blog.pypi.org/assets/logo.png
       length: 20
-      pretty_print: true
       match_path: "posts/.*"
 extra:
   homepage: https://pypi.org

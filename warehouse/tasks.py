@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import functools
+import hashlib
 import logging
 import os
 import time
@@ -94,6 +95,9 @@ class WarehouseTask(celery.Task):
             env["request"].tm = transaction.TransactionManager(explicit=True)
             env["request"].timings = {"new_request_start": time.time() * 1000}
             env["request"].remote_addr = "127.0.0.1"
+            env["request"].remote_addr_hashed = hashlib.sha256(
+                ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
+            ).hexdigest()
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
@@ -209,11 +213,8 @@ def includeme(config):
         task_default_queue="default",
         task_default_routing_key="task.default",
         task_queue_ha_policy="all",
-        task_queues=(
-            Queue("default", routing_key="task.#"),
-            Queue("malware", routing_key="malware.#"),
-        ),
-        task_routes={"warehouse.malware.tasks.*": {"queue": "malware"}},
+        task_queues=(Queue("default", routing_key="task.#"),),
+        task_routes={},
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],

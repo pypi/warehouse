@@ -40,6 +40,7 @@ from pyramid.view import (
 from sqlalchemy import func
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
+from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -246,7 +247,7 @@ def index(request):
 )
 def locale(request):
     try:
-        form = SetLocaleForm(locale_id=request.GET.getone("locale_id"))
+        form = SetLocaleForm(MultiDict({"locale_id": request.GET.getone("locale_id")}))
     except KeyError:
         raise HTTPBadRequest("Invalid amount of locale_id parameters provided")
 
@@ -317,7 +318,7 @@ def search(request):
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
         .filter(
-            exists([release_classifiers.c.trove_id]).where(
+            exists(release_classifiers.c.trove_id).where(
                 release_classifiers.c.trove_id == Classifier.id
             ),
             Classifier.classifier.notin_(deprecated_classifiers.keys()),

@@ -31,6 +31,7 @@ module = [
     "google.cloud.*",
     "forcediphttpsadapter.*",
     "IPython.*",
+    "linehaul.*",
     "mistune.*",
     "packaging_legacy.*",
     "paginate.*",
@@ -47,7 +48,9 @@ module = [
     "rfc3986.*",
     "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
+    "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
+    "webob.*", # https://github.com/python/typeshed/pull/9874
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
     "yara.*",

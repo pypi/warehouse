@@ -264,8 +264,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload("project"))
-        query = query.options(orm.lazyload("user"))
+        query = query.options(orm.lazyload(Role.project))
+        query = query.options(orm.lazyload(Role.user))
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
             for role in query.all()
@@ -273,8 +273,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         # Add all of the team members for this project.
         query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload("project"))
-        query = query.options(orm.lazyload("team"))
+        query = query.options(orm.lazyload(TeamProjectRole.project))
+        query = query.options(orm.lazyload(TeamProjectRole.team))
         for role in query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
@@ -287,8 +287,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
                 OrganizationRole.organization == self.organization,
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
             )
-            query = query.options(orm.lazyload("organization"))
-            query = query.options(orm.lazyload("user"))
+            query = query.options(orm.lazyload(OrganizationRole.organization))
+            query = query.options(orm.lazyload(OrganizationRole.user))
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
@@ -663,7 +663,6 @@ class File(HasEvents, db.Model):
     filename = Column(Text, unique=True)
     path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
-    has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True, nullable=False)
     sha256_digest = Column(CIText, unique=True, nullable=False)
     blake2_256_digest = Column(CIText, unique=True, nullable=False)
@@ -691,14 +690,6 @@ class File(HasEvents, db.Model):
         nullable=False,
         server_default=sql.false(),
     )
-
-    @hybrid_property
-    def pgp_path(self):
-        return self.path + ".asc"
-
-    @pgp_path.expression  # type: ignore
-    def pgp_path(self):
-        return func.concat(self.path, ".asc")
 
     @hybrid_property
     def metadata_path(self):
@@ -761,7 +752,6 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
-    submitted_from = Column(Text)
 
 
 class ProhibitedProjectName(db.Model):

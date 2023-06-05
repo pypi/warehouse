@@ -12,15 +12,16 @@
 
 import base64
 
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.threadlocal import get_current_request
+from pyramid.authorization import ACLHelper
+from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.utils.security_policy import AuthenticationMethod
+from warehouse.oidc.utils import OIDCContext
+from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
 def _extract_basic_macaroon(auth):
@@ -72,6 +73,9 @@ def _extract_http_macaroon(request):
 
 @implementer(ISecurityPolicy)
 class MacaroonSecurityPolicy:
+    def __init__(self):
+        self._acl = ACLHelper()
+
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -90,13 +94,19 @@ class MacaroonSecurityPolicy:
 
         try:
             dm = macaroon_service.find_from_raw(macaroon)
+            oidc_claims = (
+                dm.additional.get("oidc")
+                if dm.oidc_publisher and dm.additional
+                else None
+            )
         except InvalidMacaroonError:
             return None
 
         # Every Macaroon is either associated with a user or an OIDC publisher.
         if dm.user is not None:
             return dm.user
-        return dm.oidc_publisher
+
+        return OIDCContext(dm.oidc_publisher, oidc_claims)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
@@ -115,65 +125,41 @@ class MacaroonSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
-
-
-@implementer(IAuthorizationPolicy)
-class MacaroonAuthorizationPolicy:
-    def __init__(self, policy):
-        self.policy = policy
-
-    def permits(self, context, principals, permission):
-        # The Pyramid API doesn't let us access the request here, so we have to pull it
-        # out of the thread local instead.
-        # TODO: Work with Pyramid devs to figure out if there is a better way to support
-        #       the worklow we are using here or not.
-        request = get_current_request()
-
-        # Our request could possibly be a None, if there isn't an active request, in
-        # that case we're going to always deny, because without a request, we can't
-        # determine if this request is authorized or not.
-        if request is None:
-            return WarehouseDenied(
-                "There was no active request.", reason="no_active_request"
-            )
-
         # Re-extract our Macaroon from the request, it sucks to have to do this work
         # twice, but I believe it is inevitable unless we pass the Macaroon back as
         # a principal-- which doesn't seem to be the right fit for it.
         macaroon = _extract_http_macaroon(request)
 
-        # This logic will only happen on requests that are being authenticated with
-        # Macaroons. Any other request will just fall back to the standard Authorization
-        # policy.
-        if macaroon is not None:
-            valid_permissions = ["upload"]
-            macaroon_service = request.find_service(IMacaroonService, context=None)
+        # It should not be possible to *not* have a macaroon at this point, because we
+        # can't call this function without an identity that came from a macaroon
+        assert isinstance(macaroon, str), "no valid macaroon"
 
-            try:
-                macaroon_service.verify(macaroon, request, context, permission)
-            except InvalidMacaroonError as exc:
-                return WarehouseDenied(
-                    f"Invalid API Token: {exc}", reason="invalid_api_token"
-                )
+        # Check to make sure that the permission we're attempting to permit is one that
+        # is allowed to be used for macaroons.
+        # TODO: This should be moved out of there and into the macaroons themselves, it
+        #       doesn't really make a lot of sense here and it makes things more
+        #       complicated if we want to allow the use of macaroons for actions other
+        #       than uploading.
+        if permission not in ["upload"]:
+            return WarehouseDenied(
+                f"API tokens are not valid for permission: {permission}!",
+                reason="invalid_permission",
+            )
 
-            # If our Macaroon is verified, and for a valid permission then we'll pass
-            # this request to our underlying Authorization policy, so it can handle its
-            # own authorization logic on the principal.
-            if permission in valid_permissions:
-                return self.policy.permits(context, principals, permission)
-            else:
-                return WarehouseDenied(
-                    f"API tokens are not valid for permission: {permission}!",
-                    reason="invalid_permission",
-                )
+        # Check if our macaroon itself is valid. This does not actually check if the
+        # identity bound to that macaroon has permission to do what it's trying to do
+        # but rather that the caveats embedded into the macaroon are valid for the given
+        # request, context, and permission.
+        macaroon_service = request.find_service(IMacaroonService, context=None)
+        try:
+            macaroon_service.verify(macaroon, request, context, permission)
+        except InvalidMacaroonError as exc:
+            return WarehouseDenied(
+                f"Invalid API Token: {exc}", reason="invalid_api_token"
+            )
 
-        else:
-            return self.policy.permits(context, principals, permission)
-
-    def principals_allowed_by_permission(self, context, permission):
-        # We just dispatch this, because Macaroons don't restrict what principals are
-        # allowed by a particular permission, they just restrict specific requests
-        # to not have that permission.
-        return self.policy.principals_allowed_by_permission(context, permission)
+        # The macaroon is valid, so we can actually see if request.identity is
+        # authorized now or not.
+        # NOTE: These parameters are in a different order than the signature of this
+        #       method.
+        return self._acl.permits(context, principals_for(request.identity), permission)

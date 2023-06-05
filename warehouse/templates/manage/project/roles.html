@@ -330,7 +330,7 @@
     {% endif %}
   </h3>
   <form method="POST">
-    <div class="form-group">
+    <div class="form-group" data-controller="autocomplete" data-autocomplete-url-value="/accounts/search/" role="combobox">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <label for="username" class="form-group__label">
         {% trans %}User{% endtrans %}
@@ -338,7 +338,8 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors", "data-autocomplete-target":"input"}) }}
+      <ul class="form-group__results" data-autocomplete-target="results"></ul>
       <div id="user-errors">
         {{ field_errors(form.username) }}
       </div>

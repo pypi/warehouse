@@ -39,11 +39,6 @@
         <a href="#" data-input="q" data-append="description:">desc:</a>"open source"
         <br>
         Filters:&nbsp;
-        <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="approval" aria-label="Approval">
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:submitted' in terms else '' }}" data-approval="is:submitted">Submitted</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:approved' in terms else '' }}" data-approval="is:approved">Approved</button>
-          <button type="button" class="btn btn-secondary {{ 'active' if 'is:declined' in terms else '' }}" data-approval="is:declined">Declined</button>
-        </div>&nbsp;
         <div class="btn-group btn-group-sm" role="group" data-input="q" data-state="status" aria-label="Status">
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:active' in terms else '' }}" data-status="is:active">Active</button>
           <button type="button" class="btn btn-secondary {{ 'active' if 'is:inactive' in terms else '' }}" data-status="is:inactive">Inactive</button>
@@ -66,7 +61,6 @@
         <th>Organization</th>
         <th>Description</th>
         <th>Type</th>
-        <th><i class="fa fa-fw"></i> Approval</th>
         <th><i class="fa fa-fw"></i> Status</th>
       </tr>
       </thead>
@@ -82,13 +76,6 @@
         </td>
         <td>{{ organization.description }}</td>
         <td>{{ organization.orgtype.value }}</td>
-        {% if organization.is_approved == True %}
-        <td><i class="fa fa-fw fa-check text-green"></i> Approved</td>
-        {% elif organization.is_approved == False %}
-        <td><i class="fa fa-fw fa-times text-red"></i> Declined</td>
-        {% else %}
-        <td><i class="fa fa-fw"></i> Submitted</td>
-        {% endif %}
         {% if organization.is_active %}
         <td><i class="fa fa-fw fa-check text-green"></i> Active</td>
         {% else %}

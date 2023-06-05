@@ -24,7 +24,7 @@ from ....common.db.packaging import JournalEntryFactory, ProjectFactory
 class TestProjectList:
     def test_no_query(self, db_request):
         journals = sorted(
-            [JournalEntryFactory.create() for _ in range(30)],
+            JournalEntryFactory.create_batch(30),
             key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
@@ -34,7 +34,7 @@ class TestProjectList:
 
     def test_with_page(self, db_request):
         journals = sorted(
-            [JournalEntryFactory.create() for _ in range(30)],
+            JournalEntryFactory.create_batch(30),
             key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
@@ -53,14 +53,11 @@ class TestProjectList:
         project0 = ProjectFactory.create()
         project1 = ProjectFactory.create()
         journals0 = sorted(
-            [
-                JournalEntryFactory.create(name=project0.normalized_name)
-                for _ in range(30)
-            ],
+            JournalEntryFactory.create_batch(30, name=project0.normalized_name),
             key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
-        [JournalEntryFactory.create(name=project1.normalized_name) for _ in range(30)]
+        JournalEntryFactory.create_batch(30, name=project1.normalized_name)
 
         db_request.GET["q"] = f"{project0.name}"
         result = views.journals_list(db_request)
@@ -74,14 +71,11 @@ class TestProjectList:
         project0 = ProjectFactory.create()
         project1 = ProjectFactory.create()
         journals0 = sorted(
-            [
-                JournalEntryFactory.create(name=project0.normalized_name)
-                for _ in range(30)
-            ],
+            JournalEntryFactory.create_batch(30, name=project0.normalized_name),
             key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
-        [JournalEntryFactory.create(name=project1.normalized_name) for _ in range(30)]
+        JournalEntryFactory.create_batch(30, name=project1.normalized_name)
 
         db_request.GET["q"] = f"project:{project0.name}"
         result = views.journals_list(db_request)
@@ -95,11 +89,11 @@ class TestProjectList:
         user0 = UserFactory.create()
         user1 = UserFactory.create()
         journals0 = sorted(
-            [JournalEntryFactory.create(submitted_by=user0) for _ in range(30)],
+            JournalEntryFactory.create_batch(30, submitted_by=user0),
             key=lambda j: (j.submitted_date, j.id),
             reverse=True,
         )
-        [JournalEntryFactory.create(submitted_by=user1) for _ in range(30)]
+        JournalEntryFactory.create_batch(30, submitted_by=user1)
 
         db_request.GET["q"] = f"user:{user0.username}"
         result = views.journals_list(db_request)
@@ -110,7 +104,7 @@ class TestProjectList:
         }
 
     def test_query_term_version(self, db_request):
-        journals = [JournalEntryFactory.create() for _ in range(10)]
+        journals = JournalEntryFactory.create_batch(10)
 
         db_request.GET["q"] = f"version:{journals[0].version}"
         result = views.journals_list(db_request)
@@ -119,27 +113,3 @@ class TestProjectList:
             "journals": [journals[0]],
             "query": f"version:{journals[0].version}",
         }
-
-    def test_query_term_ip(self, db_request):
-        ipv4 = "10.6.6.6"
-        ipv6 = "2001:0db8:85a3:0000:0000:8a2e:0370:7334"
-        journals0 = sorted(
-            [JournalEntryFactory.create(submitted_from=ipv4) for _ in range(10)],
-            key=lambda j: (j.submitted_date, j.id),
-            reverse=True,
-        )
-        journals1 = sorted(
-            [JournalEntryFactory.create(submitted_from=ipv6) for _ in range(10)],
-            key=lambda j: (j.submitted_date, j.id),
-            reverse=True,
-        )
-
-        db_request.GET["q"] = f"ip:{ipv4}"
-        result = views.journals_list(db_request)
-
-        assert result == {"journals": journals0, "query": f"ip:{ipv4}"}
-
-        db_request.GET["q"] = f"ip:{ipv6}"
-        result = views.journals_list(db_request)
-
-        assert result == {"journals": journals1, "query": f"ip:{ipv6}"}

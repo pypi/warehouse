@@ -69,6 +69,7 @@ def send_email(task, request, recipient, msg, success_event):
         sender.send(recipient, msg)
         user_service = request.find_service(IUserService, context=None)
         user = user_service.get_user(success_event.pop("user_id"))
+        success_event["request"] = request
         if user is not None:  # We send account deletion confirmation emails
             user.record_event(**success_event)
     except (BadHeaders, EncodingError, InvalidMessage) as exc:
@@ -317,6 +318,11 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     repeat_window=datetime.timedelta(days=1),
 )
 def send_basic_auth_with_two_factor_email(request, user, *, project_name):
+    return {"project_name": project_name}
+
+
+@_email("gpg-signature-uploaded", repeat_window=datetime.timedelta(days=1))
+def send_gpg_signature_uploaded_email(request, user, *, project_name):
     return {"project_name": project_name}
 
 
@@ -988,7 +994,8 @@ def send_trusted_publisher_added_email(request, user, project_name, publisher):
         "project_name": project_name,
         "publisher_name": publisher.publisher_name,
         "publisher_workflow": str(publisher),
-        "publisher_repository": publisher.repository_name,
+        "publisher_repository_owner": publisher.repository_owner,
+        "publisher_repository_name": publisher.repository_name,
         "publisher_environment": publisher.environment,
     }
 
@@ -1001,7 +1008,8 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
         "project_name": project_name,
         "publisher_name": publisher.publisher_name,
         "publisher_workflow": str(publisher),
-        "publisher_repository": publisher.repository_name,
+        "publisher_repository_owner": publisher.repository_owner,
+        "publisher_repository_name": publisher.repository_name,
         "publisher_environment": publisher.environment,
     }
 
@@ -1011,11 +1019,6 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     return {
         "project_name": project_name,
     }
-
-
-@_email("two-factor-mandate")
-def send_two_factor_mandate_email(request, user):
-    return {"username": user.username, "has_two_factor": user.has_two_factor}
 
 
 def includeme(config):

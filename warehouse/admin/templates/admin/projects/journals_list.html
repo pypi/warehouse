@@ -46,7 +46,6 @@
         <th>Version</th>
         <th>Date</th>
         <th>Submitted By</th>
-        <th>Submitted From</th>
         <th>Action</th>
       </tr>
       </thead>
@@ -58,7 +57,6 @@
         <td>{{ journal.version }}</td>
         <td>{{ journal.submitted_date }}</td>
         <td><a href="{{ request.route_path('admin.user.detail', username=journal.submitted_by.username) }}">{{ journal.submitted_by.username }}</a></td>
-        <td>{{ journal.submitted_from }}</td>
         <td>{{ journal.action }}</td>
       </tr>
       {% endfor %}

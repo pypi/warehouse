@@ -14,6 +14,7 @@
 // Import stimulus
 import { Application } from "@hotwired/stimulus";
 import { definitionsFromContext } from "@hotwired/stimulus-webpack-helpers";
+import { Autocomplete } from "stimulus-autocomplete";
 
 // We'll use docReady as a modern replacement for $(document).ready() which
 // does not require all of jQuery to use. This will let us use it without
@@ -193,3 +194,4 @@ document.addEventListener("CSILoaded", PositionWarning);
 const application = Application.start();
 const context = require.context("./controllers", true, /\.js$/);
 application.load(definitionsFromContext(context));
+application.register("autocomplete", Autocomplete);

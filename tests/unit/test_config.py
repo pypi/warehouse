@@ -195,6 +195,7 @@ def test_configure(monkeypatch, settings, environment):
         def __init__(self):
             self.settings = {
                 "warehouse.token": "insecure token",
+                "warehouse.ip_salt": "insecure salt",
                 "warehouse.env": environment,
                 "camo.url": "http://camo.example.com/",
                 "pyramid.reload_assets": False,
@@ -256,6 +257,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.account.global_login_ratelimit_string": "1000 per 5 minutes",
         "warehouse.account.email_add_ratelimit_string": "2 per day",
         "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
+        "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
         "warehouse.account.password_reset_ratelimit_string": "5 per day",
         "warehouse.manage.oidc.user_registration_ratelimit_string": "100 per day",
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
@@ -266,6 +268,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_mandate.enabled": False,
         "warehouse.oidc.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
+        "warehouse.organizations.max_undecided_organization_applications": 3,
         "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
     }
@@ -310,7 +313,9 @@ def test_configure(monkeypatch, settings, environment):
     assert result is configurator_obj
     assert configurator_obj.set_root_factory.calls == [pretend.call(config.RootFactory)]
     assert configurator_obj.add_wsgi_middleware.calls == [
-        pretend.call(ProxyFixer, token="insecure token", num_proxies=1),
+        pretend.call(
+            ProxyFixer, token="insecure token", ip_salt="insecure salt", num_proxies=1
+        ),
         pretend.call(VhmRootRemover),
     ]
     assert configurator_obj.include.calls == (
@@ -359,7 +364,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".accounts"),
             pretend.call(".macaroons"),
             pretend.call(".oidc"),
-            pretend.call(".malware"),
             pretend.call(".manage"),
             pretend.call(".organizations"),
             pretend.call(".subscriptions"),
@@ -466,13 +470,12 @@ def test_configure(monkeypatch, settings, environment):
 def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
-    assert len(acl) == 5
-    assert acl[0] == (Allow, "group:admins", "admin")
-    assert acl[1] == (Allow, "group:moderators", "moderator")
-    assert acl[2] == (Allow, "group:psf_staff", "psf_staff")
-    assert acl[3] == (
-        Allow,
-        "group:with_admin_dashboard_access",
-        "admin_dashboard_access",
-    )
-    assert acl[4] == (Allow, Authenticated, "manage:user")
+    assert acl == [
+        (Allow, "group:admins", "admin"),
+        (Allow, "group:admins", "admin_dashboard_access"),
+        (Allow, "group:moderators", "moderator"),
+        (Allow, "group:moderators", "admin_dashboard_access"),
+        (Allow, "group:psf_staff", "psf_staff"),
+        (Allow, "group:psf_staff", "admin_dashboard_access"),
+        (Allow, Authenticated, "manage:user"),
+    ]

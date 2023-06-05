@@ -58,9 +58,11 @@ class RootFactory:
 
     __acl__ = [
         (Allow, "group:admins", "admin"),
+        (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
+        (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
+        (Allow, "group:psf_staff", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -153,6 +155,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
@@ -248,7 +251,6 @@ def configure(settings=None):
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
-    maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -291,6 +293,12 @@ def configure(settings=None):
         "VERIFY_EMAIL_RATELIMIT_STRING",
         default="3 per 6 hours",
     )
+    maybe_set(
+        settings,
+        "warehouse.account.accounts_search_ratelimit_string",
+        "ACCOUNTS_SEARCH_RATELIMIT_STRING",
+        default="100 per hour",
+    ),
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -360,6 +368,14 @@ def configure(settings=None):
         "OIDC_ENABLED",
         coercer=distutils.util.strtobool,
         default=False,
+    )
+
+    maybe_set(
+        settings,
+        "warehouse.organizations.max_undecided_organization_applications",
+        "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
+        coercer=int,
+        default=3,
     )
 
     # Add the settings we use when the environment is set to development.
@@ -597,9 +613,6 @@ def configure(settings=None):
     # Register support for OIDC based authentication
     config.include(".oidc")
 
-    # Register support for malware checks
-    config.include(".malware")
-
     # Register logged-in views
     config.include(".manage")
 
@@ -675,6 +688,7 @@ def configure(settings=None):
     config.add_wsgi_middleware(
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
+        ip_salt=config.registry.settings["warehouse.ip_salt"],
         num_proxies=config.registry.settings.get("warehouse.num_proxies", 1),
     )
 

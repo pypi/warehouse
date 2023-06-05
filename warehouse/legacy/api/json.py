@@ -48,7 +48,10 @@ def _json_data(request, project, release, *, all_releases):
         request.db.query(Release, File)
         .options(
             Load(Release).load_only(
-                "version", "requires_python", "yanked", "yanked_reason"
+                Release.version,
+                Release.requires_python,
+                Release.yanked,
+                Release.yanked_reason,
             )
         )
         .outerjoin(File)
@@ -81,7 +84,9 @@ def _json_data(request, project, release, *, all_releases):
                 "filename": f.filename,
                 "packagetype": f.packagetype,
                 "python_version": f.python_version,
-                "has_sig": f.has_signature,
+                # TODO: Remove this once we've had a long enough time with it
+                #       here to consider it no longer in use.
+                "has_sig": False,
                 "comment_text": f.comment_text,
                 "md5_digest": f.md5_digest,
                 "digests": {

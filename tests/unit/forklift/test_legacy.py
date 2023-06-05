@@ -35,8 +35,11 @@ from wtforms.validators import ValidationError
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
+from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.utils import OIDCContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -1346,19 +1349,23 @@ class TestFileUpload:
         assert "\x00" not in db_request.POST["summary"]
 
     @pytest.mark.parametrize(
-        ("has_signature", "digests"),
+        ("digests",),
         [
-            (True, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (True, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
-            (False, {"md5_digest": _TAR_GZ_PKG_MD5}),
-            (False, {"sha256_digest": _TAR_GZ_PKG_SHA256}),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
+            ({"md5_digest": _TAR_GZ_PKG_MD5},),
+            ({"sha256_digest": _TAR_GZ_PKG_SHA256},),
             (
-                True,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
             (
-                False,
-                {"md5_digest": _TAR_GZ_PKG_MD5, "sha256_digest": _TAR_GZ_PKG_SHA256},
+                {
+                    "md5_digest": _TAR_GZ_PKG_MD5,
+                    "sha256_digest": _TAR_GZ_PKG_SHA256,
+                },
             ),
         ],
     )
@@ -1368,7 +1375,6 @@ class TestFileUpload:
         monkeypatch,
         pyramid_config,
         db_request,
-        has_signature,
         digests,
         metrics,
     ):
@@ -1407,24 +1413,9 @@ class TestFileUpload:
         db_request.POST.extend([("classifiers", "Environment :: Other Environment")])
         db_request.POST.update(digests)
 
-        if has_signature:
-            gpg_signature = FieldStorage()
-            gpg_signature.filename = filename + ".asc"
-            gpg_signature.file = io.BytesIO(
-                b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-            )
-            db_request.POST["gpg_signature"] = gpg_signature
-            assert isinstance(db_request.POST["gpg_signature"], FieldStorage)
-
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
-            if file_path.endswith(".asc"):
-                expected = (
-                    b"-----BEGIN PGP SIGNATURE-----\n" b" This is a Fake Signature"
-                )
-            else:
-                expected = _TAR_GZ_PKG_TESTDATA
-
+            expected = _TAR_GZ_PKG_TESTDATA
             with open(file_path, "rb") as fp:
                 assert fp.read() == expected
 
@@ -1446,7 +1437,7 @@ class TestFileUpload:
             pretend.call(IMetricsService, context=None),
             pretend.call(IFileStorage, name="archive"),
         ]
-        assert len(storage_service.store.calls) == 2 if has_signature else 1
+        assert len(storage_service.store.calls) == 1
         assert storage_service.store.calls[0] == pretend.call(
             "/".join(
                 [
@@ -1465,25 +1456,6 @@ class TestFileUpload:
             },
         )
 
-        if has_signature:
-            assert storage_service.store.calls[1] == pretend.call(
-                "/".join(
-                    [
-                        _TAR_GZ_PKG_STORAGE_HASH[:2],
-                        _TAR_GZ_PKG_STORAGE_HASH[2:4],
-                        _TAR_GZ_PKG_STORAGE_HASH[4:],
-                        filename + ".asc",
-                    ]
-                ),
-                mock.ANY,
-                meta={
-                    "project": project.normalized_name,
-                    "version": release.version,
-                    "package-type": "sdist",
-                    "python-version": "source",
-                },
-            )
-
         # Ensure that a File object has been created.
         uploaded_file = (
             db_request.db.query(File)
@@ -1499,20 +1471,16 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -1683,44 +1651,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Only one sdist may be uploaded per release."
-
-    @pytest.mark.parametrize("sig", [b"lol nope"])
-    def test_upload_fails_with_invalid_signature(self, pyramid_config, db_request, sig):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc", file=io.BytesIO(sig)
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 PGP signature isn't ASCII armored."
 
     def test_upload_fails_with_invalid_classifier(self, pyramid_config, db_request):
         user = UserFactory.create()
@@ -2183,69 +2113,16 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
-            ("example", None, "create", user, db_request.remote_addr),
-            (
-                "example",
-                None,
-                f"add Owner {user.username}",
-                user,
-                db_request.remote_addr,
-            ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
-            (
-                "example",
-                "1.0",
-                "add source file example-1.0.tar.gz",
-                user,
-                db_request.remote_addr,
-            ),
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            ("example", None, "create", user),
+            ("example", None, f"add Owner {user.username}", user),
+            ("example", "1.0", "new release", user),
+            ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
-
-    def test_upload_fails_with_too_large_signature(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        release = ReleaseFactory.create(project=project, version="1.0")
-        RoleFactory.create(user=user, project=project)
-
-        filename = f"{project.name}-{release.version}.tar.gz"
-
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": release.version,
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-                "gpg_signature": pretend.stub(
-                    filename=filename + ".asc",
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
-                ),
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 400
-        assert resp.status == "400 Signature too large."
 
     def test_upload_fails_with_previously_used_filename(
         self, pyramid_config, db_request
@@ -2682,7 +2559,7 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(project.name)
 
-    def test_upload_succeeds_with_2fa_enabled(
+    def test_basic_auth_upload_fails_with_2fa_enabled(
         self, pyramid_config, db_request, metrics, monkeypatch
     ):
         user = UserFactory.create(totp_secret=b"secret")
@@ -2719,8 +2596,17 @@ class TestFileUpload:
             IMetricsService: metrics,
         }.get(svc)
 
-        legacy.file_upload(db_request)
+        with pytest.raises(BasicAuthTwoFactorEnabled) as excinfo:
+            legacy.file_upload(db_request)
 
+        resp = excinfo.value
+
+        assert resp.status_code == 401
+        assert resp.status == (
+            f"401 User { user.username } has two factor auth enabled, "
+            "an API Token or Trusted Publisher must be used to upload "
+            "in place of password."
+        )
         assert send_email.calls == [
             pretend.call(db_request, user, project_name=project.name)
         ]
@@ -2871,20 +2757,16 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -3005,20 +2887,16 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 f"add cp34 file {filename}",
                 user,
-                db_request.remote_addr,
             )
         ]
 
@@ -3185,21 +3063,45 @@ class TestFileUpload:
             ("v1.0", "1.0"),
         ],
     )
+    @pytest.mark.parametrize(
+        "test_with_user",
+        [
+            True,
+            False,
+        ],
+    )
     def test_upload_succeeds_creates_release(
-        self, pyramid_config, db_request, metrics, version, expected_version
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        version,
+        expected_version,
+        test_with_user,
     ):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
+        from warehouse.events.models import HasEvents
+        from warehouse.events.tags import EventTag
+
         project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
+        if test_with_user:
+            identity = UserFactory.create()
+            EmailFactory.create(user=identity)
+            RoleFactory.create(user=identity, project=project)
+        else:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            claims = {"sha": "somesha"}
+            identity = OIDCContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
 
         db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
         db_request.db.add(Classifier(classifier="Programming Language :: Python"))
 
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user = identity if test_with_user else None
         db_request.user_agent = "warehouse-tests/6.6.6"
         db_request.POST = MultiDict(
             {
@@ -3233,6 +3135,11 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+
+        record_event = pretend.call_recorder(
+            lambda self, *, tag, ip_address, request=None, additional: None
+        )
+        monkeypatch.setattr(HasEvents, "record_event", record_event)
 
         resp = legacy.file_upload(db_request)
 
@@ -3270,27 +3177,62 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             (
                 release.project.name,
                 release.version,
                 "new release",
-                user,
-                db_request.remote_addr,
+                identity if test_with_user else None,
             ),
             (
                 release.project.name,
                 release.version,
                 f"add source file {filename}",
-                user,
-                db_request.remote_addr,
+                identity if test_with_user else None,
+            ),
+        ]
+
+        # Ensure that all of our events have been created
+        release_event = {
+            "submitted_by": identity.username
+            if test_with_user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
+            if not test_with_user
+            else None,
+        }
+
+        fileadd_event = {
+            "filename": filename,
+            "submitted_by": identity.username
+            if test_with_user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
+            if not test_with_user
+            else None,
+            "project_id": str(project.id),
+        }
+
+        assert record_event.calls == [
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.Project.ReleaseAdd,
+                ip_address=mock.ANY,
+                request=db_request,
+                additional=release_event,
+            ),
+            pretend.call(
+                mock.ANY,
+                tag=EventTag.File.FileAdd,
+                ip_address=mock.ANY,
+                request=db_request,
+                additional=fileadd_event,
             ),
         ]
 
@@ -3567,30 +3509,64 @@ class TestFileUpload:
         # Ensure that all of our journal entries have been created
         journals = (
             db_request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .order_by("submitted_date", "id")
             .all()
         )
-        assert [
-            (j.name, j.version, j.action, j.submitted_by, j.submitted_from)
-            for j in journals
-        ] == [
-            ("example", None, "create", user, db_request.remote_addr),
-            (
-                "example",
-                None,
-                f"add Owner {user.username}",
-                user,
-                db_request.remote_addr,
-            ),
-            ("example", "1.0", "new release", user, db_request.remote_addr),
-            (
-                "example",
-                "1.0",
-                "add source file example-1.0.tar.gz",
-                user,
-                db_request.remote_addr,
-            ),
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            ("example", None, "create", user),
+            ("example", None, f"add Owner {user.username}", user),
+            ("example", "1.0", "new release", user),
+            ("example", "1.0", "add source file example-1.0.tar.gz", user),
+        ]
+
+    def test_upload_succeeds_with_signature(
+        self, pyramid_config, db_request, metrics, project_service, monkeypatch
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+
+        filename = "{}-{}.tar.gz".format("example", "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+                "gpg_signature": "...",
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_gpg_signature_uploaded_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert resp.body == (
+            b"GPG signature support has been removed from PyPI and the provided "
+            b"signature has been discarded."
+        )
+
+        assert send_email.calls == [
+            pretend.call(db_request, user, project_name="example"),
         ]
 
     @pytest.mark.parametrize(

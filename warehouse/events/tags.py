@@ -159,6 +159,7 @@ class EventTag:
         # Name = "source_type:subject_type:action"
         CatalogEntryAdd = "organization:catalog_entry:add"
         OrganizationApprove = "organization:approve"
+        OrganizationApplicationSubmit = "organization:application_submit"
         OrganizationCreate = "organization:create"
         OrganizationDecline = "organization:decline"
         OrganizationDelete = "organization:delete"
