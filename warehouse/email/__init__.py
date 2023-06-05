@@ -290,11 +290,12 @@ def send_email_verification_email(request, user_and_email):
         "email_address": email.email,
         "n_hours": token_service.max_age // 60 // 60,
     }
-    
-    
+
+
 @_email("new-email-added")
 def send_new_email_added_email(
-    request, user_and_email,
+    request,
+    user_and_email,
 ):
     user, email = user_and_email
 

@@ -65,12 +65,12 @@ from warehouse.email import (
     send_collaborator_added_email,
     send_declined_as_invited_organization_member_email,
     send_email_verification_email,
+    send_new_email_added_email,
     send_organization_member_added_email,
     send_organization_member_invite_declined_email,
     send_password_change_email,
     send_password_reset_email,
     send_recovery_code_reminder_email,
-    send_new_email_added_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
