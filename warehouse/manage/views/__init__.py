@@ -65,6 +65,7 @@ from warehouse.email import (
     send_two_factor_removed_email,
     send_unyanked_project_release_email,
     send_yanked_project_release_email,
+    send_new_email_added_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
@@ -223,6 +224,10 @@ class ManageAccountViews:
                 ),
                 queue="success",
             )
+            
+            for email in self.request.user.emails:
+                send_new_email_added_email(self.request, (self.request.user, email))
+            
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "add_email_form": form}
@@ -333,6 +338,8 @@ class ManageAccountViews:
             )
             if verify_email_ratelimit.test(self.request.user.id):
                 send_email_verification_email(self.request, (self.request.user, email))
+                for email in self.request.user.emails:
+                    send_new_email_added_email(self.request, (self.request.user, email))
                 verify_email_ratelimit.hit(self.request.user.id)
                 email.user.record_event(
                     tag=EventTag.Account.EmailReverify,

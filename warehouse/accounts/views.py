@@ -70,6 +70,7 @@ from warehouse.email import (
     send_password_change_email,
     send_password_reset_email,
     send_recovery_code_reminder_email,
+    send_new_email_added_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
@@ -626,6 +627,8 @@ def register(request, _form_class=RegistrationForm):
         )
 
         send_email_verification_email(request, (user, email))
+        for email in user.emails:
+            send_new_email_added_email(request, (user, email))
         email_limiter.hit(user.id)
 
         return HTTPSeeOther(

@@ -333,6 +333,7 @@ class TestDatabaseUserService:
         assert not new_email2.primary
         assert not new_email2.verified
 
+
     def test_add_email_rate_limited(self, user_service, metrics, remote_addr):
         resets = pretend.stub()
         limiter = pretend.stub(
