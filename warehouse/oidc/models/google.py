@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
@@ -17,14 +18,17 @@ from sqlalchemy.orm import Query
 
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
+    CheckClaimCallable,
     OIDCPublisher,
     PendingOIDCPublisher,
-    _check_claim_binary,
-    _check_claim_invariant,
+    check_claim_binary,
+    check_claim_invariant,
 )
 
 
-def _check_sub(ground_truth, signed_claim, all_signed_claims):
+def _check_sub(
+    ground_truth: str, signed_claim: str, all_signed_claims: SignedClaims
+) -> bool:
     # If we haven't set a subject for the publisher, we don't need to check
     # this claim.
     if ground_truth is None:
@@ -47,12 +51,14 @@ class GooglePublisherMixin:
     email = Column(String, nullable=False)
     sub = Column(String, nullable=True)
 
-    __required_verifiable_claims__ = {
-        "email": _check_claim_binary(str.__eq__),
-        "email_verified": _check_claim_invariant(True),
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        "email": check_claim_binary(str.__eq__),
+        "email_verified": check_claim_invariant(True),
     }
 
-    __optional_verifiable_claims__ = {"sub": _check_sub}
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
+        "sub": _check_sub
+    }
 
     __unchecked_claims__ = {"azp", "google"}
 

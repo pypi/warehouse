@@ -19,7 +19,7 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
-    _check_claim_binary,
+    check_claim_binary,
 )
 
 
@@ -94,9 +94,9 @@ class GitHubPublisherMixin:
 
     __required_verifiable_claims__ = {
         "sub": _check_sub,
-        "repository": _check_claim_binary(str.__eq__),
-        "repository_owner": _check_claim_binary(str.__eq__),
-        "repository_owner_id": _check_claim_binary(str.__eq__),
+        "repository": check_claim_binary(str.__eq__),
+        "repository_owner": check_claim_binary(str.__eq__),
+        "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
