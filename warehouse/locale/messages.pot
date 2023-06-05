@@ -1857,6 +1857,11 @@ msgstr ""
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
+#: warehouse/templates/email/new_email_added/body.html:17
+#, python-format
+msgid "Your new email '%(email_address)s' has been added."
+msgstr ""
+
 #: warehouse/templates/email/organization-deleted/body.html:31
 #: warehouse/templates/email/organization-member-added/body.html:38
 #: warehouse/templates/email/organization-member-invited/body.html:38
