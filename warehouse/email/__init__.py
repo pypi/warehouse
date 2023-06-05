@@ -292,6 +292,11 @@ def send_email_verification_email(request, user_and_email):
     }
 
 
+@_email("auth-with-new-ip")
+def send_auth_with_new_ip_email(request, user, *, location):
+    return {"username": user.username, "location": location}
+
+
 @_email("password-change")
 def send_password_change_email(request, user):
     return {"username": user.username}

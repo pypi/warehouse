@@ -20,12 +20,16 @@ from pyramid.authorization import ACLHelper
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
+from sqlalchemy.sql import exists
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
-from warehouse.email import send_password_compromised_email_hibp
+from warehouse.email import (
+    send_auth_with_new_ip_email,
+    send_password_compromised_email_hibp,
+)
 from warehouse.errors import (
     BasicAuthAccountFrozen,
     BasicAuthBreachedPassword,
@@ -95,12 +99,17 @@ def _basic_auth_check(username, password, request):
                 )
 
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
-            user.record_event(
+            event = user.record_event(
                 tag=EventTag.Account.LoginSuccess,
                 ip_address=request.remote_addr,
                 request=request,
                 additional={"auth_method": "basic"},
             )
+            has_seen_before = request.db.query(
+                exists().where(User.Event.ip_address_obj == request.ip_address)
+            ).scalar()
+            if not has_seen_before:
+                send_auth_with_new_ip_email(request, user, location=event.location_info)
             return True
         else:
             user.record_event(

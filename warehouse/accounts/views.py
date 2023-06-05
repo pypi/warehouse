@@ -31,6 +31,7 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -63,6 +64,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
+    send_auth_with_new_ip_email,
     send_collaborator_added_email,
     send_declined_as_invited_organization_member_email,
     send_email_verification_email,
@@ -632,7 +634,8 @@ def register(request, _form_class=RegistrationForm):
         email_limiter.hit(user.id)
 
         return HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
+            request.route_path("index"),
+            headers=dict(_login_user(request, user.id, new_user=True)),
         )
 
     return {"form": form}
@@ -1242,7 +1245,9 @@ def verify_project_role(request):
         return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
+def _login_user(
+    request, userid, two_factor_method=None, two_factor_label=None, new_user=False
+):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -1288,7 +1293,7 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
     user = user_service.get_user(userid)
-    user.record_event(
+    event = user.record_event(
         tag=EventTag.Account.LoginSuccess,
         ip_address=request.remote_addr,
         request=request,
@@ -1301,6 +1306,14 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Send the "Login from new IP address" email, if applicable.
+    has_seen_before = request.db.query(
+        exists().where(User.Event.ip_address_obj == request.ip_address)
+    ).scalar()
+    if not new_user and not has_seen_before:
+        send_auth_with_new_ip_email(request, user, location=event.location_info)
+
     return headers
 
 
