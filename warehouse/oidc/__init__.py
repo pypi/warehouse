@@ -12,7 +12,7 @@
 
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
+from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL
 
 
 def includeme(config):
@@ -28,6 +28,15 @@ def includeme(config):
         ),
         IOIDCPublisherService,
         name="github",
+    )
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="google",
+            issuer_url=GOOGLE_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="google",
     )
 
     # During deployments, we separate auth routes into their own subdomain

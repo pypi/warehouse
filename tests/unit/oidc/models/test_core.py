@@ -40,6 +40,11 @@ def test_check_claim_invariant():
 
 
 class TestOIDCPublisher:
+    def test_lookup_by_claims_default_none(self):
+        assert (
+            _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub()) is None
+        )
+
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
 

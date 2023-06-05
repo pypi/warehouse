@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from collections.abc import Callable
 from typing import Any, TypeVar
 
@@ -103,6 +105,37 @@ class OIDCPublisherMixin:
     # indicating any custom claims that are known to be present but are
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
+
+    # Individual publishers can have complex unique constraints on their
+    # required and optional attributes, and thus can't be naively looked
+    # up from a raw claim set.
+    #
+    # Each subclass should explicitly override this list to contain
+    # class methods that take a `SignedClaims` and return a SQLAlchemy
+    # expression that, when queried, should produce exactly one or no result.
+    # This list should be ordered by specificity, e.g. selecting for the
+    # expression with the most optional constraints first, and ending with
+    # the expression with only required constraints.
+    #
+    # TODO(ww): In principle this list is computable directly from
+    # `__required_verifiable_claims__` and `__optional_verifiable_claims__`,
+    # but there are a few problems: those claim sets don't map to their
+    # "equivalent" column (only to an instantiated property), and may not
+    # even have an "equivalent" column.
+    __lookup_strategies__: list = []
+
+    @classmethod
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims):
+        for lookup in cls.__lookup_strategies__:
+            query = lookup(cls, signed_claims)
+            if not query:
+                # We might not build a query if we know the claim set can't
+                # satisfy it. If that's the case, then we skip.
+                continue
+
+            if publisher := query.with_session(session).one_or_none():
+                return publisher
+        return None
 
     @classmethod
     def all_known_claims(cls) -> set[str]:
