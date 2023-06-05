@@ -1657,6 +1657,7 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr ""
 
 #: warehouse/templates/email/account-deleted/body.html:20
+#: warehouse/templates/email/new-email-added/body.html:19
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
 #: warehouse/templates/email/recovery-code-used/body.html:25
@@ -1824,6 +1825,11 @@ msgid ""
 "%(site)s."
 msgstr ""
 
+#: warehouse/templates/email/new-email-added/body.html:17
+#, python-format
+msgid "Your new email '%(email_address)s' has been added."
+msgstr ""
+
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, python-format
 msgid ""
@@ -1855,11 +1861,6 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:77
 #: warehouse/templates/manage/organizations.html:143
 msgid "You will receive an email when the organization has been approved"
-msgstr ""
-
-#: warehouse/templates/email/new_email_added/body.html:17
-#, python-format
-msgid "Your new email '%(email_address)s' has been added."
 msgstr ""
 
 #: warehouse/templates/email/organization-deleted/body.html:31

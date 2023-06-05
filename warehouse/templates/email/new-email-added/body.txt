@@ -11,10 +11,10 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
-{% extends "email/_base/body.html" %}
+{% extends "email/_base/body.txt" %}
 
 {% block content %}
-<p>{% trans email_address=email_address %}Your new email '{{ email_address }}' has been added.{% endtrans %}</p>
+{% trans email_address=email_address %}A new email '{{ email_address }}' has been added to your account.{% endtrans %}
 
-<p>{{ message }}</p>
+<p>{% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}If you did not make this change, you can email <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI administrators.{% endtrans %}</p>
 {% endblock %}
