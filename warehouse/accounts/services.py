@@ -865,6 +865,7 @@ class HaveIBeenPwnedEmailBreachedService:
             resp = self._http.get(
                 urllib.parse.urljoin(self._api_base, email),
                 headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+                timeout=(0.25, 0.25),
             )
             resp.raise_for_status()
         except requests.RequestException as exc:
