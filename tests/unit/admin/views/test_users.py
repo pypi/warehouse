@@ -103,6 +103,18 @@ class TestUserList:
         assert result == {"users": users, "query": "foobar:what"}
 
 
+class TestEmailForm:
+    def test_validate(self):
+        form = views.EmailForm(formdata=MultiDict({"email": "foo@bar.net"}))
+        assert form.validate(), str(form.errors)
+
+
+class TestUserForm:
+    def test_validate(self):
+        form = views.UserForm()
+        assert form.validate(), str(form.erros)
+
+
 class TestUserDetail:
     def test_gets_user(self, db_request):
         email = EmailFactory.create(primary=True)

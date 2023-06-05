@@ -40,7 +40,7 @@ class RoleNameMixin:
     role_name = wtforms.SelectField(
         "Select role",
         choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
-        validators=[wtforms.validators.DataRequired(message="Select role")],
+        validators=[wtforms.validators.InputRequired(message="Select role")],
     )
 
 
@@ -49,13 +49,13 @@ class TeamProjectRoleNameMixin:
         "Select permissions",
         choices=[("", "Select role"), ("Maintainer", "Maintainer"), ("Owner", "Owner")],
         coerce=lambda string: TeamProjectRoleType(string) if string else None,
-        validators=[wtforms.validators.DataRequired(message="Select role")],
+        validators=[wtforms.validators.InputRequired(message="Select role")],
     )
 
 
 class UsernameMixin:
     username = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify username")]
+        validators=[wtforms.validators.InputRequired(message="Specify username")]
     )
 
     def validate_username(self, field):
@@ -212,7 +212,7 @@ class DeleteWebAuthnForm(forms.Form):
 
     label = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a device name"),
+            wtforms.validators.InputRequired(message="Specify a device name"),
             wtforms.validators.Length(
                 max=64, message=("Label must be 64 characters or less")
             ),
@@ -238,7 +238,7 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 
     label = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a label"),
+            wtforms.validators.InputRequired(message="Specify a label"),
             wtforms.validators.Length(
                 max=64, message=("Label must be 64 characters or less")
             ),
@@ -293,7 +293,7 @@ class CreateMacaroonForm(forms.Form):
 
     description = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify a token name"),
+            wtforms.validators.InputRequired(message="Specify a token name"),
             wtforms.validators.Length(
                 max=100, message="Description must be 100 characters or less"
             ),
@@ -301,7 +301,7 @@ class CreateMacaroonForm(forms.Form):
     )
 
     token_scope = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Specify the token scope")]
+        validators=[wtforms.validators.InputRequired(message="Specify the token scope")]
     )
 
     def validate_description(self, field):
@@ -347,7 +347,7 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
     __params__ = ["confirm_password", "macaroon_id"]
 
     macaroon_id = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired(message="Identifier required")]
+        validators=[wtforms.validators.InputRequired(message="Identifier required")]
     )
 
     def __init__(self, *args, macaroon_service, user_service, **kwargs):
@@ -381,14 +381,14 @@ class OrganizationRoleNameMixin:
             ("Billing Manager", "Billing Manager"),
         ],
         coerce=lambda string: OrganizationRoleType(string) if string else None,
-        validators=[wtforms.validators.DataRequired(message="Select role")],
+        validators=[wtforms.validators.InputRequired(message="Select role")],
     )
 
 
 class OrganizationNameMixin:
     name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(
+            wtforms.validators.InputRequired(
                 message="Specify organization account name"
             ),
             wtforms.validators.Length(
@@ -504,7 +504,7 @@ class TransferOrganizationProjectForm(forms.Form):
         "Select organization",
         choices=[("", "Select organization")],
         validators=[
-            wtforms.validators.DataRequired(message="Select organization"),
+            wtforms.validators.InputRequired(message="Select organization"),
         ],
     )
 
@@ -558,7 +558,7 @@ class SaveOrganizationForm(forms.Form):
 
     display_name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify your organization name"),
+            wtforms.validators.InputRequired(message="Specify your organization name"),
             wtforms.validators.Length(
                 max=100,
                 message=_(
@@ -570,7 +570,7 @@ class SaveOrganizationForm(forms.Form):
     )
     link_url = wtforms.URLField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify your organization URL"),
+            wtforms.validators.InputRequired(message="Specify your organization URL"),
             wtforms.validators.Length(
                 max=400,
                 message=_(
@@ -586,7 +586,7 @@ class SaveOrganizationForm(forms.Form):
     )
     description = wtforms.TextAreaField(
         validators=[
-            wtforms.validators.DataRequired(
+            wtforms.validators.InputRequired(
                 message="Specify your organization description"
             ),
             wtforms.validators.Length(
@@ -602,7 +602,7 @@ class SaveOrganizationForm(forms.Form):
         choices=[("Company", "Company"), ("Community", "Community")],
         coerce=OrganizationType,
         validators=[
-            wtforms.validators.DataRequired(message="Select organization type"),
+            wtforms.validators.InputRequired(message="Select organization type"),
         ],
     )
 
@@ -653,7 +653,7 @@ class SaveTeamForm(forms.Form):
 
     name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message="Specify team name"),
+            wtforms.validators.InputRequired(message="Specify team name"),
             wtforms.validators.Length(
                 max=50,
                 message=_("Choose a team name with 50 characters or less."),

@@ -422,7 +422,7 @@ class MetadataForm(forms.Form):
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
@@ -437,7 +437,7 @@ class MetadataForm(forms.Form):
     name = wtforms.StringField(
         description="Name",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE,
                 re.IGNORECASE,
@@ -451,7 +451,7 @@ class MetadataForm(forms.Form):
     version = wtforms.StringField(
         description="Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 r"^(?!\s).*(?<!\s)$",
                 message="Can't have leading or trailing whitespace.",
@@ -527,7 +527,7 @@ class MetadataForm(forms.Form):
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),

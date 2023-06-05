@@ -217,19 +217,22 @@ class TestPreviewBanner:
 
 
 class TestBannerForm:
-    def test_required_fields(self, banner_data):
-        form = views.BannerForm(data={})
-
-        assert form.validate() is False
-        assert set(form.errors) == set(banner_data)
-
-    def test_valid_data(self, banner_data):
-        form = views.BannerForm(data=banner_data)
-        assert form.validate() is True
+    def test_validate(self, banner_data):
+        form = views.BannerForm(formdata=MultiDict(banner_data))
+        assert form.validate(), str(form.errors)
         data = form.data
         defaults = {
             "fa_icon": Banner.DEFAULT_FA_ICON,
             "active": False,
             "link_label": Banner.DEFAULT_BTN_LABEL,
         }
+
+        # Mash the `end` into a date object to match the form's coerced result.
+        banner_data["end"] = datetime.date.fromisoformat(banner_data["end"])
         assert data == {**banner_data, **defaults}
+
+    def test_required_fields(self, banner_data):
+        form = views.BannerForm(formdata=MultiDict())
+
+        assert form.validate() is False
+        assert set(form.errors) == set(banner_data)

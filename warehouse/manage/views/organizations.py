@@ -20,6 +20,7 @@ from pyramid.httpexceptions import (
 )
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import orm
+from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
@@ -273,11 +274,15 @@ class ManageOrganizationSettingsViews:
         return {
             "organization": self.organization,
             "save_organization_form": SaveOrganizationForm(
-                name=self.organization.name,
-                display_name=self.organization.display_name,
-                link_url=self.organization.link_url,
-                description=self.organization.description,
-                orgtype=self.organization.orgtype,
+                MultiDict(
+                    {
+                        "name": self.organization.name,
+                        "display_name": self.organization.display_name,
+                        "link_url": self.organization.link_url,
+                        "description": self.organization.description,
+                        "orgtype": self.organization.orgtype,
+                    }
+                )
             ),
             "save_organization_name_form": SaveOrganizationNameForm(
                 organization_service=self.organization_service,
