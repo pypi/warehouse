@@ -922,58 +922,6 @@ class TestCreateOrganizationRoleForm:
         assert form.validate(), str(form.errors)
 
 
-class TestCreateOrganizationForm:
-    """
-    Covers SaveOrganizationNameForm, SaveOrganizationForm
-    """
-
-    def test_validate(self):
-        organization_service = pretend.stub(find_organizationid=lambda org: None)
-        form = forms.CreateOrganizationForm(
-            formdata=MultiDict(
-                {
-                    "name": "foo",
-                    "display_name": "Foo Company",
-                    "link_url": "https://foo.com",
-                    "description": "Organization for foos",
-                    "orgtype": "Company",
-                }
-            ),
-            organization_service=organization_service,
-        )
-
-        assert form.organization_service is organization_service
-        assert form.validate(), str(form.errors)
-
-    def test_validate_name_with_no_organization(self):
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: None)
-        )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
-        field = pretend.stub(data="my_organization_name")
-        forms._ = lambda string: string
-
-        form.validate_name(field)
-
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_organization_name")
-        ]
-
-    def test_validate_name_with_organization(self):
-        organization_service = pretend.stub(
-            find_organizationid=pretend.call_recorder(lambda name: 1)
-        )
-        form = forms.CreateOrganizationForm(organization_service=organization_service)
-        field = pretend.stub(data="my_organization_name")
-
-        with pytest.raises(wtforms.validators.ValidationError):
-            form.validate_name(field)
-
-        assert organization_service.find_organizationid.calls == [
-            pretend.call("my_organization_name")
-        ]
-
-
 class TestCreateTeamRoleForm:
     @pytest.mark.parametrize(
         ("username", "user_choices", "errors"),
