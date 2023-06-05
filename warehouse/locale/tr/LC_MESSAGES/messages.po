@@ -34,7 +34,7 @@ msgstr ""
 "X-Generator: Weblate 4.16-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
-#: warehouse/views.py:140
+#: warehouse/views.py:141
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -42,7 +42,7 @@ msgstr ""
 "Hesabınızdaki bu değişikliği aktif etmek için iki aşamalı kimlik "
 "doğrulamasını aktif etmelisiniz."
 
-#: warehouse/views.py:265
+#: warehouse/views.py:266
 msgid "Locale updated"
 msgstr "Yerel ayarlarlar güncellendi"
 
@@ -102,17 +102,17 @@ msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 msgid "Your passwords don't match. Try again."
 msgstr "Parolalarınız eşleşmiyor. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
+#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
 msgid "The email address isn't valid. Try again."
 msgstr "E-posta adresi geçerli değil. Tekrar deneyin."
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:253
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bu alan adından bir e-posta adresi kullanamazsınız. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:262
+#: warehouse/accounts/forms.py:264
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -120,7 +120,7 @@ msgstr ""
 "Bu e-posta adresi zaten bu hesap tarafından kullanılıyor. Başka bir e-posta "
 "kullanın."
 
-#: warehouse/accounts/forms.py:269
+#: warehouse/accounts/forms.py:271
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -128,32 +128,32 @@ msgstr ""
 "Bu e-posta adresi farklı bir hesap tarafından kullanılıyor. Başka bir e-"
 "posta kullanın."
 
-#: warehouse/accounts/forms.py:290 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "İsim çok uzun. En fazla 100 karakter olacak şekilde başka bir isim seçin."
 
-#: warehouse/accounts/forms.py:380
+#: warehouse/accounts/forms.py:382
 msgid "Invalid TOTP code."
 msgstr "Geçersiz TOTP kodu."
 
-#: warehouse/accounts/forms.py:397
+#: warehouse/accounts/forms.py:399
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Geçersiz WebAuthn önermesi: Kötü yük"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:461
 msgid "Invalid recovery code."
 msgstr "Geçersiz kurtarma kodu."
 
-#: warehouse/accounts/forms.py:469
+#: warehouse/accounts/forms.py:471
 msgid "Recovery code has been previously used."
 msgstr "Kurtarma kodu daha önceden kullanıldı."
 
-#: warehouse/accounts/forms.py:488
+#: warehouse/accounts/forms.py:490
 msgid "No user found with that username or email"
 msgstr "Bu kullanıcı adı veya e-posta ile alakalı hiçbir kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:99
+#: warehouse/accounts/views.py:103
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -162,7 +162,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "Çok fazla başarısız giriş denemesi oldu. Sonra tekrar deneyin."
 
-#: warehouse/accounts/views.py:116
+#: warehouse/accounts/views.py:120
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -170,7 +170,7 @@ msgstr ""
 "Bu hesaba, doğrulanmamış çok fazla e-posta eklendi. Gelen kutunuzu kontrol "
 "edin ve doğrulama bağlantılarını takip edin. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:128
+#: warehouse/accounts/views.py:132
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -180,25 +180,25 @@ msgstr ""
 "Gelen kutunuzu kontrol edin ve doğrulama bağlantılarını kontrol edin. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:268 warehouse/accounts/views.py:332
-#: warehouse/accounts/views.py:334 warehouse/accounts/views.py:361
-#: warehouse/accounts/views.py:363 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
 msgid "Invalid or expired two factor login."
 msgstr "Geçersiz veya süresi dolmuş 2-aşamalı giriş."
 
-#: warehouse/accounts/views.py:326
+#: warehouse/accounts/views.py:365
 msgid "Already authenticated"
 msgstr "Zaten giriş yapılmış"
 
-#: warehouse/accounts/views.py:405
+#: warehouse/accounts/views.py:444
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:461 warehouse/manage/views/__init__.py:816
+#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:822
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
-#: warehouse/accounts/views.py:547
+#: warehouse/accounts/views.py:592
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -206,132 +206,132 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:679
+#: warehouse/accounts/views.py:726
 msgid "Expired token: request a new password reset link"
 msgstr "Süresi dolmuş belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:728
 msgid "Invalid token: request a new password reset link"
 msgstr "Geçersiz belirteç: yeni bir parola sıfırlama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:683 warehouse/accounts/views.py:786
-#: warehouse/accounts/views.py:886 warehouse/accounts/views.py:1059
+#: warehouse/accounts/views.py:730 warehouse/accounts/views.py:833
+#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1106
 msgid "Invalid token: no token supplied"
 msgstr "Geçersiz belirteç: belirteç verilmedi"
 
-#: warehouse/accounts/views.py:687
+#: warehouse/accounts/views.py:734
 msgid "Invalid token: not a password reset token"
 msgstr "Geçersiz belirteç: bir parola sıfırlama belirteci değil"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:739
 msgid "Invalid token: user not found"
 msgstr "Geçersiz belirteç: kullanıcı bulunamadı"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:750
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Geçersiz belirteç: kullanıcı bu belirteç istendikten sonra giriş yaptı"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:768
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Geçersiz belirteç: parola bu belirteç istendikten sonra zaten değişti"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:801
 msgid "You have reset your password"
 msgstr "Parolanızı sıfırladınız"
 
-#: warehouse/accounts/views.py:782
+#: warehouse/accounts/views.py:829
 msgid "Expired token: request a new email verification link"
 msgstr "Süresi dolmuş belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:784
+#: warehouse/accounts/views.py:831
 msgid "Invalid token: request a new email verification link"
 msgstr "Geçersiz belirteç: yeni bir e-posta doğrulama bağlantısı isteyin"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:837
 msgid "Invalid token: not an email verification token"
 msgstr "Geçersiz belirteç: e-posta doğrulama belirteci değil"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:846
 msgid "Email not found"
 msgstr "E-posta bulunamadı"
 
-#: warehouse/accounts/views.py:802
+#: warehouse/accounts/views.py:849
 msgid "Email already verified"
 msgstr "E-posta zaten onaylanmış"
 
-#: warehouse/accounts/views.py:820
+#: warehouse/accounts/views.py:867
 msgid "You can now set this email as your primary address"
 msgstr "Artık sen bu e-postayı birincil adresin olarak ayarlayabilirsin"
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:871
 msgid "This is your primary address"
 msgstr "Bu senin birincil adresin"
 
-#: warehouse/accounts/views.py:829
+#: warehouse/accounts/views.py:876
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-posta adresin ${email_address} onaylandı. ${confirm_message}."
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:929
 msgid "Expired token: request a new organization invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:931
 msgid "Invalid token: request a new organization invitation"
 msgstr "Geçersiz anahtar: yeni bir davetiye talep edin"
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:937
 msgid "Invalid token: not an organization invitation token"
 msgstr "Geçersiz anahtar: organizasyon davetiyesi geçersiz"
 
-#: warehouse/accounts/views.py:894
+#: warehouse/accounts/views.py:941
 msgid "Organization invitation is not valid."
 msgstr "Organizasyon davetiyesi geçerli değil."
 
-#: warehouse/accounts/views.py:903
+#: warehouse/accounts/views.py:950
 msgid "Organization invitation no longer exists."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:956
+#: warehouse/accounts/views.py:1003
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1068
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1055
+#: warehouse/accounts/views.py:1102
 msgid "Expired token: request a new project role invitation"
 msgstr "Süresi dolmuş anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1057
+#: warehouse/accounts/views.py:1104
 msgid "Invalid token: request a new project role invitation"
 msgstr "Geçersiz anahtar: yeni bir proje rolü daveti isteyin"
 
-#: warehouse/accounts/views.py:1063
+#: warehouse/accounts/views.py:1110
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Geçersiz belirteç: iş birliği daveti belirteci değil"
 
-#: warehouse/accounts/views.py:1067
+#: warehouse/accounts/views.py:1114
 msgid "Role invitation is not valid."
 msgstr "Rol daveti geçerli değil."
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1129
 msgid "Role invitation no longer exists."
 msgstr "Görev daveti artık mevcut değil."
 
-#: warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1162
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' proje davetiyesi reddedildi."
 
-#: warehouse/accounts/views.py:1183
+#: warehouse/accounts/views.py:1230
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/accounts/views.py:1401 warehouse/accounts/views.py:1421
-#: warehouse/accounts/views.py:1556 warehouse/manage/views/__init__.py:1225
-#: warehouse/manage/views/__init__.py:1244
+#: warehouse/accounts/views.py:1454 warehouse/accounts/views.py:1474
+#: warehouse/accounts/views.py:1609 warehouse/manage/views/__init__.py:1235
+#: warehouse/manage/views/__init__.py:1254
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -343,7 +343,7 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:1435
+#: warehouse/accounts/views.py:1488
 #, fuzzy
 #| msgid ""
 #| "You must have a verified email in order to register a pending OpenID "
@@ -356,7 +356,7 @@ msgstr ""
 "postanız olmalıdır. Ayrıntılar için https://pypi.org/help#openid-connect'e "
 "bakın."
 
-#: warehouse/accounts/views.py:1448
+#: warehouse/accounts/views.py:1501
 #, fuzzy
 #| msgid ""
 #| "You can't register more than 3 pending OpenID Connect providers at once."
@@ -364,7 +364,7 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Aynı anda 3'ten fazla bekleyen OpenID Connect sağlayıcısını kaydedemezsiniz."
 
-#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1263
+#: warehouse/accounts/views.py:1517 warehouse/manage/views/__init__.py:1273
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -375,11 +375,11 @@ msgid ""
 msgstr ""
 "Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
 
-#: warehouse/accounts/views.py:1478 warehouse/manage/views/__init__.py:1277
+#: warehouse/accounts/views.py:1531 warehouse/manage/views/__init__.py:1287
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1497
+#: warehouse/accounts/views.py:1550
 #, fuzzy
 #| msgid ""
 #| "This OpenID Connect provider has already been registered. Please contact "
@@ -391,18 +391,18 @@ msgstr ""
 "Bu OpenID Connect sağlayıcısı zaten kayıtlı. Bu kasıtlı değilse lütfen PyPI "
 "yöneticileriyle iletişime geçin."
 
-#: warehouse/accounts/views.py:1533
+#: warehouse/accounts/views.py:1586
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1570 warehouse/accounts/views.py:1583
-#: warehouse/accounts/views.py:1590
+#: warehouse/accounts/views.py:1623 warehouse/accounts/views.py:1636
+#: warehouse/accounts/views.py:1643
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Sürümü Yönet"
 
-#: warehouse/accounts/views.py:1596
+#: warehouse/accounts/views.py:1649
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -425,7 +425,7 @@ msgstr ""
 "tire ve alt çizgiden oluşmak zorundadır. Ayrıca bir harf veya rakam ile "
 "başlayıp bitmelidir. Farklı bir kullanıcı adı seçin."
 
-#: warehouse/manage/forms.py:425
+#: warehouse/manage/forms.py:427
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
@@ -433,15 +433,27 @@ msgstr ""
 "Bu organizasyon hesap adı kullanılıyor. Başka bir organizasyon hesap adı "
 "seçin."
 
-#: warehouse/manage/forms.py:461
+#: warehouse/manage/forms.py:442
+#, fuzzy
+#| msgid ""
+#| "This organization account name has already been used. Choose a different "
+#| "organization account name."
+msgid ""
+"You have already submitted an application for that name. Choose a different "
+"organization account name."
+msgstr ""
+"Bu organizasyon hesap adı kullanılıyor. Başka bir organizasyon hesap adı "
+"seçin."
+
+#: warehouse/manage/forms.py:478
 msgid "Select project"
 msgstr "Projeyi seç"
 
-#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
 msgid "Specify project name"
 msgstr "Proje adını belirtin"
 
-#: warehouse/manage/forms.py:469
+#: warehouse/manage/forms.py:486
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
@@ -449,12 +461,12 @@ msgstr ""
 "Yalnızca ASCII sayısal ve '.', '_' ve '-' içeren bir harf veya sayı ile "
 "başlayın ve bitirin."
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:493
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Bu proje adı zaten kullanılmıştır. Farklı bir proje adı seçin."
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:564
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
@@ -462,7 +474,7 @@ msgstr ""
 "Organizasyon adı çok uzun. En fazla 100 karakter olacak şekilde başka bir "
 "isim seçin."
 
-#: warehouse/manage/forms.py:556
+#: warehouse/manage/forms.py:576
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
@@ -470,11 +482,11 @@ msgstr ""
 "Organizasyon site adresi çok uzun. En fazla 100 karakter olacak şekilde "
 "başka bir adres belirtin."
 
-#: warehouse/manage/forms.py:563
+#: warehouse/manage/forms.py:583
 msgid "The organization URL must start with http:// or https://"
 msgstr "Kuruluş URL'si http:// veya https:// ile başlamalıdır."
 
-#: warehouse/manage/forms.py:574
+#: warehouse/manage/forms.py:594
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
@@ -482,11 +494,15 @@ msgstr ""
 "Organizasyon açıklaması çok uzun. En fazla 100 karakter olacak şekilde başka "
 "bir açıklama belirtin."
 
-#: warehouse/manage/forms.py:615
+#: warehouse/manage/forms.py:629
+msgid "You have already submitted the maximum number of "
+msgstr ""
+
+#: warehouse/manage/forms.py:659
 msgid "Choose a team name with 50 characters or less."
 msgstr "En fazla 50 karakter olan bir takım adı seçin."
 
-#: warehouse/manage/forms.py:621
+#: warehouse/manage/forms.py:665
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
@@ -494,51 +510,51 @@ msgstr ""
 "Takım adı geçersiz. Takım adları boşluk, nokta, alt çizgi, kısa çizgi veya "
 "eğik çizgi ile başlayamaz veya bitemez. Farklı bir takım adı seçin."
 
-#: warehouse/manage/forms.py:649
+#: warehouse/manage/forms.py:693
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Bu takım adı zaten kullanılmıştır. Farklı bir takım adı seçin."
 
-#: warehouse/manage/views/__init__.py:189
+#: warehouse/manage/views/__init__.py:190
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Hesap Detayları"
 
-#: warehouse/manage/views/__init__.py:219
+#: warehouse/manage/views/__init__.py:220
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "${email_address} e-postan eklendi - e-postanı doğrulama bağlantısı için "
 "kontrol et"
 
-#: warehouse/manage/views/__init__.py:762
+#: warehouse/manage/views/__init__.py:768
 msgid "Recovery codes already generated"
 msgstr "Kurtarma kodları zaten oluşturuldu"
 
-#: warehouse/manage/views/__init__.py:763
+#: warehouse/manage/views/__init__.py:769
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Yeni kurtarma kodlarının oluşturulması, mevcut kodlarınızı geçersiz "
 "kılacaktır."
 
-#: warehouse/manage/views/__init__.py:871
+#: warehouse/manage/views/__init__.py:877
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "E-postanızı doğrulayın ya da yeni bir adres ekleyin."
 
-#: warehouse/manage/views/__init__.py:995
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr "Geçersiz kimlik bilgileri. Tekrar deneyin"
 
-#: warehouse/manage/views/__init__.py:1117
+#: warehouse/manage/views/__init__.py:1127
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "Gereken Python Sürümü:"
 
-#: warehouse/manage/views/__init__.py:1487
-#: warehouse/manage/views/__init__.py:1791
-#: warehouse/manage/views/__init__.py:1900
+#: warehouse/manage/views/__init__.py:1497
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1910
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -550,56 +566,56 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/manage/views/__init__.py:1620
-#: warehouse/manage/views/__init__.py:1706
-#: warehouse/manage/views/__init__.py:1808
-#: warehouse/manage/views/__init__.py:1909
+#: warehouse/manage/views/__init__.py:1630
+#: warehouse/manage/views/__init__.py:1716
+#: warehouse/manage/views/__init__.py:1818
+#: warehouse/manage/views/__init__.py:1919
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Daveti onayla"
 
-#: warehouse/manage/views/__init__.py:1632
+#: warehouse/manage/views/__init__.py:1642
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "ön sürüm"
 
-#: warehouse/manage/views/__init__.py:1718
+#: warehouse/manage/views/__init__.py:1728
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "ön sürüm"
 
-#: warehouse/manage/views/__init__.py:1820
+#: warehouse/manage/views/__init__.py:1830
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Sürümü Kaldır"
 
-#: warehouse/manage/views/__init__.py:1921
+#: warehouse/manage/views/__init__.py:1931
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/manage/views/__init__.py:1925
+#: warehouse/manage/views/__init__.py:1935
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2076
+#: warehouse/manage/views/__init__.py:2086
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Takımın '${team_name}' zaten projede için ${role_name} rolü var"
 
-#: warehouse/manage/views/__init__.py:2186
+#: warehouse/manage/views/__init__.py:2196
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
 
-#: warehouse/manage/views/__init__.py:2255
+#: warehouse/manage/views/__init__.py:2265
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} artık ${project_name}' projesinin ${role}'sidir."
 
-#: warehouse/manage/views/__init__.py:2287
+#: warehouse/manage/views/__init__.py:2297
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -607,37 +623,37 @@ msgstr ""
 "'${username}' adlı kullanıcıya ait doğrulanmış birincil e-posta adresi "
 "mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
 
-#: warehouse/manage/views/__init__.py:2300
-#: warehouse/manage/views/organizations.py:895
+#: warehouse/manage/views/__init__.py:2310
+#: warehouse/manage/views/organizations.py:891
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "'${username}' adlı kullanıcıda zaten aktif bir davetiye bulunmaktadır. "
 "Lütfen daha sonra tekrar deneyiniz."
 
-#: warehouse/manage/views/__init__.py:2367
-#: warehouse/manage/views/organizations.py:962
+#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/organizations.py:958
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
-#: warehouse/manage/views/__init__.py:2400
+#: warehouse/manage/views/__init__.py:2410
 msgid "Could not find role invitation."
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2421
 msgid "Invitation already expired."
 msgstr "Davetin süresi zaten dolmuş."
 
-#: warehouse/manage/views/__init__.py:2445
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/__init__.py:2455
+#: warehouse/manage/views/organizations.py:1147
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."
 
-#: warehouse/manage/views/organizations.py:871
+#: warehouse/manage/views/organizations.py:867
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "'${username}' kullanıcısı projede zaten ${role_name} rolüne sahip"
 
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -645,18 +661,18 @@ msgstr ""
 "Kullanıcı \"${username}\", doğrulanmış bir birincil e-posta adresine sahip "
 "değil ve kuruluş için ${role_name} olarak eklenemez"
 
-#: warehouse/manage/views/organizations.py:1045
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1041
+#: warehouse/manage/views/organizations.py:1083
 msgid "Could not find organization invitation."
 msgstr "Organizasyon davetiyesi bulunamadı."
 
-#: warehouse/manage/views/organizations.py:1055
+#: warehouse/manage/views/organizations.py:1051
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Organizasyon daveti artık mevcut değil."
 
-#: warehouse/manage/views/organizations.py:1102
+#: warehouse/manage/views/organizations.py:1098
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -731,7 +747,7 @@ msgid "Publisher must be specified by ID"
 msgstr "Sağlayıcı kimlik ile belirtilmelidir"
 
 #: warehouse/subscriptions/models.py:42
-#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:230
 msgid "Active"
 msgstr "Aktif"
 
@@ -1403,17 +1419,17 @@ msgstr "Parola"
 #: warehouse/templates/manage/organization/projects.html:179
 #: warehouse/templates/manage/organization/projects.html:197
 #: warehouse/templates/manage/organization/roles.html:270
-#: warehouse/templates/manage/organization/roles.html:282
+#: warehouse/templates/manage/organization/roles.html:283
 #: warehouse/templates/manage/organization/settings.html:50
 #: warehouse/templates/manage/organization/settings.html:80
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:158
-#: warehouse/templates/manage/organizations.html:181
-#: warehouse/templates/manage/organizations.html:203
-#: warehouse/templates/manage/organizations.html:221
-#: warehouse/templates/manage/organizations.html:240
+#: warehouse/templates/manage/organizations.html:170
+#: warehouse/templates/manage/organizations.html:193
+#: warehouse/templates/manage/organizations.html:215
+#: warehouse/templates/manage/organizations.html:233
+#: warehouse/templates/manage/organizations.html:252
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -1423,7 +1439,7 @@ msgstr "Parola"
 #: warehouse/templates/manage/project/roles.html:296
 #: warehouse/templates/manage/project/roles.html:311
 #: warehouse/templates/manage/project/roles.html:338
-#: warehouse/templates/manage/project/roles.html:350
+#: warehouse/templates/manage/project/roles.html:351
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
@@ -2004,16 +2020,16 @@ msgstr "Ne?"
 #, python-format
 msgid ""
 "During your recent upload or upload attempt of %(project_name)s to %(site)s, "
-"we noticed you used basic authentication (username &amp; password). However, "
-"your account has two-factor authentication (2FA) enabled."
+"we noticed you attempted to use basic authentication (username &amp; "
+"password). However, your account has two-factor authentication (2FA) enabled."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
 #, python-format
 msgid ""
-"In the near future, %(site)s will begin prohibiting uploads using basic "
-"authentication for accounts with two-factor authentication enabled. Instead, "
-"we will require API tokens to be used."
+"%(site)s now prohibits uploads using basic authentication for accounts with "
+"two-factor authentication enabled. Instead, we require API tokens or Trusted "
+"Publishers to be used instead."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
@@ -2026,10 +2042,15 @@ msgstr "Ne yapmalıyım?"
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:27
 #, python-format
 msgid ""
-"First, generate an API token for your account or project at "
+"If using API tokens, generate an API token for your account or project at "
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens to "
 "publish."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:30
+#, python-format
+msgid "If using Trusted Publishers (preferred), see %(tp_url)s to get started."
 msgstr ""
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
@@ -2093,7 +2114,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
-#: warehouse/templates/manage/organizations.html:145
 #, python-format
 msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
@@ -2102,7 +2122,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:148
+#: warehouse/templates/manage/organizations.html:143
 #, fuzzy
 #| msgid "You'll receive an email with a password reset link."
 msgid "You will receive an email when the organization has been approved"
@@ -2150,13 +2170,13 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:50
 #: warehouse/templates/manage/organization/roles.html:142
 #: warehouse/templates/manage/organization/roles.html:182
-#: warehouse/templates/manage/organization/roles.html:280
+#: warehouse/templates/manage/organization/roles.html:281
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:125
 #: warehouse/templates/manage/project/roles.html:182
 #: warehouse/templates/manage/project/roles.html:283
 #: warehouse/templates/manage/project/roles.html:310
-#: warehouse/templates/manage/project/roles.html:348
+#: warehouse/templates/manage/project/roles.html:349
 msgid "Role"
 msgstr "Rol"
 
@@ -3706,7 +3726,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:256
+#: warehouse/templates/manage/project/history.html:268
 msgid "Reason:"
 msgstr ""
 
@@ -3859,13 +3879,13 @@ msgstr "API tokeni eklendi"
 
 #: warehouse/templates/manage/account.html:620
 #: warehouse/templates/manage/account.html:643
-#: warehouse/templates/manage/project/history.html:247
-#: warehouse/templates/manage/project/history.html:254
+#: warehouse/templates/manage/project/history.html:259
+#: warehouse/templates/manage/project/history.html:266
 msgid "Token name:"
 msgstr "Token Adı:"
 
 #: warehouse/templates/manage/account.html:637
-#: warehouse/templates/manage/project/history.html:249
+#: warehouse/templates/manage/project/history.html:261
 msgid "API token removed"
 msgstr "API tokeni kaldırıldı"
 
@@ -3937,7 +3957,7 @@ msgstr "Son Hesap Hareketleri"
 
 #: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:288
+#: warehouse/templates/manage/project/history.html:300
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Olay"
@@ -3945,8 +3965,8 @@ msgstr "Olay"
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:289
-#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:310
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -3969,7 +3989,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/organization/history.html:217
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:316
 #: warehouse/templates/manage/team/history.html:124
 #, fuzzy
 #| msgid "Device name"
@@ -4378,21 +4398,21 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:539
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:91
-#: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/history.html:170
-#: warehouse/templates/manage/project/history.html:196
+#: warehouse/templates/manage/project/history.html:97
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr "Ekleyen:"
 
 #: warehouse/templates/manage/manage_base.html:541
 #: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:56
-#: warehouse/templates/manage/project/history.html:116
-#: warehouse/templates/manage/project/history.html:132
-#: warehouse/templates/manage/project/history.html:178
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:62
+#: warehouse/templates/manage/project/history.html:128
+#: warehouse/templates/manage/project/history.html:144
+#: warehouse/templates/manage/project/history.html:190
+#: warehouse/templates/manage/project/history.html:216
 #: warehouse/templates/manage/team/history.html:93
 msgid "Removed by:"
 msgstr "Kaldıran:"
@@ -4404,7 +4424,7 @@ msgid "Submitted by:"
 msgstr "Davet et"
 
 #: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:243
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
@@ -4423,6 +4443,8 @@ msgid "Publisher:"
 msgstr "Kullanıcı adı"
 
 #: warehouse/templates/manage/manage_base.html:553
+#: warehouse/templates/manage/project/history.html:52
+#: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
 msgstr ""
 
@@ -4464,6 +4486,7 @@ msgid "Organization Name"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/organizations.html:77
+#: warehouse/templates/manage/organizations.html:143
 msgid "Request Submitted"
 msgstr ""
 
@@ -4544,93 +4567,110 @@ msgstr "Yeni bir hesap oluştur"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s PyPI'a henüz bir proje yüklemedi"
 
-#: warehouse/templates/manage/organizations.html:141
+#: warehouse/templates/manage/organizations.html:146
+#, fuzzy, python-format
+#| msgid "Invite"
+msgid "Submitted %(submitted)s"
+msgstr "Davet et"
+
+#: warehouse/templates/manage/organizations.html:162
+#: warehouse/templates/manage/organizations.html:273
 #, fuzzy
 #| msgid "Create an account"
-msgid "Create new organization"
+msgid "Request a new organization"
 msgstr "Yeni bir hesap oluştur"
 
-#: warehouse/templates/manage/organizations.html:148
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/project/roles.html:236
-msgid "."
-msgstr ""
-
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:156
+#: warehouse/templates/manage/organizations.html:168
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:173
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:172
+#: warehouse/templates/manage/organizations.html:184
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:173
-#: warehouse/templates/manage/organizations.html:195
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:185
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:225
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:179
+#: warehouse/templates/manage/organizations.html:191
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization display name"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:196
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:201
+#: warehouse/templates/manage/organizations.html:213
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:219
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:231
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization description"
 msgstr "Proje açıklaması"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:224
+#: warehouse/templates/manage/organizations.html:236
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:238
+#: warehouse/templates/manage/organizations.html:250
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:262
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:256
+#: warehouse/templates/manage/organizations.html:268
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "Oluşturulma Tarihi"
+
+#: warehouse/templates/manage/organizations.html:275
+msgid "Your request(s) for a new PyPI organization(s) have been submitted."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:278
+#, fuzzy
+#| msgid "You'll receive an email with a password reset link."
+msgid "You will receive an email when each organization has been approved"
+msgstr "Parola sıfırlama linki içeren bir e-posta alacaksınız."
+
+#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/project/roles.html:146
+#: warehouse/templates/manage/project/roles.html:203
+#: warehouse/templates/manage/project/roles.html:236
+msgid "."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:53
 #: warehouse/templates/manage/organization/projects.html:63
@@ -5521,30 +5561,30 @@ msgid "Declined by:"
 msgstr "Reddet"
 
 #: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/project/history.html:139
-#: warehouse/templates/manage/project/history.html:186
+#: warehouse/templates/manage/project/history.html:151
+#: warehouse/templates/manage/project/history.html:198
 #: warehouse/templates/manage/team/history.html:98
 msgid "Changed by:"
 msgstr "Değiştiren:"
 
 #: warehouse/templates/manage/organization/history.html:181
 #: warehouse/templates/manage/organization/history.html:186
-#: warehouse/templates/manage/project/history.html:146
-#: warehouse/templates/manage/project/history.html:153
+#: warehouse/templates/manage/project/history.html:158
+#: warehouse/templates/manage/project/history.html:165
 #, fuzzy
 #| msgid "Invite"
 msgid "Invited by:"
 msgstr "Davet et"
 
 #: warehouse/templates/manage/organization/history.html:191
-#: warehouse/templates/manage/project/history.html:160
+#: warehouse/templates/manage/project/history.html:172
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Revoked by:"
 msgstr "Kaldıran:"
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:285
+#: warehouse/templates/manage/project/history.html:297
 #: warehouse/templates/manage/team/history.html:105
 #, fuzzy, python-format
 #| msgid "Security history for %(project_name)s"
@@ -5882,8 +5922,8 @@ msgstr "Kaldır"
 msgid "Invite member"
 msgstr "Davetiye süresi dolmuş"
 
-#: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/project/roles.html:359
+#: warehouse/templates/manage/organization/roles.html:292
+#: warehouse/templates/manage/project/roles.html:360
 msgid "Invite"
 msgstr "Davet et"
 
@@ -6200,70 +6240,70 @@ msgstr "Proje Oluşturulma Tarihi"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr "<a href=\"%(href)s\">%(version)s Sürümü</a> Oluşturulma Tarihi"
 
-#: warehouse/templates/manage/project/history.html:53
+#: warehouse/templates/manage/project/history.html:59
 #, fuzzy, python-format
 #| msgid "Release version %(version)s removed"
 msgid "Version %(version)s removed"
 msgstr "Yayınlanan %(version)s sürümü kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:60
+#: warehouse/templates/manage/project/history.html:66
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr "<a href=\"%(href)s\">%(version)s Sürümü</a> Oluşturulma Tarihi"
 
-#: warehouse/templates/manage/project/history.html:63
-#: warehouse/templates/manage/project/history.html:70
+#: warehouse/templates/manage/project/history.html:69
+#: warehouse/templates/manage/project/history.html:76
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Yanked by:"
 msgstr "Değiştiren:"
 
-#: warehouse/templates/manage/project/history.html:67
+#: warehouse/templates/manage/project/history.html:73
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
 msgstr "<a href=\"%(href)s\">%(version)s Sürümü</a> Oluşturulma Tarihi"
 
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:82
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "File added to <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "%(version)s sürümünden dosya kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:88
-#: warehouse/templates/manage/project/history.html:113
+#: warehouse/templates/manage/project/history.html:94
+#: warehouse/templates/manage/project/history.html:125
 #: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr "Dosya Adı:"
 
-#: warehouse/templates/manage/project/history.html:101
+#: warehouse/templates/manage/project/history.html:113
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "%(version)s sürümünden dosya kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:122
+#: warehouse/templates/manage/project/history.html:134
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeye eklendi"
 
-#: warehouse/templates/manage/project/history.html:129
+#: warehouse/templates/manage/project/history.html:141
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
 "kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:136
+#: warehouse/templates/manage/project/history.html:148
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projedeki "
 "yetkilerini değiştirdiler"
 
-#: warehouse/templates/manage/project/history.html:143
+#: warehouse/templates/manage/project/history.html:155
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6274,7 +6314,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
 "kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:150
+#: warehouse/templates/manage/project/history.html:162
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -6285,7 +6325,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projedeki "
 "yetkilerini değiştirdiler"
 
-#: warehouse/templates/manage/project/history.html:157
+#: warehouse/templates/manage/project/history.html:169
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6296,14 +6336,14 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
 "kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:167
+#: warehouse/templates/manage/project/history.html:179
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgid "%(team_name)s team added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeye eklendi"
 
-#: warehouse/templates/manage/project/history.html:175
+#: warehouse/templates/manage/project/history.html:187
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -6312,7 +6352,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projedeki "
 "yetkilerini değiştirdiler"
 
-#: warehouse/templates/manage/project/history.html:183
+#: warehouse/templates/manage/project/history.html:195
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6321,97 +6361,97 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> %(role_name)s olarak projeden "
 "kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:193
+#: warehouse/templates/manage/project/history.html:205
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${organization_name}' organization."
 msgid "Project added to %(organization_name)s organization"
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/templates/manage/project/history.html:201
+#: warehouse/templates/manage/project/history.html:213
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${organization_name}' organization."
 msgid "Project removed from %(organization_name)s organization"
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
-#: warehouse/templates/manage/project/history.html:209
+#: warehouse/templates/manage/project/history.html:221
 #, fuzzy
 #| msgid "API token removed"
 msgid "Short-lived API token created"
 msgstr "API tokeni kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:210
-#: warehouse/templates/manage/project/history.html:236
-#: warehouse/templates/manage/project/history.html:250
+#: warehouse/templates/manage/project/history.html:222
+#: warehouse/templates/manage/project/history.html:248
+#: warehouse/templates/manage/project/history.html:262
 msgid "Permissions: Can upload to this project"
 msgstr "İzinler: Bu Projeye Yükleme Yapabilir"
 
-#: warehouse/templates/manage/project/history.html:213
-#: warehouse/templates/manage/project/history.html:244
+#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:256
 msgid "Expiration:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:216
+#: warehouse/templates/manage/project/history.html:228
 msgid "Expiration Status:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:220
+#: warehouse/templates/manage/project/history.html:232
 msgid "Expired"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:237
 #, fuzzy
 #| msgid "Created"
 msgid "Creator:"
 msgstr "Oluşturulma Tarihi"
 
-#: warehouse/templates/manage/project/history.html:235
+#: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "API token removed"
 msgid "API token created"
 msgstr "API tokeni kaldırıldı"
 
-#: warehouse/templates/manage/project/history.html:239
-#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/project/history.html:264
 msgid "Controlled by:"
 msgstr "Denetleyen:"
 
-#: warehouse/templates/manage/project/history.html:261
+#: warehouse/templates/manage/project/history.html:273
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:264
+#: warehouse/templates/manage/project/history.html:276
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:269
+#: warehouse/templates/manage/project/history.html:281
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement enabled"
 msgstr "Gereken Python Sürümü:"
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:283
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Enabled by:"
 msgstr "Değiştiren:"
 
-#: warehouse/templates/manage/project/history.html:274
+#: warehouse/templates/manage/project/history.html:286
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement disabled"
 msgstr "Gereken Python Sürümü:"
 
-#: warehouse/templates/manage/project/history.html:276
+#: warehouse/templates/manage/project/history.html:288
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Disabled by:"
 msgstr "Değiştiren:"
 
-#: warehouse/templates/manage/project/history.html:290
+#: warehouse/templates/manage/project/history.html:302
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
 msgstr ""
