@@ -1413,6 +1413,7 @@ class TestHaveIBeenPwnedEmailBreachedService:
             pretend.call(
                 "https://haveibeenpwned.com/api/v3/breachedaccount/foo@example.com",
                 headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
+                timeout=(0.25, 0.25),
             )
         ]
 
@@ -1434,6 +1435,7 @@ class TestHaveIBeenPwnedEmailBreachedService:
             pretend.call(
                 "https://haveibeenpwned.com/api/v3/breachedaccount/new-email@gmail.com",
                 headers={"User-Agent": "PyPI.org", "hibp-api-key": "blowhole"},
+                timeout=(0.25, 0.25),
             )
         ]
 
