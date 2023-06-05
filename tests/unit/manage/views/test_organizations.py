@@ -116,7 +116,7 @@ class TestManageOrganizations:
             user=pretend.stub(),
         )
 
-        default_response = {"default": "response"}
+        default_response = MultiDict({"default": "response"})
         monkeypatch.setattr(
             org_views.ManageOrganizationsViews,
             "default_response",
@@ -508,11 +508,15 @@ class TestManageOrganizationSettings:
         }
         assert save_organization_cls.calls == [
             pretend.call(
-                name=organization.name,
-                display_name=organization.display_name,
-                link_url=organization.link_url,
-                description=organization.description,
-                orgtype=organization.orgtype,
+                MultiDict(
+                    {
+                        "name": organization.name,
+                        "display_name": organization.display_name,
+                        "link_url": organization.link_url,
+                        "description": organization.description,
+                        "orgtype": organization.orgtype,
+                    }
+                )
             ),
         ]
 

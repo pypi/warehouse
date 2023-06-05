@@ -1,10 +1,10 @@
-#: warehouse/views.py:140
+#: warehouse/views.py:141
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:265
+#: warehouse/views.py:266
 msgid "Locale updated"
 msgstr ""
 
@@ -56,47 +56,47 @@ msgstr ""
 msgid "Your passwords don't match. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
+#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
 msgid "The email address isn't valid. Try again."
 msgstr ""
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:253
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:262
+#: warehouse/accounts/forms.py:264
 msgid ""
 "This email address is already being used by this account. Use a different"
 " email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:269
+#: warehouse/accounts/forms.py:271
 msgid ""
 "This email address is already being used by another account. Use a "
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:290 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:380
+#: warehouse/accounts/forms.py:382
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:397
+#: warehouse/accounts/forms.py:399
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:461
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:469
+#: warehouse/accounts/forms.py:471
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:488
+#: warehouse/accounts/forms.py:490
 msgid "No user found with that username or email"
 msgstr ""
 
@@ -503,26 +503,26 @@ msgstr ""
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:862
+#: warehouse/manage/views/organizations.py:867
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:873
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1036
-#: warehouse/manage/views/organizations.py:1078
+#: warehouse/manage/views/organizations.py:1041
+#: warehouse/manage/views/organizations.py:1083
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1046
+#: warehouse/manage/views/organizations.py:1051
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1093
+#: warehouse/manage/views/organizations.py:1098
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 

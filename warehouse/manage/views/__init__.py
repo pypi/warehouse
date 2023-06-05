@@ -28,6 +28,7 @@ from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import Load, joinedload
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
@@ -366,7 +367,7 @@ class ManageAccountViews:
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             request=self.request,
             username=self.request.user.username,
             full_name=self.request.user.name,
@@ -551,7 +552,8 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ProvisionTOTPForm(
-            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+            MultiDict(**self.request.POST),
+            totp_secret=self.request.session.get_totp_secret(),
         )
 
         if form.validate():
@@ -590,9 +592,13 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
-            password=self.request.POST["confirm_password"],
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 
@@ -664,7 +670,7 @@ class ProvisionWebAuthnViews:
     )
     def validate_webauthn_provision(self):
         form = ProvisionWebAuthnForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             user_service=self.user_service,
             user_id=self.request.user.id,
             challenge=self.request.session.get_webauthn_challenge(),
@@ -719,7 +725,7 @@ class ProvisionWebAuthnViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteWebAuthnForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             username=self.request.user.username,
             user_service=self.user_service,
             user_id=self.request.user.id,
@@ -881,7 +887,7 @@ class ProvisionMacaroonViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = CreateMacaroonForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,
@@ -959,11 +965,15 @@ class ProvisionMacaroonViews:
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                    "macaroon_id": self.request.POST["macaroon_id"],
+                }
+            ),
             request=self.request,
-            password=self.request.POST["confirm_password"],
-            macaroon_id=self.request.POST["macaroon_id"],
             macaroon_service=self.macaroon_service,
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 

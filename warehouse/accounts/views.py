@@ -32,6 +32,7 @@ from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.forms import (
@@ -604,10 +605,12 @@ def register(request, _form_class=RegistrationForm):
 
     # the form contains an auto-generated field from recaptcha with
     # hyphens in it. make it play nice with wtforms.
-    post_body = {key.replace("-", "_"): value for key, value in request.POST.items()}
+    post_body = MultiDict(
+        {key.replace("-", "_"): value for key, value in request.POST.items()}
+    )
 
     form = _form_class(
-        data=post_body,
+        formdata=post_body,
         user_service=user_service,
         recaptcha_service=recaptcha_service,
         breach_service=breach_service,
@@ -772,7 +775,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
         )
 
     form = _form_class(
-        **request.params,
+        request.POST,
         username=user.username,
         full_name=user.name,
         email=user.email,

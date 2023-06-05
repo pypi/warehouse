@@ -13,6 +13,7 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
+from webob.multidict import MultiDict
 
 from warehouse.accounts import IUserService
 from warehouse.email import (
@@ -77,7 +78,11 @@ class ManageTeamSettingsViews:
         return {
             "team": self.team,
             "save_team_form": SaveTeamForm(
-                name=self.team.name,
+                formdata=MultiDict(
+                    {
+                        "name": self.team.name,
+                    }
+                ),
                 organization_service=self.organization_service,
                 organization_id=self.team.organization_id,
                 team_id=self.team.id,

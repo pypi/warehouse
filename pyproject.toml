@@ -50,6 +50,7 @@ module = [
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
+    "webob.*", # https://github.com/python/typeshed/pull/9874
     "whitenoise.*",
     "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
     "yara.*",
