@@ -627,8 +627,6 @@ def register(request, _form_class=RegistrationForm):
         )
 
         send_email_verification_email(request, (user, email))
-        for email in user.emails:
-            send_new_email_added_email(request, (user, email))
         email_limiter.hit(user.id)
 
         return HTTPSeeOther(

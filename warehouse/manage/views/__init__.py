@@ -225,8 +225,9 @@ class ManageAccountViews:
                 queue="success",
             )
 
-            for email in self.request.user.emails:
-                send_new_email_added_email(self.request, (self.request.user, email))
+            for previously_registered_email in self.request.user.emails:
+                if previously_registered_email != email:
+                    send_new_email_added_email(self.request, (self.request.user, previously_registered_email))
 
             return HTTPSeeOther(self.request.path)
 
@@ -338,8 +339,6 @@ class ManageAccountViews:
             )
             if verify_email_ratelimit.test(self.request.user.id):
                 send_email_verification_email(self.request, (self.request.user, email))
-                for email in self.request.user.emails:
-                    send_new_email_added_email(self.request, (self.request.user, email))
                 verify_email_ratelimit.hit(self.request.user.id)
                 email.user.record_event(
                     tag=EventTag.Account.EmailReverify,
