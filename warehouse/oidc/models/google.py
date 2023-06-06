@@ -82,7 +82,7 @@ class GooglePublisherMixin:
         return "Google"
 
     def publisher_url(self, claims=None):
-        return "https://accounts.google.com"
+        return None
 
     @property
     def email_verified(self):
