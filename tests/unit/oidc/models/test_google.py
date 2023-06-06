@@ -27,6 +27,16 @@ def test_lookup_strategies():
 
 
 class TestGooglePublisher:
+    def test_publisher_name(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.publisher_name == "Google"
+
+    def test_publisher_url(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.publisher_url() == "https://accounts.google.com"
+
     def test_stringifies_as_email(self):
         publisher = google.GooglePublisher(email="fake@example.com")
 

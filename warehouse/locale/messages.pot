@@ -301,7 +301,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/views.py:1586
-msgid "Registered a new publishing publisher to create "
+msgid "Registered a new pending publisher to create "
 msgstr ""
 
 #: warehouse/accounts/views.py:1623 warehouse/accounts/views.py:1636
@@ -2375,15 +2375,15 @@ msgstr ""
 msgid "Publisher name"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:31
-#: warehouse/templates/email/trusted-publisher-removed/body.html:29
+#: warehouse/templates/email/trusted-publisher-added/body.html:32
+#: warehouse/templates/email/trusted-publisher-removed/body.html:30
 #: warehouse/templates/manage/account/publishing.html:173
 #: warehouse/templates/manage/project/publishing.html:46
 msgid "Workflow"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
+#: warehouse/templates/email/trusted-publisher-added/body.html:33
+#: warehouse/templates/email/trusted-publisher-removed/body.html:31
 #: warehouse/templates/includes/packaging/project-data.html:117
 #: warehouse/templates/manage/account/publishing.html:47
 #: warehouse/templates/manage/organization/roles.html:53
@@ -2399,27 +2399,38 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
+#: warehouse/templates/email/trusted-publisher-added/body.html:34
+#: warehouse/templates/email/trusted-publisher-removed/body.html:32
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:45
 msgid "Repository"
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:35
-#: warehouse/templates/email/trusted-publisher-removed/body.html:33
+#: warehouse/templates/email/trusted-publisher-added/body.html:36
+#: warehouse/templates/email/trusted-publisher-removed/body.html:34
 msgid "Environment"
 msgstr ""
 
+#: warehouse/templates/email/trusted-publisher-added/body.html:39
+#: warehouse/templates/email/trusted-publisher-removed/body.html:37
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+msgid "Email"
+msgstr ""
+
 #: warehouse/templates/email/trusted-publisher-added/body.html:41
+#: warehouse/templates/email/trusted-publisher-removed/body.html:39
+msgid "Subject"
+msgstr ""
+
+#: warehouse/templates/email/trusted-publisher-added/body.html:48
 msgid ""
 "If you did not make this change and you think it was made maliciously, "
 "you can remove it from the project via the \"Publishing\" tab on the "
 "project's page."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:48
-#: warehouse/templates/email/trusted-publisher-removed/body.html:46
+#: warehouse/templates/email/trusted-publisher-added/body.html:55
+#: warehouse/templates/email/trusted-publisher-removed/body.html:53
 #, python-format
 msgid ""
 "If you are unable to revert the change and need to do so, you can email "
@@ -2434,7 +2445,7 @@ msgid ""
 "from a project (<strong>%(project_name)s</strong>) that you manage."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
+#: warehouse/templates/email/trusted-publisher-removed/body.html:46
 msgid ""
 "If you did not make this change and you think it was made in error, you "
 "can check the \"Security history\" tab on the project's page."
@@ -2674,10 +2685,6 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-callout.html:23
 #, python-format
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
-msgstr ""
-
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-msgid "Email"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
