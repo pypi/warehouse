@@ -54,9 +54,10 @@ def _ratelimiters(request):
     has_translations=False,
 )
 def oidc_audience(request):
-    oidc_enabled = request.registry.settings[
-        "warehouse.oidc.enabled"
-    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
+    oidc_enabled = (
+        request.registry.settings["warehouse.oidc.enabled"]
+        and not request.flags.disallow_oidc()
+    )
 
     if not oidc_enabled:
         return Response(status=403, json={"message": "OIDC functionality not enabled"})
@@ -79,7 +80,7 @@ def mint_token_from_oidc(request):
 
     oidc_enabled = request.registry.settings[
         "warehouse.oidc.enabled"
-    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
+    ] and not request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC)
     if not oidc_enabled:
         return _invalid(
             errors=[

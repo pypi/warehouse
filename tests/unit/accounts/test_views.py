@@ -3097,7 +3097,9 @@ class TestManageAccountPublishingViews:
                 }
             ),
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             POST=pretend.stub(),
         )
 
@@ -3120,9 +3122,7 @@ class TestManageAccountPublishingViews:
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert request.flags.disallow_oidc.calls == [pretend.call()]
         assert project_factory_cls.calls == [pretend.call(request)]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
@@ -3152,7 +3152,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3177,9 +3177,7 @@ class TestManageAccountPublishingViews:
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3219,7 +3217,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True),
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3244,8 +3242,8 @@ class TestManageAccountPublishingViews:
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -3277,7 +3275,7 @@ class TestManageAccountPublishingViews:
             has_primary_verified_email=False,
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False),
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3302,8 +3300,8 @@ class TestManageAccountPublishingViews:
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -3351,7 +3349,9 @@ class TestManageAccountPublishingViews:
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3372,8 +3372,8 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(db_request)
 
         assert view.add_pending_github_oidc_publisher() == view.default_response
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert db_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -3406,7 +3406,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3460,7 +3460,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3532,7 +3532,9 @@ class TestManageAccountPublishingViews:
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3595,7 +3597,9 @@ class TestManageAccountPublishingViews:
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3692,7 +3696,7 @@ class TestManageAccountPublishingViews:
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3717,9 +3721,7 @@ class TestManageAccountPublishingViews:
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3745,7 +3747,7 @@ class TestManageAccountPublishingViews:
             settings={"warehouse.oidc.enabled": True}
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3783,7 +3785,9 @@ class TestManageAccountPublishingViews:
         db_request.db.add(pending_publisher)
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3824,7 +3828,9 @@ class TestManageAccountPublishingViews:
 
         db_request.user = pretend.stub()
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3863,7 +3869,9 @@ class TestManageAccountPublishingViews:
         db_request.db.flush()  # To get the id
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )

@@ -1449,7 +1449,7 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
                     "Trusted publishers are temporarily disabled. "
@@ -1469,7 +1469,7 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
                     "Trusted publishers are temporarily disabled. "
@@ -1604,7 +1604,7 @@ class ManageAccountPublishingViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
                     "Trusted publishers are temporarily disabled. "

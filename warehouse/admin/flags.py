@@ -24,6 +24,8 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
     DISALLOW_OIDC = "disallow-oidc"
+    DISALLOW_GITHUB_OIDC = "disallow-github-oidc"
+    DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
     READ_ONLY = "read-only"
 
 
@@ -46,6 +48,13 @@ class Flags:
             .filter(AdminFlag.enabled.is_(True), AdminFlag.notify.is_(True))
             .all()
         )
+
+    def disallow_oidc(self, flag_member=None):
+        global_disallow_oidc = self.enabled(AdminFlagValue.DISALLOW_OIDC)
+        if flag_member is None:
+            return global_disallow_oidc
+
+        return self.enabled(flag_member) or global_disallow_oidc
 
     def enabled(self, flag_member):
         flag = self.request.db.get(AdminFlag, flag_member.value)
