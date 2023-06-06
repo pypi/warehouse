@@ -629,7 +629,7 @@ class TestFileValidation:
 
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("PKG-INFO", b"this is the package info")
-            zfp.writestr("1.dat", b"0"*10240, zipfile.ZIP_DEFLATED)
+            zfp.writestr("1.dat", b"0" * 10240, zipfile.ZIP_DEFLATED)
 
         assert not legacy._is_valid_dist_file(f, "")
 
