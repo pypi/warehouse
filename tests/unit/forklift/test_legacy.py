@@ -624,6 +624,15 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(f, "")
 
+    def test_zipfile_exceeds_compression_threshold(self, tmpdir):
+        f = str(tmpdir.join("test.zip"))
+
+        with zipfile.ZipFile(f, "w") as zfp:
+            zfp.writestr("PKG-INFO", b"this is the package info")
+            zfp.writestr("1.dat", b"0"*10240, zipfile.ZIP_DEFLATED)
+
+        assert not legacy._is_valid_dist_file(f, "")
+
     def test_egg_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.egg"))
 
