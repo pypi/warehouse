@@ -312,6 +312,19 @@ def send_password_compromised_email_hibp(request, user):
     return {}
 
 
+@_email("token-added")
+def send_token_added_email(request, user, *, token_name, caveats):
+    if caveats["permissions"] == "user":
+        scope = request._("Token scope: entire account")
+    else:
+        scope = request._(
+            "Token scope: Project ${project_name}",
+            mapping={"project_name": caveats["permissions"]["projects"][0]},
+        )
+
+    return {"username": user.username, "token_name": token_name, "token_scope": scope}
+
+
 @_email("token-compromised-leak", allow_unverified=True)
 def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
