@@ -17,13 +17,13 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
 "X-Generator: Weblate 4.13.1-dev\n"
 
-#: warehouse/views.py:140
+#: warehouse/views.py:141
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
 
-#: warehouse/views.py:265
+#: warehouse/views.py:266
 msgid "Locale updated"
 msgstr "Lokaĵaro ĝisdatigita"
 
@@ -83,17 +83,17 @@ msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 msgid "Your passwords don't match. Try again."
 msgstr "Viaj pasvortoj ne kongruas. Reprovu."
 
-#: warehouse/accounts/forms.py:232 warehouse/accounts/forms.py:243
+#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
 msgid "The email address isn't valid. Try again."
 msgstr "La retpoŝta adreso ne estas valida. Reprovu."
 
-#: warehouse/accounts/forms.py:251
+#: warehouse/accounts/forms.py:253
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Vi ne rajtas uzi retpoŝtan adreson ĉe tiu retejo. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:262
+#: warehouse/accounts/forms.py:264
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -101,7 +101,7 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de ĉi tiu konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:269
+#: warehouse/accounts/forms.py:271
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -109,33 +109,33 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de alia konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:290 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/accounts/forms.py:380
+#: warehouse/accounts/forms.py:382
 msgid "Invalid TOTP code."
 msgstr "Ne valida TOTP-kodo."
 
-#: warehouse/accounts/forms.py:397
+#: warehouse/accounts/forms.py:399
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ne valida WebAuthn-aserto: Malbona ŝarĝo"
 
-#: warehouse/accounts/forms.py:459
+#: warehouse/accounts/forms.py:461
 msgid "Invalid recovery code."
 msgstr "Ne valida restaŭra kodo."
 
-#: warehouse/accounts/forms.py:469
+#: warehouse/accounts/forms.py:471
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "Restaŭraj kodoj regeneritaj"
 
-#: warehouse/accounts/forms.py:488
+#: warehouse/accounts/forms.py:490
 msgid "No user found with that username or email"
 msgstr "Neniu uzanto trovita de tiu salutnomo aŭ retpoŝta adreso"
 
-#: warehouse/accounts/views.py:99
+#: warehouse/accounts/views.py:103
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -144,7 +144,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 
-#: warehouse/accounts/views.py:116
+#: warehouse/accounts/views.py:120
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -152,7 +152,7 @@ msgstr ""
 "Troo da retpoŝtaj adresoj aldoniĝis al ĉi tiu konto sen kontrolado. Kontrolu "
 "vian enirkeston kaj sekvu la kontrolajn ligilojn. (IP-adreso: ${ip})"
 
-#: warehouse/accounts/views.py:128
+#: warehouse/accounts/views.py:132
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -161,25 +161,25 @@ msgstr ""
 "Estas troo da nekompletaj petoj por restarigi pasvorton pri ĉi tiu konto. "
 "Kontrolu vian enirkeston kaj sekvu la kontrolajn ligilojn. (IP-adreso: ${ip})"
 
-#: warehouse/accounts/views.py:268 warehouse/accounts/views.py:332
-#: warehouse/accounts/views.py:334 warehouse/accounts/views.py:361
-#: warehouse/accounts/views.py:363 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
+#: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
 msgid "Invalid or expired two factor login."
 msgstr "Ne valida aŭ eksvalidiĝinta dupaŝa ensaluto."
 
-#: warehouse/accounts/views.py:326
+#: warehouse/accounts/views.py:365
 msgid "Already authenticated"
 msgstr "Jam aŭtentigita"
 
-#: warehouse/accounts/views.py:405
+#: warehouse/accounts/views.py:444
 msgid "Successful WebAuthn assertion"
 msgstr "Sukcesa WebAuthn-aserto"
 
-#: warehouse/accounts/views.py:461 warehouse/manage/views/__init__.py:816
+#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:822
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Restaŭra kodo akceptita. La submetita kodo ne estas reuzebla."
 
-#: warehouse/accounts/views.py:547
+#: warehouse/accounts/views.py:592
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -187,151 +187,151 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/accounts/views.py:679
+#: warehouse/accounts/views.py:726
 msgid "Expired token: request a new password reset link"
 msgstr "Eksvalidiĝinta ĵetono: petu novan ligilon por restarigo de pasvorto"
 
-#: warehouse/accounts/views.py:681
+#: warehouse/accounts/views.py:728
 msgid "Invalid token: request a new password reset link"
 msgstr "Ne valida ĵetono: petu novan ligilon por restarigo de pasvorto"
 
-#: warehouse/accounts/views.py:683 warehouse/accounts/views.py:786
-#: warehouse/accounts/views.py:886 warehouse/accounts/views.py:1059
+#: warehouse/accounts/views.py:730 warehouse/accounts/views.py:833
+#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1106
 msgid "Invalid token: no token supplied"
 msgstr "Ne valida ĵetono: neniu ĵetono donita"
 
-#: warehouse/accounts/views.py:687
+#: warehouse/accounts/views.py:734
 msgid "Invalid token: not a password reset token"
 msgstr "Ne valida ĵetono: ne estas pasvorto-restariga ĵetono"
 
-#: warehouse/accounts/views.py:692
+#: warehouse/accounts/views.py:739
 msgid "Invalid token: user not found"
 msgstr "Ne valida ĵetono: uzanto ne trovita"
 
-#: warehouse/accounts/views.py:703
+#: warehouse/accounts/views.py:750
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Ne valida ĵetono: la uzanto jam ensalutis post peto por ĉi tiu ĵetono"
 
-#: warehouse/accounts/views.py:721
+#: warehouse/accounts/views.py:768
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Ne valida ĵetono: la pasvorto jam ŝanĝiĝis post peto por ĉi tiu ĵetono"
 
-#: warehouse/accounts/views.py:754
+#: warehouse/accounts/views.py:801
 msgid "You have reset your password"
 msgstr "Vi restarigis vian pasvorton"
 
-#: warehouse/accounts/views.py:782
+#: warehouse/accounts/views.py:829
 msgid "Expired token: request a new email verification link"
 msgstr "Eksvalidiĝinta ĵetono: petu por nova retpoŝto-kontrola ligilo"
 
-#: warehouse/accounts/views.py:784
+#: warehouse/accounts/views.py:831
 msgid "Invalid token: request a new email verification link"
 msgstr "Ne valida ĵetono: petu por nova retpoŝto-kontrola ligilo"
 
-#: warehouse/accounts/views.py:790
+#: warehouse/accounts/views.py:837
 msgid "Invalid token: not an email verification token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por retpoŝta kontrolo"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:846
 msgid "Email not found"
 msgstr "Retpoŝta adreso ne troviĝis"
 
-#: warehouse/accounts/views.py:802
+#: warehouse/accounts/views.py:849
 msgid "Email already verified"
 msgstr "Retpoŝta adreso jam kontrolita"
 
-#: warehouse/accounts/views.py:820
+#: warehouse/accounts/views.py:867
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Vi povas nun uzi ĉi tiun retpoŝtan adreson kiel vian ĉefan retpoŝtan adreson"
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:871
 msgid "This is your primary address"
 msgstr "Jen via ĉefa retpoŝta adreso"
 
-#: warehouse/accounts/views.py:829
+#: warehouse/accounts/views.py:876
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Retpoŝta adreso ${email_address} kontrolita. ${confirm_message}."
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:929
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Eksvalidiĝinta ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:931
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Ne valida ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:937
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por invito al kunlaborado"
 
-#: warehouse/accounts/views.py:894
+#: warehouse/accounts/views.py:941
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Invito al rolo ne estas valida."
 
-#: warehouse/accounts/views.py:903
+#: warehouse/accounts/views.py:950
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Invito al rolo ne plu ekzistas."
 
-#: warehouse/accounts/views.py:956
+#: warehouse/accounts/views.py:1003
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invito al '${project_name}' estas malakceptita."
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1068
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/accounts/views.py:1055
+#: warehouse/accounts/views.py:1102
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Eksvalidiĝinta ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1057
+#: warehouse/accounts/views.py:1104
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Ne valida ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1063
+#: warehouse/accounts/views.py:1110
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por invito al kunlaborado"
 
-#: warehouse/accounts/views.py:1067
+#: warehouse/accounts/views.py:1114
 msgid "Role invitation is not valid."
 msgstr "Invito al rolo ne estas valida."
 
-#: warehouse/accounts/views.py:1082
+#: warehouse/accounts/views.py:1129
 msgid "Role invitation no longer exists."
 msgstr "Invito al rolo ne plu ekzistas."
 
-#: warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1162
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invito al '${project_name}' estas malakceptita."
 
-#: warehouse/accounts/views.py:1183
+#: warehouse/accounts/views.py:1230
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/accounts/views.py:1401 warehouse/accounts/views.py:1421
-#: warehouse/accounts/views.py:1556 warehouse/manage/views/__init__.py:1225
-#: warehouse/manage/views/__init__.py:1244
+#: warehouse/accounts/views.py:1454 warehouse/accounts/views.py:1474
+#: warehouse/accounts/views.py:1609 warehouse/manage/views/__init__.py:1235
+#: warehouse/manage/views/__init__.py:1254
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -343,17 +343,17 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/accounts/views.py:1435
+#: warehouse/accounts/views.py:1488
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1448
+#: warehouse/accounts/views.py:1501
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1464 warehouse/manage/views/__init__.py:1263
+#: warehouse/accounts/views.py:1517 warehouse/manage/views/__init__.py:1273
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -362,28 +362,28 @@ msgid ""
 "again later."
 msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 
-#: warehouse/accounts/views.py:1478 warehouse/manage/views/__init__.py:1277
+#: warehouse/accounts/views.py:1531 warehouse/manage/views/__init__.py:1287
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1497
+#: warehouse/accounts/views.py:1550
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1533
+#: warehouse/accounts/views.py:1586
 msgid "Registered a new publishing publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1570 warehouse/accounts/views.py:1583
-#: warehouse/accounts/views.py:1590
+#: warehouse/accounts/views.py:1623 warehouse/accounts/views.py:1636
+#: warehouse/accounts/views.py:1643
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Mastrumi version"
 
-#: warehouse/accounts/views.py:1596
+#: warehouse/accounts/views.py:1649
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -413,7 +413,7 @@ msgstr ""
 "punktoj, streketoj, kaj substrekoj. Ĝi devas komenciĝi kaj finiĝi per litero "
 "aŭ cifero. Elektu alian salutnomon."
 
-#: warehouse/manage/forms.py:425
+#: warehouse/manage/forms.py:427
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -423,25 +423,35 @@ msgid ""
 "organization account name."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/manage/forms.py:461
+#: warehouse/manage/forms.py:442
+#, fuzzy
+#| msgid ""
+#| "This username is already being used by another account. Choose a "
+#| "different username."
+msgid ""
+"You have already submitted an application for that name. Choose a different "
+"organization account name."
+msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
+
+#: warehouse/manage/forms.py:478
 #, fuzzy
 #| msgid "Delete project"
 msgid "Select project"
 msgstr "Forigi projekton"
 
-#: warehouse/manage/forms.py:466 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
 msgstr "Nomo de projekto"
 
-#: warehouse/manage/forms.py:469
+#: warehouse/manage/forms.py:486
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:476
+#: warehouse/manage/forms.py:493
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -450,7 +460,7 @@ msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/manage/forms.py:544
+#: warehouse/manage/forms.py:564
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -458,7 +468,7 @@ msgid ""
 "characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/manage/forms.py:556
+#: warehouse/manage/forms.py:576
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -466,11 +476,11 @@ msgid ""
 "characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/manage/forms.py:563
+#: warehouse/manage/forms.py:583
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:574
+#: warehouse/manage/forms.py:594
 #, fuzzy
 #| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
@@ -478,19 +488,23 @@ msgid ""
 "with 400 characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/manage/forms.py:615
+#: warehouse/manage/forms.py:629
+msgid "You have already submitted the maximum number of "
+msgstr ""
+
+#: warehouse/manage/forms.py:659
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Elektu salutnomon de maksimume 200 skribsignoj."
 
-#: warehouse/manage/forms.py:621
+#: warehouse/manage/forms.py:665
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:649
+#: warehouse/manage/forms.py:693
 #, fuzzy
 #| msgid ""
 #| "This username is already being used by another account. Choose a "
@@ -498,45 +512,45 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/manage/views/__init__.py:189
+#: warehouse/manage/views/__init__.py:190
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Detaloj pri konto"
 
-#: warehouse/manage/views/__init__.py:219
+#: warehouse/manage/views/__init__.py:220
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Retpoŝta adreso ${email_address} aldonita — kontrolu vian enirkeston pri "
 "ligilo de kontrolado"
 
-#: warehouse/manage/views/__init__.py:762
+#: warehouse/manage/views/__init__.py:768
 msgid "Recovery codes already generated"
 msgstr "Restaŭraj kodoj jam generitaj"
 
-#: warehouse/manage/views/__init__.py:763
+#: warehouse/manage/views/__init__.py:769
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Generado de novaj restaŭraj kodoj eksvalidigos viajn aktualajn kodojn."
 
-#: warehouse/manage/views/__init__.py:871
+#: warehouse/manage/views/__init__.py:877
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Kontrolu vian retpoŝtan adreson aŭ aldonu novan retpoŝtan adreson."
 
-#: warehouse/manage/views/__init__.py:995
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr "Ne validaj ensalutiloj. Reprovu"
 
-#: warehouse/manage/views/__init__.py:1117
+#: warehouse/manage/views/__init__.py:1127
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "Dupaŝa aŭtentigo malŝaltita"
 
-#: warehouse/manage/views/__init__.py:1487
-#: warehouse/manage/views/__init__.py:1791
-#: warehouse/manage/views/__init__.py:1900
+#: warehouse/manage/views/__init__.py:1497
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1910
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -548,62 +562,62 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1620
-#: warehouse/manage/views/__init__.py:1706
-#: warehouse/manage/views/__init__.py:1808
-#: warehouse/manage/views/__init__.py:1909
+#: warehouse/manage/views/__init__.py:1630
+#: warehouse/manage/views/__init__.py:1716
+#: warehouse/manage/views/__init__.py:1818
+#: warehouse/manage/views/__init__.py:1919
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Konfirmi Inviton"
 
-#: warehouse/manage/views/__init__.py:1632
+#: warehouse/manage/views/__init__.py:1642
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "Malfortiri eldonon"
 
-#: warehouse/manage/views/__init__.py:1718
+#: warehouse/manage/views/__init__.py:1728
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "Malfortiri eldonon"
 
-#: warehouse/manage/views/__init__.py:1820
+#: warehouse/manage/views/__init__.py:1830
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Forigi eldonon"
 
-#: warehouse/manage/views/__init__.py:1921
+#: warehouse/manage/views/__init__.py:1931
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/__init__.py:1925
+#: warehouse/manage/views/__init__.py:1935
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2076
+#: warehouse/manage/views/__init__.py:2086
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2186
+#: warehouse/manage/views/__init__.py:2196
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2255
+#: warehouse/manage/views/__init__.py:2265
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2287
+#: warehouse/manage/views/__init__.py:2297
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -611,39 +625,39 @@ msgstr ""
 "Uzanto '${username}' ne havas kontrolitan ĉefan retpoŝtan adreson, kaj tial "
 "ne rajtas esti aldonita kiel ${role_name} de projekto"
 
-#: warehouse/manage/views/__init__.py:2300
-#: warehouse/manage/views/organizations.py:895
+#: warehouse/manage/views/__init__.py:2310
+#: warehouse/manage/views/organizations.py:891
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "La uzanto '${username}' ankoraŭ havas aktivan inviton. Bonvolu reprovi poste."
 
-#: warehouse/manage/views/__init__.py:2367
-#: warehouse/manage/views/organizations.py:962
+#: warehouse/manage/views/__init__.py:2377
+#: warehouse/manage/views/organizations.py:958
 msgid "Invitation sent to '${username}'"
 msgstr "Invito sendita al '${username}'"
 
-#: warehouse/manage/views/__init__.py:2400
+#: warehouse/manage/views/__init__.py:2410
 msgid "Could not find role invitation."
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2421
 msgid "Invitation already expired."
 msgstr "Invito jam eksvalidiĝis."
 
-#: warehouse/manage/views/__init__.py:2445
-#: warehouse/manage/views/organizations.py:1151
+#: warehouse/manage/views/__init__.py:2455
+#: warehouse/manage/views/organizations.py:1147
 msgid "Invitation revoked from '${username}'."
 msgstr "Invito de '${username}' eksvalidiĝis."
 
-#: warehouse/manage/views/organizations.py:871
+#: warehouse/manage/views/organizations.py:867
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/organizations.py:878
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -655,20 +669,20 @@ msgstr ""
 "Uzanto '${username}' ne havas kontrolitan ĉefan retpoŝtan adreson, kaj tial "
 "ne rajtas esti aldonita kiel ${role_name} de projekto"
 
-#: warehouse/manage/views/organizations.py:1045
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1041
+#: warehouse/manage/views/organizations.py:1083
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/organizations.py:1055
+#: warehouse/manage/views/organizations.py:1051
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Invito al rolo ne plu ekzistas."
 
-#: warehouse/manage/views/organizations.py:1102
+#: warehouse/manage/views/organizations.py:1098
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -745,7 +759,7 @@ msgid "Publisher must be specified by ID"
 msgstr ""
 
 #: warehouse/subscriptions/models.py:42
-#: warehouse/templates/manage/project/history.html:218
+#: warehouse/templates/manage/project/history.html:230
 #, fuzzy
 #| msgid "Action"
 msgid "Active"
@@ -1443,17 +1457,17 @@ msgstr "Pasvorto"
 #: warehouse/templates/manage/organization/projects.html:179
 #: warehouse/templates/manage/organization/projects.html:197
 #: warehouse/templates/manage/organization/roles.html:270
-#: warehouse/templates/manage/organization/roles.html:282
+#: warehouse/templates/manage/organization/roles.html:283
 #: warehouse/templates/manage/organization/settings.html:50
 #: warehouse/templates/manage/organization/settings.html:80
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:158
-#: warehouse/templates/manage/organizations.html:181
-#: warehouse/templates/manage/organizations.html:203
-#: warehouse/templates/manage/organizations.html:221
-#: warehouse/templates/manage/organizations.html:240
+#: warehouse/templates/manage/organizations.html:170
+#: warehouse/templates/manage/organizations.html:193
+#: warehouse/templates/manage/organizations.html:215
+#: warehouse/templates/manage/organizations.html:233
+#: warehouse/templates/manage/organizations.html:252
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -1463,7 +1477,7 @@ msgstr "Pasvorto"
 #: warehouse/templates/manage/project/roles.html:296
 #: warehouse/templates/manage/project/roles.html:311
 #: warehouse/templates/manage/project/roles.html:338
-#: warehouse/templates/manage/project/roles.html:350
+#: warehouse/templates/manage/project/roles.html:351
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/re-auth.html:51
@@ -2054,16 +2068,16 @@ msgstr "Kio?"
 #, python-format
 msgid ""
 "During your recent upload or upload attempt of %(project_name)s to %(site)s, "
-"we noticed you used basic authentication (username &amp; password). However, "
-"your account has two-factor authentication (2FA) enabled."
+"we noticed you attempted to use basic authentication (username &amp; "
+"password). However, your account has two-factor authentication (2FA) enabled."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:22
 #, python-format
 msgid ""
-"In the near future, %(site)s will begin prohibiting uploads using basic "
-"authentication for accounts with two-factor authentication enabled. Instead, "
-"we will require API tokens to be used."
+"%(site)s now prohibits uploads using basic authentication for accounts with "
+"two-factor authentication enabled. Instead, we require API tokens or Trusted "
+"Publishers to be used instead."
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
@@ -2076,10 +2090,15 @@ msgstr "Kion mi faru?"
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:27
 #, python-format
 msgid ""
-"First, generate an API token for your account or project at "
+"If using API tokens, generate an API token for your account or project at "
 "%(new_token_url)s. Then, use this token when publishing instead of your "
 "username and password. See %(token_help_url)s for help using API tokens to "
 "publish."
+msgstr ""
+
+#: warehouse/templates/email/basic-auth-with-2fa/body.html:30
+#, python-format
+msgid "If using Trusted Publishers (preferred), see %(tp_url)s to get started."
 msgstr ""
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
@@ -2147,7 +2166,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:17
-#: warehouse/templates/manage/organizations.html:145
 #, python-format
 msgid ""
 "Your request for a new PyPI organization named '%(organization_name)s' has "
@@ -2156,7 +2174,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:148
+#: warehouse/templates/manage/organizations.html:143
 #, fuzzy
 #| msgid "You'll receive an email with a password reset link."
 msgid "You will receive an email when the organization has been approved"
@@ -2203,13 +2221,13 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:50
 #: warehouse/templates/manage/organization/roles.html:142
 #: warehouse/templates/manage/organization/roles.html:182
-#: warehouse/templates/manage/organization/roles.html:280
+#: warehouse/templates/manage/organization/roles.html:281
 #: warehouse/templates/manage/project/roles.html:59
 #: warehouse/templates/manage/project/roles.html:125
 #: warehouse/templates/manage/project/roles.html:182
 #: warehouse/templates/manage/project/roles.html:283
 #: warehouse/templates/manage/project/roles.html:310
-#: warehouse/templates/manage/project/roles.html:348
+#: warehouse/templates/manage/project/roles.html:349
 msgid "Role"
 msgstr "Rolo"
 
@@ -3739,7 +3757,7 @@ msgstr "- Baza aŭtentigo (alŝuta finpunkto)"
 
 #: warehouse/templates/manage/account.html:504
 #: warehouse/templates/manage/account.html:523
-#: warehouse/templates/manage/project/history.html:256
+#: warehouse/templates/manage/project/history.html:268
 msgid "Reason:"
 msgstr "Kialo:"
 
@@ -3882,13 +3900,13 @@ msgstr "API-ĵetono aldonita"
 
 #: warehouse/templates/manage/account.html:620
 #: warehouse/templates/manage/account.html:643
-#: warehouse/templates/manage/project/history.html:247
-#: warehouse/templates/manage/project/history.html:254
+#: warehouse/templates/manage/project/history.html:259
+#: warehouse/templates/manage/project/history.html:266
 msgid "Token name:"
 msgstr "Nomo de ĵetono:"
 
 #: warehouse/templates/manage/account.html:637
-#: warehouse/templates/manage/project/history.html:249
+#: warehouse/templates/manage/project/history.html:261
 msgid "API token removed"
 msgstr "API-ĵetono forigita"
 
@@ -3957,7 +3975,7 @@ msgstr "Ĵusa aktiveco pri la konto"
 
 #: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:288
+#: warehouse/templates/manage/project/history.html:300
 #: warehouse/templates/manage/team/history.html:108
 msgid "Event"
 msgstr "Evento"
@@ -3965,8 +3983,8 @@ msgstr "Evento"
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:289
-#: warehouse/templates/manage/project/history.html:298
+#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:310
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 msgid "Time"
@@ -3989,7 +4007,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/organization/history.html:217
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:316
 #: warehouse/templates/manage/team/history.html:124
 #, fuzzy
 #| msgid "Device name"
@@ -4397,21 +4415,21 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:539
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:91
-#: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/history.html:170
-#: warehouse/templates/manage/project/history.html:196
+#: warehouse/templates/manage/project/history.html:97
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:208
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr "Aldonita de:"
 
 #: warehouse/templates/manage/manage_base.html:541
 #: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:56
-#: warehouse/templates/manage/project/history.html:116
-#: warehouse/templates/manage/project/history.html:132
-#: warehouse/templates/manage/project/history.html:178
-#: warehouse/templates/manage/project/history.html:204
+#: warehouse/templates/manage/project/history.html:62
+#: warehouse/templates/manage/project/history.html:128
+#: warehouse/templates/manage/project/history.html:144
+#: warehouse/templates/manage/project/history.html:190
+#: warehouse/templates/manage/project/history.html:216
 #: warehouse/templates/manage/team/history.html:93
 msgid "Removed by:"
 msgstr "Forigita de:"
@@ -4423,7 +4441,7 @@ msgid "Submitted by:"
 msgstr "Inviti"
 
 #: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/project/history.html:231
+#: warehouse/templates/manage/project/history.html:243
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
@@ -4442,6 +4460,8 @@ msgid "Publisher:"
 msgstr "Salutnomo"
 
 #: warehouse/templates/manage/manage_base.html:553
+#: warehouse/templates/manage/project/history.html:52
+#: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
 msgstr ""
 
@@ -4482,6 +4502,7 @@ msgid "Organization Name"
 msgstr "Priskribo de la projekto"
 
 #: warehouse/templates/manage/organizations.html:77
+#: warehouse/templates/manage/organizations.html:143
 msgid "Request Submitted"
 msgstr ""
 
@@ -4562,93 +4583,110 @@ msgstr "Krei konton"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s ankoraŭ eldonis neniun al PyPI, sed"
 
-#: warehouse/templates/manage/organizations.html:141
+#: warehouse/templates/manage/organizations.html:146
+#, fuzzy, python-format
+#| msgid "Invite"
+msgid "Submitted %(submitted)s"
+msgstr "Inviti"
+
+#: warehouse/templates/manage/organizations.html:162
+#: warehouse/templates/manage/organizations.html:273
 #, fuzzy
 #| msgid "Create an account"
-msgid "Create new organization"
+msgid "Request a new organization"
 msgstr "Krei konton"
 
-#: warehouse/templates/manage/organizations.html:148
-#: warehouse/templates/manage/project/roles.html:146
-#: warehouse/templates/manage/project/roles.html:203
-#: warehouse/templates/manage/project/roles.html:236
-msgid "."
-msgstr ""
-
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:156
+#: warehouse/templates/manage/organizations.html:168
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:161
+#: warehouse/templates/manage/organizations.html:173
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:172
+#: warehouse/templates/manage/organizations.html:184
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:173
-#: warehouse/templates/manage/organizations.html:195
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:185
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:225
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:179
+#: warehouse/templates/manage/organizations.html:191
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization display name"
 msgstr "Priskribo de la projekto"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:196
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:201
+#: warehouse/templates/manage/organizations.html:213
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:219
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:231
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization description"
 msgstr "Priskribo de la projekto"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:224
+#: warehouse/templates/manage/organizations.html:236
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:238
+#: warehouse/templates/manage/organizations.html:250
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:262
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:256
+#: warehouse/templates/manage/organizations.html:268
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "Kreita"
+
+#: warehouse/templates/manage/organizations.html:275
+msgid "Your request(s) for a new PyPI organization(s) have been submitted."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:278
+#, fuzzy
+#| msgid "You'll receive an email with a password reset link."
+msgid "You will receive an email when each organization has been approved"
+msgstr "Vi ricevos retmesaĝon kun ligilo por restarigi pasvorton."
+
+#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/project/roles.html:146
+#: warehouse/templates/manage/project/roles.html:203
+#: warehouse/templates/manage/project/roles.html:236
+msgid "."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:53
 #: warehouse/templates/manage/organization/projects.html:63
@@ -5521,30 +5559,30 @@ msgid "Declined by:"
 msgstr "Malakcepti"
 
 #: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/project/history.html:139
-#: warehouse/templates/manage/project/history.html:186
+#: warehouse/templates/manage/project/history.html:151
+#: warehouse/templates/manage/project/history.html:198
 #: warehouse/templates/manage/team/history.html:98
 msgid "Changed by:"
 msgstr "Ŝanĝita de:"
 
 #: warehouse/templates/manage/organization/history.html:181
 #: warehouse/templates/manage/organization/history.html:186
-#: warehouse/templates/manage/project/history.html:146
-#: warehouse/templates/manage/project/history.html:153
+#: warehouse/templates/manage/project/history.html:158
+#: warehouse/templates/manage/project/history.html:165
 #, fuzzy
 #| msgid "Invite"
 msgid "Invited by:"
 msgstr "Inviti"
 
 #: warehouse/templates/manage/organization/history.html:191
-#: warehouse/templates/manage/project/history.html:160
+#: warehouse/templates/manage/project/history.html:172
 #, fuzzy
 #| msgid "Removed by:"
 msgid "Revoked by:"
 msgstr "Forigita de:"
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:285
+#: warehouse/templates/manage/project/history.html:297
 #: warehouse/templates/manage/team/history.html:105
 #, fuzzy, python-format
 #| msgid "Security history for %(project_name)s"
@@ -5882,8 +5920,8 @@ msgstr "Forigi"
 msgid "Invite member"
 msgstr "Invito eksvalidiĝinta"
 
-#: warehouse/templates/manage/organization/roles.html:291
-#: warehouse/templates/manage/project/roles.html:359
+#: warehouse/templates/manage/organization/roles.html:292
+#: warehouse/templates/manage/project/roles.html:360
 msgid "Invite"
 msgstr "Inviti"
 
@@ -6201,66 +6239,66 @@ msgstr "Projekto kreita"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
 msgstr "<a href=\"%(href)s\">Eldono de versio %(version)s</a> kreiĝis"
 
-#: warehouse/templates/manage/project/history.html:53
+#: warehouse/templates/manage/project/history.html:59
 #, fuzzy, python-format
 #| msgid "Release version %(version)s removed"
 msgid "Version %(version)s removed"
 msgstr "Eldono de versio %(version)s forigita"
 
-#: warehouse/templates/manage/project/history.html:60
+#: warehouse/templates/manage/project/history.html:66
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr "<a href=\"%(href)s\">Eldono de versio %(version)s</a> kreiĝis"
 
-#: warehouse/templates/manage/project/history.html:63
-#: warehouse/templates/manage/project/history.html:70
+#: warehouse/templates/manage/project/history.html:69
+#: warehouse/templates/manage/project/history.html:76
 msgid "Yanked by:"
 msgstr "Fortirita de:"
 
-#: warehouse/templates/manage/project/history.html:67
+#: warehouse/templates/manage/project/history.html:73
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
 msgstr "<a href=\"%(href)s\">Eldono de versio %(version)s</a> kreiĝis"
 
-#: warehouse/templates/manage/project/history.html:76
+#: warehouse/templates/manage/project/history.html:82
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "File added to <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "Dosiero forigita for de la eldono de la versio %(version)s"
 
-#: warehouse/templates/manage/project/history.html:88
-#: warehouse/templates/manage/project/history.html:113
+#: warehouse/templates/manage/project/history.html:94
+#: warehouse/templates/manage/project/history.html:125
 #: warehouse/templates/manage/project/release.html:118
 msgid "Filename:"
 msgstr "Dosiernomo:"
 
-#: warehouse/templates/manage/project/history.html:101
+#: warehouse/templates/manage/project/history.html:113
 #, fuzzy, python-format
 #| msgid "File removed from release version %(version)s"
 msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
 msgstr "Dosiero forigita for de la eldono de la versio %(version)s"
 
-#: warehouse/templates/manage/project/history.html:122
+#: warehouse/templates/manage/project/history.html:134
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> aldonita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:129
+#: warehouse/templates/manage/project/history.html:141
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:136
+#: warehouse/templates/manage/project/history.html:148
 #, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> ŝanĝita al projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:143
+#: warehouse/templates/manage/project/history.html:155
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6270,7 +6308,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:150
+#: warehouse/templates/manage/project/history.html:162
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -6280,7 +6318,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> ŝanĝita al projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:157
+#: warehouse/templates/manage/project/history.html:169
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6290,14 +6328,14 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:167
+#: warehouse/templates/manage/project/history.html:179
 #, fuzzy, python-format
 #| msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
 msgid "%(team_name)s team added as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> aldonita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:175
+#: warehouse/templates/manage/project/history.html:187
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
@@ -6305,7 +6343,7 @@ msgid "%(team_name)s team changed to project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> ŝanĝita al projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:183
+#: warehouse/templates/manage/project/history.html:195
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -6313,97 +6351,97 @@ msgid "%(team_name)s team removed as project %(role_name)s"
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
-#: warehouse/templates/manage/project/history.html:193
+#: warehouse/templates/manage/project/history.html:205
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Project added to %(organization_name)s organization"
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/templates/manage/project/history.html:201
+#: warehouse/templates/manage/project/history.html:213
 #, fuzzy, python-format
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "Project removed from %(organization_name)s organization"
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/templates/manage/project/history.html:209
+#: warehouse/templates/manage/project/history.html:221
 #, fuzzy
 #| msgid "API token removed"
 msgid "Short-lived API token created"
 msgstr "API-ĵetono forigita"
 
-#: warehouse/templates/manage/project/history.html:210
-#: warehouse/templates/manage/project/history.html:236
-#: warehouse/templates/manage/project/history.html:250
+#: warehouse/templates/manage/project/history.html:222
+#: warehouse/templates/manage/project/history.html:248
+#: warehouse/templates/manage/project/history.html:262
 msgid "Permissions: Can upload to this project"
 msgstr "Permesoj: Rajtas alŝuti al ĉi tiu projekto"
 
-#: warehouse/templates/manage/project/history.html:213
-#: warehouse/templates/manage/project/history.html:244
+#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:256
 msgid "Expiration:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:216
+#: warehouse/templates/manage/project/history.html:228
 msgid "Expiration Status:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:220
+#: warehouse/templates/manage/project/history.html:232
 msgid "Expired"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:225
+#: warehouse/templates/manage/project/history.html:237
 #, fuzzy
 #| msgid "Created"
 msgid "Creator:"
 msgstr "Kreita"
 
-#: warehouse/templates/manage/project/history.html:235
+#: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "API token removed"
 msgid "API token created"
 msgstr "API-ĵetono forigita"
 
-#: warehouse/templates/manage/project/history.html:239
-#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:251
+#: warehouse/templates/manage/project/history.html:264
 msgid "Controlled by:"
 msgstr "Regata de:"
 
-#: warehouse/templates/manage/project/history.html:261
+#: warehouse/templates/manage/project/history.html:273
 msgid "Trusted publisher added"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:264
+#: warehouse/templates/manage/project/history.html:276
 msgid "Trusted publisher removed"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:269
+#: warehouse/templates/manage/project/history.html:281
 #, fuzzy
 #| msgid "2FA enabled"
 msgid "2FA requirement enabled"
 msgstr "Dupaŝa aŭtentigo ŝaltita"
 
-#: warehouse/templates/manage/project/history.html:271
+#: warehouse/templates/manage/project/history.html:283
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Enabled by:"
 msgstr "Fortirita de:"
 
-#: warehouse/templates/manage/project/history.html:274
+#: warehouse/templates/manage/project/history.html:286
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement disabled"
 msgstr "Dupaŝa aŭtentigo malŝaltita"
 
-#: warehouse/templates/manage/project/history.html:276
+#: warehouse/templates/manage/project/history.html:288
 #, fuzzy
 #| msgid "Yanked by:"
 msgid "Disabled by:"
 msgstr "Fortirita de:"
 
-#: warehouse/templates/manage/project/history.html:290
+#: warehouse/templates/manage/project/history.html:302
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
 msgstr ""
