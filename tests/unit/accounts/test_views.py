@@ -3181,7 +3181,7 @@ class TestManageAccountPublishingViews:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3248,7 +3248,7 @@ class TestManageAccountPublishingViews:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3725,7 +3725,7 @@ class TestManageAccountPublishingViews:
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",

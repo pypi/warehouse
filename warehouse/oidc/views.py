@@ -60,7 +60,9 @@ def oidc_audience(request):
     )
 
     if not oidc_enabled:
-        return Response(status=403, json={"message": "OIDC functionality not enabled"})
+        return Response(
+            status=403, json={"message": "Trusted publishing functionality not enabled"}
+        )
 
     audience = request.registry.settings["warehouse.oidc.audience"]
     return {"audience": audience}
@@ -86,7 +88,9 @@ def mint_token_from_oidc(request):
             errors=[
                 {
                     "code": "not-enabled",
-                    "description": "OIDC functionality not enabled",
+                    "description": (
+                        "GitHub-based trusted publishing functionality not enabled"
+                    ),
                 }
             ]
         )

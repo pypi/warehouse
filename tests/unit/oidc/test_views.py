@@ -56,7 +56,7 @@ def test_oidc_audience_not_enabled(registry, admin):
 
     response = views.oidc_audience(request)
     assert response.status_code == 403
-    assert response.json == {"message": "OIDC functionality not enabled"}
+    assert response.json == {"message": "Trusted publishing functionality not enabled"}
 
 
 def test_oidc_audience():
@@ -89,7 +89,12 @@ def test_mint_token_from_oidc_not_enabled(registry, admin):
     assert response == {
         "message": "Token request failed",
         "errors": [
-            {"code": "not-enabled", "description": "OIDC functionality not enabled"}
+            {
+                "code": "not-enabled",
+                "description": (
+                    "GitHub-based trusted publishing functionality not enabled"
+                ),
+            }
         ],
     }
 
