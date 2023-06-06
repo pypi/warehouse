@@ -98,6 +98,11 @@ def _basic_auth_check(username, password, request):
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
                 )
 
+            has_seen_ip_before = request.db.query(
+                user.events.filter(
+                    User.Event.ip_address_obj == request.ip_address
+                ).exists()
+            ).scalar()
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
             event = user.record_event(
                 tag=EventTag.Account.LoginSuccess,
@@ -105,10 +110,7 @@ def _basic_auth_check(username, password, request):
                 request=request,
                 additional={"auth_method": "basic"},
             )
-            has_seen_before = request.db.query(
-                exists().where(User.Event.ip_address_obj == request.ip_address)
-            ).scalar()
-            if not has_seen_before:
+            if not has_seen_ip_before:
                 send_auth_with_new_ip_email(request, user, location=event.location_info)
             return True
         else:

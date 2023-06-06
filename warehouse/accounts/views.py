@@ -1288,11 +1288,15 @@ def _login_user(
     # and we don't want to continue using the old one.
     request.session.new_csrf_token()
 
-    # Whenever we log in the user, we want to update their user so that it
-    # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
     user = user_service.get_user(userid)
+    has_seen_ip_before = request.db.query(
+        user.events.filter(User.Event.ip_address_obj == request.ip_address).exists()
+    ).scalar()
+
+    # Whenever we log in the user, we want to update their user so that it
+    # records when the last login was.
     event = user.record_event(
         tag=EventTag.Account.LoginSuccess,
         ip_address=request.remote_addr,
@@ -1308,10 +1312,7 @@ def _login_user(
     )
 
     # Send the "Login from new IP address" email, if applicable.
-    has_seen_before = request.db.query(
-        exists().where(User.Event.ip_address_obj == request.ip_address)
-    ).scalar()
-    if not new_user and not has_seen_before:
+    if not new_user and not has_seen_ip_before:
         send_auth_with_new_ip_email(request, user, location=event.location_info)
 
     return headers
