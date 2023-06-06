@@ -8,6 +8,8 @@ plugins:
       j2_block_end_string: '%]]-->'
       j2_variable_start_string: '<!--[['
       j2_variable_end_string: ']]-->'
+  - mkdocstrings:
+      enable_inventory: true
 markdown_extensions:
   - admonition
   - pymdownx.details
