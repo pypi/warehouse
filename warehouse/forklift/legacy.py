@@ -82,6 +82,7 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 COMPRESSION_RATIO_THRESHOLD = 10
 
 
@@ -677,11 +678,14 @@ def _is_valid_dist_file(filename, filetype):
         compressed_size = os.stat(filename).st_size
         with zipfile.ZipFile(filename) as zfp:
             decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD:
+        if (
+            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
+        ):
             sentry_sdk.capture_message(
                 f"File {filename} ({filetype}) exceeds compression ratio "
-                "of {COMPRESSION_RATIO_THRESHOLD} "
-                "({decompressed_size}/{compressed_size})"
+                f"of {COMPRESSION_RATIO_THRESHOLD} "
+                f"({decompressed_size}/{compressed_size})"
             )
             return False
 
