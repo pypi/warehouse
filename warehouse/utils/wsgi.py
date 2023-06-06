@@ -70,9 +70,12 @@ class ProxyFixer:
         # will strip invalid ones.
         else:
             proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
+
+            # Special case: if we don't see a X-Forwarded-For, this may be a local
+            # development instance of Warehouse and the original REMOTE_ADDR is accurate
             remote_addr = _forwarded_value(
                 environ.get("HTTP_X_FORWARDED_FOR", ""), self.num_proxies
-            )
+            ) or environ.get("REMOTE_ADDR")
             remote_addr_hashed = (
                 hashlib.sha256((remote_addr + self.ip_salt).encode("utf8")).hexdigest()
                 if remote_addr
