@@ -50,11 +50,7 @@ class Flags:
         )
 
     def disallow_oidc(self, flag_member=None):
-        global_disallow_oidc = self.enabled(AdminFlagValue.DISALLOW_OIDC)
-        if flag_member is None:
-            return global_disallow_oidc
-
-        return self.enabled(flag_member) or global_disallow_oidc
+        return self.enabled(flag_member) or self.enabled(AdminFlagValue.DISALLOW_OIDC)
 
     def enabled(self, flag_member):
         flag = self.request.db.get(AdminFlag, flag_member.value)
