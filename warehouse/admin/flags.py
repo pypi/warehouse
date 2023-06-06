@@ -53,7 +53,9 @@ class Flags:
         return self.enabled(flag_member) or self.enabled(AdminFlagValue.DISALLOW_OIDC)
 
     def enabled(self, flag_member):
-        flag = self.request.db.get(AdminFlag, flag_member.value)
+        flag = (
+            self.request.db.get(AdminFlag, flag_member.value) if flag_member else None
+        )
         return flag.enabled if flag else False
 
 
