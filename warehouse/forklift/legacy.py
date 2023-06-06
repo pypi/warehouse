@@ -28,6 +28,7 @@ import packaging.version
 import packaging_legacy.version
 import pkg_resources
 import requests
+import sentry_sdk
 import wtforms
 import wtforms.validators
 
@@ -80,6 +81,9 @@ MAX_SIGSIZE = 8 * 1024
 MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
+
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
+COMPRESSION_RATIO_THRESHOLD = 10
 
 
 # Wheel platform checking
@@ -670,6 +674,22 @@ def _is_valid_dist_file(filename, filetype):
     # If our file is a zipfile, then ensure that it's members are only
     # compressed with supported compression methods.
     if zipfile.is_zipfile(filename):
+        # Ensure the compression ratio is not absurd (decompression bomb)
+        compressed_size = os.stat(filename).st_size
+        with zipfile.ZipFile(filename) as zfp:
+            decompressed_size = sum(e.file_size for e in zfp.infolist())
+        if (
+            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
+        ):
+            sentry_sdk.capture_message(
+                f"File {filename} ({filetype}) exceeds compression ratio "
+                f"of {COMPRESSION_RATIO_THRESHOLD} "
+                f"({decompressed_size}/{compressed_size})"
+            )
+            return False
+
+        # Check that the compression type is valid
         with zipfile.ZipFile(filename) as zfp:
             for zinfo in zfp.infolist():
                 if zinfo.compress_type not in {
@@ -680,6 +700,9 @@ def _is_valid_dist_file(filename, filetype):
 
     tar_fn_match = _tar_filenames_re.search(filename)
     if tar_fn_match:
+        # TODO: Ideally Ensure the compression ratio is not absurd
+        # (decompression bomb), like we do for wheel/zip above.
+
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
         z_type = tar_fn_match.group("z_type") or ""
         try:
