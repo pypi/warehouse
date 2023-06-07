@@ -5908,14 +5908,12 @@ class TestManageOIDCPublisherViews:
         metrics = pretend.stub()
         project = pretend.stub()
         request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
         )
         view = views.ManageOIDCPublisherViews(project, request)
 
         assert view.project is project
         assert view.request is request
-        assert view.oidc_enabled
         assert view.metrics is metrics
 
         assert view.request.find_service.calls == [
@@ -5955,7 +5953,6 @@ class TestManageOIDCPublisherViews:
                 return ip_rate_limiter
 
         request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
@@ -5992,7 +5989,6 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(
                 settings={
-                    "warehouse.oidc.enabled": True,
                     "github.token": "fake-api-token",
                 },
             ),
@@ -6011,7 +6007,6 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
-            "oidc_enabled": True,
             "project": project,
             "github_publisher_form": github_publisher_form_obj,
         }
@@ -6028,7 +6023,6 @@ class TestManageOIDCPublisherViews:
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             },
         )
@@ -6050,7 +6044,6 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
         assert view.manage_project_oidc_publishers() == {
-            "oidc_enabled": True,
             "project": project,
             "github_publisher_form": github_publisher_form_obj,
         }
@@ -6068,18 +6061,6 @@ class TestManageOIDCPublisherViews:
         assert github_publisher_form_cls.calls == [
             pretend.call(pyramid_request.POST, api_token="fake-api-token")
         ]
-
-    def test_manage_project_oidc_publishers_oidc_not_enabled(self):
-        project = pretend.stub()
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-
-        with pytest.raises(HTTPNotFound):
-            view.manage_project_oidc_publishers()
 
     def test_add_github_oidc_publisher_preexisting(self, monkeypatch):
         publisher = pretend.stub(
@@ -6110,7 +6091,6 @@ class TestManageOIDCPublisherViews:
             ),
             registry=pretend.stub(
                 settings={
-                    "warehouse.oidc.enabled": True,
                     "github.token": "fake-api-token",
                 }
             ),
@@ -6203,7 +6183,6 @@ class TestManageOIDCPublisherViews:
             ),
             registry=pretend.stub(
                 settings={
-                    "warehouse.oidc.enabled": True,
                     "github.token": "fake-api-token",
                 }
             ),
@@ -6316,7 +6295,6 @@ class TestManageOIDCPublisherViews:
 
         db_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
@@ -6354,7 +6332,6 @@ class TestManageOIDCPublisherViews:
         )
 
         assert view.add_github_oidc_publisher() == {
-            "oidc_enabled": True,
             "project": project,
             "github_publisher_form": view.github_publisher_form,
         }
@@ -6378,11 +6355,7 @@ class TestManageOIDCPublisherViews:
 
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(
-                settings={
-                    "warehouse.oidc.enabled": True,
-                }
-            ),
+            registry=pretend.stub(settings={}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
@@ -6413,23 +6386,10 @@ class TestManageOIDCPublisherViews:
             ),
         ]
 
-    def test_add_github_oidc_publisher_oidc_not_enabled(self):
-        project = pretend.stub()
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-
-        with pytest.raises(HTTPNotFound):
-            view.add_github_oidc_publisher()
-
     def test_add_github_oidc_publisher_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: None,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: True)
@@ -6460,7 +6420,6 @@ class TestManageOIDCPublisherViews:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
@@ -6519,7 +6478,6 @@ class TestManageOIDCPublisherViews:
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
         another_project = ProjectFactory.create(oidc_publishers=[publisher])
 
-        db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
@@ -6610,7 +6568,6 @@ class TestManageOIDCPublisherViews:
         project = ProjectFactory.create(oidc_publishers=[publisher])
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
 
-        db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
         db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
@@ -6687,7 +6644,6 @@ class TestManageOIDCPublisherViews:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
@@ -6740,7 +6696,6 @@ class TestManageOIDCPublisherViews:
         metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
@@ -6786,23 +6741,10 @@ class TestManageOIDCPublisherViews:
         assert delete_publisher_form_cls.calls == [pretend.call(request.POST)]
         assert delete_publisher_form_obj.validate.calls == [pretend.call()]
 
-    def test_delete_oidc_publisher_oidc_not_enabled(self):
-        project = pretend.stub()
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageOIDCPublisherViews(project, request)
-
-        with pytest.raises(HTTPNotFound):
-            view.delete_oidc_publisher()
-
     def test_delete_oidc_publisher_admin_disabled(self, monkeypatch):
         project = pretend.stub()
         request = pretend.stub(
             user=pretend.stub(),
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: None,
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: True)

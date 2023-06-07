@@ -45,14 +45,12 @@
       </a>
     </li>
     {% endif %}
-    {% if request.registry.settings["warehouse.oidc.enabled"] %}
     <li>
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
         <i class="fa fa-upload" aria-hidden="true"></i>
         {% trans %}Publishing{% endtrans %}
       </a>
     </li>
-    {% endif %}
     <li>
       <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name)}}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'settings' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'settings' %}aria-selected="true"{% endif %}>
         <i class="fa fa-wrench" aria-hidden="true"></i>
