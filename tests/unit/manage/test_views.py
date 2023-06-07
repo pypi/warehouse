@@ -5997,7 +5997,9 @@ class TestManageOIDCPublisherViews:
                 },
             ),
             find_service=lambda *a, **kw: None,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             POST=pretend.stub(),
         )
 
@@ -6014,9 +6016,7 @@ class TestManageOIDCPublisherViews:
             "github_publisher_form": github_publisher_form_obj,
         }
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert request.flags.disallow_oidc.calls == [pretend.call()]
         assert github_publisher_form_cls.calls == [
             pretend.call(request.POST, api_token="fake-api-token")
         ]
@@ -6034,7 +6034,7 @@ class TestManageOIDCPublisherViews:
         )
         pyramid_request.find_service = lambda *a, **kw: None
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -6055,13 +6055,11 @@ class TestManageOIDCPublisherViews:
             "github_publisher_form": github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -6117,7 +6115,9 @@ class TestManageOIDCPublisherViews:
                 }
             ),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
@@ -6208,7 +6208,9 @@ class TestManageOIDCPublisherViews:
                 }
             ),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
@@ -6318,7 +6320,9 @@ class TestManageOIDCPublisherViews:
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -6380,7 +6384,9 @@ class TestManageOIDCPublisherViews:
                 }
             ),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             _=lambda s: s,
         )
 
@@ -6425,7 +6431,9 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: None,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: True)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
         )
@@ -6440,7 +6448,7 @@ class TestManageOIDCPublisherViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -6454,7 +6462,9 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
         )
@@ -6510,7 +6520,9 @@ class TestManageOIDCPublisherViews:
         another_project = ProjectFactory.create(oidc_publishers=[publisher])
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -6560,9 +6572,7 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Removed trusted publisher for project {project.name!r}",
@@ -6601,7 +6611,9 @@ class TestManageOIDCPublisherViews:
         RoleFactory.create(user=db_request.user, project=project, role_name="Owner")
 
         db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -6649,9 +6661,7 @@ class TestManageOIDCPublisherViews:
             "submitted_by": db_request.user.username,
         }
 
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert db_request.flags.disallow_oidc.calls == [pretend.call()]
         assert db_request.session.flash.calls == [
             pretend.call(
                 f"Removed trusted publisher for project {project.name!r}",
@@ -6679,7 +6689,9 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             POST=pretend.stub(),
         )
 
@@ -6730,7 +6742,9 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: metrics,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             POST=pretend.stub(),
             db=pretend.stub(
@@ -6790,7 +6804,9 @@ class TestManageOIDCPublisherViews:
             user=pretend.stub(),
             registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=lambda *a, **kw: None,
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: True)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: True)
+            ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
 
@@ -6804,7 +6820,7 @@ class TestManageOIDCPublisherViews:
         assert request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",

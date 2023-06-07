@@ -1230,10 +1230,10 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1249,10 +1249,10 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1366,10 +1366,10 @@ class ManageOIDCPublisherViews:
         if not self.oidc_enabled:
             raise HTTPNotFound
 
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",

@@ -266,12 +266,17 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1454 warehouse/accounts/views.py:1474
-#: warehouse/accounts/views.py:1609 warehouse/manage/views/__init__.py:1235
-#: warehouse/manage/views/__init__.py:1254
+#: warehouse/accounts/views.py:1454 warehouse/accounts/views.py:1609
+#: warehouse/manage/views/__init__.py:1235
 msgid ""
-"Trusted publishers are temporarily disabled. See https://pypi.org/help"
+"Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
+msgstr ""
+
+#: warehouse/accounts/views.py:1474 warehouse/manage/views/__init__.py:1254
+msgid ""
+"GitHub-based trusted publishing is temporarily disabled. See "
+"https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
 #: warehouse/accounts/views.py:1488
