@@ -5819,11 +5819,7 @@ class TestTrustedPublisherEmails:
         assert result == {
             "username": stub_user.username,
             "project_name": project_name,
-            "publisher_name": "fakepublisher",
-            "publisher_workflow": "fakespecifier",
-            "publisher_repository_owner": "fakeowner",
-            "publisher_repository_name": "fakerepository",
-            "publisher_environment": "fakeenvironment",
+            "publisher": fakepublisher,
         }
         subject_renderer.assert_()
         body_renderer.assert_(username=stub_user.username, project_name=project_name)

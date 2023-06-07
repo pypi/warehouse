@@ -78,6 +78,13 @@ class GooglePublisherMixin:
     ]
 
     @property
+    def publisher_name(self):
+        return "Google"
+
+    def publisher_url(self, claims=None):
+        return None
+
+    @property
     def email_verified(self):
         # We don't consider a claim set valid unless `email_verified` is true;
         # no other states are possible.

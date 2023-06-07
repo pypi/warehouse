@@ -3631,7 +3631,7 @@ class TestManageAccountPublishingViews:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Registered a new publishing publisher to create "
+                "Registered a new pending publisher to create "
                 "the project 'some-project-name'.",
                 queue="success",
             )

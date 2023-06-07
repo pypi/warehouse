@@ -1584,7 +1584,7 @@ class ManageAccountPublishingViews:
 
         self.request.session.flash(
             self.request._(
-                "Registered a new publishing publisher to create "
+                "Registered a new pending publisher to create "
                 f"the project '{pending_publisher.project_name}'."
             ),
             queue="success",

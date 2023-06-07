@@ -234,11 +234,15 @@
     </small>
     {% endif %}
     <small>
-      {% trans %}Creator: {% endtrans %}
+      {% trans %}Creator{% endtrans %}:
+      {% if event.additional.publisher_url %}
       {{ event.additional.publisher_name }}:
       <a href="{{ event.additional.publisher_url }}">
         {{ event.additional.publisher_url }}
       </a>
+      {% else %}
+      {{ event.additional.publisher_name }}
+      {% endif %}
       {% if event.additional.workflow %}
       <small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
       {% endif %}

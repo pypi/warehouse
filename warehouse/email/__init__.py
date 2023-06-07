@@ -992,11 +992,7 @@ def send_trusted_publisher_added_email(request, user, project_name, publisher):
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "publisher_name": publisher.publisher_name,
-        "publisher_workflow": str(publisher),
-        "publisher_repository_owner": publisher.repository_owner,
-        "publisher_repository_name": publisher.repository_name,
-        "publisher_environment": publisher.environment,
+        "publisher": publisher,
     }
 
 
@@ -1006,11 +1002,7 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "publisher_name": publisher.publisher_name,
-        "publisher_workflow": str(publisher),
-        "publisher_repository_owner": publisher.repository_owner,
-        "publisher_repository_name": publisher.repository_name,
-        "publisher_environment": publisher.environment,
+        "publisher": publisher,
     }
 
 
