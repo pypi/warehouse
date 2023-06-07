@@ -297,7 +297,6 @@ def send_new_email_added_email(request, user_and_email):
     user, email = user_and_email
 
     return {
-        "username": user.username,
         "email_address": email.email,
     }
 
