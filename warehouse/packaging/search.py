@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import packaging_legacy.version
-
 from elasticsearch_dsl import Date, Document, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
@@ -33,7 +31,6 @@ NameAnalyzer = analyzer(
 class Project(Document):
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
-    version = Keyword(multi=True)
     latest_version = Keyword()
     summary = Text(analyzer="snowball")
     description = Text(analyzer="snowball")
@@ -54,11 +51,6 @@ class Project(Document):
         obj = cls(meta={"id": release.normalized_name})
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
-        obj["version"] = sorted(
-            release.all_versions,
-            key=lambda r: packaging_legacy.version.parse(r),
-            reverse=True,
-        )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description

@@ -1395,7 +1395,6 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
 
@@ -1440,19 +1439,15 @@ class ManageAccountPublishingViews:
     @property
     def default_response(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
             "pending_github_publisher_form": self.pending_github_publisher_form,
         }
 
     @view_config(request_method="GET")
     def manage_publishing(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1466,13 +1461,10 @@ class ManageAccountPublishingViews:
         request_param=PendingGitHubPublisherForm.__params__,
     )
     def add_pending_github_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1584,7 +1576,7 @@ class ManageAccountPublishingViews:
 
         self.request.session.flash(
             self.request._(
-                "Registered a new publishing publisher to create "
+                "Registered a new pending publisher to create "
                 f"the project '{pending_publisher.project_name}'."
             ),
             queue="success",
@@ -1601,13 +1593,10 @@ class ManageAccountPublishingViews:
         request_param=DeletePublisherForm.__params__,
     )
     def delete_pending_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
