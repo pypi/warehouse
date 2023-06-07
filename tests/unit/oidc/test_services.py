@@ -18,6 +18,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import DecodeError, PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
+import warehouse.utils.exceptions
+
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import interfaces, services
 
@@ -716,7 +718,7 @@ class TestNullOIDCPublisherService:
                 "NullOIDCPublisherService is intended only for use in development, "
                 "you should not use it in production due to the lack of actual "
                 "JWT verification.",
-                services.InsecureOIDCPublisherWarning,
+                warehouse.utils.exceptions.InsecureOIDCPublisherWarning,
             )
         ]
 
