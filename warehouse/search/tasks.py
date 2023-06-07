@@ -22,7 +22,6 @@ import requests_aws4auth
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
 from sqlalchemy import func, text
-from sqlalchemy.orm import aliased
 
 from warehouse import tasks
 from warehouse.packaging.models import (
@@ -54,16 +53,6 @@ def _project_docs(db, project_name=None):
 
     releases_list = releases_list.subquery()
 
-    r = aliased(Release, name="r")
-
-    all_versions = (
-        db.query(func.array_agg(r.version))
-        .filter(r.project_id == Release.project_id)
-        .correlate(Release)
-        .scalar_subquery()
-        .label("all_versions")
-    )
-
     classifiers = (
         db.query(func.array_agg(Classifier.classifier))
         .select_from(release_classifiers)
@@ -78,7 +67,6 @@ def _project_docs(db, project_name=None):
         db.query(
             Description.raw.label("description"),
             Release.version.label("latest_version"),
-            all_versions,
             Release.author,
             Release.author_email,
             Release.maintainer,
