@@ -54,12 +54,7 @@ def _ratelimiters(request):
     has_translations=False,
 )
 def oidc_audience(request):
-    oidc_enabled = (
-        request.registry.settings["warehouse.oidc.enabled"]
-        and not request.flags.disallow_oidc()
-    )
-
-    if not oidc_enabled:
+    if request.flags.disallow_oidc():
         return Response(
             status=403, json={"message": "Trusted publishing functionality not enabled"}
         )
@@ -80,10 +75,7 @@ def mint_token_from_oidc(request):
         request.response.status = 422
         return {"message": "Token request failed", "errors": errors}
 
-    oidc_enabled = request.registry.settings[
-        "warehouse.oidc.enabled"
-    ] and not request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC)
-    if not oidc_enabled:
+    if request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
         return _invalid(
             errors=[
                 {

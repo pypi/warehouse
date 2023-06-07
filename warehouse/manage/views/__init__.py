@@ -1177,7 +1177,6 @@ class ManageOIDCPublisherViews:
     def __init__(self, project, request):
         self.request = request
         self.project = project
-        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.metrics = self.request.find_service(IMetricsService, context=None)
 
     @property
@@ -1220,16 +1219,12 @@ class ManageOIDCPublisherViews:
     @property
     def default_response(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
         }
 
     @view_config(request_method="GET")
     def manage_project_oidc_publishers(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
         if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
@@ -1246,9 +1241,6 @@ class ManageOIDCPublisherViews:
         request_param=GitHubPublisherForm.__params__,
     )
     def add_github_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
         if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
@@ -1363,9 +1355,6 @@ class ManageOIDCPublisherViews:
         request_param=DeletePublisherForm.__params__,
     )
     def delete_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
         if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 (
