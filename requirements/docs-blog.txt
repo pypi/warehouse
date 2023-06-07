@@ -274,9 +274,9 @@ mkdocs==1.4.3 \
     #   mkdocs-blogging-plugin
     #   mkdocs-material
     #   mkdocs-rss-plugin
-mkdocs-blogging-plugin==2.2.5 \
-    --hash=sha256:2cd8fce95ef912dd9aebf32304a07ce116adcc69b13ae412252a31f3b462c8c2 \
-    --hash=sha256:ba4718a4dad49e093e1e1e7a7bd05cd91e6dc9429c27dd6081f9a290a865bc5b
+mkdocs-blogging-plugin==2.2.8 \
+    --hash=sha256:248f0b6d8ad0efa106b0216b1e5f4bffa59ab3f08b3fc9c3c1137ce1a2112e21 \
+    --hash=sha256:322546bc540bb5caace47dec352f6cf680020f5bb03ef105dc494c008ca107f5
     # via -r requirements/docs-blog.in
 mkdocs-material==9.1.15 \
     --hash=sha256:8513ab847c9a541ed3d11a3a7eed556caf72991ee786c31c5aac6691a121088a \
