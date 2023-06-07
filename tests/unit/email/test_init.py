@@ -1001,9 +1001,7 @@ class TestEmailVerificationEmail:
 
 
 class TestNewEmailAddedEmails:
-    def test_new_email_added_emails(
-        self, pyramid_request, pyramid_config, monkeypatch
-    ):
+    def test_new_email_added_emails(self, pyramid_request, pyramid_config, monkeypatch):
         stub_user = pretend.stub(
             id="id", username="username", name=None, email="foo@example.com"
         )
@@ -1051,7 +1049,7 @@ class TestNewEmailAddedEmails:
         html_renderer.assert_(email_address=stub_email.email)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
-        
+
 
 class TestPasswordChangeEmail:
     def test_password_change_email(self, pyramid_request, pyramid_config, monkeypatch):
