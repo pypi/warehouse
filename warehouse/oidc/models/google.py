@@ -14,6 +14,7 @@ from typing import Any
 
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Query
 
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
@@ -60,6 +61,21 @@ class GooglePublisherMixin:
     }
 
     __unchecked_claims__ = {"azp", "google"}
+
+    @staticmethod
+    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
+        return Query(klass).filter_by(
+            email=signed_claims["email"], sub=signed_claims["sub"]
+        )
+
+    @staticmethod
+    def __lookup_no_sub__(klass, signed_claims: SignedClaims) -> Query | None:
+        return Query(klass).filter_by(email=signed_claims["email"], sub=None)
+
+    __lookup_strategies__ = [
+        __lookup_all__,
+        __lookup_no_sub__,
+    ]
 
     @property
     def email_verified(self):
