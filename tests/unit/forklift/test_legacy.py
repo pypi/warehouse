@@ -489,15 +489,7 @@ class TestFileValidation:
 
     @pytest.mark.parametrize(
         ("filename", "filetype"),
-        [("test.exe", "bdist_msi"), ("test.msi", "bdist_wininst")],
-    )
-    def test_bails_with_invalid_package_type(self, filename, filetype):
-        assert not legacy._is_valid_dist_file(filename, filetype)
-
-    @pytest.mark.parametrize(
-        ("filename", "filetype"),
         [
-            ("test.exe", "bdist_wininst"),
             ("test.zip", "sdist"),
             ("test.egg", "bdist_egg"),
             ("test.whl", "bdist_wheel"),
@@ -511,9 +503,7 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(f, filetype)
 
-    @pytest.mark.parametrize(
-        "filename", ["test.tar", "test.tar.gz", "test.tgz", "test.tar.bz2", "test.tbz2"]
-    )
+    @pytest.mark.parametrize("filename", ["test.tar.gz"])
     def test_bails_with_invalid_tarfile(self, tmpdir, filename):
         fake_tar = str(tmpdir.join(filename))
 
@@ -522,7 +512,7 @@ class TestFileValidation:
 
         assert not legacy._is_valid_dist_file(fake_tar, "sdist")
 
-    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
+    @pytest.mark.parametrize("compression", ("gz",))
     def test_tarfile_validation_invalid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -538,7 +528,7 @@ class TestFileValidation:
             tar_fn, "sdist"
         ), "no PKG-INFO; should fail"
 
-    @pytest.mark.parametrize("compression", ("", "gz", "bz2"))
+    @pytest.mark.parametrize("compression", ("gz",))
     def test_tarfile_validation_valid(self, tmpdir, compression):
         file_extension = f".{compression}" if compression else ""
         tar_fn = str(tmpdir.join(f"test.tar{file_extension}"))
@@ -553,38 +543,6 @@ class TestFileValidation:
             tar.add(data_file, arcname="package/data_file.txt")
 
         assert legacy._is_valid_dist_file(tar_fn, "sdist")
-
-    def test_wininst_unsafe_filename(self, tmpdir):
-        f = str(tmpdir.join("test.exe"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something/bar.py", b"the test file")
-
-        assert not legacy._is_valid_dist_file(f, "bdist_wininst")
-
-    def test_wininst_safe_filename(self, tmpdir):
-        f = str(tmpdir.join("test.exe"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("purelib/bar.py", b"the test file")
-
-        assert legacy._is_valid_dist_file(f, "bdist_wininst")
-
-    def test_msi_invalid_header(self, tmpdir):
-        f = str(tmpdir.join("test.msi"))
-
-        with open(f, "wb") as fp:
-            fp.write(b"this isn't the correct header for an msi")
-
-        assert not legacy._is_valid_dist_file(f, "bdist_msi")
-
-    def test_msi_valid_header(self, tmpdir):
-        f = str(tmpdir.join("test.msi"))
-
-        with open(f, "wb") as fp:
-            fp.write(b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1")
-
-        assert legacy._is_valid_dist_file(f, "bdist_msi")
 
     def test_zip_no_pkg_info(self, tmpdir):
         f = str(tmpdir.join("test.zip"))
