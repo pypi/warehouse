@@ -62,7 +62,6 @@ def test_project_docs(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease
@@ -101,7 +100,6 @@ def test_single_project_doc(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease
@@ -141,7 +139,6 @@ def test_project_docs_empty(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease

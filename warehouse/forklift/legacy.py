@@ -82,6 +82,7 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
 
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 COMPRESSION_RATIO_THRESHOLD = 10
 
 
@@ -659,11 +660,6 @@ def _validate_filename(filename):
         )
 
 
-_safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
-# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
-_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
-
-
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -677,11 +673,14 @@ def _is_valid_dist_file(filename, filetype):
         compressed_size = os.stat(filename).st_size
         with zipfile.ZipFile(filename) as zfp:
             decompressed_size = sum(e.file_size for e in zfp.infolist())
-        if decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD:
+        if (
+            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
+        ):
             sentry_sdk.capture_message(
                 f"File {filename} ({filetype}) exceeds compression ratio "
-                "of {COMPRESSION_RATIO_THRESHOLD} "
-                "({decompressed_size}/{compressed_size})"
+                f"of {COMPRESSION_RATIO_THRESHOLD} "
+                f"({decompressed_size}/{compressed_size})"
             )
             return False
 
@@ -694,15 +693,13 @@ def _is_valid_dist_file(filename, filetype):
                 }:
                     return False
 
-    tar_fn_match = _tar_filenames_re.search(filename)
-    if tar_fn_match:
+    if filename.endswith(".tar.gz"):
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
 
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
-        z_type = tar_fn_match.group("z_type") or ""
         try:
-            with tarfile.open(filename, f"r:{z_type}") as tar:
+            with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
                 bad_tar = True
@@ -716,34 +713,6 @@ def _is_valid_dist_file(filename, filetype):
                     return False
         except (tarfile.ReadError, EOFError):
             return False
-    elif filename.endswith(".exe"):
-        # The only valid filetype for a .exe file is "bdist_wininst".
-        if filetype != "bdist_wininst":
-            return False
-
-        # Ensure that the .exe is a valid zip file, and that all of the files
-        # contained within it have safe filenames.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                # We need the no branch below to work around a bug in
-                # coverage.py where it's detecting a missed branch where there
-                # isn't one.
-                for zipname in zfp.namelist():  # pragma: no branch
-                    if not _safe_zipnames.match(zipname):
-                        return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".msi"):
-        # The only valid filetype for a .msi is "bdist_msi"
-        if filetype != "bdist_msi":
-            return False
-
-        # Check the first 8 bytes of the MSI file. This was taken from the
-        # legacy implementation of PyPI which itself took it from the
-        # implementation of `file` I believe.
-        with open(filename, "rb") as fp:
-            if fp.read(8) != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
-                return False
     elif filename.endswith(".zip") or filename.endswith(".egg"):
         # Ensure that the .zip/.egg is a valid zip file, and that it has a
         # PKG-INFO file.

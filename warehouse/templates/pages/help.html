@@ -139,9 +139,7 @@
           <li><a href="#apitoken">{{ apitoken() }}</a></li>
           <li><a href="#sensitiveactions">{{ sensitiveactions() }}</a></li>
           <li><a href="#username-change">{{ username_change() }}</a></li>
-          {% if request.registry.settings["warehouse.oidc.enabled"] %}
           <li><a href="#trusted-publishers">{{ trusted_publishers() }}</a></li>
-          {% endif %}
         </ul>
       </section>
 
@@ -524,7 +522,6 @@
         <p>{% trans %}PyPI does not currently support changing a username.{% endtrans %}</p>
         <p>{% trans %}Instead, you can create a new account with the desired username, add the new account as a maintainer of all the projects your old account owns, and then delete the old account, which will have the same effect.{% endtrans %}</p>
 
-        {% if request.registry.settings["warehouse.oidc.enabled"] %}
         <h3 id="trusted-publishers">{{ trusted_publishers() }}</h3>
         <p>
           {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
@@ -533,7 +530,6 @@
           the need to use API tokens or passwords.
           {% endtrans %}
         </p>
-        {% endif %}
       </section>
 
       <section class="faq-group" id="integrating">
