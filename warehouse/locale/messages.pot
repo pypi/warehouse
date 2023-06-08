@@ -433,77 +433,77 @@ msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1495
-#: warehouse/manage/views/__init__.py:1799
-#: warehouse/manage/views/__init__.py:1908
+#: warehouse/manage/views/__init__.py:1798
+#: warehouse/manage/views/__init__.py:1907
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1628
-#: warehouse/manage/views/__init__.py:1714
-#: warehouse/manage/views/__init__.py:1816
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/manage/views/__init__.py:1627
+#: warehouse/manage/views/__init__.py:1713
+#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1916
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1640
+#: warehouse/manage/views/__init__.py:1639
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1726
+#: warehouse/manage/views/__init__.py:1725
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1828
+#: warehouse/manage/views/__init__.py:1827
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1929
+#: warehouse/manage/views/__init__.py:1928
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1933
+#: warehouse/manage/views/__init__.py:1932
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2084
+#: warehouse/manage/views/__init__.py:2083
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2194
+#: warehouse/manage/views/__init__.py:2193
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2263
+#: warehouse/manage/views/__init__.py:2262
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2295
+#: warehouse/manage/views/__init__.py:2294
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2308
+#: warehouse/manage/views/__init__.py:2307
 #: warehouse/manage/views/organizations.py:891
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2375
+#: warehouse/manage/views/__init__.py:2374
 #: warehouse/manage/views/organizations.py:958
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2408
+#: warehouse/manage/views/__init__.py:2407
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2419
+#: warehouse/manage/views/__init__.py:2418
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2453
+#: warehouse/manage/views/__init__.py:2452
 #: warehouse/manage/views/organizations.py:1147
 msgid "Invitation revoked from '${username}'."
 msgstr ""
