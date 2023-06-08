@@ -18,6 +18,7 @@ import certifi
 import elasticsearch
 import redis
 import requests_aws4auth
+import sentry_sdk
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
@@ -211,6 +212,7 @@ def reindex(self, request):
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
 
 
@@ -235,6 +237,7 @@ def reindex_project(self, request, project_name):
             ):
                 pass
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
 
 
@@ -250,4 +253,5 @@ def unindex_project(self, request, project_name):
             except elasticsearch.exceptions.NotFoundError:
                 pass
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
