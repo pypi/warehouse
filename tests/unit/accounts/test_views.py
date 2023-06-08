@@ -46,7 +46,6 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
@@ -535,20 +534,20 @@ class TestTwoFactor:
             to make sure we always compare user.last_login as timezone-aware datetime.
 
         """
-        user = User(
+        user = UserFactory.create(
             username="jdoe",
             name="Joe",
             password="any",
             is_active=True,
             last_login=datetime.datetime.utcnow() + datetime.timedelta(days=+1),
         )
-        db_request.db.add(user)
-        db_request.db.commit()
-        # Make sure object is not in session,
-        # so sqlalchemy loads it fresh from database and type works it's magic
-        db_request.db.expunge(user)
-
         token_data = {"userid": user.id}
+
+        # Remove user object from scope, The `token_service` will load the user
+        # from the `user_service` and handle it from there
+        db_request.db.expunge(user)
+        del user
+
         token = token_service.dumps(token_data)
         db_request.query_string = token
         db_request.find_service = lambda interface, **kwargs: {
