@@ -230,7 +230,7 @@ class ManageAccountViews:
                 if previously_registered_email != email:
                     send_new_email_added_email(
                         self.request,
-                        (self.request.user, previously_registered_email.email),
+                        (self.request.user, previously_registered_email),
                     )
 
             return HTTPSeeOther(self.request.path)
