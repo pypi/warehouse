@@ -292,6 +292,16 @@ def send_email_verification_email(request, user_and_email):
     }
 
 
+@_email("new-email-added")
+def send_new_email_added_email(request, user_and_email):
+    user, email = user_and_email
+
+    return {
+        "username": user.username,
+        "email_address": email.email,
+    }
+
+
 @_email("password-change")
 def send_password_change_email(request, user):
     return {"username": user.username}

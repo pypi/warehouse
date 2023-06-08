@@ -256,6 +256,8 @@ class TestManageAccount:
     def test_add_email(self, monkeypatch, pyramid_request):
         email_address = "test@example.com"
         email = pretend.stub(id=pretend.stub(), email=email_address)
+        existing_email_address = "existing@example.com"
+        existing_email = pretend.stub(id=pretend.stub(), email=existing_email_address)
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: email),
         )
@@ -266,7 +268,7 @@ class TestManageAccount:
         )
         pyramid_request.find_service = lambda a, **kw: user_service
         pyramid_request.user = pretend.stub(
-            emails=[],
+            emails=[existing_email, email],
             username="username",
             name="Name",
             id=pretend.stub(),
@@ -283,6 +285,7 @@ class TestManageAccount:
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
+        monkeypatch.setattr(views, "send_new_email_added_email", send_email)
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -291,7 +294,7 @@ class TestManageAccount:
 
         assert isinstance(view.add_email(), HTTPSeeOther)
         assert user_service.add_email.calls == [
-            pretend.call(pyramid_request.user.id, email_address)
+            pretend.call(pyramid_request.user.id, email_address),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -301,7 +304,10 @@ class TestManageAccount:
             )
         ]
         assert send_email.calls == [
-            pretend.call(pyramid_request, (pyramid_request.user, email))
+            pretend.call(pyramid_request, (pyramid_request.user, email)),
+            pretend.call(
+                pyramid_request, (pyramid_request.user, existing_email_address)
+            ),
         ]
         assert pyramid_request.user.record_event.calls == [
             pretend.call(

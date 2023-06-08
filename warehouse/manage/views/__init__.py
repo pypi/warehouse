@@ -50,6 +50,7 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_new_email_added_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -224,6 +225,14 @@ class ManageAccountViews:
                 ),
                 queue="success",
             )
+
+            for previously_registered_email in self.request.user.emails:
+                if previously_registered_email != email:
+                    send_new_email_added_email(
+                        self.request,
+                        (self.request.user, previously_registered_email.email),
+                    )
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "add_email_form": form}
