@@ -26,7 +26,7 @@ from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Load, joinedload
+from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -1561,7 +1561,6 @@ def manage_project_releases(project, request):
     # release version and the package types
     filecounts = (
         request.db.query(Release.version, File.packagetype, func.count(File.id))
-        .options(Load(Release).load_only(Release.version))
         .outerjoin(File)
         .group_by(Release.id)
         .group_by(File.packagetype)
