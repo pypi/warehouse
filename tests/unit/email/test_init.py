@@ -1042,6 +1042,7 @@ class TestNewEmailAddedEmails:
         )
 
         assert result == {
+            "username": stub_user.username,
             "email_address": stub_email.email,
         }
         subject_renderer.assert_()
