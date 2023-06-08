@@ -305,9 +305,7 @@ class TestManageAccount:
         ]
         assert send_email.calls == [
             pretend.call(pyramid_request, (pyramid_request.user, email)),
-            pretend.call(
-                pyramid_request, (pyramid_request.user, existing_email_address)
-            ),
+            pretend.call(pyramid_request, (pyramid_request.user, existing_email)),
         ]
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
