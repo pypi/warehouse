@@ -1832,7 +1832,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
-msgid "Your new email '%(email_address)s' has been added."
+msgid "%(username)s, your new email '%(email_address)s' has been added."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
