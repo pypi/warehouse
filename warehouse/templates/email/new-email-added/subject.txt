@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans email_address=email_address %}A new email '{{ email_address }}' has been added to your account{% endtrans %}{% endblock %}
+{% block subject %}{% trans email_address=email_address, username=username %}A new email '{{ email_address }}' has been added to your account '{{ username }}' {% endtrans %}{% endblock %}
