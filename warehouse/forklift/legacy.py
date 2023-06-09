@@ -1516,7 +1516,7 @@ def file_upload(request):
         "uploaded_via": file_data.uploaded_via,
         "upload_time": file_data.upload_time,
     }
-    if not request.registry.settings.get("warehouse.release_files_table") is None:
+    if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload

@@ -1,5 +1,4 @@
 doc8>=1.1.0
-flake8
 curlylint
 pep8-naming
 black==23.3.0
@@ -9,6 +8,7 @@ mypy
 celery-types
 msgpack-types
 mypy-zope
+ruff
 types-babel
 types-boto3
 types-certifi
