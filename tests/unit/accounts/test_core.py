@@ -18,6 +18,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPUnauthorized
 
+from tests.common.db.ip_addresses import IpAddressFactory
 from warehouse import accounts
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import (
@@ -200,11 +201,19 @@ class TestLogin:
         assert service.get_user.calls == [pretend.call(1)]
         assert service.is_disabled.calls == [pretend.call(1)]
 
-    def test_with_valid_password(self, monkeypatch, pyramid_request, pyramid_services):
+    @pytest.mark.parametrize("seen_from_ip_before", [True, False])
+    def test_with_valid_password(
+        self, monkeypatch, pyramid_request, pyramid_services, seen_from_ip_before
+    ):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(security_policy, "send_auth_from_new_ip_email", send_email)
+
+        event = pretend.stub(location_info=pretend.stub())
         user = pretend.stub(
             id=2,
+            username="myuser",
             has_two_factor=False,
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: event),
         )
         service = pretend.stub(
             get_user=pretend.call_recorder(lambda user_id: user),
@@ -214,6 +223,9 @@ class TestLogin:
             ),
             update_user=pretend.call_recorder(lambda userid, last_login: None),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
+            seen_from_ip_before=pretend.call_recorder(
+                lambda userid, ip: seen_from_ip_before
+            ),
         )
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags=None: False)
@@ -224,6 +236,10 @@ class TestLogin:
             breach_service, IPasswordBreachedService, None
         )
 
+        pyramid_request.ip_address = IpAddressFactory.create(
+            ip_address=pyramid_request.remote_addr,
+            hashed_ip_address=pyramid_request.remote_addr_hashed,
+        )
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
 
         now = datetime.datetime.utcnow()
@@ -245,6 +261,9 @@ class TestLogin:
             pretend.call("mypass", tags=["method:auth", "auth_method:basic"])
         ]
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
+        assert service.seen_from_ip_before.calls == [
+            pretend.call(2, pyramid_request.ip_address)
+        ]
         assert user.record_event.calls == [
             pretend.call(
                 ip_address="1.2.3.4",
@@ -253,6 +272,13 @@ class TestLogin:
                 additional={"auth_method": "basic"},
             )
         ]
+
+        if seen_from_ip_before:
+            assert len(send_email.calls) == 0
+        else:
+            assert send_email.calls == [
+                pretend.call(pyramid_request, user, location=event.location_info)
+            ]
 
     def test_via_basic_auth_compromised(
         self, monkeypatch, pyramid_request, pyramid_services

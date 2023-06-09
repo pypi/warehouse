@@ -64,7 +64,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
-    send_auth_with_new_ip_email,
+    send_auth_from_new_ip_email,
     send_collaborator_added_email,
     send_declined_as_invited_organization_member_email,
     send_email_verification_email,
@@ -1290,10 +1290,8 @@ def _login_user(
 
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    has_seen_ip_before = user_service.seen_from_ip_before(userid, request.ip_address)
     user = user_service.get_user(userid)
-    has_seen_ip_before = request.db.query(
-        user.events.filter(User.Event.ip_address_obj == request.ip_address).exists()
-    ).scalar()
 
     # Whenever we log in the user, we want to update their user so that it
     # records when the last login was.
@@ -1313,7 +1311,7 @@ def _login_user(
 
     # Send the "Login from new IP address" email, if applicable.
     if not new_user and not has_seen_ip_before:
-        send_auth_with_new_ip_email(request, user, location=event.location_info)
+        send_auth_from_new_ip_email(request, user, location=event.location_info)
 
     return headers
 

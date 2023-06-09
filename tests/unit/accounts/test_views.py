@@ -270,22 +270,36 @@ class TestLogin:
         assert form_obj.validate.calls == [pretend.call()]
 
     @pytest.mark.parametrize("with_user", [True, False])
+    @pytest.mark.parametrize("seen_from_ip_before", [True, False])
     def test_post_validate_redirects(
-        self, monkeypatch, pyramid_request, pyramid_services, metrics, with_user
+        self,
+        monkeypatch,
+        pyramid_request,
+        pyramid_services,
+        metrics,
+        with_user,
+        seen_from_ip_before,
     ):
         remember = pretend.call_recorder(lambda request, user_id: [("foo", "bar")])
         monkeypatch.setattr(views, "remember", remember)
 
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_auth_from_new_ip_email", send_email)
+
         new_session = {}
 
+        event = pretend.stub(location_info=pretend.stub())
         user_id = uuid.uuid4()
         user = pretend.stub(
-            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            record_event=pretend.call_recorder(lambda *a, **kw: event),
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda username: user_id),
             update_user=pretend.call_recorder(lambda *a, **kw: None),
             get_user=pretend.call_recorder(lambda userid: user),
+            seen_from_ip_before=pretend.call_recorder(
+                lambda userid, ip: seen_from_ip_before
+            ),
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
         )
@@ -304,6 +318,10 @@ class TestLogin:
             new_csrf_token=pretend.call_recorder(lambda: None),
         )
 
+        pyramid_request.ip_address = IpAddressFactory.create(
+            ip_address=pyramid_request.remote_addr,
+            hashed_ip_address=pyramid_request.remote_addr_hashed,
+        )
         pyramid_request._unauthenticated_userid = (
             str(uuid.uuid4()) if with_user else None
         )
@@ -348,6 +366,9 @@ class TestLogin:
 
         assert user_service.find_userid.calls == [pretend.call("theuser")]
         assert user_service.update_user.calls == [pretend.call(user_id, last_login=now)]
+        assert user_service.seen_from_ip_before.calls == [
+            pretend.call(user_id, pyramid_request.ip_address)
+        ]
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
@@ -361,6 +382,13 @@ class TestLogin:
             assert new_session == {}
         else:
             assert new_session == {"a": "b", "foo": "bar"}
+
+        if seen_from_ip_before:
+            assert len(send_email.calls) == 0
+        else:
+            assert send_email.calls == [
+                pretend.call(pyramid_request, user, location=event.location_info)
+            ]
 
         assert remember.calls == [pretend.call(pyramid_request, str(user_id))]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
@@ -385,6 +413,7 @@ class TestLogin:
             update_user=lambda *a, **k: None,
             has_two_factor=lambda userid: False,
             get_password_timestamp=lambda userid: 0,
+            seen_from_ip_before=lambda userid, ip: True,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
 
@@ -400,6 +429,8 @@ class TestLogin:
             lambda *args: None
         )
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
+
+        pyramid_request.ip_address = pretend.stub()
 
         security_policy = pretend.stub(
             authenticated_userid=lambda r: None,
@@ -729,6 +760,7 @@ class TestTwoFactor:
             has_recovery_codes=lambda userid: has_recovery_codes,
             check_totp_value=lambda userid, totp_value: True,
             get_password_timestamp=lambda userid: 0,
+            seen_from_ip_before=lambda userid, ip: True,
         )
 
         new_session = {}
@@ -746,6 +778,7 @@ class TestTwoFactor:
             new_csrf_token=pretend.call_recorder(lambda: None),
             get_password_timestamp=lambda userid: 0,
         )
+        pyramid_request.ip_address = pretend.stub()
 
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
@@ -1180,6 +1213,7 @@ class TestRecoveryCode:
             has_recovery_codes=lambda userid: True,
             check_recovery_code=lambda userid, recovery_code_value: True,
             get_password_timestamp=lambda userid: 0,
+            seen_from_ip_before=pretend.call_recorder(lambda userid, ip: True),
         )
 
         new_session = {}
@@ -1197,6 +1231,7 @@ class TestRecoveryCode:
             new_csrf_token=pretend.call_recorder(lambda: None),
             flash=pretend.call_recorder(lambda message, queue: None),
         )
+        pyramid_request.ip_address = pretend.stub()
 
         pyramid_request.set_property(
             lambda r: str(uuid.uuid4()), name="unauthenticated_userid"
@@ -1425,7 +1460,8 @@ class TestRegister:
         assert add_email.calls == []
         assert send_email.calls == []
 
-    def test_register_redirect(self, db_request, monkeypatch):
+    @pytest.mark.parametrize("seen_from_ip_before", [True, False])
+    def test_register_redirect(self, db_request, monkeypatch, seen_from_ip_before):
         db_request.method = "POST"
 
         record_event = pretend.call_recorder(lambda *a, **kw: None)
@@ -1454,6 +1490,9 @@ class TestRegister:
                     add_email=add_email,
                     check_password=lambda pw, tags=None: False,
                     get_password_timestamp=lambda uid: 0,
+                    seen_from_ip_before=pretend.call_recorder(
+                        lambda userid, ip: seen_from_ip_before,
+                    ),
                 ),
                 IPasswordBreachedService: pretend.stub(
                     check_password=lambda pw, tags=None: False,
@@ -1481,6 +1520,11 @@ class TestRegister:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
 
+        send_auth_from_new_ip_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_auth_from_new_ip_email", send_auth_from_new_ip_email
+        )
+
         result = views.register(db_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -1490,6 +1534,7 @@ class TestRegister:
         ]
         assert add_email.calls == [pretend.call(user.id, "foo@bar.com", primary=True)]
         assert send_email.calls == [pretend.call(db_request, (user, email))]
+        assert not send_auth_from_new_ip_email.calls
         assert record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.AccountCreate,

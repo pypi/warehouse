@@ -292,8 +292,8 @@ def send_email_verification_email(request, user_and_email):
     }
 
 
-@_email("auth-with-new-ip")
-def send_auth_with_new_ip_email(request, user, *, location):
+@_email("auth-from-new-ip")
+def send_auth_from_new_ip_email(request, user, *, location):
     return {"username": user.username, "location": location}
 
 
@@ -318,7 +318,7 @@ def send_token_added_email(request, user, *, token_name, caveats):
         scope = request._("Token scope: entire account")
     else:
         scope = request._(
-            "Token scope: Project ${project_name}",
+            "Token scope: Project %(project_name)s",
             mapping={"project_name": caveats["permissions"]["projects"][0]},
         )
 

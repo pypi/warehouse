@@ -2018,6 +2018,8 @@ class TestProvisionMacaroonViews:
         assert macaroon_service.create_macaroon.calls == []
 
     def test_create_macaroon(self, monkeypatch):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_token_added_email", send_email)
         macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
@@ -2095,8 +2097,21 @@ class TestProvisionMacaroonViews:
                 },
             )
         ]
+        assert send_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                token_name=create_macaroon_obj.description.data,
+                caveats={
+                    "permissions": create_macaroon_obj.validated_scope,
+                    "version": 1,
+                },
+            )
+        ]
 
     def test_create_macaroon_records_events_for_each_project(self, monkeypatch):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_token_added_email", send_email)
         macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
@@ -2211,6 +2226,17 @@ class TestProvisionMacaroonViews:
                     "user": request.user.username,
                 },
             ),
+        ]
+        assert send_email.calls == [
+            pretend.call(
+                request,
+                request.user,
+                token_name=create_macaroon_obj.description.data,
+                caveats={
+                    "permissions": create_macaroon_obj.validated_scope,
+                    "version": 1,
+                },
+            )
         ]
 
     def test_delete_macaroon_invalid_form(self, monkeypatch, pyramid_request):
