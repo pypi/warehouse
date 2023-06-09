@@ -27,7 +27,6 @@ Jinja2>=2.8
 limits
 linehaul
 lxml
-kombu[sqs]
 mistune
 msgpack
 natsort
