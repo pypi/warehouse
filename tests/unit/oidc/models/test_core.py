@@ -16,23 +16,23 @@ from warehouse.oidc.models import _core
 
 
 def test_check_claim_binary():
-    wrapped = _core._check_claim_binary(str.__eq__)
+    wrapped = _core.check_claim_binary(str.__eq__)
 
     assert wrapped("foo", "bar", pretend.stub()) is False
     assert wrapped("foo", "foo", pretend.stub()) is True
 
 
 def test_check_claim_invariant():
-    wrapped = _core._check_claim_invariant(True)
+    wrapped = _core.check_claim_invariant(True)
     assert wrapped(True, True, pretend.stub()) is True
     assert wrapped(False, True, pretend.stub()) is False
 
-    wrapped = _core._check_claim_invariant(False)
+    wrapped = _core.check_claim_invariant(False)
     assert wrapped(False, False, pretend.stub()) is True
     assert wrapped(True, False, pretend.stub()) is False
 
     identity = object()
-    wrapped = _core._check_claim_invariant(identity)
+    wrapped = _core.check_claim_invariant(identity)
     assert wrapped(object(), object(), pretend.stub()) is False
     assert wrapped(identity, object(), pretend.stub()) is False
     assert wrapped(object(), identity, pretend.stub()) is False
@@ -40,6 +40,11 @@ def test_check_claim_invariant():
 
 
 class TestOIDCPublisher:
+    def test_lookup_by_claims_default_none(self):
+        assert (
+            _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub()) is None
+        )
+
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
 

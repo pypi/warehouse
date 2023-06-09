@@ -22,6 +22,5 @@ types-pytz
 types-redis
 types-requests
 types-setuptools
-types-sqlalchemy-utils
 types-stdlib-list
 types-stripe

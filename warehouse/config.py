@@ -362,13 +362,6 @@ def configure(settings=None):
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
-    maybe_set(
-        settings,
-        "warehouse.oidc.enabled",
-        "OIDC_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
 
     maybe_set(
         settings,

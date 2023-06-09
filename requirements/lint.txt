@@ -343,10 +343,6 @@ types-setuptools==67.8.0.0 \
     --hash=sha256:6df73340d96b238a4188b7b7668814b37e8018168aef1eef94a3b1872e3f60ff \
     --hash=sha256:95c9ed61871d6c0e258433373a4e1753c0a7c3627a46f4d4058c7b5a08ab844f
     # via -r requirements/lint.in
-types-sqlalchemy-utils==1.0.1 \
-    --hash=sha256:37016333faa0abab7d253805ecf9f605c24ea107b32dd3643014efb8e49be76d \
-    --hash=sha256:95bc90db15ec4af5b13d64f04a7d31a7e851931250419fc7859354644ab3ea98
-    # via -r requirements/lint.in
 types-stdlib-list==0.8.3.2 \
     --hash=sha256:17ff97316d88257f9b775b4dea2e9ad617325ea66a2737d841946dfd42363470 \
     --hash=sha256:8ed25c53c2df44212cbfd0ea3b4cc63d7ec0c13f5c475b6004e83c69fcd3f15c

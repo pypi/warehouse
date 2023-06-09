@@ -22,12 +22,19 @@ users and can create project releases automatically.
 
 {% trans %}Publisher information{% endtrans %}:
 
-* {% trans %}Publisher{% endtrans %}: {{ publisher_name }}
-* {% trans %}Workflow{% endtrans %}: {{ publisher_workflow }}
-* {% trans %}Owner{% endtrans %}: {{ publisher_repository_owner }}
-* {% trans %}Repository{% endtrans %}: {{ publisher_repository_name }}
-{%- if publisher_environment %}
-* {% trans %}Environment{% endtrans %}: {{ publisher_environment }}
+* {% trans %}Publisher{% endtrans %}: {{ publisher.publisher_name }}
+{%- if publisher.publisher_name == "GitHub" %}
+* {% trans %}Workflow{% endtrans %}: {{ publisher }}
+* {% trans %}Owner{% endtrans %}: {{ publisher.repository_owner }}
+* {% trans %}Repository{% endtrans %}: {{ publisher.repository_name }}
+{%- if publisher.environment %}
+* {% trans %}Environment{% endtrans %}: {{ publisher.environment }}
+{%- endif %}
+{%- elif publisher.publisher_name == "Google" %}
+* {% trans %}Email{% endtrans %}: {{ publisher.email }}
+{%- if publisher.sub %}
+* {% trans %}Subject{% endtrans %}: {{ publisher.sub }}
+{%- endif %}
 {%- endif %}
 
 {% trans %}

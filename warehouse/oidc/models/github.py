@@ -12,11 +12,14 @@
 
 from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Query
+from sqlalchemy.sql.expression import func, literal
 
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     OIDCPublisher,
     PendingOIDCPublisher,
-    _check_claim_binary,
+    check_claim_binary,
 )
 
 
@@ -91,9 +94,9 @@ class GitHubPublisherMixin:
 
     __required_verifiable_claims__ = {
         "sub": _check_sub,
-        "repository": _check_claim_binary(str.__eq__),
-        "repository_owner": _check_claim_binary(str.__eq__),
-        "repository_owner_id": _check_claim_binary(str.__eq__),
+        "repository": check_claim_binary(str.__eq__),
+        "repository_owner": check_claim_binary(str.__eq__),
+        "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
@@ -124,6 +127,56 @@ class GitHubPublisherMixin:
         "environment_node_id",
         "enterprise",
     }
+
+    @staticmethod
+    def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
+        # This lookup requires the environment claim to be present;
+        # if it isn't, bail out early.
+        if not (environment := signed_claims.get("environment")):
+            return None
+
+        repository = signed_claims["repository"]
+        repository_owner, repository_name = repository.split("/", 1)
+        workflow_prefix = f"{repository}/.github/workflows/"
+        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+
+        return (
+            Query(klass)
+            .filter_by(
+                repository_name=repository_name,
+                repository_owner=repository_owner,
+                repository_owner_id=signed_claims["repository_owner_id"],
+                environment=environment.lower(),
+            )
+            .filter(
+                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
+            )
+        )
+
+    @staticmethod
+    def __lookup_no_environment__(klass, signed_claims: SignedClaims) -> Query | None:
+        repository = signed_claims["repository"]
+        repository_owner, repository_name = repository.split("/", 1)
+        workflow_prefix = f"{repository}/.github/workflows/"
+        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+
+        return (
+            Query(klass)
+            .filter_by(
+                repository_name=repository_name,
+                repository_owner=repository_owner,
+                repository_owner_id=signed_claims["repository_owner_id"],
+                environment=None,
+            )
+            .filter(
+                literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
+            )
+        )
+
+    __lookup_strategies__ = [
+        __lookup_all__,
+        __lookup_no_environment__,
+    ]
 
     @property
     def _workflow_slug(self):

@@ -26,7 +26,7 @@ from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Load, joinedload
+from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -50,6 +50,7 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_new_email_added_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -225,6 +226,14 @@ class ManageAccountViews:
                 ),
                 queue="success",
             )
+
+            for previously_registered_email in self.request.user.emails:
+                if previously_registered_email != email:
+                    send_new_email_added_email(
+                        self.request,
+                        (self.request.user, previously_registered_email),
+                    )
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "add_email_form": form}
@@ -1184,7 +1193,6 @@ class ManageOIDCPublisherViews:
     def __init__(self, project, request):
         self.request = request
         self.project = project
-        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.metrics = self.request.find_service(IMetricsService, context=None)
 
     @property
@@ -1227,20 +1235,16 @@ class ManageOIDCPublisherViews:
     @property
     def default_response(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
         }
 
     @view_config(request_method="GET")
     def manage_project_oidc_publishers(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1253,13 +1257,10 @@ class ManageOIDCPublisherViews:
         request_param=GitHubPublisherForm.__params__,
     )
     def add_github_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1370,13 +1371,10 @@ class ManageOIDCPublisherViews:
         request_param=DeletePublisherForm.__params__,
     )
     def delete_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1570,7 +1568,6 @@ def manage_project_releases(project, request):
     # release version and the package types
     filecounts = (
         request.db.query(Release.version, File.packagetype, func.count(File.id))
-        .options(Load(Release).load_only(Release.version))
         .outerjoin(File)
         .group_by(Release.id)
         .group_by(File.packagetype)

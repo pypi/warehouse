@@ -24,10 +24,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
-
-
-class InsecureOIDCPublisherWarning(UserWarning):
-    pass
+from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
 
 @implementer(IOIDCPublisherService)
