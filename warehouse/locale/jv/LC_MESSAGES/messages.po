@@ -1,47 +1,39 @@
-# lu$er <team19devs@gmail.com>, 2020, 2022.
-# Beck Jacob <jp-beck@outlook.com>, 2021, 2022.
-# behzod musurmonqulov <behzodmusurmonqulov@gmail.com>, 2021, 2022.
-# Kamoldinov Farohiddin <Kfldm2255@gmail.com>, 2022.
+# "Wdt@.+_-" <wdt.app.vip.v8@outlook.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2022-06-28 19:52+0000\n"
-"Last-Translator: Beck Jacob <jp-beck@outlook.com>\n"
-"Language-Team: Uzbek (latin) <https://hosted.weblate.org/projects/pypa/"
-"warehouse/uz_Latn/>\n"
-"Language: uz_Latn\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-06-06 21:52+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: jv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Translate Toolkit 3.9.0\n"
 
 #: warehouse/views.py:141
-#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
-"Ushbu amalni bajarish uchun hisobingizda ikki faktorli autentifikatsiya "
-"yoqilgan boʻlishi kerak."
 
 #: warehouse/views.py:266
 msgid "Locale updated"
-msgstr "Mahalliy til yangilandi"
+msgstr ""
 
 #: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
-msgstr "Parolingiz ma'qullanmadi. Qaytadan urinib ko'ring."
+msgstr ""
 
 #: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
-msgstr "Foydalanuvchi ismi topilmadi"
+msgstr ""
 
 #: warehouse/accounts/forms.py:68
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP kodi ${totp_length} shaklida bo'lishi kerak."
+msgstr ""
 
 #: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
@@ -49,7 +41,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:101
 msgid "Choose a username with 50 characters or less."
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr ""
 
 #: warehouse/accounts/forms.py:107
 msgid ""
@@ -57,76 +49,55 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"Foydalanuvchi ismi ma'qullanmadi. Foydalanuvchi ismi harflar, raqamlar, "
-"nuqtalar, chiqiqchalar va tagchiziqlardan tuzilgan bo'lishi kerak. Va, "
-"albatta, harf yoki raqam bilan yakunlangan bo'lishi kerak. Boshqa "
-"foydalanuvchi ismini tanlang."
 
 #: warehouse/accounts/forms.py:124
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:186
 #: warehouse/accounts/forms.py:199
-#, fuzzy
-#| msgid "Password strength:"
 msgid "Password too long."
-msgstr "Kalit so'z mustahkamligi:"
+msgstr ""
 
 #: warehouse/accounts/forms.py:174
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
-"ko'ring."
 
 #: warehouse/accounts/forms.py:202
 msgid "Your passwords don't match. Try again."
-msgstr "Parolingiz mosh tushmadi. Qaytadan urinib ko'ring."
+msgstr ""
 
 #: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
 msgid "The email address isn't valid. Try again."
-msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
+msgstr ""
 
 #: warehouse/accounts/forms.py:253
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"Bu domendagi email manzillardan foydalana olmaysiz. Boshqa emaildan "
-"foydalaning."
 
 #: warehouse/accounts/forms.py:264
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"Bu email manzil boshqa foydalanuvchi tomonidan ishlatilmoqda. Boshqa "
-"emaildan foydalaning."
 
 #: warehouse/accounts/forms.py:271
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr ""
-"Bu email manzili boshqa foydalanuvchi tomonidan sihlatilmoqda. Yangi "
-"manzildan foydalaning."
 
 #: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
 
 #: warehouse/accounts/forms.py:382
 msgid "Invalid TOTP code."
-msgstr "TOTP kodi not`g`ri"
+msgstr ""
 
 #: warehouse/accounts/forms.py:399
 msgid "Invalid WebAuthn assertion: Bad payload"
@@ -134,7 +105,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:461
 msgid "Invalid recovery code."
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/accounts/forms.py:471
 msgid "Recovery code has been previously used."
@@ -142,239 +113,186 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:490
 msgid "No user found with that username or email"
-msgstr "Bu foydalanuvchi nomi elektron pochtasi bilan hech kim topilmadi"
+msgstr ""
 
 #: warehouse/accounts/views.py:103
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
-"ko'ring."
 
 #: warehouse/accounts/views.py:120
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
-"Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:132
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
-"Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
 #: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
 msgid "Invalid or expired two factor login."
-msgstr "Noto'g'ri yoki muddati ikki faktorli kirish."
+msgstr ""
 
 #: warehouse/accounts/views.py:365
 msgid "Already authenticated"
-msgstr "Allaqachon tasdiqlangan"
+msgstr ""
 
 #: warehouse/accounts/views.py:444
 msgid "Successful WebAuthn assertion"
-msgstr "Muvaffaqiyatli WebAuthn tasdiqlash"
+msgstr ""
 
 #: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:831
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
-"Qayta tiklash kodi qabul qilindi. Taqdim etilgan kodni qayta ishlatib "
-"bo'lmaydi."
 
 #: warehouse/accounts/views.py:592
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/accounts/views.py:726
 msgid "Expired token: request a new password reset link"
-msgstr "Muddati o' tgan token: parolni qayta tiklash havolasini so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:728
 msgid "Invalid token: request a new password reset link"
-msgstr "Noto'g'ri belgi: yangi parolni tiklash havolasini so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:730 warehouse/accounts/views.py:833
 #: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1106
 msgid "Invalid token: no token supplied"
-msgstr "Noto'g'ri token: hech qanday token berilmagan"
+msgstr ""
 
 #: warehouse/accounts/views.py:734
 msgid "Invalid token: not a password reset token"
-msgstr "Noto'g'ri belgi: parolni tiklash belgisi emas"
+msgstr ""
 
 #: warehouse/accounts/views.py:739
 msgid "Invalid token: user not found"
-msgstr "Xato token: foydalanuvchi mavjud emas"
+msgstr ""
 
 #: warehouse/accounts/views.py:750
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
-"Noto'g'ri token: foydalanuvchi bu token so'ralganidan beri tizimga kirgan"
 
 #: warehouse/accounts/views.py:768
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
-"Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
 #: warehouse/accounts/views.py:801
 msgid "You have reset your password"
-msgstr "siz parolingizni qayta tiklagansiz"
+msgstr ""
 
 #: warehouse/accounts/views.py:829
 msgid "Expired token: request a new email verification link"
 msgstr ""
-"Muddati tugagan token: elektron pochtani tasdiqlash uchun yangi havolani "
-"so'rang"
 
 #: warehouse/accounts/views.py:831
 msgid "Invalid token: request a new email verification link"
 msgstr ""
-"Noto'g'ri belgi: elektron pochtani tasdiqlash uchun yangi havolani so'rang"
 
 #: warehouse/accounts/views.py:837
 msgid "Invalid token: not an email verification token"
-msgstr "Noto'g'ri token: elektron pochta tasdiqlash belgisi emas"
+msgstr ""
 
 #: warehouse/accounts/views.py:846
 msgid "Email not found"
-msgstr "Email topilmadi"
+msgstr ""
 
 #: warehouse/accounts/views.py:849
 msgid "Email already verified"
-msgstr "E -pochta manzili allaqachon tasdiqlangan"
+msgstr ""
 
 #: warehouse/accounts/views.py:867
 msgid "You can now set this email as your primary address"
 msgstr ""
-"Endi siz ushbu elektron pochtani asosiy manzil sifatida belgilashingiz mumkin"
 
 #: warehouse/accounts/views.py:871
 msgid "This is your primary address"
-msgstr "Bu sizning asosiy manzilingiz"
+msgstr ""
 
 #: warehouse/accounts/views.py:876
 msgid "Email address ${email_address} verified. ${confirm_message}."
-msgstr "Email adress ${email_address} tasdiqlangan. ${confirm_message}."
+msgstr ""
 
 #: warehouse/accounts/views.py:929
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "Muddati o'tgan token: yangi loyiha rolini taklif qilishni so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:931
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
-msgstr "Noto'g'ri belgi: yangi loyiha rolini taklif qilishni so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:937
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
+msgstr ""
 
 #: warehouse/accounts/views.py:941
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/accounts/views.py:950
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
-msgstr "Rol taklifnomasi endi yo'q."
+msgstr ""
 
 #: warehouse/accounts/views.py:1003
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/accounts/views.py:1068
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/accounts/views.py:1102
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
-msgstr "Muddati o'tgan token: yangi loyiha rolini taklif qilishni so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:1104
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
-msgstr "Noto'g'ri belgi: yangi loyiha rolini taklif qilishni so'rang"
+msgstr ""
 
 #: warehouse/accounts/views.py:1110
 msgid "Invalid token: not a collaboration invitation token"
-msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
+msgstr ""
 
 #: warehouse/accounts/views.py:1114
 msgid "Role invitation is not valid."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/accounts/views.py:1129
 msgid "Role invitation no longer exists."
-msgstr "Rol taklifnomasi endi yo'q."
+msgstr ""
 
 #: warehouse/accounts/views.py:1162
 msgid "Invitation for '${project_name}' is declined."
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/accounts/views.py:1230
 msgid "You are now ${role} of the '${project_name}' project."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/accounts/views.py:1449 warehouse/accounts/views.py:1598
 #: warehouse/manage/views/__init__.py:1239
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/accounts/views.py:1466 warehouse/manage/views/__init__.py:1255
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/accounts/views.py:1480
 msgid ""
@@ -387,15 +305,10 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1509 warehouse/manage/views/__init__.py:1274
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
-"ko'ring."
 
 #: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1288
 msgid "The trusted publisher could not be registered"
@@ -422,66 +335,39 @@ msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
-msgstr "Bannerni oldindan ko'rish"
+msgstr ""
 
 #: warehouse/manage/forms.py:396
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr ""
 
 #: warehouse/manage/forms.py:404
-#, fuzzy
-#| msgid ""
-#| "The username is invalid. Usernames must be composed of letters, numbers, "
-#| "dots, hyphens and underscores. And must also start and finish with a "
-#| "letter or number. Choose a different username."
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"Foydalanuvchi ismi ma'qullanmadi. Foydalanuvchi ismi harflar, raqamlar, "
-"nuqtalar, chiqiqchalar va tagchiziqlardan tuzilgan bo'lishi kerak. Va, "
-"albatta, harf yoki raqam bilan yakunlangan bo'lishi kerak. Boshqa "
-"foydalanuvchi ismini tanlang."
 
 #: warehouse/manage/forms.py:427
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/manage/forms.py:442
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/manage/forms.py:478
-#, fuzzy
-#| msgid "Search projects"
 msgid "Select project"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
-#, fuzzy
-#| msgid "Search projects"
 msgid "Specify project name"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/manage/forms.py:486
 msgid ""
@@ -490,59 +376,39 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/forms.py:493
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/manage/forms.py:564
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
 
 #: warehouse/manage/forms.py:576
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
 
 #: warehouse/manage/forms.py:583
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
 #: warehouse/manage/forms.py:594
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
 
 #: warehouse/manage/forms.py:629
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
 #: warehouse/manage/forms.py:659
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr ""
 
 #: warehouse/manage/forms.py:665
 msgid ""
@@ -551,14 +417,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/forms.py:693
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/manage/views/__init__.py:191
 msgid "Account details updated"
@@ -567,16 +427,14 @@ msgstr ""
 #: warehouse/manage/views/__init__.py:221
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
-"$ {Email_address} elektron pochtasi qo'shildi - elektron pochta manzilini "
-"tekshirish havolasini tekshiring"
 
 #: warehouse/manage/views/__init__.py:777
 msgid "Recovery codes already generated"
-msgstr "Qayta tiklash kodlari allaqachon yaratilgan"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:778
 msgid "Generating new recovery codes will invalidate your existing codes."
-msgstr "Yangi qutqaruv kodlarini yaratish mavjud kodlarni bekor qiladi."
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:886
 msgid "Verify your email to create an API token."
@@ -584,7 +442,7 @@ msgstr ""
 
 #: warehouse/manage/views/__init__.py:1014
 msgid "Invalid credentials. Try again"
-msgstr "Hisob ma'lumotlari noto'g'ri. Qayta urinib ko'ring"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:1136
 msgid "2FA requirement cannot be disabled for critical projects"
@@ -593,16 +451,10 @@ msgstr ""
 #: warehouse/manage/views/__init__.py:1495
 #: warehouse/manage/views/__init__.py:1798
 #: warehouse/manage/views/__init__.py:1907
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/manage/views/__init__.py:1627
 #: warehouse/manage/views/__init__.py:1713
@@ -624,107 +476,77 @@ msgid "Could not delete release - "
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1928
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find file"
-msgstr "Rol taklifnomasi topilmadi."
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:1932
 msgid "Could not delete file - "
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2083
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
-"\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
-"roliga ega"
 
 #: warehouse/manage/views/__init__.py:2193
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
-"\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
-"roliga ega"
 
 #: warehouse/manage/views/__init__.py:2262
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2294
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
-"\"$ {Username}\" foydalanuvchisi tasdiqlangan asosiy elektron pochta "
-"manziliga ega emas va uni loyihaga $ {role_name} sifatida qo'shib bo'lmaydi"
 
 #: warehouse/manage/views/__init__.py:2307
 #: warehouse/manage/views/organizations.py:891
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
-"\"$ {Username}\" foydalanuvchisida allaqachon faol taklif mavjud. Iltimos "
-"keyinroq qayta urinib ko'ring."
 
 #: warehouse/manage/views/__init__.py:2374
 #: warehouse/manage/views/organizations.py:958
 msgid "Invitation sent to '${username}'"
-msgstr "\"$ {Username}\" ga taklifnoma yuborildi"
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2407
 msgid "Could not find role invitation."
-msgstr "Rol taklifnomasi topilmadi."
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2418
 msgid "Invitation already expired."
-msgstr "Taklif muddati tugagan."
+msgstr ""
 
 #: warehouse/manage/views/__init__.py:2452
 #: warehouse/manage/views/organizations.py:1147
 msgid "Invitation revoked from '${username}'."
-msgstr "\"$ {Username}\" dan taklifnoma bekor qilindi."
+msgstr ""
 
 #: warehouse/manage/views/organizations.py:867
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
-"\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
-"roliga ega"
 
 #: warehouse/manage/views/organizations.py:878
-#, fuzzy
-#| msgid ""
-#| "User '${username}' does not have a verified primary email address and "
-#| "cannot be added as a ${role_name} for project"
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
-"\"$ {Username}\" foydalanuvchisi tasdiqlangan asosiy elektron pochta "
-"manziliga ega emas va uni loyihaga $ {role_name} sifatida qo'shib bo'lmaydi"
 
 #: warehouse/manage/views/organizations.py:1041
 #: warehouse/manage/views/organizations.py:1083
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "Rol taklifnomasi topilmadi."
+msgstr ""
 
 #: warehouse/manage/views/organizations.py:1051
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
-msgstr "Rol taklifnomasi endi yo'q."
+msgstr ""
 
 #: warehouse/manage/views/organizations.py:1098
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/oidc/forms.py:33
 msgid "Specify GitHub repository owner (username or organization)"
@@ -735,10 +557,8 @@ msgid "Specify repository name"
 msgstr ""
 
 #: warehouse/oidc/forms.py:42
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/oidc/forms.py:49
 msgid "Specify workflow filename"
@@ -777,20 +597,12 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
 #: warehouse/oidc/forms.py:175
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid project name"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/oidc/forms.py:189
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This project name is already in use"
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #: warehouse/oidc/forms.py:202
 msgid "Specify a publisher ID"
@@ -831,27 +643,27 @@ msgstr ""
 
 #: warehouse/templates/403.html:16
 msgid "Access Denied / Forbidden (403)"
-msgstr "Kirish taqiqlangan / taqiqlangan (403)"
+msgstr ""
 
 #: warehouse/templates/403.html:18
 msgid "You don't have permission to view this page"
-msgstr "Sizda bu sahifani ko'rishga ruxsat yo'q"
+msgstr ""
 
 #: warehouse/templates/404.html:16
 msgid "Page Not Found (404)"
-msgstr "Sahifa topilmadi (404)"
+msgstr ""
 
 #: warehouse/templates/404.html:18
 msgid "We looked everywhere but couldn't find this page"
-msgstr "Biz hamma joyga qaradik, lekin bu sahifani topa olmadik"
+msgstr ""
 
 #: warehouse/templates/404.html:29
 msgid "And now for something <br><span>completely different</span>"
-msgstr "Va endi <span> butunlay boshqacha </span>"
+msgstr ""
 
 #: warehouse/templates/404.html:32
 msgid "Monty Python - The Cheese Shop Sketch"
-msgstr "Monti Python - pishloq do'konining eskizi"
+msgstr ""
 
 #: warehouse/templates/404.html:34 warehouse/templates/500.html:28
 #: warehouse/templates/500.html:29
@@ -953,27 +765,27 @@ msgstr "Monti Python - pishloq do'konining eskizi"
 #: warehouse/templates/pages/sponsors.html:64
 #: warehouse/templates/upload.html:26
 msgid "External link"
-msgstr "Tashqi havola"
+msgstr ""
 
 #: warehouse/templates/404.html:34
 msgid "View video transcript"
-msgstr "Video transkriptini ko'rish"
+msgstr ""
 
 #: warehouse/templates/410.html:16
 msgid "Page removed (410)"
-msgstr "Sahifa olib tashlandi (410)"
+msgstr ""
 
 #: warehouse/templates/410.html:18
 msgid "The page you are looking for has been removed"
-msgstr "Siz qidirayotgan sahifa o'chirildi"
+msgstr ""
 
 #: warehouse/templates/500.html:16
 msgid "Internal server error (500)"
-msgstr "Ichki server xatosi (500)"
+msgstr ""
 
 #: warehouse/templates/500.html:18
 msgid "Something went wrong"
-msgstr "Nimadir noto'g'ri bajarildi"
+msgstr ""
 
 #: warehouse/templates/500.html:22
 msgid ""
@@ -981,66 +793,49 @@ msgid ""
 "serve you this site.</p> <p>We are aware of the problem and are working to "
 "resolve it as soon as possible.</p>"
 msgstr ""
-"<p>Sizga texnik xizmat ko'rsatishda muammolarga duch kelmoqdamiz.</p> <p>Biz "
-"muammodan xabardormiz va uni imkon qadar tezroq hal qilishga harakat "
-"qilyapmiz.</p>"
 
 #: warehouse/templates/500.html:28
 msgid "Check our status page"
-msgstr "Bizning status sahifamizni tekshiring"
+msgstr ""
 
 #: warehouse/templates/500.html:29
 msgid "View Python Status on Twitter"
-msgstr "Twitter -da Python holatini ko'rish"
+msgstr ""
 
 #: warehouse/templates/500.html:32
 msgid "Error code 500"
-msgstr "Xato kodi 500"
+msgstr ""
 
 #: warehouse/templates/500.html:36
 msgid "Rely on PyPI to get your job done?"
-msgstr "Ishingizni bajarish uchun PyPI -ga ishonasizmi?"
+msgstr ""
 
 #: warehouse/templates/500.html:37
-#, fuzzy
-#| msgid ""
-#| "Consider <a href=\"https://github.com/pypa/warehouse\" target=\"_blank\" "
-#| "rel=\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/"
-#| "civicrm/contribute/transact?reset=1&id=13\" target=\"_blank\" rel="
-#| "\"noopener\"> donating </a> to help us build a more stable and secure "
-#| "platform."
 msgid ""
 "Consider <a href=\"https://github.com/pypi/warehouse\" target=\"_blank\" rel="
 "\"noopener\"> contributing </a> or <a href=\"https://psfmember.org/civicrm/"
 "contribute/transact?reset=1&id=13\" target=\"_blank\" rel=\"noopener\"> "
 "donating </a> to help us build a more stable and secure platform."
 msgstr ""
-"<a href=\"https://github.com/ pypa /warehouse\" target=\"_blank\" rel="
-"\"noopener\"> hissa qo'shish </a> yoki <a href = \"https://psfmember.org/"
-"civicrm/ hissa/trakt? reset = 1 & id = 13 \"target =\" _ blank \"rel =\" "
-"noopener \"> xayriya qilish </a> bizga yanada barqaror va xavfsizroq "
-"platforma yaratishga yordam beradi."
 
 #: warehouse/templates/base.html:24
 msgid ""
 "Choose a strong password that contains letters (uppercase and lowercase), "
 "numbers and special characters. Avoid common words or repetition."
 msgstr ""
-"Harflardan(katta va kichik), raqamlardan va maxsus belgilardan tashkil "
-"topgan qiyin parol tanlang. Oddiy so'zlardan yoki takrorlashdan saqlaning."
 
 #: warehouse/templates/base.html:27
 msgid "Password strength:"
-msgstr "Kalit so'z mustahkamligi:"
+msgstr ""
 
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr "Parol maydoni bo'sh"
+msgstr ""
 
 #: warehouse/templates/base.html:39 warehouse/templates/base.html:47
 #: warehouse/templates/includes/current-user-indicator.html:17
 msgid "Main navigation"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/base.html:41 warehouse/templates/base.html:55
 #: warehouse/templates/base.html:275
@@ -1048,39 +843,39 @@ msgstr "Asosiy navigatsiya"
 #: warehouse/templates/pages/help.html:109
 #: warehouse/templates/pages/sitemap.html:27
 msgid "Help"
-msgstr "Yordam"
+msgstr ""
 
 #: warehouse/templates/base.html:42 warehouse/templates/base.html:56
 #: warehouse/templates/includes/current-user-indicator.html:69
 #: warehouse/templates/pages/sitemap.html:41
 #: warehouse/templates/pages/sponsors.html:15
 msgid "Sponsors"
-msgstr "Hamkorlar"
+msgstr ""
 
 #: warehouse/templates/accounts/login.html:18
 #: warehouse/templates/accounts/login.html:88 warehouse/templates/base.html:43
 #: warehouse/templates/base.html:57
 msgid "Log in"
-msgstr "Kirish"
+msgstr ""
 
 #: warehouse/templates/base.html:44 warehouse/templates/base.html:58
 #: warehouse/templates/pages/sitemap.html:33
 msgid "Register"
-msgstr "Ro'yxatdan o'tish"
+msgstr ""
 
 #: warehouse/templates/base.html:48
 #: warehouse/templates/includes/current-user-indicator.html:18
 msgid "View menu"
-msgstr "Ko'rish menyusi"
+msgstr ""
 
 #: warehouse/templates/base.html:49
 msgid "Menu"
-msgstr "Menyu"
+msgstr ""
 
 #: warehouse/templates/base.html:54
 #: warehouse/templates/includes/current-user-indicator.html:25
 msgid "Main menu"
-msgstr "Asosiy menyu"
+msgstr ""
 
 #: warehouse/templates/base.html:66
 #, python-format
@@ -1104,24 +899,22 @@ msgid ""
 "The Python Package Index (PyPI) is a repository of software for the Python "
 "programming language."
 msgstr ""
-"Python Paket indeksi (PyPI) - Python dasturlash tili uchun dasturiy ta'minot "
-"ombori."
 
 #: warehouse/templates/base.html:106
 msgid "RSS: 40 latest updates"
-msgstr "RSS: 40 ta so'nggi yangilanishlar"
+msgstr ""
 
 #: warehouse/templates/base.html:107
 msgid "RSS: 40 newest packages"
-msgstr "RSS: 40 ta eng yangi to'plam"
+msgstr ""
 
 #: warehouse/templates/base.html:160
 msgid "Skip to main content"
-msgstr "Asosiy tarkibga o'tish"
+msgstr ""
 
 #: warehouse/templates/base.html:163
 msgid "Switch to mobile version"
-msgstr "Mobil versiyaga o'tish"
+msgstr ""
 
 #: warehouse/templates/base.html:172 warehouse/templates/base.html:181
 #: warehouse/templates/base.html:191
@@ -1140,13 +933,11 @@ msgstr "Mobil versiyaga o'tish"
 #: warehouse/templates/manage/project/settings.html:247
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
-msgstr "Ogohlantirish"
+msgstr ""
 
 #: warehouse/templates/base.html:174
 msgid "You are using an unsupported browser, upgrade to a newer version."
 msgstr ""
-"Siz qo'llab -quvvatlanmaydigan brauzerdan foydalanmoqdasiz, yangi versiyaga "
-"yangilang."
 
 #: warehouse/templates/base.html:183
 msgid ""
@@ -1154,77 +945,70 @@ msgid ""
 "that allows you to try distribution tools and processes without affecting "
 "the real index."
 msgstr ""
-"Siz TestPyPI -dan foydalanayapsiz - bu haqiqiy indeksga ta'sir qilmasdan "
-"tarqatish vositalari va jarayonlarini sinab ko'rish imkonini beruvchi Python "
-"Paket indeksining alohida namunasi ."
 
 #: warehouse/templates/base.html:193
 msgid ""
 "Some features may not work without JavaScript. Please try enabling it if you "
 "encounter problems."
 msgstr ""
-"Ba'zi funktsiyalar JavaScriptsiz ishlamasligi mumkin. Agar muammoga duch "
-"kelsangiz, uni yoqishga harakat qiling."
 
 #: warehouse/templates/base.html:231 warehouse/templates/base.html:252
 #: warehouse/templates/error-base-with-search.html:20
 #: warehouse/templates/index.html:43
 msgid "Search PyPI"
-msgstr "PyPI -ni qidiring"
+msgstr ""
 
 #: warehouse/templates/base.html:232 warehouse/templates/base.html:253
 #: warehouse/templates/error-base-with-search.html:21
 #: warehouse/templates/index.html:46
 msgid "Search projects"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/base.html:236 warehouse/templates/base.html:257
 #: warehouse/templates/error-base-with-search.html:24
 #: warehouse/templates/index.html:50
 msgid "Search"
-msgstr "Qidirish"
+msgstr ""
 
 #: warehouse/templates/base.html:276
 msgid "Help navigation"
-msgstr "Navigatsiya yordami"
+msgstr ""
 
 #: warehouse/templates/base.html:278
 msgid "Installing packages"
-msgstr "Paketlarni o'rnatish"
+msgstr ""
 
 #: warehouse/templates/base.html:279
 msgid "Uploading packages"
-msgstr "Paketlar yuklanmoqda"
+msgstr ""
 
 #: warehouse/templates/base.html:280
 msgid "User guide"
-msgstr "Foydalanuvchi uchun qo'llanma"
+msgstr ""
 
 #: warehouse/templates/base.html:281
-#, fuzzy
-#| msgid "Package index name retention"
 msgid "Project name retention"
-msgstr "Paket indeksining nomini saqlash"
+msgstr ""
 
 #: warehouse/templates/base.html:282
 msgid "FAQs"
-msgstr "Tez -tez beriladigan savollar"
+msgstr ""
 
 #: warehouse/templates/base.html:288 warehouse/templates/pages/sitemap.html:37
 msgid "About PyPI"
-msgstr "PyPI haqida"
+msgstr ""
 
 #: warehouse/templates/base.html:289
 msgid "About PyPI navigation"
-msgstr "PyPI navigatsiyasi haqida"
+msgstr ""
 
 #: warehouse/templates/base.html:291
 msgid "PyPI on Twitter"
-msgstr "Twitterda PyPI"
+msgstr ""
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
-msgstr "Infratuzilma asboblar paneli"
+msgstr ""
 
 #: warehouse/templates/base.html:293
 #: warehouse/templates/includes/accounts/profile-actions.html:19
@@ -1241,41 +1025,39 @@ msgstr ""
 
 #: warehouse/templates/base.html:295
 msgid "Our sponsors"
-msgstr "Bizning homiylarimiz"
+msgstr ""
 
 #: warehouse/templates/base.html:301
 msgid "Contributing to PyPI"
-msgstr "PyPI -ga hissa qo'shish"
+msgstr ""
 
 #: warehouse/templates/base.html:302
 msgid "How to contribute navigation"
-msgstr "Navigatsiyaga qanday hissa qo'shish kerak"
+msgstr ""
 
 #: warehouse/templates/base.html:304
 msgid "Bugs and feedback"
-msgstr "Xato va mulohazalar"
+msgstr ""
 
 #: warehouse/templates/base.html:305
 msgid "Contribute on GitHub"
-msgstr "GitHub -ga o'z hissangizni qo'shing"
+msgstr ""
 
 #: warehouse/templates/base.html:306
 msgid "Translate PyPI"
-msgstr "PyPI -ni tarjima qiling"
+msgstr ""
 
 #: warehouse/templates/base.html:307
-#, fuzzy
-#| msgid "Sponsors"
 msgid "Sponsor PyPI"
-msgstr "Hamkorlar"
+msgstr ""
 
 #: warehouse/templates/base.html:308
 msgid "Development credits"
-msgstr "Dasturlashdagi homiylar"
+msgstr ""
 
 #: warehouse/templates/base.html:314 warehouse/templates/pages/sitemap.html:23
 msgid "Using PyPI"
-msgstr "PyPIni ishlatish"
+msgstr ""
 
 #: warehouse/templates/base.html:315
 msgid "Using PyPI navigation"
@@ -1287,25 +1069,23 @@ msgstr ""
 
 #: warehouse/templates/base.html:318
 msgid "Report security issue"
-msgstr "Xavfsizlik xatosni haqida habar berish"
+msgstr ""
 
 #: warehouse/templates/base.html:319
 msgid "Privacy policy"
-msgstr "Maxfiylik siyosati"
+msgstr ""
 
 #: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:43
 msgid "Terms of use"
-msgstr "Foydalanish shartlari"
+msgstr ""
 
 #: warehouse/templates/base.html:321
 msgid "Acceptable Use Policy"
 msgstr ""
 
 #: warehouse/templates/base.html:331
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "Holat: "
+msgstr ""
 
 #: warehouse/templates/base.html:332
 msgid "all systems operational"
@@ -1318,19 +1098,19 @@ msgstr ""
 
 #: warehouse/templates/base.html:338
 msgid "Donate today!"
-msgstr "Bugun xayriya qiling!"
+msgstr ""
 
 #: warehouse/templates/base.html:345 warehouse/templates/pages/sitemap.html:16
 msgid "Site map"
-msgstr "Sayt xaritasi"
+msgstr ""
 
 #: warehouse/templates/base.html:351
 msgid "Switch to desktop version"
-msgstr "Kompyuter versiyasiga o'tish"
+msgstr ""
 
 #: warehouse/templates/confirm-action.html:17
 msgid "Confirm Action"
-msgstr "Amalni tasdiqlang"
+msgstr ""
 
 #: warehouse/templates/confirm-action.html:26
 msgid "Are you sure?"
@@ -1338,15 +1118,15 @@ msgstr ""
 
 #: warehouse/templates/error-base.html:35
 msgid "Error code"
-msgstr "Xato kod"
+msgstr ""
 
 #: warehouse/templates/error-base.html:37
 msgid "Back to the homepage"
-msgstr "Bosh menyuga qaytish"
+msgstr ""
 
 #: warehouse/templates/index.html:16
 msgid "The Python Package Index"
-msgstr "Python Toplamlari Indeksi"
+msgstr ""
 
 #: warehouse/templates/index.html:31
 msgid "Test Python package publishing with the Test Python Package Index"
@@ -1650,12 +1430,11 @@ msgstr ""
 
 #: warehouse/templates/accounts/profile.html:67
 #: warehouse/templates/organizations/profile.html:51
-#, fuzzy, python-format
-#| msgid "Search projects"
+#, python-format
 msgid "%(count)s project"
 msgid_plural "%(count)s projects"
-msgstr[0] "Loyihalarni qidirish"
-msgstr[1] "Loyihalarni qidirish"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/accounts/profile.html:73
 #: warehouse/templates/organizations/profile.html:57
@@ -2190,12 +1969,11 @@ msgid "Invited by"
 msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:27
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
 #: warehouse/templates/email/team-collaborator-removed/body.html:31
@@ -2268,16 +2046,12 @@ msgid "New description:"
 msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:60
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Old organization type:"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:63
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "New organization type:"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -2473,12 +2247,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/removed-as-team-member/body.html:18
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "You have been removed from the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/removed-as-team-member/body.html:23
 msgid "You are receiving this because you were a member of this team."
@@ -2513,12 +2286,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:33
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "You are receiving this because your team's role was changed by %(submitter)s "
 "for the %(project)s project."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/team-collaborator-added/body.html:26
 #, python-format
@@ -2561,31 +2333,27 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:18
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "A team named \"%(team_name)s\" has been created in the "
 "\"%(organization_name)s\" organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/team-created/body.html:24
 #: warehouse/templates/email/team-deleted/body.html:24
 #: warehouse/templates/email/team-member-added/body.html:24
 #: warehouse/templates/email/team-member-removed/body.html:24
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid ""
 "You are receiving this because you are an owner or a manager of the "
 "organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/team-deleted/body.html:18
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "A team named \"%(team_name)s\" has been deleted in the "
 "\"%(organization_name)s\" organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/email/team-member-added/body.html:18
 #, python-format
@@ -2655,10 +2423,8 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 #: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Environment"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:39
 #: warehouse/templates/email/trusted-publisher-removed/body.html:37
@@ -2944,10 +2710,8 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-team-menu.html:19
 #: warehouse/templates/manage/organization/projects.html:25
 #: warehouse/templates/manage/team/projects.html:25
-#, fuzzy
-#| msgid "Search projects"
 msgid "Projects"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/includes/manage/manage-organization-menu.html:26
 #: warehouse/templates/manage/organization/roles.html:36
@@ -3425,23 +3189,17 @@ msgid "Incorrect Password"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:508
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
-msgstr "Noto'g'ri yoki muddati ikki faktorli kirish."
+msgstr ""
 
 #: warehouse/templates/manage/account.html:510
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
-msgstr "Noto'g'ri yoki muddati ikki faktorli kirish."
+msgstr ""
 
 #: warehouse/templates/manage/account.html:512
 #: warehouse/templates/manage/account.html:514
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid two factor (Recovery code)"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/templates/manage/account.html:521
 msgid "Session reauthentication failed"
@@ -3586,17 +3344,15 @@ msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:655
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/account.html:659
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid ""
 "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/account.html:663
 #, python-format
@@ -3746,10 +3502,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:30
-#, fuzzy
-#| msgid "Recovery codes already generated"
 msgid "Recovery methods enabled"
-msgstr "Qayta tiklash kodlari allaqachon yaratilgan"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:33
 msgid "Recovery method"
@@ -3841,10 +3595,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:126
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Generate recovery codes"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:135
 msgid ""
@@ -3860,10 +3612,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
 #: warehouse/templates/manage/manage_base.html:149
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Use a recovery code"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:160
 msgid "You have not enabled two factor authentication on your account."
@@ -4019,10 +3769,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:23
 #: warehouse/templates/manage/projects.html:23
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Pending invitations"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:80
 #: warehouse/templates/manage/organizations.html:35
@@ -4035,16 +3783,13 @@ msgid "Created %(creation_date)s"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:52
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Decline invitation to %(org)s"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organizations.html:53
-#, fuzzy
-#| msgid "Main navigation"
 msgid "Decline invitation"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:268
 #: warehouse/templates/manage/organizations.html:54
@@ -4070,10 +3815,8 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:85
 #: warehouse/templates/manage/organizations.html:112
 #: warehouse/templates/manage/organizations.html:118
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "This organization is not active"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organizations.html:85
 msgid "Inactive"
@@ -4092,10 +3835,8 @@ msgid "Billing Manager"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:101
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "View this organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:130
 #: warehouse/templates/manage/organization/projects.html:133
@@ -4110,10 +3851,8 @@ msgid "View"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:107
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Activate billing for this organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organizations.html:108
 msgid "Activate Billing"
@@ -4134,10 +3873,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:162
 #: warehouse/templates/manage/organizations.html:273
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Request a new organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:29
 #: warehouse/templates/manage/organizations.html:168
@@ -4163,10 +3900,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:191
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization display name"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:54
 #: warehouse/templates/manage/organizations.html:196
@@ -4318,16 +4053,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:32
-#, fuzzy
-#| msgid "Search projects"
 msgid "PyPI Project Name"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:37
-#, fuzzy
-#| msgid "Search projects"
 msgid "project name"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:39
 msgid "The project (on PyPI) that will be created when this publisher is used"
@@ -4380,10 +4111,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:47
 #: warehouse/templates/manage/project/publishing.html:121
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Environment name"
-msgstr "Qayta tiklash kodi yaroqsiz."
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:96
 #: warehouse/templates/manage/project/publishing.html:125
@@ -4419,10 +4148,8 @@ msgid "Manage publishers"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:136
-#, fuzzy
-#| msgid "Search projects"
 msgid "Project"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:158
 msgid ""
@@ -4431,10 +4158,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:170
-#, fuzzy
-#| msgid "Search projects"
 msgid "Pending project name"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:171
 #: warehouse/templates/manage/project/publishing.html:44
@@ -4806,22 +4531,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:32
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "'%(organization_name)s' registered as organization name"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:36
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "%(organization_name)s organization created"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:38
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "%(organization_name)s organization deleted"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:40
 #, python-format
@@ -4830,16 +4552,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:42
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "%(organization_name)s organization approved"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:44
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "%(organization_name)s organization declined"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:49
 #, python-format
@@ -4847,48 +4567,42 @@ msgid "<a href=\"%(href)s\">%(project_name)s</a> project added to organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:53
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(project_name)s</a> project removed from organization"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:60
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> added as organization %(role_name)s"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:65
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> removed as organization %(role_name)s"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:70
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> changed to organization %(role_name)s"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:75
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> invited to join as organization "
 "%(role_name)s"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:80
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "<a href=\"%(href)s\">%(username)s</a> declined invitation to join as "
 "organization %(role_name)s"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:85
 #, python-format
@@ -4898,12 +4612,11 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:90
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "Invitation for <a href=\"%(href)s\">%(username)s</a> to join as organization "
 "%(role_name)s expired"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:95
 #: warehouse/templates/manage/team/history.html:32
@@ -4943,23 +4656,19 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:117
 #: warehouse/templates/manage/team/history.html:56
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> added to %(team_name)s team"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:121
 #: warehouse/templates/manage/team/history.html:60
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "<a href=\"%(href)s\">%(username)s</a> removed from %(team_name)s team"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:132
-#, fuzzy
-#| msgid "Register"
 msgid "Registered by:"
-msgstr "Ro'yxatdan o'tish"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:139
 #: warehouse/templates/manage/project/history.html:34
@@ -5021,22 +4730,17 @@ msgid "Back to organizations"
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:17
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization projects"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:21
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(organization_name)s' projects"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:142
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "There are no projects in your organization, yet."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:144
 #, python-format
@@ -5047,10 +4751,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:156
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Add project to organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/projects.html:162
 msgid "️New or existing project?"
@@ -5132,10 +4834,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:41
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization Roles"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:43
 #, python-format
@@ -5146,10 +4846,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:47
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization Role Permissions Matrix"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:168
@@ -5158,48 +4856,36 @@ msgid "Member"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:61
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "View organization/teams"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:70
 msgid "Create/manage teams"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:79
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Invite/manage organization members"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:88
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Delete the organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:98
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Manage organization billing"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:106
 msgid "Own/maintain specific projects"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:115
-#, fuzzy
-#| msgid "Search projects"
 msgid "Create new projects"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:124
-#, fuzzy
-#| msgid "Search projects"
 msgid "Delete projects"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:137
 #: warehouse/templates/manage/team/roles.html:47
@@ -5227,16 +4913,13 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/project/roles.html:200
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot remove yourself as Sole Owner"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:207
-#, fuzzy, python-format
-#| msgid "Role invitation is not valid."
+#, python-format
 msgid "Remove %(user)s from this organization."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:208
 #, python-format
@@ -5254,10 +4937,9 @@ msgid "Invite expired"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:243
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Revoke invitation for %(user)s."
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:244
 #: warehouse/templates/manage/project/roles.html:236
@@ -5272,32 +4954,28 @@ msgid "Revoke invite"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:247
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Re-send invitation for %(user)s."
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:248
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Re-send invitation for %(user)s"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:249
 msgid "Re-send"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:250
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Delete expired invitation for %(user)s."
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:251
-#, fuzzy, python-format
-#| msgid "Main navigation"
+#, python-format
 msgid "Delete expired invitation for %(user)s"
-msgstr "Asosiy navigatsiya"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:252
 #: warehouse/templates/manage/project/release.html:112
@@ -5316,22 +4994,18 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:17
 #: warehouse/templates/manage/organization/settings.html:24
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization settings"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:21
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(organization_name)s' settings"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:33
-#, fuzzy, python-format
-#| msgid "Role invitation is not valid."
+#, python-format
 msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:37
 #: warehouse/templates/manage/team/settings.html:57
@@ -5347,10 +5021,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:160
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Update organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:169
 msgid "Billing details"
@@ -5370,10 +5042,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:190
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Change organization account name"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:195
 msgid ""
@@ -5382,29 +5052,21 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Change organization account name for"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Current organization account name"
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:218
 #: warehouse/templates/manage/organization/settings.html:268
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Delete organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:221
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot delete organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:223
 #, python-format
@@ -5418,22 +5080,16 @@ msgid "For each project, you must either:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:230
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Transfer ownership and remove the project from your organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:231
-#, fuzzy
-#| msgid "Search projects"
 msgid "Delete the project"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:233
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Before you can delete your organization."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:239
 #, python-format
@@ -5465,16 +5121,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:17
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization teams"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:21
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(organization_name)s' teams"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:42
 #: warehouse/templates/manage/team/manage_team_base.html:73
@@ -5489,10 +5142,8 @@ msgid "Manage this team"
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:62
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "View this team"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:71
 msgid ""
@@ -5585,10 +5236,9 @@ msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:82
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "File added to <a href=\"%(href)s\">version %(version)s</a>"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:94
 #: warehouse/templates/manage/project/history.html:125
@@ -5653,16 +5303,14 @@ msgid "%(team_name)s team removed as project %(role_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:205
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "Project added to %(organization_name)s organization"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:213
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "Project removed from %(organization_name)s organization"
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:221
 msgid "Short-lived API token created"
@@ -5891,10 +5539,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:161
-#, fuzzy, python-format
-#| msgid "Role invitation is not valid."
+#, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/release.html:168
 #: warehouse/templates/manage/project/releases.html:126
@@ -6053,10 +5700,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:45
-#, fuzzy
-#| msgid "Search projects"
 msgid "Project Roles"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:46
 #: warehouse/templates/pages/help.html:591
@@ -6093,18 +5738,15 @@ msgid "Collaborator"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:75
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(count)s organization owner"
 msgid_plural "%(count)s organization owners"
-msgstr[0] "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
-msgstr[1] "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/project/roles.html:89
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot remove organization owners"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:103
 #, python-format
@@ -6114,10 +5756,8 @@ msgstr[0] ""
 msgstr[1] ""
 
 #: warehouse/templates/manage/project/roles.html:143
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot remove your own team as Owner"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:147
@@ -6144,10 +5784,8 @@ msgid "️Name of team"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:276
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "There are no teams in the organization."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:327
 msgid "Invite external collaborator"
@@ -6248,10 +5886,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:124
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Remove project from organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:127
 msgid "Removing this project from the organization will:"
@@ -6259,19 +5895,17 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:131
 #: warehouse/templates/manage/project/settings.html:181
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:134
 #: warehouse/templates/manage/project/settings.html:184
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:138
 #: warehouse/templates/manage/project/settings.html:144
@@ -6281,17 +5915,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:143
-#, fuzzy, python-format
-#| msgid "You are now ${role} of the '${project_name}' project."
+#, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:147
-#, fuzzy
-#| msgid "Search projects"
 msgid "Remove project"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:147
 #: warehouse/templates/manage/project/settings.html:218
@@ -6300,10 +5931,8 @@ msgid "Project Name"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:151
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot remove project from organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:153
 msgid ""
@@ -6313,16 +5942,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:169
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Transfer project to another organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:171
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Transfer project to an organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:176
 msgid "Transferring this project will:"
@@ -6343,10 +5968,8 @@ msgid "Add the project to another organization that you own."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:198
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Add the project to an organization that you own."
-msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:202
 msgid "Grant full project permissions to owners of the organization."
@@ -6359,50 +5982,36 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:218
-#, fuzzy
-#| msgid "Search projects"
 msgid "Transfer project"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:224
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot transfer project to another organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:226
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot transfer project to an organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:231
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
-msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:232
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are not an owner or manager of any other organizations."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:234
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
-msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:235
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are not an owner or manager of any organizations."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:245
 #: warehouse/templates/manage/project/settings.html:285
@@ -6453,28 +6062,22 @@ msgid "%(previous_team_name)s team renamed to %(team_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:20
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(team_name)s'"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:63
-#, fuzzy
-#| msgid "Back to the homepage"
 msgid "Back to teams"
-msgstr "Bosh menyuga qaytish"
+msgstr ""
 
 #: warehouse/templates/manage/team/projects.html:17
-#, fuzzy
-#| msgid "Search projects"
 msgid "Team projects"
-msgstr "Loyihalarni qidirish"
+msgstr ""
 
 #: warehouse/templates/manage/team/projects.html:21
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(team_name)s' projects"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/team/projects.html:142
 msgid ""
@@ -6493,10 +6096,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:75
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Cannot remove other people from the team"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:78
 #: warehouse/templates/manage/team/roles.html:79
@@ -6505,10 +6106,8 @@ msgid "Remove %(user)s from this team"
 msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:90
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "There are no members in this team, yet."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/manage/team/roles.html:92
 msgid "Get started by adding a team member below."
@@ -6532,10 +6131,9 @@ msgid "Team settings"
 msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:21
-#, fuzzy, python-format
-#| msgid "Invitation for '${project_name}' is declined."
+#, python-format
 msgid "Manage '%(team_name)s' settings"
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr ""
 
 #: warehouse/templates/manage/team/settings.html:33
 msgid "Team name"
@@ -6568,10 +6166,8 @@ msgid "Profile of %(orgname)s"
 msgstr ""
 
 #: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization"
-msgstr "Rol taklifi haqiqiy emas."
+msgstr ""
 
 #: warehouse/templates/organizations/profile.html:73
 #, python-format
@@ -8744,32 +8340,3 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
-
-#, fuzzy, python-format
-#~| msgid "Invitation for '${project_name}' is declined."
-#~ msgid "%(organization_name)s projects (%(project_count)s)"
-#~ msgstr "\"$ {Project_name}\" taklifi rad etildi."
-
-#, fuzzy, python-format
-#~| msgid "Invitation for '${project_name}' is declined."
-#~ msgid "%(organization_name)s teams (%(team_count)s)"
-#~ msgstr "\"$ {Project_name}\" taklifi rad etildi."
-
-#, fuzzy
-#~| msgid "User '${username}' already has ${role_name} role for project"
-#~ msgid "User '${username}' is already a team member"
-#~ msgstr ""
-#~ "\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
-#~ "roliga ega"
-
-#, fuzzy
-#~| msgid "Role invitation is not valid."
-#~ msgid "Cannot remove organization owners with Administer permissions"
-#~ msgstr "Rol taklifi haqiqiy emas."
-
-#~ msgid ""
-#~ "You must provision a two factor method before recovery codes can be "
-#~ "generated"
-#~ msgstr ""
-#~ "Qayta tiklash kodlari yaratilishidan oldin siz ikki faktorli usulni "
-#~ "taqdim etishingiz kerak"
