@@ -61,7 +61,6 @@ sentry-sdk
 setuptools
 sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypi/warehouse/pull/9228
 sqlalchemy-citext
-sqlalchemy-utils
 stdlib-list
 stripe
 structlog

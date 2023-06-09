@@ -33,7 +33,6 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -243,7 +242,7 @@ class OrganizationMixin:
         comment="What type of organization such as Community or Company",
     )
     link_url = Column(
-        URLType, nullable=False, comment="External URL associated with the organization"
+        Text, nullable=False, comment="External URL associated with the organization"
     )
     description = Column(
         Text,

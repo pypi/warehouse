@@ -36,7 +36,6 @@ from sqlalchemy.sql.sqltypes import (
     Text,
     Time,
 )
-from sqlalchemy_utils.types.url import URLType
 
 import warehouse.db
 
@@ -71,7 +70,6 @@ SQLALCHEMY_TO_DBML = {
     TZDateTime: "datetime",
     ARRAY: '"string[]"',
     TIMESTAMP: "datetime",
-    URLType: "varchar",
 }
 
 
