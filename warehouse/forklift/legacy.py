@@ -68,6 +68,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
+from warehouse.tuf import targets
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
@@ -1434,6 +1435,9 @@ def file_upload(request):
         file_data = file_
         request.db.add(file_)
 
+        # Add the project simple detail and file to TUF Metadata
+        task = targets.add_file(request, project, file_)
+
         file_.record_event(
             tag=EventTag.File.FileAdd,
             request=request,
@@ -1449,6 +1453,7 @@ def file_upload(request):
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),
+                "tuf": task["data"]["task_id"],
             },
         )
 

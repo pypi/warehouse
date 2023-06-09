@@ -124,3 +124,13 @@ def render_simple_detail(project, request, store=False):
             )
 
     return (content_hash, simple_detail_path, simple_detail_size)
+
+
+def current_simple_details_path(request, project):
+    storage = request.find_service(ISimpleStorage)
+    current_hash = storage.get_blake2bsum(f"{project.normalized_name}/index.html")
+    simple_detail_path = (
+        f"{project.normalized_name}/{current_hash}.{project.normalized_name}.html"
+    )
+
+    return simple_detail_path

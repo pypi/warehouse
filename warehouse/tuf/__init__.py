@@ -14,4 +14,5 @@
 def includeme(config):
     api_base_url = config.registry.settings["tuf.api.url"]
     config.add_settings({"tuf.api.task.url": f"{api_base_url}task/"})
+    config.add_settings({"tuf.api.targets.url": f"{api_base_url}targets/"})
     config.add_settings({"tuf.api.publish.url": f"{api_base_url}targets/publish/"})

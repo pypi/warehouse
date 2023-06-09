@@ -44,6 +44,11 @@ class IGenericFileStorage(Interface):
         Return the md5 digest of the file at a given path as a lowercase string.
         """
 
+    def get_blake2bsum(path):
+        """
+        Return the blake2b digest of the file at a given path as a lowercase string.
+        """
+
     def store(path, file_path, *, meta=None):
         """
         Save the file located at file_path to the file storage at the location
