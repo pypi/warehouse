@@ -45,7 +45,7 @@ def helpscout(request):
     email = (
         request.db.query(Email)
         .where(
-            Email.email.ilike(request.json_body.get("customer", {}).get("email", None))
+            Email.email.ilike(request.json_body.get("customer", {}).get("email", ""))
         )
         .one_or_none()
     )
