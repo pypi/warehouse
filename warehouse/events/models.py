@@ -219,16 +219,16 @@ class HasEvents:
             back_populates="source",
         )
 
-    def record_event(self, *, tag, ip_address, request: Request, additional=None):
+    def record_event(self, *, tag, request: Request, additional=None):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
 
         # Get-or-create a new IpAddress object
-        ip_address_obj = request.ip_address
+        ip_address = request.ip_address
         # Add `request.ip_address.geoip_info` data to `Event.additional`
-        if ip_address_obj.geoip_info is not None:
+        if ip_address.geoip_info is not None:
             additional = additional or {}
-            additional["geoip_info"] = ip_address_obj.geoip_info
+            additional["geoip_info"] = ip_address.geoip_info
 
         if user_agent := request.headers.get("User-Agent"):
             try:
@@ -265,7 +265,7 @@ class HasEvents:
         event = self.Event(
             source=self,
             tag=tag,
-            ip_address=ip_address_obj,
+            ip_address=ip_address,
             additional=additional,
         )
 
