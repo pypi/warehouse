@@ -240,3 +240,6 @@ def includeme(config):
     config.add_route(
         "admin.banner.edit", "/admin/banners/{banner_id}/", domain=warehouse
     )
+
+    # Helpscout Sidebar
+    config.add_route("admin.helpscout", "/admin/helpscout/app/", domain=warehouse)

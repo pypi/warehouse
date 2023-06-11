@@ -2021,7 +2021,8 @@ class TestProvisionMacaroonViews:
         }
         assert macaroon_service.create_macaroon.calls == []
 
-    def test_create_macaroon(self, monkeypatch):
+    @pytest.mark.parametrize("has_2fa", [True, False])
+    def test_create_macaroon(self, monkeypatch, has_2fa):
         macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
@@ -2036,6 +2037,7 @@ class TestProvisionMacaroonViews:
                 id="a user id",
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
+                has_two_factor=has_2fa,
             ),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -2075,6 +2077,7 @@ class TestProvisionMacaroonViews:
                 scopes=[
                     caveats.RequestUser(user_id="a user id"),
                 ],
+                additional={"made_with_2fa": has_2fa},
             )
         ]
         assert result == {
@@ -2116,6 +2119,7 @@ class TestProvisionMacaroonViews:
                 id=pretend.stub(),
                 has_primary_verified_email=True,
                 username=pretend.stub(),
+                has_two_factor=False,
                 projects=[
                     pretend.stub(
                         id=uuid.uuid4(),
@@ -2171,6 +2175,7 @@ class TestProvisionMacaroonViews:
                         project_ids=[str(p.id) for p in request.user.projects]
                     ),
                 ],
+                additional={"made_with_2fa": False},
             )
         ]
         assert result == {

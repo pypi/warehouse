@@ -924,6 +924,7 @@ class ProvisionMacaroonViews:
                 description=form.description.data,
                 scopes=macaroon_caveats,
                 user_id=self.request.user.id,
+                additional={"made_with_2fa": self.request.user.has_two_factor},
             )
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenAdded,
