@@ -219,7 +219,6 @@ class TestLoginForm:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"reason": "invalid_password"},
             )
@@ -904,7 +903,6 @@ class TestTOTPAuthenticationForm:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"reason": "invalid_totp"},
             )
@@ -1009,7 +1007,6 @@ class TestWebAuthnAuthenticationForm:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"reason": "invalid_webauthn"},
             )
@@ -1123,7 +1120,6 @@ class TestRecoveryCodeForm:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"reason": expected_reason},
             )

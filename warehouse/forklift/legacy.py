@@ -1165,7 +1165,6 @@ def file_upload(request):
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": request.user.username
@@ -1408,7 +1407,6 @@ def file_upload(request):
 
         file_.record_event(
             tag=EventTag.File.FileAdd,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "filename": file_.filename,

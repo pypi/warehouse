@@ -371,7 +371,6 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
@@ -452,7 +451,6 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
@@ -819,7 +817,6 @@ class TestTwoFactor:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
@@ -1265,7 +1262,6 @@ class TestRecoveryCode:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={
                     "two_factor_method": "recovery-code",
@@ -1274,7 +1270,6 @@ class TestRecoveryCode:
             ),
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesUsed,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
             ),
         ]
@@ -1537,13 +1532,11 @@ class TestRegister:
         assert record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.AccountCreate,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
@@ -1652,7 +1645,6 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
             )
         ]
@@ -1717,7 +1709,6 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
             )
         ]
@@ -1793,7 +1784,6 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
             )
         ]
@@ -1893,7 +1883,6 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetAttempt,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
             )
         ]
@@ -3667,7 +3656,6 @@ class TestManageAccountPublishingViews:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherAdded,
-                ip_address="1.2.3.4",
                 request=db_request,
                 additional={
                     "project": "some-project-name",
@@ -3886,7 +3874,6 @@ class TestManageAccountPublishingViews:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherRemoved,
-                ip_address="1.2.3.4",
                 request=db_request,
                 additional={
                     "project": "some-project-name",

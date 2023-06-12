@@ -310,7 +310,6 @@ class TestManageAccount:
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailAdd,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"email": email_address},
             )
@@ -385,7 +384,6 @@ class TestManageAccount:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailRemove,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"email": email.email},
             )
@@ -478,7 +476,6 @@ class TestManageAccount:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
@@ -514,7 +511,6 @@ class TestManageAccount:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
@@ -582,7 +578,6 @@ class TestManageAccount:
         assert email.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailReverify,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"email": email.email},
             )
@@ -747,7 +742,6 @@ class TestManageAccount:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordChange,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -1153,7 +1147,6 @@ class TestProvisionTOTP:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"method": "totp"},
             )
@@ -1311,7 +1304,6 @@ class TestProvisionTOTP:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"method": "totp"},
             )
@@ -1528,7 +1520,6 @@ class TestProvisionWebAuthn:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "method": "webauthn",
@@ -1621,7 +1612,6 @@ class TestProvisionWebAuthn:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "method": "webauthn",
@@ -1712,7 +1702,6 @@ class TestProvisionRecoveryCodes:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesGenerated,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -1786,7 +1775,6 @@ class TestProvisionRecoveryCodes:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesRegenerated,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -2021,9 +2009,8 @@ class TestProvisionMacaroonViews:
         }
         assert macaroon_service.create_macaroon.calls == []
 
-    def test_create_macaroon(self, monkeypatch):
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_token_added_email", send_email)
+    @pytest.mark.parametrize("has_2fa", [True, False])
+    def test_create_macaroon(self, monkeypatch, has_2fa):
         macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
@@ -2038,6 +2025,7 @@ class TestProvisionMacaroonViews:
                 id="a user id",
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
+                has_two_factor=has_2fa,
             ),
             find_service=lambda interface, **kw: {
                 IMacaroonService: macaroon_service,
@@ -2077,6 +2065,7 @@ class TestProvisionMacaroonViews:
                 scopes=[
                     caveats.RequestUser(user_id="a user id"),
                 ],
+                additional={"made_with_2fa": has_2fa},
             )
         ]
         assert result == {
@@ -2088,7 +2077,6 @@ class TestProvisionMacaroonViews:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2131,6 +2119,7 @@ class TestProvisionMacaroonViews:
                 id=pretend.stub(),
                 has_primary_verified_email=True,
                 username=pretend.stub(),
+                has_two_factor=False,
                 projects=[
                     pretend.stub(
                         id=uuid.uuid4(),
@@ -2186,6 +2175,7 @@ class TestProvisionMacaroonViews:
                         project_ids=[str(p.id) for p in request.user.projects]
                     ),
                 ],
+                additional={"made_with_2fa": False},
             )
         ]
         assert result == {
@@ -2197,7 +2187,6 @@ class TestProvisionMacaroonViews:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2214,7 +2203,6 @@ class TestProvisionMacaroonViews:
         assert record_project_event.calls == [
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2223,7 +2211,6 @@ class TestProvisionMacaroonViews:
             ),
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2367,7 +2354,6 @@ class TestProvisionMacaroonViews:
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
@@ -2435,7 +2421,6 @@ class TestProvisionMacaroonViews:
         ]
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
@@ -2444,7 +2429,6 @@ class TestProvisionMacaroonViews:
         assert record_project_event.calls == [
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
@@ -2453,7 +2437,6 @@ class TestProvisionMacaroonViews:
             ),
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
@@ -4016,7 +3999,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseYank,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -4172,7 +4154,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseUnyank,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -4331,7 +4312,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseRemove,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -5746,7 +5726,6 @@ class TestManageProjectHistory:
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
@@ -5755,19 +5734,16 @@ class TestManageProjectHistory:
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
             ),
             ProjectEventFactory.create(
                 source=project,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2019, 2, 5, 17, 18, 18, 462_634),
             ),
             FileEventFactory.create(
                 source=file_,
                 tag="fake:event",
-                ip_address="0.0.0.0",
                 time=datetime.datetime(2016, 2, 5, 17, 18, 18, 462_634),
                 additional={
                     "project_id": str(project.id),
@@ -5848,9 +5824,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5886,9 +5860,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
         project_events_query = (
             db_request.db.query(Project.Event)
             .join(Project.Event.source)
@@ -5925,9 +5897,7 @@ class TestManageProjectHistory:
         project = ProjectFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        ProjectEventFactory.create_batch(
-            total_items, source=project, tag="fake:event", ip_address="0.0.0.0"
-        )
+        ProjectEventFactory.create_batch(total_items, source=project, tag="fake:event")
 
         with pytest.raises(HTTPNotFound):
             assert views.manage_project_history(project, db_request)
@@ -6170,7 +6140,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "publisher": "GitHub",
@@ -6268,7 +6237,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "publisher": "GitHub",
@@ -6548,7 +6516,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherRemoved,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "publisher": publisher.publisher_name,

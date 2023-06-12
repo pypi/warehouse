@@ -104,7 +104,6 @@ def _basic_auth_check(username, password, request):
             )
             event = user.record_event(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"auth_method": "basic"},
             )
@@ -115,7 +114,6 @@ def _basic_auth_check(username, password, request):
         else:
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )

@@ -166,7 +166,6 @@ class DatabaseOrganizationService:
         self.db.add(organization)
         organization.record_event(
             tag=EventTag.Organization.OrganizationCreate,
-            ip_address=None,
             request=request,
             additional={
                 "created_by_user_id": str(organization_application.submitted_by.id),
@@ -181,7 +180,6 @@ class DatabaseOrganizationService:
         self.add_catalog_entry(organization.id)
         organization.record_event(
             tag=EventTag.Organization.CatalogEntryAdd,
-            ip_address=None,
             request=request,
             additional={
                 "submitted_by_user_id": str(organization_application.submitted_by.id),
@@ -196,7 +194,6 @@ class DatabaseOrganizationService:
         )
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleAdd,
-            ip_address=None,
             request=request,
             additional={
                 "submitted_by_user_id": str(organization_application.submitted_by.id),
@@ -207,7 +204,6 @@ class DatabaseOrganizationService:
         )
         organization_application.submitted_by.record_event(
             tag=EventTag.Account.OrganizationRoleAdd,
-            ip_address=None,
             request=request,
             additional={
                 "submitted_by_user_id": str(organization_application.submitted_by.id),
@@ -218,7 +214,6 @@ class DatabaseOrganizationService:
         )
         organization.record_event(
             tag=EventTag.Organization.OrganizationApprove,
-            ip_address=request.remote_addr,
             request=request,
             additional={"approved_by_user_id": str(request.user.id)},
         )

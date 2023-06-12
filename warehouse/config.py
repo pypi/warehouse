@@ -262,6 +262,11 @@ def configure(settings=None):
     maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
     maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
 
+    # Helpscout integration settings
+    maybe_set(
+        settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
+    )
+
     # Configure our ratelimiters
     maybe_set(
         settings,

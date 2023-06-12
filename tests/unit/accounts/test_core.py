@@ -107,7 +107,6 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address="1.2.3.4",
                 request=pyramid_request,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
@@ -266,7 +265,6 @@ class TestLogin:
         ]
         assert user.record_event.calls == [
             pretend.call(
-                ip_address="1.2.3.4",
                 request=pyramid_request,
                 tag=EventTag.Account.LoginSuccess,
                 additional={"auth_method": "basic"},

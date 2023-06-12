@@ -494,7 +494,6 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             user = user_service.get_user(userid)
             user.record_event(
                 tag=EventTag.Account.RecoveryCodesUsed,
-                ip_address=request.remote_addr,
                 request=request,
             )
 
@@ -625,7 +624,6 @@ def register(request, _form_class=RegistrationForm):
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
-            ip_address=request.remote_addr,
             request=request,
             additional={"email": form.email.data},
         )
@@ -674,7 +672,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             send_password_reset_email(request, (user, email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=request.remote_addr,
                 request=request,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
@@ -685,7 +682,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         else:
             user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
-                ip_address=request.remote_addr,
                 request=request,
             )
             request.session.flash(
@@ -791,7 +787,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
         user_service.update_user(user.id, password=form.new_password.data)
         user.record_event(
             tag=EventTag.Account.PasswordReset,
-            ip_address=request.remote_addr,
             request=request,
         )
         password_reset_limiter.clear(user.id)
@@ -856,7 +851,6 @@ def verify_email(request):
     email.transient_bounces = 0
     email.user.record_event(
         tag=EventTag.Account.EmailVerified,
-        ip_address=request.remote_addr,
         request=request,
         additional={"email": email.email, "primary": email.primary},
     )
@@ -965,7 +959,6 @@ def verify_organization_role(request):
         message = request.params.get("message", "")
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
@@ -975,7 +968,6 @@ def verify_organization_role(request):
         )
         user.record_event(
             tag=EventTag.Account.OrganizationRoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
@@ -1020,7 +1012,6 @@ def verify_organization_role(request):
     submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1030,7 +1021,6 @@ def verify_organization_role(request):
     )
     user.record_event(
         tag=EventTag.Account.OrganizationRoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1143,7 +1133,6 @@ def verify_project_role(request):
         submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": submitter_user.username,
@@ -1153,7 +1142,6 @@ def verify_project_role(request):
         )
         user.record_event(
             tag=EventTag.Account.RoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": submitter_user.username,
@@ -1181,7 +1169,6 @@ def verify_project_role(request):
     )
     project.record_event(
         tag=EventTag.Project.RoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by": request.user.username,
@@ -1191,7 +1178,6 @@ def verify_project_role(request):
     )
     user.record_event(
         tag=EventTag.Account.RoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by": request.user.username,
@@ -1297,7 +1283,6 @@ def _login_user(
     # records when the last login was.
     event = user.record_event(
         tag=EventTag.Account.LoginSuccess,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "two_factor_method": two_factor_method,
@@ -1574,7 +1559,6 @@ class ManageAccountPublishingViews:
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "project": pending_publisher.project_name,
@@ -1661,7 +1645,6 @@ class ManageAccountPublishingViews:
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "project": pending_publisher.project_name,

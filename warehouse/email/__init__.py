@@ -124,7 +124,6 @@ def _send_email_to_user(
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
             },
-            "ip_address": request.remote_addr,
         },
     )
 

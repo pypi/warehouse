@@ -455,7 +455,6 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
     assert project.record_event.calls == [
         pretend.call(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
-            ip_address="0.0.0.0",
             request=request,
             additional={
                 "expires": 900,
