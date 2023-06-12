@@ -310,7 +310,6 @@ class TestManageAccount:
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailAdd,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"email": email_address},
             )
@@ -385,7 +384,6 @@ class TestManageAccount:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailRemove,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"email": email.email},
             )
@@ -478,7 +476,6 @@ class TestManageAccount:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"old_primary": "old", "new_primary": "new"},
             )
@@ -514,7 +511,6 @@ class TestManageAccount:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailPrimaryChange,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={"old_primary": None, "new_primary": new_primary.email},
             )
@@ -582,7 +578,6 @@ class TestManageAccount:
         assert email.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailReverify,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"email": email.email},
             )
@@ -747,7 +742,6 @@ class TestManageAccount:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordChange,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -1153,7 +1147,6 @@ class TestProvisionTOTP:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"method": "totp"},
             )
@@ -1311,7 +1304,6 @@ class TestProvisionTOTP:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={"method": "totp"},
             )
@@ -1528,7 +1520,6 @@ class TestProvisionWebAuthn:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "method": "webauthn",
@@ -1621,7 +1612,6 @@ class TestProvisionWebAuthn:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "method": "webauthn",
@@ -1712,7 +1702,6 @@ class TestProvisionRecoveryCodes:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesGenerated,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -1786,7 +1775,6 @@ class TestProvisionRecoveryCodes:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesRegenerated,
-                ip_address=request.remote_addr,
                 request=request,
             )
         ]
@@ -2089,7 +2077,6 @@ class TestProvisionMacaroonViews:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2187,7 +2174,6 @@ class TestProvisionMacaroonViews:
         assert request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2204,7 +2190,6 @@ class TestProvisionMacaroonViews:
         assert record_project_event.calls == [
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2213,7 +2198,6 @@ class TestProvisionMacaroonViews:
             ),
             pretend.call(
                 tag=EventTag.Project.APITokenAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "description": create_macaroon_obj.description.data,
@@ -2346,7 +2330,6 @@ class TestProvisionMacaroonViews:
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
             )
@@ -2414,7 +2397,6 @@ class TestProvisionMacaroonViews:
         ]
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 tag=EventTag.Account.APITokenRemoved,
                 additional={"macaroon_id": delete_macaroon_obj.macaroon_id.data},
@@ -2423,7 +2405,6 @@ class TestProvisionMacaroonViews:
         assert record_project_event.calls == [
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
@@ -2432,7 +2413,6 @@ class TestProvisionMacaroonViews:
             ),
             pretend.call(
                 tag=EventTag.Project.APITokenRemoved,
-                ip_address=pyramid_request.remote_addr,
                 request=pyramid_request,
                 additional={
                     "description": "fake macaroon",
@@ -3995,7 +3975,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseYank,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -4151,7 +4130,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseUnyank,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -4310,7 +4288,6 @@ class TestManageProjectRelease:
         assert release.project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.ReleaseRemove,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "submitted_by": db_request.user.username,
@@ -6139,7 +6116,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "publisher": "GitHub",
@@ -6237,7 +6213,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherAdded,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "publisher": "GitHub",
@@ -6517,7 +6492,6 @@ class TestManageOIDCPublisherViews:
         assert project.record_event.calls == [
             pretend.call(
                 tag=EventTag.Project.OIDCPublisherRemoved,
-                ip_address=db_request.remote_addr,
                 request=db_request,
                 additional={
                     "publisher": publisher.publisher_name,

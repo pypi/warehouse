@@ -159,7 +159,6 @@ class PasswordMixin:
                     user = self.user_service.get_user(userid)
                     user.record_event(
                         tag=f"account:{self.action}:failure",
-                        ip_address=self.request.remote_addr,
                         request=self.request,
                         additional={"reason": "invalid_password"},
                     )
@@ -375,7 +374,6 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={"reason": "invalid_totp"},
             )
@@ -412,7 +410,6 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={"reason": "invalid_webauthn"},
             )
@@ -454,7 +451,6 @@ class RecoveryCodeAuthenticationForm(
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={"reason": "invalid_recovery_code"},
             )
@@ -463,7 +459,6 @@ class RecoveryCodeAuthenticationForm(
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={"reason": "burned_recovery_code"},
             )
