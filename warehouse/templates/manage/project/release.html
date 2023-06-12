@@ -176,7 +176,7 @@
     </div>
   {% endif %}
 
-  <div class="callout-block callout-block--danger">
+  <div class="callout-block callout-block--danger" data-controller="delete-confirm">
     <h3>{% trans %}Delete release{% endtrans %}</h3>
     <p>
       <i class="fa fa-exclamation-triangle" aria-hidden="true"><span class="sr-only">{% trans %}Warning{% endtrans %}</span></i>
@@ -192,8 +192,13 @@
       <p>{% trans %}You will not be able to re-upload a new distribution of the same type with the same version number.{% endtrans %}</p>
       <p>{% trans %}Deletion will break any downstream projects relying on a pinned version of this package. It is intended as a last resort to address legal issues or remove harmful releases.{% endtrans %}</p>
       <p>{% trans yank_href=request.help_url(_anchor='yanked'), post_href='https://www.python.org/dev/peps/pep-0440/#post-releases', title=gettext('External link') %}Consider <a href="{{ yank_href }}" title="{{ title }}" target="_blank" rel="noopener">yanking</a> this release, making a new release or a <a href="{{ post_href }}" title="{{ title }}" target="_blank" rel="noopener">post release</a> instead.{% endtrans %}</p>
+      <ul class="no-bullets">
+        <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input">I understand that I will not be able to re-upload a new distribution of the same type with the same version number ({{ release.version }})</li>
+        <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input">I understand that I will not be able to reverse this.</li>
+        <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input">I understand that the PyPI administrators will not be able to reverse this.</li>
+      </ul> 
     </p>
-    {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version) }}
+    {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
   </div>
 
   {% if files %}
