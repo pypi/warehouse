@@ -982,7 +982,7 @@ class TestDatabaseUserService:
         user = UserFactory.create()
         ip = IpAddressFactory.create()
 
-        assert user_service.seen_from_ip_before(user.id, ip) == False
+        assert not user_service.seen_from_ip_before(user.id, ip)
 
 
 class TestTokenService:
