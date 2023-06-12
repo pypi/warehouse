@@ -404,9 +404,13 @@ class ManageAccountViews:
             return self.default_response
 
         form = ConfirmPasswordForm(
+            formdata=MultiDict(
+                {
+                    "password": confirm_password,
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
-            password=confirm_password,
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 
