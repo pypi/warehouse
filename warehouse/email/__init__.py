@@ -327,7 +327,7 @@ def send_token_added_email(request, user, *, token_name, caveats):
         scope = request._("Token scope: entire account")
     else:
         scope = request._(
-            "Token scope: Project %(project_name)s",
+            "Token scope: Project ${project_name}",
             mapping={"project_name": caveats["permissions"]["projects"][0]},
         )
 
