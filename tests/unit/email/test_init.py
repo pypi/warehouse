@@ -992,7 +992,11 @@ class TestAuthFromNewIPEmail:
     def test_auth_from_new_ip_email(self, pyramid_request, pyramid_config, monkeypatch):
         stub_email = pretend.stub(email="foo@example.com", verified=True)
         stub_user = pretend.stub(
-            id="id", username="username", name=None, email=stub_email.email, primary_email=stub_email
+            id="id",
+            username="username",
+            name=None,
+            email=stub_email.email,
+            primary_email=stub_email,
         )
         stub_location = pretend.stub()
         pyramid_request.method = "POST"
@@ -1026,7 +1030,9 @@ class TestAuthFromNewIPEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        result = email.send_auth_from_new_ip_email(pyramid_request, stub_user, location=stub_location)
+        result = email.send_auth_from_new_ip_email(
+            pyramid_request, stub_user, location=stub_location
+        )
 
         assert result["username"] is stub_user.username
         assert result["location"] is stub_location
@@ -1304,7 +1310,11 @@ class TestTokenAddedEmail:
     def test_token_added_email(self, pyramid_request, pyramid_config, monkeypatch):
         stub_email = pretend.stub(email="foo@example.com", verified=True)
         stub_user = pretend.stub(
-            id="id", username="username", name=None, email=stub_email.email, primary_email=stub_email
+            id="id",
+            username="username",
+            name=None,
+            email=stub_email.email,
+            primary_email=stub_email,
         )
         token_name = "test"
         stub_caveats = {"permissions": "user"}
@@ -1339,15 +1349,21 @@ class TestTokenAddedEmail:
         pyramid_request.user = stub_user
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
-        result = email.send_token_added_email(pyramid_request, stub_user, token_name=token_name, caveats=stub_caveats)
+        result = email.send_token_added_email(
+            pyramid_request, stub_user, token_name=token_name, caveats=stub_caveats
+        )
 
         assert result["username"] is stub_user.username
         assert result["token_name"] == token_name
         assert result["token_scope"] == token_scope
 
         subject_renderer.assert_()
-        body_renderer.assert_(username=stub_user.username, token_name=token_name, token_scope=token_scope)
-        html_renderer.assert_(username=stub_user.username, token_name=token_name, token_scope=token_scope)
+        body_renderer.assert_(
+            username=stub_user.username, token_name=token_name, token_scope=token_scope
+        )
+        html_renderer.assert_(
+            username=stub_user.username, token_name=token_name, token_scope=token_scope
+        )
         assert pyramid_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(

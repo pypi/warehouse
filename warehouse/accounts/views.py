@@ -31,7 +31,6 @@ from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import forget, remember
 from pyramid.view import view_config, view_defaults
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.sql import exists
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 

@@ -20,7 +20,6 @@ from pyramid.authorization import ACLHelper
 from pyramid.httpexceptions import HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
-from sqlalchemy.sql import exists
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService

@@ -2011,6 +2011,8 @@ class TestProvisionMacaroonViews:
 
     @pytest.mark.parametrize("has_2fa", [True, False])
     def test_create_macaroon(self, monkeypatch, has_2fa):
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_token_added_email", send_email)
         macaroon = pretend.stub()
         macaroon_service = pretend.stub(
             create_macaroon=pretend.call_recorder(
