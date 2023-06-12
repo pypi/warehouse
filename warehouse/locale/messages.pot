@@ -327,10 +327,8 @@ msgstr ""
 msgid "Token scope: entire account"
 msgstr ""
 
-#: warehouse/email/__init__.py:329 warehouse/templates/manage/account.html:469
-#: warehouse/templates/manage/account.html:648
-#, python-format
-msgid "Token scope: Project %(project_name)s"
+#: warehouse/email/__init__.py:329
+msgid "Token scope: Project ${project_name}"
 msgstr ""
 
 #: warehouse/manage/forms.py:396
@@ -3173,6 +3171,12 @@ msgstr ""
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
 "tokens to your account."
+msgstr ""
+
+#: warehouse/templates/manage/account.html:469
+#: warehouse/templates/manage/account.html:648
+#, python-format
+msgid "Token scope: Project %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:472
