@@ -1306,7 +1306,14 @@ class TestPasswordCompromisedHIBPEmail:
 
 
 class TestTokenAddedEmail:
-    def test_token_added_email(self, pyramid_request, pyramid_config, monkeypatch):
+    @pytest.mark.parametrize(
+        ("caveats", "token_scope"),
+        [
+            ({"permissions": "user"}, "Token scope: entire account"),
+            ({"permissions": {"projects": ["foo"]}}, "Token scope: Project foo")
+        ]
+    )
+    def test_token_added_email(self, pyramid_request, pyramid_config, monkeypatch, caveats, token_scope):
         stub_email = pretend.stub(email="foo@example.com", verified=True)
         stub_user = pretend.stub(
             id="id",
@@ -1316,8 +1323,6 @@ class TestTokenAddedEmail:
             primary_email=stub_email,
         )
         token_name = "test"
-        stub_caveats = {"permissions": "user"}
-        token_scope = "Token scope: entire account"
 
         subject_renderer = pyramid_config.testing_add_renderer(
             "email/token-added/subject.txt"
@@ -1349,7 +1354,7 @@ class TestTokenAddedEmail:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_token_added_email(
-            pyramid_request, stub_user, token_name=token_name, caveats=stub_caveats
+            pyramid_request, stub_user, token_name=token_name, caveats=caveats
         )
 
         assert result["username"] is stub_user.username
