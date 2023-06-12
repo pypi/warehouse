@@ -466,7 +466,6 @@ class TestDatabaseUserService:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordDisabled,
-                ip_address="127.0.0.1",
                 request=request,
                 additional={"reason": expected},
             )

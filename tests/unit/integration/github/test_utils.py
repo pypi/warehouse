@@ -609,7 +609,6 @@ def test_analyze_disclosure(monkeypatch):
     assert user.record_event.calls == [
         pretend.call(
             tag=EventTag.Account.APITokenRemovedLeak,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "macaroon_id": "12",

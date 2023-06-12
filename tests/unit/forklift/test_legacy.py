@@ -3104,7 +3104,7 @@ class TestFileUpload:
         }.get(svc)
 
         record_event = pretend.call_recorder(
-            lambda self, *, tag, ip_address, request=None, additional: None
+            lambda self, *, tag, request=None, additional: None
         )
         monkeypatch.setattr(HasEvents, "record_event", record_event)
 
@@ -3190,14 +3190,12 @@ class TestFileUpload:
             pretend.call(
                 mock.ANY,
                 tag=EventTag.Project.ReleaseAdd,
-                ip_address=mock.ANY,
                 request=db_request,
                 additional=release_event,
             ),
             pretend.call(
                 mock.ANY,
                 tag=EventTag.File.FileAdd,
-                ip_address=mock.ANY,
                 request=db_request,
                 additional=fileadd_event,
             ),

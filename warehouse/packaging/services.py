@@ -429,7 +429,6 @@ class ProjectService:
         )
         project.record_event(
             tag=EventTag.Project.ProjectCreate,
-            ip_address=request.remote_addr,
             request=request,
             additional={"created_by": creator.username},
         )
@@ -449,7 +448,6 @@ class ProjectService:
             )
             project.record_event(
                 tag=EventTag.Project.RoleAdd,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "submitted_by": creator.username,
