@@ -626,9 +626,7 @@ class DatabaseUserService:
 
     def seen_from_ip_before(self, user_id, ip):
         user = self.get_user(user_id)
-        seen_from_ip_query = user.events.filter(
-            User.Event.ip_address_obj == ip
-        ).exists()
+        seen_from_ip_query = user.events.filter(User.Event.ip_address == ip).exists()
         return self.db.query(seen_from_ip_query).scalar()
 
 

@@ -1061,7 +1061,6 @@ class TestAuthFromNewIPEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
-                    "ip_address": "1.2.3.4",
                 },
             )
         ]
@@ -1385,7 +1384,6 @@ class TestTokenAddedEmail:
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
-                    "ip_address": "1.2.3.4",
                 },
             )
         ]
