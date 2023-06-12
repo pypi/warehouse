@@ -25,10 +25,7 @@ from zope.interface import implementer
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
-from warehouse.email import (
-    send_auth_from_new_ip_email,
-    send_password_compromised_email_hibp,
-)
+from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (
     BasicAuthAccountFrozen,
     BasicAuthBreachedPassword,
@@ -98,17 +95,11 @@ def _basic_auth_check(username, password, request):
                 )
 
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
-            has_seen_ip_before = login_service.seen_from_ip_before(
-                user.id, request.ip_address
-            )
-            event = user.record_event(
+            user.record_event(
                 tag=EventTag.Account.LoginSuccess,
                 request=request,
                 additional={"auth_method": "basic"},
             )
-
-            if not has_seen_ip_before:
-                send_auth_from_new_ip_email(request, user, location=event.location_info)
             return True
         else:
             user.record_event(

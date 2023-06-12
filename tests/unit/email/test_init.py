@@ -1310,10 +1310,12 @@ class TestTokenAddedEmail:
         ("caveats", "token_scope"),
         [
             ({"permissions": "user"}, "Token scope: entire account"),
-            ({"permissions": {"projects": ["foo"]}}, "Token scope: Project foo")
-        ]
+            ({"permissions": {"projects": ["foo"]}}, "Token scope: Project foo"),
+        ],
     )
-    def test_token_added_email(self, pyramid_request, pyramid_config, monkeypatch, caveats, token_scope):
+    def test_token_added_email(
+        self, pyramid_request, pyramid_config, monkeypatch, caveats, token_scope
+    ):
         stub_email = pretend.stub(email="foo@example.com", verified=True)
         stub_user = pretend.stub(
             id="id",
