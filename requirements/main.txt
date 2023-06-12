@@ -989,9 +989,9 @@ markupsafe==2.1.2 \
     #   mako
     #   pyramid-jinja2
     #   wtforms
-mistune==2.0.5 \
-    --hash=sha256:0246113cb2492db875c6be56974a7c893333bf26cd92891c85f63151cee09d34 \
-    --hash=sha256:bad7f5d431886fcbaf5f758118ecff70d31f75231b34024a1341120340a65ce8
+mistune==3.0.1 \
+    --hash=sha256:b9b3e438efbb57c62b5beb5e134dab664800bdf1284a7ee09e8b12b13eb1aac6 \
+    --hash=sha256:e912116c13aa0944f9dc530db38eb88f6a77087ab128f49f84a48f4c05ea163c
     # via -r requirements/main.in
 msgpack==1.0.5 \
     --hash=sha256:06f5174b5f8ed0ed919da0e62cbd4ffde676a374aba4020034da05fab67b9164 \
