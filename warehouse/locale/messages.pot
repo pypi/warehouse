@@ -5631,8 +5631,9 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:198
 #, python-format
 msgid ""
-"I understand that I will <a href=\"%(href)s\">not be able to re-upload "
-"any deleted files using the same file names</a>."
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
+"rel=\"noopener\">not be able to re-upload any deleted files using the "
+"same file names</a>."
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:199
