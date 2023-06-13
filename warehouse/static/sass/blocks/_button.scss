@@ -85,6 +85,11 @@
     }
   }
 
+  &--tertiary {
+    border-color: $light-grey;
+    background-color: $white;
+  }
+
   &--danger {
     border-color: $danger-color;
     background-color: $danger-color;
