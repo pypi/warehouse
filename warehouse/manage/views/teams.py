@@ -108,7 +108,6 @@ class ManageTeamSettingsViews:
             self.organization_service.rename_team(self.team.id, name)
             self.team.organization.record_event(
                 tag=EventTag.Organization.TeamRename,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={
                     "team_name": self.team.name,
@@ -118,7 +117,6 @@ class ManageTeamSettingsViews:
             )
             self.team.record_event(
                 tag=EventTag.Team.TeamRename,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={
                     "previous_team_name": previous_team_name,
@@ -148,7 +146,6 @@ class ManageTeamSettingsViews:
         # Record events.
         organization.record_event(
             tag=EventTag.Organization.TeamDelete,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
@@ -157,7 +154,6 @@ class ManageTeamSettingsViews:
         )
         self.team.record_event(
             tag=EventTag.Team.TeamDelete,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "deleted_by_user_id": str(self.request.user.id),
@@ -304,7 +300,6 @@ class ManageTeamRolesViews:
         # Record events.
         self.team.organization.record_event(
             tag=EventTag.Organization.TeamRoleAdd,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -315,7 +310,6 @@ class ManageTeamRolesViews:
         )
         self.team.record_event(
             tag=EventTag.Team.TeamRoleAdd,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -325,7 +319,6 @@ class ManageTeamRolesViews:
         )
         role.user.record_event(
             tag=EventTag.Account.TeamRoleAdd,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "submitted_by_user_id": str(self.request.user.id),
@@ -392,7 +385,6 @@ class ManageTeamRolesViews:
             # Record events.
             self.team.organization.record_event(
                 tag=EventTag.Organization.TeamRoleRemove,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -403,7 +395,6 @@ class ManageTeamRolesViews:
             )
             self.team.record_event(
                 tag=EventTag.Team.TeamRoleRemove,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -413,7 +404,6 @@ class ManageTeamRolesViews:
             )
             role.user.record_event(
                 tag=EventTag.Account.TeamRoleRemove,
-                ip_address=self.request.remote_addr,
                 request=self.request,
                 additional={
                     "submitted_by_user_id": str(self.request.user.id),
@@ -551,7 +541,6 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 # Record events.
                 project.record_event(
                     tag=EventTag.Project.TeamProjectRoleChange,
-                    ip_address=request.remote_addr,
                     request=request,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -561,7 +550,6 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 )
                 role.team.organization.record_event(
                     tag=EventTag.Organization.TeamProjectRoleChange,
-                    ip_address=request.remote_addr,
                     request=request,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -572,7 +560,6 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                 )
                 role.team.record_event(
                     tag=EventTag.Team.TeamProjectRoleChange,
-                    ip_address=request.remote_addr,
                     request=request,
                     additional={
                         "submitted_by_user_id": str(request.user.id),
@@ -656,7 +643,6 @@ def delete_team_project_role(project, request):
             # Record event.
             project.record_event(
                 tag=EventTag.Project.TeamProjectRoleRemove,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -666,7 +652,6 @@ def delete_team_project_role(project, request):
             )
             team.organization.record_event(
                 tag=EventTag.Organization.TeamProjectRoleRemove,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),
@@ -677,7 +662,6 @@ def delete_team_project_role(project, request):
             )
             team.record_event(
                 tag=EventTag.Team.TeamProjectRoleRemove,
-                ip_address=request.remote_addr,
                 request=request,
                 additional={
                     "submitted_by_user_id": str(request.user.id),

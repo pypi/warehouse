@@ -201,7 +201,6 @@ def mint_token_from_oidc(request):
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "expires": expires_at,

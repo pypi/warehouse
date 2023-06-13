@@ -320,13 +320,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             .all()
         )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
-    ):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
             request=request,
             additional={"organization_name": self.name, **additional},
         )
@@ -682,13 +679,10 @@ class Team(HasEvents, db.Model):
         "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
-    ):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
             request=request,
             additional={
                 "organization_name": self.organization.name,

@@ -196,7 +196,6 @@ class TestOrganization:
 
         organization.record_event(
             tag="",
-            ip_address=db_request.ip_address.ip_address,
             request=db_request,
             additional={},
         )
@@ -213,7 +212,6 @@ class TestOrganization:
         organization = DBOrganizationFactory.create()
         organization.record_event(
             tag="",
-            ip_address=db_request.ip_address.ip_address,
             request=db_request,
             additional={},
         )
@@ -231,7 +229,6 @@ class TestOrganization:
         organization = DBOrganizationFactory.create()
         organization.record_event(
             tag="",
-            ip_address=db_request.ip_address.ip_address,
             request=db_request,
             additional={},
         )

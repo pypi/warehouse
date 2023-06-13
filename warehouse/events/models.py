@@ -18,9 +18,7 @@ from dataclasses import dataclass
 from linehaul.ua import parser as linehaul_user_agent_parser
 from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.declarative import AbstractConcreteBase
-from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import declared_attr
 from ua_parser import user_agent_parser
 
@@ -120,7 +118,6 @@ class UserAgentInfo:
 class Event(AbstractConcreteBase):
     tag = Column(String, nullable=False)
     time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    ip_address_string = Column(String, nullable=True)
     additional = Column(JSONB, nullable=True)
 
     @declared_attr
@@ -165,29 +162,8 @@ class Event(AbstractConcreteBase):
         return orm.relationship(cls._parent_class, back_populates="events")
 
     @declared_attr
-    def ip_address_obj(cls):  # noqa: N805
-        return orm.relationship(IpAddress)
-
-    @hybrid_property
     def ip_address(cls):  # noqa: N805
-        if cls.ip_address_obj is not None:
-            return cls.ip_address_obj
-        return cls.ip_address_string
-
-    # ref: https://github.com/python/mypy/issues/11008
-    @ip_address.setter  # type: ignore
-    def ip_address(cls, value):  # noqa: N805
-        session = orm.object_session(cls)
-
-        cls.ip_address_string = value
-        try:
-            _ip_address = (
-                session.query(IpAddress).filter(IpAddress.ip_address == value).one()
-            )
-        except NoResultFound:
-            _ip_address = IpAddress(ip_address=value)
-            session.add(_ip_address)
-        cls.ip_address_obj = _ip_address
+        return orm.relationship(IpAddress)
 
     @property
     def location_info(cls) -> str:  # noqa: N805
@@ -197,14 +173,14 @@ class Event(AbstractConcreteBase):
         Dig into `.additional` for `geoip_info` and return that if it exists.
         It was stored at the time of the event, and may change in the related
         `IpAddress` object over time.
-        Otherwise, return the `ip_address_obj` and let its repr decide.
+        Otherwise, return the `ip_address` and let its repr decide.
         """
         if cls.additional is not None and "geoip_info" in cls.additional:
             g = GeoIPInfo(**cls.additional["geoip_info"])
             if g.display():
                 return g.display()
 
-        return cls.ip_address_obj
+        return cls.ip_address
 
     @property
     def user_agent_info(cls) -> str:  # noqa: N805
@@ -243,16 +219,16 @@ class HasEvents:
             back_populates="source",
         )
 
-    def record_event(self, *, tag, ip_address, request: Request, additional=None):
+    def record_event(self, *, tag, request: Request, additional=None):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
 
         # Get-or-create a new IpAddress object
-        ip_address_obj = request.ip_address
+        ip_address = request.ip_address
         # Add `request.ip_address.geoip_info` data to `Event.additional`
-        if ip_address_obj.geoip_info is not None:
+        if ip_address.geoip_info is not None:
             additional = additional or {}
-            additional["geoip_info"] = ip_address_obj.geoip_info
+            additional["geoip_info"] = ip_address.geoip_info
 
         if user_agent := request.headers.get("User-Agent"):
             try:
@@ -289,7 +265,7 @@ class HasEvents:
         event = self.Event(
             source=self,
             tag=tag,
-            ip_address_obj=ip_address_obj,
+            ip_address=ip_address,
             additional=additional,
         )
 
