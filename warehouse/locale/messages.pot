@@ -5565,7 +5565,7 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:175
-#: warehouse/templates/manage/project/release.html:201
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -5574,7 +5574,7 @@ msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:180
-#: warehouse/templates/manage/project/release.html:201
+#: warehouse/templates/manage/project/release.html:203
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr ""
@@ -5616,16 +5616,30 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:196
+#, python-format
 msgid ""
-"I understand that I will not be able to re-upload a new distribution of "
-"the same type with the same version number"
+"I understand that I am permanently deleting all files for the "
+"%(release_version)s release of this project."
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:197
-msgid "I understand that I will not be able to undo this."
+msgid ""
+"I understand that my users will no longer be able to install this release"
+" of this project."
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:198
+#, python-format
+msgid ""
+"I understand that I will <a href=\"%(href)s\">not be able to re-upload "
+"any deleted files using the same file names</a>."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:199
+msgid "I understand that I will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:200
 msgid "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
