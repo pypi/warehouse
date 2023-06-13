@@ -53,7 +53,7 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
-{% elif parsed.netloc == "youtube.com" or parsed.netloc.endswith(".youtube.com") %}
+{% elif parsed.netloc in ["youtube.com", "youtu.be"] or parsed.netloc.endswith((".youtube.com", ".youtu.be")) %}
   {% set icon = "fab fa-youtube" %}
 {% elif name|lower == "mastodon" %}
   {% set icon = "fab fa-mastodon" %}
