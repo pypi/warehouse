@@ -42,10 +42,8 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm import attribute_keyed_dict, declared_attr, validates
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -487,7 +485,7 @@ class Release(db.Model):
     _project_urls = orm.relationship(
         ReleaseURL,
         backref="release",
-        collection_class=attribute_mapped_collection("name"),
+        collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
         order_by=lambda: ReleaseURL.name.asc(),
         passive_deletes=True,
