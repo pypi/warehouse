@@ -5565,7 +5565,7 @@ msgid "Reason (optional)"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:175
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:201
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -5574,7 +5574,7 @@ msgid "Version"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:180
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:201
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr ""
@@ -5613,6 +5613,20 @@ msgid ""
 "rel=\"noopener\">yanking</a> this release, making a new release or a <a "
 "href=\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">post release</a> instead."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:196
+msgid ""
+"I understand that I will not be able to re-upload a new distribution of "
+"the same type with the same version number"
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:197
+msgid "I understand that I will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:198
+msgid "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:20
