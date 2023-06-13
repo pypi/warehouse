@@ -13,7 +13,9 @@ known_first_party = ['warehouse', 'tests']
 python_version = "3.11"
 namespace_packages = true
 warn_unused_configs = true
-plugins = ["mypy_zope:plugin"]
+# Plugin order matters. `mypy_zope` must come before `sqlalchemy` to prevent
+# false-positive signature mismatch errors for `zope.interface` instances.
+plugins = ["mypy_zope:plugin", "sqlalchemy.ext.mypy.plugin"]
 exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 
 [[tool.mypy.overrides]]
@@ -45,7 +47,6 @@ module = [
     "pyqrcode.*",
     "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
     "rfc3986.*",
-    "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
