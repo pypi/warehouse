@@ -222,6 +222,8 @@ class HasEvents:
     def record_event(self, *, tag, request: Request, additional=None):
         """Records an Event record on the associated model."""
         session = orm.object_session(self)
+        if session is None:  # pragma: no cover
+            raise RuntimeError("Cannot record event without a session")
 
         # Get-or-create a new IpAddress object
         ip_address = request.ip_address
