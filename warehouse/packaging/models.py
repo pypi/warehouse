@@ -76,7 +76,6 @@ from warehouse.utils.db.types import bool_false, datetime_now
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
 
-
 _MONOTONIC_SEQUENCE = 42
 
 
