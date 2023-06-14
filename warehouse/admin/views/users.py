@@ -203,7 +203,8 @@ def _nuke_user(user, request):
     )
     for project in projects:
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=project.name,
                 action="remove project",
                 submitted_by=request.user,
@@ -233,13 +234,6 @@ def _nuke_user(user, request):
 
     # Delete the user
     request.db.delete(user)
-    request.db.add(
-        JournalEntry(
-            name=f"user:{user.username}",
-            action="nuke user",
-            submitted_by=request.user,
-        )
-    )
 
 
 @view_config(

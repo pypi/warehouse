@@ -188,7 +188,8 @@ def remove_project(project, request, flash=True):
     #       some kind of garbage collection at some point.
 
     request.db.add(
-        JournalEntry(
+        JournalEntry.create_with_lock(
+            request.db,
             name=project.name,
             action="remove project",
             submitted_by=request.user,
@@ -203,14 +204,6 @@ def remove_project(project, request, flash=True):
 
 
 def destroy_docs(project, request, flash=True):
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="docdestroy",
-            submitted_by=request.user,
-        )
-    )
-
     request.task(remove_documentation).delay(project.name)
 
     project.has_docs = False

@@ -1155,7 +1155,8 @@ def file_upload(request):
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=release.project.name,
                 version=release.version,
                 action="new release",
@@ -1427,7 +1428,8 @@ def file_upload(request):
         #       SQLAlchemy hook or the like instead of doing it inline in this
         #       view.
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=release.project.name,
                 version=release.version,
                 action="add {python_version} file {filename}".format(

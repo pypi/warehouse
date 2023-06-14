@@ -80,7 +80,6 @@ from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
-    JournalEntry,
     Project,
     ProjectFactory,
     Release,
@@ -1157,13 +1156,7 @@ def verify_project_role(request):
 
     request.db.add(Role(user=user, project=project, role_name=desired_role))
     request.db.delete(role_invite)
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action=f"accepted {desired_role} {user.username}",
-            submitted_by=request.user,
-        )
-    )
+
     project.record_event(
         tag=EventTag.Project.RoleAdd,
         request=request,

@@ -36,11 +36,13 @@ from sqlalchemy import (
     Table,
     Text,
     UniqueConstraint,
+    cast,
     func,
     orm,
+    select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import REGCLASS, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
@@ -63,6 +65,8 @@ from warehouse.organizations.models import (
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
+
+_MONOTONIC_SEQUENCE = 42
 
 
 class Role(db.Model):
@@ -752,6 +756,31 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
+
+    @classmethod
+    def create_with_lock(cls, session, *args, **kwargs):
+        # We rely on `journals.id` to be a monotonically increasing integer,
+        # however the way that SERIAL is implemented, it does not guarentee
+        # that is the case.
+        #
+        # Ultimately SERIAL fetches the next integer regardless of what happens
+        # inside of the transaction. So journals.id will get filled in, in order
+        # of when the `INSERT` statements were executed, but not in the order
+        # that transactions were committed.
+        #
+        # The way this works, not even the SERIALIZABLE transaction types give
+        # us this property. Instead we have to implement our own locking that
+        # ensures that each new journal entry will be serialized.
+        session.execute(
+            select(
+                func.pg_advisory_xact_lock(
+                    cast(cast(cls.__tablename__, REGCLASS), Integer),
+                    _MONOTONIC_SEQUENCE,
+                )
+            )
+        )
+
+        return cls(*args, **kwargs)
 
 
 class ProhibitedProjectName(db.Model):
