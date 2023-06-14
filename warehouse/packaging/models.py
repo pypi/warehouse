@@ -12,7 +12,6 @@
 from __future__ import annotations
 
 import enum
-import hashlib
 import typing
 
 from collections import OrderedDict
@@ -40,7 +39,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID, REGCLASS
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -76,6 +75,9 @@ from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
+
+
+_MONOTONIC_SEQUENCE = 42
 
 
 class Role(db.Model):
@@ -876,11 +878,14 @@ class JournalEntry(db.ModelBase):
         # The way this works, not even the SERIALIZABLE transaction types give
         # us this property. Instead we have to implement our own locking that
         # ensures that each new journal entry will be serialized.
-        #
-        # See: https://mattjames.dev/auto-increment-ids-are-not-strictly-monotonic/
-        hashed = hashlib.blake2b(b"table:journals").digest()[:8]
-        key = int.from_bytes(hashed, "little", signed=True)
-        session.execute(select(func.pg_advisory_xact_lock(cast(key, BigInteger))))
+        session.execute(
+            select(
+                func.pg_advisory_xact_lock(
+                    cast(cast(cls.__tablename__, REGCLASS), Integer),
+                    _MONOTONIC_SEQUENCE,
+                )
+            )
+        )
 
         return cls(*args, **kwargs)
 
