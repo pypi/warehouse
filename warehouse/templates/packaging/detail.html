@@ -137,8 +137,6 @@
 {% endblock %}
 
 {% block content %}
-{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
-{% endcsi %}
 {% if release.github_repo_info_url and release.github_open_issue_info_url %}
 <div class="hidden"
   data-controller="github-repo-stats"
@@ -199,6 +197,8 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
+{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
+{% endcsi %}
     <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>
