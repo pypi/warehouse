@@ -170,11 +170,7 @@ def mint_token_from_oidc(request):
             errors=[
                 {
                     "code": "invalid-publisher",
-                    "description": (
-                        "valid token, but no corresponding publisher, "
-                        "either this publisher is not configured in PyPI "
-                        "or this publisher required environment is not met"
-                    ),
+                    "description": "valid token, but no corresponding publisher",
                 }
             ]
         )
