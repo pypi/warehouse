@@ -221,8 +221,6 @@ class HasEvents:
 
     def record_event(self, *, tag, request: Request, additional=None):
         """Records an Event record on the associated model."""
-        session = orm.object_session(self)
-        assert session is not None
 
         # Get-or-create a new IpAddress object
         ip_address = request.ip_address
@@ -270,6 +268,6 @@ class HasEvents:
             additional=additional,
         )
 
-        session.add(event)
+        request.db.add(event)
 
         return event
