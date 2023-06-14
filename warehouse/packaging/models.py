@@ -66,7 +66,6 @@ from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
 
-
 _MONOTONIC_SEQUENCE = 42
 
 
