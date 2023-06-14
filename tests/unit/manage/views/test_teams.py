@@ -17,7 +17,6 @@ import pytest
 
 from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
-from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict
 
 from tests.common.db.accounts import UserFactory

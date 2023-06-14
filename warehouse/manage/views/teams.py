@@ -48,7 +48,6 @@ from warehouse.organizations.models import (
     TeamRoleType,
 )
 from warehouse.packaging import Project
-from warehouse.packaging.models import JournalEntry
 from warehouse.utils.organization import confirm_team
 from warehouse.utils.paginate import paginate_url_factory
 

@@ -69,7 +69,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.packaging import IProjectService, Project, Role
-from warehouse.packaging.models import JournalEntry, ProjectFactory
+from warehouse.packaging.models import ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.organization import confirm_organization
