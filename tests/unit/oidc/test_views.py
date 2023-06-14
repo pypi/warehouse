@@ -180,7 +180,11 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         "errors": [
             {
                 "code": "invalid-publisher",
-                "description": "valid token, but no corresponding publisher",
+                "description": (
+                    "valid token, but no corresponding publisher, "
+                    "either this publisher is not configured in PyPI "
+                    "or this publisher required environment is not met"
+                ),
             }
         ],
     }
