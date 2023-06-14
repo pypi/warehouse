@@ -47,7 +47,7 @@ class DatabaseMacaroonService:
 
         return raw_macaroon
 
-    def find_macaroon(self, macaroon_id):
+    def find_macaroon(self, macaroon_id) -> Macaroon | None:
         """
         Returns a macaroon model from the DB by its identifier.
         Returns None if no macaroon has the given ID.
@@ -57,10 +57,14 @@ class DatabaseMacaroonService:
         except ValueError:
             return None
 
-        return self.db.get(
-            Macaroon,
-            macaroon_id,
-            (joinedload(Macaroon.user), joinedload(Macaroon.oidc_publisher)),
+        return (
+            self.db.query(Macaroon)
+            .options(
+                joinedload(Macaroon.user),
+                joinedload(Macaroon.oidc_publisher),
+            )
+            .filter_by(id=macaroon_id)
+            .one_or_none()
         )
 
     def _deserialize_raw_macaroon(self, raw_macaroon):
