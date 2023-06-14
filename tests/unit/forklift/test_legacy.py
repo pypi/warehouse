@@ -2086,7 +2086,6 @@ class TestFileUpload:
         )
         assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             ("example", None, "create", user),
-            ("example", None, f"add Owner {user.username}", user),
             ("example", "1.0", "new release", user),
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
@@ -3480,7 +3479,6 @@ class TestFileUpload:
         )
         assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
             ("example", None, "create", user),
-            ("example", None, f"add Owner {user.username}", user),
             ("example", "1.0", "new release", user),
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
