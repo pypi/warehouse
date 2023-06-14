@@ -80,7 +80,6 @@ from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
-    JournalEntry,
     Project,
     ProjectFactory,
     Release,
