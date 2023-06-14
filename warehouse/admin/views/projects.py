@@ -591,15 +591,6 @@ def add_role(project, request):
             )
         )
 
-    request.db.add(
-        JournalEntry.create_with_lock(
-            request.db,
-            name=project.name,
-            action=f"add {role_name} {user.username}",
-            submitted_by=request.user,
-        )
-    )
-
     request.db.add(Role(role_name=role_name, user=user, project=project))
 
     request.session.flash(
@@ -641,14 +632,6 @@ def delete_role(project, request):
     request.session.flash(
         f"Removed '{role.user.username}' as '{role.role_name}' on '{project.name}'",
         queue="success",
-    )
-    request.db.add(
-        JournalEntry.create_with_lock(
-            request.db,
-            name=project.name,
-            action=f"remove {role.role_name} {role.user.username}",
-            submitted_by=request.user,
-        )
     )
 
     request.db.delete(role)

@@ -5356,16 +5356,6 @@ class TestChangeProjectRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "change Owner testuser to Maintainer"
-        assert entry.submitted_by == db_request.user
-
     def test_change_role_invalid_role_name(self, pyramid_request):
         project = pretend.stub(name="foobar")
 
@@ -5475,16 +5465,6 @@ class TestDeleteProjectRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
-        entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "remove Owner testuser"
-        assert entry.submitted_by == db_request.user
-
     def test_delete_missing_role(self, db_request):
         project = ProjectFactory.create(name="foobar")
         missing_role_id = str(uuid.uuid4())
@@ -5571,16 +5551,6 @@ class TestDeleteProjectRole:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
-
-        entry = (
-            db_request.db.query(JournalEntry)
-            .options(joinedload(JournalEntry.submitted_by))
-            .one()
-        )
-
-        assert entry.name == project.name
-        assert entry.action == "remove Owner testuser"
-        assert entry.submitted_by == db_request.user
 
     def test_delete_non_owner_role(self, db_request):
         project = ProjectFactory.create(name="foobar")

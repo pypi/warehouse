@@ -2431,16 +2431,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         # Add internal team.
         organization_service.add_team_project_role(team.id, project.id, role_name)
 
-        # Add journal entry.
-        request.db.add(
-            JournalEntry.create_with_lock(
-                request.db,
-                name=project.name,
-                action=f"add {role_name.value} {team_name}",
-                submitted_by=request.user,
-            )
-        )
-
         # Record events.
         project.record_event(
             tag=EventTag.Project.TeamProjectRoleAdd,
@@ -2541,16 +2531,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     if enable_internal_collaborator and user in internal_users:
         # Add internal member.
         request.db.add(Role(user=user, project=project, role_name=role_name))
-
-        # Add journal entry.
-        request.db.add(
-            JournalEntry.create_with_lock(
-                request.db,
-                name=project.name,
-                action=f"add {role_name} {user.username}",
-                submitted_by=request.user,
-            )
-        )
 
         # Record events.
         project.record_event(
@@ -2668,14 +2648,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     )
                 )
 
-            request.db.add(
-                JournalEntry.create_with_lock(
-                    request.db,
-                    name=project.name,
-                    action=f"invite {role_name} {username}",
-                    submitted_by=request.user,
-                )
-            )
             send_project_role_verification_email(
                 request,
                 user,
@@ -2754,14 +2726,6 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
         )
     role_name = token_data.get("desired_role")
 
-    request.db.add(
-        JournalEntry.create_with_lock(
-            request.db,
-            name=project.name,
-            action=f"revoke_invite {role_name} {user.username}",
-            submitted_by=request.user,
-        )
-    )
     project.record_event(
         tag=EventTag.Project.RoleRevokeInvite,
         request=request,
@@ -2817,16 +2781,6 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
             if role.role_name == "Owner" and role.user == request.user:
                 request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
-                request.db.add(
-                    JournalEntry.create_with_lock(
-                        request.db,
-                        name=project.name,
-                        action="change {} {} to {}".format(
-                            role.role_name, role.user.username, form.role_name.data
-                        ),
-                        submitted_by=request.user,
-                    )
-                )
                 role.role_name = form.role_name.data
                 project.record_event(
                     tag=EventTag.Project.RoleChange,
@@ -2904,14 +2858,7 @@ def delete_project_role(project, request):
             request.session.flash("Cannot remove yourself as Sole Owner", queue="error")
         else:
             request.db.delete(role)
-            request.db.add(
-                JournalEntry.create_with_lock(
-                    request.db,
-                    name=project.name,
-                    action=f"remove {role.role_name} {role.user.username}",
-                    submitted_by=request.user,
-                )
-            )
+
             project.record_event(
                 tag=EventTag.Project.RoleRemove,
                 request=request,
