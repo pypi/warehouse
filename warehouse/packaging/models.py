@@ -73,10 +73,10 @@ class Role(db.Model):
     __repr__ = make_repr("role_name")
 
     role_name = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -101,17 +101,17 @@ class RoleInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "project")
 
-    invite_status = Column(
+    invite_status = Column(  # type: ignore[var-annotated]
         Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -364,7 +364,7 @@ class Dependency(db.Model):
     )
     __repr__ = make_repr("release", "kind", "specifier")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -402,7 +402,7 @@ class ReleaseURL(db.Model):
     )
     __repr__ = make_repr("name", "url")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -429,7 +429,7 @@ class Release(db.Model):
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -452,7 +452,7 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    description_id = Column(
+    description_id = Column(  # type: ignore[var-annotated]
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -540,7 +540,7 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    uploader_id = Column(
+    uploader_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -638,13 +638,13 @@ class File(HasEvents, db.Model):
             Index("release_files_cached_idx", "cached"),
         )
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     python_version = Column(Text)
     requires_python = Column(Text)
-    packagetype = Column(
+    packagetype = Column(  # type: ignore[var-annotated]
         Enum(
             "bdist_dmg",
             "bdist_dumb",
