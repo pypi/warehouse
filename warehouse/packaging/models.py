@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import enum
+import hashlib
 
 from collections import OrderedDict
 from urllib.parse import urlparse
@@ -36,8 +37,10 @@ from sqlalchemy import (
     Table,
     Text,
     UniqueConstraint,
+    cast,
     func,
     orm,
+    select,
     sql,
 )
 from sqlalchemy.dialects.postgresql import UUID
@@ -752,6 +755,14 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
+
+    @classmethod
+    def create_with_lock(cls, session, *args, **kwargs):
+        hashed = hashlib.blake2b(b"table:journals").digest()[:8]
+        key = int.from_bytes(hashed, "little", signed=True)
+        session.execute(select(func.pg_advisory_xact_lock(cast(key, BigInteger))))
+
+        return cls(*args, **kwargs)
 
 
 class ProhibitedProjectName(db.Model):

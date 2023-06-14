@@ -1641,7 +1641,8 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                self.request.db,
                 name=self.release.project.name,
                 action="yank release",
                 version=self.release.version,
@@ -1726,7 +1727,8 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                self.request.db,
                 name=self.release.project.name,
                 action="unyank release",
                 version=self.release.version,
@@ -1827,7 +1829,8 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                self.request.db,
                 name=self.release.project.name,
                 action="remove release",
                 version=self.release.version,
@@ -1919,7 +1922,8 @@ class ManageProjectRelease:
             )
 
         self.request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                self.request.db,
                 name=self.release.project.name,
                 action=f"remove file {release_file.filename}",
                 version=self.release.version,
@@ -2078,7 +2082,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Add journal entry.
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=project.name,
                 action=f"add {role_name.value} {team_name}",
                 submitted_by=request.user,
@@ -2188,7 +2193,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
 
         # Add journal entry.
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=project.name,
                 action=f"add {role_name} {user.username}",
                 submitted_by=request.user,
@@ -2312,7 +2318,8 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 )
 
             request.db.add(
-                JournalEntry(
+                JournalEntry.create_with_lock(
+                    request.db,
                     name=project.name,
                     action=f"invite {role_name} {username}",
                     submitted_by=request.user,
@@ -2397,7 +2404,8 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     role_name = token_data.get("desired_role")
 
     request.db.add(
-        JournalEntry(
+        JournalEntry.create_with_lock(
+            request.db,
             name=project.name,
             action=f"revoke_invite {role_name} {user.username}",
             submitted_by=request.user,
@@ -2459,7 +2467,8 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 request.session.flash("Cannot remove yourself as Owner", queue="error")
             else:
                 request.db.add(
-                    JournalEntry(
+                    JournalEntry.create_with_lock(
+                        request.db,
                         name=project.name,
                         action="change {} {} to {}".format(
                             role.role_name, role.user.username, form.role_name.data
@@ -2545,7 +2554,8 @@ def delete_project_role(project, request):
         else:
             request.db.delete(role)
             request.db.add(
-                JournalEntry(
+                JournalEntry.create_with_lock(
+                    request.db,
                     name=project.name,
                     action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,

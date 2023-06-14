@@ -400,7 +400,8 @@ def add_role(project, request):
         )
 
     request.db.add(
-        JournalEntry(
+        JournalEntry.create_with_lock(
+            request.db,
             name=project.name,
             action=f"add {role_name} {user.username}",
             submitted_by=request.user,
@@ -450,7 +451,8 @@ def delete_role(project, request):
         queue="success",
     )
     request.db.add(
-        JournalEntry(
+        JournalEntry.create_with_lock(
+            request.db,
             name=project.name,
             action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
