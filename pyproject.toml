@@ -24,7 +24,6 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
-    "citext.*",
     "disposable_email_domains.*",
     "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
     "github_reserved_names.*",
@@ -70,5 +69,4 @@ filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
-    'ignore:UserDefinedType CIText.*:sqlalchemy.exc.SAWarning'  # See https://github.com/mahmoudimus/sqlalchemy-citext/issues/25
 ]

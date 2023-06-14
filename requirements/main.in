@@ -62,7 +62,6 @@ rfc3986
 sentry-sdk
 setuptools
 sqlalchemy[asyncio]>=2.0,<3.0
-sqlalchemy-citext
 stdlib-list
 stripe
 structlog

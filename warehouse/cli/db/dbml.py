@@ -17,9 +17,8 @@ from typing import Literal, NotRequired, TypedDict
 
 import click
 
-from citext import CIText
 from sqlalchemy.dialects.postgresql.array import ARRAY
-from sqlalchemy.dialects.postgresql.base import INET, TIMESTAMP, UUID
+from sqlalchemy.dialects.postgresql.base import CITEXT, INET, TIMESTAMP, UUID
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.sql.sqltypes import (
@@ -66,7 +65,7 @@ SQLALCHEMY_TO_DBML = {
     UUID: "varchar",
     INET: "varchar",
     JSONB: "text",
-    CIText: "text",
+    CITEXT: "text",
     TZDateTime: "datetime",
     ARRAY: '"string[]"',
     TIMESTAMP: "datetime",

@@ -17,7 +17,6 @@ from urllib.parse import urlparse
 
 import packaging.utils
 
-from citext import CIText
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
@@ -40,7 +39,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declared_attr  # type: ignore
@@ -664,14 +663,14 @@ class File(HasEvents, db.Model):
     path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
     md5_digest = Column(Text, unique=True, nullable=False)
-    sha256_digest = Column(CIText, unique=True, nullable=False)
-    blake2_256_digest = Column(CIText, unique=True, nullable=False)
+    sha256_digest = Column(CITEXT, unique=True, nullable=False)
+    blake2_256_digest = Column(CITEXT, unique=True, nullable=False)
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
 
     # PEP 658
-    metadata_file_sha256_digest = Column(CIText, nullable=True)
-    metadata_file_blake2_256_digest = Column(CIText, nullable=True)
+    metadata_file_sha256_digest = Column(CITEXT, nullable=True)
+    metadata_file_blake2_256_digest = Column(CITEXT, nullable=True)
 
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
@@ -747,7 +746,7 @@ class JournalEntry(db.ModelBase):
     )
     _submitted_by = Column(
         "submitted_by",
-        CIText,
+        CITEXT,
         ForeignKey("users.username", onupdate="CASCADE"),
         nullable=True,
     )

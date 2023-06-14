@@ -13,7 +13,6 @@
 import datetime
 import enum
 
-from citext import CIText
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     Boolean,
@@ -32,7 +31,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -71,7 +70,7 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    username = Column(CIText, nullable=False, unique=True)
+    username = Column(CITEXT, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
     password_date = Column(TZDateTime, nullable=True, server_default=sql.func.now())

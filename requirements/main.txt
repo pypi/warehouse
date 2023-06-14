@@ -1457,11 +1457,7 @@ sqlalchemy[asyncio]==2.0.16 \
     #   -r requirements/main.in
     #   alembic
     #   paginate-sqlalchemy
-    #   sqlalchemy-citext
     #   zope-sqlalchemy
-sqlalchemy-citext==1.8.0 \
-    --hash=sha256:a1740e693a9a334e7c8f60ae731083fe75ce6c1605bb9ca6644a6f1f63b15b77
-    # via -r requirements/main.in
 stdlib-list==0.8.0 \
     --hash=sha256:2ae0712a55b68f3fbbc9e58d6fa1b646a062188f49745b495f94d3310a9fdd3e \
     --hash=sha256:a1e503719720d71e2ed70ed809b385c60cd3fb555ba7ec046b96360d30b16d9f
