@@ -51,7 +51,8 @@ endpoint:
   is well-formed (and has a valid signature), but doesn't match any known
   (pending) OIDC publisher. This likely indicates a mismatch between the
   OIDC publisher specified in the user/project settings and the claims
-  represented in the actual OIDC token. Check for typos!
+  represented in the actual OIDC token. Check for typos and GitHub environment
+  configurations!
 
 [reusable workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
