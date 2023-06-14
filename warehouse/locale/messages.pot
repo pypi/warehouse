@@ -276,32 +276,32 @@ msgstr ""
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1310
+#: warehouse/accounts/views.py:1304
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
+#: warehouse/accounts/views.py:1551 warehouse/accounts/views.py:1794
 #: warehouse/manage/views/__init__.py:1247
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1572
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1594
+#: warehouse/accounts/views.py:1588
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607
+#: warehouse/accounts/views.py:1601
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/accounts/views.py:1617 warehouse/manage/views/__init__.py:1282
 #: warehouse/manage/views/__init__.py:1395
 #: warehouse/manage/views/__init__.py:1507
 #: warehouse/manage/views/__init__.py:1617
@@ -310,29 +310,29 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/accounts/views.py:1628 warehouse/manage/views/__init__.py:1296
 #: warehouse/manage/views/__init__.py:1409
 #: warehouse/manage/views/__init__.py:1521
 #: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1648
+#: warehouse/accounts/views.py:1642
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1675
+#: warehouse/accounts/views.py:1669
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
-#: warehouse/accounts/views.py:1834
+#: warehouse/accounts/views.py:1808 warehouse/accounts/views.py:1821
+#: warehouse/accounts/views.py:1828
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1840
+#: warehouse/accounts/views.py:1834
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -476,17 +476,17 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:2133
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2135
+#: warehouse/manage/views/__init__.py:2244
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:1964
-#: warehouse/manage/views/__init__.py:2049
-#: warehouse/manage/views/__init__.py:2150
-#: warehouse/manage/views/__init__.py:2250
+#: warehouse/manage/views/__init__.py:2050
+#: warehouse/manage/views/__init__.py:2152
+#: warehouse/manage/views/__init__.py:2253
 msgid "Confirm the request"
 msgstr ""
 
@@ -494,83 +494,83 @@ msgstr ""
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2061
+#: warehouse/manage/views/__init__.py:2062
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2162
+#: warehouse/manage/views/__init__.py:2164
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2265
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2266
+#: warehouse/manage/views/__init__.py:2269
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2416
+#: warehouse/manage/views/__init__.py:2420
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2523
+#: warehouse/manage/views/__init__.py:2518
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2590
+#: warehouse/manage/views/__init__.py:2576
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/__init__.py:2608
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2635
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2621
+#: warehouse/manage/views/organizations.py:872
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2700
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2679
+#: warehouse/manage/views/organizations.py:937
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2733
+#: warehouse/manage/views/__init__.py:2712
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2744
+#: warehouse/manage/views/__init__.py:2723
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2776
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2748
+#: warehouse/manage/views/organizations.py:1124
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:848
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:859
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1020
+#: warehouse/manage/views/organizations.py:1062
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1030
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1077
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
