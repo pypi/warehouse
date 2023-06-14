@@ -745,7 +745,8 @@ class ManageOrganizationProjectsViews:
             if role:
                 self.request.db.delete(role)
                 self.request.db.add(
-                    JournalEntry(
+                    JournalEntry.create_with_lock(
+                        self.request.db,
                         name=project.name,
                         action=f"remove {role.role_name} {role.user.username}",
                         submitted_by=self.request.user,
@@ -1521,7 +1522,8 @@ def transfer_organization_project(project, request):
     if role:
         request.db.delete(role)
         request.db.add(
-            JournalEntry(
+            JournalEntry.create_with_lock(
+                request.db,
                 name=project.name,
                 action=f"remove {role.role_name} {role.user.username}",
                 submitted_by=request.user,

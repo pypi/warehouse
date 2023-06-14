@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import enum
+import hashlib
 import typing
 
 from collections import OrderedDict
@@ -32,9 +33,11 @@ from sqlalchemy import (
     String,
     Text,
     UniqueConstraint,
+    cast,
     func,
     or_,
     orm,
+    select,
     sql,
 )
 from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
@@ -858,6 +861,14 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by: Mapped[User] = orm.relationship(lazy="raise_on_sql")
+
+    @classmethod
+    def create_with_lock(cls, session, *args, **kwargs):
+        hashed = hashlib.blake2b(b"table:journals").digest()[:8]
+        key = int.from_bytes(hashed, "little", signed=True)
+        session.execute(select(func.pg_advisory_xact_lock(cast(key, BigInteger))))
+
+        return cls(*args, **kwargs)
 
 
 class ProhibitedProjectName(db.Model):
