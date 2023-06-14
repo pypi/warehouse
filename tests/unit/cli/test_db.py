@@ -364,20 +364,20 @@ def test_dbml_command(monkeypatch, cli):
 
 
 EXPECTED_DBML = """Table _clan {
-  id varchar [pk, not null, default: `gen_random_uuid()`]
   name text [unique, not null]
   fetched text [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
   Note: "various clans"
 }
 
 Table _clan_member {
-  id varchar [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
   clan_id varchar
   joined datetime [not null, default: `now()`]
   departed datetime
+  id varchar [pk, not null, default: `gen_random_uuid()`]
 }
 
 Ref: _clan_member.clan_id > _clan.id
