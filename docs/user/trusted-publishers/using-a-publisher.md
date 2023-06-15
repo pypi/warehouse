@@ -19,7 +19,7 @@ jobs:
   pypi-publish:
     name: upload release to PyPI
     runs-on: ubuntu-latest
-    # **strongly** encouraged to protect it with a GitHub environment
+    # Specifying a GitHub environment is optional, but strongly encouraged
     environment: release
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
