@@ -33,21 +33,6 @@ from warehouse.cli.db.stamp import stamp
 from warehouse.cli.db.upgrade import upgrade
 
 
-def _compare_alembic_locks(calls: list[pretend.call]) -> bool:
-    sql = []
-    for t in calls:
-        assert len(t.args) == 1
-        assert len(t.kwargs) == 0
-
-        tc = t.args[0]
-        assert isinstance(tc, sqlalchemy.sql.expression.TextClause)
-        sql.append(tc.text)
-    return sql == [
-        "SELECT pg_advisory_lock(hashtext('alembic'))",
-        "SELECT pg_advisory_unlock(hashtext('alembic'))",
-    ]
-
-
 def test_branches_command(monkeypatch, cli, pyramid_config):
     alembic_branches = pretend.call_recorder(lambda config: None)
     monkeypatch.setattr(alembic.command, "branches", alembic_branches)
@@ -66,7 +51,10 @@ def test_branches_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(branches, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_branches.calls == [pretend.call(alembic_config)]
 
 
@@ -88,7 +76,10 @@ def test_current_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(current, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_current.calls == [pretend.call(alembic_config)]
 
 
@@ -110,7 +101,10 @@ def test_downgrade_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(downgrade, ["--", "-1"], obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_downgrade.calls == [pretend.call(alembic_config, "-1")]
 
 
@@ -140,7 +134,10 @@ def test_heads_command(monkeypatch, cli, pyramid_config, args, ekwargs):
     result = cli.invoke(heads, args, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_heads.calls == [pretend.call(alembic_config, **ekwargs)]
 
 
@@ -162,7 +159,10 @@ def test_history_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(history, ["foo:bar"], obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_history.calls == [pretend.call(alembic_config, "foo:bar")]
 
 
@@ -203,7 +203,10 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
     result = cli.invoke(merge, args, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_merge.calls == [pretend.call(alembic_config, *eargs, **ekwargs)]
 
 
@@ -261,7 +264,10 @@ def test_revision_command(monkeypatch, cli, pyramid_config, args, ekwargs):
     result = cli.invoke(revision, args, obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_revision.calls == [pretend.call(alembic_config, **ekwargs)]
 
 
@@ -283,7 +289,10 @@ def test_show_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(show, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_show.calls == [pretend.call(alembic_config, "foo")]
 
 
@@ -305,7 +314,10 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(stamp, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_stamp.calls == [pretend.call(alembic_config, "foo")]
 
 
@@ -327,7 +339,10 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
     assert alembic_config.attributes == {"connection": connection}
-    assert _compare_alembic_locks(connection.execute.calls)
+    assert connection.execute.calls == [
+        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
+        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
+    ]
     assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
 
 
@@ -349,20 +364,20 @@ def test_dbml_command(monkeypatch, cli):
 
 
 EXPECTED_DBML = """Table _clan {
+  id varchar [pk, not null, default: `gen_random_uuid()`]
   name text [unique, not null]
   fetched text [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
-  id varchar [pk, not null, default: `gen_random_uuid()`]
   Note: "various clans"
 }
 
 Table _clan_member {
+  id varchar [pk, not null, default: `gen_random_uuid()`]
   name text [not null]
   clan_id varchar
   joined datetime [not null, default: `now()`]
   departed datetime
-  id varchar [pk, not null, default: `gen_random_uuid()`]
 }
 
 Ref: _clan_member.clan_id > _clan.id

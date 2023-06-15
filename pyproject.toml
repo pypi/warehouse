@@ -13,9 +13,7 @@ known_first_party = ['warehouse', 'tests']
 python_version = "3.11"
 namespace_packages = true
 warn_unused_configs = true
-# Plugin order matters. `mypy_zope` must come before `sqlalchemy` to prevent
-# false-positive signature mismatch errors for `zope.interface` instances.
-plugins = ["mypy_zope:plugin", "sqlalchemy.ext.mypy.plugin"]
+plugins = ["mypy_zope:plugin"]
 exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 
 [[tool.mypy.overrides]]
@@ -26,6 +24,7 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
+    "citext.*",
     "disposable_email_domains.*",
     "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
     "github_reserved_names.*",
@@ -47,6 +46,7 @@ module = [
     "pyqrcode.*",
     "requests_aws4auth.*",  # https://github.com/tedder/requests-aws4auth/issues/53
     "rfc3986.*",
+    "sqlalchemy.*", # https://docs.sqlalchemy.org/en/14/orm/extensions/mypy.html
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
@@ -70,4 +70,5 @@ filterwarnings = [
     'ignore::warehouse.admin.services.InsecureStorageWarning',
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
+    'ignore:UserDefinedType CIText.*:sqlalchemy.exc.SAWarning'  # See https://github.com/mahmoudimus/sqlalchemy-citext/issues/25
 ]

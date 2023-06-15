@@ -37,7 +37,7 @@ from pyramid.view import (
     view_config,
     view_defaults,
 )
-from sqlalchemy import func, text
+from sqlalchemy import func
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
 from webob.multidict import MultiDict
@@ -502,7 +502,7 @@ def sidebar_sponsor_logo(request):
 def health(request):
     # This will ensure that we can access the database and run queries against
     # it without doing anything that will take a lock or block other queries.
-    request.db.execute(text("SELECT 1"))
+    request.db.execute("SELECT 1")
 
     # Nothing will actually check this, but it's a little nicer to have
     # something to return besides an empty body.

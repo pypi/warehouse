@@ -32,7 +32,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.ext.declarative import declared_attr
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -64,14 +64,14 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = Column(
         Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(  # type: ignore[var-annotated]
+    user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -94,11 +94,11 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    project_id = Column(  # type: ignore[var-annotated]
+    project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -125,11 +125,11 @@ class OrganizationStripeSubscription(db.Model):
 
     __repr__ = make_repr("organization_id", "subscription_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    subscription_id = Column(  # type: ignore[var-annotated]
+    subscription_id = Column(
         ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -154,11 +154,11 @@ class OrganizationStripeCustomer(db.Model):
 
     __repr__ = make_repr("organization_id", "stripe_customer_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    stripe_customer_id = Column(  # type: ignore[var-annotated]
+    stripe_customer_id = Column(
         ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -236,7 +236,7 @@ class OrganizationMixin:
         return orm.column_property(func.normalize_pep426_name(cls.name))
 
     display_name = Column(Text, nullable=False, comment="Display name used in UI")
-    orgtype = Column(  # type: ignore[var-annotated]
+    orgtype = Column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         comment="What type of organization such as Community or Company",
@@ -525,19 +525,19 @@ class OrganizationInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "organization")
 
-    invite_status = Column(  # type: ignore[var-annotated]
+    invite_status = Column(
         Enum(
             OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
         ),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(  # type: ignore[var-annotated]
+    user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -565,14 +565,14 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = Column(
         Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(  # type: ignore[var-annotated]
+    user_id = Column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    team_id = Column(  # type: ignore[var-annotated]
+    team_id = Column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -600,15 +600,15 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = Column(
         Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    project_id = Column(  # type: ignore[var-annotated]
+    project_id = Column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    team_id = Column(  # type: ignore[var-annotated]
+    team_id = Column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -659,8 +659,8 @@ class Team(HasEvents, db.Model):
     __repr__ = make_repr("name", "organization")
 
     name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_team_name(name))  # type: ignore[var-annotated] # noqa: E501
-    organization_id = Column(  # type: ignore[var-annotated]
+    normalized_name = orm.column_property(func.normalize_team_name(name))
+    organization_id = Column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )

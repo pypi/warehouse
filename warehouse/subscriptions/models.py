@@ -108,7 +108,7 @@ class StripeSubscription(db.Model):
         ),
         nullable=False,
     )
-    status = Column(  # type: ignore[var-annotated]
+    status = Column(
         Enum(StripeSubscriptionStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
@@ -170,7 +170,7 @@ class StripeSubscriptionPrice(db.Model):
     )
     unit_amount = Column(Integer, nullable=False)  # positive integer in cents
     is_active = Column(Boolean, nullable=False, server_default=sql.true())
-    recurring = Column(  # type: ignore[var-annotated]
+    recurring = Column(
         Enum(
             StripeSubscriptionPriceInterval,
             values_callable=lambda x: [e.value for e in x],

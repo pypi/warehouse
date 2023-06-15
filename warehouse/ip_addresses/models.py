@@ -69,7 +69,7 @@ class IpAddress(db.Model):
         server_default=sql.false(),
         comment="If True, this IP Address will be marked as banned",
     )
-    ban_reason = Column(  # type: ignore[var-annotated]
+    ban_reason = Column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
         comment="Reason for banning, must be in the BanReason enumeration",

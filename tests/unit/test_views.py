@@ -15,7 +15,6 @@ import datetime
 import elasticsearch
 import pretend
 import pytest
-import sqlalchemy
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -602,13 +601,7 @@ def test_health():
     )
 
     assert health(request) == "OK"
-    assert len(request.db.execute.calls) == 1
-    assert len(request.db.execute.calls[0].args) == 1
-    assert len(request.db.execute.calls[0].kwargs) == 0
-    assert isinstance(
-        request.db.execute.calls[0].args[0], sqlalchemy.sql.expression.TextClause
-    )
-    assert request.db.execute.calls[0].args[0].text == "SELECT 1"
+    assert request.db.execute.calls == [pretend.call("SELECT 1")]
 
 
 class TestForceStatus:

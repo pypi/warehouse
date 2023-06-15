@@ -20,6 +20,7 @@ Create Date: 2022-04-19 14:57:54.765006
 import sqlalchemy as sa
 
 from alembic import op
+from citext import CIText
 from sqlalchemy.dialects import postgresql
 
 revision = "43bf0b6badcb"
@@ -48,9 +49,7 @@ def upgrade():
     )
 
     # JournalEvent users are now optional.
-    op.alter_column(
-        "journals", "submitted_by", existing_type=postgresql.CITEXT(), nullable=True
-    )
+    op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=True)
 
     # Macaroon -> (User XOR OIDCProvider)
     op.create_check_constraint(
@@ -65,6 +64,4 @@ def downgrade():
         "macaroons", "user_id", existing_type=postgresql.UUID(), nullable=False
     )
 
-    op.alter_column(
-        "journals", "submitted_by", existing_type=postgresql.CITEXT(), nullable=False
-    )
+    op.alter_column("journals", "submitted_by", existing_type=CIText(), nullable=False)
