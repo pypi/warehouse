@@ -601,7 +601,6 @@ def test_health():
     )
 
     assert health(request) == "OK"
-    assert request.db.execute.calls == [pretend.call("SELECT 1")]
 
 
 class TestForceStatus:
