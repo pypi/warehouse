@@ -17,9 +17,8 @@ from typing import Literal, NotRequired, TypedDict
 
 import click
 
-from citext import CIText
 from sqlalchemy.dialects.postgresql.array import ARRAY
-from sqlalchemy.dialects.postgresql.base import INET, TIMESTAMP, UUID
+from sqlalchemy.dialects.postgresql.base import CITEXT, INET, TIMESTAMP, UUID
 from sqlalchemy.dialects.postgresql.json import JSONB
 from sqlalchemy.sql.schema import ForeignKey, Table
 from sqlalchemy.sql.sqltypes import (
@@ -66,7 +65,7 @@ SQLALCHEMY_TO_DBML = {
     UUID: "varchar",
     INET: "varchar",
     JSONB: "text",
-    CIText: "text",
+    CITEXT: "text",
     TZDateTime: "datetime",
     ARRAY: '"string[]"',
     TIMESTAMP: "datetime",
@@ -158,11 +157,11 @@ def extract_table_info(table: Table) -> TableInfo:
             raise TypeError(type(column.type))
 
         if column.default is not None:
-            default = column.default.arg
+            default = column.default.arg  # type: ignore[attr-defined]
         elif column.server_default is not None:
             match str(type(column.server_default)):
                 case "<class 'sqlalchemy.sql.schema.DefaultClause'>":
-                    default = column.server_default.arg
+                    default = column.server_default.arg  # type: ignore[attr-defined]
                 case _:
                     default = column.server_default
         else:
@@ -172,9 +171,9 @@ def extract_table_info(table: Table) -> TableInfo:
             "type": SQLALCHEMY_TO_DBML[column_type],
             "pk": column.primary_key,
             "unique": column.unique,
-            "nullable": column.nullable,
+            "nullable": column.nullable,  # type: ignore[typeddict-item]
             "default": default,
-            "comment": column.comment,
+            "comment": column.comment,  # type: ignore[typeddict-item]
         }
         for foreign_key in column.foreign_keys:
             table_info["relationships"].append(

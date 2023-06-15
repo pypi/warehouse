@@ -17,10 +17,10 @@ Revises: None
 Create Date: 2015-02-01 14:07:10.983672
 """
 
-import citext
 import sqlalchemy as sa
 
 from alembic import op
+from sqlalchemy.dialects.postgresql import CITEXT
 
 revision = "283c68f2ab2"
 down_revision = None
@@ -45,7 +45,7 @@ def upgrade():
         sa.Column("password", sa.String(length=128), nullable=False),
         sa.Column("last_login", sa.DateTime(), nullable=False),
         sa.Column("is_superuser", sa.Boolean(), nullable=False),
-        sa.Column("username", citext.CIText(), nullable=False),
+        sa.Column("username", CITEXT(), nullable=False),
         sa.Column("name", sa.String(length=100), nullable=False),
         sa.Column("is_staff", sa.Boolean(), nullable=False),
         sa.Column("is_active", sa.Boolean(), nullable=False),
@@ -249,7 +249,7 @@ def upgrade():
     op.create_table(
         "mirrors",
         sa.Column("ip", sa.Text(), nullable=False),
-        sa.Column("user_name", citext.CIText(), nullable=True),
+        sa.Column("user_name", CITEXT(), nullable=True),
         sa.Column("index_url", sa.Text(), nullable=True),
         sa.Column("last_modified_url", sa.Text(), nullable=True),
         sa.Column("local_stats_url", sa.Text(), nullable=True),
@@ -264,7 +264,7 @@ def upgrade():
         sa.Column("consumer", sa.String(length=32), nullable=False),
         sa.Column("secret", sa.String(length=64), nullable=False),
         sa.Column("date_created", sa.Date(), nullable=False),
-        sa.Column("created_by", citext.CIText(), nullable=True),
+        sa.Column("created_by", CITEXT(), nullable=True),
         sa.Column("last_modified", sa.Date(), nullable=False),
         sa.Column("description", sa.String(length=255), nullable=False),
         sa.ForeignKeyConstraint(
@@ -302,7 +302,7 @@ def upgrade():
         sa.Column("consumer", sa.String(length=32), nullable=False),
         sa.Column("date_created", sa.Date(), nullable=False),
         sa.Column("last_modified", sa.Date(), nullable=False),
-        sa.Column("user_name", citext.CIText(), nullable=True),
+        sa.Column("user_name", CITEXT(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_name"],
             ["accounts_user.username"],
@@ -314,7 +314,7 @@ def upgrade():
 
     op.create_table(
         "csrf_tokens",
-        sa.Column("name", citext.CIText(), nullable=False),
+        sa.Column("name", CITEXT(), nullable=False),
         sa.Column("token", sa.Text(), nullable=True),
         sa.Column("end_date", sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -330,7 +330,7 @@ def upgrade():
         sa.Column("consumer", sa.String(length=32), nullable=False),
         sa.Column("callback", sa.Text(), nullable=True),
         sa.Column("date_created", sa.Date(), nullable=False),
-        sa.Column("user_name", citext.CIText(), nullable=True),
+        sa.Column("user_name", CITEXT(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_name"],
             ["accounts_user.username"],
@@ -343,7 +343,7 @@ def upgrade():
     op.create_table(
         "cookies",
         sa.Column("cookie", sa.Text(), nullable=False),
-        sa.Column("name", citext.CIText(), nullable=True),
+        sa.Column("name", CITEXT(), nullable=True),
         sa.Column("last_seen", sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(
             ["name"], ["accounts_user.username"], onupdate="CASCADE", ondelete="CASCADE"
@@ -356,7 +356,7 @@ def upgrade():
     op.create_table(
         "openids",
         sa.Column("id", sa.Text(), nullable=False),
-        sa.Column("name", citext.CIText(), nullable=True),
+        sa.Column("name", CITEXT(), nullable=True),
         sa.ForeignKeyConstraint(
             ["name"], ["accounts_user.username"], onupdate="CASCADE", ondelete="CASCADE"
         ),
@@ -366,7 +366,7 @@ def upgrade():
     op.create_table(
         "sshkeys",
         sa.Column("id", sa.Integer(), nullable=False),
-        sa.Column("name", citext.CIText(), nullable=True),
+        sa.Column("name", CITEXT(), nullable=True),
         sa.Column("key", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["name"], ["accounts_user.username"], onupdate="CASCADE", ondelete="CASCADE"
@@ -378,7 +378,7 @@ def upgrade():
 
     op.create_table(
         "rego_otk",
-        sa.Column("name", citext.CIText(), nullable=True),
+        sa.Column("name", CITEXT(), nullable=True),
         sa.Column("otk", sa.Text(), nullable=True),
         sa.Column("date", sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -405,7 +405,7 @@ def upgrade():
         "accounts_gpgkey",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("user_id", sa.Integer(), nullable=False),
-        sa.Column("key_id", citext.CIText(), nullable=False),
+        sa.Column("key_id", CITEXT(), nullable=False),
         sa.Column("verified", sa.Boolean(), nullable=False),
         sa.CheckConstraint(
             "key_id ~* '^[A-F0-9]{8}$'::citext", name="accounts_gpgkey_valid_key_id"
@@ -424,7 +424,7 @@ def upgrade():
     op.create_table(
         "roles",
         sa.Column("role_name", sa.Text(), nullable=True),
-        sa.Column("user_name", citext.CIText(), nullable=True),
+        sa.Column("user_name", CITEXT(), nullable=True),
         sa.Column("package_name", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["package_name"], ["packages.name"], onupdate="CASCADE"
@@ -445,7 +445,7 @@ def upgrade():
         sa.Column("version", sa.Text(), nullable=True),
         sa.Column("action", sa.Text(), nullable=True),
         sa.Column("submitted_date", sa.DateTime(), nullable=True),
-        sa.Column("submitted_by", citext.CIText(), nullable=True),
+        sa.Column("submitted_by", CITEXT(), nullable=True),
         sa.Column("submitted_from", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
             ["submitted_by"], ["accounts_user.username"], onupdate="CASCADE"
@@ -481,7 +481,7 @@ def upgrade():
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("version", sa.Text(), nullable=False),
-        sa.Column("user_name", citext.CIText(), nullable=False),
+        sa.Column("user_name", CITEXT(), nullable=False),
         sa.Column("date", sa.DateTime(), nullable=True),
         sa.Column("rating", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -586,7 +586,7 @@ def upgrade():
         sa.Column("name", sa.Text(), nullable=True),
         sa.Column("version", sa.Text(), nullable=True),
         sa.Column("id", sa.Integer(), nullable=True),
-        sa.Column("submitted_by", citext.CIText(), nullable=True),
+        sa.Column("submitted_by", CITEXT(), nullable=True),
         sa.Column("date", sa.DateTime(), nullable=True),
         sa.Column("action", sa.Text(), nullable=True),
         sa.ForeignKeyConstraint(
@@ -698,7 +698,7 @@ def upgrade():
         "comments",
         sa.Column("id", sa.Integer(), nullable=False),
         sa.Column("rating", sa.Integer(), nullable=True),
-        sa.Column("user_name", citext.CIText(), nullable=True),
+        sa.Column("user_name", CITEXT(), nullable=True),
         sa.Column("date", sa.DateTime(), nullable=True),
         sa.Column("message", sa.Text(), nullable=True),
         sa.Column("in_reply_to", sa.Integer(), nullable=True),

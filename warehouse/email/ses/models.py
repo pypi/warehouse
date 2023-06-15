@@ -230,7 +230,7 @@ class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
     created = Column(DateTime, nullable=False, server_default=sql.func.now())
-    status = Column(
+    status = Column(  # type: ignore[var-annotated]
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
@@ -273,10 +273,10 @@ class Event(db.Model):
     )
 
     event_id = Column(Text, nullable=False, unique=True, index=True)
-    event_type = Column(
+    event_type = Column(  # type: ignore[var-annotated]
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
     )
 
-    data = Column(
-        MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")
+    data = Column(  # type: ignore[var-annotated]
+        MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")  # type: ignore[arg-type] # noqa: E501
     )
