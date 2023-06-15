@@ -64,5 +64,3 @@ def update_pypi_sponsors(request):
         sponsor.is_active = True
         sponsor.psf_sponsor = True
         sponsor.origin = "remote"
-
-    request.db.commit()
