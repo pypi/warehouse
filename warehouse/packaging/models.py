@@ -17,7 +17,6 @@ from urllib.parse import urlparse
 
 import packaging.utils
 
-from citext import CIText
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
@@ -40,13 +39,11 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm import attribute_keyed_dict, declared_attr, validates
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -76,10 +73,10 @@ class Role(db.Model):
     __repr__ = make_repr("role_name")
 
     role_name = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -104,17 +101,17 @@ class RoleInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "project")
 
-    invite_status = Column(
+    invite_status = Column(  # type: ignore[var-annotated]
         Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -367,7 +364,7 @@ class Dependency(db.Model):
     )
     __repr__ = make_repr("release", "kind", "specifier")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -405,7 +402,7 @@ class ReleaseURL(db.Model):
     )
     __repr__ = make_repr("name", "url")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -432,7 +429,7 @@ class Release(db.Model):
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -455,7 +452,7 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    description_id = Column(
+    description_id = Column(  # type: ignore[var-annotated]
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -488,7 +485,7 @@ class Release(db.Model):
     _project_urls = orm.relationship(
         ReleaseURL,
         backref="release",
-        collection_class=attribute_mapped_collection("name"),
+        collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
         order_by=lambda: ReleaseURL.name.asc(),
         passive_deletes=True,
@@ -543,7 +540,7 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    uploader_id = Column(
+    uploader_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -641,13 +638,13 @@ class File(HasEvents, db.Model):
             Index("release_files_cached_idx", "cached"),
         )
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     python_version = Column(Text)
     requires_python = Column(Text)
-    packagetype = Column(
+    packagetype = Column(  # type: ignore[var-annotated]
         Enum(
             "bdist_dmg",
             "bdist_dumb",
@@ -664,14 +661,14 @@ class File(HasEvents, db.Model):
     path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
     md5_digest = Column(Text, unique=True, nullable=False)
-    sha256_digest = Column(CIText, unique=True, nullable=False)
-    blake2_256_digest = Column(CIText, unique=True, nullable=False)
+    sha256_digest = Column(CITEXT, unique=True, nullable=False)
+    blake2_256_digest = Column(CITEXT, unique=True, nullable=False)
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
 
     # PEP 658
-    metadata_file_sha256_digest = Column(CIText, nullable=True)
-    metadata_file_blake2_256_digest = Column(CIText, nullable=True)
+    metadata_file_sha256_digest = Column(CITEXT, nullable=True)
+    metadata_file_blake2_256_digest = Column(CITEXT, nullable=True)
 
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
@@ -747,7 +744,7 @@ class JournalEntry(db.ModelBase):
     )
     _submitted_by = Column(
         "submitted_by",
-        CIText,
+        CITEXT,
         ForeignKey("users.username", onupdate="CASCADE"),
         nullable=True,
     )
