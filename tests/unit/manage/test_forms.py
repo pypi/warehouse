@@ -225,6 +225,18 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
+    def test_email_too_long_error(self, pyramid_config):
+        form = forms.AddEmailForm(
+            formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
+            user_service=pretend.stub(find_userid_by_email=lambda _: None),
+            user_id=pretend.stub(),
+        )
+
+        assert not form.validate()
+        assert (
+            str(form.email.errors.pop()) == "The email address is too long. Try again."
+        )
+
 
 class TestChangePasswordForm:
     def test_validate(self):
