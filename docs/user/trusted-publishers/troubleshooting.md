@@ -52,8 +52,8 @@ endpoint:
   (pending) OIDC publisher. This likely indicates a mismatch between the
   OIDC publisher specified in the user/project settings and the claims
   represented in the actual OIDC token. Check for typos! If you're using
-  GitHub actions, check if the workflow is using the same environment
-  as configured in the PyPI publishers.
+  GitHub Actions, check if the workflow is using the same environment
+  as configured when the publisher was configured on PyPI.
 
 [reusable workflows]: https://docs.github.com/en/actions/using-workflows/reusing-workflows
 
