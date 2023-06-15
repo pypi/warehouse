@@ -259,7 +259,12 @@ def configure(settings=None):
     )
 
     # Pythondotorg integration settings
-    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(
+        settings,
+        "pythondotorg.host",
+        "PYTHONDOTORG_HOST",
+        default="https://www.python.org",
+    )
     maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
 
     # Helpscout integration settings
