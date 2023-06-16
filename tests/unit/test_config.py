@@ -246,7 +246,7 @@ def test_configure(monkeypatch, settings, environment):
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
         "token.default.max_age": 21600,
-        "pythondotorg.host": "python.org",
+        "pythondotorg.host": "https://www.python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
         "warehouse.xmlrpc.search.enabled": True,
         "github.token_scanning_meta_api.url": (
