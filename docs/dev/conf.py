@@ -14,11 +14,6 @@
 import os
 from datetime import datetime
 
-try:
-    import sphinx_rtd_theme
-except ImportError:
-    sphinx_rtd_theme = None
-
 
 base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "..")
 
