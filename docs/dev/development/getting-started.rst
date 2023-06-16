@@ -184,8 +184,8 @@ application.
    than the default setting of the Docker Engine of 2 GB. Thus, you
    need to increase the memory allocated to Docker in
    `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_
-   (on Mac) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
-   (on Windows) by moving the slider to 4 GB in the GUI.
+   (on Mac by moving the slider to 4 GB in the GUI) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+   (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
    the `elasticsearch` up and running. According to the
@@ -281,7 +281,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password``.
+``password``. Due to session invalidation, you may have to login twice. 
 
 
 Stopping Warehouse and other services
