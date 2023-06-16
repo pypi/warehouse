@@ -116,6 +116,12 @@
                 {% endset %}
                 {% set extra_description %}
                   <p><strong>{% trans %}Filename:{% endtrans %}</strong> {{ file.filename }}</p>
+                  <ul class="no-bullets no-left-margin">
+                    <li class="margin-bottom"><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that my users will no longer be able to install this file for this release of this project.{% endtrans %}</li>
+                    <li class="margin-bottom"><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans filename=file.filename, href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href={{ href }} target="_blank" rel="noopener">not be able to re-upload a file using the same file name</a> {{ filename }}.{% endtrans %}</li>
+                    <li class="margin-bottom"><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that I will not be able to undo this.{% endtrans %}</li>
+                    <li><input class="inline-checkbox" type="checkbox" data-action="input->confirm#check" data-confirm-target="checkbox"> {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}</li>
+                  </ul>
                 {% endset %}
               </li>
             </ul>
