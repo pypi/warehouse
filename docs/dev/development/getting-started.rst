@@ -459,34 +459,6 @@ This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
 in the root of your local repo.
 
 
-Docker and Windows Subsystem for Linux Quirks
----------------------------------------------
-
-Once you have installed Docker for Windows, the Windows Subsystem for
-Linux, and Docker and Docker Compose in WSL, there are some extra
-configuration steps to deal with current quirks in WSL.
-`Nick Janetakis`_ has a detailed blog post on these steps, including
-installation, but this is a summary of the required steps:
-
-1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
-to mount your root drive at :file:`/c` (or whichever drive you are
-using).  You should clone into this mount and run
-:command:`docker compose` from within it, to ensure that when volumes
-are linked into the container they can be found by Hyper-V.
-
-2. In Windows, configure Docker to enable "Expose daemon on
-``tcp://localhost:2375`` without TLS". Note that this may expose your
-machine to certain remote code execution attacks, so use with
-caution.
-
-3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your
-:file:`.bashrc` file in WSL, and/or run it directly to enable for the
-current session.  Without this, the :command:`docker` command in WSL
-will not be able to find the daemon running in Windows.
-
-.. _Nick Janetakis: https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
-
-
 Building Styles
 ---------------
 
