@@ -62,6 +62,18 @@ Configure the development environment
    it's unnecessary for Warehouse development. Our Makefile scripts execute all
    developer actions inside Docker containers.
 
+Verifying Make Installation 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verify that you have make installed in your environment
+
+.. code-block:: console
+
+    make --version
+
+If you do not have it installed, consult your OS documentation on how to install make. 
+
+
 Why Docker?
 ~~~~~~~~~~~
 
