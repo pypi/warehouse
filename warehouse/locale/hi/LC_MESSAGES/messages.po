@@ -75,14 +75,14 @@ msgstr ""
 "यह उपयोगकर्ता नाम पहले से ही किसी अन्य खाते द्वारा उपयोग किया जा रहा है। एक अलग "
 "उपयोगकर्ता नाम चुनें।"
 
-#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:186
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "पासवर्ड क्षमता:"
 
-#: warehouse/accounts/forms.py:174
+#: warehouse/accounts/forms.py:173
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -91,19 +91,25 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "बहुत से असफल लॉगिन प्रयास हुए हैं। बाद में पुन: प्रयास करें।"
 
-#: warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "आपके पासवर्ड मेल नहीं खाते हैं। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:247
 msgid "The email address isn't valid. Try again."
 msgstr "ईमेल पता मान्य नहीं है। पुनः प्रयास करें।"
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:236
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The email address is too long. Try again."
+msgstr "ईमेल पता मान्य नहीं है। पुनः प्रयास करें।"
+
+#: warehouse/accounts/forms.py:255
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "आप इस डोमेन के ईमेल पते का उपयोग नहीं कर सकते। एक अलग ईमेल का उपयोग करें।"
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:266
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -111,7 +117,7 @@ msgstr ""
 "इस ईमेल एड्रेस का इस्तेमाल पहले से ही इस अकाउंट द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:273
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -119,31 +125,31 @@ msgstr ""
 "इस ईमेल पते का उपयोग पहले से ही किसी अन्य खाते द्वारा किया जा रहा है। एक अलग ईमेल का "
 "उपयोग करें।"
 
-#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:294 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "नाम बहुत लंबा है। 100 अक्षरों या उससे कम के साथ एक नाम चुनें।"
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:383
 msgid "Invalid TOTP code."
 msgstr "अमान्य TOTP कोड।"
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:400
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "अमान्य WebAuthn दावा: खराब पेलोड"
 
-#: warehouse/accounts/forms.py:461
+#: warehouse/accounts/forms.py:460
 #, fuzzy
 #| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
 msgstr "पुनर्प्राप्ति कुंजी अमान्य।"
 
-#: warehouse/accounts/forms.py:471
+#: warehouse/accounts/forms.py:469
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "पुनर्प्राप्ति कोड पुन्ह्रोत्पादित"
 
-#: warehouse/accounts/forms.py:490
+#: warehouse/accounts/forms.py:488
 msgid "No user found with that username or email"
 msgstr "उस username या ईमेल से सम्बद्धित कोई user नहीं मिला"
 
@@ -191,11 +197,11 @@ msgstr "पहले से ही प्रमाणित"
 msgid "Successful WebAuthn assertion"
 msgstr "सफल WebAuthn दावा"
 
-#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:831
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ति कुंजी स्वीकृत। प्रदत्त कुंजी का पुनः उपयोग वर्जित।"
 
-#: warehouse/accounts/views.py:592
+#: warehouse/accounts/views.py:591
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -203,150 +209,150 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:726
+#: warehouse/accounts/views.py:722
 msgid "Expired token: request a new password reset link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:728
+#: warehouse/accounts/views.py:724
 msgid "Invalid token: request a new password reset link"
 msgstr "अमान्य टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:730 warehouse/accounts/views.py:833
-#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1106
+#: warehouse/accounts/views.py:726 warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:927 warehouse/accounts/views.py:1096
 msgid "Invalid token: no token supplied"
 msgstr "अमान्य टोकन: कोई टोकन की आपूर्ति नहीं"
 
-#: warehouse/accounts/views.py:734
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: not a password reset token"
 msgstr "अमान्य टोकन: पासवर्ड रीसेट टोकन नहीं"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:735
 msgid "Invalid token: user not found"
 msgstr "अमान्य टोकन: उपयोगकर्ता नहीं मिला"
 
-#: warehouse/accounts/views.py:750
+#: warehouse/accounts/views.py:746
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "अमान्य टोकन: क्योंकि इस टोकन के अनुरोध किए जाने के बाद उपयोगकर्ता लॉग इन कर चुके हैं"
 
-#: warehouse/accounts/views.py:768
+#: warehouse/accounts/views.py:764
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "अमान्य टोकन: टोकन के अनुरोध के बाद से अब तक के दौरान पासवर्ड पहले ही बदला"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:796
 msgid "You have reset your password"
 msgstr "आपने अपना पासवर्ड रीसेट कर दिया है"
 
-#: warehouse/accounts/views.py:829
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new email verification link"
 msgstr "खारिज टोकन: एक नया पासवर्ड रीसेट लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:831
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new email verification link"
 msgstr "अमान्य टोकन: एक नए ईमेल सत्यापन लिंक का अनुरोध करें"
 
-#: warehouse/accounts/views.py:837
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not an email verification token"
 msgstr "अमान्य टोकन: ईमेल सत्यापन टोकन नहीं है"
 
-#: warehouse/accounts/views.py:846
+#: warehouse/accounts/views.py:841
 msgid "Email not found"
 msgstr "ईमेल नहीं मिला"
 
-#: warehouse/accounts/views.py:849
+#: warehouse/accounts/views.py:844
 msgid "Email already verified"
 msgstr "ईमेल पहले से सत्यापित है"
 
-#: warehouse/accounts/views.py:867
+#: warehouse/accounts/views.py:861
 msgid "You can now set this email as your primary address"
 msgstr "अब आप इस ईमेल को अपने प्राथमिक पते के रूप में सेट कर सकते हैं"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:865
 msgid "This is your primary address"
 msgstr "यह आपका प्राथमिक पता है"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:870
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पता ${email_address} सत्यापित। ${confirm_message}।"
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:923
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "खारिज टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:931
+#: warehouse/accounts/views.py:925
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "अमान्य टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:931
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:935
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "कृत्य आमंत्रण अमान्य है।"
 
-#: warehouse/accounts/views.py:950
+#: warehouse/accounts/views.py:944
 #, fuzzy
 msgid "Organization invitation no longer exists."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:1003
+#: warehouse/accounts/views.py:995
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'$ {project_name} के लिए निमंत्रण अस्वीकार कर दिया गया है।"
 
-#: warehouse/accounts/views.py:1068
+#: warehouse/accounts/views.py:1058
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1092
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "खारिज टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1094
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "अमान्य टोकन: एक नई परियोजना भूमिका का अनुरोध करें"
 
-#: warehouse/accounts/views.py:1110
+#: warehouse/accounts/views.py:1100
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "अमान्य टोकन: यह सहकार्यता टोकन नहीं है"
 
-#: warehouse/accounts/views.py:1114
+#: warehouse/accounts/views.py:1104
 msgid "Role invitation is not valid."
 msgstr "कृत्य आमंत्रण अमान्य है।"
 
-#: warehouse/accounts/views.py:1129
+#: warehouse/accounts/views.py:1119
 #, fuzzy
 msgid "Role invitation no longer exists."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1150
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'$ {project_name} के लिए निमंत्रण अस्वीकार कर दिया गया है।"
 
-#: warehouse/accounts/views.py:1230
+#: warehouse/accounts/views.py:1216
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 
-#: warehouse/accounts/views.py:1449 warehouse/accounts/views.py:1598
-#: warehouse/manage/views/__init__.py:1239
+#: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
+#: warehouse/manage/views/__init__.py:1227
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -358,7 +364,7 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:1466 warehouse/manage/views/__init__.py:1255
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -370,17 +376,17 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/accounts/views.py:1480
+#: warehouse/accounts/views.py:1465
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1493
+#: warehouse/accounts/views.py:1478
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1509 warehouse/manage/views/__init__.py:1274
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -389,30 +395,30 @@ msgid ""
 "again later."
 msgstr "बहुत से असफल लॉगिन प्रयास हुए हैं। बाद में पुन: प्रयास करें।"
 
-#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1288
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1542
+#: warehouse/accounts/views.py:1527
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1562
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "इस परियोजना का प्रबंधन करें"
 
-#: warehouse/accounts/views.py:1612 warehouse/accounts/views.py:1625
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1596 warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1616
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "प्रबंधन संस्करण"
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1622
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -555,37 +561,37 @@ msgstr ""
 msgid "Account details updated"
 msgstr "खाता विवरण"
 
-#: warehouse/manage/views/__init__.py:221
+#: warehouse/manage/views/__init__.py:220
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ईमेल ${email_address} जोड़ा गया - सत्यापन लिंक के लिए अपने ईमेल की जांच करें"
 
-#: warehouse/manage/views/__init__.py:777
+#: warehouse/manage/views/__init__.py:772
 msgid "Recovery codes already generated"
 msgstr "पुनर्प्राप्ति कोड प्रउत्पादित"
 
-#: warehouse/manage/views/__init__.py:778
+#: warehouse/manage/views/__init__.py:773
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "नयी पुनर्प्राप्ति कुंजी उत्पन्न करने पर मौजूदा कुंजियाँ अमान्य हो जाएंगी।"
 
-#: warehouse/manage/views/__init__.py:886
+#: warehouse/manage/views/__init__.py:879
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "अपने ईमेल को सत्यापित करें या नया पता प्रदान करें।"
 
-#: warehouse/manage/views/__init__.py:1014
+#: warehouse/manage/views/__init__.py:1004
 msgid "Invalid credentials. Try again"
 msgstr "अवैध प्रत्यय पत्र। पुनः प्रयास करें"
 
-#: warehouse/manage/views/__init__.py:1136
+#: warehouse/manage/views/__init__.py:1126
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "2FA अक्षम"
 
-#: warehouse/manage/views/__init__.py:1495
-#: warehouse/manage/views/__init__.py:1798
-#: warehouse/manage/views/__init__.py:1907
+#: warehouse/manage/views/__init__.py:1481
+#: warehouse/manage/views/__init__.py:1782
+#: warehouse/manage/views/__init__.py:1890
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -597,60 +603,60 @@ msgstr ""
 "नए user पंजीकरण अस्थायी रूप से अक्षम। विवरण के लिए https://pypi.org/help#admin-"
 "intervention देखें।"
 
-#: warehouse/manage/views/__init__.py:1627
-#: warehouse/manage/views/__init__.py:1713
-#: warehouse/manage/views/__init__.py:1815
-#: warehouse/manage/views/__init__.py:1916
+#: warehouse/manage/views/__init__.py:1613
+#: warehouse/manage/views/__init__.py:1698
+#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1899
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "आमंत्रण की पुष्टि करें"
 
-#: warehouse/manage/views/__init__.py:1639
+#: warehouse/manage/views/__init__.py:1625
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "न निकाल फेंकी गयी विज्ञप्ति"
 
-#: warehouse/manage/views/__init__.py:1725
+#: warehouse/manage/views/__init__.py:1710
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "न निकाल फेंकी गयी विज्ञप्ति"
 
-#: warehouse/manage/views/__init__.py:1827
+#: warehouse/manage/views/__init__.py:1811
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "विज्ञप्ति मिटाएँ"
 
-#: warehouse/manage/views/__init__.py:1928
+#: warehouse/manage/views/__init__.py:1911
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "भूमिका आमंत्रण नहीं ढूंढ़ सके।"
 
-#: warehouse/manage/views/__init__.py:1932
+#: warehouse/manage/views/__init__.py:1915
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2083
+#: warehouse/manage/views/__init__.py:2065
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "इस परियोजना में उपयोगकर्ता '${username}' पहले से ${role_name} कृत्य हैं"
 
-#: warehouse/manage/views/__init__.py:2193
+#: warehouse/manage/views/__init__.py:2172
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "इस परियोजना में उपयोगकर्ता '${username}' पहले से ${role_name} कृत्य हैं"
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2239
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "आप इस परियोजना '${project_name}' के ${role} हैं।"
 
-#: warehouse/manage/views/__init__.py:2294
+#: warehouse/manage/views/__init__.py:2271
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -658,39 +664,39 @@ msgstr ""
 "उपयोगकर्ता '$ {username}' के पास सत्यापित प्राथमिक ईमेल पता नहीं है और इसे परियोजना "
 "के लिए $ {role_name} के रूप में नहीं जोड़ा जा सकता"
 
-#: warehouse/manage/views/__init__.py:2307
-#: warehouse/manage/views/organizations.py:891
+#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "उपयोगकर्ता '$ {username}' के पास पहले से ही एक सक्रिय आमंत्रण है। कृपया बाद में फिर से "
 "प्रयास करें।"
 
-#: warehouse/manage/views/__init__.py:2374
-#: warehouse/manage/views/organizations.py:958
+#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' को आमंत्रण भेजा गया"
 
-#: warehouse/manage/views/__init__.py:2407
+#: warehouse/manage/views/__init__.py:2382
 msgid "Could not find role invitation."
 msgstr "भूमिका आमंत्रण नहीं ढूंढ़ सके।"
 
-#: warehouse/manage/views/__init__.py:2418
+#: warehouse/manage/views/__init__.py:2393
 msgid "Invitation already expired."
 msgstr "आमंत्रण पहले ही समाप्त हो चुका है।"
 
-#: warehouse/manage/views/__init__.py:2452
-#: warehouse/manage/views/organizations.py:1147
+#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' से आमंत्रण निरस्त कर दिया गया।"
 
-#: warehouse/manage/views/organizations.py:867
+#: warehouse/manage/views/organizations.py:858
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "इस परियोजना में उपयोगकर्ता '${username}' पहले से ${role_name} कृत्य हैं"
 
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:869
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -702,19 +708,19 @@ msgstr ""
 "उपयोगकर्ता '$ {username}' के पास सत्यापित प्राथमिक ईमेल पता नहीं है और इसे परियोजना "
 "के लिए $ {role_name} के रूप में नहीं जोड़ा जा सकता"
 
-#: warehouse/manage/views/organizations.py:1041
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1030
+#: warehouse/manage/views/organizations.py:1072
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "भूमिका आमंत्रण नहीं ढूंढ़ सके।"
 
-#: warehouse/manage/views/organizations.py:1051
+#: warehouse/manage/views/organizations.py:1040
 #, fuzzy
 msgid "Organization invitation could not be re-sent."
 msgstr "रोल आमंत्रण अब मौजूद नहीं है।"
 
-#: warehouse/manage/views/organizations.py:1098
+#: warehouse/manage/views/organizations.py:1087
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -875,8 +881,8 @@ msgstr "मोंटी पाइथन - चीज़ शॉप स्केच
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:185
-#: warehouse/templates/manage/project/release.html:138
-#: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/release.html:144
+#: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:364
@@ -1138,7 +1144,7 @@ msgstr "मोबाइल संस्करण पर स्विच कर�
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:182
+#: warehouse/templates/manage/project/release.html:188
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
 #: warehouse/templates/manage/project/settings.html:247
@@ -1614,7 +1620,7 @@ msgid "Log in to %(title)s"
 msgstr "%(title)s में लॉग इन करें"
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:41
+#: warehouse/templates/accounts/profile.html:39
 #: warehouse/templates/accounts/register.html:91
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1674,7 +1680,7 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr "%(username)s की प्रोफाइल"
 
-#: warehouse/templates/accounts/profile.html:31
+#: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:153
 #: warehouse/templates/manage/organization/roles.html:220
@@ -1684,19 +1690,19 @@ msgstr "%(username)s की प्रोफाइल"
 msgid "Avatar for {user} from gravatar.com"
 msgstr "Gravatar.com से {user} का अवतार"
 
-#: warehouse/templates/accounts/profile.html:52
+#: warehouse/templates/accounts/profile.html:50
 #: warehouse/templates/organizations/profile.html:37
 msgid "Date joined"
 msgstr "शामिल होने की तिथि"
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:51
 #: warehouse/templates/organizations/profile.html:38
 #, fuzzy, python-format
 #| msgid "Joined on %(start_date)s"
 msgid "Joined %(start_date)s"
 msgstr "%(start_date)s पर शामिल हुए"
 
-#: warehouse/templates/accounts/profile.html:67
+#: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/organizations/profile.html:51
 #, fuzzy, python-format
 #| msgid "Your projects"
@@ -1705,12 +1711,12 @@ msgid_plural "%(count)s projects"
 msgstr[0] "आपकी परियोजनाएं"
 msgstr[1] "आपकी परियोजनाएं"
 
-#: warehouse/templates/accounts/profile.html:73
+#: warehouse/templates/accounts/profile.html:74
 #: warehouse/templates/organizations/profile.html:57
 msgid "No projects"
 msgstr "कोई परियोजना नहीं"
 
-#: warehouse/templates/accounts/profile.html:82
+#: warehouse/templates/accounts/profile.html:83
 #: warehouse/templates/manage/organization/projects.html:73
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:108
@@ -1721,7 +1727,7 @@ msgstr "कोई परियोजना नहीं"
 msgid "Last released %(release_date)s"
 msgstr "अंतिम बार %(release_date)s पर वितरण किया गया"
 
-#: warehouse/templates/accounts/profile.html:90
+#: warehouse/templates/accounts/profile.html:91
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s ने अभी तक PyPI पर कोई भी प्रोजेक्ट अपलोड नहीं किया है"
@@ -3131,7 +3137,7 @@ msgstr "इस अधिसूचना को खारिज करें"
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:306
 #: warehouse/templates/manage/manage_base.html:308
-#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:198
@@ -3170,7 +3176,7 @@ msgstr "हैश डाइजेस्ट"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "क्लिपबोर्ड पर कॉपी करें"
@@ -6194,7 +6200,7 @@ msgid "Destroy Documentation for project"
 msgstr "परियोजना के प्रलेखन को नष्ट करें"
 
 #: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/release.html:123
+#: warehouse/templates/manage/project/release.html:129
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
 msgstr "परियोजना"
@@ -6548,21 +6554,45 @@ msgstr "फ़ाइल को मिटाएँ"
 msgid "Delete file"
 msgstr "फ़ाइल मिटाएँ"
 
-#: warehouse/templates/manage/project/release.html:133
+#: warehouse/templates/manage/project/release.html:120
+msgid ""
+"I understand that my users will no longer be able to install this file for "
+"this release of this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:121
+#, python-format
+msgid ""
+"I understand that I will <a href=%(href)s target=\"_blank\" rel=\"noopener"
+"\">not be able to re-upload a file using the same file name</a> %(filename)s."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:205
+msgid "I understand that I will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:123
+#: warehouse/templates/manage/project/release.html:206
+msgid ""
+"I understand that the PyPI administrators will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:139
 msgid "Uploading new files"
 msgstr "नई फाइलें अपलोड हो रही"
 
-#: warehouse/templates/manage/project/release.html:135
+#: warehouse/templates/manage/project/release.html:141
 msgid "No files found"
 msgstr "कोई फाइल नहीं मिली"
 
-#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 msgid "Dismiss"
 msgstr "खारिज"
 
-#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:144
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -6571,17 +6601,17 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">पाइथॉन संकलन उपयोगकर्ता कुंजी</a> से फाइलें अपलोड करना सीखें"
 
-#: warehouse/templates/manage/project/release.html:141
+#: warehouse/templates/manage/project/release.html:147
 msgid "Release settings"
 msgstr "रिलीज सेटिंग्स"
 
-#: warehouse/templates/manage/project/release.html:145
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:151
+#: warehouse/templates/manage/project/release.html:181
 #: warehouse/templates/manage/project/releases.html:123
 msgid "Yank release"
 msgstr "विज्ञप्ति निकाल फेंकें"
 
-#: warehouse/templates/manage/project/release.html:148
+#: warehouse/templates/manage/project/release.html:154
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6610,7 +6640,7 @@ msgstr[1] ""
 "(और इसकी सभी %(count)s फ़ाइलें) स्थापना के समय अनदेखी की जाएगी।\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:154
+#: warehouse/templates/manage/project/release.html:160
 #, fuzzy
 #| msgid ""
 #| "\n"
@@ -6626,7 +6656,7 @@ msgstr ""
 "में विज्ञप्ति को स्थापना के समय अनदेखा किया जायेगा।\n"
 "        "
 
-#: warehouse/templates/manage/project/release.html:158
+#: warehouse/templates/manage/project/release.html:164
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6643,7 +6673,7 @@ msgstr ""
 "करने योग्य होगा, उदा. जब <code>%(project_name)s==%(version)s</code>।\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:161
+#: warehouse/templates/manage/project/release.html:167
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6655,7 +6685,7 @@ msgstr ""
 "        अधिक जानकारी के लिए, देखें <a href=\"%(href)s\">PEP 592</a>।\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:168
+#: warehouse/templates/manage/project/release.html:174
 #: warehouse/templates/manage/project/releases.html:126
 #, fuzzy, python-format
 #| msgid ""
@@ -6674,13 +6704,13 @@ msgstr ""
 "%(version)s </code> को स्थापित करते हैं।\n"
 "          "
 
-#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/release.html:178
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr "कारण (वैकल्पिक)"
 
-#: warehouse/templates/manage/project/release.html:175
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:181
+#: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -6688,13 +6718,13 @@ msgstr "कारण (वैकल्पिक)"
 msgid "Version"
 msgstr "संस्करण"
 
-#: warehouse/templates/manage/project/release.html:180
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:186
+#: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr "विज्ञप्ति मिटाएँ"
 
-#: warehouse/templates/manage/project/release.html:184
+#: warehouse/templates/manage/project/release.html:190
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -6721,11 +6751,11 @@ msgstr[1] ""
 "जाएँगी।\n"
 "      "
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:196
 msgid "Deleting will irreversibly delete this release."
 msgstr "मिटाने पर विज्ञप्ति भी अपरिवर्तनीय रूप से मिटा दी जाएगी।"
 
-#: warehouse/templates/manage/project/release.html:192
+#: warehouse/templates/manage/project/release.html:198
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
@@ -6734,7 +6764,7 @@ msgstr ""
 "आप एक ही संस्करण संख्या के साथ एक ही प्रकार का एक नया वितरण फिर से अपलोड करने में सक्षम "
 "नहीं होंगे।"
 
-#: warehouse/templates/manage/project/release.html:193
+#: warehouse/templates/manage/project/release.html:199
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -6742,7 +6772,7 @@ msgid ""
 "remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #, fuzzy, python-format
 #| msgid ""
@@ -6760,6 +6790,27 @@ msgstr ""
 "\"noopener\">Librarys.io</a>, या <a href=\"%(gbq_href)s\" target=\"_blank\" "
 "rel=\"noopener\">गूगल BigQuery पर हमारे सार्वजनिक डेटासेट</a> का उपयोग करके इस "
 "परियोजना के आंकड़े देखें"
+
+#: warehouse/templates/manage/project/release.html:202
+#, python-format
+msgid ""
+"I understand that I am permanently deleting all files for the "
+"%(release_version)s release of this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:203
+msgid ""
+"I understand that my users will no longer be able to install this release of "
+"this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:204
+#, python-format
+msgid ""
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" rel="
+"\"noopener\">not be able to re-upload any deleted files using the same file "
+"names</a>."
+msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:20
 #, python-format
@@ -7488,29 +7539,29 @@ msgstr "हैश देखें"
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "%(project_name)s कि विज्ञप्तियां"
 
-#: warehouse/templates/packaging/detail.html:164
+#: warehouse/templates/packaging/detail.html:162
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:173
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:179
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:189
+#: warehouse/templates/packaging/detail.html:187
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:194
+#: warehouse/templates/packaging/detail.html:192
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "वितरण: %(release_date)s"
