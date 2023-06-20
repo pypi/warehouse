@@ -83,6 +83,12 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
+
+# If the zip file decompressed to 100x more space 
+# than it is uncompressed, consider it a ZIP bomb.
+# Note that packages containing interface descriptions, JSON,
+# such resources can compress really well.
+# See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 10
 
 
