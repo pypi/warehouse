@@ -1350,9 +1350,9 @@ pytz==2023.3 \
     # via
     #   -r requirements/main.in
     #   celery
-readme-renderer[md]==37.3 \
-    --hash=sha256:cd653186dfc73055656f090f227f5cb22a046d7f71a841dfa305f55c9a513273 \
-    --hash=sha256:f67a16caedfa71eef48a31b39708637a6f4664c4394801a7b0d6432d13907343
+readme-renderer[md]==40.0 \
+    --hash=sha256:9f77b519d96d03d7d7dce44977ba543090a14397c4f60de5b6eb5b8048110aa4 \
+    --hash=sha256:e18feb2a1e7706f2865b81ebb460056d93fb29d69daa10b223c00faa7bd9a00a
     # via -r requirements/main.in
 redis==4.5.5 \
     --hash=sha256:77929bc7f5dab9adf3acba2d3bb7d7658f1e0c2f1cafe7eb36434e751c471119 \
