@@ -176,7 +176,7 @@ class Event(AbstractConcreteBase):
         Otherwise, return the `ip_address` and let its repr decide.
         """
         if cls.additional is not None and "geoip_info" in cls.additional:
-            g = GeoIPInfo(**cls.additional["geoip_info"])
+            g = GeoIPInfo(**cls.additional["geoip_info"])  # type: ignore[arg-type]
             if g.display():
                 return g.display()
 
@@ -190,7 +190,7 @@ class Event(AbstractConcreteBase):
         Dig into `.additional` for `user_agent_info` and return that if it exists.
         """
         if cls.additional is not None and "user_agent_info" in cls.additional:
-            return UserAgentInfo(**cls.additional["user_agent_info"]).display()
+            return UserAgentInfo(**cls.additional["user_agent_info"]).display()  # type: ignore[arg-type] # noqa: E501
 
         return "No User-Agent"
 
@@ -221,7 +221,6 @@ class HasEvents:
 
     def record_event(self, *, tag, request: Request, additional=None):
         """Records an Event record on the associated model."""
-        session = orm.object_session(self)
 
         # Get-or-create a new IpAddress object
         ip_address = request.ip_address
@@ -269,6 +268,6 @@ class HasEvents:
             additional=additional,
         )
 
-        session.add(event)
+        request.db.add(event)
 
         return event

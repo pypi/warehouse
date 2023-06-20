@@ -480,6 +480,7 @@ class TestDatabaseUserService:
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
             headers=dict(),
+            db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()
         user_service.update_user(user.id, password="foo")
@@ -496,6 +497,7 @@ class TestDatabaseUserService:
             remote_addr="127.0.0.1",
             ip_address=IpAddressFactory.create(),
             headers=dict(),
+            db=pretend.stub(add=lambda *a: None),
         )
         user = UserFactory.create()
         user_service.disable_password(

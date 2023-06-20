@@ -44,7 +44,7 @@ release_vulnerabilities = Table(
 )
 
 
-class VulnerabilityRecord(db.Model):
+class VulnerabilityRecord(db.ModelBase):
     __tablename__ = "vulnerabilities"
 
     source = Column(String, primary_key=True)
@@ -56,7 +56,7 @@ class VulnerabilityRecord(db.Model):
 
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
-    aliases = Column(ARRAY(String))
+    aliases = Column(ARRAY(String))  # type: ignore[var-annotated]
 
     # Details about the vulnerability
     details = Column(String)
@@ -65,7 +65,7 @@ class VulnerabilityRecord(db.Model):
     summary = Column(String)
 
     # Events of introduced/fixed versions
-    fixed_in = Column(ARRAY(String))
+    fixed_in = Column(ARRAY(String))  # type: ignore[var-annotated]
 
     # When the vulnerability was withdrawn, if it has been withdrawn.
     withdrawn = Column(TIMESTAMP, nullable=True)
