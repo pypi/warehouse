@@ -1,57 +1,49 @@
-# Translations template for Warehouse.
-# Copyright (C) 2019 PyPA
-# This file is distributed under the same license as the Warehouse project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# АрМакедон <armakedon@pm.me>, 2020, 2022.
-# Kristijan Fremen Velkovski <me@krisfremen.com>, 2022.
+# SigireddyBalasai <sigireddybalasai@gmail.com>, 2023.
 msgid ""
 msgstr ""
-"Project-Id-Version: Warehouse VERSION\n"
+"Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-10-23 07:08+0000\n"
-"Last-Translator: Kristijan Fremen Velkovski <me@krisfremen.com>\n"
-"Language-Team: Macedonian <https://hosted.weblate.org/projects/pypa/"
-"warehouse/mk/>\n"
-"Language: mk\n"
+"POT-Creation-Date: 2023-06-14 18:20+0200\n"
+"PO-Revision-Date: 2023-06-14 21:20+0000\n"
+"Last-Translator: SigireddyBalasai <sigireddybalasai@gmail.com>\n"
+"Language-Team: Telugu <https://hosted.weblate.org/projects/pypa/warehouse/te/"
+">\n"
+"Language: te\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n==1 || n%10==1 ? 0 : 1;\n"
-"X-Generator: Weblate 4.14.2-dev\n"
-"Generated-By: Babel 2.7.0\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 4.18-dev\n"
 
 #: warehouse/views.py:141
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr ""
-"Дво-факторна автентикација мора да се вклучи на вашиот акаунт за да се "
-"изврши оваа акција."
+msgstr "ఈ చర్యను నిర్వహించడానికి మీ ఖాతాలో రెండు-కారకాల ప్రమాణీకరణ తప్పనిసరిగా ప్రారంభించబడాలి."
 
 #: warehouse/views.py:266
 msgid "Locale updated"
-msgstr "Јазикот е обновен"
+msgstr ""
 
 #: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
-msgstr "Лозинката е невалидна. Обидете се повторно."
+msgstr "పాస్‌వర్డ్ చెల్లదు. మళ్లీ ప్రయత్నించండి."
 
 #: warehouse/accounts/forms.py:58
 msgid "No user found with that username"
-msgstr "Не е пронајден корисник со тоа име"
+msgstr "ఆ వినియోగదారు పేరుతో వినియోగదారు కనుగొనబడలేదు"
 
 #: warehouse/accounts/forms.py:68
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP кодот мора да биде ${totp_length} броеви долг."
+msgstr "TOTP కోడ్ తప్పనిసరిగా ${totp_length} అంకెలు ఉండాలి."
 
 #: warehouse/accounts/forms.py:87
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "Резервните кодовите мора да бидат ${recovery_code_length} карактери."
+msgstr "రికవరీ కోడ్ లు తప్పనిసరిగా ${recovery_code_length} అక్షరాలుగా ఉండాలి."
 
 #: warehouse/accounts/forms.py:101
 msgid "Choose a username with 50 characters or less."
-msgstr "Одберете корисничко име со 50 карактери или помалку."
+msgstr "50 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న వినియోగదారు పేరును ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:107
 msgid ""
@@ -59,120 +51,140 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
+"యూజర్ నేమ్ చెల్లదు. యూజర్ నేమ్ లు అక్షరాలు, అంకెలు, చుక్కలు, హైఫెన్ లు మరియు అండర్ లైన్ లతో కూడి "
+"ఉండాలి. మరియు ఒక అక్షరం లేదా సంఖ్యతో ప్రారంభించి ముగించాలి. వేరే యూజర్ నేమ్ ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:124
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
-msgstr ""
+msgstr "ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
 #: warehouse/accounts/forms.py:198
 msgid "Password too long."
-msgstr "Лозинката е премногу долга."
+msgstr "పాస్ వర్డ్ చాలా పొడవుగా ఉంది."
 
 #: warehouse/accounts/forms.py:173
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
+"లాగిన్ ప్రయత్నాలు చాలా జరిగాయి. మీరు ${time} కొరకు లాక్ చేయబడ్డారు. దయచేసి తరువాత మళ్లీ ప్రయత్నించండి."
 
 #: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
-msgstr "Вашите лозинки не се исти. Пробајте повторно."
+msgstr "మీ పాస్ వర్డ్ లు సరిపోలడం లేదు. మళ్ళీ ప్రయత్నించండి."
 
 #: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:247
 msgid "The email address isn't valid. Try again."
-msgstr ""
+msgstr "ఇమెయిల్ చిరునామా చెల్లదు. మళ్లీ ప్రయత్నించండి."
 
 #: warehouse/accounts/forms.py:236
 #, fuzzy
-#| msgid "The password is invalid. Try again."
+#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "Лозинката е невалидна. Обидете се повторно."
+msgstr "ఇమెయిల్ చిరునామా చెల్లదు. మళ్లీ ప్రయత్నించండి."
 
 #: warehouse/accounts/forms.py:255
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr ""
+msgstr "మీరు ఈ డొమైన్ నుండి ఇమెయిల్ చిరునామాను ఉపయోగించలేరు. వేరే ఇమెయిల్‌ని ఉపయోగించండి."
 
 #: warehouse/accounts/forms.py:266
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr ""
+msgstr "ఈ ఇమెయిల్ చిరునామా ఇప్పటికే ఈ ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే ఇమెయిల్ ఉపయోగించండి."
 
 #: warehouse/accounts/forms.py:273
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr ""
+msgstr "ఈ వినియోగదారు పేరు ఇప్పటికే మరొక ఖాతా ద్వారా ఉపయోగించబడుతోంది. వేరే యూజర్ నేమ్ ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:294 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "Името е премногу долго. Одберете име со 100 карактери или помалце."
+msgstr "పేరు చాలా పొడవుగా ఉంది. 100 అక్షరాలు లేదా అంతకంటే తక్కువ ఉన్న పేరును ఎంచుకోండి."
 
 #: warehouse/accounts/forms.py:383
 msgid "Invalid TOTP code."
-msgstr "Невалиден TOTP код."
+msgstr "చెల్లని TOTP కోడ్."
 
 #: warehouse/accounts/forms.py:400
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "చెల్లుబాటు కాని వెబ్అథ్న్ వాదన: బ్యాడ్ పేలోడ్"
 
 #: warehouse/accounts/forms.py:460
+#, fuzzy
 msgid "Invalid recovery code."
-msgstr "Невалиден резервен код."
+msgstr "చెల్లుబాటు కాని రికవరీ కోడ్."
 
 #: warehouse/accounts/forms.py:469
+#, fuzzy
 msgid "Recovery code has been previously used."
-msgstr "Резервниот код веќе бил употребен."
+msgstr "రికవరీ కోడ్ గతంలో ఉపయోగించబడింది."
 
 #: warehouse/accounts/forms.py:488
+#, fuzzy
 msgid "No user found with that username or email"
-msgstr ""
+msgstr "ఆ యూజర్ నేమ్ లేదా ఇమెయిల్ తో ఏ యూజర్ కనుగొనబడలేదు"
 
 #: warehouse/accounts/views.py:103
+#, fuzzy
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
+"లాగిన్ ప్రయత్నాలు చాలా జరిగాయి. మీరు ${time} కొరకు లాక్ చేయబడ్డారు. దయచేసి తరువాత మళ్లీ ప్రయత్నించండి."
 
 #: warehouse/accounts/views.py:120
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"వాటిని ధృవీకరించకుండానే ఈ ఖాతాకు చాలా ఇమెయిల్స్ జోడించబడ్డాయి. మీ ఇన్ బాక్స్ చెక్ చేయండి మరియు వెరిఫికేషన్ లింక్ "
+"లను అనుసరించండి. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:132
+#, fuzzy
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
+"వాటిని పూర్తి చేయకుండానే ఈ ఖాతా కోసం చాలా పాస్ వర్డ్ రీసెట్ లు అభ్యర్థించబడ్డాయి. మీ ఇన్ బాక్స్ చెక్ చేయండి "
+"మరియు వెరిఫికేషన్ లింక్ లను అనుసరించండి. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
 #: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
+#, fuzzy
 msgid "Invalid or expired two factor login."
-msgstr ""
+msgstr "చెల్లని లేదా గడువు ముగిసిన రెండు కారకాల లాగిన్."
 
 #: warehouse/accounts/views.py:365
+#, fuzzy
 msgid "Already authenticated"
-msgstr ""
+msgstr "ఇప్పటికే ధృవీకరించబడింది"
 
 #: warehouse/accounts/views.py:444
+#, fuzzy
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "విజయవంతమైన WebAuthn ప్రకటన"
 
 #: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
+#, fuzzy
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr ""
+msgstr "రికవరీ కోడ్ ఆమోదించబడింది. సరఫరా చేయబడ్డ కోడ్ మళ్లీ ఉపయోగించబడదు."
 
 #: warehouse/accounts/views.py:591
+#, fuzzy
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"కొత్త వినియోగదారు నమోదు తాత్కాలికంగా నిలిపివేయబడింది. వివరాల కోసం https://pypi.org/help#admin-"
+"intervention చూడండి."
 
 #: warehouse/accounts/views.py:722
 msgid "Expired token: request a new password reset link"
@@ -327,10 +339,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
-#, fuzzy
-#| msgid "OpenID Connect provider removed"
 msgid "The trusted publisher could not be registered"
-msgstr "OpenID Connect провајдер отстранет"
+msgstr ""
 
 #: warehouse/accounts/views.py:1527
 msgid ""
@@ -348,10 +358,8 @@ msgid "Invalid publisher ID"
 msgstr ""
 
 #: warehouse/accounts/views.py:1622
-#, fuzzy
-#| msgid "OpenID Connect provider removed"
 msgid "Removed trusted publisher for project "
-msgstr "OpenID Connect провајдер отстранет"
+msgstr ""
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -617,10 +625,8 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
 #: warehouse/oidc/forms.py:175
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid project name"
-msgstr "Невалиден резервен код."
+msgstr ""
 
 #: warehouse/oidc/forms.py:189
 msgid "This project name is already in use"
@@ -2445,10 +2451,8 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 #: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Environment"
-msgstr "Невалиден резервен код."
+msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:39
 #: warehouse/templates/email/trusted-publisher-removed/body.html:37
@@ -2777,7 +2781,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:26
 #: warehouse/templates/manage/project/roles.html:36
 msgid "Collaborators"
-msgstr "Соработници"
+msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:44
 #: warehouse/templates/manage/project/documentation.html:21
@@ -3541,7 +3545,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:39
 #, python-format
 msgid "%(remaining)s unused"
-msgstr "%(remaining)s неискористени"
+msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:49
 #: warehouse/templates/manage/manage_base.html:43
@@ -3619,10 +3623,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:126
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Generate recovery codes"
-msgstr "Невалиден резервен код."
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:135
 msgid ""
@@ -3721,10 +3723,8 @@ msgid "Enter your password to continue."
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:465
-#, fuzzy
-#| msgid "OpenID Connect provider removed"
 msgid "Trusted Publisher Management"
-msgstr "OpenID Connect провајдер отстранет"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:470
 msgid ""
@@ -3787,7 +3787,7 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:547
 msgid "Publisher:"
-msgstr "Издавач:"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:549
 #: warehouse/templates/manage/project/history.html:52
@@ -4139,10 +4139,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:47
 #: warehouse/templates/manage/project/publishing.html:121
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Environment name"
-msgstr "Невалиден резервен код."
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:96
 #: warehouse/templates/manage/project/publishing.html:125
@@ -5335,12 +5333,12 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:205
 #, python-format
 msgid "Project added to %(organization_name)s organization"
-msgstr "Проект додаден во %(organization_name)s организација"
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:213
 #, python-format
 msgid "Project removed from %(organization_name)s organization"
-msgstr "Проект отстранет од %(organization_name)s организација"
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:221
 msgid "Short-lived API token created"
@@ -5366,10 +5364,8 @@ msgid "Expired"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:237
-#, fuzzy
-#| msgid "Collaborators"
 msgid "Creator"
-msgstr "Соработници"
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:251
 msgid "API token created"
@@ -5381,16 +5377,12 @@ msgid "Controlled by:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:277
-#, fuzzy
-#| msgid "OpenID Connect provider added"
 msgid "Trusted publisher added"
-msgstr "OpenID Connect провајдер додаден"
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:280
-#, fuzzy
-#| msgid "OpenID Connect provider removed"
 msgid "Trusted publisher removed"
-msgstr "OpenID Connect провајдер отстранет"
+msgstr ""
 
 #: warehouse/templates/manage/project/history.html:285
 msgid "2FA requirement enabled"
@@ -6136,13 +6128,11 @@ msgid ""
 "Each time you (or your collaborators) perform a security action related to "
 "this team, the action is recorded and displayed here."
 msgstr ""
-"Секој пат вие (или вашите соработници) извршите безбедна акција поврзана со "
-"овој тим, акцијата ќе биде снимена и покажана тука."
 
 #: warehouse/templates/manage/team/history.html:36
 #, python-format
 msgid "%(previous_team_name)s team renamed to %(team_name)s"
-msgstr "%(previous_team_name)s тим преименуван во %(team_name)s"
+msgstr ""
 
 #: warehouse/templates/manage/team/manage_team_base.html:20
 #, python-format
@@ -8423,6 +8413,3 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
-
-#~ msgid "Provider:"
-#~ msgstr "Провајдер:"
