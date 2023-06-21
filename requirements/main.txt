@@ -1058,9 +1058,9 @@ msgpack==1.0.5 \
     --hash=sha256:f933bbda5a3ee63b8834179096923b094b76f0c7a73c1cfe8f07ad608c58844b \
     --hash=sha256:fe5c63197c55bce6385d9aee16c4d0641684628f63ace85f73571e65ad1c1e8d
     # via -r requirements/main.in
-natsort==8.3.1 \
-    --hash=sha256:517595492dde570a4fd6b6a76f644440c1ba51e2338c8a671d7f0475fda8f9fd \
-    --hash=sha256:d583bc9050dd10538de36297c960b93f873f0cd01671a3c50df5bd86dd391dcb
+natsort==8.4.0 \
+    --hash=sha256:45312c4a0e5507593da193dedd04abb1469253b601ecaf63445ad80f0a1ea581 \
+    --hash=sha256:4732914fb471f56b5cce04d7bae6f164a592c7712e1c85f9ef585e197299521c
     # via -r requirements/main.in
 orjson==3.9.1 \
     --hash=sha256:06f6ab4697fab090517f295915318763a97a12ee8186054adf21c1e6f6abbd3d \
@@ -1289,9 +1289,9 @@ pyopenssl==23.2.0 \
     --hash=sha256:24f0dc5227396b3e831f4c7f602b950a5e9833d292c8e4a2e06b709292806ae2 \
     --hash=sha256:276f931f55a452e7dea69c7173e984eb2a4407ce413c918aa34b55f82f9b8bac
     # via webauthn
-pyparsing==3.0.9 \
-    --hash=sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb \
-    --hash=sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc
+pyparsing==3.1.0 \
+    --hash=sha256:d554a96d1a7d3ddaf7183104485bc19fd80543ad6ac5bdb6426719d766fb06c1 \
+    --hash=sha256:edb662d6fe322d6e990b1594b5feaeadf806803359e3d4d42f11e295e588f0ea
     # via linehaul
 pyqrcode==1.2.1 \
     --hash=sha256:1b2812775fa6ff5c527977c4cd2ccb07051ca7d0bc0aecf937a43864abe5eff6 \
@@ -1350,9 +1350,9 @@ pytz==2023.3 \
     # via
     #   -r requirements/main.in
     #   celery
-readme-renderer[md]==37.3 \
-    --hash=sha256:cd653186dfc73055656f090f227f5cb22a046d7f71a841dfa305f55c9a513273 \
-    --hash=sha256:f67a16caedfa71eef48a31b39708637a6f4664c4394801a7b0d6432d13907343
+readme-renderer[md]==40.0 \
+    --hash=sha256:9f77b519d96d03d7d7dce44977ba543090a14397c4f60de5b6eb5b8048110aa4 \
+    --hash=sha256:e18feb2a1e7706f2865b81ebb460056d93fb29d69daa10b223c00faa7bd9a00a
     # via -r requirements/main.in
 redis==4.5.5 \
     --hash=sha256:77929bc7f5dab9adf3acba2d3bb7d7658f1e0c2f1cafe7eb36434e751c471119 \
@@ -1555,9 +1555,9 @@ webob==1.8.7 \
     --hash=sha256:73aae30359291c14fa3b956f8b5ca31960e420c28c1bec002547fb04928cf89b \
     --hash=sha256:b64ef5141be559cfade448f044fa45c2260351edcb6a8ef6b7e00c7dcef0c323
     # via pyramid
-whitenoise==6.4.0 \
-    --hash=sha256:599dc6ca57e48929dfeffb2e8e187879bfe2aed0d49ca419577005b7f2cc930b \
-    --hash=sha256:a02d6660ad161ff17e3042653c8e3f5ecbb2a2481a006bde125b9efb9a30113a
+whitenoise==6.5.0 \
+    --hash=sha256:15fe60546ac975b58e357ccaeb165a4ca2d0ab697e48450b8f0307ca368195a8 \
+    --hash=sha256:16468e9ad2189f09f4a8c635a9031cc9bb2cdbc8e5e53365407acf99f7ade9ec
     # via -r requirements/main.in
 wired==0.3 \
     --hash=sha256:08dcb4ccfe8c0ee5d7a65e73520b4cd838420491a640b5c8d12d39e26aee8e84 \
@@ -1702,9 +1702,9 @@ pip==23.1.2 \
     --hash=sha256:0e7c86f486935893c708287b30bd050a36ac827ec7fe5e43fe7cb198dd835fba \
     --hash=sha256:3ef6ac33239e4027d9a5598a381b9d30880a1477e50039db2eac6e8a8f6d1b18
     # via pip-api
-setuptools==67.8.0 \
-    --hash=sha256:5df61bf30bb10c6f756eb19e7c9f3b473051f48db77fddbe06ff2ca307df9a6f \
-    --hash=sha256:62642358adc77ffa87233bc4d2354c4b2682d214048f500964dbe760ccedf102
+setuptools==68.0.0 \
+    --hash=sha256:11e52c67415a381d10d6b462ced9cfb97066179f0e871399e006c4ab101fc85f \
+    --hash=sha256:baf1fdb41c6da4cd2eae722e135500da913332ab3f2f5c7d33af9b492acb5235
     # via
     #   -r requirements/main.in
     #   limits
