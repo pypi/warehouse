@@ -89,7 +89,7 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 # Note that packages containing interface descriptions, JSON,
 # such resources can compress really well.
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
-COMPRESSION_RATIO_THRESHOLD = 100
+COMPRESSION_RATIO_THRESHOLD = 50
 
 
 # Wheel platform checking
