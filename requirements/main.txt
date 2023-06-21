@@ -1209,9 +1209,9 @@ protobuf==4.23.4 \
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg==3.0.8 \
-    --hash=sha256:c2e4afbe71b77b101523b06707f2e2edf1ed801504dd6175efda11da31af8f12 \
-    --hash=sha256:d803be0de54c26ee8c06fd73b6391f809efbcde6a5bbdc118a1a66c2fb4cf944
+psycopg==3.1.9 \
+    --hash=sha256:ab400f207a8c120bafdd8077916d8f6c0106e809401378708485b016508c30c9 \
+    --hash=sha256:fbbac339274d8733ee70ba9822297af3e8871790a26e967b5ea53e30a4b74dcc
     # via -r requirements/main.in
 pyasn1==0.5.0 \
     --hash=sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57 \
