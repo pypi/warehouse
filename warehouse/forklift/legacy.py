@@ -84,7 +84,7 @@ PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 
-# If the zip file decompressed to 100x more space 
+# If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
 # Note that packages containing interface descriptions, JSON,
 # such resources can compress really well.
