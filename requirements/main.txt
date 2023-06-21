@@ -91,15 +91,15 @@ bleach==6.0.0 \
     --hash=sha256:1a1a85c1595e07d8db14c5f09f09e6433502c51c595970edc090551f0db99414 \
     --hash=sha256:33c16e3353dbd13028ab4799a0f89a83f113405c766e9c122df8a06f5b85b3f4
     # via readme-renderer
-boto3==1.26.150 \
-    --hash=sha256:0ab83f1b8f997527a513152bc64fd1873536b1d92bdc98cb40f927aca6af6325 \
-    --hash=sha256:be4e27d48744651fbd0898a6b51faaddd71936651167ba3c2e19855083ce137e
+boto3==1.26.157 \
+    --hash=sha256:718b236aafc3f106d17cd5c4f513fc2f40bfa995c0cb730ecc893e9c808c0385 \
+    --hash=sha256:7a8117dfe9ba1f203d73b3df32a4ebdb895813189635f126fa256e1dea37ee8d
     # via
     #   -r requirements/main.in
     #   kombu
-botocore==1.29.150 \
-    --hash=sha256:0e8c8f0dab008418e4e136ecf2a450fa01bae5b725b7b43ff7cc13beebbf33aa \
-    --hash=sha256:9af58faa67c99d860eabba4cd030b5ee5f4e7e1c301edd6a9174419f75b39334
+botocore==1.29.157 \
+    --hash=sha256:af2a7b6417bf3bbf00ab22aa61a2d7d839a8a8a62e7975c18c80c55c88dc7fcf \
+    --hash=sha256:ccbf948c040d68b6a22570e73dd63cb3b07ce33f4032e9b1d502d2fae55c3b80
     # via
     #   boto3
     #   s3transfer
@@ -831,9 +831,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu[sqs]==5.3.0 \
-    --hash=sha256:d084ec1f96f7a7c37ba9e816823bdbc08f0fc7ddb3a5be555805e692102297d8 \
-    --hash=sha256:fa9be55281bb351ba9da582b2a74e3dd5015b8d075b287e4d16f0b2f25fefcc2
+kombu[sqs]==5.3.1 \
+    --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
+    --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
     # via
     #   -r requirements/main.in
     #   celery
