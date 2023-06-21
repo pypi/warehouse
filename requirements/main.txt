@@ -91,14 +91,15 @@ bleach==6.0.0 \
     --hash=sha256:1a1a85c1595e07d8db14c5f09f09e6433502c51c595970edc090551f0db99414 \
     --hash=sha256:33c16e3353dbd13028ab4799a0f89a83f113405c766e9c122df8a06f5b85b3f4
     # via readme-renderer
-boto3==1.26.77 \
-    --hash=sha256:17f0d782487275cac12676a61b3f1a4900954cc454c842b8551ca47a3dcd59b4
+boto3==1.26.157 \
+    --hash=sha256:718b236aafc3f106d17cd5c4f513fc2f40bfa995c0cb730ecc893e9c808c0385 \
+    --hash=sha256:7a8117dfe9ba1f203d73b3df32a4ebdb895813189635f126fa256e1dea37ee8d
     # via
     #   -r requirements/main.in
     #   kombu
-botocore==1.29.77 \
-    --hash=sha256:9d94a02f2584b52c65fb3cb309fb1b29d6d0c36d69062722b0275c1c382c44c9 \
-    --hash=sha256:d8aa7bffe2422de282b2d02945b7b45d5fecf00f67b65eebb0b1fa3de1abc6d0
+botocore==1.29.157 \
+    --hash=sha256:af2a7b6417bf3bbf00ab22aa61a2d7d839a8a8a62e7975c18c80c55c88dc7fcf \
+    --hash=sha256:ccbf948c040d68b6a22570e73dd63cb3b07ce33f4032e9b1d502d2fae55c3b80
     # via
     #   boto3
     #   s3transfer
@@ -830,9 +831,9 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu[sqs]==5.2.4 \
-    --hash=sha256:37cee3ee725f94ea8bb173eaab7c1760203ea53bbebae226328600f9d2799610 \
-    --hash=sha256:8b213b24293d3417bcf0d2f5537b7f756079e3ea232a8386dcc89a59fd2361a4
+kombu[sqs]==5.3.1 \
+    --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
+    --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
     # via
     #   -r requirements/main.in
     #   celery
@@ -1514,9 +1515,9 @@ ua-parser==0.16.1 \
     --hash=sha256:ed3efc695f475ffe56248c9789b3016247e9c20e3556cfa4d5aadc78ab4b26c6 \
     --hash=sha256:f97126300df8ac0f8f2c9d8559669532d626a1af529265fd253cba56e73ab36e
     # via -r requirements/main.in
-urllib3==1.26.15 \
-    --hash=sha256:8a388717b9476f934a21484e8c8e61875ab60644d29b9b39e11e4b9dc1c6b305 \
-    --hash=sha256:aa751d169e23c7479ce47a0cb0da579e3ede798f994f5816a74e4f4500dcea42
+urllib3==1.26.16 \
+    --hash=sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f \
+    --hash=sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14
     # via
     #   botocore
     #   elasticsearch
