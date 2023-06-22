@@ -99,5 +99,7 @@ jobs:
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          # Since we don't install deps again, we fail if we can't restore the cache (timeout, etc)
+          fail-on-cache-miss: true
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
