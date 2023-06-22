@@ -14,6 +14,7 @@
 
 <div class="sponsors">
   <p class="sponsors__title">Supported by</p>
+  <div class="sponsors__divider"></div>
   {% for sponsor in request.sponsors | sort(attribute='name') %}
     {# Short-circuit if we don't have an image for them #}
     {% if sponsor.white_logo_url %}
