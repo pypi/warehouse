@@ -97,7 +97,6 @@ boto3==1.26.157 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 botocore==1.29.157 \
     --hash=sha256:af2a7b6417bf3bbf00ab22aa61a2d7d839a8a8a62e7975c18c80c55c88dc7fcf \
     --hash=sha256:ccbf948c040d68b6a22570e73dd63cb3b07ce33f4032e9b1d502d2fae55c3b80
@@ -832,7 +831,7 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu[sqs]==5.3.1 \
+kombu==5.3.1 \
     --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
     --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
     # via celery
@@ -1216,12 +1215,11 @@ pycparser==2.21 \
     --hash=sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9 \
     --hash=sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206
     # via cffi
-pycurl==7.44.1 \
-    --hash=sha256:5bcef4d988b74b99653602101e17d8401338d596b9234d263c728a0c3df003e8
+pycurl==7.45.2 \
+    --hash=sha256:5730590be0271364a5bddd9e245c9cc0fb710c4cbacbdd95264a3122d23224ca
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 pydantic==1.10.9 \
     --hash=sha256:07293ab08e7b4d3c9d7de4949a0ea571f11e4557d19ea24dd3ae0c524c0c334d \
     --hash=sha256:0a2aabdc73c2a5960e87c3ffebca6ccde88665616d1fd6d3db3178ef427b267a \
@@ -1526,7 +1524,6 @@ urllib3==1.26.16 \
     #   celery
     #   elasticsearch
     #   google-auth
-    #   kombu
     #   requests
     #   sentry-sdk
 venusian==3.0.0 \
