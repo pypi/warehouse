@@ -150,9 +150,9 @@ doc8==1.1.1 \
     --hash=sha256:d97a93e8f5a2efc4713a0804657dedad83745cca4cd1d88de9186f77f9776004 \
     --hash=sha256:e493aa3f36820197c49f407583521bb76a0fde4fffbcd0e092be946ff95931ac
     # via -r requirements/lint.in
-docutils==0.19 \
-    --hash=sha256:33995a6753c30b7f577febfc2c50411fec6aac7f7ffeb7c4cfe5991072dcf9e6 \
-    --hash=sha256:5e1de4d849fee02c63b040a4a3fd567f4ab104defd8a5511fbbc24a8a017efbc
+docutils==0.20.1 \
+    --hash=sha256:96f387a2c5562db4476f09f13bbab2192e764cac08ebbf3a34a95d9b1e4a59d6 \
+    --hash=sha256:f08a4e276c3a1583a86dce3e34aba3fe04d02bba2dd51ed16106244e8a923e3b
     # via
     #   doc8
     #   restructuredtext-lint
@@ -236,9 +236,9 @@ pep8-naming==0.13.3 \
     --hash=sha256:1705f046dfcd851378aac3be1cd1551c7c1e5ff363bacad707d43007877fa971 \
     --hash=sha256:1a86b8c71a03337c97181917e2b472f0f5e4ccb06844a0d6f0a33522549e7a80
     # via -r requirements/lint.in
-platformdirs==3.6.0 \
-    --hash=sha256:57e28820ca8094678b807ff529196506d7a21e17156cb1cddb3e74cebce54640 \
-    --hash=sha256:ffa199e3fbab8365778c4a10e1fbf1b9cd50707de826eb304b50e57ec0cc8d38
+platformdirs==3.7.0 \
+    --hash=sha256:87fbf6473e87c078d536980ba970a472422e94f17b752cfad17024c18876d481 \
+    --hash=sha256:cfd065ba43133ff103ab3bd10aecb095c2a0035fcd1f07217c9376900d94ba07
     # via black
 pycodestyle==2.10.0 \
     --hash=sha256:347187bdb476329d98f695c213d7295a846d1152ff4fe9bacb8a9590b8ee7053 \
@@ -313,9 +313,9 @@ types-psycopg2==2.9.21.10 \
     --hash=sha256:918224a0731a3650832e46633e720703b5beef7693a064e777d9748654fcf5e5 \
     --hash=sha256:c2600892312ae1c34e12f145749795d93dc4eac3ef7dbf8a9c1bfd45385e80d7
     # via -r requirements/lint.in
-types-pyopenssl==23.2.0.0 \
-    --hash=sha256:43e307e8dfb3a7a8208a19874ca060305f460c529d4eaca8a2669ea89499f244 \
-    --hash=sha256:ba803a99440b0c2e9ab4e197084aeefc55bdfe8a580d367b2aa4210810a21240
+types-pyopenssl==23.2.0.1 \
+    --hash=sha256:0568553f104466f1b8e0db3360fbe6770137d02e21a1a45c209bf2b1b03d90d4 \
+    --hash=sha256:beeb5d22704c625a1e4b6dc756355c5b4af0b980138b702a9d9f932acf020903
     # via types-redis
 types-python-slugify==8.0.0.2 \
     --hash=sha256:9e81f49eac8c805f924695de559fb8dc123ccbd15adb47d40ceaec51c739f044 \
@@ -339,9 +339,9 @@ types-s3transfer==0.6.1 \
     --hash=sha256:6d1ac1dedac750d570428362acdf60fdd4f277b0788855c3894d3226756b2bfb \
     --hash=sha256:75ac1d7143d58c1e6af467cfd4a96c67ee058a3adf7c249d9309999e1f5f41e4
     # via boto3-stubs
-types-setuptools==67.8.0.0 \
-    --hash=sha256:6df73340d96b238a4188b7b7668814b37e8018168aef1eef94a3b1872e3f60ff \
-    --hash=sha256:95c9ed61871d6c0e258433373a4e1753c0a7c3627a46f4d4058c7b5a08ab844f
+types-setuptools==68.0.0.0 \
+    --hash=sha256:cc00e09ba8f535362cbe1ea8b8407d15d14b59c57f4190cceaf61a9e57616446 \
+    --hash=sha256:fc958b4123b155ffc069a66d3af5fe6c1f9d0600c35c0c8444b2ab4147112641
     # via
     #   -r requirements/lint.in
     #   types-babel

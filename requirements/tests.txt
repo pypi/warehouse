@@ -155,9 +155,9 @@ factory-boy==3.2.1 \
     --hash=sha256:a98d277b0c047c75eb6e4ab8508a7f81fb03d2cb21986f627913546ef7a2a55e \
     --hash=sha256:eb02a7dd1b577ef606b75a253b9818e6f9eaf996d94449c9d5ebb124f90dc795
     # via -r requirements/tests.in
-faker==18.10.1 \
-    --hash=sha256:633b278caa3ec239463f9139c74da2607c8da5710e56d5d7d30fc8a7440104c4 \
-    --hash=sha256:d9f363720c4a6cf9884c6c3e26e2ce26266ffe5d741a9bc7cb9256779bc62190
+faker==18.11.1 \
+    --hash=sha256:02980fe15acd58861305568bae0a277680792a505a5a45a309d352f79c452dd1 \
+    --hash=sha256:df4ee36d058a6a96de9d5e645571ef8536946a0b62db841494f8a3bc3bcdc5af
     # via factory-boy
 freezegun==1.2.2 \
     --hash=sha256:cd22d1ba06941384410cd967d8a99d5ae2442f57dfafeff2fda5de8dc5c05446 \
@@ -179,9 +179,9 @@ packaging==23.1 \
     --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
     --hash=sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f
     # via pytest
-pluggy==1.0.0 \
-    --hash=sha256:4224373bacce55f955a878bf9cfa763c1e360858e330072059e10bad68531159 \
-    --hash=sha256:74134bbf457f031a36d68416e1509f34bd5ccc019f0bcc952c7b909d06b37bd3
+pluggy==1.2.0 \
+    --hash=sha256:c2fd55a7d7a3863cba1a013e4e2414658b1d07b6bc57b3919e0c63c9abb99849 \
+    --hash=sha256:d12f0c4b579b15f5e054301bb226ee85eeeba08ffec228092f8defbaa3a4c4b3
     # via pytest
 port-for==0.7.0 \
     --hash=sha256:2cdd35f12919f48a3c2a78df1f64d5e0791a0bac34172253bd52a7e5a0c676c8 \
