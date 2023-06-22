@@ -5,7 +5,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.2.2
+celery[sqs]>=5.2.2,<5.3  # https://github.com/sibson/redbeat/issues/249
 celery-redbeat
 certifi
 click
@@ -27,6 +27,7 @@ Jinja2>=2.8
 limits
 linehaul
 lxml
+kombu[sqs]~=5.2.4  # https://github.com/celery/celery/issues/7070
 mistune
 msgpack
 natsort
