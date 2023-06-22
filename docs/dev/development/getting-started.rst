@@ -143,16 +143,16 @@ If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
-Alternately, you may set the ``WEB_HOST`` environment variable for
+Alternately, you may set the ``WEB_PORT`` environment variable for
 ``docker compose`` to use instead. An example:
 
 .. code-block:: console
 
-    export WEB_HOST=8080
+    export WEB_PORT=8080
     make ...
 
     # or inline:
-    WEB_HOST=8080 make ...
+    WEB_PORT=8080 make ...
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -270,7 +270,7 @@ At this point all the services are up, and web container is listening on port
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
     for more info).
 
-If you've set a different port via the ``WEB_HOST`` environment variable,
+If you've set a different port via the ``WEB_PORT`` environment variable,
 use that port instead.
 
 Logging in to Warehouse
