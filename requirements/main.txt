@@ -96,6 +96,7 @@ boto3==1.26.157 \
     --hash=sha256:7a8117dfe9ba1f203d73b3df32a4ebdb895813189635f126fa256e1dea37ee8d
     # via
     #   -r requirements/main.in
+    #   celery
     #   kombu
 botocore==1.29.157 \
     --hash=sha256:af2a7b6417bf3bbf00ab22aa61a2d7d839a8a8a62e7975c18c80c55c88dc7fcf \
@@ -151,9 +152,9 @@ cbor2==5.4.6 \
     --hash=sha256:e73ca40dd3c7210ff776acff9869ddc9ff67bae7c425b58e5715dcf55275163f \
     --hash=sha256:ff95b33e5482313a74648ca3620c9328e9f30ecfa034df040b828e476597d352
     # via webauthn
-celery[sqs]==5.3.0 \
-    --hash=sha256:1eaba5ee14d8c8c0bed8f6063e5e10dabdbcf23503a861cf0e10b7221d99cb0d \
-    --hash=sha256:95d29f9a93f41c4b122fddf1fe3ef13f872029dca4ad1f9af4f1a414442ceecf
+celery[sqs]==5.3.1 \
+    --hash=sha256:27f8f3f3b58de6e0ab4f174791383bbd7445aff0471a43e99cfd77727940753f \
+    --hash=sha256:f84d1c21a1520c116c2b7d26593926581191435a03aa74b77c941b93ca1c6210
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -834,9 +835,7 @@ jmespath==1.0.1 \
 kombu[sqs]==5.3.1 \
     --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
     --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
-    # via
-    #   -r requirements/main.in
-    #   celery
+    # via celery
 limits==3.5.0 \
     --hash=sha256:3ad525faeb7e1c63859ca1cae34c9ed22a8f22c9ea9d96e2f412869f6b36beb9 \
     --hash=sha256:b728c9ab3c6163997b1d11a51d252d951efd13f0d248ea2403383952498f8a22
@@ -1221,6 +1220,7 @@ pycurl==7.44.1 \
     --hash=sha256:5bcef4d988b74b99653602101e17d8401338d596b9234d263c728a0c3df003e8
     # via
     #   -r requirements/main.in
+    #   celery
     #   kombu
 pydantic==1.10.9 \
     --hash=sha256:07293ab08e7b4d3c9d7de4949a0ea571f11e4557d19ea24dd3ae0c524c0c334d \
@@ -1349,9 +1349,7 @@ python-slugify==8.0.1 \
 pytz==2023.3 \
     --hash=sha256:1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588 \
     --hash=sha256:a151b3abb88eda1d4e34a9814df37de2a80e301e68ba0fd856fb9b46bfbbbffb
-    # via
-    #   -r requirements/main.in
-    #   celery
+    # via -r requirements/main.in
 readme-renderer[md]==40.0 \
     --hash=sha256:9f77b519d96d03d7d7dce44977ba543090a14397c4f60de5b6eb5b8048110aa4 \
     --hash=sha256:e18feb2a1e7706f2865b81ebb460056d93fb29d69daa10b223c00faa7bd9a00a
@@ -1511,6 +1509,7 @@ typing-extensions==4.6.3 \
     #   alembic
     #   limits
     #   pydantic
+    #   sqlalchemy
 tzdata==2023.3 \
     --hash=sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a \
     --hash=sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda
@@ -1524,6 +1523,7 @@ urllib3==1.26.16 \
     --hash=sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14
     # via
     #   botocore
+    #   celery
     #   elasticsearch
     #   google-auth
     #   kombu
