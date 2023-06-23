@@ -13,13 +13,14 @@
 # Marek Fic <marekfic1982@gmail.com>, 2022.
 # Jakub Fabijan <animatorzPolski@gmail.com>, 2022.
 # Komornik Bank <pklolkolo@gmail.com>, 2023.
+# Maciej Olko <maciej.olko@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-04-16 18:47+0000\n"
-"Last-Translator: Komornik Bank <pklolkolo@gmail.com>\n"
+"PO-Revision-Date: 2023-06-21 13:19+0000\n"
+"Last-Translator: Maciej Olko <maciej.olko@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
 "Language: pl\n"
@@ -28,7 +29,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.17-dev\n"
+"X-Generator: Weblate 4.18.1\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:141
@@ -87,14 +88,12 @@ msgid "Password too long."
 msgstr "Hasło za długie."
 
 #: warehouse/accounts/forms.py:173
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
+"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na ${time}"
+". Spróbuj ponownie później."
 
 #: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
@@ -105,10 +104,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "Adres e-mail jest nieprawidłowy. Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:236
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "Adres e-mail jest nieprawidłowy. Spróbuj ponownie."
+msgstr "Adres e-mail jest zbyt długi. Spróbuj ponownie."
 
 #: warehouse/accounts/forms.py:255
 msgid "You can't use an email address from this domain. Use a different email."
@@ -154,14 +151,12 @@ msgid "No user found with that username or email"
 msgstr "Nie znaleziono użytkownika z tą nazwą użytkownika lub adresem e-mail."
 
 #: warehouse/accounts/views.py:103
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Podjęto zbyt wiele nieudanych prób logowania. Spróbuj ponownie później."
+"Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na {}. "
+"Spróbuj ponownie później."
 
 #: warehouse/accounts/views.py:120
 msgid ""
