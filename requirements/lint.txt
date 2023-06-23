@@ -345,9 +345,9 @@ types-setuptools==68.0.0.0 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-stdlib-list==0.8.3.2 \
-    --hash=sha256:17ff97316d88257f9b775b4dea2e9ad617325ea66a2737d841946dfd42363470 \
-    --hash=sha256:8ed25c53c2df44212cbfd0ea3b4cc63d7ec0c13f5c475b6004e83c69fcd3f15c
+types-stdlib-list==0.8.3.3 \
+    --hash=sha256:5394e6e23afc4c502042c3e6dc0df8bd7e47c64ecb983b3cb08277b9616a644c \
+    --hash=sha256:a5026963dc4bfd9fc39669efc9898270e3b180f13a8fe5991dd4d97209087631
     # via -r requirements/lint.in
 types-stripe==3.5.2.10 \
     --hash=sha256:146f415934bb2708741935681ef39f4e532d8bf1d298981430c85fb82eae6f0b \
