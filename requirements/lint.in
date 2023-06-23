@@ -1,6 +1,5 @@
 doc8>=1.1.0
 curlylint
-pep8-naming
 black==23.3.0
 isort>=5
 pyupgrade
