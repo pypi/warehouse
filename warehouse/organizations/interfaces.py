@@ -16,14 +16,14 @@ from zope.interface import Interface
 class IOrganizationService(Interface):
     def get_organization(organization_id):
         """
-        Return the organization object that represents the given organizationid, or None if
-        there is no organization for that ID.
+        Return the organization object that represents the given organizationid,
+        or None if there is no organization for that ID.
         """
 
     def get_organization_by_name(name):
         """
-        Return the organization object corresponding with the given organization name, or None
-        if there is no organization with that name.
+        Return the organization object corresponding with the given organization name,
+        or None if there is no organization with that name.
         """
 
     def get_organization_application(organization_application_id):
@@ -68,8 +68,8 @@ class IOrganizationService(Interface):
         name, display_name, orgtype, link_url, description, submitted_by
     ):
         """
-        Accepts a organization object, and attempts to create an organization with those
-        attributes.
+        Accepts a organization object, and attempts to create an organization with
+        those attributes.
         """
 
     def add_catalog_entry(organization_id):
@@ -252,7 +252,8 @@ class IOrganizationService(Interface):
 
     def get_team_project_role(team_project_role_id):
         """
-        Return the team project role object that represents the given team project role id,
+        Return the team project role object that represents the given
+        team project role id,
         """
 
     def add_team_project_role(team_id, project_id, role_name):
