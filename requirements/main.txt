@@ -835,7 +835,9 @@ jmespath==1.0.1 \
 kombu[sqs]==5.3.1 \
     --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
     --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
-    # via celery
+    # via
+    #   -r requirements/main.in
+    #   celery
 limits==3.5.0 \
     --hash=sha256:3ad525faeb7e1c63859ca1cae34c9ed22a8f22c9ea9d96e2f412869f6b36beb9 \
     --hash=sha256:b728c9ab3c6163997b1d11a51d252d951efd13f0d248ea2403383952498f8a22
