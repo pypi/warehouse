@@ -97,7 +97,6 @@ boto3==1.26.157 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 botocore==1.29.157 \
     --hash=sha256:af2a7b6417bf3bbf00ab22aa61a2d7d839a8a8a62e7975c18c80c55c88dc7fcf \
     --hash=sha256:ccbf948c040d68b6a22570e73dd63cb3b07ce33f4032e9b1d502d2fae55c3b80
@@ -491,9 +490,9 @@ google-auth==2.20.0 \
     #   google-api-core
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.11.1 \
-    --hash=sha256:738ae717f26bd7567f826f29f65be266f49bc3db0b069ac6030894fd8895ed6f \
-    --hash=sha256:cfe1158bc5818276ba765959da8a27afdcdaa11fa3fa9eed097d5639297dfe74
+google-cloud-bigquery==3.11.2 \
+    --hash=sha256:72f307c761312784d1a020fbf415ed81975472adde526d6b2d11468539310f7e \
+    --hash=sha256:a0f0d0492fff4c9c911cab27640e690dd14b442eda833319b11190042b2f7469
     # via -r requirements/main.in
 google-cloud-core==2.3.2 \
     --hash=sha256:8417acf6466be2fa85123441696c4badda48db314c607cf1e5d543fa8bdc22fe \
@@ -832,7 +831,7 @@ jmespath==1.0.1 \
     # via
     #   boto3
     #   botocore
-kombu[sqs]==5.3.1 \
+kombu==5.3.1 \
     --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
     --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
     # via celery
@@ -1221,7 +1220,6 @@ pycurl==7.44.1 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 pydantic==1.10.9 \
     --hash=sha256:07293ab08e7b4d3c9d7de4949a0ea571f11e4557d19ea24dd3ae0c524c0c334d \
     --hash=sha256:0a2aabdc73c2a5960e87c3ffebca6ccde88665616d1fd6d3db3178ef427b267a \
@@ -1526,7 +1524,6 @@ urllib3==1.26.16 \
     #   celery
     #   elasticsearch
     #   google-auth
-    #   kombu
     #   requests
     #   sentry-sdk
 venusian==3.0.0 \
