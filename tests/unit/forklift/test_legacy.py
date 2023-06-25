@@ -56,7 +56,6 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
-
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
     FileFactory,

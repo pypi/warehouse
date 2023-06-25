@@ -5829,7 +5829,10 @@ class TestPEP715Emails:
         "fn, template_name",
         [
             (email.send_egg_uploads_deprecated_email, "egg-uploads-deprecated"),
-            (email.send_egg_uploads_deprecated_initial_email, "egg-uploads-deprecated-initial-notice"),
+            (
+                email.send_egg_uploads_deprecated_initial_email,
+                "egg-uploads-deprecated-initial-notice",
+            ),
         ],
     )
     def test_pep_715_emails(
