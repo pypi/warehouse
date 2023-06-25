@@ -51,6 +51,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
+    send_egg_uploads_deprecated_email,
     send_gpg_signature_uploaded_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -1472,6 +1473,20 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    # Check that if it's a bdist_egg, notify regarding deprecation.
+    if filename.endswith(".egg"):
+        # send deprecation notice
+        contributors = project.users
+        if project.organization:
+            contributors += project.organization.owners
+
+        for contributor in sorted(contributors):
+            send_egg_uploads_deprecated_email(
+                request,
+                contributor,
+                project_name=project.name,
+            )
 
     # Push updates to BigQuery
     dist_metadata = {

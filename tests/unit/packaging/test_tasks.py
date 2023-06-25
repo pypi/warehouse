@@ -946,3 +946,19 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
     ]
+
+
+# def test_send_pep_715_notices(db_request):
+#    no_egg_project = ProjectFactory()
+#    no_egg_project_owner_role = RoleFactory.create(
+#    FileFactory(project=no_egg_project, packagetype="bdist_wheel", upload_time="2022-06-01")
+#    FileFactory(project=no_egg_project, packagetype="bdist_wheel", upload_time="2023-06-01")
+#
+#    some_egg_project = ProjectFactory()
+#    FileFactory(project=some_egg_project, packagetype="bdist_wheel", upload_time="2022-06-01")
+#    FileFactory(project=some_egg_project, packagetype="bdist_egg", upload_time="2022-06-01")
+#    FileFactory(project=some_egg_project, packagetype="bdist_wheel", upload_time="2023-06-01")
+#    FileFactory(project=some_egg_project, packagetype="bdist_egg", upload_time="2023-06-01")
+#
+#    rotten_egg_project = ProjectFactory()
+#    FileFactory(project=rotten_egg_project, packagetype="bdist_egg", upload_time="2022-06-01")

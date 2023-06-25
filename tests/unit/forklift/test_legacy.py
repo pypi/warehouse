@@ -56,6 +56,7 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
+
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
     FileFactory,
@@ -79,6 +80,13 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
     return temp_f.getvalue()
 
 
+def _get_egg_testdata():
+    temp_f = io.BytesIO()
+    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
+        zfp.writestr(f"fake_package/PKG-INFO", "Fake metadata")
+    return temp_f.getvalue()
+
+
 def _storage_hash(data):
     return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
 
@@ -92,6 +100,12 @@ _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
+
+
+_EGG_PKG_TESTDATA = _get_egg_testdata()
+_EGG_PKG_MD5 = hashlib.md5(_EGG_PKG_TESTDATA).hexdigest()
+_EGG_PKG_SHA256 = hashlib.sha256(_EGG_PKG_TESTDATA).hexdigest()
+_EGG_PKG_STORAGE_HASH = _storage_hash(_EGG_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -3676,6 +3690,50 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information. "
             "See /the/help/url/ for more information."
         )
+
+    def test_egg_upload_sends_pep_715_notice(
+        self, pyramid_config, db_request, metrics, monkeypatch
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is my summary!",
+                "filetype": "bdist_egg",
+                "pyversion": "2.7",
+                "md5_digest": _EGG_PKG_MD5,
+                "content": pretend.stub(
+                    filename="{}-{}.egg".format(project.name, "1.0.0"),
+                    file=io.BytesIO(_EGG_PKG_TESTDATA),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_egg_uploads_deprecated_email", send_email)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert send_email.calls == [
+            pretend.call(db_request, user, project_name=project.name)
+        ]
 
 
 @pytest.mark.parametrize("status", [True, False])
