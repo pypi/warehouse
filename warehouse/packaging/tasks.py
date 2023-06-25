@@ -517,10 +517,9 @@ def send_pep_715_notices(request):
     Notifies projects that have uploaded eggs since Jan 1, 2023 of PEP 715
     """
     projects = set()
-    for release_file in (
-        request.db.query(File)
-        .filter(File.packagetype == "bdist_egg")
-        .filter(File.upload_time >= "2023-01-01")
+    for release_file in request.db.query(File).filter(
+        File.packagetype == "bdist_egg",
+        File.upload_time >= "2023-01-01",
     ):
         projects.add(release_file.release.project)
 
