@@ -82,7 +82,7 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
 def _get_egg_testdata():
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr(f"fake_package/PKG-INFO", "Fake metadata")
+        zfp.writestr("fake_package/PKG-INFO", "Fake metadata")
     return temp_f.getvalue()
 
 
