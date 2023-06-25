@@ -955,6 +955,7 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
 
 
 def test_send_pep_715_notices(db_request, monkeypatch):
+    # No eggs, no emails.
     no_egg_project = ProjectFactory()
     no_egg_project_owner = UserFactory.create()
     RoleFactory.create(user=no_egg_project_owner, project=no_egg_project)
@@ -966,6 +967,8 @@ def test_send_pep_715_notices(db_request, monkeypatch):
         release=no_egg_release, packagetype="bdist_wheel", upload_time="2023-06-01"
     )
 
+    # Projects with eggs uploaded in 2023 get emails sent to their
+    # contributors and org contributors.
     some_egg_project = ProjectFactory()
     some_egg_project_owner = UserFactory.create()
     RoleFactory.create(user=some_egg_project_owner, project=some_egg_project)
@@ -989,6 +992,25 @@ def test_send_pep_715_notices(db_request, monkeypatch):
         release=some_egg_release, packagetype="bdist_egg", upload_time="2023-06-01"
     )
 
+    # Same as above, but without an organization in the mix.
+    another_egg_project = ProjectFactory()
+    another_egg_project_owner = UserFactory.create()
+    RoleFactory.create(user=another_egg_project_owner, project=another_egg_project)
+    another_egg_release = ReleaseFactory.create(project=another_egg_project)
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_egg", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_wheel", upload_time="2023-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_egg", upload_time="2023-06-01"
+    )
+
+    # Old eggs (pre-2023), no emails.
     rotten_egg_project = ProjectFactory()
     rotten_egg_project_user = UserFactory.create()
     RoleFactory.create(user=rotten_egg_project_user, project=rotten_egg_project)
@@ -1008,14 +1030,14 @@ def test_send_pep_715_notices(db_request, monkeypatch):
 
     tasks.send_pep_715_notices(db_request)
 
-    # The only emails sent are to `some_egg_project`'s contributors and
-    # containing org contributors, since it's the only one that uploaded an
-    # egg after 2023-01-01.
     assert set(tasks.send_egg_uploads_deprecated_initial_email.calls) == {
         pretend.call(
             db_request, some_egg_project_owner, project_name=some_egg_project.name
         ),
         pretend.call(
             db_request, some_egg_org_owner, project_name=some_egg_project.name
+        ),
+        pretend.call(
+            db_request, another_egg_project_owner, project_name=another_egg_project.name
         ),
     }
