@@ -23,6 +23,11 @@ from wtforms import Field, Form, StringField
 
 import warehouse.packaging.tasks
 
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+    OrganizationRoleFactory,
+)
 from warehouse.accounts.models import WebAuthn
 from warehouse.packaging import tasks
 from warehouse.packaging.models import Description
@@ -964,6 +969,12 @@ def test_send_pep_715_notices(db_request, monkeypatch):
     some_egg_project = ProjectFactory()
     some_egg_project_owner = UserFactory.create()
     RoleFactory.create(user=some_egg_project_owner, project=some_egg_project)
+
+    some_egg_org = OrganizationFactory()
+    OrganizationProjectFactory(organization=some_egg_org, project=some_egg_project)
+    some_egg_org_owner = UserFactory.create()
+    OrganizationRoleFactory.create(user=some_egg_org_owner, organization=some_egg_org)
+
     some_egg_release = ReleaseFactory.create(project=some_egg_project)
     FileFactory(
         release=some_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
@@ -995,10 +1006,16 @@ def test_send_pep_715_notices(db_request, monkeypatch):
         send_egg_uploads_deprecated_initial_email,
     )
 
-    # The only emails sent are to `some_egg_project`'s contributors,
-    # since it's the only one that uploaded an egg after 2023-01-01.
-    assert send_egg_uploads_deprecated_initial_email.calls == [
+    tasks.send_pep_715_notices(db_request)
+
+    # The only emails sent are to `some_egg_project`'s contributors and
+    # containing org contributors, since it's the only one that uploaded an
+    # egg after 2023-01-01.
+    assert set(tasks.send_egg_uploads_deprecated_initial_email.calls) == {
         pretend.call(
             db_request, some_egg_project_owner, project_name=some_egg_project.name
-        )
-    ]
+        ),
+        pretend.call(
+            db_request, some_egg_org_owner, project_name=some_egg_project.name
+        ),
+    }
