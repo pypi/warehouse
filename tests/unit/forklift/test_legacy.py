@@ -2311,14 +2311,14 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "project_name",
+        "filename_prefix, project_name",
         [
-            "something_else",  # completely different
-            "no",  # starts with same prefix
+            ("nope", "something_else"),  # completely different
+            ("nope", "no"),  # starts with same prefix
         ],
     )
     def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, project_name
+        self, pyramid_config, db_request, metrics, filename_prefix, project_name
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2335,7 +2335,7 @@ class TestFileUpload:
             IMetricsService: metrics,
         }.get(svc)
 
-        filename = f"nope-{release.version}.tar.gz"
+        filename = filename_prefix + f"-{release.version}.tar.gz"
         file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
