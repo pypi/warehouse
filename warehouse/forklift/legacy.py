@@ -1483,7 +1483,7 @@ def file_upload(request):
             for teamrole in project.team_project_roles:
                 contributors += teamrole.team.members
 
-        for contributor in sorted(contributors):
+        for contributor in sorted(set(contributors)):
             send_egg_uploads_deprecated_email(
                 request,
                 contributor,

@@ -3761,6 +3761,8 @@ class TestFileUpload:
         )
         team = TeamFactory.create(organization=org)
         TeamRoleFactory.create(team=team, user=org_member)
+        # Duplicate the role directly on the project to ensure only one email
+        RoleFactory.create(user=org_member, project=project, role_name="Maintainer")
         TeamProjectRoleFactory.create(project=project, team=team)
 
         pyramid_config.testing_securitypolicy(identity=user)
