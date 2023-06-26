@@ -33,6 +33,11 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+    OrganizationRoleFactory,
+)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -56,7 +61,6 @@ from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
-
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
     FileFactory,
@@ -83,7 +87,7 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
 def _get_egg_testdata():
     temp_f = io.BytesIO()
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr(f"fake_package/PKG-INFO", "Fake metadata")
+        zfp.writestr("fake_package/PKG-INFO", "Fake metadata")
     return temp_f.getvalue()
 
 
@@ -3734,6 +3738,56 @@ class TestFileUpload:
         assert send_email.calls == [
             pretend.call(db_request, user, project_name=project.name)
         ]
+
+    def test_egg_upload_sends_pep_715_notice_org_roles(
+        self, pyramid_config, db_request, metrics, monkeypatch
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        org = OrganizationFactory()
+        OrganizationProjectFactory(organization=org, project=project)
+        org_owner = UserFactory.create()
+        OrganizationRoleFactory.create(user=org_owner, organization=org)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "summary": "This is my summary!",
+                "filetype": "bdist_egg",
+                "pyversion": "2.7",
+                "md5_digest": _EGG_PKG_MD5,
+                "content": pretend.stub(
+                    filename="{}-{}.egg".format(project.name, "1.0.0"),
+                    file=io.BytesIO(_EGG_PKG_TESTDATA),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_egg_uploads_deprecated_email", send_email)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert set(send_email.calls) == {
+            pretend.call(db_request, user, project_name=project.name),
+            pretend.call(db_request, org_owner, project_name=project.name),
+        }
 
 
 @pytest.mark.parametrize("status", [True, False])
