@@ -18,7 +18,7 @@ Please note that this does **NOT** remove any existing uploaded eggs from PyPI.
 The deprecation timeline is as follows:
 
 - Today, June 26, 2023: All maintainers of projects which have uploaded one or
-  more eggs since January 1, 2023 will recieve a one-time email informing them
+  more eggs since January 1, 2023 will receive a one-time email informing them
   of this change.
 - Today, June 26, 2023: Each upload of an egg to PyPI will result in a notice
   being sent to all Owners and Maintainers for the project.
