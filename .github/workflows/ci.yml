@@ -93,7 +93,7 @@ jobs:
         with:
           path: |
               .mypy_cache
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Restore built Python environment from deps
         uses: actions/cache/restore@v3
         with:
