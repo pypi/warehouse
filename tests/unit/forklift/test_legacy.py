@@ -2318,17 +2318,25 @@ class TestFileUpload:
         ],
     )
     def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, project_name
+        self, pyramid_config, db_request, metrics, project_name
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
         EmailFactory.create(user=user)
         project = ProjectFactory.create(name=project_name)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
         filename = f"nope-{release.version}.tar.gz"
+        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
 
         db_request.POST = MultiDict(
             {
@@ -2336,14 +2344,15 @@ class TestFileUpload:
                 "name": project.name,
                 "version": release.version,
                 "filetype": "sdist",
-                "md5_digest": "nope!",
+                "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=file_content,
                     type="application/tar",
                 ),
             }
         )
+        db_request.help_url = lambda **kw: "/the/help/url/"
 
         with pytest.raises(HTTPBadRequest) as excinfo:
             legacy.file_upload(db_request)
