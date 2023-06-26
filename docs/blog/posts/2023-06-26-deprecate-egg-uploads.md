@@ -22,7 +22,7 @@ The deprecation timeline is as follows:
   of this change.
 - Today, June 26, 2023: Each upload of an egg to PyPI will result in a notice
   being sent to all Owners and Maintainers for the project.
-- August 1, 2023: Uploads of eggs will be **rejected** by PyPI.
+- August 1, 2023: Uploads of eggs will be [**rejected**](https://www.youtube.com/watch?v=XNyUALnj8V0) by PyPI.
 
 You can read more detailed rationale in [PEP 715](https://peps.python.org/pep-0715/#rationale).
 Thanks to contributor [William Woodruff](https://blog.yossarian.net) for his
