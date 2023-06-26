@@ -2310,12 +2310,21 @@ class TestFileUpload:
             "400 File already exists. See /the/help/url/ for more information."
         )
 
-    def test_upload_fails_with_wrong_filename(self, pyramid_config, db_request):
+    @pytest.mark.parametrize(
+        "project_name",
+        [
+            "something_else",  # completely different
+            "no",  # starts with same prefix
+        ],
+    )
+    def test_upload_fails_with_wrong_filename(
+        self, pyramid_config, db_request, project_name
+    ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         EmailFactory.create(user=user)
-        project = ProjectFactory.create()
+        project = ProjectFactory.create(name=project_name)
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
 
