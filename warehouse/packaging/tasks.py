@@ -527,6 +527,8 @@ def send_pep_715_notices(request):
         contributors = project.users
         if project.organization:
             contributors += project.organization.owners
+            for teamrole in project.team_project_roles:
+                contributors += teamrole.team.members
 
         for contributor in sorted(contributors):
             send_egg_uploads_deprecated_initial_email(

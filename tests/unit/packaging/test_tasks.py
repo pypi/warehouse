@@ -27,6 +27,9 @@ from tests.common.db.organizations import (
     OrganizationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    TeamFactory,
+    TeamProjectRoleFactory,
+    TeamRoleFactory,
 )
 from warehouse.accounts.models import WebAuthn
 from warehouse.packaging import tasks
@@ -978,6 +981,14 @@ def test_send_pep_715_notices(db_request, monkeypatch):
     some_egg_org_owner = UserFactory.create()
     OrganizationRoleFactory.create(user=some_egg_org_owner, organization=some_egg_org)
 
+    some_egg_org_member = UserFactory.create()
+    OrganizationRoleFactory.create(
+        user=some_egg_org_member, organization=some_egg_org, role_name="Member"
+    )
+    some_egg_team = TeamFactory.create(organization=some_egg_org)
+    TeamRoleFactory.create(team=some_egg_team, user=some_egg_org_member)
+    TeamProjectRoleFactory.create(project=some_egg_project, team=some_egg_team)
+
     some_egg_release = ReleaseFactory.create(project=some_egg_project)
     FileFactory(
         release=some_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
@@ -1036,6 +1047,9 @@ def test_send_pep_715_notices(db_request, monkeypatch):
         ),
         pretend.call(
             db_request, some_egg_org_owner, project_name=some_egg_project.name
+        ),
+        pretend.call(
+            db_request, some_egg_org_member, project_name=some_egg_project.name
         ),
         pretend.call(
             db_request, another_egg_project_owner, project_name=another_egg_project.name

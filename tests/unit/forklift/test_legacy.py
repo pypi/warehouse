@@ -37,6 +37,9 @@ from tests.common.db.organizations import (
     OrganizationFactory,
     OrganizationProjectFactory,
     OrganizationRoleFactory,
+    TeamFactory,
+    TeamProjectRoleFactory,
+    TeamRoleFactory,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
@@ -3752,6 +3755,14 @@ class TestFileUpload:
         org_owner = UserFactory.create()
         OrganizationRoleFactory.create(user=org_owner, organization=org)
 
+        org_member = UserFactory.create()
+        OrganizationRoleFactory.create(
+            user=org_member, organization=org, role_name="Member"
+        )
+        team = TeamFactory.create(organization=org)
+        TeamRoleFactory.create(team=team, user=org_member)
+        TeamProjectRoleFactory.create(project=project, team=team)
+
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
         db_request.user_agent = "warehouse-tests/6.6.6"
@@ -3787,6 +3798,7 @@ class TestFileUpload:
         assert set(send_email.calls) == {
             pretend.call(db_request, user, project_name=project.name),
             pretend.call(db_request, org_owner, project_name=project.name),
+            pretend.call(db_request, org_member, project_name=project.name),
         }
 
 
