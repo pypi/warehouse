@@ -157,17 +157,6 @@ class TwoFactorRequireable:
 
 class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     __tablename__ = "projects"
-    __table_args__ = (
-        CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="projects_valid_name",
-        ),
-        CheckConstraint(
-            "upload_limit <= 1073741824",  # 1.0 GiB == 1073741824 bytes
-            name="projects_upload_limit_max_value",
-        ),
-    )
-
     __repr__ = make_repr("name")
 
     name = Column(Text, nullable=False)
@@ -214,6 +203,21 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),  # type: ignore
         passive_deletes=True,
+    )
+
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="projects_valid_name",
+        ),
+        CheckConstraint(
+            "upload_limit <= 1073741824",  # 1.0 GiB == 1073741824 bytes
+            name="projects_upload_limit_max_value",
+        ),
+        Index(
+            "project_name_ultranormalized",
+            func.ultranormalize_name(name),
+        ),
     )
 
     def __getitem__(self, version):
