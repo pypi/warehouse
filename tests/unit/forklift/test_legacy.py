@@ -2311,15 +2311,21 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "filename_prefix, project_name",
+        "filename, project_name",
         [
-            ("nope", "something_else"),  # completely different
-            ("nope", "no"),  # starts with same prefix
-            ("no-way", "no"),  # starts with same prefix with hyphen
+            # completely different
+            ("nope-{version}.tar.gz", "something_else"),
+            ("nope-{version}-py3-none-any.whl", "something_else"),
+            # starts with same prefix
+            ("nope-{version}.tar.gz", "no"),
+            ("nope-{version}-py3-none-any.whl", "no"),
+            # starts with same prefix with hyphen
+            ("no-way-{version}.tar.gz", "no"),
+            ("no_way-{version}-py3-none-any.whl", "no"),
         ],
     )
     def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, filename_prefix, project_name
+        self, pyramid_config, db_request, metrics, filename, project_name
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2336,9 +2342,6 @@ class TestFileUpload:
             IMetricsService: metrics,
         }.get(svc)
 
-        filename = filename_prefix + f"-{release.version}.tar.gz"
-        file_content = io.BytesIO(_TAR_GZ_PKG_TESTDATA)
-
         db_request.POST = MultiDict(
             {
                 "metadata_version": "1.2",
@@ -2347,8 +2350,8 @@ class TestFileUpload:
                 "filetype": "sdist",
                 "md5_digest": _TAR_GZ_PKG_MD5,
                 "content": pretend.stub(
-                    filename=filename,
-                    file=file_content,
+                    filename=filename.format(version=release.version),
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
                     type="application/tar",
                 ),
             }
