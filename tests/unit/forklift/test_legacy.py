@@ -2315,6 +2315,7 @@ class TestFileUpload:
         [
             ("nope", "something_else"),  # completely different
             ("nope", "no"),  # starts with same prefix
+            ("no-way", "no"),  # starts with same prefix with hyphen
         ],
     )
     def test_upload_fails_with_wrong_filename(
