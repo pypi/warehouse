@@ -1208,10 +1208,20 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename)
 
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = pkg_resources.safe_name(
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hypens, so we can split on the last hypen to get the project name.
+        else filename.rpartition("-")[0]
+    ).lower()
+
     # Make sure that our filename matches the project that it is being uploaded
     # to.
-    prefix = pkg_resources.safe_name(project.name).lower()
-    if not pkg_resources.safe_name(filename).lower().startswith(prefix):
+    if (prefix := pkg_resources.safe_name(project.name).lower()) != filename_prefix:
         raise _exc_with_message(
             HTTPBadRequest,
             f"Start filename for {project.name!r} with {prefix!r}.",
