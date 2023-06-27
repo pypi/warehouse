@@ -1215,7 +1215,7 @@ def file_upload(request):
         filename.partition("-")[0]
         if filename.endswith(".whl")
         # For source releases, we know that the version should not contain any
-        # hypens, so we can split on the last hypen to get the project name.
+        # hyphens, so we can split on the last hyphen to get the project name.
         else filename.rpartition("-")[0]
     ).lower()
 
