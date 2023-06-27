@@ -259,8 +259,18 @@ def configure(settings=None):
     )
 
     # Pythondotorg integration settings
-    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(
+        settings,
+        "pythondotorg.host",
+        "PYTHONDOTORG_HOST",
+        default="https://www.python.org",
+    )
     maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
+
+    # Helpscout integration settings
+    maybe_set(
+        settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
+    )
 
     # Configure our ratelimiters
     maybe_set(
@@ -362,13 +372,6 @@ def configure(settings=None):
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
-    maybe_set(
-        settings,
-        "warehouse.oidc.enabled",
-        "OIDC_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
 
     maybe_set(
         settings,

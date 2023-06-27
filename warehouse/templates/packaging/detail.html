@@ -53,7 +53,7 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
-{% elif parsed.netloc == "youtube.com" or parsed.netloc.endswith(".youtube.com") %}
+{% elif parsed.netloc in ["youtube.com", "youtu.be"] or parsed.netloc.endswith((".youtube.com", ".youtu.be")) %}
   {% set icon = "fab fa-youtube" %}
 {% elif name|lower == "mastodon" %}
   {% set icon = "fab fa-mastodon" %}
@@ -137,8 +137,6 @@
 {% endblock %}
 
 {% block content %}
-{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
-{% endcsi %}
 {% if release.github_repo_info_url and release.github_open_issue_info_url %}
 <div class="hidden"
   data-controller="github-repo-stats"
@@ -199,6 +197,8 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
+{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
+{% endcsi %}
     <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>

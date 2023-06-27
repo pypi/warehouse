@@ -49,16 +49,28 @@ def run_migrations_online():
         url = options.pop("url")
         connectable = create_engine(url, poolclass=pool.NullPool)
 
-    with connectable.connect() as connection:
-        connection.execute(text("SET statement_timeout = 5000"))
-        connection.execute(text("SET lock_timeout = 4000"))
+        with connectable.connect() as connection:
+            connection.execute(text("SET statement_timeout = 5000"))
+            connection.execute(text("SET lock_timeout = 4000"))
 
+            context.configure(
+                connection=connection,
+                target_metadata=db.metadata,
+                compare_server_default=True,
+                transaction_per_migration=True,
+            )
+            with context.begin_transaction():
+                context.run_migrations()
+    else:
         context.configure(
-            connection=connection,
+            connection=connectable,
             target_metadata=db.metadata,
             compare_server_default=True,
             transaction_per_migration=True,
         )
+        context.execute(text("SET statement_timeout = 5000"))
+        context.execute(text("SET lock_timeout = 4000"))
+
         with context.begin_transaction():
             context.run_migrations()
 

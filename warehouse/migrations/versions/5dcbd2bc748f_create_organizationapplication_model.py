@@ -18,7 +18,6 @@ Create Date: 2023-06-02 22:38:01.308198
 """
 
 import sqlalchemy as sa
-import sqlalchemy_utils.types.url
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -50,7 +49,7 @@ def upgrade():
         ),
         sa.Column(
             "link_url",
-            sqlalchemy_utils.types.url.URLType(),
+            sa.Text(),
             nullable=False,
             comment="External URL associated with the organization",
         ),

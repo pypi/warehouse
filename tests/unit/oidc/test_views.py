@@ -45,43 +45,34 @@ def test_ratelimiters():
     ]
 
 
-@pytest.mark.parametrize(
-    ("registry", "admin"), [(False, False), (False, True), (True, True)]
-)
-def test_oidc_audience_not_enabled(registry, admin):
+def test_oidc_audience_not_enabled():
     request = pretend.stub(
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": registry}),
-        flags=pretend.stub(enabled=lambda *a: admin),
+        flags=pretend.stub(disallow_oidc=lambda *a: True),
     )
 
     response = views.oidc_audience(request)
     assert response.status_code == 403
-    assert response.json == {"message": "OIDC functionality not enabled"}
+    assert response.json == {"message": "Trusted publishing functionality not enabled"}
 
 
 def test_oidc_audience():
     request = pretend.stub(
         registry=pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "warehouse.oidc.audience": "fakeaudience",
             }
         ),
-        flags=pretend.stub(enabled=lambda *a: False),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
     response = views.oidc_audience(request)
     assert response == {"audience": "fakeaudience"}
 
 
-@pytest.mark.parametrize(
-    ("registry", "admin"), [(False, False), (False, True), (True, True)]
-)
-def test_mint_token_from_oidc_not_enabled(registry, admin):
+def test_mint_token_from_oidc_not_enabled():
     request = pretend.stub(
         response=pretend.stub(status=None),
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": registry}),
-        flags=pretend.stub(enabled=lambda *a: admin),
+        flags=pretend.stub(disallow_oidc=lambda *a: True),
     )
 
     response = views.mint_token_from_oidc(request)
@@ -89,7 +80,12 @@ def test_mint_token_from_oidc_not_enabled(registry, admin):
     assert response == {
         "message": "Token request failed",
         "errors": [
-            {"code": "not-enabled", "description": "OIDC functionality not enabled"}
+            {
+                "code": "not-enabled",
+                "description": (
+                    "GitHub-based trusted publishing functionality not enabled"
+                ),
+            }
         ],
     }
 
@@ -117,8 +113,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
-            self.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-            self.flags = pretend.stub(enabled=lambda *a: False)
+            self.flags = pretend.stub(disallow_oidc=lambda *a: False)
 
         @property
         def body(self):
@@ -144,8 +139,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         response=pretend.stub(status=None),
         body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-        flags=pretend.stub(enabled=lambda *a: False),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
     response = views.mint_token_from_oidc(request)
@@ -176,8 +170,7 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         response=pretend.stub(status=None),
         body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-        flags=pretend.stub(enabled=lambda *a: False),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
     response = views.mint_token_from_oidc(request)
@@ -206,8 +199,7 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
     project = ProjectFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(project_name=project.name)
 
-    db_request.registry.settings = {"warehouse.oidc.enabled": True}
-    db_request.flags.enabled = lambda f: False
+    db_request.flags.disallow_oidc = lambda f=None: False
     db_request.body = json.dumps({"token": "faketoken"})
 
     claims = pretend.stub()
@@ -253,8 +245,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
         environment=None,
     )
 
-    db_request.registry.settings = {"warehouse.oidc.enabled": True}
-    db_request.flags.enabled = lambda f: False
+    db_request.flags.disallow_oidc = lambda f=None: False
     db_request.body = json.dumps(
         {
             "token": (
@@ -331,8 +322,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         send_pending_trusted_publisher_invalidated_email,
     )
 
-    db_request.registry.settings = {"warehouse.oidc.enabled": True}
-    db_request.flags.enabled = lambda f: False
+    db_request.flags.oidc_enabled = lambda f: False
     db_request.body = json.dumps(
         {
             "token": (
@@ -433,8 +423,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         find_service=find_service,
         domain="fakedomain",
         remote_addr="0.0.0.0",
-        registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
-        flags=pretend.stub(enabled=lambda *a: False),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
     response = views.mint_token_from_oidc(request)
@@ -466,7 +455,6 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
     assert project.record_event.calls == [
         pretend.call(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
-            ip_address="0.0.0.0",
             request=request,
             additional={
                 "expires": 900,

@@ -19,6 +19,7 @@
     <p class="sponsors__title">
       // Title
     </p>
+    <div class="sponsors__divider"></div>
 
     <a class="sponsors__sponsor">
       <img class="sponsors__image">
@@ -32,6 +33,9 @@
   text-align: center;
   border-top: 1px solid darken($primary-color, 2);
   background-color: $primary-color;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center; // place the entire div in center page
   padding: $half-spacing-unit;
 
   &__title {
@@ -43,11 +47,18 @@
 
     @media only screen and (max-width: $small-tablet) {
       display: block;
+      flex: 1;
     }
   }
 
+  &__divider {
+    flex-basis: 100%;
+    height: 0;
+  }
+
   &__sponsor {
-    display: inline-block;
+    display: inline-grid;
+    grid-template-rows: fit-content(40%);
     text-align: center;
     padding: $half-spacing-unit 13px 10px 13px;
     opacity: 0.95;
@@ -72,6 +83,7 @@
   }
 
   &__image {
+    justify-self: center;
     max-width: 100px;
     opacity: 0.8;
 
@@ -83,7 +95,7 @@
   &__name,
   &__service {
     max-width: 100px;
-    display: block;
+    align-self: end;
     font-size: 0.75rem;
     color: $white;
   }
@@ -99,7 +111,6 @@
   }
 
   &__service {
-
     @media only screen and (max-width: $small-tablet) {
       display: none;
     }

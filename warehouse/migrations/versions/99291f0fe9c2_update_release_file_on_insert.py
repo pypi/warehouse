@@ -11,6 +11,7 @@
 # limitations under the License.
 
 """
+Update release_file on insert
 
 The release.requires_python and release_files.requires_python can be out of
 sync if a file is uploaded after the release has been created. It's

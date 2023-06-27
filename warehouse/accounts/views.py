@@ -492,7 +492,6 @@ def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
             user = user_service.get_user(userid)
             user.record_event(
                 tag=EventTag.Account.RecoveryCodesUsed,
-                ip_address=request.remote_addr,
                 request=request,
             )
 
@@ -623,7 +622,6 @@ def register(request, _form_class=RegistrationForm):
         email = user_service.add_email(user.id, form.email.data, primary=True)
         user.record_event(
             tag=EventTag.Account.AccountCreate,
-            ip_address=request.remote_addr,
             request=request,
             additional={"email": form.email.data},
         )
@@ -671,7 +669,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
             send_password_reset_email(request, (user, email))
             user.record_event(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=request.remote_addr,
                 request=request,
             )
             user_service.ratelimiters["password.reset"].hit(user.id)
@@ -682,7 +679,6 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
         else:
             user.record_event(
                 tag=EventTag.Account.PasswordResetAttempt,
-                ip_address=request.remote_addr,
                 request=request,
             )
             request.session.flash(
@@ -788,7 +784,6 @@ def reset_password(request, _form_class=ResetPasswordForm):
         user_service.update_user(user.id, password=form.new_password.data)
         user.record_event(
             tag=EventTag.Account.PasswordReset,
-            ip_address=request.remote_addr,
             request=request,
         )
         password_reset_limiter.clear(user.id)
@@ -853,7 +848,6 @@ def verify_email(request):
     email.transient_bounces = 0
     email.user.record_event(
         tag=EventTag.Account.EmailVerified,
-        ip_address=request.remote_addr,
         request=request,
         additional={"email": email.email, "primary": email.primary},
     )
@@ -962,7 +956,6 @@ def verify_organization_role(request):
         message = request.params.get("message", "")
         organization.record_event(
             tag=EventTag.Organization.OrganizationRoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
@@ -972,7 +965,6 @@ def verify_organization_role(request):
         )
         user.record_event(
             tag=EventTag.Account.OrganizationRoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by_user_id": str(submitter_user.id),
@@ -1017,7 +1009,6 @@ def verify_organization_role(request):
     submitter_user = user_service.get_user(data.get("submitter_id"))
     organization.record_event(
         tag=EventTag.Organization.OrganizationRoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1027,7 +1018,6 @@ def verify_organization_role(request):
     )
     user.record_event(
         tag=EventTag.Account.OrganizationRoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by_user_id": str(submitter_user.id),
@@ -1140,7 +1130,6 @@ def verify_project_role(request):
         submitter_user = user_service.get_user(data.get("submitter_id"))
         project.record_event(
             tag=EventTag.Project.RoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": submitter_user.username,
@@ -1150,7 +1139,6 @@ def verify_project_role(request):
         )
         user.record_event(
             tag=EventTag.Account.RoleDeclineInvite,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": submitter_user.username,
@@ -1178,7 +1166,6 @@ def verify_project_role(request):
     )
     project.record_event(
         tag=EventTag.Project.RoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by": request.user.username,
@@ -1188,7 +1175,6 @@ def verify_project_role(request):
     )
     user.record_event(
         tag=EventTag.Account.RoleAdd,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "submitted_by": request.user.username,
@@ -1290,7 +1276,6 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     user = user_service.get_user(userid)
     user.record_event(
         tag=EventTag.Account.LoginSuccess,
-        ip_address=request.remote_addr,
         request=request,
         additional={
             "two_factor_method": two_factor_method,
@@ -1395,7 +1380,6 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
 
@@ -1440,19 +1424,15 @@ class ManageAccountPublishingViews:
     @property
     def default_response(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
             "pending_github_publisher_form": self.pending_github_publisher_form,
         }
 
     @view_config(request_method="GET")
     def manage_publishing(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1466,13 +1446,10 @@ class ManageAccountPublishingViews:
         request_param=PendingGitHubPublisherForm.__params__,
     )
     def add_pending_github_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1570,7 +1547,6 @@ class ManageAccountPublishingViews:
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherAdded,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "project": pending_publisher.project_name,
@@ -1584,7 +1560,7 @@ class ManageAccountPublishingViews:
 
         self.request.session.flash(
             self.request._(
-                "Registered a new publishing publisher to create "
+                "Registered a new pending publisher to create "
                 f"the project '{pending_publisher.project_name}'."
             ),
             queue="success",
@@ -1601,13 +1577,10 @@ class ManageAccountPublishingViews:
         request_param=DeletePublisherForm.__params__,
     )
     def delete_pending_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1660,7 +1633,6 @@ class ManageAccountPublishingViews:
 
         self.request.user.record_event(
             tag=EventTag.Account.PendingOIDCPublisherRemoved,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "project": pending_publisher.project_name,

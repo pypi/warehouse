@@ -51,6 +51,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
+    send_egg_uploads_deprecated_email,
     send_gpg_signature_uploaded_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -83,7 +84,13 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
-COMPRESSION_RATIO_THRESHOLD = 10
+
+# If the zip file decompressed to 50x more space
+# than it is uncompressed, consider it a ZIP bomb.
+# Note that packages containing interface descriptions, JSON,
+# such resources can compress really well.
+# See discussion here: https://github.com/pypi/warehouse/issues/13962
+COMPRESSION_RATIO_THRESHOLD = 50
 
 
 # Wheel platform checking
@@ -660,11 +667,6 @@ def _validate_filename(filename):
         )
 
 
-_safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
-# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
-_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
-
-
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -698,15 +700,13 @@ def _is_valid_dist_file(filename, filetype):
                 }:
                     return False
 
-    tar_fn_match = _tar_filenames_re.search(filename)
-    if tar_fn_match:
+    if filename.endswith(".tar.gz"):
         # TODO: Ideally Ensure the compression ratio is not absurd
         # (decompression bomb), like we do for wheel/zip above.
 
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
-        z_type = tar_fn_match.group("z_type") or ""
         try:
-            with tarfile.open(filename, f"r:{z_type}") as tar:
+            with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
                 bad_tar = True
@@ -720,34 +720,6 @@ def _is_valid_dist_file(filename, filetype):
                     return False
         except (tarfile.ReadError, EOFError):
             return False
-    elif filename.endswith(".exe"):
-        # The only valid filetype for a .exe file is "bdist_wininst".
-        if filetype != "bdist_wininst":
-            return False
-
-        # Ensure that the .exe is a valid zip file, and that all of the files
-        # contained within it have safe filenames.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                # We need the no branch below to work around a bug in
-                # coverage.py where it's detecting a missed branch where there
-                # isn't one.
-                for zipname in zfp.namelist():  # pragma: no branch
-                    if not _safe_zipnames.match(zipname):
-                        return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".msi"):
-        # The only valid filetype for a .msi is "bdist_msi"
-        if filetype != "bdist_msi":
-            return False
-
-        # Check the first 8 bytes of the MSI file. This was taken from the
-        # legacy implementation of PyPI which itself took it from the
-        # implementation of `file` I believe.
-        with open(filename, "rb") as fp:
-            if fp.read(8) != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
-                return False
     elif filename.endswith(".zip") or filename.endswith(".egg"):
         # Ensure that the .zip/.egg is a valid zip file, and that it has a
         # PKG-INFO file.
@@ -1200,7 +1172,6 @@ def file_upload(request):
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "submitted_by": request.user.username
@@ -1237,10 +1208,20 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename)
 
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = pkg_resources.safe_name(
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hypens, so we can split on the last hypen to get the project name.
+        else filename.rpartition("-")[0]
+    ).lower()
+
     # Make sure that our filename matches the project that it is being uploaded
     # to.
-    prefix = pkg_resources.safe_name(project.name).lower()
-    if not pkg_resources.safe_name(filename).lower().startswith(prefix):
+    if (prefix := pkg_resources.safe_name(project.name).lower()) != filename_prefix:
         raise _exc_with_message(
             HTTPBadRequest,
             f"Start filename for {project.name!r} with {prefix!r}.",
@@ -1443,7 +1424,6 @@ def file_upload(request):
 
         file_.record_event(
             tag=EventTag.File.FileAdd,
-            ip_address=request.remote_addr,
             request=request,
             additional={
                 "filename": file_.filename,
@@ -1503,6 +1483,22 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    # Check that if it's a bdist_egg, notify regarding deprecation.
+    if filename.endswith(".egg"):
+        # send deprecation notice
+        contributors = project.users
+        if project.organization:
+            contributors += project.organization.owners
+            for teamrole in project.team_project_roles:
+                contributors += teamrole.team.members
+
+        for contributor in sorted(set(contributors)):
+            send_egg_uploads_deprecated_email(
+                request,
+                contributor,
+                project_name=project.name,
+            )
 
     # Push updates to BigQuery
     dist_metadata = {

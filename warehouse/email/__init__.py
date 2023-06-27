@@ -124,7 +124,6 @@ def _send_email_to_user(
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
             },
-            "ip_address": request.remote_addr,
         },
     )
 
@@ -289,6 +288,16 @@ def send_email_verification_email(request, user_and_email):
         "token": token,
         "email_address": email.email,
         "n_hours": token_service.max_age // 60 // 60,
+    }
+
+
+@_email("new-email-added")
+def send_new_email_added_email(request, user_and_email):
+    user, email = user_and_email
+
+    return {
+        "username": user.username,
+        "email_address": email.email,
     }
 
 
@@ -992,11 +1001,7 @@ def send_trusted_publisher_added_email(request, user, project_name, publisher):
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "publisher_name": publisher.publisher_name,
-        "publisher_workflow": str(publisher),
-        "publisher_repository_owner": publisher.repository_owner,
-        "publisher_repository_name": publisher.repository_name,
-        "publisher_environment": publisher.environment,
+        "publisher": publisher,
     }
 
 
@@ -1006,16 +1011,26 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
     return {
         "username": request.user.username,
         "project_name": project_name,
-        "publisher_name": publisher.publisher_name,
-        "publisher_workflow": str(publisher),
-        "publisher_repository_owner": publisher.repository_owner,
-        "publisher_repository_name": publisher.repository_name,
-        "publisher_environment": publisher.environment,
+        "publisher": publisher,
     }
 
 
 @_email("pending-trusted-publisher-invalidated")
 def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
+    return {
+        "project_name": project_name,
+    }
+
+
+@_email("egg-uploads-deprecated")
+def send_egg_uploads_deprecated_email(request, user, project_name):
+    return {
+        "project_name": project_name,
+    }
+
+
+@_email("egg-uploads-deprecated-initial-notice")
+def send_egg_uploads_deprecated_initial_email(request, user, project_name):
     return {
         "project_name": project_name,
     }

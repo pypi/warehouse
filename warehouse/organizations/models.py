@@ -32,8 +32,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy_utils.types.url import URLType
+from sqlalchemy.orm import declared_attr
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -65,14 +64,14 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -95,11 +94,11 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -126,11 +125,11 @@ class OrganizationStripeSubscription(db.Model):
 
     __repr__ = make_repr("organization_id", "subscription_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    subscription_id = Column(
+    subscription_id = Column(  # type: ignore[var-annotated]
         ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -155,11 +154,11 @@ class OrganizationStripeCustomer(db.Model):
 
     __repr__ = make_repr("organization_id", "stripe_customer_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    stripe_customer_id = Column(
+    stripe_customer_id = Column(  # type: ignore[var-annotated]
         ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -237,13 +236,13 @@ class OrganizationMixin:
         return orm.column_property(func.normalize_pep426_name(cls.name))
 
     display_name = Column(Text, nullable=False, comment="Display name used in UI")
-    orgtype = Column(
+    orgtype = Column(  # type: ignore[var-annotated]
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         comment="What type of organization such as Community or Company",
     )
     link_url = Column(
-        URLType, nullable=False, comment="External URL associated with the organization"
+        Text, nullable=False, comment="External URL associated with the organization"
     )
     description = Column(
         Text,
@@ -321,13 +320,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             .all()
         )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
-    ):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
             request=request,
             additional={"organization_name": self.name, **additional},
         )
@@ -529,19 +525,19 @@ class OrganizationInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "organization")
 
-    invite_status = Column(
+    invite_status = Column(  # type: ignore[var-annotated]
         Enum(
             OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
         ),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -569,14 +565,14 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    team_id = Column(
+    team_id = Column(  # type: ignore[var-annotated]
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -604,15 +600,15 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    team_id = Column(
+    team_id = Column(  # type: ignore[var-annotated]
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -663,8 +659,8 @@ class Team(HasEvents, db.Model):
     __repr__ = make_repr("name", "organization")
 
     name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_team_name(name))
-    organization_id = Column(
+    normalized_name = orm.column_property(func.normalize_team_name(name))  # type: ignore[var-annotated] # noqa: E501
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -683,13 +679,10 @@ class Team(HasEvents, db.Model):
         "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
 
-    def record_event(
-        self, *, tag, ip_address, request: Request = None, additional=None
-    ):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
             request=request,
             additional={
                 "organization_name": self.organization.name,

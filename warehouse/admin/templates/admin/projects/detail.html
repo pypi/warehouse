@@ -249,7 +249,11 @@
             {% for pub in oidc_publishers %}
             <tr>
               <td>{{ pub.publisher_name }}</td>
-              <td><a href="{{ pub.publisher_url() }}">{{ pub.repository }}</a></td>
+              {% if pub.publisher_url() %}
+              <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
+              {% else %}
+              <td>N/A</td>
+              {% endif %}
               <td><code>{{ pub }}</code></td>
             </tr>
             {% endfor %}

@@ -93,11 +93,13 @@ jobs:
         with:
           path: |
               .mypy_cache
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Restore built Python environment from deps
         uses: actions/cache/restore@v3
         with:
           path: ${{ env.pythonLocation }}
           key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          # Since we don't install deps again, we fail if we can't restore the cache (timeout, etc)
+          fail-on-cache-miss: true
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}

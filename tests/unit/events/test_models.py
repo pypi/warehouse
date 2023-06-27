@@ -178,17 +178,13 @@ class TestUserAgentInfo:
     def test_summarizes_user_agents(self, db_request, test_input, expected):
         db_request.headers["User-Agent"] = test_input
         file = FileFactory.create()
-        file.record_event(
-            tag=EventTag.File.FileAdd, ip_address=None, request=db_request
-        )
+        file.record_event(tag=EventTag.File.FileAdd, request=db_request)
         assert file.events[0].additional.get("user_agent_info") == expected
 
     def test_bad_parse(self, db_request):
         db_request.headers["User-Agent"] = "nobueno"
         file = FileFactory.create()
-        file.record_event(
-            tag=EventTag.File.FileAdd, ip_address=None, request=db_request
-        )
+        file.record_event(tag=EventTag.File.FileAdd, request=db_request)
         assert file.events[0].additional is None
 
     @pytest.mark.parametrize(
@@ -336,7 +332,5 @@ class TestUserAgentInfo:
     def test_user_agent_info(self, db_request, user_agent, expected):
         db_request.headers["User-Agent"] = user_agent
         file = FileFactory.create()
-        file.record_event(
-            tag=EventTag.File.FileAdd, ip_address=None, request=db_request
-        )
+        file.record_event(tag=EventTag.File.FileAdd, request=db_request)
         assert file.events[0].user_agent_info == expected

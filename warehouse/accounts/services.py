@@ -321,7 +321,6 @@ class DatabaseUserService:
         user.disabled_for = reason
         user.record_event(
             tag=EventTag.Account.PasswordDisabled,
-            ip_address=request.remote_addr,
             request=request,
             additional={"reason": reason.value if reason else None},
         )

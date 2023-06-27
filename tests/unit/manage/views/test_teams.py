@@ -610,13 +610,11 @@ class TestManageTeamHistory:
         older_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
@@ -657,9 +655,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        TeamEventFactory.create_batch(
-            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
-        )
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -688,9 +684,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        TeamEventFactory.create_batch(
-            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
-        )
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -719,9 +713,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        TeamEventFactory.create_batch(
-            total_items, source=team, tag="fake:event", ip_address="0.0.0.0"
-        )
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
 
         with pytest.raises(HTTPNotFound):
             assert team_views.manage_team_history(team, db_request)
