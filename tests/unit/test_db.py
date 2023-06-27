@@ -47,10 +47,10 @@ def test_model_base_repr(monkeypatch):
 
     original_repr = model.__repr__
 
-    assert repr(model) == "Base(foo={})".format(repr("bar"))
+    assert repr(model) == "ModelBase(foo={})".format(repr("bar"))
     assert inspect.calls == [pretend.call(model)]
     assert model.__repr__ is not original_repr
-    assert repr(model) == "Base(foo={})".format(repr("bar"))
+    assert repr(model) == "ModelBase(foo={})".format(repr("bar"))
 
 
 def test_listens_for(monkeypatch):

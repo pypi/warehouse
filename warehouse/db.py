@@ -22,7 +22,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
@@ -63,21 +63,21 @@ class DatabaseNotAvailableError(Exception):
     ...
 
 
-class ModelBase:
+# The Global metadata object.
+metadata = sqlalchemy.MetaData()
+
+
+class ModelBase(DeclarativeBase):
+    """Base class for models using declarative syntax."""
+
+    metadata = metadata
+
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
             *[c_attr.key for c_attr in inst.mapper.column_attrs], _self=self
         )
         return self.__repr__()
-
-
-# The Global metadata object.
-metadata = sqlalchemy.MetaData()
-
-
-# Base class for models using declarative syntax
-ModelBase = declarative_base(cls=ModelBase, metadata=metadata)  # type: ignore
 
 
 class Model(ModelBase):

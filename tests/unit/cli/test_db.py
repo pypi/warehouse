@@ -16,7 +16,6 @@ import pytest
 import sqlalchemy
 
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import declarative_base
 
 import warehouse.cli.db.dbml
 import warehouse.db
@@ -337,10 +336,7 @@ Ref: _clan_member.clan_id > _clan.id
 def test_generate_dbml_file(tmp_path_factory):
     class Muddle(warehouse.db.Model):
         __abstract__ = True
-
-    metadata = sqlalchemy.MetaData()
-
-    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+        metadata = sqlalchemy.MetaData()
 
     class Clan(Muddle):
         __tablename__ = "_clan"
@@ -380,10 +376,7 @@ def test_generate_dbml_file(tmp_path_factory):
 def test_generate_dbml_console(capsys, monkeypatch):
     class Muddle(warehouse.db.Model):
         __abstract__ = True
-
-    metadata = sqlalchemy.MetaData()
-
-    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+        metadata = sqlalchemy.MetaData()
 
     class Clan(Muddle):
         __tablename__ = "_clan"
@@ -422,10 +415,7 @@ def test_generate_dbml_console(capsys, monkeypatch):
 def test_generate_dbml_bad_conversion():
     class Muddle(warehouse.db.Model):
         __abstract__ = True
-
-    metadata = sqlalchemy.MetaData()
-
-    Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
+        metadata = sqlalchemy.MetaData()
 
     class BadText(sqlalchemy.Text):
         pass
