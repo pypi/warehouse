@@ -5,6 +5,7 @@ pep8-naming
 black==23.3.0
 isort>=5
 pyupgrade
+dbml-to-fides
 mypy
 celery-types
 msgpack-types
