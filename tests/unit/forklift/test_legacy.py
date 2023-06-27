@@ -2316,12 +2316,15 @@ class TestFileUpload:
             # completely different
             ("nope-{version}.tar.gz", "something_else"),
             ("nope-{version}-py3-none-any.whl", "something_else"),
+            ("nope-{version}-py3-none-any.egg", "something_else"),
             # starts with same prefix
             ("nope-{version}.tar.gz", "no"),
             ("nope-{version}-py3-none-any.whl", "no"),
+            ("nope-{version}-py3-none-any.egg", "no"),
             # starts with same prefix with hyphen
             ("no-way-{version}.tar.gz", "no"),
             ("no_way-{version}-py3-none-any.whl", "no"),
+            ("no_way-{version}-py3-none-any.egg", "no"),
         ],
     )
     def test_upload_fails_with_wrong_filename(
