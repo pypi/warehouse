@@ -1,10 +1,8 @@
 name: Development Environment
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+  schedule:
+    - cron: '0 13 * * *'  # once a day at around 9am eastern
   workflow_dispatch:
 
 jobs:
