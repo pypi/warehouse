@@ -1213,7 +1213,7 @@ def file_upload(request):
         # For wheels, the project name is normalized and won't contain hyphens, so
         # we can split on the first hyphen.
         filename.partition("-")[0]
-        if filename.endswith(".whl")
+        if filename.endswith((".egg", ".whl"))
         # For source releases, we know that the version should not contain any
         # hyphens, so we can split on the last hyphen to get the project name.
         else filename.rpartition("-")[0]
