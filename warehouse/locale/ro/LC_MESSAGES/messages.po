@@ -75,12 +75,12 @@ msgstr ""
 "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:186
-#: warehouse/accounts/forms.py:199
+#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
+#: warehouse/accounts/forms.py:198
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:174
+#: warehouse/accounts/forms.py:173
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -91,21 +91,27 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:201
 msgid "Your passwords don't match. Try again."
 msgstr "Parolele tale nu se potrivesc. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:234 warehouse/accounts/forms.py:245
+#: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:247
 msgid "The email address isn't valid. Try again."
 msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:253
+#: warehouse/accounts/forms.py:236
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The email address is too long. Try again."
+msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
+
+#: warehouse/accounts/forms.py:255
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Nu puteți utiliza o adresă de e-mail din acest domeniu. Utilizați un alt e-"
 "mail."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:266
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -113,7 +119,7 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de acest cont. Utilizați un alt "
 "e-mail."
 
-#: warehouse/accounts/forms.py:271
+#: warehouse/accounts/forms.py:273
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -121,27 +127,27 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de un alt cont. Utilizați un "
 "alt e-mail."
 
-#: warehouse/accounts/forms.py:292 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:294 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
-#: warehouse/accounts/forms.py:382
+#: warehouse/accounts/forms.py:383
 msgid "Invalid TOTP code."
 msgstr "Cod TOTP nevalid."
 
-#: warehouse/accounts/forms.py:399
+#: warehouse/accounts/forms.py:400
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Aserțiune WebAuthn nevalidă: Sarcină utilă incorectă"
 
-#: warehouse/accounts/forms.py:461
+#: warehouse/accounts/forms.py:460
 msgid "Invalid recovery code."
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/accounts/forms.py:471
+#: warehouse/accounts/forms.py:469
 msgid "Recovery code has been previously used."
 msgstr "Codul de recuperare a fost folosit anterior."
 
-#: warehouse/accounts/forms.py:490
+#: warehouse/accounts/forms.py:488
 msgid "No user found with that username or email"
 msgstr "Niciun utilizator găsit cu acel nume de utilizator sau e-mail"
 
@@ -188,12 +194,12 @@ msgstr "Deja autentificat"
 msgid "Successful WebAuthn assertion"
 msgstr "Aserțiune WebAuthn cu succes"
 
-#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:831
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
 
-#: warehouse/accounts/views.py:592
+#: warehouse/accounts/views.py:591
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -201,152 +207,152 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:726
+#: warehouse/accounts/views.py:722
 msgid "Expired token: request a new password reset link"
 msgstr "Token expirat: solicitați un nou link de resetare a parolei"
 
-#: warehouse/accounts/views.py:728
+#: warehouse/accounts/views.py:724
 msgid "Invalid token: request a new password reset link"
 msgstr "Token nevalid: solicitați un nou link de resetare a parolei"
 
-#: warehouse/accounts/views.py:730 warehouse/accounts/views.py:833
-#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1106
+#: warehouse/accounts/views.py:726 warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:927 warehouse/accounts/views.py:1096
 msgid "Invalid token: no token supplied"
 msgstr "Token nevalid: nu este furnizat niciun jeton"
 
-#: warehouse/accounts/views.py:734
+#: warehouse/accounts/views.py:730
 msgid "Invalid token: not a password reset token"
 msgstr "Token nevalid: nu un jeton de resetare a parolei"
 
-#: warehouse/accounts/views.py:739
+#: warehouse/accounts/views.py:735
 msgid "Invalid token: user not found"
 msgstr "Token nevalid: utilizatorul nu a fost găsit"
 
-#: warehouse/accounts/views.py:750
+#: warehouse/accounts/views.py:746
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Token nevalid: utilizatorul s-a conectat de când a fost solicitat acest jeton"
 
-#: warehouse/accounts/views.py:768
+#: warehouse/accounts/views.py:764
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Token nevalid: parola a fost deja modificată de la solicitarea acestui jeton"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:796
 msgid "You have reset your password"
 msgstr "V-ați resetat parola"
 
-#: warehouse/accounts/views.py:829
+#: warehouse/accounts/views.py:824
 msgid "Expired token: request a new email verification link"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:831
+#: warehouse/accounts/views.py:826
 msgid "Invalid token: request a new email verification link"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:837
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: not an email verification token"
 msgstr "Token nevalid: nu un Token de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:846
+#: warehouse/accounts/views.py:841
 msgid "Email not found"
 msgstr "E-mailul nu a fost găsit"
 
-#: warehouse/accounts/views.py:849
+#: warehouse/accounts/views.py:844
 msgid "Email already verified"
 msgstr "E-mailul a fost deja verificat"
 
-#: warehouse/accounts/views.py:867
+#: warehouse/accounts/views.py:861
 msgid "You can now set this email as your primary address"
 msgstr "Acum puteți seta acest e-mail ca adresă principală"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:865
 msgid "This is your primary address"
 msgstr "Aceasta este adresa dvs. principală"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:870
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "Adresa de e-mail ${email_address} a fost verificată. ${confirm_message}."
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:923
 #, fuzzy
 #| msgid "Expired token: request a new email verification link"
 msgid "Expired token: request a new organization invitation"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:931
+#: warehouse/accounts/views.py:925
 #, fuzzy
 #| msgid "Invalid token: request a new email verification link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:931
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Token nevalid: nu un Token de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:935
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/accounts/views.py:950
+#: warehouse/accounts/views.py:944
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1003
+#: warehouse/accounts/views.py:995
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1068
+#: warehouse/accounts/views.py:1058
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:1092
 #, fuzzy
 #| msgid "Expired token: request a new email verification link"
 msgid "Expired token: request a new project role invitation"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1094
 #, fuzzy
 #| msgid "Invalid token: request a new email verification link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1110
+#: warehouse/accounts/views.py:1100
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1114
+#: warehouse/accounts/views.py:1104
 msgid "Role invitation is not valid."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/accounts/views.py:1129
+#: warehouse/accounts/views.py:1119
 msgid "Role invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1162
+#: warehouse/accounts/views.py:1150
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1230
+#: warehouse/accounts/views.py:1216
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/accounts/views.py:1449 warehouse/accounts/views.py:1598
-#: warehouse/manage/views/__init__.py:1239
+#: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
+#: warehouse/manage/views/__init__.py:1227
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -358,7 +364,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1466 warehouse/manage/views/__init__.py:1255
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -370,17 +376,17 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1480
+#: warehouse/accounts/views.py:1465
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1493
+#: warehouse/accounts/views.py:1478
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1509 warehouse/manage/views/__init__.py:1274
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -391,26 +397,26 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1288
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1542
+#: warehouse/accounts/views.py:1527
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1562
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1612 warehouse/accounts/views.py:1625
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1596 warehouse/accounts/views.py:1609
+#: warehouse/accounts/views.py:1616
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1638
+#: warehouse/accounts/views.py:1622
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -548,33 +554,33 @@ msgstr ""
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:221
+#: warehouse/manage/views/__init__.py:220
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:777
+#: warehouse/manage/views/__init__.py:772
 msgid "Recovery codes already generated"
 msgstr "Coduri de recuperare deja generate"
 
-#: warehouse/manage/views/__init__.py:778
+#: warehouse/manage/views/__init__.py:773
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:886
+#: warehouse/manage/views/__init__.py:879
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1014
+#: warehouse/manage/views/__init__.py:1004
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1136
+#: warehouse/manage/views/__init__.py:1126
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1495
-#: warehouse/manage/views/__init__.py:1798
-#: warehouse/manage/views/__init__.py:1907
+#: warehouse/manage/views/__init__.py:1481
+#: warehouse/manage/views/__init__.py:1782
+#: warehouse/manage/views/__init__.py:1890
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -586,101 +592,101 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1627
-#: warehouse/manage/views/__init__.py:1713
-#: warehouse/manage/views/__init__.py:1815
-#: warehouse/manage/views/__init__.py:1916
+#: warehouse/manage/views/__init__.py:1613
+#: warehouse/manage/views/__init__.py:1698
+#: warehouse/manage/views/__init__.py:1799
+#: warehouse/manage/views/__init__.py:1899
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1639
+#: warehouse/manage/views/__init__.py:1625
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1725
+#: warehouse/manage/views/__init__.py:1710
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1827
+#: warehouse/manage/views/__init__.py:1811
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1928
+#: warehouse/manage/views/__init__.py:1911
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1932
+#: warehouse/manage/views/__init__.py:1915
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2083
+#: warehouse/manage/views/__init__.py:2065
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2193
+#: warehouse/manage/views/__init__.py:2172
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2239
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/manage/views/__init__.py:2294
+#: warehouse/manage/views/__init__.py:2271
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2307
-#: warehouse/manage/views/organizations.py:891
+#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2374
-#: warehouse/manage/views/organizations.py:958
+#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2407
+#: warehouse/manage/views/__init__.py:2382
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2418
+#: warehouse/manage/views/__init__.py:2393
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2452
-#: warehouse/manage/views/organizations.py:1147
+#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:867
+#: warehouse/manage/views/organizations.py:858
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/organizations.py:869
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1041
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1030
+#: warehouse/manage/views/organizations.py:1072
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Could not find organization invitation."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/manage/views/organizations.py:1051
+#: warehouse/manage/views/organizations.py:1040
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/manage/views/organizations.py:1098
+#: warehouse/manage/views/organizations.py:1087
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -837,8 +843,8 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:185
-#: warehouse/templates/manage/project/release.html:138
-#: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/release.html:144
+#: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:364
@@ -1075,7 +1081,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:182
+#: warehouse/templates/manage/project/release.html:188
 #: warehouse/templates/manage/project/settings.html:126
 #: warehouse/templates/manage/project/settings.html:175
 #: warehouse/templates/manage/project/settings.html:247
@@ -1510,7 +1516,7 @@ msgid "Log in to %(title)s"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:49
-#: warehouse/templates/accounts/profile.html:41
+#: warehouse/templates/accounts/profile.html:39
 #: warehouse/templates/accounts/register.html:91
 #: warehouse/templates/email/organization-member-added/body.html:30
 #: warehouse/templates/email/organization-member-invited/body.html:30
@@ -1559,7 +1565,7 @@ msgstr ""
 msgid "Profile of %(username)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:31
+#: warehouse/templates/accounts/profile.html:29
 #: warehouse/templates/manage/account.html:223
 #: warehouse/templates/manage/organization/roles.html:153
 #: warehouse/templates/manage/organization/roles.html:220
@@ -1569,18 +1575,18 @@ msgstr ""
 msgid "Avatar for {user} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:52
+#: warehouse/templates/accounts/profile.html:50
 #: warehouse/templates/organizations/profile.html:37
 msgid "Date joined"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:53
+#: warehouse/templates/accounts/profile.html:51
 #: warehouse/templates/organizations/profile.html:38
 #, python-format
 msgid "Joined %(start_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:67
+#: warehouse/templates/accounts/profile.html:68
 #: warehouse/templates/organizations/profile.html:51
 #, python-format
 msgid "%(count)s project"
@@ -1589,12 +1595,12 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/accounts/profile.html:73
+#: warehouse/templates/accounts/profile.html:74
 #: warehouse/templates/organizations/profile.html:57
 msgid "No projects"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:82
+#: warehouse/templates/accounts/profile.html:83
 #: warehouse/templates/manage/organization/projects.html:73
 #: warehouse/templates/manage/projects.html:37
 #: warehouse/templates/manage/projects.html:108
@@ -1604,7 +1610,7 @@ msgstr ""
 msgid "Last released %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/accounts/profile.html:90
+#: warehouse/templates/accounts/profile.html:91
 #, python-format
 msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr ""
@@ -2740,7 +2746,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:211
 #: warehouse/templates/manage/manage_base.html:306
 #: warehouse/templates/manage/manage_base.html:308
-#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 #: warehouse/templates/search/results.html:198
@@ -2777,7 +2783,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr ""
@@ -5457,7 +5463,7 @@ msgid "Destroy Documentation for project"
 msgstr ""
 
 #: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/release.html:123
+#: warehouse/templates/manage/project/release.html:129
 #: warehouse/templates/pages/stats.html:42
 msgid "Project name"
 msgstr ""
@@ -5756,38 +5762,62 @@ msgstr ""
 msgid "Delete file"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:133
+#: warehouse/templates/manage/project/release.html:120
+msgid ""
+"I understand that my users will no longer be able to install this file for "
+"this release of this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:121
+#, python-format
+msgid ""
+"I understand that I will <a href=%(href)s target=\"_blank\" rel=\"noopener"
+"\">not be able to re-upload a file using the same file name</a> %(filename)s."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:122
+#: warehouse/templates/manage/project/release.html:205
+msgid "I understand that I will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:123
+#: warehouse/templates/manage/project/release.html:206
+msgid ""
+"I understand that the PyPI administrators will not be able to undo this."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:139
 msgid "Uploading new files"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:135
+#: warehouse/templates/manage/project/release.html:141
 msgid "No files found"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:137
+#: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
 msgid "Dismiss"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:138
+#: warehouse/templates/manage/project/release.html:144
 #, python-format
 msgid ""
 "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:141
+#: warehouse/templates/manage/project/release.html:147
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:145
-#: warehouse/templates/manage/project/release.html:175
+#: warehouse/templates/manage/project/release.html:151
+#: warehouse/templates/manage/project/release.html:181
 #: warehouse/templates/manage/project/releases.html:123
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:148
+#: warehouse/templates/manage/project/release.html:154
 #, python-format
 msgid ""
 "Yanking will mark this release (and %(count)s file within it) to be ignored "
@@ -5799,26 +5829,26 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/manage/project/release.html:154
+#: warehouse/templates/manage/project/release.html:160
 msgid ""
 "Yanking will mark this release to be ignored when installing in most common "
 "scenarios."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:158
+#: warehouse/templates/manage/project/release.html:164
 #, python-format
 msgid ""
 "This release will still be installable for users pinning to this exact "
 "version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:161
+#: warehouse/templates/manage/project/release.html:167
 #, fuzzy, python-format
 #| msgid "Role invitation is not valid."
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/templates/manage/project/release.html:168
+#: warehouse/templates/manage/project/release.html:174
 #: warehouse/templates/manage/project/releases.html:126
 #, python-format
 msgid ""
@@ -5826,13 +5856,13 @@ msgid ""
 "by pip to users who install <code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/release.html:178
 #: warehouse/templates/manage/project/releases.html:130
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:175
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:181
+#: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/releases.html:23
 #: warehouse/templates/manage/project/releases.html:120
 #: warehouse/templates/manage/project/releases.html:133
@@ -5840,13 +5870,13 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:180
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:186
+#: warehouse/templates/manage/project/release.html:209
 #: warehouse/templates/manage/project/releases.html:136
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:184
+#: warehouse/templates/manage/project/release.html:190
 #, python-format
 msgid ""
 "Deleting will irreversibly delete this release along with %(count)s file."
@@ -5856,18 +5886,18 @@ msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:196
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:192
+#: warehouse/templates/manage/project/release.html:198
 #: warehouse/templates/manage/project/releases.html:138
 msgid ""
 "You will not be able to re-upload a new distribution of the same type with "
 "the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:193
+#: warehouse/templates/manage/project/release.html:199
 #: warehouse/templates/manage/project/releases.html:139
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version of "
@@ -5875,7 +5905,7 @@ msgid ""
 "remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:194
+#: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #, python-format
 msgid ""
@@ -5883,6 +5913,27 @@ msgid ""
 "\"noopener\">yanking</a> this release, making a new release or a <a href="
 "\"%(post_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
 "\">post release</a> instead."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:202
+#, python-format
+msgid ""
+"I understand that I am permanently deleting all files for the "
+"%(release_version)s release of this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:203
+msgid ""
+"I understand that my users will no longer be able to install this release of "
+"this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:204
+#, python-format
+msgid ""
+"I understand that I will <a href=\"%(href)s\" target=\"_blank\" rel="
+"\"noopener\">not be able to re-upload any deleted files using the same file "
+"names</a>."
 msgstr ""
 
 #: warehouse/templates/manage/project/releases.html:20
@@ -6504,29 +6555,29 @@ msgstr ""
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:164
+#: warehouse/templates/packaging/detail.html:162
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:175
+#: warehouse/templates/packaging/detail.html:173
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:179
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:183
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:189
+#: warehouse/templates/packaging/detail.html:187
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:194
+#: warehouse/templates/packaging/detail.html:192
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""

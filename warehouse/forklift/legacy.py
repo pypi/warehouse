@@ -51,6 +51,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
+    send_egg_uploads_deprecated_email,
     send_gpg_signature_uploaded_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -83,7 +84,13 @@ MAX_PROJECT_SIZE = 10 * ONE_GB
 PATH_HASHER = "blake2_256"
 
 COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
-COMPRESSION_RATIO_THRESHOLD = 10
+
+# If the zip file decompressed to 50x more space
+# than it is uncompressed, consider it a ZIP bomb.
+# Note that packages containing interface descriptions, JSON,
+# such resources can compress really well.
+# See discussion here: https://github.com/pypi/warehouse/issues/13962
+COMPRESSION_RATIO_THRESHOLD = 50
 
 
 # Wheel platform checking
@@ -1201,10 +1208,20 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename)
 
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = pkg_resources.safe_name(
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hypens, so we can split on the last hypen to get the project name.
+        else filename.rpartition("-")[0]
+    ).lower()
+
     # Make sure that our filename matches the project that it is being uploaded
     # to.
-    prefix = pkg_resources.safe_name(project.name).lower()
-    if not pkg_resources.safe_name(filename).lower().startswith(prefix):
+    if (prefix := pkg_resources.safe_name(project.name).lower()) != filename_prefix:
         raise _exc_with_message(
             HTTPBadRequest,
             f"Start filename for {project.name!r} with {prefix!r}.",
@@ -1466,6 +1483,22 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    # Check that if it's a bdist_egg, notify regarding deprecation.
+    if filename.endswith(".egg"):
+        # send deprecation notice
+        contributors = project.users
+        if project.organization:
+            contributors += project.organization.owners
+            for teamrole in project.team_project_roles:
+                contributors += teamrole.team.members
+
+        for contributor in sorted(set(contributors)):
+            send_egg_uploads_deprecated_email(
+                request,
+                contributor,
+                project_name=project.name,
+            )
 
     # Push updates to BigQuery
     dist_metadata = {
