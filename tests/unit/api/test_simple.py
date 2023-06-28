@@ -272,6 +272,7 @@ class TestSimpleDetail:
                     "size": f.size,
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
+                    "core-metadata": False,
                 }
                 for f in files
             ],
@@ -319,6 +320,7 @@ class TestSimpleDetail:
                     "size": f.size,
                     "upload-time": f.upload_time.isoformat() + "Z",
                     "data-dist-info-metadata": False,
+                    "core-metadata": False,
                 }
                 for f in files
             ],
@@ -405,6 +407,9 @@ class TestSimpleDetail:
                     "data-dist-info-metadata": {
                         "sha256": "deadbeefdeadbeefdeadbeefdeadbeef"
                     }
+                    if f.metadata_file_sha256_digest is not None
+                    else False,
+                    "core-metadata": {"sha256": "deadbeefdeadbeefdeadbeefdeadbeef"}
                     if f.metadata_file_sha256_digest is not None
                     else False,
                 }
