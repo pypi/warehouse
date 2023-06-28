@@ -20,6 +20,7 @@ import os
 import secrets
 import urllib.parse
 
+import passlib.exc
 import requests
 
 from passlib.context import CryptContext
@@ -223,7 +224,10 @@ class DatabaseUserService:
 
             # Actually check our hash, optionally getting a new hash for it if
             # we should upgrade our saved hashed.
-            ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            try:
+                ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            except passlib.exc.PasswordValueError:
+                ok = False
 
             # First, check to see if the password that we were given was OK.
             if ok:
