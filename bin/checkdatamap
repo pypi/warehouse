@@ -1,0 +1,28 @@
+#!/bin/bash
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+DBML_DIFF=$(diff -u dev/warehouse.dbml <(python -m warehouse db dbml))
+if [ $? -ne 0 ]; then
+  echo "Generated DBML does not match dev/warehouse.dbml"
+  echo "$DBML_DIFF"
+  echo "Update with make updatedataset and commit the result if it looks correct"
+  exit 1
+fi 
+
+DATASET_DIFF=$(
+  diff -u .fides/warehouse_dataset.yml \
+  <(dbml-to-fides dev/warehouse.dbml \
+    --base-dataset .fides/warehouse_dataset.yml \
+    --include-fides-keys)
+)
+if [ $? -ne 0 ]; then
+  echo "Generated dataset does not match .fides/warehouse_dataset.yml"
+  echo "$DATASET_DIFF"
+  echo "Update with make updatedataset and commit the result if it looks correct"
+  exit 1
+fi 
