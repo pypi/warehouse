@@ -15,6 +15,7 @@ import datetime
 import uuid
 
 import freezegun
+import passlib.exc
 import pretend
 import pytest
 import pytz
@@ -259,6 +260,30 @@ class TestDatabaseUserService:
                 tags=["mechanism:check_password", "failure_reason:password"],
             ),
         ]
+
+    def test_check_password_catches_bcrypt_exception(self, user_service, metrics):
+        user = UserFactory.create()
+
+        @pretend.call_recorder
+        def raiser(*a, **kw):
+            raise passlib.exc.PasswordValueError
+
+        user_service.hasher = pretend.stub(verify_and_update=raiser)
+
+        assert not user_service.check_password(user.id, "user password")
+        assert user_service.hasher.verify_and_update.calls == [
+            pretend.call("user password", user.password)
+        ]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.authentication.start", tags=["mechanism:check_password"]
+            ),
+            pretend.call(
+                "warehouse.authentication.failure",
+                tags=["mechanism:check_password", "failure_reason:password"],
+            ),
+        ]
+        assert raiser.calls == [pretend.call("user password", "!")]
 
     def test_check_password_valid(self, user_service, metrics):
         user = UserFactory.create()
