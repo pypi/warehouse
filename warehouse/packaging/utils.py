@@ -73,6 +73,9 @@ def _simple_detail(project, request):
                 "data-dist-info-metadata": {"sha256": file.metadata_file_sha256_digest}
                 if file.metadata_file_sha256_digest
                 else False,
+                "core-metadata": {"sha256": file.metadata_file_sha256_digest}
+                if file.metadata_file_sha256_digest
+                else False,
             }
             for file in files
         ],
