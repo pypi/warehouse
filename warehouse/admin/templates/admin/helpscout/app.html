@@ -34,6 +34,7 @@
           </span>
         </span>
       </li>
+      {% if user.date_joined %}
       <li class="c-sb-list-item">
         <span class="c-sb-list-item__label t-tx-charcoal-300">
           Date Joined
@@ -42,6 +43,8 @@
           </span>
         </span>
       </li>
+      {% endif %}
+      {% if user.last_login %}
       <li class="c-sb-list-item">
         <span class="c-sb-list-item__label t-tx-charcoal-300">
           Last Login
@@ -50,6 +53,7 @@
           </span>
         </span>
       </li>
+      {% endif %}
     </ul>
   </div>
 </div>
