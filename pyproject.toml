@@ -12,9 +12,7 @@ known_first_party = ['warehouse', 'tests']
 [tool.mypy]
 python_version = "3.11"
 warn_unused_configs = true
-# Plugin order matters. `mypy_zope` must come before `sqlalchemy` to prevent
-# false-positive signature mismatch errors for `zope.interface` instances.
-plugins = ["mypy_zope:plugin", "sqlalchemy.ext.mypy.plugin"]
+plugins = ["mypy_zope:plugin"]
 exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 
 [[tool.mypy.overrides]]
