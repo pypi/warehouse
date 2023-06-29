@@ -23,7 +23,6 @@ from unittest import mock
 import pkg_resources
 import pretend
 import pytest
-import requests
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
 from sqlalchemy.exc import IntegrityError
@@ -3827,19 +3826,6 @@ class TestFileUpload:
             pretend.call(db_request, org_owner, project_name=project.name),
             pretend.call(db_request, org_member, project_name=project.name),
         }
-
-
-@pytest.mark.parametrize("status", [True, False])
-def test_legacy_purge(monkeypatch, status):
-    post = pretend.call_recorder(lambda *a, **kw: None)
-    monkeypatch.setattr(requests, "post", post)
-
-    legacy._legacy_purge(status, 1, 2, three=4)
-
-    if status:
-        assert post.calls == [pretend.call(1, 2, three=4)]
-    else:
-        assert post.calls == []
 
 
 def test_submit(pyramid_request):

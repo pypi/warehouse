@@ -27,7 +27,6 @@ import packaging.utils
 import packaging.version
 import packaging_legacy.version
 import pkg_resources
-import requests
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -1554,11 +1553,6 @@ def file_upload(request):
 
     # Return any warnings that we've accumulated as the response body.
     return Response("\n".join(warnings))
-
-
-def _legacy_purge(status, *args, **kwargs):
-    if status:
-        requests.post(*args, **kwargs)
 
 
 @view_config(
