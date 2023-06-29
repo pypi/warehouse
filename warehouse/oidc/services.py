@@ -136,7 +136,7 @@ class OIDCPublisherService:
 
         oidc_url = f"{self.issuer_url}/.well-known/openid-configuration"
 
-        resp = requests.get(oidc_url)
+        resp = requests.get(oidc_url, timeout=5)
 
         # For whatever reason, an OIDC publisher's configuration URL might be
         # offline. We don't want to completely explode here, since other
@@ -161,7 +161,7 @@ class OIDCPublisherService:
             )
             return keys
 
-        resp = requests.get(jwks_url)
+        resp = requests.get(jwks_url, timeout=5)
 
         # Same reasoning as above.
         if not resp.ok:
