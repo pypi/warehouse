@@ -18,7 +18,9 @@ def _hash(email):
     if email is None:
         email = ""
 
-    return hashlib.md5(email.strip().lower().encode("utf8")).hexdigest()
+    return hashlib.md5(
+        email.strip().lower().encode("utf8"), usedforsecurity=False
+    ).hexdigest()
 
 
 def gravatar(request, email, size=80):
