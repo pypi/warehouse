@@ -37,6 +37,7 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
+      start_period: 10s
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
