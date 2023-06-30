@@ -52,7 +52,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-06-17 09:33+0000\n"
+"PO-Revision-Date: 2023-06-27 18:05+0000\n"
 "Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
@@ -1906,6 +1906,8 @@ msgstr ""
 "为“%(organization_name)s”。"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:17
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:17
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1933,6 +1935,8 @@ msgstr ""
 "求使用 API 令牌或受信任发布者。"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:25
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:25
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -1976,6 +1980,54 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr "你已拒绝了加入 \"%(organization_name)s\"组织的邀请"
+
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:19
+#, python-format
+msgid ""
+"During a recent upload of %(project_name)s to %(site)s, we noticed you "
+"uploaded an <code>.egg</code>/<code>bdist_egg</code> distribution file."
+msgstr ""
+"在最近上传 %(project_name)s 项目到 %(site)s 的过程中，我们注意到你上传了一个 "
+"<code>.egg</code>/<code>bdist_egg</code>分发文件。"
+
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:22
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:22
+#, python-format
+msgid ""
+"%(site)s is in the process of deprecating <code>bdist_egg</code> "
+"distribution file uploads, and will not accept them beginning August 1, 2023."
+msgstr "%(site)s 正在废弃<code>bdist_egg</code>分发文件上传的过程中，从 2023 年 8 月 "
+"1 日起不再接受它们。"
+
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:27
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:27
+msgid ""
+"Update your release tooling to cease upload of <code>.egg</code>/"
+"<code>bdist_egg</code> distribution files. If you are not already, and "
+"require binary releases, update your release tooling to upload <code>.whl</"
+"code>/<code>bdist_wheel</code> distribution files instead."
+msgstr ""
+"更新你的发行工具来停止上传 <code>.egg</code>/<code>bdist_egg</code>分发文件。"
+"如果你还没准备好而且需要二进制文件发布，请更新发行工具来上传<code>."
+"whl</code>/<code>bdist_wheel</code> 分发文件。"
+
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:30
+#: warehouse/templates/email/egg-uploads-deprecated/body.html:30
+msgid ""
+"Read more about <a href=\"https://packaging.python.org/en/latest/discussions/"
+"wheel-vs-egg/\">Wheels vs Egg</a> distribution files."
+msgstr ""
+"阅读更多关于 <a href=\"https://packaging.python.org/en/latest/discussions/"
+"wheel-vs-egg/\">Wheels 和 Egg</a> 分发文件比较的内容。"
+
+#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:19
+#, python-format
+msgid ""
+"Since January 1, 2023, we noticed upload(s) of <code>.egg</code>/"
+"<code>bdist_egg</code> distribution file(s) to %(site)s for %(project_name)s."
+msgstr ""
+"自 2023 年 1 月 1 日起，我们注意到了将 <code>.egg</code>/<code>bdist_egg</"
+"code> 分发文件上传到 %(site)s，这些文件针对的项目是 %(project_name)s。"
 
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:19
 #, python-format
@@ -5891,8 +5943,8 @@ msgid ""
 "I understand that I will <a href=%(href)s target=\"_blank\" rel=\"noopener"
 "\">not be able to re-upload a file using the same file name</a> %(filename)s."
 msgstr ""
-"我理解我<a href=%(href)s target=\"_blank\" rel=\"noopener\""
-">无法重新上传文件名相同的文件</a> %(filename)s。"
+"我理解我<a href=%(href)s target=\"_blank\" rel=\"noopener\">无法重新上传文件"
+"名相同的文件</a> %(filename)s。"
 
 #: warehouse/templates/manage/project/release.html:122
 #: warehouse/templates/manage/project/release.html:205
@@ -5946,8 +5998,9 @@ msgid ""
 msgid_plural ""
 "Yanking will mark this release (and %(count)s files within it) to be ignored "
 "when installing in most common scenarios."
-msgstr[0] "Yank "
-"操作会在最常见情形下将这个发布版本（和其内的%(count)s个文件）标记为忽略。"
+msgstr[0] ""
+"Yank 操作会在最常见情形下将这个发布版本（和其内的%(count)s个文件）标记为忽"
+"略。"
 
 #: warehouse/templates/manage/project/release.html:160
 msgid ""
@@ -5976,8 +6029,8 @@ msgid ""
 "You may provide a reason for yanking this release, which will be displayed "
 "by pip to users who install <code>%(project_name)s==%(version)s</code>."
 msgstr ""
-"你可以提供一个对该版本执行 yank 操作的原因，pip 会把它展示给安装 "
-"<code>%(project_name)s==%(version)s</code> 的用户。"
+"你可以提供一个对该版本执行 yank 操作的原因，pip 会把它展示给安装 <code>"
+"%(project_name)s==%(version)s</code> 的用户。"
 
 #: warehouse/templates/manage/project/release.html:178
 #: warehouse/templates/manage/project/releases.html:130
@@ -7241,11 +7294,10 @@ msgid ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
 "enhancement proposal\">PEP</abbr> 592</a> for more information."
 msgstr ""
-"被执行 yank "
-"操作的的版本是一个总会被安装程序忽略的版本，除非它是唯一符合版本说明的版本（"
-"使用 <code>==</code> 或 <code>===</code> ）。参见 <a href=\"%(href)s\" title="
-"\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr title=\"Python "
-"enhancement proposal\">PEP</abbr> 592</a> 获取更多信息。"
+"被执行 yank 操作的的版本是一个总会被安装程序忽略的版本，除非它是唯一符合版本"
+"说明的版本（使用 <code>==</code> 或 <code>===</code> ）。参见 <a href="
+"\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\"><abbr "
+"title=\"Python enhancement proposal\">PEP</abbr> 592</a> 获取更多信息。"
 
 #: warehouse/templates/pages/help.html:244
 msgid "My account"
