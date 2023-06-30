@@ -134,7 +134,7 @@
     {% endfor %}
   </div>
 
-  {% if organization_applications|selectattr('is_approved', 'equalto', None)|list|length > 0 %}
+  {% if organization_applications|selectattr('is_approved', 'equalto', none)|list|length > 0 %}
   <h2>
     {% trans %}Pending organization requests{% endtrans %}
     <span class="badge badge--neutral">{{ organization_applications|length }}</span>
