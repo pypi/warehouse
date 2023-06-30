@@ -778,7 +778,11 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics_increment("warehouse.compromised_password_check.start", tags=tags)
 
         # To work with the HIBP API, we need the sha1 of the UTF8 encoded password.
-        hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
+        hashed_password = (
+            hashlib.sha1(password.encode("utf8"), usedforsecurity=False)
+            .hexdigest()
+            .lower()
+        )
 
         # Fetch the passwords from the HIBP data set.
         try:
