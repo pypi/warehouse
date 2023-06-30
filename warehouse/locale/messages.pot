@@ -354,7 +354,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr ""
 
@@ -551,51 +551,51 @@ msgstr ""
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
 msgstr ""
 
