@@ -132,6 +132,19 @@
         <p>{% trans %}You have not joined any organizations on PyPI, yet.{% endtrans %}</p>
       </div>
     {% endfor %}
+  </div>
+
+  {% if organization_applications|selectattr('is_approved', 'equalto', none)|list|length > 0 %}
+  <h2>
+    {% trans %}Pending organization requests{% endtrans %}
+    <span class="badge badge--neutral">{{ organization_applications|length }}</span>
+  </h2>
+  {% if organization_applications|selectattr('orgtype', 'equalto', OrganizationType.Company)|list|length > 0 %}
+  <div class="callout-block callout-block--warning">
+    <p>{% trans %}Approvals for corporate organizations are currently paused while terms of service and payment are finalized.{% endtrans %}</p>
+  </div>
+  {% endif %}
+  <div class="organization-list">
     {% for organization_application in organization_applications %}
     {% if organization_application.is_approved == None %}
     <div class="organization-snippet">
@@ -153,6 +166,7 @@
     {% endif %}
     {% endfor %}
   </div>
+  {% endif %}
 
   <hr>
 
