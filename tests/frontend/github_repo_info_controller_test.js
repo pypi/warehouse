@@ -89,7 +89,7 @@ describe("GitHub Repo Info controller", () => {
         message: "Not Found",
         documentation_url: "https://docs.github.com/rest/reference/repos#get-a-repository",
       }),
-      { status: 404 }
+      { status: 404 },
     );
 
     startStimulus();
@@ -115,7 +115,7 @@ describe("GitHub Repo Info controller", () => {
         forks_count: 200,
         open_issues_count: 300,
         total_count: 50,
-      })
+      }),
     );
 
     startStimulus();
@@ -128,16 +128,16 @@ describe("GitHub Repo Info controller", () => {
         expect(fetch.mock.calls.length).toEqual(6);
 
         const stargazersCount = el.querySelector(
-          "[data-github-repo-info-target='stargazersCount']"
+          "[data-github-repo-info-target='stargazersCount']",
         );
         const forksCount = el.querySelector(
-          "[data-github-repo-info-target='forksCount']"
+          "[data-github-repo-info-target='forksCount']",
         );
         const openIssuesCount = el.querySelector(
-          "[data-github-repo-info-target='openIssuesCount']"
+          "[data-github-repo-info-target='openIssuesCount']",
         );
         const openPRsCount = el.querySelector(
-          "[data-github-repo-info-target='openPRsCount']"
+          "[data-github-repo-info-target='openPRsCount']",
         );
 
         expect(stargazersCount.textContent).toBe("100");
