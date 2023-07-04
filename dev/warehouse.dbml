@@ -1,0 +1,599 @@
+Table ip_addresses {
+  ip_address varchar [unique, not null, Note: "Structured IP Address value"]
+  hashed_ip_address text [unique, Note: "Hash that represents an IP Address"]
+  geoip_info text [Note: "JSON containing GeoIP data associated with an IP Address"]
+  is_banned boolean [not null, default: `false`, Note: "If True, this IP Address will be marked as banned"]
+  ban_reason enum [Note: "Reason for banning, must be in the BanReason enumeration"]
+  ban_date datetime [Note: "Date that IP Address was last marked as banned"]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+  Note: "Tracks IP Addresses that have modified PyPI state"
+}
+
+Table user_events {
+  tag varchar [not null]
+  time datetime [not null, default: `now()`]
+  additional text
+  ip_address_id varchar
+  source_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: user_events.ip_address_id > ip_addresses.id
+Ref: user_events.source_id > users.id
+
+Table users {
+  username text [unique, not null]
+  name varchar [not null]
+  password varchar [not null]
+  password_date datetime [default: `now()`]
+  is_active boolean [not null, default: `false`]
+  is_frozen boolean [not null, default: `false`]
+  is_superuser boolean [not null, default: `false`]
+  is_moderator boolean [not null, default: `false`]
+  is_psf_staff boolean [not null, default: `false`]
+  prohibit_password_reset boolean [not null, default: `false`]
+  hide_avatar boolean [not null, default: `false`]
+  date_joined datetime [default: `now()`]
+  last_login datetime [not null, default: `now()`]
+  disabled_for enum
+  totp_secret binary
+  last_totp_value varchar
+  sitemap_bucket text [not null, default: `FetchedValue()`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table user_security_keys {
+  user_id varchar [not null]
+  label varchar [not null]
+  credential_id varchar [unique, not null]
+  public_key varchar [unique]
+  sign_count int [default: `0`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: user_security_keys.user_id > users.id
+
+Table user_recovery_codes {
+  user_id varchar [not null]
+  code varchar [not null]
+  generated datetime [not null, default: `now()`]
+  burned datetime
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: user_recovery_codes.user_id > users.id
+
+Table user_emails {
+  id int [pk, not null]
+  user_id varchar [not null]
+  email varchar [not null]
+  primary boolean [not null]
+  verified boolean [not null]
+  public boolean [not null, default: `false`]
+  unverify_reason enum
+  transient_bounces int [not null, default: `0`]
+}
+
+Ref: user_emails.user_id > users.id
+
+Table prohibited_user_names {
+  created datetime [not null, default: `now()`]
+  name text [unique, not null]
+  prohibited_by varchar
+  comment text [not null, default: ``]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: prohibited_user_names.prohibited_by > users.id
+
+Table ses_emails {
+  created datetime [not null, default: `now()`]
+  status enum [not null, default: `Accepted`]
+  message_id text [unique, not null]
+  from text [not null]
+  to text [not null]
+  subject text [not null]
+  missing boolean [not null, default: `false`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table ses_events {
+  created datetime [not null, default: `now()`]
+  email_id varchar [not null]
+  event_id text [unique, not null]
+  event_type enum [not null]
+  data text [not null, default: `'{}'`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: ses_events.email_id > ses_emails.id
+
+Table trove_classifiers {
+  id int [pk, not null]
+  classifier text [unique]
+  ordering int
+}
+
+Table release_vulnerabilities {
+  release_id varchar [not null]
+  vulnerability_source varchar [not null]
+  vulnerability_id varchar [not null]
+}
+
+Ref: release_vulnerabilities.release_id > releases.id
+Ref: release_vulnerabilities.vulnerability_source > vulnerabilities.source
+Ref: release_vulnerabilities.vulnerability_id > vulnerabilities.id
+
+Table vulnerabilities {
+  source varchar [pk, not null]
+  id varchar [pk, not null]
+  link varchar
+  aliases "string[]"
+  details varchar
+  summary varchar
+  fixed_in "string[]"
+  withdrawn datetime
+}
+
+Table organization_roles {
+  role_name enum [not null]
+  user_id varchar [not null]
+  organization_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_roles.user_id > users.id
+Ref: organization_roles.organization_id > organizations.id
+
+Table organization_projects {
+  organization_id varchar [not null]
+  project_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_projects.organization_id > organizations.id
+Ref: organization_projects.project_id > projects.id
+
+Table organization_stripe_subscriptions {
+  organization_id varchar [not null]
+  subscription_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_stripe_subscriptions.organization_id > organizations.id
+Ref: organization_stripe_subscriptions.subscription_id > stripe_subscriptions.id
+
+Table organization_stripe_customers {
+  organization_id varchar [not null]
+  stripe_customer_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_stripe_customers.organization_id > organizations.id
+Ref: organization_stripe_customers.stripe_customer_id > stripe_customers.id
+
+Table organization_events {
+  tag varchar [not null]
+  time datetime [not null, default: `now()`]
+  additional text
+  ip_address_id varchar
+  source_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_events.ip_address_id > ip_addresses.id
+Ref: organization_events.source_id > organizations.id
+
+Table organizations {
+  is_active boolean [not null, default: `false`, Note: "When True, the organization is active and all features are available."]
+  created datetime [not null, default: `now()`, Note: "Datetime the organization was created."]
+  date_approved datetime [Note: "Datetime the organization was approved by administrators."]
+  name text [not null, Note: "The account name used in URLS"]
+  display_name text [not null, Note: "Display name used in UI"]
+  orgtype enum [not null, Note: "What type of organization such as Community or Company"]
+  link_url text [not null, Note: "External URL associated with the organization"]
+  description text [not null, Note: "Description of the business or project the organization represents"]
+  is_approved boolean [Note: "Status of administrator approval of the request"]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table organization_applications {
+  submitted_by_id varchar [not null, Note: "ID of the User which submitted the request"]
+  submitted datetime [not null, default: `now()`, Note: "Datetime the request was submitted"]
+  organization_id varchar [Note: "If the request was approved, ID of resulting Organization"]
+  name text [not null, Note: "The account name used in URLS"]
+  display_name text [not null, Note: "Display name used in UI"]
+  orgtype enum [not null, Note: "What type of organization such as Community or Company"]
+  link_url text [not null, Note: "External URL associated with the organization"]
+  description text [not null, Note: "Description of the business or project the organization represents"]
+  is_approved boolean [Note: "Status of administrator approval of the request"]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_applications.submitted_by_id > users.id
+Ref: organization_applications.organization_id > organizations.id
+
+Table organization_name_catalog {
+  normalized_name text [not null]
+  organization_id varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table organization_invitations {
+  invite_status enum [not null]
+  token text [not null]
+  user_id varchar [not null]
+  organization_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: organization_invitations.user_id > users.id
+Ref: organization_invitations.organization_id > organizations.id
+
+Table team_roles {
+  role_name enum [not null]
+  user_id varchar [not null]
+  team_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: team_roles.user_id > users.id
+Ref: team_roles.team_id > teams.id
+
+Table team_project_roles {
+  role_name enum [not null]
+  project_id varchar [not null]
+  team_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: team_project_roles.project_id > projects.id
+Ref: team_project_roles.team_id > teams.id
+
+Table team_events {
+  tag varchar [not null]
+  time datetime [not null, default: `now()`]
+  additional text
+  ip_address_id varchar
+  source_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: team_events.ip_address_id > ip_addresses.id
+Ref: team_events.source_id > teams.id
+
+Table teams {
+  name text [not null]
+  organization_id varchar [not null]
+  created datetime [not null, default: `now()`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: teams.organization_id > organizations.id
+
+Table stripe_customers {
+  customer_id text [unique, not null]
+  billing_email text
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table stripe_subscriptions {
+  stripe_customer_id varchar [not null]
+  subscription_id text [not null]
+  subscription_price_id varchar [not null]
+  status enum [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: stripe_subscriptions.stripe_customer_id > stripe_customers.id
+Ref: stripe_subscriptions.subscription_price_id > stripe_subscription_prices.id
+
+Table stripe_subscription_products {
+  product_id text
+  product_name text [not null]
+  description text [not null]
+  is_active boolean [not null, default: `true`]
+  tax_code text
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table stripe_subscription_prices {
+  price_id text
+  currency text [not null]
+  subscription_product_id varchar [not null]
+  unit_amount int [not null]
+  is_active boolean [not null, default: `true`]
+  recurring enum [not null]
+  tax_behavior text
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: stripe_subscription_prices.subscription_product_id > stripe_subscription_products.id
+
+Table stripe_subscription_items {
+  subscription_item_id text
+  subscription_id varchar [not null]
+  subscription_price_id varchar [not null]
+  quantity int [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: stripe_subscription_items.subscription_id > stripe_subscriptions.id
+Ref: stripe_subscription_items.subscription_price_id > stripe_subscription_prices.id
+
+Table roles {
+  role_name text [not null]
+  user_id varchar [not null]
+  project_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: roles.user_id > users.id
+Ref: roles.project_id > projects.id
+
+Table role_invitations {
+  invite_status enum [not null]
+  token text [not null]
+  user_id varchar [not null]
+  project_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: role_invitations.user_id > users.id
+Ref: role_invitations.project_id > projects.id
+
+Table project_events {
+  tag varchar [not null]
+  time datetime [not null, default: `now()`]
+  additional text
+  ip_address_id varchar
+  source_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: project_events.ip_address_id > ip_addresses.id
+Ref: project_events.source_id > projects.id
+
+Table projects {
+  name text [not null]
+  normalized_name text [unique, not null, default: `FetchedValue()`]
+  created datetime [not null, default: `now()`]
+  has_docs boolean
+  upload_limit int
+  total_size_limit bigint
+  last_serial int [not null, default: `0`]
+  total_size bigint [default: `0`]
+  sitemap_bucket text [not null, default: `FetchedValue()`]
+  owners_require_2fa boolean [not null, default: `false`]
+  pypi_mandates_2fa boolean [not null, default: `false`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table release_dependencies {
+  release_id varchar [not null]
+  kind int
+  specifier text
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: release_dependencies.release_id > releases.id
+
+Table release_descriptions {
+  content_type text
+  raw text [not null]
+  html text [not null]
+  rendered_by text [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table release_urls {
+  release_id varchar [not null]
+  name varchar [not null]
+  url text [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: release_urls.release_id > releases.id
+
+Table releases {
+  project_id varchar [not null]
+  version text [not null]
+  canonical_version text [not null]
+  is_prerelease boolean [not null, default: `false`]
+  author text
+  author_email text
+  maintainer text
+  maintainer_email text
+  home_page text
+  license text
+  summary text
+  keywords text
+  platform text
+  download_url text
+  _pypi_ordering int
+  requires_python text
+  created datetime [not null, default: `now()`]
+  description_id varchar [not null]
+  yanked boolean [not null, default: `false`]
+  yanked_reason text [not null, default: ``]
+  uploader_id varchar
+  uploaded_via text
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: releases.project_id > projects.id
+Ref: releases.description_id > release_descriptions.id
+Ref: releases.uploader_id > users.id
+
+Table file_events {
+  tag varchar [not null]
+  time datetime [not null, default: `now()`]
+  additional text
+  ip_address_id varchar
+  source_id varchar [not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: file_events.ip_address_id > ip_addresses.id
+Ref: file_events.source_id > release_files.id
+
+Table release_files {
+  release_id varchar [not null]
+  python_version text
+  requires_python text
+  packagetype enum
+  comment_text text
+  filename text [unique]
+  path text [unique, not null]
+  size int
+  md5_digest text [unique, not null]
+  sha256_digest text [unique, not null]
+  blake2_256_digest text [unique, not null]
+  upload_time datetime [default: `now()`]
+  uploaded_via text
+  metadata_file_sha256_digest text
+  metadata_file_blake2_256_digest text
+  allow_multiple_sdist boolean [not null, default: `false`]
+  cached boolean [not null, default: `false`, Note: "If True, the object has been populated to our cache bucket."]
+  archived boolean [not null, default: `false`, Note: "If True, the object has been archived to our archival bucket."]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: release_files.release_id > releases.id
+
+Table file_registry {
+  id int [pk, not null]
+  filename text [unique, not null]
+}
+
+Table release_classifiers {
+  release_id varchar [not null]
+  trove_id int
+}
+
+Ref: release_classifiers.release_id > releases.id
+Ref: release_classifiers.trove_id > trove_classifiers.id
+
+Table journals {
+  id int [pk, not null]
+  name text
+  version text
+  action text
+  submitted_date datetime [not null, default: `now()`]
+  submitted_by text
+}
+
+Ref: journals.submitted_by > users.username
+
+Table prohibited_project_names {
+  created datetime [not null, default: `now()`]
+  name text [unique, not null]
+  prohibited_by varchar
+  comment text [not null, default: ``]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: prohibited_project_names.prohibited_by > users.id
+
+Table admin_flags {
+  id text [pk, not null]
+  description text [not null]
+  enabled boolean [not null]
+  notify boolean [not null, default: `false`]
+}
+
+Table macaroons {
+  user_id varchar
+  oidc_publisher_id varchar
+  description varchar [not null]
+  created datetime [not null, default: `now()`]
+  last_used datetime
+  permissions_caveat text [not null, default: `'{}'`]
+  additional text
+  key binary [not null, default: `python: _generate_key`]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: macaroons.user_id > users.id
+Ref: macaroons.oidc_publisher_id > oidc_publishers.id
+
+Table oidc_publisher_project_association {
+  oidc_publisher_id varchar [pk, not null]
+  project_id varchar [pk, not null]
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: oidc_publisher_project_association.oidc_publisher_id > oidc_publishers.id
+Ref: oidc_publisher_project_association.project_id > projects.id
+
+Table oidc_publishers {
+  discriminator varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Table pending_oidc_publishers {
+  project_name varchar [not null]
+  added_by_id varchar [not null]
+  discriminator varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: pending_oidc_publishers.added_by_id > users.id
+
+Table github_oidc_publishers {
+  id varchar [pk, not null]
+  repository_name varchar [not null]
+  repository_owner varchar [not null]
+  repository_owner_id varchar [not null]
+  workflow_filename varchar [not null]
+  environment varchar
+}
+
+Ref: github_oidc_publishers.id > oidc_publishers.id
+
+Table pending_github_oidc_publishers {
+  id varchar [pk, not null]
+  repository_name varchar [not null]
+  repository_owner varchar [not null]
+  repository_owner_id varchar [not null]
+  workflow_filename varchar [not null]
+  environment varchar
+}
+
+Ref: pending_github_oidc_publishers.id > pending_oidc_publishers.id
+
+Table google_oidc_publishers {
+  id varchar [pk, not null]
+  email varchar [not null]
+  sub varchar
+}
+
+Ref: google_oidc_publishers.id > oidc_publishers.id
+
+Table pending_google_oidc_publishers {
+  id varchar [pk, not null]
+  email varchar [not null]
+  sub varchar
+}
+
+Ref: pending_google_oidc_publishers.id > pending_oidc_publishers.id
+
+Table sponsors {
+  name varchar [not null]
+  service varchar
+  activity_markdown text
+  link_url text [not null]
+  color_logo_url text [not null]
+  white_logo_url text
+  is_active boolean [not null, default: `False`]
+  footer boolean [not null, default: `False`]
+  psf_sponsor boolean [not null, default: `False`]
+  infra_sponsor boolean [not null, default: `False`]
+  one_time boolean [not null, default: `False`]
+  sidebar boolean [not null, default: `False`]
+  origin varchar [default: `manual`]
+  level_name varchar
+  level_order int [default: `0`]
+  slug varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}

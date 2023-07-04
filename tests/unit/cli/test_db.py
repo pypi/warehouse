@@ -352,7 +352,7 @@ EXPECTED_DBML = """Table _clan {
   name text [unique, not null]
   fetched text [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
-  nice varchar
+  nice varchar [default: `python: _generate_random`]
   id varchar [pk, not null, default: `gen_random_uuid()`]
   Note: "various clans"
 }
@@ -377,6 +377,9 @@ def test_generate_dbml_file(tmp_path_factory):
 
     Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
 
+    def _generate_random():
+        return "deadbeef"
+
     class Clan(Muddle):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
@@ -388,7 +391,12 @@ def test_generate_dbml_file(tmp_path_factory):
             comment="fetched value",
         )
         for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+        nice = sqlalchemy.Column(
+            sqlalchemy.String(
+                length=69,
+            ),
+            default=_generate_random,
+        )
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"
@@ -420,6 +428,9 @@ def test_generate_dbml_console(capsys, monkeypatch):
 
     Muddle = declarative_base(cls=Muddle, metadata=metadata)  # noqa, type: ignore
 
+    def _generate_random():
+        return "deadbeef"
+
     class Clan(Muddle):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
@@ -431,7 +442,12 @@ def test_generate_dbml_console(capsys, monkeypatch):
             comment="fetched value",
         )
         for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+        nice = sqlalchemy.Column(
+            sqlalchemy.String(
+                length=69,
+            ),
+            default=_generate_random,
+        )
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"

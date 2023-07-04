@@ -120,6 +120,9 @@ shell: .state/docker-build-base
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 
+updatedataset: .state/docker-build-base
+	docker compose run --rm web bin/updatedatamap
+
 clean:
 	rm -rf dev/*.sql
 

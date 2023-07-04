@@ -1,0 +1,2430 @@
+dataset:
+- fides_key: null
+  name: public
+  description: null
+  organization_fides_key: null
+  meta: {}
+  third_country_transfers: []
+  joint_controller: []
+  retention: null
+  data_categories: []
+  data_qualifiers: []
+  collections:
+  - name: ip_addresses
+    description: Tracks IP Addresses that have modified PyPI state
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: ip_address
+      description: Structured IP Address value
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: hashed_ip_address
+      description: Hash that represents an IP Address
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: geoip_info
+      description: JSON containing GeoIP data associated with an IP Address
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_banned
+      description: If True, this IP Address will be marked as banned
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ban_reason
+      description: Reason for banning, must be in the BanReason enumeration
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ban_date
+      description: Date that IP Address was last marked as banned
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: user_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: tag
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ip_address_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ip_addresses.id
+          direction: to
+    - name: source_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: users
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: username
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: password
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: password_date
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_active
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_frozen
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_superuser
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_moderator
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_psf_staff
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: prohibit_password_reset
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: hide_avatar
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: date_joined
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: last_login
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: disabled_for
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: totp_secret
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: last_totp_value
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sitemap_bucket
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: user_security_keys
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: label
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: credential_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: public_key
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sign_count
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: user_recovery_codes
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: code
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: generated
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: burned
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: user_emails
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: primary
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: verified
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: public
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: unverify_reason
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: transient_bounces
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: prohibited_user_names
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: prohibited_by
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: comment
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: ses_emails
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: status
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: message_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: from
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: to
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: subject
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: missing
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: ses_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: email_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ses_emails.id
+          direction: to
+    - name: event_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: event_type
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: data
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: trove_classifiers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: classifier
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ordering
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: release_vulnerabilities
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: release_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: releases.id
+          direction: to
+    - name: vulnerability_source
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: vulnerabilities.source
+          direction: to
+    - name: vulnerability_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: vulnerabilities.id
+          direction: to
+  - name: vulnerabilities
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: source
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: link
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: aliases
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: details
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: summary
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: fixed_in
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: withdrawn
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: organization_roles
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: role_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_projects
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_stripe_subscriptions
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: subscription_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_subscriptions.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_stripe_customers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: stripe_customer_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_customers.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: tag
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ip_address_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ip_addresses.id
+          direction: to
+    - name: source_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organizations
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: is_active
+      description: When True, the organization is active and all features are available.
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: created
+      description: Datetime the organization was created.
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: date_approved
+      description: Datetime the organization was approved by administrators.
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: name
+      description: The account name used in URLS
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: display_name
+      description: Display name used in UI
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: orgtype
+      description: What type of organization such as Community or Company
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: link_url
+      description: External URL associated with the organization
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: description
+      description: Description of the business or project the organization represents
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_approved
+      description: Status of administrator approval of the request
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_applications
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: submitted_by_id
+      description: ID of the User which submitted the request
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: submitted
+      description: Datetime the request was submitted
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: organization_id
+      description: If the request was approved, ID of resulting Organization
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: name
+      description: The account name used in URLS
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: display_name
+      description: Display name used in UI
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: orgtype
+      description: What type of organization such as Community or Company
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: link_url
+      description: External URL associated with the organization
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: description
+      description: Description of the business or project the organization represents
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_approved
+      description: Status of administrator approval of the request
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_name_catalog
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: normalized_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: organization_invitations
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: invite_status
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: token
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: team_roles
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: role_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: team_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: teams.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: team_project_roles
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: role_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: team_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: teams.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: team_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: tag
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ip_address_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ip_addresses.id
+          direction: to
+    - name: source_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: teams.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: teams
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: organization_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: organizations.id
+          direction: to
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: stripe_customers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: customer_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: billing_email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: stripe_subscriptions
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: stripe_customer_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_customers.id
+          direction: to
+    - name: subscription_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: subscription_price_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_subscription_prices.id
+          direction: to
+    - name: status
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: stripe_subscription_products
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: product_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: product_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: description
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_active
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: tax_code
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: stripe_subscription_prices
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: price_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: currency
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: subscription_product_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_subscription_products.id
+          direction: to
+    - name: unit_amount
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_active
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: recurring
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: tax_behavior
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: stripe_subscription_items
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: subscription_item_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: subscription_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_subscriptions.id
+          direction: to
+    - name: subscription_price_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: stripe_subscription_prices.id
+          direction: to
+    - name: quantity
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: roles
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: role_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: role_invitations
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: invite_status
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: token
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: project_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: tag
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ip_address_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ip_addresses.id
+          direction: to
+    - name: source_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: projects
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: normalized_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: has_docs
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: upload_limit
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: total_size_limit
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: last_serial
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: total_size
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sitemap_bucket
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: owners_require_2fa
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: pypi_mandates_2fa
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: release_dependencies
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: release_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: releases.id
+          direction: to
+    - name: kind
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: specifier
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: release_descriptions
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: content_type
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: raw
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: html
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: rendered_by
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: release_urls
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: release_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: releases.id
+          direction: to
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: url
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: releases
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: version
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: canonical_version
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_prerelease
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: author
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: author_email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: maintainer
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: maintainer_email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: home_page
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: license
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: summary
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: keywords
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: platform
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: download_url
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: _pypi_ordering
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: requires_python
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: description_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: release_descriptions.id
+          direction: to
+    - name: yanked
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: yanked_reason
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: uploader_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: uploaded_via
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: file_events
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: tag
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: ip_address_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: ip_addresses.id
+          direction: to
+    - name: source_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: release_files.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: release_files
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: release_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: releases.id
+          direction: to
+    - name: python_version
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: requires_python
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: packagetype
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: comment_text
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: filename
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: path
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: size
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: md5_digest
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sha256_digest
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: blake2_256_digest
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: upload_time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: uploaded_via
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: metadata_file_sha256_digest
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: metadata_file_blake2_256_digest
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: allow_multiple_sdist
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: cached
+      description: If True, the object has been populated to our cache bucket.
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: archived
+      description: If True, the object has been archived to our archival bucket.
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: file_registry
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: filename
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: release_classifiers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: release_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: releases.id
+          direction: to
+    - name: trove_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: trove_classifiers.id
+          direction: to
+  - name: journals
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: version
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: action
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: submitted_date
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: submitted_by
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.username
+          direction: to
+  - name: prohibited_project_names
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: prohibited_by
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: comment
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: admin_flags
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+    - name: description
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: enabled
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: notify
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: macaroons
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: user_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: oidc_publisher_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: oidc_publishers.id
+          direction: to
+    - name: description
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: created
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: last_used
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: permissions_caveat
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: additional
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: key
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: oidc_publisher_project_association
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: oidc_publisher_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: oidc_publishers.id
+          direction: to
+    - name: project_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: projects.id
+          direction: to
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: discriminator
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: pending_oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: project_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: added_by_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        references:
+        - dataset: public
+          field: users.id
+          direction: to
+    - name: discriminator
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+  - name: github_oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: oidc_publishers.id
+          direction: to
+    - name: repository_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: repository_owner
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: repository_owner_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: workflow_filename
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: environment
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: pending_github_oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: pending_oidc_publishers.id
+          direction: to
+    - name: repository_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: repository_owner
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: repository_owner_id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: workflow_filename
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: environment
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: google_oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: oidc_publishers.id
+          direction: to
+    - name: email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sub
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: pending_google_oidc_publishers
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true
+        references:
+        - dataset: public
+          field: pending_oidc_publishers.id
+          direction: to
+    - name: email
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sub
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+  - name: sponsors
+    description: null
+    data_categories: []
+    data_qualifiers: []
+    retention: null
+    fields:
+    - name: name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: service
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: activity_markdown
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: link_url
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: color_logo_url
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: white_logo_url
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: is_active
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: footer
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: psf_sponsor
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: infra_sponsor
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: one_time
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: sidebar
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: origin
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: level_name
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: level_order
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: slug
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+    - name: id
+      description: null
+      data_categories: []
+      data_qualifier: null
+      retention: null
+      fides_meta:
+        primary_key: true

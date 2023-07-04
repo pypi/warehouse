@@ -157,13 +157,17 @@ def extract_table_info(table: Table) -> TableInfo:
             raise TypeError(type(column.type))
 
         if column.default is not None:
-            default = column.default.arg  # type: ignore[attr-defined]
+            match str(type(column.default)):
+                case "<class 'sqlalchemy.sql.schema.CallableColumnDefault'>":
+                    default = f"python: {column.default.arg.__name__}"  # type: ignore
+                case _:
+                    default = column.default.arg  # type: ignore[attr-defined]
         elif column.server_default is not None:
             match str(type(column.server_default)):
                 case "<class 'sqlalchemy.sql.schema.DefaultClause'>":
                     default = column.server_default.arg  # type: ignore[attr-defined]
                 case _:
-                    default = column.server_default
+                    default = str(column.server_default)  # type: ignore[attr-defined]
         else:
             default = None
 
@@ -172,7 +176,7 @@ def extract_table_info(table: Table) -> TableInfo:
             "pk": column.primary_key,
             "unique": column.unique,
             "nullable": column.nullable,  # type: ignore[typeddict-item]
-            "default": default,
+            "default": default,  # type: ignore[typeddict-item]
             "comment": column.comment,  # type: ignore[typeddict-item]
         }
         for foreign_key in column.foreign_keys:
