@@ -75,6 +75,7 @@ class GitHubPublisherBase(forms.Form):
                     **self._headers_auth(),
                 },
                 allow_redirects=True,
+                timeout=5,
             )
             response.raise_for_status()
         except requests.HTTPError:

@@ -32,7 +32,7 @@ def update_pypi_sponsors(request):
 
     qs = urlencode({"publisher": "pypi", "flight": "sponsors"})
     url = f"{host}/api/v2/sponsors/logo-placement/?{qs}"
-    response = requests.get(url, headers=headers)
+    response = requests.get(url, headers=headers, timeout=5)
     response.raise_for_status()
 
     # deactivate current PSF sponsors to keep it up to date with API

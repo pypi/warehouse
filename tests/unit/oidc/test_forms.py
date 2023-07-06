@@ -103,6 +103,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
 
@@ -132,6 +133,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
         assert sentry_sdk.capture_message.calls == [
@@ -168,6 +170,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
 
@@ -243,6 +246,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
         assert response.raise_for_status.calls == [pretend.call()]
