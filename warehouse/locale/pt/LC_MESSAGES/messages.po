@@ -462,7 +462,7 @@ msgstr ""
 msgid "Select project"
 msgstr "Selecionar projeto"
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr "Especifique o nome do projeto"
 
@@ -699,55 +699,55 @@ msgstr "Nome de repositório inválido"
 msgid "Specify workflow filename"
 msgstr "Nome do arquivo de workflow"
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "Utilizador ou organização GitHub desconhecido."
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "O GitHub limitou a taxa dessa ação. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "Erro inesperado do GitHub. Tente novamente."
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 "Erro de conexão inesperado do GitHub. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "Tempo limite inesperado do GitHub. Tente novamente em alguns minutos."
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "Nome de utilizador ou organização inválido do GitHub."
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 "O nome do ficheiro de fluxo de trabalho deve ser apenas um nome de ficheiro, "
 "sem diretórios"
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 msgid "Invalid project name"
 msgstr "Nome de projeto inválido"
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 msgid "This project name is already in use"
 msgstr "Este nome de projeto já está em uso"
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 #, fuzzy
 msgid "Specify a publisher ID"
 msgstr "Especificar uma ID de editor"
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
@@ -1446,11 +1446,11 @@ msgstr "Palavra-passe"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:170
-#: warehouse/templates/manage/organizations.html:193
-#: warehouse/templates/manage/organizations.html:215
-#: warehouse/templates/manage/organizations.html:233
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:266
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -2246,7 +2246,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "You will receive an email when the organization has been approved"
 msgstr "Vai receber um e-mail quando a organização tiver sido aprovada"
 
@@ -4513,7 +4513,7 @@ msgid "Organization Name"
 msgstr "Descrição do projeto"
 
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "Request Submitted"
 msgstr "Solicitação enviada"
 
@@ -4586,80 +4586,92 @@ msgstr "Gerir esta organização"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "Ainda não ingressou em nenhuma organização no PyPI."
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:139
+#, fuzzy
+#| msgid "Create an account"
+msgid "Pending organization requests"
+msgstr "Criar uma conta"
+
+#: warehouse/templates/manage/organizations.html:144
+msgid ""
+"Approvals for corporate organizations are currently paused while terms of "
+"service and payment are finalized."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:159
 #, fuzzy, python-format
 #| msgid "Invite"
 msgid "Submitted %(submitted)s"
 msgstr "Convidar"
 
-#: warehouse/templates/manage/organizations.html:162
-#: warehouse/templates/manage/organizations.html:273
+#: warehouse/templates/manage/organizations.html:176
+#: warehouse/templates/manage/organizations.html:287
 #, fuzzy
 #| msgid "Create new organization"
 msgid "Request a new organization"
 msgstr "Criar nova organização"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:182
 msgid "Organization account name"
 msgstr "Nome de conta da organização"
 
-#: warehouse/templates/manage/organizations.html:173
+#: warehouse/templates/manage/organizations.html:187
 msgid "Select an organization account name"
 msgstr "Selecione um nome de conta da organização"
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:198
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:185
-#: warehouse/templates/manage/organizations.html:207
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organizations.html:199
+#: warehouse/templates/manage/organizations.html:221
+#: warehouse/templates/manage/organizations.html:239
 msgid "For example"
 msgstr "Por exemplo"
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:205
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization display name"
 msgstr "Descrição do projeto"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:210
 msgid "Name of your business, product, or project"
 msgstr "Nome da sua empresa, produto ou projeto"
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:227
 msgid "️Organization URL"
 msgstr "URL da organização"
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:233
 msgid "URL for your business, product, or project"
 msgstr "URL para sua empresa, produto ou projeto"
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:231
+#: warehouse/templates/manage/organizations.html:245
 msgid "Organization description"
 msgstr "Descrição da organização"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:250
 msgid "Description of your business, product, or project"
 msgstr "Descrição da sua empresa, produto ou projeto"
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:264
 msgid "️Organization type"
 msgstr "Tipo da organização"
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:262
+#: warehouse/templates/manage/organizations.html:276
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
@@ -4668,11 +4680,11 @@ msgstr ""
 "projetos comunitários recebem acesso gratuito."
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:282
 msgid "Create"
 msgstr "Criar"
 
-#: warehouse/templates/manage/organizations.html:275
+#: warehouse/templates/manage/organizations.html:289
 #, fuzzy
 #| msgid ""
 #| "Your request for a new PyPI organization named '%(organization_name)s' "
@@ -4682,13 +4694,13 @@ msgstr ""
 "A sua solicitação para uma nova organização PyPI chamada "
 "\"%(organization_name)s\" foi enviada."
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #, fuzzy
 #| msgid "You will receive an email when the organization has been approved"
 msgid "You will receive an email when each organization has been approved"
 msgstr "Vai receber um e-mail quando a organização tiver sido aprovada"
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236

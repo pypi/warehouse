@@ -426,7 +426,7 @@ msgstr ""
 msgid "Select project"
 msgstr "پرۆژە هەڵبژێرە"
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr "ناوی پڕۆژەکە دیاری بکە"
 
@@ -665,62 +665,62 @@ msgstr "ناوی کۆگاکە نادروستە"
 msgid "Specify workflow filename"
 msgstr "ناوی پەڕگەی وەرکفڵۆ دیاری بکە"
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "بەکارهێنەر یان ڕێکخراوی GitHub نەناسراو."
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 "GitHub ئەم کردارەی بە ڕێژەی سنووردار کردووە. چەند خولەکێکی تر دووبارە "
 "هەوڵبدەرەوە."
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "هەڵەیەکی چاوەڕواننەکراو لە GitHub. دووبارە هەوڵبدەرەوە."
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 #, fuzzy
 #| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 "کاتبەسەرچوونی چاوەڕواننەکراو لە GitHub. چەند خولەکێکی تر دووبارە هەوڵبدەرەوە."
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 "کاتبەسەرچوونی چاوەڕواننەکراو لە GitHub. چەند خولەکێکی تر دووبارە هەوڵبدەرەوە."
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "ناوی بەکارهێنەر یان ڕێکخراوی GitHub نادروستە."
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "ناوی وەرکفڵۆ دەبێت بە .yml یان .yaml کۆتایی بێت"
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "ناوی پەڕگەی وەرکفڵۆ دەبێت تەنها ناوی پەڕگە بێت، بەبێ بەڕێوەبەرایەتی"
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid project name"
 msgstr "ناوی کۆگاکە نادروستە"
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 #, fuzzy
 #| msgid ""
 #| "This project name has already been used. Choose a different project name."
 msgid "This project name is already in use"
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
@@ -1417,11 +1417,11 @@ msgstr "وشەی نهێنی"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:170
-#: warehouse/templates/manage/organizations.html:193
-#: warehouse/templates/manage/organizations.html:215
-#: warehouse/templates/manage/organizations.html:233
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:266
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -2222,7 +2222,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "You will receive an email when the organization has been approved"
 msgstr "کاتێک ڕێکخراوەکە پەسەند کرا پۆستێکی ئەلیکترۆنیت بۆ دێت"
 
@@ -4551,7 +4551,7 @@ msgid "Organization Name"
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "Request Submitted"
 msgstr ""
 
@@ -4622,91 +4622,103 @@ msgstr ""
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:139
+#, fuzzy
+#| msgid "Your organizations"
+msgid "Pending organization requests"
+msgstr "رێکخراوەکەی تۆ"
+
+#: warehouse/templates/manage/organizations.html:144
+msgid ""
+"Approvals for corporate organizations are currently paused while terms of "
+"service and payment are finalized."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:159
 #, fuzzy, python-format
 #| msgid "Invited by"
 msgid "Submitted %(submitted)s"
 msgstr "بانگهێشت کراوە لەلایەن"
 
-#: warehouse/templates/manage/organizations.html:162
-#: warehouse/templates/manage/organizations.html:273
+#: warehouse/templates/manage/organizations.html:176
+#: warehouse/templates/manage/organizations.html:287
 #, fuzzy
 #| msgid "Your organizations"
 msgid "Request a new organization"
 msgstr "رێکخراوەکەی تۆ"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:182
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:173
+#: warehouse/templates/manage/organizations.html:187
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:198
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:185
-#: warehouse/templates/manage/organizations.html:207
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organizations.html:199
+#: warehouse/templates/manage/organizations.html:221
+#: warehouse/templates/manage/organizations.html:239
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:205
 #, fuzzy
 #| msgid "Confirm Organization Invite"
 msgid "Organization display name"
 msgstr "بانگێشتنامەی رێکخراو پەسەند بکە"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:210
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:227
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:233
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:231
+#: warehouse/templates/manage/organizations.html:245
 msgid "Organization description"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:250
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:264
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:262
+#: warehouse/templates/manage/organizations.html:276
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:282
 msgid "Create"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:275
+#: warehouse/templates/manage/organizations.html:289
 #, fuzzy
 #| msgid ""
 #| "Your request for a new PyPI organization named \"%(organization_name)s\" "
@@ -4716,13 +4728,13 @@ msgstr ""
 "داواکارییەکەت بۆ ڕێکخراوێکی نوێی PyPI بە ناوی \"%(organization_name)s\" "
 "پێشکەش کراوە."
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #, fuzzy
 #| msgid "You will receive an email when the organization has been approved"
 msgid "You will receive an email when each organization has been approved"
 msgstr "کاتێک ڕێکخراوەکە پەسەند کرا پۆستێکی ئەلیکترۆنیت بۆ دێت"
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
