@@ -61,6 +61,7 @@ from warehouse.email import (
     send_removed_project_release_file_email,
     send_role_changed_as_collaborator_email,
     send_team_collaborator_added_email,
+    send_token_added_email,
     send_trusted_publisher_added_email,
     send_trusted_publisher_removed_email,
     send_two_factor_added_email,
@@ -926,6 +927,12 @@ class ProvisionMacaroonViews:
                     "description": form.description.data,
                     "caveats": recorded_caveats,
                 },
+            )
+            send_token_added_email(
+                self.request,
+                self.request.user,
+                token_name=form.description.data,
+                caveats=recorded_caveats[0],
             )
             if "projects" in form.validated_scope:
                 projects = [

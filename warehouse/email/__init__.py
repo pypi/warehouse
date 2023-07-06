@@ -291,6 +291,11 @@ def send_email_verification_email(request, user_and_email):
     }
 
 
+@_email("auth-from-new-ip")
+def send_auth_from_new_ip_email(request, user, *, location):
+    return {"username": user.username, "location": location}
+
+
 @_email("new-email-added")
 def send_new_email_added_email(request, user_and_email):
     user, email = user_and_email
@@ -314,6 +319,19 @@ def send_password_compromised_email(request, user):
 @_email("password-compromised-hibp", allow_unverified=True)
 def send_password_compromised_email_hibp(request, user):
     return {}
+
+
+@_email("token-added")
+def send_token_added_email(request, user, *, token_name, caveats):
+    if caveats["permissions"] == "user":
+        scope = request._("Token scope: entire account")
+    else:
+        scope = request._(
+            "Token scope: Project ${project_name}",
+            mapping={"project_name": caveats["permissions"]["projects"][0]},
+        )
+
+    return {"username": user.username, "token_name": token_name, "token_scope": scope}
 
 
 @_email("token-compromised-leak", allow_unverified=True)

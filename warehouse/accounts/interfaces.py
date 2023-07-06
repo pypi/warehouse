@@ -249,6 +249,13 @@ class IUserService(Interface):
         was most recently updated
         """
 
+    def seen_from_ip_before(user_id, ip):
+        """
+        Checks if the user has performed actions from this IP before.
+
+        Returns True if the supplied IP matches a logged event.
+        """
+
 
 class ITokenService(Interface):
     def dumps(data):

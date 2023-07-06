@@ -63,6 +63,7 @@ from warehouse.cache.origin import origin_cache
 from warehouse.email import (
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
+    send_auth_from_new_ip_email,
     send_collaborator_added_email,
     send_declined_as_invited_organization_member_email,
     send_email_verification_email,
@@ -630,7 +631,8 @@ def register(request, _form_class=RegistrationForm):
         email_limiter.hit(user.id)
 
         return HTTPSeeOther(
-            request.route_path("index"), headers=dict(_login_user(request, user.id))
+            request.route_path("index"),
+            headers=dict(_login_user(request, user.id, new_user=True)),
         )
 
     return {"form": form}
@@ -1228,7 +1230,9 @@ def verify_project_role(request):
         return HTTPSeeOther(request.route_path("packaging.project", name=project.name))
 
 
-def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
+def _login_user(
+    request, userid, two_factor_method=None, two_factor_label=None, new_user=False
+):
     # We have a session factory associated with this request, so in order
     # to protect against session fixation attacks we're going to make sure
     # that we create a new session (which for sessions with an identifier
@@ -1269,12 +1273,14 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     # and we don't want to continue using the old one.
     request.session.new_csrf_token()
 
-    # Whenever we log in the user, we want to update their user so that it
-    # records when the last login was.
     user_service = request.find_service(IUserService, context=None)
     user_service.update_user(userid, last_login=datetime.datetime.utcnow())
+    has_seen_ip_before = user_service.seen_from_ip_before(userid, request.ip_address)
     user = user_service.get_user(userid)
-    user.record_event(
+
+    # Whenever we log in the user, we want to update their user so that it
+    # records when the last login was.
+    event = user.record_event(
         tag=EventTag.Account.LoginSuccess,
         request=request,
         additional={
@@ -1286,6 +1292,11 @@ def _login_user(request, userid, two_factor_method=None, two_factor_label=None):
     request.session.record_password_timestamp(
         user_service.get_password_timestamp(userid)
     )
+
+    # Send the "Login from new IP address" email, if applicable.
+    if not new_user and not has_seen_ip_before:
+        send_auth_from_new_ip_email(request, user, location=event.location_info)
+
     return headers
 
 

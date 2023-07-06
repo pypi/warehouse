@@ -1005,6 +1005,12 @@ class TestDatabaseUserService:
 
         assert user_service.get_password_timestamp(user.id) == 0
 
+    def test_not_seen_from_ip_before(self, user_service):
+        user = UserFactory.create()
+        ip = IpAddressFactory.create()
+
+        assert not user_service.seen_from_ip_before(user.id, ip)
+
 
 class TestTokenService:
     def test_verify_service(self):

@@ -628,6 +628,11 @@ class DatabaseUserService:
         user = self.get_user(user_id)
         return user.password_date.timestamp() if user.password_date is not None else 0
 
+    def seen_from_ip_before(self, user_id, ip):
+        user = self.get_user(user_id)
+        seen_from_ip_query = user.events.filter(User.Event.ip_address == ip).exists()
+        return self.db.query(seen_from_ip_query).scalar()
+
 
 @implementer(ITokenService)
 class TokenService:
