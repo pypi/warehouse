@@ -477,7 +477,7 @@ msgstr ""
 msgid "Select project"
 msgstr "프로젝트을 선택하세요."
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr "프로젝트 이름을 적어주세요."
 
@@ -732,51 +732,51 @@ msgstr "잘못된 리포지토리 이름입니다."
 msgid "Specify workflow filename"
 msgstr "워크플로우 파일명을 입력하세요"
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "알 수 없는 깃허브 사용자 혹은 조직."
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub은 이 작업 횟수가 제한되어 있습니다. 몇 분 후 다시 시도하세요."
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "알 수 없는 오류가 Github에서 발생했습니다. 다시 시도하세요."
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "깃허브로부터 알 수 없는 연결 에러 발생. 몇 분 후 다시 시도하십시오."
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "깃허브에서의 알 수 없는 시간초과. 몇 분 후 다시 시도하세요."
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "잘못된 Github 사용자 또는 조직 이름."
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "워크플로우 이름은 .yml 혹은 .yaml 로 끝나야 합니다"
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "워크플로우 파일명에는 경로가 포함되지 않고 파일 이름만 가능합니다"
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 msgid "Invalid project name"
 msgstr "잘못된 프로젝트 명입니다."
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 msgid "This project name is already in use"
 msgstr "이 프로젝트 이름은 이미 사용중입니다"
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
 msgstr "사용자 ID 를 입력하세요"
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
 msgstr "사용자는 ID로 지정해야 합니다"
 
@@ -1470,11 +1470,11 @@ msgstr "패스워드"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:170
-#: warehouse/templates/manage/organizations.html:193
-#: warehouse/templates/manage/organizations.html:215
-#: warehouse/templates/manage/organizations.html:233
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:266
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -2239,7 +2239,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
@@ -4556,7 +4556,7 @@ msgid "Organization Name"
 msgstr "프로젝트 문서"
 
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "Request Submitted"
 msgstr ""
 
@@ -4637,103 +4637,115 @@ msgstr "계정 생성하기"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s 사용자는 아직 PyPI에 프로젝트를 등록하지 않았습니다"
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:139
+#, fuzzy
+#| msgid "Create an account"
+msgid "Pending organization requests"
+msgstr "계정 생성하기"
+
+#: warehouse/templates/manage/organizations.html:144
+msgid ""
+"Approvals for corporate organizations are currently paused while terms of "
+"service and payment are finalized."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:159
 #, fuzzy, python-format
 #| msgid "Changed by:"
 msgid "Submitted %(submitted)s"
 msgstr "변경한 사용자:"
 
-#: warehouse/templates/manage/organizations.html:162
-#: warehouse/templates/manage/organizations.html:273
+#: warehouse/templates/manage/organizations.html:176
+#: warehouse/templates/manage/organizations.html:287
 #, fuzzy
 #| msgid "Create an account"
 msgid "Request a new organization"
 msgstr "계정 생성하기"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:182
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:173
+#: warehouse/templates/manage/organizations.html:187
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:198
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:185
-#: warehouse/templates/manage/organizations.html:207
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organizations.html:199
+#: warehouse/templates/manage/organizations.html:221
+#: warehouse/templates/manage/organizations.html:239
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:205
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Organization display name"
 msgstr "프로젝트 문서"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:210
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:227
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:233
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:231
+#: warehouse/templates/manage/organizations.html:245
 #, fuzzy
 #| msgid "Project documentation"
 msgid "Organization description"
 msgstr "프로젝트 문서"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:250
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:264
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:262
+#: warehouse/templates/manage/organizations.html:276
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:282
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "생성일"
 
-#: warehouse/templates/manage/organizations.html:275
+#: warehouse/templates/manage/organizations.html:289
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 msgid "You will receive an email when each organization has been approved"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236

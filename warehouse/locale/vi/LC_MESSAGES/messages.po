@@ -471,7 +471,7 @@ msgstr ""
 msgid "Select project"
 msgstr "Xóa dự án"
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 #, fuzzy
 #| msgid "Project name"
 msgid "Specify project name"
@@ -726,55 +726,55 @@ msgstr "Mã TOTP không hợp lệ."
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 #, fuzzy
 #| msgid "Invalid TOTP code."
 msgid "Invalid project name"
 msgstr "Mã TOTP không hợp lệ."
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project name is already in use"
 msgstr "Dự án này không có bản phát hành nào"
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1492,11 +1492,11 @@ msgstr "Mật khẩu"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:170
-#: warehouse/templates/manage/organizations.html:193
-#: warehouse/templates/manage/organizations.html:215
-#: warehouse/templates/manage/organizations.html:233
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:266
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -2222,7 +2222,7 @@ msgstr ""
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "You will receive an email when the organization has been approved"
 msgstr ""
 
@@ -4581,7 +4581,7 @@ msgid "Organization Name"
 msgstr "Xác nhận biểu mẫu"
 
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "Request Submitted"
 msgstr ""
 
@@ -4660,101 +4660,113 @@ msgstr "Tạo một tài khoản"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "%(user)s chưa tải lên bất kỳ dự án nào cho PyPI"
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:139
+#, fuzzy
+#| msgid "Create an account"
+msgid "Pending organization requests"
+msgstr "Tạo một tài khoản"
+
+#: warehouse/templates/manage/organizations.html:144
+msgid ""
+"Approvals for corporate organizations are currently paused while terms of "
+"service and payment are finalized."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:159
 #, fuzzy, python-format
 #| msgid "Changed by:"
 msgid "Submitted %(submitted)s"
 msgstr "Thay đổi bởi:"
 
-#: warehouse/templates/manage/organizations.html:162
-#: warehouse/templates/manage/organizations.html:273
+#: warehouse/templates/manage/organizations.html:176
+#: warehouse/templates/manage/organizations.html:287
 #, fuzzy
 #| msgid "Create an account"
 msgid "Request a new organization"
 msgstr "Tạo một tài khoản"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:182
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:173
+#: warehouse/templates/manage/organizations.html:187
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:198
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:185
-#: warehouse/templates/manage/organizations.html:207
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organizations.html:199
+#: warehouse/templates/manage/organizations.html:221
+#: warehouse/templates/manage/organizations.html:239
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:205
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Organization display name"
 msgstr "Xác nhận biểu mẫu"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:210
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:227
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:233
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:231
+#: warehouse/templates/manage/organizations.html:245
 msgid "Organization description"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:250
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:264
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:262
+#: warehouse/templates/manage/organizations.html:276
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:282
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "Đã tạo"
 
-#: warehouse/templates/manage/organizations.html:275
+#: warehouse/templates/manage/organizations.html:289
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 msgid "You will receive an email when each organization has been approved"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236

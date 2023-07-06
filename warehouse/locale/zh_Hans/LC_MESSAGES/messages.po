@@ -52,7 +52,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-06-27 18:05+0000\n"
+"PO-Revision-Date: 2023-07-02 03:35+0000\n"
 "Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
@@ -61,7 +61,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.18.1\n"
+"X-Generator: Weblate 5.0-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:141
@@ -441,7 +441,7 @@ msgstr "你已经提交了对此名称的申请。请另选一个组织账户名
 msgid "Select project"
 msgstr "选择项目"
 
-#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:173
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms.py:174
 msgid "Specify project name"
 msgstr "指定项目名称"
 
@@ -650,52 +650,52 @@ msgstr "无效的仓库名"
 msgid "Specify workflow filename"
 msgstr "指定工作流文件名"
 
-#: warehouse/oidc/forms.py:83
+#: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "未知的 GitHub 用户或组织。"
 
-#: warehouse/oidc/forms.py:93
+#: warehouse/oidc/forms.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr "GitHub 对此操作进行了速率限制。请在几分钟后重试。"
 
-#: warehouse/oidc/forms.py:103
+#: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr "来自 GitHub 的意外错误。再试一次。"
 
-#: warehouse/oidc/forms.py:110
+#: warehouse/oidc/forms.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr "来自 GitHub 的意外连接错误。请在几分钟后重试。"
 
-#: warehouse/oidc/forms.py:120
+#: warehouse/oidc/forms.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr "来自 GitHub 的意外超时。请在几分钟后重试。"
 
-#: warehouse/oidc/forms.py:132
+#: warehouse/oidc/forms.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr "无效的 GitHub 用户或组织名称。"
 
-#: warehouse/oidc/forms.py:148
+#: warehouse/oidc/forms.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr "工作流名称必须以 .yml 或 .yaml 结尾"
 
-#: warehouse/oidc/forms.py:153
+#: warehouse/oidc/forms.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/oidc/forms.py:175
+#: warehouse/oidc/forms.py:176
 msgid "Invalid project name"
 msgstr "无效的项目名"
 
-#: warehouse/oidc/forms.py:189
+#: warehouse/oidc/forms.py:190
 msgid "This project name is already in use"
 msgstr "已存在同名项目"
 
-#: warehouse/oidc/forms.py:202
+#: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
 msgstr "指定发布者 ID"
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
 msgstr "发布者必须由 ID 指定"
 
@@ -1369,11 +1369,11 @@ msgstr "密码"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:170
-#: warehouse/templates/manage/organizations.html:193
-#: warehouse/templates/manage/organizations.html:215
-#: warehouse/templates/manage/organizations.html:233
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:266
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -1996,7 +1996,8 @@ msgstr ""
 msgid ""
 "%(site)s is in the process of deprecating <code>bdist_egg</code> "
 "distribution file uploads, and will not accept them beginning August 1, 2023."
-msgstr "%(site)s 正在废弃<code>bdist_egg</code>分发文件上传的过程中，从 2023 年 8 月 "
+msgstr ""
+"%(site)s 正在废弃<code>bdist_egg</code>分发文件上传的过程中，从 2023 年 8 月 "
 "1 日起不再接受它们。"
 
 #: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:27
@@ -2008,8 +2009,8 @@ msgid ""
 "code>/<code>bdist_wheel</code> distribution files instead."
 msgstr ""
 "更新你的发行工具来停止上传 <code>.egg</code>/<code>bdist_egg</code>分发文件。"
-"如果你还没准备好而且需要二进制文件发布，请更新发行工具来上传<code>."
-"whl</code>/<code>bdist_wheel</code> 分发文件。"
+"如果你还没准备好而且需要二进制文件发布，请更新发行工具来上传<code>.whl</"
+"code>/<code>bdist_wheel</code> 分发文件。"
 
 #: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:30
 #: warehouse/templates/email/egg-uploads-deprecated/body.html:30
@@ -2086,7 +2087,7 @@ msgstr "你关于名为“%(organization_name)s”的新 PyPI 组织的请求已
 
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "You will receive an email when the organization has been approved"
 msgstr "当组织获得批准后，你将收到一封电子邮件"
 
@@ -4170,7 +4171,7 @@ msgid "Organization Name"
 msgstr "组织名称"
 
 #: warehouse/templates/manage/organizations.html:77
-#: warehouse/templates/manage/organizations.html:143
+#: warehouse/templates/manage/organizations.html:156
 msgid "Request Submitted"
 msgstr "请求已提交"
 
@@ -4239,94 +4240,104 @@ msgstr "管理此组织"
 msgid "You have not joined any organizations on PyPI, yet."
 msgstr "你尚未加入任何 PyPI 组织。"
 
-#: warehouse/templates/manage/organizations.html:146
+#: warehouse/templates/manage/organizations.html:139
+msgid "Pending organization requests"
+msgstr "待定的组织请求"
+
+#: warehouse/templates/manage/organizations.html:144
+msgid ""
+"Approvals for corporate organizations are currently paused while terms of "
+"service and payment are finalized."
+msgstr "对企业组织的批准目前暂停，我们正在敲定服务条款和付款。"
+
+#: warehouse/templates/manage/organizations.html:159
 #, python-format
 msgid "Submitted %(submitted)s"
 msgstr "提交了 %(submitted)s"
 
-#: warehouse/templates/manage/organizations.html:162
-#: warehouse/templates/manage/organizations.html:273
+#: warehouse/templates/manage/organizations.html:176
+#: warehouse/templates/manage/organizations.html:287
 msgid "Request a new organization"
 msgstr "请求新组织"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:168
+#: warehouse/templates/manage/organizations.html:182
 msgid "Organization account name"
 msgstr "组织账户名称"
 
-#: warehouse/templates/manage/organizations.html:173
+#: warehouse/templates/manage/organizations.html:187
 msgid "Select an organization account name"
 msgstr "选择组织账户名称"
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:198
 msgid "This account name is used in URLs on PyPI."
 msgstr "此账户名用于 PyPI 上的 URL 。"
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:185
-#: warehouse/templates/manage/organizations.html:207
-#: warehouse/templates/manage/organizations.html:225
+#: warehouse/templates/manage/organizations.html:199
+#: warehouse/templates/manage/organizations.html:221
+#: warehouse/templates/manage/organizations.html:239
 msgid "For example"
 msgstr "例如"
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:191
+#: warehouse/templates/manage/organizations.html:205
 msgid "Organization display name"
 msgstr "组织显示名称"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:196
+#: warehouse/templates/manage/organizations.html:210
 msgid "Name of your business, product, or project"
 msgstr "你的企业、产品或项目的名称"
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:213
+#: warehouse/templates/manage/organizations.html:227
 msgid "️Organization URL"
 msgstr "️组织网址"
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:219
+#: warehouse/templates/manage/organizations.html:233
 msgid "URL for your business, product, or project"
 msgstr "你的业务、产品或项目的网址"
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:231
+#: warehouse/templates/manage/organizations.html:245
 msgid "Organization description"
 msgstr "组织描述"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:236
+#: warehouse/templates/manage/organizations.html:250
 msgid "Description of your business, product, or project"
 msgstr "你的业务、产品或项目描述"
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:264
 msgid "️Organization type"
 msgstr "️组织类型"
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:262
+#: warehouse/templates/manage/organizations.html:276
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr "公司可以创建组织账户作为付费服务，同时授予社区项目免费访问权限。"
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:282
 msgid "Create"
 msgstr "创建"
 
-#: warehouse/templates/manage/organizations.html:275
+#: warehouse/templates/manage/organizations.html:289
 msgid "Your request(s) for a new PyPI organization(s) have been submitted."
 msgstr "你对新 PyPI 组织的请求已提交。"
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 msgid "You will receive an email when each organization has been approved"
 msgstr "每个组织获批后，你都会收到一封电子邮件"
 
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:292
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
