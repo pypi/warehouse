@@ -960,7 +960,8 @@ def file_upload(request):
                     "This was probably caused by successfully using a pending "
                     "publisher but specifying the project name incorrectly (either "
                     "in the publisher or in your project's metadata). Please ensure "
-                    "that both match."
+                    "that both match. "
+                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
                 ),
             )
 
