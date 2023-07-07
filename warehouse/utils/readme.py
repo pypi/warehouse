@@ -13,8 +13,8 @@
 """Utils for rendering and updating package descriptions (READMEs)."""
 
 from email.message import EmailMessage
+from importlib.metadata import distribution
 
-import pkg_resources
 import readme_renderer.markdown
 import readme_renderer.rst
 import readme_renderer.txt
@@ -61,4 +61,4 @@ def render(value, content_type=None, use_fallback=True):
 
 
 def renderer_version():
-    return pkg_resources.get_distribution("readme-renderer").version
+    return distribution("readme-renderer").version
