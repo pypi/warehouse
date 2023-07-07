@@ -254,14 +254,14 @@ class TestManageAccount:
         assert update_user.calls == []
 
     def test_add_email(self, monkeypatch, pyramid_request):
-        email_address = "test@example.com"
-        email = pretend.stub(id=pretend.stub(), email=email_address)
+        new_email_address = "new@example.com"
+        email = pretend.stub(id=pretend.stub(), email=new_email_address)
         existing_email_address = "existing@example.com"
         existing_email = pretend.stub(id=pretend.stub(), email=existing_email_address)
         user_service = pretend.stub(
             add_email=pretend.call_recorder(lambda *a, **kw: email),
         )
-        pyramid_request.POST = {"email": email_address}
+        pyramid_request.POST = {"email": new_email_address}
         pyramid_request.db = pretend.stub(flush=lambda: None)
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -279,13 +279,18 @@ class TestManageAccount:
             views,
             "AddEmailForm",
             lambda *a, **kw: pretend.stub(
-                validate=lambda: True, email=pretend.stub(data=email_address)
+                validate=lambda: True, email=pretend.stub(data=new_email_address)
             ),
         )
 
-        send_email = pretend.call_recorder(lambda *a: None)
-        monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        monkeypatch.setattr(views, "send_new_email_added_email", send_email)
+        send_email_verification_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_email_verification_email", send_email_verification_email
+        )
+        send_new_email_added_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            views, "send_new_email_added_email", send_new_email_added_email
+        )
 
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -294,24 +299,29 @@ class TestManageAccount:
 
         assert isinstance(view.add_email(), HTTPSeeOther)
         assert user_service.add_email.calls == [
-            pretend.call(pyramid_request.user.id, email_address),
+            pretend.call(pyramid_request.user.id, new_email_address),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
-                f"Email {email_address} added - check your email for "
+                f"Email {new_email_address} added - check your email for "
                 + "a verification link",
                 queue="success",
             )
         ]
-        assert send_email.calls == [
+        assert send_email_verification_email.calls == [
             pretend.call(pyramid_request, (pyramid_request.user, email)),
-            pretend.call(pyramid_request, (pyramid_request.user, existing_email)),
+        ]
+        assert send_new_email_added_email.calls == [
+            pretend.call(
+                pyramid_request,
+                (pyramid_request.user, new_email_address),
+            ),
         ]
         assert pyramid_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailAdd,
                 request=pyramid_request,
-                additional={"email": email_address},
+                additional={"email": new_email_address},
             )
         ]
 
