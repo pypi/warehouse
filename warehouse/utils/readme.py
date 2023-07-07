@@ -32,9 +32,9 @@ def render(value, content_type=None, use_fallback=True):
     if value is None:
         return value
 
-    # Necessary because `msg.get_content_type()` returns `test/plain` for
+    # Necessary because `msg.get_content_type()` returns `text/plain` for
     # invalid or missing input, per RFC 2045, which changes our behavior.
-    if content_type is not None:
+    if content_type:
         msg = EmailMessage()
         msg["content-type"] = content_type
         content_type = msg.get_content_type()

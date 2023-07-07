@@ -43,5 +43,10 @@ def test_can_render_missing_content_type():
     assert result == "<p>raw thing</p>\n"
 
 
+def test_can_render_blank_content_type():
+    result = readme.render("wild thing", "")
+    assert result == "<p>wild thing</p>\n"
+
+
 def test_renderer_version():
     assert readme.renderer_version() is not None
