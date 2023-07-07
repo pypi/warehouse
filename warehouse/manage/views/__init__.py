@@ -230,6 +230,7 @@ class ManageAccountViews:
                     send_new_email_added_email(
                         self.request,
                         (self.request.user, previously_registered_email),
+                        new_email_address=email.email,
                     )
 
             return HTTPSeeOther(self.request.path)

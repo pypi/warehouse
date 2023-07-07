@@ -292,12 +292,12 @@ def send_email_verification_email(request, user_and_email):
 
 
 @_email("new-email-added")
-def send_new_email_added_email(request, user_and_email):
-    user, email = user_and_email
+def send_new_email_added_email(request, user_and_email, *, new_email_address):
+    user, _ = user_and_email
 
     return {
         "username": user.username,
-        "email_address": email.email,
+        "new_email_address": new_email_address,
     }
 
 
