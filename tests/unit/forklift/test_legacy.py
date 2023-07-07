@@ -3386,7 +3386,7 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "Non-user identities cannot create new projects. "
+            "400 Non-user identities cannot create new projects. "
             "This was probably caused by successfully using a pending "
             "publisher but specifying the project name incorrectly (either "
             "in the publisher or in your project's metadata). Please ensure "
