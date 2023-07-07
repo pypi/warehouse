@@ -42,6 +42,7 @@ from warehouse.packaging.tasks import (
     sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
+    update_release_description,
 )
 from warehouse.utils import readme
 
@@ -373,6 +374,23 @@ def test_update_description_html(monkeypatch, db_request):
         (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
         (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
     }
+
+
+def test_update_release_description(db_request):
+    release = ReleaseFactory.create()
+    description = DescriptionFactory.create(
+        release=release,
+        raw="rst\n===\n\nbody text",
+        html="",
+        rendered_by="0.0",
+    )
+
+    task = pretend.stub()
+    update_release_description(task, db_request, release.id)
+
+    updated_description = db_request.db.get(Description, description.id)
+    assert updated_description.html == "<p>body text</p>\n"
+    assert updated_description.rendered_by == readme.renderer_version()
 
 
 bq_schema = [

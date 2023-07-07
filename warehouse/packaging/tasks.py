@@ -21,6 +21,7 @@ import pip_api
 
 from google.cloud.bigquery import LoadJobConfig
 from packaging.utils import canonicalize_name
+from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
@@ -349,6 +350,24 @@ def update_description_html(request):
     for description in descriptions:
         description.html = readme.render(description.raw, description.content_type)
         description.rendered_by = renderer_version
+
+
+@tasks.task(bind=True, ignore_result=True, acks_late=True)
+def update_release_description(_task, request, release_id):
+    """Given a release_id, update the release description via readme-renderer."""
+    renderer_version = readme.renderer_version()
+
+    release = (
+        request.db.query(Release)
+        .filter(Release.id == release_id)
+        .options(joinedload(Release.description))
+        .first()
+    )
+
+    release.description.html = readme.render(
+        release.description.raw, release.description.content_type
+    )
+    release.description.rendered_by = renderer_version
 
 
 @tasks.task(

@@ -22,6 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
@@ -205,6 +206,27 @@ def release_detail(release, request):
         .all()
     )
     return {"release": release, "journals": journals}
+
+
+@view_config(
+    route_name="admin.project.release.render",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_methods=False,
+)
+def release_render(release, request):
+    request.task(update_release_description).delay(release.id)
+    request.session.flash(
+        f"Task sent to re-render description for {release!r}", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
 
 
 @view_config(

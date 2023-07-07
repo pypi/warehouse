@@ -229,7 +229,15 @@
         </tr>
         <tr>
           <td>Detected Content-Type</td>
-          <td><code>{{ release.description.content_type }}</code></td>
+          <td>
+            {% if release.description.content_type is none %}
+            <code>-NULL-</code>
+            {% elif release.description.content_type == "" %}
+            <code>-BLANK-</code>
+            {% else %}
+            <code>{{ release.description.content_type }}</code>
+            {% endif %}
+          </td>
         </tr>
         <tr>
           <td>Raw Input</td>
@@ -244,14 +252,12 @@
         </tr>
       </table>
     </div>
-    {# TODO: Implement re-render task kick-off.
-     # Look at `warehouse.packaging.tasks.update_description_html`
-     # and `warehouse.admin.views.projects.reindex_project`
     <div class="card-footer">
-      <p>
-        <a href="#" class="btn btn-primary">Re-render</a>
-      </p>
+      <div class="float-right">
+        <form method="GET" action="{{ request.route_path('admin.project.release.render', project_name=release.project.normalized_name, version=release.version) }}">
+          <button type="submit" class="btn btn-primary">Re-render</button>
+        </form>
+      </div>
     </div>
-     #}
   </div>
 {% endblock content %}
