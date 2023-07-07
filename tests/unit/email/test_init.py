@@ -994,6 +994,7 @@ class TestNewEmailAddedEmails:
             id="id", username="username", name=None, email="foo@example.com"
         )
         stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
+        new_email_address = "new@example.com"
         pyramid_request.method = "POST"
 
         subject_renderer = pyramid_config.testing_add_renderer(
@@ -1026,16 +1027,18 @@ class TestNewEmailAddedEmails:
         pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
 
         result = email.send_new_email_added_email(
-            pyramid_request, (stub_user, stub_email)
+            pyramid_request,
+            (stub_user, stub_email),
+            new_email_address=new_email_address,
         )
 
         assert result == {
             "username": stub_user.username,
-            "email_address": stub_email.email,
+            "new_email_address": new_email_address,
         }
         subject_renderer.assert_()
-        body_renderer.assert_(email_address=stub_email.email)
-        html_renderer.assert_(email_address=stub_email.email)
+        body_renderer.assert_(new_email_address=new_email_address)
+        html_renderer.assert_(new_email_address=new_email_address)
         assert pyramid_request.task.calls == []
         assert send_email.delay.calls == []
 

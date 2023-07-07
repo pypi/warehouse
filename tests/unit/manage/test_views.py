@@ -274,7 +274,6 @@ class TestManageAccount:
             id=pretend.stub(),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
         monkeypatch.setattr(
             views,
             "AddEmailForm",
@@ -314,7 +313,8 @@ class TestManageAccount:
         assert send_new_email_added_email.calls == [
             pretend.call(
                 pyramid_request,
-                (pyramid_request.user, new_email_address),
+                (pyramid_request.user, existing_email),
+                new_email_address=new_email_address,
             ),
         ]
         assert pyramid_request.user.record_event.calls == [
@@ -469,7 +469,7 @@ class TestManageAccount:
         )
         view = views.ManageAccountViews(db_request)
 
-        send_email = pretend.call_recorder(lambda *a: None)
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
 
         assert isinstance(view.change_primary_email(), HTTPSeeOther)
