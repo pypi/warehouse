@@ -947,13 +947,21 @@ def file_upload(request):
         # Another sanity check: we should be preventing non-user identities
         # from creating projects in the first place with scoped tokens,
         # but double-check anyways.
+        # This can happen if a user mismatches between the project name in
+        # their pending publisher (1) and the project name in their metadata (2):
+        # the pending publisher will create an empty project named (1) and will
+        # produce a valid API token, but the project lookup above uses (2)
+        # and will fail because (1) != (2).
         if not request.user:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
                     "Non-user identities cannot create new projects. "
-                    "You must first create a project as a user, and then "
-                    "configure the project to use trusted publishers."
+                    "This was probably caused by successfully using a pending "
+                    "publisher but specifying the project name incorrectly (either "
+                    "in the publisher or in your project's metadata). Please ensure "
+                    "that both match. "
+                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
                 ),
             )
 
