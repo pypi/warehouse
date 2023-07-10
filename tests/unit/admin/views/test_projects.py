@@ -22,6 +22,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSee
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project, Role
+from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
 
 from ....common.db.accounts import UserFactory
@@ -128,6 +129,32 @@ class TestReleaseDetail:
             "release": release,
             "journals": journals,
         }
+
+    def test_release_render(self, db_request):
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        db_request.matchdict["project_name"] = str(project.normalized_name)
+        db_request.matchdict["version"] = str(release.version)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+        # Mock request task handler
+        request_task_mock = mock.Mock()
+        db_request.task = request_task_mock
+
+        views.release_render(release, db_request)
+
+        request_task_mock.assert_called_with(update_release_description)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Task sent to re-render description for {release}", queue="success"
+            )
+        ]
 
 
 class TestProjectReleasesList:
