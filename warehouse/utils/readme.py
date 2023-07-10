@@ -13,8 +13,8 @@
 """Utils for rendering and updating package descriptions (READMEs)."""
 
 from email.message import EmailMessage
+from importlib.metadata import distribution
 
-import pkg_resources
 import readme_renderer.markdown
 import readme_renderer.rst
 import readme_renderer.txt
@@ -32,9 +32,9 @@ def render(value, content_type=None, use_fallback=True):
     if value is None:
         return value
 
-    # Necessary because `msg.get_content_type()` returns `test/plain` for
+    # Necessary because `msg.get_content_type()` returns `text/plain` for
     # invalid or missing input, per RFC 2045, which changes our behavior.
-    if content_type is not None:
+    if content_type:
         msg = EmailMessage()
         msg["content-type"] = content_type
         content_type = msg.get_content_type()
@@ -61,4 +61,4 @@ def render(value, content_type=None, use_fallback=True):
 
 
 def renderer_version():
-    return pkg_resources.get_distribution("readme-renderer").version
+    return distribution("readme-renderer").version
