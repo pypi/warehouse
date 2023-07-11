@@ -203,7 +203,7 @@ msgstr "Già autenticato"
 msgid "Successful WebAuthn assertion"
 msgstr "Asserzione WebAuthn corretta"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Codice di recupero accettato. Il codice fornito non può essere riusato."
@@ -344,7 +344,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Ora sei ${role} del progetto '${project_name}'."
 
 #: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/manage/views/__init__.py:1228
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -356,7 +356,7 @@ msgstr ""
 "Gli editori attendibili sono temporaneamente disabilitati. Vedi https://pypi."
 "org/help#admin-intervention per dettagli."
 
-#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -380,14 +380,14 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "Non puoi registrare più di 3 autori attendibili in attesa per volta."
 
-#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1263
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 "Troppi tentativi di registrazione di autori attendibili. Riprova più tardi."
 
-#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr "L'autore attendibile non può essere registrato"
 
@@ -534,32 +534,32 @@ msgstr ""
 "Indirizzo email ${email_address} aggiunto - controlla la tua posta in arrivo "
 "per un link di verifica"
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:773
 msgid "Recovery codes already generated"
 msgstr "Codici di recupero già generati"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:774
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generare un nuovo codice di recupero invaliderà i tuoi codici esistenti."
 
-#: warehouse/manage/views/__init__.py:879
+#: warehouse/manage/views/__init__.py:880
 msgid "Verify your email to create an API token."
 msgstr "Verifica la tua email per creare un token API."
 
-#: warehouse/manage/views/__init__.py:1004
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr "Credenziali non valide. Riprova"
 
-#: warehouse/manage/views/__init__.py:1126
+#: warehouse/manage/views/__init__.py:1127
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 "L'autenticazione a due fattori (2FA) non può disabilitata per progetti "
 "critici"
 
-#: warehouse/manage/views/__init__.py:1481
-#: warehouse/manage/views/__init__.py:1782
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1482
+#: warehouse/manage/views/__init__.py:1783
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -567,50 +567,50 @@ msgstr ""
 "La cancellazione dei progetti è temporaneamente disabilitata. Vedi https://"
 "pypi.org/help#admin-intervention per dettagli."
 
-#: warehouse/manage/views/__init__.py:1613
-#: warehouse/manage/views/__init__.py:1698
-#: warehouse/manage/views/__init__.py:1799
-#: warehouse/manage/views/__init__.py:1899
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1900
 msgid "Confirm the request"
 msgstr "Conferma la richiesta"
 
-#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1626
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "release non stralciato"
 
-#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1711
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "release non stralciato"
 
-#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1812
 msgid "Could not delete release - "
 msgstr "Impossibile eliminare il rilascio "
 
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/__init__.py:1912
 msgid "Could not find file"
 msgstr "Impossibile trovare il file"
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1916
 msgid "Could not delete file - "
 msgstr "Non è possibile eliminare il file - "
 
-#: warehouse/manage/views/__init__.py:2065
+#: warehouse/manage/views/__init__.py:2066
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Il team '${team_name}' ha già un ruolo ${role_name} per il progetto"
 
-#: warehouse/manage/views/__init__.py:2172
+#: warehouse/manage/views/__init__.py:2173
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "L'utente '${username}' ha già un ruolo di ${role_name} per il progetto"
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2240
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Ora ${username} è ${role} del progetto '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2271
+#: warehouse/manage/views/__init__.py:2272
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -618,26 +618,26 @@ msgstr ""
 "L'utente '${username}' non ha un indirizzo email principale verificato e non "
 "può essere aggiunto come ${role_name} per il progetto"
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2285
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "L'utente '${username}' ha già un invito attivo. Riprova più tardi."
 
-#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "Invito mandato a '${username}'"
 
-#: warehouse/manage/views/__init__.py:2382
+#: warehouse/manage/views/__init__.py:2383
 msgid "Could not find role invitation."
 msgstr "Impossibile trovare l'invito del ruolo"
 
-#: warehouse/manage/views/__init__.py:2393
+#: warehouse/manage/views/__init__.py:2394
 msgid "Invitation already expired."
 msgstr "Invito già scaduto."
 
-#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/__init__.py:2426
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "Invito revocato da '${username}'."

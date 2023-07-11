@@ -200,7 +200,7 @@ msgstr "Zaten giriş yapılmış"
 msgid "Successful WebAuthn assertion"
 msgstr "Başarılı WebAuthn önermesi"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kurtarma kodu kabul edildi. Bu kod yeniden kullanılamaz."
 
@@ -336,7 +336,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Artık '${project_name}' projesinde ${role} oldunuz."
 
 #: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/manage/views/__init__.py:1228
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -348,7 +348,7 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -381,7 +381,7 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Aynı anda 3'ten fazla bekleyen OpenID Connect sağlayıcısını kaydedemezsiniz."
 
-#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -392,7 +392,7 @@ msgid ""
 msgstr ""
 "Çok fazla sayıda OpenID Connect kaydı denendi. Daha sonra tekrar deneyin."
 
-#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr "Onaylı kullanıcı kaydedilemedi"
 
@@ -545,35 +545,35 @@ msgstr ""
 "${email_address} e-postan eklendi - e-postanı doğrulama bağlantısı için "
 "kontrol et"
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:773
 msgid "Recovery codes already generated"
 msgstr "Kurtarma kodları zaten oluşturuldu"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:774
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Yeni kurtarma kodlarının oluşturulması, mevcut kodlarınızı geçersiz "
 "kılacaktır."
 
-#: warehouse/manage/views/__init__.py:879
+#: warehouse/manage/views/__init__.py:880
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "E-postanızı doğrulayın ya da yeni bir adres ekleyin."
 
-#: warehouse/manage/views/__init__.py:1004
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr "Geçersiz kimlik bilgileri. Tekrar deneyin"
 
-#: warehouse/manage/views/__init__.py:1126
+#: warehouse/manage/views/__init__.py:1127
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "Gereken Python Sürümü:"
 
-#: warehouse/manage/views/__init__.py:1481
-#: warehouse/manage/views/__init__.py:1782
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1482
+#: warehouse/manage/views/__init__.py:1783
+#: warehouse/manage/views/__init__.py:1891
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -585,56 +585,56 @@ msgstr ""
 "Yeni kullanıcı kayıtları geçici olarak kapatıldı. Detaylar için https://pypi."
 "org/help#admin-intervention sayfasını inceleyin."
 
-#: warehouse/manage/views/__init__.py:1613
-#: warehouse/manage/views/__init__.py:1698
-#: warehouse/manage/views/__init__.py:1799
-#: warehouse/manage/views/__init__.py:1899
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1900
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Daveti onayla"
 
-#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1626
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "ön sürüm"
 
-#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1711
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "ön sürüm"
 
-#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1812
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Sürümü Kaldır"
 
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/__init__.py:1912
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1916
 msgid "Could not delete file - "
 msgstr "dosya silinemiyor- "
 
-#: warehouse/manage/views/__init__.py:2065
+#: warehouse/manage/views/__init__.py:2066
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Takımın '${team_name}' zaten projede için ${role_name} rolü var"
 
-#: warehouse/manage/views/__init__.py:2172
+#: warehouse/manage/views/__init__.py:2173
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Kullanıcı '${username}' projede zaten ${role_name} rolüne sahip"
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2240
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} artık ${project_name}' projesinin ${role}'sidir."
 
-#: warehouse/manage/views/__init__.py:2271
+#: warehouse/manage/views/__init__.py:2272
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -642,7 +642,7 @@ msgstr ""
 "'${username}' adlı kullanıcıya ait doğrulanmış birincil e-posta adresi "
 "mevcut değil ve bu yüzden projeye ${role_name} rolünde atanamıyor"
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2285
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -650,20 +650,20 @@ msgstr ""
 "'${username}' adlı kullanıcıda zaten aktif bir davetiye bulunmaktadır. "
 "Lütfen daha sonra tekrar deneyiniz."
 
-#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' adlı kullanıcıya davetiye gönderildi"
 
-#: warehouse/manage/views/__init__.py:2382
+#: warehouse/manage/views/__init__.py:2383
 msgid "Could not find role invitation."
 msgstr "Rol davetiyesi bulunamadı."
 
-#: warehouse/manage/views/__init__.py:2393
+#: warehouse/manage/views/__init__.py:2394
 msgid "Invitation already expired."
 msgstr "Davetin süresi zaten dolmuş."
 
-#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/__init__.py:2426
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' adlı kullanıcıdan gelen davetiye iptal edildi."

@@ -172,7 +172,7 @@ msgstr "ఇప్పటికే ధృవీకరించబడింది"
 msgid "Successful WebAuthn assertion"
 msgstr "విజయవంతమైన WebAuthn ప్రకటన"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
 #, fuzzy
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "రికవరీ కోడ్ ఆమోదించబడింది. సరఫరా చేయబడ్డ కోడ్ మళ్లీ ఉపయోగించబడదు."
@@ -310,13 +310,13 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/manage/views/__init__.py:1228
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1244
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -332,13 +332,13 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1263
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -456,99 +456,99 @@ msgstr ""
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:773
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:774
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:879
+#: warehouse/manage/views/__init__.py:880
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1004
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1126
+#: warehouse/manage/views/__init__.py:1127
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1481
-#: warehouse/manage/views/__init__.py:1782
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1482
+#: warehouse/manage/views/__init__.py:1783
+#: warehouse/manage/views/__init__.py:1891
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1613
-#: warehouse/manage/views/__init__.py:1698
-#: warehouse/manage/views/__init__.py:1799
-#: warehouse/manage/views/__init__.py:1899
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1900
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1626
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1711
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1812
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/__init__.py:1912
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1916
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2065
+#: warehouse/manage/views/__init__.py:2066
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2172
+#: warehouse/manage/views/__init__.py:2173
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2240
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2271
+#: warehouse/manage/views/__init__.py:2272
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2285
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2382
+#: warehouse/manage/views/__init__.py:2383
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2393
+#: warehouse/manage/views/__init__.py:2394
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/__init__.py:2426
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr ""

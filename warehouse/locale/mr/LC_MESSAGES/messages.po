@@ -180,7 +180,7 @@ msgstr "आधीच प्रमाणीकृत"
 msgid "Successful WebAuthn assertion"
 msgstr "यशस्वी WebAuthn प्रतिपादन"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ती कोड स्वीकारला. पुरवलेला कोड पुन्हा वापरला जाऊ शकत नाही."
 
@@ -334,7 +334,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
 #: warehouse/accounts/views.py:1434 warehouse/accounts/views.py:1582
-#: warehouse/manage/views/__init__.py:1227
+#: warehouse/manage/views/__init__.py:1228
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -346,7 +346,7 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1243
+#: warehouse/accounts/views.py:1451 warehouse/manage/views/__init__.py:1244
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -368,7 +368,7 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1262
+#: warehouse/accounts/views.py:1494 warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -377,7 +377,7 @@ msgid ""
 "again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1276
+#: warehouse/accounts/views.py:1508 warehouse/manage/views/__init__.py:1277
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -535,29 +535,29 @@ msgstr "अंतिम अद्यतनित तारीख"
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "ईमेल ${email_address} जोडला - सत्यापन दुव्यासाठी आपले ईमेल तपासा"
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:773
 msgid "Recovery codes already generated"
 msgstr "पुनर्प्राप्ती कोड आधीपासून व्युत्पन्न केले"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:774
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:879
+#: warehouse/manage/views/__init__.py:880
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1004
+#: warehouse/manage/views/__init__.py:1005
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1126
+#: warehouse/manage/views/__init__.py:1127
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1481
-#: warehouse/manage/views/__init__.py:1782
-#: warehouse/manage/views/__init__.py:1890
+#: warehouse/manage/views/__init__.py:1482
+#: warehouse/manage/views/__init__.py:1783
+#: warehouse/manage/views/__init__.py:1891
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -569,77 +569,77 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/manage/views/__init__.py:1613
-#: warehouse/manage/views/__init__.py:1698
-#: warehouse/manage/views/__init__.py:1799
-#: warehouse/manage/views/__init__.py:1899
+#: warehouse/manage/views/__init__.py:1614
+#: warehouse/manage/views/__init__.py:1699
+#: warehouse/manage/views/__init__.py:1800
+#: warehouse/manage/views/__init__.py:1900
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1626
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1711
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1812
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "रीलिझ हटवा"
 
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/__init__.py:1912
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1916
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2065
+#: warehouse/manage/views/__init__.py:2066
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2172
+#: warehouse/manage/views/__init__.py:2173
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:2240
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
-#: warehouse/manage/views/__init__.py:2271
+#: warehouse/manage/views/__init__.py:2272
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2284
+#: warehouse/manage/views/__init__.py:2285
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2349
+#: warehouse/manage/views/__init__.py:2350
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2382
+#: warehouse/manage/views/__init__.py:2383
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2393
+#: warehouse/manage/views/__init__.py:2394
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "ईमेल आधीच सत्यापित आहे"
 
-#: warehouse/manage/views/__init__.py:2425
+#: warehouse/manage/views/__init__.py:2426
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr ""
