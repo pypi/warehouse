@@ -364,7 +364,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms.py:174
+#: warehouse/manage/forms.py:483 warehouse/oidc/forms/github.py:174
 msgid "Specify project name"
 msgstr ""
 
@@ -545,67 +545,67 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms.py:33
+#: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr ""
 
-#: warehouse/oidc/forms.py:40
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:42
+#: warehouse/oidc/forms/github.py:42
 msgid "Invalid repository name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:49
+#: warehouse/oidc/forms/github.py:49
 msgid "Specify workflow filename"
 msgstr ""
 
-#: warehouse/oidc/forms.py:84
+#: warehouse/oidc/forms/github.py:84
 msgid "Unknown GitHub user or organization."
 msgstr ""
 
-#: warehouse/oidc/forms.py:94
+#: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:104
+#: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:111
+#: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:121
+#: warehouse/oidc/forms/github.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:133
+#: warehouse/oidc/forms/github.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:149
+#: warehouse/oidc/forms/github.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:154
+#: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:176
+#: warehouse/oidc/forms/github.py:176
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms.py:190
+#: warehouse/oidc/forms/github.py:190
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/oidc/forms.py:203
+#: warehouse/oidc/forms/github.py:203
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms.py:204
+#: warehouse/oidc/forms/github.py:204
 msgid "Publisher must be specified by ID"
 msgstr ""
 

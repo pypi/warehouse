@@ -17,7 +17,7 @@ import wtforms
 from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
-from warehouse.oidc import forms
+from warehouse.oidc.forms import github
 
 
 class TestPendingGitHubPublisherForm:
@@ -31,7 +31,7 @@ class TestPendingGitHubPublisherForm:
                 "project_name": "some-project",
             }
         )
-        form = forms.PendingGitHubPublisherForm(
+        form = github.PendingGitHubPublisherForm(
             MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
         )
 
@@ -44,7 +44,7 @@ class TestPendingGitHubPublisherForm:
 
     def test_validate_project_name_already_in_use(self):
         project_factory = ["some-project"]
-        form = forms.PendingGitHubPublisherForm(
+        form = github.PendingGitHubPublisherForm(
             api_token="fake-token", project_factory=project_factory
         )
 
@@ -72,7 +72,7 @@ class TestGitHubPublisherForm:
                 "workflow_filename": "some-workflow.yml",
             }
         )
-        form = forms.GitHubPublisherForm(MultiDict(data), api_token=token)
+        form = github.GitHubPublisherForm(MultiDict(data), api_token=token)
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
@@ -89,9 +89,9 @@ class TestGitHubPublisherForm:
         requests = pretend.stub(
             get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
@@ -116,12 +116,12 @@ class TestGitHubPublisherForm:
         requests = pretend.stub(
             get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
@@ -153,12 +153,12 @@ class TestGitHubPublisherForm:
         requests = pretend.stub(
             get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
@@ -188,12 +188,12 @@ class TestGitHubPublisherForm:
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
@@ -208,12 +208,12 @@ class TestGitHubPublisherForm:
             HTTPError=HTTPError,
             ConnectionError=ConnectionError,
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
         sentry_sdk = pretend.stub(capture_message=pretend.call_recorder(lambda s: None))
-        monkeypatch.setattr(forms, "sentry_sdk", sentry_sdk)
+        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         with pytest.raises(wtforms.validators.ValidationError):
             form._lookup_owner("some-owner")
 
@@ -233,9 +233,9 @@ class TestGitHubPublisherForm:
         requests = pretend.stub(
             get=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
         )
-        monkeypatch.setattr(forms, "requests", requests)
+        monkeypatch.setattr(github, "requests", requests)
 
-        form = forms.GitHubPublisherForm(api_token="fake-token")
+        form = github.GitHubPublisherForm(api_token="fake-token")
         info = form._lookup_owner("some-owner")
 
         assert requests.get.calls == [
@@ -274,7 +274,7 @@ class TestGitHubPublisherForm:
         ],
     )
     def test_validate_basic_invalid_fields(self, monkeypatch, data):
-        form = forms.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
+        form = github.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
@@ -283,7 +283,7 @@ class TestGitHubPublisherForm:
         assert not form.validate()
 
     def test_validate_owner(self, monkeypatch):
-        form = forms.GitHubPublisherForm(api_token=pretend.stub())
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
 
         owner_info = {"login": "some-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
@@ -298,7 +298,7 @@ class TestGitHubPublisherForm:
         "workflow_filename", ["missing_suffix", "/slash", "/many/slashes", "/slash.yml"]
     )
     def test_validate_workflow_filename(self, workflow_filename):
-        form = forms.GitHubPublisherForm(api_token=pretend.stub())
+        form = github.GitHubPublisherForm(api_token=pretend.stub())
         field = pretend.stub(data=workflow_filename)
 
         with pytest.raises(wtforms.validators.ValidationError):
@@ -316,5 +316,5 @@ class TestGitHubPublisherForm:
         ],
     )
     def test_normalized_environment(self, data, expected):
-        form = forms.GitHubPublisherForm(api_token=pretend.stub(), environment=data)
+        form = github.GitHubPublisherForm(api_token=pretend.stub(), environment=data)
         assert form.normalized_environment == expected
