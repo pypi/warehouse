@@ -32,14 +32,6 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
-from tests.common.db.organizations import (
-    OrganizationFactory,
-    OrganizationProjectFactory,
-    OrganizationRoleFactory,
-    TeamFactory,
-    TeamProjectRoleFactory,
-    TeamRoleFactory,
-)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.errors import BasicAuthTwoFactorEnabled
