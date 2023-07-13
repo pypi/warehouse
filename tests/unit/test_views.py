@@ -281,7 +281,7 @@ class TestForbiddenView:
         assert request.session.flash.calls == [
             pretend.call(
                 "You must verify your **primary** email address before you "
-                "can perform this action."
+                "can perform this action.",
                 queue="error",
             )
         ]
