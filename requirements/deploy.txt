@@ -221,9 +221,9 @@ xmltodict==0.13.0 \
     --hash=sha256:341595a488e3e01a85a9d8911d8912fd922ede5fecc4dce437eb4b6c8d037e56 \
     --hash=sha256:aa89e8fd76320154a40d19a0df04a4695fb9dc5ba977cbb68ab3e4eb225e7852
     # via ddtrace
-zipp==3.16.0 \
-    --hash=sha256:1876cb065531855bbe83b6c489dcf69ecc28f1068d8e95959fe8bbc77774c941 \
-    --hash=sha256:5dadc3ad0a1f825fe42ce1bce0f2fc5a13af2e6b2d386af5b0ff295bc0a287d3
+zipp==3.16.1 \
+    --hash=sha256:0b37c326d826d5ca35f2b9685cd750292740774ef16190008b00a0227c256fe0 \
+    --hash=sha256:857b158da2cbf427b376da1c24fd11faecbac5a4ac7523c3607f8a01f94c2ec0
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:
