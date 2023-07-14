@@ -76,6 +76,7 @@ class TestGitHubPublisher:
             "runner_environment",
             "environment_node_id",
             "enterprise",
+            "ref_protected",
         }
 
     def test_github_publisher_computed_properties(self):
