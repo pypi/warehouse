@@ -42,6 +42,7 @@ def reauth_view(view, info):
                     username=request.user.username,
                     next_route=request.matched_route.name,
                     next_route_matchdict=json.dumps(request.matchdict),
+                    next_route_query=json.dumps(request.GET.mixed()),
                     user_service=user_service,
                 )
 
