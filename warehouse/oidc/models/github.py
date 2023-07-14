@@ -126,6 +126,7 @@ class GitHubPublisherMixin:
         "runner_environment",
         "environment_node_id",
         "enterprise",
+        "ref_protected",
     }
 
     @staticmethod
