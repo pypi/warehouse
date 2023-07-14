@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import distutils.util
 import enum
+import json
 import os
 import shlex
 
@@ -136,6 +138,10 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def from_base64_encoded_json(configuration):
+    return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
+
+
 def configure(settings=None):
     if settings is None:
         settings = {}
@@ -167,8 +173,13 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "b2.application_key_id", "B2_APPLICATION_KEY_ID")
     maybe_set(settings, "b2.application_key", "B2_APPLICATION_KEY")
-    maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(
+        settings,
+        "gcloud.service_account_info",
+        "GCLOUD_SERVICE_JSON",
+        from_base64_encoded_json,
+    )
     maybe_set(
         settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
     )
