@@ -33,6 +33,7 @@
           <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
           {{ form.next_route }}
           {{ form.next_route_matchdict }}
+          {{ form.next_route_query }}
           {{ form.username }}
 
           {% if form.errors.__all__ %}

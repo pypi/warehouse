@@ -285,11 +285,21 @@ class ProvisionWebAuthnForm(WebAuthnCredentialMixin, forms.Form):
 class CreateMacaroonForm(forms.Form):
     __params__ = ["description", "token_scope"]
 
-    def __init__(self, *args, user_id, macaroon_service, project_names, **kwargs):
+    def __init__(
+        self,
+        *args,
+        user_id,
+        macaroon_service,
+        project_names,
+        selected_project=None,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.user_id = user_id
         self.macaroon_service = macaroon_service
         self.project_names = project_names
+        if selected_project is not None:
+            self.token_scope.data = self.scope_prefix + selected_project
 
     description = wtforms.StringField(
         validators=[
@@ -303,6 +313,8 @@ class CreateMacaroonForm(forms.Form):
     token_scope = wtforms.StringField(
         validators=[wtforms.validators.InputRequired(message="Specify the token scope")]
     )
+
+    scope_prefix = "scope:project:"
 
     def validate_description(self, field):
         description = field.data

@@ -69,6 +69,7 @@ class TestReAuthView:
             user=pretend.stub(username=pretend.stub()),
             matched_route=pretend.stub(name=pretend.stub()),
             matchdict={"foo": "bar"},
+            GET=pretend.stub(mixed=lambda: {"baz": "bar"}),
         )
         response = pretend.stub()
 

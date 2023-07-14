@@ -154,7 +154,7 @@
           <option disabled {{ "" if create_macaroon_form.token_scope.data else "selected" }} value="scope:unspecified">{% trans %}Select scope...{% endtrans %}</option>
           <option value="scope:user">{% trans %}Entire account (all projects){% endtrans %}</option>
         {% for project in project_names %}
-          {% set project_value = 'scope:project:' + project %}
+          {% set project_value = create_macaroon_form.scope_prefix + project %}
           <option value="{{ project_value }}" {{ "selected" if project_value == create_macaroon_form.token_scope.data else "" }}>{% trans %}Project:{% endtrans %} {{ project }}</option>
         {% endfor %}
         </select>

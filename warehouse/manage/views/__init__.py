@@ -847,6 +847,7 @@ class ProvisionMacaroonViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
+        self.selected_project = None
 
     @property
     def project_names(self):
@@ -860,6 +861,7 @@ class ProvisionMacaroonViews:
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
                 project_names=self.project_names,
+                selected_project=self.selected_project,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 request=self.request,
@@ -871,6 +873,7 @@ class ProvisionMacaroonViews:
 
     @view_config(request_method="GET")
     def manage_macaroons(self):
+        self.selected_project = self.request.params.get("selected_project")
         return self.default_response
 
     @view_config(request_method="POST", require_reauth=True)

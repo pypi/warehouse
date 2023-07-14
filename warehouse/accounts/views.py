@@ -1341,6 +1341,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
         username=request.user.username,
         next_route=request.matched_route.name,
         next_route_matchdict=json.dumps(request.matchdict),
+        next_route_query=json.dumps(request.GET.mixed()),
         user_service=user_service,
         action="reauthenticate",
         check_password_metrics_tags=[
@@ -1351,7 +1352,9 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 
     if form.next_route.data and form.next_route_matchdict.data:
         redirect_to = request.route_path(
-            form.next_route.data, **json.loads(form.next_route_matchdict.data)
+            form.next_route.data,
+            **json.loads(form.next_route_matchdict.data)
+            | dict(_query=json.loads(form.next_route_query.data)),
         )
     else:
         redirect_to = request.route_path("manage.projects")

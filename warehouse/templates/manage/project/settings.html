@@ -44,7 +44,7 @@
   <p>{% trans %}API tokens provide an alternative way to authenticate when uploading packages to PyPI.{% endtrans %}</p>
   {% if user.has_primary_verified_email %}
     <p class="no-bottom-padding">
-      <a href="{{ request.route_path('manage.account.token') }}" class="button button--primary">
+      <a href="{{ request.route_path('manage.account.token', _query={'selected_project': project.name}) }}" class="button button--primary">
         {% trans project_name=project.name %}Create a token for {{ project_name }}{% endtrans %}
       </a>
     </p>
