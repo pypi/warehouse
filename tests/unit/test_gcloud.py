@@ -30,7 +30,7 @@ def test_gcloud_bigquery_factory(monkeypatch):
     request = pretend.stub(
         registry=pretend.stub(
             settings={
-                "gcloud.service_json": b"{}",
+                "gcloud.service_account_info": {},
                 "gcloud.project": "my-cool-project",
             }
         )
@@ -55,7 +55,7 @@ def test_gcloud_gcs_factory(monkeypatch):
     request = pretend.stub(
         registry=pretend.stub(
             settings={
-                "gcloud.service_json": b"{}",
+                "gcloud.service_account_info": {},
                 "gcloud.project": "my-cool-project",
             }
         )

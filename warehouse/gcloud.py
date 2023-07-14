@@ -10,27 +10,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
-
 from google.cloud import bigquery
 from google.cloud.storage import Client as storage_Client
 
 
 def gcloud_bigquery_factory(context, request):
-    service_json = request.registry.settings["gcloud.service_json"]
+    service_account_info = request.registry.settings["gcloud.service_account_info"]
     project = request.registry.settings["gcloud.project"]
 
     return bigquery.Client.from_service_account_info(
-        json.loads(service_json), project=project
+        service_account_info, project=project
     )
 
 
 def gcloud_gcs_factory(context, request):
-    service_json = request.registry.settings["gcloud.service_json"]
+    service_account_info = request.registry.settings["gcloud.service_account_info"]
     project = request.registry.settings["gcloud.project"]
 
     return storage_Client.from_service_account_info(
-        json.loads(service_json), project=project
+        service_account_info, project=project
     )
 
 

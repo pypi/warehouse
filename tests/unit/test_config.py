@@ -271,7 +271,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
-        "gcloud.service_json": b"{}",
+        "gcloud.service_account_info": {},
     }
     if environment == config.Environment.development:
         expected_settings.update(
