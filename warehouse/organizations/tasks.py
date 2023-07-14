@@ -44,14 +44,14 @@ def update_organization_invitation_status(request):
         except TokenExpired:
             invite.user.record_event(
                 tag=EventTag.Account.OrganizationRoleExpireInvite,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "organization_name": invite.organization.name,
                 },
             )
             invite.organization.record_event(
                 tag=EventTag.Organization.OrganizationRoleExpireInvite,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "target_user_id": str(invite.user.id),
                 },
@@ -76,7 +76,7 @@ def delete_declined_organizations(request):
         # TODO: Cannot call this after deletion so how exactly do we handle this?
         organization.record_event(
             tag=EventTag.Organization.OrganizationDelete,
-            ip_address=request.remote_addr,
+            request=request,
             additional={"deleted_by": "CRON"},
         )
         organization_service.delete_organization(organization.id)

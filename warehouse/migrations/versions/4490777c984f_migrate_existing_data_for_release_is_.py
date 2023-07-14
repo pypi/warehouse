@@ -55,7 +55,7 @@ def upgrade():
                 """
             )
         )
-        conn.execute("COMMIT")
+        conn.execute(sa.text("COMMIT"))
 
     op.alter_column(
         "releases",

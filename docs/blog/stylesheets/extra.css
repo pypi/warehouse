@@ -2,6 +2,10 @@
   --md-primary-fg-color: #0073b7;
 }
 
+[data-md-color-scheme="slate"] {
+  --md-typeset-a-color: #009ffd;
+}
+
 .md-typeset .blogging-tag code {
   white-space: nowrap;
   display: block;

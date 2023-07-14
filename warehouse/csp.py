@@ -12,6 +12,9 @@
 
 import collections
 import copy
+import urllib.parse
+
+from warehouse.config import Environment
 
 SELF = "'self'"
 NONE = "'none'"
@@ -75,6 +78,73 @@ def csp_factory(_, request):
         return CSPPolicy({})
 
 
+def _connect_src_settings(config) -> list:
+    settings = [
+        SELF,
+        "https://api.github.com/repos/",
+        "https://api.github.com/search/issues",
+        "https://*.google-analytics.com",
+        "https://*.analytics.google.com",
+        "https://*.googletagmanager.com",
+        "fastly-insights.com",
+        "*.fastly-insights.com",
+        "*.ethicalads.io",
+        "https://api.pwnedpasswords.com",
+        # Scoped deeply to prevent other scripts calling other CDN resources
+        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
+    ]
+
+    settings.extend(
+        [item for item in [config.registry.settings.get("statuspage.url")] if item]
+    )
+
+    if config.registry.settings.get("warehouse.env") == Environment.development:
+        livereload_url = config.registry.settings.get("livereload.url")
+        parsed_url = urllib.parse.urlparse(livereload_url)
+
+        # Incoming scheme could be http or https.
+        scheme_replacement = "wss" if parsed_url.scheme == "https" else "ws"
+
+        replaced = parsed_url._replace(scheme=scheme_replacement)  # noqa
+        fixed = urllib.parse.urlunparse(replaced)
+
+        settings.extend(
+            [
+                f"{fixed}/livereload",
+            ]
+        )
+
+    return settings
+
+
+def _script_src_settings(config) -> list:
+    settings = [
+        SELF,
+        "https://*.googletagmanager.com",
+        "https://www.google-analytics.com",  # Remove when disabling UA
+        "https://ssl.google-analytics.com",  # Remove when disabling UA
+        "*.fastly-insights.com",
+        "*.ethicalads.io",
+        # Hash for v1.4.0 of ethicalads.min.js
+        "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
+        "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
+        # Hash for v3.2.2 of MathJax tex-svg.js
+        "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
+        # Hash for MathJax inline config
+        # See warehouse/templates/packaging/detail.html
+        "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
+    ]
+
+    if config.registry.settings.get("warehouse.env") == Environment.development:
+        settings.extend(
+            [
+                f"{config.registry.settings['livereload.url']}/livereload.js",
+            ]
+        )
+
+    return settings
+
+
 def includeme(config):
     config.register_service_factory(csp_factory, name="csp")
     # Enable a Content Security Policy
@@ -83,25 +153,7 @@ def includeme(config):
             "csp": {
                 "base-uri": [SELF],
                 "block-all-mixed-content": [],
-                "connect-src": [
-                    SELF,
-                    "https://api.github.com/repos/",
-                    "https://api.github.com/search/issues",
-                    "https://*.google-analytics.com",
-                    "https://*.analytics.google.com",
-                    "https://*.googletagmanager.com",
-                    "fastly-insights.com",
-                    "*.fastly-insights.com",
-                    "*.ethicalads.io",
-                    "https://api.pwnedpasswords.com",
-                    # Scoped deeply to prevent other scripts calling other CDN resources
-                    "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/sre/mathmaps/",
-                ]
-                + [
-                    item
-                    for item in [config.registry.settings.get("statuspage.url")]
-                    if item
-                ],
+                "connect-src": _connect_src_settings(config),
                 "default-src": [NONE],
                 "font-src": [SELF, "fonts.gstatic.com"],
                 "form-action": [SELF, "https://checkout.stripe.com"],
@@ -115,22 +167,7 @@ def includeme(config):
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
                 ],
-                "script-src": [
-                    SELF,
-                    "https://*.googletagmanager.com",
-                    "https://www.google-analytics.com",  # Remove when disabling UA
-                    "https://ssl.google-analytics.com",  # Remove when disabling UA
-                    "*.fastly-insights.com",
-                    "*.ethicalads.io",
-                    # Hash for v1.4.0 of ethicalads.min.js
-                    "'sha256-U3hKDidudIaxBDEzwGJApJgPEf2mWk6cfMWghrAa6i0='",
-                    "https://cdn.jsdelivr.net/npm/mathjax@3.2.2/",
-                    # Hash for v3.2.2 of MathJax tex-svg.js
-                    "'sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII='",
-                    # Hash for MathJax inline config
-                    # See warehouse/templates/packaging/detail.html
-                    "'sha256-0POaN8stWYQxhzjKS+/eOfbbJ/u4YHO5ZagJvLpMypo='",
-                ],
+                "script-src": _script_src_settings(config),
                 "style-src": [
                     SELF,
                     "fonts.googleapis.com",

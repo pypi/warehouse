@@ -1,0 +1,243 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
+<div class="form-group{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+
+  <div class="col-sm-10">
+    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
+
+    {% if field.errors %}
+    <div class="help-block">
+    {% for error in field.errors %}
+      <div>{{ error }}</div>
+    {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{% block title %}Application for {{ organization_application.name }}{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.organization_application.list') }}">Organizations</a></li>
+  <li class="breadcrumb-item active">{{ organization_application.name }}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col-md-3">
+      <div class="card card-primary">
+        <div class="card-body card-widget widget-user-1">
+          <div class="widget-user-header">
+            <h3 class="widget-user-username text-center">{{ organization_application.name }}</h3>
+          </div>
+        </div>
+        <div class="card-body">
+          <p class="text-muted text-center">
+            Submitted on {{ organization_application.submitted|format_date() }}
+          </p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h2 class="card-title">Actions</h2>
+        </div>
+        <div class="card-body">
+          <p>
+            Approve or decline request for organization named <strong>{{ organization_application.name }}</strong>?
+          </p>
+          <div class="form-group">
+            <button type="button" class="btn {{ 'btn-primary' if organization_application.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission('admin') or organization_application.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission('admin') else 'Organization request already approved' if organization_application.is_approved == True else 'Approve organization request' }}">
+              <i class="icon fa fa-check"></i> Approve
+            </button>
+            <button type="button" class="btn {{ 'btn-danger' if organization_application.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission('admin') or organization_application.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission('admin') else 'Organization request already declined' if organization_application.is_approved == False else 'Decline organization request' }}">
+              <i class="icon fa fa-times"></i> Decline
+            </button>
+            {% if user %}
+            <div class="modal fade" id="approveModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.approve', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="approveModalLabel">
+                        Are you sure?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will approve <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <label for="approveModalOrganizationName">
+                          Organization Name
+                        </label>
+                        <input type="text" id="approveModalOrganizationName" class="form-control" aria-describedby="approveModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
+                        <span id="approveModalOrganizationNameHelpBlock">
+                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>approving</strong> the request.
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label for="approveModalMessage">
+                          Message
+                        </label>
+                        <textarea id="approveModalMessage" class="form-control" name="message" placeholder="Optional explanatory message"></textarea>
+                        <span id="approveModalMessageHelpBlock">
+                          This message will be included in the notification email.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-primary">
+                        <i class="icon fa fa-check"></i> Approve organization request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal fade" id="declineModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.organization_application.decline', organization_application_id=organization_application.id) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="declineModalLabel">
+                        Are you sure?
+                      </h4>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will decline <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a>'s request for a new organization named <strong>{{ organization_application.name }}</strong>.
+                      </p>
+                      <div class="form-group">
+                        <label for="declineModalOrganizationName">
+                          Organization Name
+                        </label>
+                        <input type="text" id="declineModalOrganizationName" class="form-control" aria-describedby="declineModalOrganizationNameHelpBlock" name="organization_name" placeholder="{{ organization_application.name }}" required>
+                        <span id="declineModalOrganizationNameHelpBlock">
+                          Type the organization name "{{ organization_application.name }}" to confirm you are <strong>declining</strong> the request.
+                        </span>
+                      </div>
+                      <div class="form-group">
+                        <label for="declineModalMessage">
+                          Message
+                        </label>
+                        <textarea id="declineModalMessage" class="form-control" name="message" placeholder="Optional explanatory message"></textarea>
+                        <span id="declineModalMessageHelpBlock">
+                          This message will be included in the notification email.
+                        </span>
+                      </div>
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      <button type="submit" class="btn btn-danger">
+                        <i class="icon fa fa-times"></i> Decline organization request
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-9">
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Request</h3>
+        </div>
+        <div class="card-body">
+          <div class="form-horizontal">
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Approval Status
+              </label>
+              <div class="col-sm-7">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Requesting User
+              </label>
+              <div class="col-sm-7">
+                {% if user %}
+                <a href="{{ request.route_url('admin.user.detail', username=user.username) }}" title="{{ user.username }}">{{ user.username }}</a><br>
+                <a href="mailto:{{ user.email }}">{{ user.email }} <i class="fa-solid fa-envelope"></i></a>
+                {% else %}
+                <i>n/a</i>
+                {% endif %}
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Organization Account Name
+              </label>
+              <div class="col-sm-7">
+                <input class="form-control" value="{{ organization_application.name }}" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Organization Name
+              </label>
+              <div class="col-sm-7">
+                <input class="form-control" value="{{ organization_application.display_name }}" readonly>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Organization URL <i class="fa-solid fa-arrow-up-right-from-square"></i>
+              </label>
+              <div class="col-sm-7">
+                <a href="{{ organization_application.link_url }}" rel="nofollow noopener noreferrer" target="_blank"><input class="form-control" value="{{ organization_application.link_url }}" readonly></a>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Organization Description
+              </label>
+              <div class="col-sm-7">
+                <textarea class="form-control" rows="4" readonly>{{ organization_application.description }}</textarea>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-5 control-label">
+                Organization Type
+              </label>
+              <div class="col-sm-7">
+                <input class="form-control" value="{{ organization_application.orgtype.value }}" readonly>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

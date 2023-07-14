@@ -72,7 +72,7 @@ is not a panacea. In particular:
   of any/all trusted publishers as part of "offboarding" a project maintainer.
 
 PyPI has protections in place to make some attacks against OIDC more difficult
-(like account resurrection attacks). However, like all forms of authentication,
+(like [account resurrection attacks]). However, like all forms of authentication,
 the end user is **fundamentally responsible** for applying it correctly.
 
 In addition to the requirements above, you can do the following to
@@ -121,5 +121,8 @@ In addition to the requirements above, you can do the following to
 [Use a dedicated environment]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
 
 [Use tag protection rules]: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/managing-repository-settings/configuring-tag-protection-rules
+
+[account resurrection attacks]:
+../internals/#what-are-account-resurrection-attacks-and-how-does-pypi-protect-against-them
 
 [required reviewers]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment#required-reviewers

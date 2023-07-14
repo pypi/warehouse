@@ -60,24 +60,7 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
-
-
-def pytest_collection_modifyitems(items):
-    for item in items:
-        if not hasattr(item, "module"):  # e.g.: DoctestTextfile
-            continue
-
-        module_path = os.path.relpath(
-            item.module.__file__, os.path.commonprefix([__file__, item.module.__file__])
-        )
-
-        module_root_dir = module_path.split(os.pathsep)[0]
-        if module_root_dir.startswith("functional"):
-            item.add_marker(pytest.mark.functional)
-        elif module_root_dir.startswith("unit"):
-            item.add_marker(pytest.mark.unit)
-        else:
-            raise RuntimeError(f"Unknown test type (filename = {module_path})")
+from .common.db.ip_addresses import IpAddressFactory
 
 
 @contextmanager
@@ -111,6 +94,14 @@ def remote_addr_hashed():
     Created statically to prevent needing to calculate it every run.
     """
     return "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
+
+
+@pytest.fixture
+def remote_addr_salted():
+    """
+    Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
+    """
+    return "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
 
 
 @pytest.fixture
@@ -272,6 +263,7 @@ def app_config(database):
     settings = {
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
+        "warehouse.ip_salt": "insecure salt",
         "camo.url": "http://localhost:9000/",
         "camo.key": "insecure key",
         "celery.broker_url": "amqp://",
@@ -288,9 +280,6 @@ def app_config(database):
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
-        "malware_check.backend": (
-            "warehouse.malware.services.PrinterMalwareCheckService"
-        ),
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
         "sessions.secret": "123456",
@@ -343,9 +332,9 @@ def user_service(db_session, metrics, remote_addr):
 
 
 @pytest.fixture
-def project_service(db_session, remote_addr, metrics, ratelimiters=None):
+def project_service(db_session, metrics, ratelimiters=None):
     return packaging_services.ProjectService(
-        db_session, remote_addr, metrics, ratelimiters=ratelimiters
+        db_session, metrics, ratelimiters=ratelimiters
     )
 
 
@@ -368,10 +357,8 @@ def macaroon_service(db_session):
 
 
 @pytest.fixture
-def organization_service(db_session, remote_addr):
-    return organization_services.DatabaseOrganizationService(
-        db_session, remote_addr=remote_addr
-    )
+def organization_service(db_session):
+    return organization_services.DatabaseOrganizationService(db_session)
 
 
 @pytest.fixture
@@ -447,6 +434,10 @@ def db_request(pyramid_request, db_session):
     pyramid_request.flags = admin.flags.Flags(pyramid_request)
     pyramid_request.banned = admin.bans.Bans(pyramid_request)
     pyramid_request.organization_access = True
+    pyramid_request.ip_address = IpAddressFactory.create(
+        ip_address=pyramid_request.remote_addr,
+        hashed_ip_address=pyramid_request.remote_addr_hashed,
+    )
     return pyramid_request
 
 

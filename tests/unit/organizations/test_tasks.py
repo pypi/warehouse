@@ -69,14 +69,14 @@ class TestUpdateInvitationStatus:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.OrganizationRoleExpireInvite,
-                ip_address="1.2.3.4",
+                request=db_request,
                 additional={"organization_name": invite.organization.name},
             )
         ]
         assert organization.record_event.calls == [
             pretend.call(
                 tag=EventTag.Organization.OrganizationRoleExpireInvite,
-                ip_address="1.2.3.4",
+                request=db_request,
                 additional={"target_user_id": str(invite.user.id)},
             )
         ]

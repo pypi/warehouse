@@ -21,11 +21,16 @@
 */
 
 .admin-include {
-  padding: 50px;
-  border-color: #f00;
-  border-style: dotted;
+  padding: 0.5rem;
+  background: repeating-linear-gradient(45deg, #ececec, #ececec 10px, transparentize($danger-color, 0.8) 10px, transparentize($danger-color, 0.8) 20px);
+
+  justify-items: center;
 
   form {
     display: inline;
+  }
+
+  .button {
+    margin: 0;
   }
 }

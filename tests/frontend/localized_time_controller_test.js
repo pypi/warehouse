@@ -40,7 +40,7 @@ describe("Localized time controller", () => {
       expect(el).toHaveTextContent("Sep 20, 2019");
       // The expected ISO string in the title is localized
       const date = new Date(el.getAttribute("datetime"));
-      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
+      const expectedDate = format(date, "yyyy-MM-dd HH:mm:ss (xxx)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
       // Expect +00:00 because static tests run in UTC
@@ -74,7 +74,7 @@ describe("Localized time controller", () => {
       // if the setup is not placed on the beforeEach causing the test to fail
       // To avoid this we add the date in the beforeEach and re-parse it here
       const date = new Date(el.getAttribute("datetime"));
-      const expectedDate = format(date, "YYYY-MM-DD HH:mm:ss (Z)");
+      const expectedDate = format(date, "yyyy-MM-dd HH:mm:ss (xxx)");
       expect(el).toHaveAttribute("title", expectedDate);
       expect(el).toHaveAttribute("aria-label", expectedDate);
       // Expect +00:00 because static tests run in UTC

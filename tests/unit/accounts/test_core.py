@@ -36,7 +36,9 @@ from warehouse.accounts.services import (
 )
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.utils import OIDCContext
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -104,7 +106,7 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
-                ip_address="1.2.3.4",
+                request=pyramid_request,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
         ]
@@ -244,7 +246,7 @@ class TestLogin:
         assert service.update_user.calls == [pretend.call(2, last_login=now)]
         assert user.record_event.calls == [
             pretend.call(
-                ip_address="1.2.3.4",
+                request=pyramid_request,
                 tag=EventTag.Account.LoginSuccess,
                 additional={"auth_method": "basic"},
             )
@@ -267,7 +269,7 @@ class TestLogin:
             ),
             is_disabled=pretend.call_recorder(lambda user_id: (False, None)),
             disable_password=pretend.call_recorder(
-                lambda user_id, reason=None, ip_address="127.0.0.1": None
+                lambda user_id, request, reason=None: None
             ),
         )
         breach_service = pretend.stub(
@@ -301,7 +303,9 @@ class TestLogin:
         ]
         assert service.disable_password.calls == [
             pretend.call(
-                2, reason=DisableReason.CompromisedPassword, ip_address="1.2.3.4"
+                2,
+                pyramid_request,
+                reason=DisableReason.CompromisedPassword,
             )
         ]
         assert send_email.calls == [pretend.call(pyramid_request, user)]
@@ -325,23 +329,28 @@ class TestUser:
         assert accounts._user(request) is None
 
 
-class TestOIDCPublisher:
+class TestOIDCPublisherAndClaims:
     def test_with_oidc_publisher(self, db_request):
         publisher = GitHubPublisherFactory.create()
         assert isinstance(publisher, OIDCPublisher)
-        request = pretend.stub(identity=publisher)
+        claims = SignedClaims({"foo": "bar"})
+
+        request = pretend.stub(identity=OIDCContext(publisher, claims))
 
         assert accounts._oidc_publisher(request) is publisher
+        assert accounts._oidc_claims(request) is claims
 
     def test_without_oidc_publisher_identity(self):
         nonpublisher = pretend.stub()
         request = pretend.stub(identity=nonpublisher)
 
         assert accounts._oidc_publisher(request) is None
+        assert accounts._oidc_claims(request) is None
 
     def test_without_identity(self):
         request = pretend.stub(identity=None)
         assert accounts._oidc_publisher(request) is None
+        assert accounts._oidc_claims(request) is None
 
 
 class TestOrganizationAccess:
@@ -379,14 +388,8 @@ class TestUnauthenticatedUserid:
 
 
 def test_includeme(monkeypatch):
-    authz_obj = pretend.stub()
-    authz_cls = pretend.call_recorder(lambda *a, **kw: authz_obj)
-    monkeypatch.setattr(accounts, "ACLAuthorizationPolicy", authz_cls)
-    monkeypatch.setattr(accounts, "MacaroonAuthorizationPolicy", authz_cls)
-    monkeypatch.setattr(accounts, "TwoFactorAuthorizationPolicy", authz_cls)
-
     multi_policy_obj = pretend.stub()
-    multi_policy_cls = pretend.call_recorder(lambda ps, authz: multi_policy_obj)
+    multi_policy_cls = pretend.call_recorder(lambda ps: multi_policy_obj)
     monkeypatch.setattr(accounts, "MultiSecurityPolicy", multi_policy_cls)
 
     session_policy_obj = pretend.stub()
@@ -410,6 +413,7 @@ def test_includeme(monkeypatch):
                 "warehouse.account.email_add_ratelimit_string": "2 per day",
                 "warehouse.account.verify_email_ratelimit_string": "3 per 6 hours",
                 "warehouse.account.password_reset_ratelimit_string": "5 per day",
+                "warehouse.account.accounts_search_ratelimit_string": "100 per hour",
             }
         ),
         register_service_factory=pretend.call_recorder(
@@ -448,10 +452,12 @@ def test_includeme(monkeypatch):
         pretend.call(RateLimit("2 per day"), IRateLimiter, name="email.add"),
         pretend.call(RateLimit("5 per day"), IRateLimiter, name="password.reset"),
         pretend.call(RateLimit("3 per 6 hours"), IRateLimiter, name="email.verify"),
+        pretend.call(RateLimit("100 per hour"), IRateLimiter, name="accounts.search"),
     ]
     assert config.add_request_method.calls == [
         pretend.call(accounts._user, name="user", reify=True),
         pretend.call(accounts._oidc_publisher, name="oidc_publisher", reify=True),
+        pretend.call(accounts._oidc_claims, name="oidc_claims", reify=True),
         pretend.call(
             accounts._organization_access, name="organization_access", reify=True
         ),
@@ -460,6 +466,10 @@ def test_includeme(monkeypatch):
     assert config.set_security_policy.calls == [pretend.call(multi_policy_obj)]
     assert multi_policy_cls.calls == [
         pretend.call(
-            [session_policy_obj, basic_policy_obj, macaroon_policy_obj], authz_obj
+            [
+                session_policy_obj,
+                basic_policy_obj,
+                macaroon_policy_obj,
+            ]
         )
     ]

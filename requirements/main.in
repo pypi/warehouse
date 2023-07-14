@@ -5,7 +5,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.2.2,<6
+celery[sqs]>=5.2.2
 celery-redbeat
 certifi
 click
@@ -21,11 +21,13 @@ google-cloud-bigquery
 google-cloud-storage
 hiredis
 html5lib
+humanize
 itsdangerous
 Jinja2>=2.8
+kombu[sqs]  # https://github.com/jazzband/pip-tools/issues/1577
 limits
+linehaul
 lxml
-kombu[sqs]~=5.2.4  # https://github.com/celery/celery/issues/7070
 mistune
 msgpack
 natsort
@@ -50,6 +52,7 @@ pyramid_rpc>=0.7
 pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
+pytz
 PyJWT[crypto]>=2.3.0
 readme-renderer[md]>=36.0
 requests
@@ -58,18 +61,16 @@ redis>=2.8.0,<5.0.0
 rfc3986
 sentry-sdk
 setuptools
-sqlalchemy[asyncio]>=0.9,<1.5.0  # https://github.com/pypi/warehouse/pull/9228
-sqlalchemy-citext
-sqlalchemy-utils
+sqlalchemy[asyncio]>=2.0,<3.0
 stdlib-list
 stripe
 structlog
 transaction
 trove-classifiers
 typeguard
+ua-parser
 webauthn>=1.0.0,<2.0.0
 whitenoise
 WTForms[email]>=2.0.0
-yara-python
 zope.sqlalchemy
 zxcvbn

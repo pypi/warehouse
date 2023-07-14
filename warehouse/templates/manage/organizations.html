@@ -73,6 +73,7 @@
             <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
             {% else %}{{ organization.name }}{% endif %}
 
+            <span class="badge" title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
             {% if organization.is_approved is none %}
             <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
             {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
@@ -134,35 +135,62 @@
     {% endfor %}
   </div>
 
+  {% if organization_applications|selectattr('is_approved', 'equalto', none)|list|length > 0 %}
+  <h2>
+    {% trans %}Pending organization requests{% endtrans %}
+    <span class="badge badge--neutral">{{ organization_applications|length }}</span>
+  </h2>
+  {% if organization_applications|selectattr('orgtype', 'equalto', OrganizationType.Company)|list|length > 0 %}
+  <div class="callout-block callout-block--warning">
+    <p>{% trans %}Approvals for corporate organizations are currently paused while terms of service and payment are finalized.{% endtrans %}</p>
+  </div>
+  {% endif %}
+  <div class="organization-list">
+    {% for organization_application in organization_applications %}
+    {% if organization_application.is_approved == None %}
+    <div class="organization-snippet">
+      <div class="split-layout split-layout--no-wrap split-layout--wrap-on-tablet">
+        <div>
+          <h3 class="organization-snippet__title">
+            {{ organization_application.name }}
+
+            <span class="badge" title="{% trans org_type=organization_application.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization_application.orgtype.name %}{{ org_type }}{% endtrans %}</span>
+            <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
+          </h3>
+          <p class="organization-snippet__meta">
+            {% trans submitted=humanize(organization_application.submitted) %}Submitted {{ submitted }}{% endtrans %}
+          </p>
+        </div>
+        <div class="organization-snippet__buttons">
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <hr>
 
-  {{ form_error_anchor(create_organization_form) }}
+  {% if create_organization_application_form %}
+  {{ form_error_anchor(create_organization_application_form) }}
   <section id="create-organization">
-    <h2 class="sub-title">{% trans %}Create new organization{% endtrans %}</h2>
-    {% set pending_organization_request = organizations|selectattr("is_approved", "none")|first %}
-    {% if pending_organization_request %}
-    <p>
-      {% trans organization_name=pending_organization_request.name %}Your request for a new PyPI organization named '{{ organization_name }}' has been submitted.{% endtrans %}
-    </p>
-    <p>
-      {% trans %}You will receive an email when the organization has been approved{% endtrans %}{% trans %}.{% endtrans %}
-    </p>
-    {% else %}
+    <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      {{ form_errors(create_organization_form) }}
+      {{ form_errors(create_organization_application_form) }}
       <div class="form-group">
         <label for="name" class="form-group__label">
           {% trans %}Organization account name{% endtrans %}
-          {% if create_organization_form.name.flags.required %}
+          {% if create_organization_application_form.name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_form.name(placeholder=gettext("Select an organization account name"), autocapitalize="off", autocomplete="off", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+        {{ create_organization_application_form.name(placeholder=gettext("Select an organization account name"), autocapitalize="off", autocomplete="off", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
         <div id="name-errors">
-          {% if create_organization_form.name.errors %}
+          {% if create_organization_application_form.name.errors %}
           <ul class="form-errors" role="alert">
-            {% for error in create_organization_form.name.errors %}
+            {% for error in create_organization_application_form.name.errors %}
             <li>{{ error }}</li>
             {% endfor %}
           </ul>
@@ -177,15 +205,15 @@
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Organization display name{% endtrans %}
-          {% if create_organization_form.display_name.flags.required %}
+          {% if create_organization_application_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        {{ create_organization_application_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
         <div id="display-name-errors">
-          {% if create_organization_form.display_name.errors %}
+          {% if create_organization_application_form.display_name.errors %}
           <ul class="form-errors" role="alert">
-            {% for error in create_organization_form.display_name.errors %}
+            {% for error in create_organization_application_form.display_name.errors %}
             <li>{{ error }}</li>
             {% endfor %}
           </ul>
@@ -199,15 +227,15 @@
       <div class="form-group">
         <label class="form-group__label" for="link_url">
           {% trans %}️Organization URL{% endtrans %}
-          {% if create_organization_form.link_url.flags.required %}
+          {% if create_organization_application_form.link_url.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+          {{ create_organization_application_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
         </p>
         <div id="link-url-errors">
-          {{ field_errors(create_organization_form.link_url) }}
+          {{ field_errors(create_organization_application_form.link_url) }}
         </div>
         <p class="form-group__help-text">
           {% trans %}For example{% endtrans %}: https://www.python.org/psf/
@@ -217,15 +245,15 @@
       <div class="form-group">
         <label for="description" class="form-group__label">
           {% trans %}Organization description{% endtrans %}
-          {% if create_organization_form.description.flags.required %}
+          {% if create_organization_application_form.description.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        {{ create_organization_application_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
         <div id="description-errors">
-          {% if create_organization_form.description.errors %}
+          {% if create_organization_application_form.description.errors %}
           <ul class="form-errors" role="alert">
-            {% for error in create_organization_form.description.errors %}
+            {% for error in create_organization_application_form.description.errors %}
             <li>{{ error }}</li>
             {% endfor %}
           </ul>
@@ -236,15 +264,15 @@
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
           {% trans %}️Organization type{% endtrans %}
-          {% if create_organization_form.orgtype.flags.required %}
+          {% if create_organization_application_form.orgtype.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+          {{ create_organization_application_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
         </p>
         <div id="orgtype-errors">
-          {{ field_errors(create_organization_form.orgtype) }}
+          {{ field_errors(create_organization_application_form.orgtype) }}
         </div>
         <p class="form-group__help-text">
           {% trans %}
@@ -255,6 +283,16 @@
 
       <input value="{% trans %}Create{% endtrans %}" class="button button--primary" type="submit">
     </form>
-    {% endif %}
   </section>
+  {% else %}
+    <section id="create-organization">
+      <h2 class="sub-title">{% trans %}Request a new organization{% endtrans %}</h2>
+      <p>
+        {% trans %}Your request(s) for a new PyPI organization(s) have been submitted.{% endtrans %}
+      </p>
+      <p>
+        {% trans %}You will receive an email when each organization has been approved{% endtrans %}{% trans %}.{% endtrans %}
+      </p>
+    </section>
+  {% endif %}
 {% endblock %}

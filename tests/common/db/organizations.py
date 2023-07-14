@@ -17,6 +17,7 @@ import faker
 
 from warehouse.organizations.models import (
     Organization,
+    OrganizationApplication,
     OrganizationInvitation,
     OrganizationNameCatalog,
     OrganizationProject,
@@ -37,6 +38,25 @@ from .packaging import ProjectFactory
 from .subscriptions import StripeCustomerFactory, StripeSubscriptionFactory
 
 fake = faker.Faker()
+
+
+class OrganizationApplicationFactory(WarehouseFactory):
+    class Meta:
+        model = OrganizationApplication
+
+    id = factory.Faker("uuid4", cast_to=None)
+    name = factory.Faker("pystr", max_chars=12)
+    display_name = factory.Faker("word")
+    orgtype = "Community"
+    link_url = factory.Faker("uri")
+    description = factory.Faker("sentence")
+    is_approved = None
+    submitted_by = factory.SubFactory(UserFactory)
+    submitted = factory.Faker(
+        "date_time_between_dates",
+        datetime_start=datetime.datetime(2020, 1, 1),
+        datetime_end=datetime.datetime(2022, 1, 1),
+    )
 
 
 class OrganizationFactory(WarehouseFactory):

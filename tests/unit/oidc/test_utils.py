@@ -15,8 +15,11 @@ import uuid
 import pretend
 import pytest
 
-from tests.common.db.oidc import GitHubPublisherFactory
+from pyramid.authorization import Authenticated
+
+from tests.common.db.oidc import GitHubPublisherFactory, GooglePublisherFactory
 from warehouse.oidc import utils
+from warehouse.utils.security_policy import principals_for
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
@@ -66,8 +69,51 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
     assert (
         utils.find_publisher_by_issuer(
             db_request.db,
-            "https://token.actions.githubusercontent.com",
+            utils.GITHUB_OIDC_ISSUER_URL,
             signed_claims,
         ).id
         == expected_id
     )
+
+
+@pytest.mark.parametrize(
+    "sub, expected_id",
+    [
+        ("some-other-subject", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some-subject", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
+    ],
+)
+def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
+    GooglePublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        email="fake@example.com",
+        sub=None,  # No subject
+    )
+    GooglePublisherFactory(
+        id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        email="fake@example.com",
+        sub="some-subject",  # Subject set
+    )
+
+    signed_claims = {
+        "email": "fake@example.com",
+        "sub": sub,
+    }
+
+    assert (
+        utils.find_publisher_by_issuer(
+            db_request.db,
+            utils.GOOGLE_OIDC_ISSUER_URL,
+            signed_claims,
+        ).id
+        == expected_id
+    )
+
+
+def test_oidc_context_principals():
+    assert principals_for(
+        utils.OIDCContext(publisher=pretend.stub(id=17), claims=None)
+    ) == [
+        Authenticated,
+        "oidc:17",
+    ]

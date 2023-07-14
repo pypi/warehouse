@@ -20,10 +20,12 @@ import pytest
 import pytz
 
 from pyramid.httpexceptions import (
+    HTTPBadRequest,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPSeeOther,
     HTTPTooManyRequests,
+    HTTPUnauthorized,
 )
 from sqlalchemy.exc import NoResultFound
 from webauthn.authentication.verify_authentication_response import (
@@ -44,7 +46,6 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
     TooManyPasswordResetRequests,
 )
-from warehouse.accounts.models import User
 from warehouse.accounts.views import two_factor_and_totp_validate
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.events.tags import EventTag
@@ -60,6 +61,7 @@ from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 from ...common.db.accounts import EmailFactory, UserFactory
+from ...common.db.ip_addresses import IpAddressFactory
 from ...common.db.organizations import (
     OrganizationFactory,
     OrganizationInvitationFactory,
@@ -76,7 +78,9 @@ class TestFailedLoginView:
 
         assert resp.status == "429 Too Many Failed Login Attempts"
         assert resp.detail == (
-            "There have been too many unsuccessful login attempts. Try again later."
+            "There have been too many unsuccessful login attempts. "
+            "You have been locked out for 10 minutes. "
+            "Please try again later."
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -132,6 +136,67 @@ class TestUserProfile:
     def test_returns_user(self, db_request):
         user = UserFactory.create()
         assert views.profile(user, db_request) == {"user": user, "projects": []}
+
+
+class TestAccountsSearch:
+    def test_unauthenticated_raises_401(self):
+        pyramid_request = pretend.stub(authenticated_userid=None)
+        with pytest.raises(HTTPUnauthorized):
+            views.accounts_search(pyramid_request)
+
+    def test_no_query_string_raises_400(self):
+        pyramid_request = pretend.stub(authenticated_userid=1, params={})
+        with pytest.raises(HTTPBadRequest):
+            views.accounts_search(pyramid_request)
+
+    def test_returns_users_with_prefix(self, db_session, user_service):
+        foo = UserFactory.create(username="foo")
+        bas = [
+            UserFactory.create(username="bar"),
+            UserFactory.create(username="baz"),
+        ]
+
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IUserService: user_service,
+                IRateLimiter: pretend.stub(
+                    test=pretend.call_recorder(lambda ip_address: True),
+                    hit=pretend.call_recorder(lambda ip_address: None),
+                ),
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "f"})
+        result = views.accounts_search(request)
+        assert result == {"users": [foo]}
+
+        request.params = MultiDict({"q": "ba"})
+        result = views.accounts_search(request)
+        assert result == {"users": bas}
+
+        request.params = MultiDict({"q": "zzz"})
+        with pytest.raises(HTTPNotFound):
+            views.accounts_search(request)
+
+    def test_when_rate_limited(self, db_session):
+        search_limiter = pretend.stub(
+            test=pretend.call_recorder(lambda ip_address: False),
+        )
+        request = pretend.stub(
+            authenticated_userid=1,
+            find_service=lambda svc, **kw: {
+                IRateLimiter: search_limiter,
+            }[svc],
+            ip_address=IpAddressFactory.build(),
+        )
+
+        request.params = MultiDict({"q": "foo"})
+        result = views.accounts_search(request)
+
+        assert search_limiter.test.calls == [pretend.call(request.ip_address)]
+        assert result == {"users": []}
 
 
 class TestLogin:
@@ -285,7 +350,7 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
@@ -334,6 +399,13 @@ class TestLogin:
         )
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
 
+        security_policy = pretend.stub(
+            authenticated_userid=lambda r: None,
+            remember=lambda r, u, **kw: [],
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
             username=pretend.stub(data="theuser"),
@@ -348,11 +420,12 @@ class TestLogin:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             )
         ]
         assert pyramid_request.session.record_auth_timestamp.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(authenticated_userid=1)
@@ -459,20 +532,20 @@ class TestTwoFactor:
             to make sure we always compare user.last_login as timezone-aware datetime.
 
         """
-        user = User(
+        user = UserFactory.create(
             username="jdoe",
             name="Joe",
             password="any",
             is_active=True,
             last_login=datetime.datetime.utcnow() + datetime.timedelta(days=+1),
         )
-        db_request.db.add(user)
-        db_request.db.commit()
-        # Make sure object is not in session,
-        # so sqlalchemy loads it fresh from database and type works it's magic
-        db_request.db.expunge(user)
-
         token_data = {"userid": user.id}
+
+        # Remove user object from scope, The `token_service` will load the user
+        # from the `user_service` and handle it from there
+        db_request.db.expunge(user)
+        del user
+
         token = token_service.dumps(token_data)
         db_request.query_string = token
         db_request.find_service = lambda interface, **kwargs: {
@@ -711,7 +784,7 @@ class TestTwoFactor:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={"two_factor_method": "totp", "two_factor_label": "totp"},
             )
         ]
@@ -1154,7 +1227,7 @@ class TestRecoveryCode:
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
                 additional={
                     "two_factor_method": "recovery-code",
                     "two_factor_label": None,
@@ -1162,7 +1235,7 @@ class TestRecoveryCode:
             ),
             pretend.call(
                 tag=EventTag.Account.RecoveryCodesUsed,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -1259,6 +1332,11 @@ class TestLogout:
             invalidate=pretend.call_recorder(lambda: None)
         )
 
+        security_policy = pretend.stub(
+            reset=pretend.call_recorder(lambda r: None),
+        )
+        pyramid_request.registry.queryUtility = lambda iface: security_policy
+
         result = views.logout(pyramid_request)
 
         assert isinstance(result, HTTPSeeOther)
@@ -1266,6 +1344,7 @@ class TestLogout:
         assert result.headers["foo"] == "bar"
         assert forget.calls == [pretend.call(pyramid_request)]
         assert pyramid_request.session.invalidate.calls == [pretend.call()]
+        assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     @pytest.mark.parametrize(
         # The set of all possible next URLs. Since this set is infinite, we
@@ -1408,12 +1487,12 @@ class TestRegister:
         assert record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.AccountCreate,
-                ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"email": "foo@bar.com"},
             ),
             pretend.call(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=db_request.remote_addr,
+                request=db_request,
                 additional={"two_factor_method": None, "two_factor_label": None},
             ),
         ]
@@ -1521,7 +1600,7 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -1585,7 +1664,7 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1660,7 +1739,7 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetRequest,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
         assert user_service.ratelimiters["password.reset"].test.calls == [
@@ -1759,7 +1838,7 @@ class TestRequestPasswordReset:
         assert stub_user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PasswordResetAttempt,
-                ip_address=pyramid_request.remote_addr,
+                request=pyramid_request,
             )
         ]
 
@@ -1808,7 +1887,7 @@ class TestResetPassword:
         assert result["form"] is form_inst
         assert form_class.calls == [
             pretend.call(
-                token=db_request.params["token"],
+                db_request.POST,
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -1873,7 +1952,7 @@ class TestResetPassword:
         assert form_obj.validate.calls == [pretend.call()]
         assert form_class.calls == [
             pretend.call(
-                token=db_request.params["token"],
+                db_request.POST,
                 username=user.username,
                 full_name=user.name,
                 email=user.email,
@@ -2871,10 +2950,12 @@ class TestReAuthentication:
         pyramid_request.user = pretend.stub(id=pretend.stub, username=pretend.stub())
         pyramid_request.matched_route = pretend.stub(name=pretend.stub())
         pyramid_request.matchdict = {"foo": "bar"}
+        pyramid_request.GET = pretend.stub(mixed=lambda: {"baz": "bar"})
 
         form_obj = pretend.stub(
             next_route=pretend.stub(data=next_route),
             next_route_matchdict=pretend.stub(data="{}"),
+            next_route_query=pretend.stub(data="{}"),
             validate=lambda: True,
         )
         form_class = pretend.call_recorder(lambda d, **kw: form_obj)
@@ -2883,6 +2964,7 @@ class TestReAuthentication:
             pyramid_request.method = "POST"
             pyramid_request.POST["next_route"] = next_route
             pyramid_request.POST["next_route_matchdict"] = "{}"
+            pyramid_request.POST["next_route_query"] = "{}"
 
         _ = views.reauthenticate(pyramid_request, _form_class=form_class)
 
@@ -2896,6 +2978,7 @@ class TestReAuthentication:
                 username=pyramid_request.user.username,
                 next_route=pyramid_request.matched_route.name,
                 next_route_matchdict=json.dumps(pyramid_request.matchdict),
+                next_route_query=json.dumps(pyramid_request.GET.mixed()),
                 action="reauthenticate",
                 user_service=user_service,
                 check_password_metrics_tags=[
@@ -2920,13 +3003,11 @@ class TestManageAccountPublishingViews:
     def test_initializes(self):
         metrics = pretend.stub()
         request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
         )
         view = views.ManageAccountPublishingViews(request)
 
         assert view.request is request
-        assert view.oidc_enabled
         assert view.metrics is metrics
 
         assert view.request.find_service.calls == [
@@ -2964,7 +3045,6 @@ class TestManageAccountPublishingViews:
                 return ip_rate_limiter
 
         request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": True}),
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
@@ -3001,12 +3081,13 @@ class TestManageAccountPublishingViews:
             user=pretend.stub(),
             registry=pretend.stub(
                 settings={
-                    "warehouse.oidc.enabled": True,
                     "github.token": "fake-api-token",
                 }
             ),
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda f: False)),
+            flags=pretend.stub(
+                disallow_oidc=pretend.call_recorder(lambda f=None: False)
+            ),
             POST=pretend.stub(),
         )
 
@@ -3025,13 +3106,10 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(request)
 
         assert view.manage_publishing() == {
-            "oidc_enabled": True,
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert request.flags.disallow_oidc.calls == [pretend.call()]
         assert project_factory_cls.calls == [pretend.call(request)]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
@@ -3041,27 +3119,15 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_manage_publishing_oidc_disabled(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-
-        with pytest.raises(HTTPNotFound):
-            view.manage_publishing()
-
     def test_manage_publishing_admin_disabled(self, monkeypatch, pyramid_request):
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3082,17 +3148,14 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.manage_publishing() == {
-            "oidc_enabled": True,
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3106,29 +3169,17 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_github_oidc_publisher_oidc_disabled(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-
-        with pytest.raises(HTTPNotFound):
-            view.add_pending_github_oidc_publisher()
-
     def test_add_pending_github_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True),
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3149,17 +3200,16 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.add_pending_github_oidc_publisher() == {
-            "oidc_enabled": True,
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3178,7 +3228,6 @@ class TestManageAccountPublishingViews:
     ):
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
@@ -3186,7 +3235,7 @@ class TestManageAccountPublishingViews:
             has_primary_verified_email=False,
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False),
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3207,12 +3256,11 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.add_pending_github_oidc_publisher() == {
-            "oidc_enabled": True,
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -3256,11 +3304,12 @@ class TestManageAccountPublishingViews:
 
         db_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3281,8 +3330,8 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(db_request)
 
         assert view.add_pending_github_oidc_publisher() == view.default_response
-        assert db_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
+        assert db_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -3310,12 +3359,11 @@ class TestManageAccountPublishingViews:
         )
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3364,12 +3412,11 @@ class TestManageAccountPublishingViews:
         )
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3437,11 +3484,12 @@ class TestManageAccountPublishingViews:
 
         db_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3500,11 +3548,12 @@ class TestManageAccountPublishingViews:
         EmailFactory(user=db_request.user, verified=True, primary=True)
         db_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3536,7 +3585,7 @@ class TestManageAccountPublishingViews:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                "Registered a new publishing publisher to create "
+                "Registered a new pending publisher to create "
                 "the project 'some-project-name'.",
                 queue="success",
             )
@@ -3566,28 +3615,17 @@ class TestManageAccountPublishingViews:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherAdded,
-                ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": pending_publisher.publisher_name,
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
+                    "url": pending_publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )
         ]
-
-    def test_delete_pending_oidc_publisher_oidc_disabled(self):
-        request = pretend.stub(
-            registry=pretend.stub(settings={"warehouse.oidc.enabled": False}),
-            find_service=lambda *a, **kw: None,
-        )
-
-        view = views.ManageAccountPublishingViews(request)
-
-        with pytest.raises(HTTPNotFound):
-            view.delete_pending_oidc_publisher()
 
     def test_delete_pending_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
@@ -3595,12 +3633,11 @@ class TestManageAccountPublishingViews:
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
             settings={
-                "warehouse.oidc.enabled": True,
                 "github.token": "fake-api-token",
             }
         )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: True)
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3621,17 +3658,14 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.delete_pending_oidc_publisher() == {
-            "oidc_enabled": True,
             "pending_github_publisher_form": pending_github_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_OIDC)
-        ]
+        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -3649,11 +3683,8 @@ class TestManageAccountPublishingViews:
         self, monkeypatch, pyramid_request
     ):
         pyramid_request.user = pretend.stub()
-        pyramid_request.registry = pretend.stub(
-            settings={"warehouse.oidc.enabled": True}
-        )
         pyramid_request.flags = pretend.stub(
-            enabled=pretend.call_recorder(lambda f: False)
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -3690,8 +3721,9 @@ class TestManageAccountPublishingViews:
         )
         db_request.db.add(pending_publisher)
 
-        db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3731,8 +3763,9 @@ class TestManageAccountPublishingViews:
         db_request.db.flush()  # To get the id
 
         db_request.user = pretend.stub()
-        db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3770,8 +3803,9 @@ class TestManageAccountPublishingViews:
         db_request.db.add(pending_publisher)
         db_request.db.flush()  # To get the id
 
-        db_request.registry = pretend.stub(settings={"warehouse.oidc.enabled": True})
-        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda f: False))
+        db_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: False)
+        )
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
@@ -3799,13 +3833,13 @@ class TestManageAccountPublishingViews:
         assert db_request.user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.PendingOIDCPublisherRemoved,
-                ip_address="1.2.3.4",
+                request=db_request,
                 additional={
                     "project": "some-project-name",
                     "publisher": "GitHub",
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
-                    "url": pending_publisher.publisher_url,
+                    "url": pending_publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
             )

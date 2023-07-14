@@ -57,7 +57,9 @@ def test_raise_error_if_invalid_response(monkeypatch, db_request, fake_task_requ
         text="I'm a teapot",
         raise_for_status=pretend.raiser(HTTPError),
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
 
     with pytest.raises(HTTPError):
@@ -66,7 +68,9 @@ def test_raise_error_if_invalid_response(monkeypatch, db_request, fake_task_requ
     qs = urlencode({"publisher": "pypi", "flight": "sponsors"})
     headers = {"Authorization": "Token API_TOKEN"}
     expected_url = f"https://API_HOST/api/v2/sponsors/logo-placement/?{qs}"
-    assert requests.get.calls == [pretend.call(expected_url, headers=headers)]
+    assert requests.get.calls == [
+        pretend.call(expected_url, headers=headers, timeout=5)
+    ]
 
 
 def test_create_new_sponsor_if_no_matching(
@@ -75,7 +79,9 @@ def test_create_new_sponsor_if_no_matching(
     response = pretend.stub(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
     assert 0 == len(db_request.db.query(Sponsor).all())
 
@@ -107,7 +113,9 @@ def test_update_remote_sponsor_with_same_name_with_new_logo(
     response = pretend.stub(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         name=sponsor_api_data[0]["sponsor"],
@@ -147,7 +155,9 @@ def test_do_not_update_if_not_psf_sponsor(
     response = pretend.stub(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
     infra_sponsor = SponsorFactory.create(
         name=sponsor_api_data[0]["sponsor"],
@@ -173,7 +183,9 @@ def test_update_remote_sponsor_with_same_slug_with_new_logo(
     response = pretend.stub(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         slug=sponsor_api_data[0]["sponsor_slug"],
@@ -200,7 +212,9 @@ def test_flag_existing_psf_sponsor_to_false_if_not_present_in_api_response(
     response = pretend.stub(
         raise_for_status=lambda: None, json=lambda: sponsor_api_data
     )
-    requests = pretend.stub(get=pretend.call_recorder(lambda url, headers: response))
+    requests = pretend.stub(
+        get=pretend.call_recorder(lambda url, headers, timeout: response)
+    )
     monkeypatch.setattr(tasks, "requests", requests)
     created_sponsor = SponsorFactory.create(
         slug="other-slug",

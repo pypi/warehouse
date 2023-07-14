@@ -18,7 +18,6 @@ Create Date: 2022-04-13 17:23:17.396325
 """
 
 import sqlalchemy as sa
-import sqlalchemy_utils
 
 from alembic import op
 from sqlalchemy.dialects import postgresql
@@ -49,7 +48,7 @@ def upgrade():
         sa.Column("name", sa.Text(), nullable=False),
         sa.Column("display_name", sa.Text(), nullable=False),
         sa.Column("orgtype", sa.Text(), nullable=False),
-        sa.Column("link_url", sqlalchemy_utils.types.url.URLType(), nullable=False),
+        sa.Column("link_url", sa.Text(), nullable=False),
         sa.Column("description", sa.Text(), nullable=False),
         sa.Column(
             "is_active", sa.Boolean(), nullable=False, server_default=sa.sql.false()

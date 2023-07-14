@@ -57,8 +57,8 @@ def test_do_not_schedule_sponsor_api_integration_if_no_token():
 
 
 def test_list_sponsors(db_request):
-    [SponsorFactory.create() for i in range(5)]
-    [SponsorFactory.create(is_active=False) for i in range(3)]
+    SponsorFactory.create_batch(5)
+    SponsorFactory.create_batch(3, is_active=False)
 
     result = sponsors._sponsors(db_request)
     expected = db_request.db.query(Sponsor).filter(Sponsor.is_active == true()).all()

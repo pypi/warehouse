@@ -33,10 +33,20 @@ from warehouse.macaroons.caveats._core import (
     deserialize,
     serialize,
 )
-from warehouse.oidc import models as oidc_models
+from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
 __all__ = ["deserialize", "serialize", "verify"]
+
+
+# NOTE: Under the covers, caveat serialization is done as an array
+# of `[TAG, ... fields]`, where the order of `fields` is the order of
+# definition in each caveat class.
+#
+# This means that fields cannot be reordered or deleted, and that new
+# fields *must* be added at the end of the class. New fields *must* also
+# include a default value. If a change can't be made under these constraints,
+# then a new Caveat class (and tag) should be created instead.
 
 
 @as_caveat(tag=0)
@@ -105,16 +115,22 @@ class RequestUser(Caveat):
 @dataclass(frozen=True)
 class OIDCPublisher(Caveat):
     oidc_publisher_id: StrictStr
+    oidc_claims: SignedClaims | None = None
+    """
+    This field is deprecated and should not be used.
+
+    Contains the OIDC claims passed through from token exchange.
+    """
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         # If the identity associated with this macaroon is not an OpenID publisher,
         # then it doesn't make sense to restrict it with an `OIDCPublisher` caveat.
-        if not isinstance(request.identity, oidc_models.OIDCPublisher):
+        if not request.oidc_publisher:
             return Failure(
                 "OIDC scoped token used outside of an OIDC identified request"
             )
 
-        if str(request.identity.id) != self.oidc_publisher_id:
+        if str(request.oidc_publisher.id) != self.oidc_publisher_id:
             return Failure(
                 "current OIDC publisher does not match publisher restriction in token"
             )
@@ -125,7 +141,7 @@ class OIDCPublisher(Caveat):
 
         # Specifically, they are only valid against projects that are registered
         # to the current identifying OpenID publisher.
-        if context not in request.identity.projects:
+        if context not in request.oidc_publisher.projects:
             return Failure(
                 f"OIDC scoped token is not valid for project '{context.name}'"
             )

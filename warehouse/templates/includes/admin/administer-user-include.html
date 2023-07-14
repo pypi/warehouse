@@ -13,8 +13,10 @@
 -#}
 
 {% if request.has_permission("moderator") %}
-<div class="admin-include">
-<h4>Admin tools</h4>
-  <a href="{{ request.route_path('admin.user.detail', username=user.username) }}" class="button button--primary package-description__edit-button">View user in admin</a>
+<div class="admin-include split-layout split-layout--middle">
+  <span><b>Admin tools</b></span>
+  <div>
+    <a href="{{ request.route_path('admin.user.detail', username=user.username) }}" class="button button--small button--primary package-description__edit-button">View user in admin</a>
+  </div>
 </div>
 {% endif %}

@@ -40,7 +40,7 @@
   by: <b>{{ page.meta["author"] + " · " if "date" in page.meta else "" }}</b>
 {% endif %}
 {% if "date" in page.meta %}
-  <span>{{ page.meta["date"] }}</span>
+  <span>{{ page.meta["date"].split()[0] }}</span>
 {% endif %}
 
 <!-- Page content -->

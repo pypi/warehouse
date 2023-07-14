@@ -12,13 +12,29 @@
 
 from __future__ import annotations
 
-from sqlalchemy.sql.expression import func, literal
+from dataclasses import dataclass
 
-from warehouse.oidc.models import GitHubPublisher, PendingGitHubPublisher
+from pyramid.authorization import Authenticated
+
+from warehouse.oidc.interfaces import SignedClaims
+from warehouse.oidc.models import (
+    GitHubPublisher,
+    GooglePublisher,
+    OIDCPublisher,
+    PendingGitHubPublisher,
+    PendingGooglePublisher,
+)
+from warehouse.oidc.models._core import OIDCPublisherMixin
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
+GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
 
-OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL}
+OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL}
+
+OIDC_PUBLISHER_CLASSES: dict[str, dict[bool, type[OIDCPublisherMixin]]] = {
+    GITHUB_OIDC_ISSUER_URL: {False: GitHubPublisher, True: PendingGitHubPublisher},
+    GOOGLE_OIDC_ISSUER_URL: {False: GooglePublisher, True: PendingGooglePublisher},
+}
 
 
 def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=False):
@@ -31,63 +47,37 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
     Returns `None` if no publisher can be found.
     """
 
-    if issuer_url not in OIDC_ISSUER_URLS:
+    try:
+        publisher_cls = OIDC_PUBLISHER_CLASSES[issuer_url][pending]
+    except KeyError:
         # This indicates a logic error, since we shouldn't have verified
         # claims for an issuer that we don't recognize and support.
         return None
 
-    # This is the ugly part: OIDCPublisher and PendingOIDCPublisher are both
-    # polymorphic, and retrieving the correct publisher requires us to query
-    # based on publisher-specific claims.
-    if issuer_url == GITHUB_OIDC_ISSUER_URL:
-        repository = signed_claims["repository"]
-        repository_owner, repository_name = repository.split("/", 1)
-        workflow_prefix = f"{repository}/.github/workflows/"
-        workflow_ref = signed_claims["job_workflow_ref"].removeprefix(workflow_prefix)
+    return publisher_cls.lookup_by_claims(session, signed_claims)
 
-        publisher_cls = GitHubPublisher if not pending else PendingGitHubPublisher
 
-        publisher = None
-        # If an environment exists in the claim set, try finding a publisher
-        # that matches the provided environment first.
-        if environment := signed_claims.get("environment"):
-            publisher = (
-                session.query(publisher_cls)
-                .filter_by(
-                    repository_name=repository_name,
-                    repository_owner=repository_owner,
-                    repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=environment.lower(),
-                )
-                .filter(
-                    literal(workflow_ref).like(
-                        func.concat(publisher_cls.workflow_filename, "%")
-                    )
-                )
-                .one_or_none()
-            )
+@dataclass
+class OIDCContext:
+    """
+    This class supports `MacaroonSecurityPolicy` in
+    `warehouse.macaroons.security_policy`.
 
-        # There are no publishers for that specific environment, try finding a
-        # publisher without a restriction on the environment
-        if not publisher:
-            publisher = (
-                session.query(publisher_cls)
-                .filter_by(
-                    repository_name=repository_name,
-                    repository_owner=repository_owner,
-                    repository_owner_id=signed_claims["repository_owner_id"],
-                    environment=None,
-                )
-                .filter(
-                    literal(workflow_ref).like(
-                        func.concat(publisher_cls.workflow_filename, "%")
-                    )
-                )
-                .one_or_none()
-            )
+    It is a wrapper containing both the signed claims associated with an OIDC
+    authenticated request and its `OIDCPublisher` DB model. We use it to smuggle
+    claims from the identity provider through to a session. `request.identity`
+    in an OIDC authenticated request should return this type.
+    """
 
-        return publisher
+    publisher: OIDCPublisher
+    """
+    The associated OIDC publisher.
+    """
 
-    else:
-        # Unreachable; same logic error as above.
-        return None  # pragma: no cover
+    claims: SignedClaims | None
+    """
+    Pertinent OIDC claims from the token, if they exist.
+    """
+
+    def __principals__(self) -> list[str]:
+        return [Authenticated, f"oidc:{self.publisher.id}"]

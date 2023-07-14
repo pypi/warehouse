@@ -9,8 +9,10 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
 import enum
+import typing
 
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
@@ -30,12 +32,15 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy_utils.types.url import URLType
+from sqlalchemy.orm import declared_attr
 
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
+
+if typing.TYPE_CHECKING:
+    from pyramid.request import Request
 
 
 class OrganizationRoleType(str, enum.Enum):
@@ -59,14 +64,14 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -89,11 +94,11 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -120,11 +125,11 @@ class OrganizationStripeSubscription(db.Model):
 
     __repr__ = make_repr("organization_id", "subscription_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    subscription_id = Column(
+    subscription_id = Column(  # type: ignore[var-annotated]
         ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -149,11 +154,11 @@ class OrganizationStripeCustomer(db.Model):
 
     __repr__ = make_repr("organization_id", "stripe_customer_id")
 
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    stripe_customer_id = Column(
+    stripe_customer_id = Column(  # type: ignore[var-annotated]
         ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -210,44 +215,71 @@ class OrganizationFactory:
             raise KeyError from None
 
 
+class OrganizationMixin:
+    @declared_attr
+    def __table_args__(cls):  # noqa: N805
+        return (
+            CheckConstraint(
+                "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+                name="%s_valid_name" % cls.__tablename__,
+            ),
+            CheckConstraint(
+                "link_url ~* '^https?://.*'::text",
+                name="%s_valid_link_url" % cls.__tablename__,
+            ),
+        )
+
+    name = Column(Text, nullable=False, comment="The account name used in URLS")
+
+    @declared_attr
+    def normalized_name(cls):  # noqa: N805
+        return orm.column_property(func.normalize_pep426_name(cls.name))
+
+    display_name = Column(Text, nullable=False, comment="Display name used in UI")
+    orgtype = Column(  # type: ignore[var-annotated]
+        Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
+        nullable=False,
+        comment="What type of organization such as Community or Company",
+    )
+    link_url = Column(
+        Text, nullable=False, comment="External URL associated with the organization"
+    )
+    description = Column(
+        Text,
+        nullable=False,
+        comment="Description of the business or project the organization represents",
+    )
+
+    is_approved = Column(
+        Boolean, comment="Status of administrator approval of the request"
+    )
+
+
 # TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
 # class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
-class Organization(HasEvents, db.Model):
+class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
-    __table_args__ = (
-        CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="organizations_valid_name",
-        ),
-        CheckConstraint(
-            "link_url ~* '^https?://.*'::text",
-            name="organizations_valid_link_url",
-        ),
-    )
 
     __repr__ = make_repr("name")
 
-    name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_pep426_name(name))
-    display_name = Column(Text, nullable=False)
-    orgtype = Column(
-        Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
+    is_active = Column(
+        Boolean,
         nullable=False,
+        server_default=sql.false(),
+        comment="When True, the organization is active and all features are available.",
     )
-    link_url = Column(URLType, nullable=False)
-    description = Column(Text, nullable=False)
-    is_active = Column(Boolean, nullable=False, server_default=sql.false())
-    is_approved = Column(Boolean)
     created = Column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
+        comment="Datetime the organization was created.",
     )
     date_approved = Column(
         DateTime(timezone=False),
         nullable=True,
         onupdate=func.now(),
+        comment="Datetime the organization was approved by administrators.",
     )
 
     users = orm.relationship(
@@ -288,11 +320,11 @@ class Organization(HasEvents, db.Model):
             .all()
         )
 
-    def record_event(self, *, tag, ip_address, additional={}):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record organization name in events in case organization is ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
+            request=request,
             additional={"organization_name": self.name, **additional},
         )
 
@@ -308,7 +340,7 @@ class Organization(HasEvents, db.Model):
         query = session.query(OrganizationRole).filter(
             OrganizationRole.organization == self
         )
-        query = query.options(orm.lazyload("organization"))
+        query = query.options(orm.lazyload(OrganizationRole.organization))
         query = query.join(User).order_by(User.id.asc())
         for role in sorted(
             query.all(),
@@ -415,6 +447,48 @@ class Organization(HasEvents, db.Model):
         return f"{site_name} Organization - {self.display_name} ({self.name})"
 
 
+class OrganizationApplication(OrganizationMixin, db.Model):
+    __tablename__ = "organization_applications"
+    __repr__ = make_repr("name")
+
+    submitted_by_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            User.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=False,
+        comment="ID of the User which submitted the request",
+    )
+    submitted = Column(
+        DateTime(timezone=False),
+        nullable=False,
+        server_default=sql.func.now(),
+        index=True,
+        comment="Datetime the request was submitted",
+    )
+    organization_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey(
+            Organization.id,
+            deferrable=True,
+            initially="DEFERRED",
+            ondelete="CASCADE",
+        ),
+        nullable=True,
+        comment="If the request was approved, ID of resulting Organization",
+    )
+
+    submitted_by = orm.relationship(
+        User, backref="organization_applications"  # type: ignore # noqa
+    )
+    organization = orm.relationship(
+        Organization, backref="application", viewonly=True  # type: ignore # noqa
+    )
+
+
 class OrganizationNameCatalog(db.Model):
     __tablename__ = "organization_name_catalog"
     __table_args__ = (
@@ -451,19 +525,19 @@ class OrganizationInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "organization")
 
-    invite_status = Column(
+    invite_status = Column(  # type: ignore[var-annotated]
         Enum(
             OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
         ),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    organization_id = Column(
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -491,14 +565,14 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    team_id = Column(
+    team_id = Column(  # type: ignore[var-annotated]
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -526,15 +600,15 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    role_name = Column(
+    role_name = Column(  # type: ignore[var-annotated]
         Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    team_id = Column(
+    team_id = Column(  # type: ignore[var-annotated]
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -585,8 +659,8 @@ class Team(HasEvents, db.Model):
     __repr__ = make_repr("name", "organization")
 
     name = Column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_team_name(name))
-    organization_id = Column(
+    normalized_name = orm.column_property(func.normalize_team_name(name))  # type: ignore[var-annotated] # noqa: E501
+    organization_id = Column(  # type: ignore[var-annotated]
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -605,11 +679,11 @@ class Team(HasEvents, db.Model):
         "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
     )
 
-    def record_event(self, *, tag, ip_address, additional={}):
+    def record_event(self, *, tag, request: Request = None, additional=None):
         """Record org and team name in events in case they are ever deleted."""
         super().record_event(
             tag=tag,
-            ip_address=ip_address,
+            request=request,
             additional={
                 "organization_name": self.organization.name,
                 "team_name": self.name,

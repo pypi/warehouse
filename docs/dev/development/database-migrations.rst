@@ -14,7 +14,7 @@ above:
 
 Then migrate and test your migration::
 
-    $ docker compose run web python -m warehouse db upgrade head
+    $ make runmigrations
 
 Migrations are automatically run as part of the deployment process, but prior
 to the old version of Warehouse from being shut down. This means that each

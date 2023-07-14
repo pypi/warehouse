@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import io
 import os.path
 
@@ -95,6 +96,20 @@ class TestLocalFileStorage:
             assert fp.read() == b'{"foo": "bar", "wu": "tang"}'
 
         assert storage.get_metadata("foo/bar.txt") == {"foo": "bar", "wu": "tang"}
+
+    def test_gets_metadata(self, tmpdir):
+        filename = str(tmpdir.join("testfile.txt"))
+        with open(filename, "wb") as fp:
+            fp.write(b"Test File!")
+
+        storage_dir = str(tmpdir.join("storage"))
+        storage = LocalFileStorage(storage_dir)
+        storage.store("foo/bar.txt", filename)
+
+        assert (
+            storage.get_checksum("foo/bar.txt")
+            == hashlib.md5(b"Test File!").hexdigest()
+        )
 
     def test_stores_two_files(self, tmpdir):
         filename1 = str(tmpdir.join("testfile1.txt"))
@@ -301,6 +316,28 @@ class TestB2FileStorage:
         assert metadata == {"foo": "bar", "wu": "tang"}
         assert bucket_stub.get_file_info_by_name.calls == [pretend.call("file.txt")]
 
+    def test_gets_checksum(self):
+        bucket_stub = pretend.stub(
+            get_file_info_by_name=pretend.call_recorder(
+                lambda path: pretend.stub(id_="froblob"),
+            ),
+            get_file_info_by_id=pretend.call_recorder(
+                lambda id_: pretend.stub(content_md5="deadbeef"),
+            ),
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        checksum = storage.get_checksum("file.txt")
+
+        assert checksum == "deadbeef"
+        assert bucket_stub.get_file_info_by_name.calls == [pretend.call("file.txt")]
+
     def test_raises_when_key_non_existent(self):
         def raiser(path):
             raise b2sdk.v2.exception.FileNotPresent()
@@ -332,6 +369,24 @@ class TestB2FileStorage:
 
         with pytest.raises(FileNotFoundError):
             storage.get_metadata("file.txt")
+
+    def test_get_checksum_raises_when_key_non_existent(self):
+        def raiser(path):
+            raise b2sdk.v2.exception.FileNotPresent()
+
+        bucket_stub = pretend.stub(
+            get_file_info_by_id=raiser, get_file_info_by_name=raiser
+        )
+        mock_b2_api = pretend.stub(get_bucket_by_name=lambda bucket_name: bucket_stub)
+
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda name: mock_b2_api),
+            registry=pretend.stub(settings={"files.bucket": "froblob"}),
+        )
+        storage = B2FileStorage.create_service(None, request)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_checksum("file.txt")
 
     def test_stores_file(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
@@ -400,6 +455,16 @@ class TestS3FileStorage:
         assert metadata == {"foo": "bar", "wu": "tang"}
         assert bucket.Object.calls == [pretend.call("file.txt")]
 
+    def test_gets_checksum(self):
+        s3key = pretend.stub(e_tag="deadbeef")
+        bucket = pretend.stub(Object=pretend.call_recorder(lambda path: s3key))
+        storage = S3FileStorage(bucket)
+
+        checksum = storage.get_checksum("file.txt")
+
+        assert checksum == "deadbeef"
+        assert bucket.Object.calls == [pretend.call("file.txt")]
+
     def test_raises_when_key_non_existent(self):
         def raiser():
             raise botocore.exceptions.ClientError(
@@ -427,6 +492,18 @@ class TestS3FileStorage:
         with pytest.raises(FileNotFoundError):
             storage.get_metadata("file.txt")
 
+    def test_get_checksum_raises_when_key_non_existent(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"ResponseMetadata": {"HTTPStatusCode": 404}}, "some operation"
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(FileNotFoundError):
+            storage.get_checksum("file.txt")
+
     def test_passes_up_error_when_not_no_such_key(self):
         def raiser():
             raise botocore.exceptions.ClientError(
@@ -453,6 +530,19 @@ class TestS3FileStorage:
 
         with pytest.raises(botocore.exceptions.ClientError):
             storage.get_metadata("file.txt")
+
+    def test_get_checksum_passes_up_error_when_not_no_such_key(self):
+        def raiser(*a, **kw):
+            raise botocore.exceptions.ClientError(
+                {"ResponseMetadata": {"HTTPStatusCode": 666}},
+                "some operation",
+            )
+
+        bucket = pretend.stub(Object=raiser)
+        storage = S3FileStorage(bucket)
+
+        with pytest.raises(botocore.exceptions.ClientError):
+            storage.get_checksum("file.txt")
 
     def test_stores_file(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
@@ -579,6 +669,12 @@ class TestGCSFileStorage:
 
         with pytest.raises(NotImplementedError):
             storage.get_metadata("file.txt")
+
+    def test_get_checksum_raises(self):
+        storage = GCSFileStorage(pretend.stub())
+
+        with pytest.raises(NotImplementedError):
+            storage.get_checksum("file.txt")
 
     def test_stores_file(self, tmpdir):
         filename = str(tmpdir.join("testfile.txt"))
@@ -885,13 +981,10 @@ class TestGenericLocalBlobStorage:
 
 def test_project_service_factory():
     db = pretend.stub()
-    remote_addr = pretend.stub()
     request = pretend.stub(
         db=db,
-        remote_addr=remote_addr,
         find_service=lambda iface, name=None, context=None: None,
     )
 
     service = project_service_factory(pretend.stub(), request)
     assert service.db == db
-    assert service.remote_addr == remote_addr

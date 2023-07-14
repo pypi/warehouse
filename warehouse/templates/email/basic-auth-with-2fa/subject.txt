@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans site=request.registry.settings["site.name"] %}Migrate to API tokens for uploading to {{ site }}{% endtrans %}{% endblock %}
+{% block subject %}{% trans site=request.registry.settings["site.name"] %}Migrate authentication for uploading to {{ site }}{% endtrans %}{% endblock %}

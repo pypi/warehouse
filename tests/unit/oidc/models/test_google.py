@@ -18,7 +18,25 @@ from tests.common.db.oidc import GooglePublisherFactory, PendingGooglePublisherF
 from warehouse.oidc.models import _core, google
 
 
+def test_lookup_strategies():
+    assert (
+        len(google.GooglePublisher.__lookup_strategies__)
+        == len(google.PendingGooglePublisher.__lookup_strategies__)
+        == 2
+    )
+
+
 class TestGooglePublisher:
+    def test_publisher_name(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.publisher_name == "Google"
+
+    def test_publisher_url(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.publisher_url() is None
+
     def test_stringifies_as_email(self):
         publisher = google.GooglePublisher(email="fake@example.com")
 

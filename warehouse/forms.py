@@ -11,7 +11,7 @@
 # limitations under the License.
 
 from wtforms import Form as BaseForm, StringField
-from wtforms.validators import DataRequired, StopValidation, ValidationError
+from wtforms.validators import InputRequired, StopValidation, ValidationError
 from zxcvbn import zxcvbn
 
 from warehouse.i18n import KNOWN_LOCALES
@@ -124,7 +124,7 @@ class DBForm(Form):
 class SetLocaleForm(Form):
     __params__ = ["locale_id"]
 
-    locale_id = StringField(validators=[DataRequired(message="Missing locale ID")])
+    locale_id = StringField(validators=[InputRequired(message="Missing locale ID")])
 
     def validate_locale_id(self, field):
         if field.data not in KNOWN_LOCALES.keys():

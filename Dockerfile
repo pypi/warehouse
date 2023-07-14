@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:18.15.0-bullseye as static-deps
+FROM node:20.4.0-bullseye as static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -35,7 +35,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.11.3-slim-bullseye as docs
+FROM python:3.11.4-slim-bullseye as docs
 
 # Install System level build requirements, this is done before
 # everything else because these are rarely ever going to change.
@@ -72,9 +72,9 @@ COPY requirements /tmp/requirements
 RUN set -x \
     && pip --no-cache-dir --disable-pip-version-check \
             install --no-deps \
-            -r /tmp/requirements/docs/dev.txt \
-            -r /tmp/requirements/docs/user.txt \
-            -r /tmp/requirements/docs/blog.txt \
+            -r /tmp/requirements/docs-dev.txt \
+            -r /tmp/requirements/docs-user.txt \
+            -r /tmp/requirements/docs-blog.txt \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -94,7 +94,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.11.3-slim-bullseye as build
+FROM python:3.11.4-slim-bullseye as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -161,7 +161,7 @@ RUN set -x \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.11.3-slim-bullseye
+FROM python:3.11.4-slim-bullseye
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -187,7 +187,7 @@ RUN set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 

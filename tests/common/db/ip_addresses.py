@@ -10,6 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
+
+import factory
+
 from warehouse.ip_addresses.models import IpAddress
 
 from .base import WarehouseFactory
@@ -18,3 +22,8 @@ from .base import WarehouseFactory
 class IpAddressFactory(WarehouseFactory):
     class Meta:
         model = IpAddress
+
+    ip_address = factory.Faker("ipv4_private")
+    hashed_ip_address = factory.LazyAttribute(
+        lambda o: hashlib.sha256(o.ip_address.encode("utf8")).hexdigest()
+    )

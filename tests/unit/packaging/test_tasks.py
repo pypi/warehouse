@@ -23,16 +23,26 @@ from wtforms import Field, Form, StringField
 
 import warehouse.packaging.tasks
 
+from tests.common.db.organizations import (
+    OrganizationFactory,
+    OrganizationProjectFactory,
+    OrganizationRoleFactory,
+    TeamFactory,
+    TeamProjectRoleFactory,
+    TeamRoleFactory,
+)
 from warehouse.accounts.models import WebAuthn
+from warehouse.packaging import tasks
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
-    check_file_archive_tasks_outstanding,
+    check_file_cache_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
     sync_bigquery_release_files,
-    sync_file_to_archive,
+    sync_file_to_cache,
     update_bigquery_release_files,
     update_description_html,
+    update_release_description,
 )
 from warehouse.utils import readme
 
@@ -48,22 +58,20 @@ from ...common.db.packaging import (
 )
 
 
-@pytest.mark.parametrize("archived", [True, False])
-def test_sync_file_to_archive(db_request, monkeypatch, archived):
-    file = FileFactory(archived=archived)
-    primary_stub = pretend.stub(
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache(db_request, monkeypatch, cached):
+    file = FileFactory(cached=cached)
+    archive_stub = pretend.stub(
         get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
         get=pretend.call_recorder(
             lambda path: pretend.stub(read=lambda: b"my content")
         ),
     )
-    archive_stub = pretend.stub(
+    cache_stub = pretend.stub(
         store=pretend.call_recorder(lambda filename, path, meta=None: None)
     )
     db_request.find_service = pretend.call_recorder(
-        lambda iface, name=None: {"primary": primary_stub, "archive": archive_stub}[
-            name
-        ]
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
     )
 
     @contextmanager
@@ -76,31 +84,271 @@ def test_sync_file_to_archive(db_request, monkeypatch, archived):
 
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
 
-    sync_file_to_archive(db_request, file.id)
+    sync_file_to_cache(db_request, file.id)
 
-    assert file.archived
+    assert file.cached
 
-    if not archived:
-        assert primary_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert primary_stub.get.calls == [pretend.call(file.path)]
-        assert archive_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"})
+    if not cached:
+        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
+        assert archive_stub.get.calls == [pretend.call(file.path)]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
         ]
     else:
-        assert primary_stub.get_metadata.calls == []
-        assert primary_stub.get.calls == []
-        assert archive_stub.store.calls == []
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
 
 
-def test_check_file_archive_tasks_outstanding(db_request, metrics):
-    [FileFactory(archived=True) for _ in range(12)]
-    [FileFactory(archived=False) for _ in range(3)]
+@pytest.mark.parametrize("cached", [True, False])
+def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached):
+    file = FileFactory(
+        cached=cached,
+        metadata_file_sha256_digest="deadbeefdeadbeefdeadbeefdeadbeef",
+    )
+    archive_stub = pretend.stub(
+        get_metadata=pretend.call_recorder(lambda path: {"fizz": "buzz"}),
+        get=pretend.call_recorder(
+            lambda path: pretend.stub(read=lambda: b"my content")
+        ),
+    )
+    cache_stub = pretend.stub(
+        store=pretend.call_recorder(lambda filename, path, meta=None: None)
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None: {"cache": cache_stub, "archive": archive_stub}[name]
+    )
 
-    check_file_archive_tasks_outstanding(db_request)
+    @contextmanager
+    def mock_named_temporary_file():
+        yield pretend.stub(
+            name="/tmp/wutang",
+            write=lambda bites: None,
+            flush=lambda: None,
+        )
+
+    monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
+
+    sync_file_to_cache(db_request, file.id)
+
+    assert file.cached
+
+    if not cached:
+        assert archive_stub.get_metadata.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+        ]
+        assert archive_stub.get.calls == [
+            pretend.call(file.path),
+            pretend.call(file.metadata_path),
+        ]
+        assert cache_stub.store.calls == [
+            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
+            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
+        ]
+    else:
+        assert archive_stub.get_metadata.calls == []
+        assert archive_stub.get.calls == []
+        assert cache_stub.store.calls == []
+
+
+def test_check_file_cache_tasks_outstanding(db_request, metrics):
+    FileFactory.create_batch(12, cached=True)
+    FileFactory.create_batch(3, cached=False)
+
+    check_file_cache_tasks_outstanding(db_request)
 
     assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.files.not_archived", 3)
+        pretend.call("warehouse.packaging.files.not_cached", 3)
     ]
+
+
+def test_fetch_checksums():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+    )
+    storage_stub = pretend.stub(
+        get_checksum=lambda pth: f"{pth}-deadbeef",
+    )
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        "/path-deadbeef",
+        "/path.metadata-deadbeef",
+    )
+
+
+def test_fetch_checksums_none():
+    file_stub = pretend.stub(
+        path="/path",
+        metadata_path="/path.metadata",
+    )
+    storage_stub = pretend.stub(get_checksum=pretend.raiser(FileNotFoundError))
+
+    assert warehouse.packaging.tasks.fetch_checksums(storage_stub, file_stub) == (
+        None,
+        None,
+    )
+
+
+def test_reconcile_file_storages_all_good(db_request, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    all_good = FileFactory.create(release=release, cached=False)
+    all_good.md5_digest = f"{all_good.path}-deadbeef"
+    all_good.metadata_file_sha256_digest = f"{all_good.path}-feedbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == []
+    assert all_good.cached is True
+
+
+def test_reconcile_file_storages_fixable(db_request, monkeypatch, metrics):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    fixable = FileFactory.create(release=release, cached=False)
+    fixable.md5_digest = f"{fixable.path}-deadbeef"
+    fixable.metadata_file_sha256_digest = f"{fixable.path}-feedbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    broke_storage_service = pretend.stub(get_checksum=lambda pth: None)
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": broke_storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:dist"]),
+        pretend.call("warehouse.filestorage.reconciled", tags=["type:metadata"]),
+    ]
+    assert copy_file.calls == [
+        pretend.call(storage_service, broke_storage_service, fixable.path),
+        pretend.call(storage_service, broke_storage_service, fixable.metadata_path),
+    ]
+    assert fixable.cached is True
+
+
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            "",
+            "type:dist",
+        ),
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+    ],
+)
+def test_reconcile_file_storages_borked(
+    db_request, monkeypatch, metrics, borked_ext, metrics_tag
+):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    borked = FileFactory.create(release=release, cached=False)
+    borked.md5_digest = f"{borked.path}-deadbeef"
+    borked.metadata_file_sha256_digest = f"{borked.path}-feedbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == borked.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.filestorage.unreconciled", tags=[metrics_tag])
+    ]
+    assert borked.cached is False
+
+
+@pytest.mark.parametrize(
+    (
+        "borked_ext",
+        "metrics_tag",
+    ),
+    [
+        (
+            ".metadata",
+            "type:metadata",
+        ),
+    ],
+)
+def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project)
+    just_dist = FileFactory.create(release=release, cached=False)
+    just_dist.md5_digest = f"{just_dist.path}-deadbeef"
+
+    storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
+    bad_storage_service = pretend.stub(
+        get_checksum=lambda pth: None
+        if pth == just_dist.path + borked_ext
+        else f"{pth}-deadbeef"
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda svc, name=None, context=None: {
+            "warehouse.packaging.interfaces.IFileStorage-cache": storage_service,
+            "warehouse.packaging.interfaces.IFileStorage-archive": bad_storage_service,
+            "warehouse.metrics.interfaces.IMetricsService-None": metrics,
+        }.get(f"{svc}-{name}")
+    )
+    db_request.registry.settings = {
+        "reconcile_file_storages.batch_size": 3,
+    }
+
+    copy_file = pretend.call_recorder(lambda archive, cache, path: None)
+    monkeypatch.setattr(warehouse.packaging.tasks, "_copy_file_to_cache", copy_file)
+
+    warehouse.packaging.tasks.reconcile_file_storages(db_request)
+
+    assert copy_file.calls == []
+    assert metrics.increment.calls == []
+    assert just_dist.cached is True
 
 
 def test_update_description_html(monkeypatch, db_request):
@@ -126,6 +374,23 @@ def test_update_description_html(monkeypatch, db_request):
         (descriptions[1].raw, readme.render(descriptions[1].raw), current_version),
         (descriptions[2].raw, readme.render(descriptions[2].raw), current_version),
     }
+
+
+def test_update_release_description(db_request):
+    release = ReleaseFactory.create()
+    description = DescriptionFactory.create(
+        release=release,
+        raw="rst\n===\n\nbody text",
+        html="",
+        rendered_by="0.0",
+    )
+
+    task = pretend.stub()
+    update_release_description(task, db_request, release.id)
+
+    updated_description = db_request.db.get(Description, description.id)
+    assert updated_description.html == "<p>body text</p>\n"
+    assert updated_description.rendered_by == readme.renderer_version()
 
 
 bq_schema = [
@@ -311,7 +576,7 @@ class TestUpdateBigQueryMetadata:
             "packagetype": release_file.packagetype,
             "comment_text": release_file.comment_text,
             "size": release_file.size,
-            "has_signature": release_file.has_signature,
+            "has_signature": False,
             "md5_digest": release_file.md5_digest,
             "sha256_digest": release_file.sha256_digest,
             "blake2_256_digest": release_file.blake2_256_digest,
@@ -369,7 +634,7 @@ class TestUpdateBigQueryMetadata:
                         "python_version": release_file.python_version,
                         "packagetype": release_file.packagetype,
                         "comment_text": release_file.comment_text or None,
-                        "has_signature": release_file.has_signature,
+                        "has_signature": False,
                         "md5_digest": release_file.md5_digest,
                         "sha256_digest": release_file.sha256_digest,
                         "blake2_256_digest": release_file.blake2_256_digest,
@@ -515,7 +780,7 @@ class TestSyncBigQueryMetadata:
                         "python_version": release_file.python_version,
                         "packagetype": release_file.packagetype,
                         "comment_text": release_file.comment_text or None,
-                        "has_signature": release_file.has_signature,
+                        "has_signature": False,
                         "md5_digest": release_file.md5_digest,
                         "sha256_digest": release_file.sha256_digest,
                         "blake2_256_digest": release_file.blake2_256_digest,
@@ -615,14 +880,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
         user=non_critical_project_maintainer, project=non_critical_project
     )
 
-    send_two_factor_mandate_email = pretend.call_recorder(lambda request, user: None)
-
-    monkeypatch.setattr(
-        warehouse.packaging.tasks,
-        "send_two_factor_mandate_email",
-        send_two_factor_mandate_email,
-    )
-
     results = [
         {"project_name": "new_critical_project"},
         {"project_name": "previous_critical_project"},
@@ -649,12 +906,6 @@ def test_compute_2fa_mandate(db_request, monkeypatch):
     assert previous_critical_project.pypi_mandates_2fa
     assert new_critical_project.pypi_mandates_2fa
     assert not non_critical_project.pypi_mandates_2fa
-
-    assert set(send_two_factor_mandate_email.calls) == {
-        pretend.call(db_request, main_dependency_maintainer),
-        pretend.call(db_request, deploy_dependency_maintainer),
-        pretend.call(db_request, new_critical_project_maintainer),
-    }
 
 
 def test_compute_2fa_metrics(db_request, monkeypatch):
@@ -722,3 +973,103 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
     ]
+
+
+def test_send_pep_715_notices(db_request, monkeypatch):
+    # No eggs, no emails.
+    no_egg_project = ProjectFactory()
+    no_egg_project_owner = UserFactory.create()
+    RoleFactory.create(user=no_egg_project_owner, project=no_egg_project)
+    no_egg_release = ReleaseFactory.create(project=no_egg_project)
+    FileFactory(
+        release=no_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=no_egg_release, packagetype="bdist_wheel", upload_time="2023-06-01"
+    )
+
+    # Projects with eggs uploaded in 2023 get emails sent to their
+    # contributors and org contributors.
+    some_egg_project = ProjectFactory()
+    some_egg_project_owner = UserFactory.create()
+    RoleFactory.create(user=some_egg_project_owner, project=some_egg_project)
+
+    some_egg_org = OrganizationFactory()
+    OrganizationProjectFactory(organization=some_egg_org, project=some_egg_project)
+    some_egg_org_owner = UserFactory.create()
+    OrganizationRoleFactory.create(user=some_egg_org_owner, organization=some_egg_org)
+
+    some_egg_org_member = UserFactory.create()
+    OrganizationRoleFactory.create(
+        user=some_egg_org_member, organization=some_egg_org, role_name="Member"
+    )
+    some_egg_team = TeamFactory.create(organization=some_egg_org)
+    TeamRoleFactory.create(team=some_egg_team, user=some_egg_org_member)
+    TeamProjectRoleFactory.create(project=some_egg_project, team=some_egg_team)
+
+    some_egg_release = ReleaseFactory.create(project=some_egg_project)
+    FileFactory(
+        release=some_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=some_egg_release, packagetype="bdist_egg", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=some_egg_release, packagetype="bdist_wheel", upload_time="2023-06-01"
+    )
+    FileFactory(
+        release=some_egg_release, packagetype="bdist_egg", upload_time="2023-06-01"
+    )
+
+    # Same as above, but without an organization in the mix.
+    another_egg_project = ProjectFactory()
+    another_egg_project_owner = UserFactory.create()
+    RoleFactory.create(user=another_egg_project_owner, project=another_egg_project)
+    another_egg_release = ReleaseFactory.create(project=another_egg_project)
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_wheel", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_egg", upload_time="2022-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_wheel", upload_time="2023-06-01"
+    )
+    FileFactory(
+        release=another_egg_release, packagetype="bdist_egg", upload_time="2023-06-01"
+    )
+
+    # Old eggs (pre-2023), no emails.
+    rotten_egg_project = ProjectFactory()
+    rotten_egg_project_user = UserFactory.create()
+    RoleFactory.create(user=rotten_egg_project_user, project=rotten_egg_project)
+    rotten_egg_release = ReleaseFactory.create(project=rotten_egg_project)
+    FileFactory(
+        release=rotten_egg_release, packagetype="bdist_egg", upload_time="2022-06-01"
+    )
+
+    send_egg_uploads_deprecated_initial_email = pretend.call_recorder(
+        lambda *a, **kw: None
+    )
+    monkeypatch.setattr(
+        tasks,
+        "send_egg_uploads_deprecated_initial_email",
+        send_egg_uploads_deprecated_initial_email,
+    )
+
+    tasks.send_pep_715_notices(db_request)
+
+    assert set(tasks.send_egg_uploads_deprecated_initial_email.calls) == {
+        pretend.call(
+            db_request, some_egg_project_owner, project_name=some_egg_project.name
+        ),
+        pretend.call(
+            db_request, some_egg_org_owner, project_name=some_egg_project.name
+        ),
+        pretend.call(
+            db_request, some_egg_org_member, project_name=some_egg_project.name
+        ),
+        pretend.call(
+            db_request, another_egg_project_owner, project_name=another_egg_project.name
+        ),
+    }

@@ -11,7 +11,6 @@
 # limitations under the License.
 
 from sqlalchemy import Boolean, Column, Integer, String, Text
-from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
 from warehouse.utils import readme
@@ -26,9 +25,9 @@ class Sponsor(db.Model):
     service = Column(String)
     activity_markdown = Column(Text)
 
-    link_url = Column(URLType, nullable=False)
-    color_logo_url = Column(URLType, nullable=False)
-    white_logo_url = Column(URLType)
+    link_url = Column(Text, nullable=False)
+    color_logo_url = Column(Text, nullable=False)
+    white_logo_url = Column(Text)
 
     # control flags
     is_active = Column(Boolean, default=False, nullable=False)

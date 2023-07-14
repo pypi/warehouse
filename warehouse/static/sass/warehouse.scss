@@ -53,7 +53,6 @@
 @import "base/tables";
 @import "base/typography";
 
-
 // LAYOUT HELPERS LAYER: reusable layout helpers
 @import "layout-helpers/banner";
 @import "layout-helpers/columns";
@@ -133,6 +132,7 @@
 /*rtl:end:ignore*/
 @import "blocks/totp-form";
 @import "blocks/twofa-login";
+@import "blocks/horizontal-tabs";
 @import "blocks/vertical-tabs";
 @import "blocks/viewport-section";
 @import "blocks/copyable";
@@ -200,6 +200,11 @@
 // Remove bottom margin on selected blocks
 .no-bottom-margin {
   margin-bottom: 0;
+}
+
+// Remove left margin on selected blocks
+.no-left-margin {
+  margin-left: 0;
 }
 
 // Add small margin to the top of elements
@@ -318,7 +323,7 @@ time {
 
 // force email select to display ltr
 // Remove when/if this is marked for translation
-#public_email {  // stylelint-disable-line selector-id-pattern -- remove when translated
+#public_email { // stylelint-disable-line selector-id-pattern -- remove when translated
   direction: ltr;
 }
 

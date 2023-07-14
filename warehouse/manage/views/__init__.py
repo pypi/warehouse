@@ -26,8 +26,9 @@ from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import Load, joinedload
+from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
+from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
@@ -49,6 +50,7 @@ from warehouse.email import (
     send_collaborator_removed_email,
     send_collaborator_role_changed_email,
     send_email_verification_email,
+    send_new_email_added_email,
     send_password_change_email,
     send_primary_email_change_email,
     send_project_role_verification_email,
@@ -208,7 +210,7 @@ class ManageAccountViews:
             email = self.user_service.add_email(self.request.user.id, form.email.data)
             self.request.user.record_event(
                 tag=EventTag.Account.EmailAdd,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"email": email.email},
             )
 
@@ -222,6 +224,15 @@ class ManageAccountViews:
                 ),
                 queue="success",
             )
+
+            for previously_registered_email in self.request.user.emails:
+                if previously_registered_email != email:
+                    send_new_email_added_email(
+                        self.request,
+                        (self.request.user, previously_registered_email),
+                        new_email_address=email.email,
+                    )
+
             return HTTPSeeOther(self.request.path)
 
         return {**self.default_response, "add_email_form": form}
@@ -251,7 +262,7 @@ class ManageAccountViews:
             self.request.user.emails.remove(email)
             self.request.user.record_event(
                 tag=EventTag.Account.EmailRemove,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"email": email.email},
             )
             self.request.session.flash(
@@ -287,7 +298,7 @@ class ManageAccountViews:
         new_primary_email.primary = True
         self.request.user.record_event(
             tag=EventTag.Account.EmailPrimaryChange,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "old_primary": previous_primary_email.email
                 if previous_primary_email
@@ -333,7 +344,7 @@ class ManageAccountViews:
                 verify_email_ratelimit.hit(self.request.user.id)
                 email.user.record_event(
                     tag=EventTag.Account.EmailReverify,
-                    ip_address=self.request.remote_addr,
+                    request=self.request,
                     additional={"email": email.email},
                 )
 
@@ -355,7 +366,7 @@ class ManageAccountViews:
     @view_config(request_method="POST", request_param=ChangePasswordForm.__params__)
     def change_password(self):
         form = ChangePasswordForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             request=self.request,
             username=self.request.user.username,
             full_name=self.request.user.name,
@@ -371,7 +382,7 @@ class ManageAccountViews:
             )
             self.request.user.record_event(
                 tag=EventTag.Account.PasswordChange,
-                ip_address=self.request.remote_addr,
+                request=self.request,
             )
             send_password_change_email(self.request, self.request.user)
             self.request.db.flush()  # ensure password_date is available
@@ -394,9 +405,13 @@ class ManageAccountViews:
             return self.default_response
 
         form = ConfirmPasswordForm(
+            formdata=MultiDict(
+                {
+                    "password": confirm_password,
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
-            password=confirm_password,
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 
@@ -420,7 +435,7 @@ class ManageAccountViews:
 
         journals = (
             self.request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter(JournalEntry.submitted_by == self.request.user)
             .all()
         )
@@ -539,7 +554,8 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = ProvisionTOTPForm(
-            **self.request.POST, totp_secret=self.request.session.get_totp_secret()
+            MultiDict(**self.request.POST),
+            totp_secret=self.request.session.get_totp_secret(),
         )
 
         if form.validate():
@@ -549,7 +565,7 @@ class ProvisionTOTPViews:
             self.request.session.clear_totp_secret()
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -577,9 +593,13 @@ class ProvisionTOTPViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteTOTPForm(
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                }
+            ),
             request=self.request,
-            password=self.request.POST["confirm_password"],
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 
@@ -587,7 +607,7 @@ class ProvisionTOTPViews:
             self.user_service.update_user(self.request.user.id, totp_secret=None)
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "totp"},
             )
             self.request.session.flash(
@@ -650,7 +670,7 @@ class ProvisionWebAuthnViews:
     )
     def validate_webauthn_provision(self):
         form = ProvisionWebAuthnForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             user_service=self.user_service,
             user_id=self.request.user.id,
             challenge=self.request.session.get_webauthn_challenge(),
@@ -674,7 +694,7 @@ class ProvisionWebAuthnViews:
             )
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash(
@@ -704,7 +724,7 @@ class ProvisionWebAuthnViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteWebAuthnForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             username=self.request.user.username,
             user_service=self.user_service,
             user_id=self.request.user.id,
@@ -714,7 +734,7 @@ class ProvisionWebAuthnViews:
             self.request.user.webauthn.remove(form.webauthn)
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodRemoved,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"method": "webauthn", "label": form.label.data},
             )
             self.request.session.flash("Security device removed", queue="success")
@@ -760,7 +780,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesGenerated,
-            ip_address=self.request.remote_addr,
+            request=self.request,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -776,7 +796,7 @@ class ProvisionRecoveryCodesViews:
         send_recovery_codes_generated_email(self.request, self.request.user)
         self.request.user.record_event(
             tag=EventTag.Account.RecoveryCodesRegenerated,
-            ip_address=self.request.remote_addr,
+            request=self.request,
         )
 
         return {"recovery_codes": recovery_codes}
@@ -827,6 +847,7 @@ class ProvisionMacaroonViews:
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
         self.macaroon_service = request.find_service(IMacaroonService, context=None)
+        self.selected_project = None
 
     @property
     def project_names(self):
@@ -840,6 +861,7 @@ class ProvisionMacaroonViews:
                 user_id=self.request.user.id,
                 macaroon_service=self.macaroon_service,
                 project_names=self.project_names,
+                selected_project=self.selected_project,
             ),
             "delete_macaroon_form": DeleteMacaroonForm(
                 request=self.request,
@@ -851,6 +873,7 @@ class ProvisionMacaroonViews:
 
     @view_config(request_method="GET")
     def manage_macaroons(self):
+        self.selected_project = self.request.params.get("selected_project")
         return self.default_response
 
     @view_config(request_method="POST", require_reauth=True)
@@ -863,7 +886,7 @@ class ProvisionMacaroonViews:
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = CreateMacaroonForm(
-            **self.request.POST,
+            MultiDict(**self.request.POST),
             user_id=self.request.user.id,
             macaroon_service=self.macaroon_service,
             project_names=self.project_names,
@@ -898,10 +921,11 @@ class ProvisionMacaroonViews:
                 description=form.description.data,
                 scopes=macaroon_caveats,
                 user_id=self.request.user.id,
+                additional={"made_with_2fa": self.request.user.has_two_factor},
             )
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenAdded,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={
                     "description": form.description.data,
                     "caveats": recorded_caveats,
@@ -920,7 +944,7 @@ class ProvisionMacaroonViews:
                     # isn't aware of.
                     project.record_event(
                         tag=EventTag.Project.APITokenAdded,
-                        ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={
                             "description": form.description.data,
                             "user": self.request.user.username,
@@ -939,11 +963,15 @@ class ProvisionMacaroonViews:
     )
     def delete_macaroon(self):
         form = DeleteMacaroonForm(
+            formdata=MultiDict(
+                {
+                    "password": self.request.POST["confirm_password"],
+                    "username": self.request.user.username,
+                    "macaroon_id": self.request.POST["macaroon_id"],
+                }
+            ),
             request=self.request,
-            password=self.request.POST["confirm_password"],
-            macaroon_id=self.request.POST["macaroon_id"],
             macaroon_service=self.macaroon_service,
-            username=self.request.user.username,
             user_service=self.user_service,
         )
 
@@ -952,7 +980,7 @@ class ProvisionMacaroonViews:
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenRemoved,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"macaroon_id": form.macaroon_id.data},
             )
             if "projects" in macaroon.permissions_caveat:
@@ -965,7 +993,7 @@ class ProvisionMacaroonViews:
                 for project in projects:
                     project.record_event(
                         tag=EventTag.Project.APITokenRemoved,
-                        ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={
                             "description": macaroon.description,
                             "user": self.request.user.username,
@@ -1108,7 +1136,7 @@ class ManageProjectSettingsViews:
             self.project.owners_require_2fa = False
             self.project.record_event(
                 tag=EventTag.Project.OwnersRequire2FADisabled,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
@@ -1119,7 +1147,7 @@ class ManageProjectSettingsViews:
             self.project.owners_require_2fa = True
             self.project.record_event(
                 tag=EventTag.Project.OwnersRequire2FAEnabled,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"modified_by": self.request.user.username},
             )
             self.request.session.flash(
@@ -1150,7 +1178,6 @@ class ManageOIDCPublisherViews:
     def __init__(self, project, request):
         self.request = request
         self.project = project
-        self.oidc_enabled = self.request.registry.settings["warehouse.oidc.enabled"]
         self.metrics = self.request.find_service(IMetricsService, context=None)
 
     @property
@@ -1193,20 +1220,16 @@ class ManageOIDCPublisherViews:
     @property
     def default_response(self):
         return {
-            "oidc_enabled": self.oidc_enabled,
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
         }
 
     @view_config(request_method="GET")
     def manage_project_oidc_publishers(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1219,13 +1242,10 @@ class ManageOIDCPublisherViews:
         request_param=GitHubPublisherForm.__params__,
     )
     def add_github_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
-                    "Trusted publishers are temporarily disabled. "
+                    "GitHub-based trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1309,18 +1329,18 @@ class ManageOIDCPublisherViews:
 
         self.project.record_event(
             tag=EventTag.Project.OIDCPublisherAdded,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "publisher": publisher.publisher_name,
                 "id": str(publisher.id),
                 "specifier": str(publisher),
-                "url": publisher.publisher_url,
+                "url": publisher.publisher_url(),
                 "submitted_by": self.request.user.username,
             },
         )
 
         self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url} to {self.project.name}",
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
             queue="success",
         )
 
@@ -1335,13 +1355,10 @@ class ManageOIDCPublisherViews:
         request_param=DeletePublisherForm.__params__,
     )
     def delete_oidc_publisher(self):
-        if not self.oidc_enabled:
-            raise HTTPNotFound
-
-        if self.request.flags.enabled(AdminFlagValue.DISALLOW_OIDC):
+        if self.request.flags.disallow_oidc():
             self.request.session.flash(
                 (
-                    "Trusted publishers are temporarily disabled. "
+                    "Trusted publishing is temporarily disabled. "
                     "See https://pypi.org/help#admin-intervention for details."
                 ),
                 queue="error",
@@ -1371,24 +1388,24 @@ class ManageOIDCPublisherViews:
                     publisher=publisher,
                 )
 
+            self.project.record_event(
+                tag=EventTag.Project.OIDCPublisherRemoved,
+                request=self.request,
+                additional={
+                    "publisher": publisher.publisher_name,
+                    "id": str(publisher.id),
+                    "specifier": str(publisher),
+                    "url": publisher.publisher_url(),
+                    "submitted_by": self.request.user.username,
+                },
+            )
+
             # We remove this publisher from the project's list of publishers
             # and, if there are no projects left associated with the publisher,
             # we delete it entirely.
             self.project.oidc_publishers.remove(publisher)
             if len(publisher.projects) == 0:
                 self.request.db.delete(publisher)
-
-            self.project.record_event(
-                tag=EventTag.Project.OIDCPublisherRemoved,
-                ip_address=self.request.remote_addr,
-                additional={
-                    "publisher": publisher.publisher_name,
-                    "id": str(publisher.id),
-                    "specifier": str(publisher),
-                    "url": publisher.publisher_url,
-                    "submitted_by": self.request.user.username,
-                },
-            )
 
             self.request.session.flash(
                 self.request._(
@@ -1534,7 +1551,6 @@ def manage_project_releases(project, request):
     # release version and the package types
     filecounts = (
         request.db.query(Release.version, File.packagetype, func.count(File.id))
-        .options(Load(Release).load_only("version"))
         .outerjoin(File)
         .group_by(Release.id)
         .group_by(File.packagetype)
@@ -1634,13 +1650,12 @@ class ManageProjectRelease:
                 action="yank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseYank,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1720,13 +1735,12 @@ class ManageProjectRelease:
                 action="unyank release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseUnyank,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1822,13 +1836,12 @@ class ManageProjectRelease:
                 action="remove release",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         self.release.project.record_event(
             tag=EventTag.Project.ReleaseRemove,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -1915,13 +1928,12 @@ class ManageProjectRelease:
                 action=f"remove file {release_file.filename}",
                 version=self.release.version,
                 submitted_by=self.request.user,
-                submitted_from=self.request.remote_addr,
             )
         )
 
         release_file.record_event(
             tag=EventTag.File.FileRemove,
-            ip_address=self.request.remote_addr,
+            request=self.request,
             additional={
                 "submitted_by": self.request.user.username,
                 "canonical_version": self.release.canonical_version,
@@ -2074,14 +2086,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name.value} {team_name}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
 
         # Record events.
         project.record_event(
             tag=EventTag.Project.TeamProjectRoleAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "role_name": role_name.value,
@@ -2090,7 +2101,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         )
         team.organization.record_event(
             tag=EventTag.Organization.TeamProjectRoleAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -2100,7 +2111,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         )
         team.record_event(
             tag=EventTag.Team.TeamProjectRoleAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by_user_id": str(request.user.id),
                 "project_name": project.name,
@@ -2185,14 +2196,13 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                 name=project.name,
                 action=f"add {role_name} {user.username}",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
 
         # Record events.
         project.record_event(
             tag=EventTag.Project.RoleAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username,
                 "role_name": role_name,
@@ -2201,7 +2211,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
         )
         user.record_event(
             tag=EventTag.Account.RoleAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username,
                 "project_name": project.name,
@@ -2310,7 +2320,6 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
                     name=project.name,
                     action=f"invite {role_name} {username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
                 )
             )
             send_project_role_verification_email(
@@ -2324,7 +2333,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
             project.record_event(
                 tag=EventTag.Project.RoleInvite,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role_name,
@@ -2333,7 +2342,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
             )
             user.record_event(
                 tag=EventTag.Account.RoleInvite,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "project_name": project.name,
@@ -2396,12 +2405,11 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
             name=project.name,
             action=f"revoke_invite {role_name} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
     project.record_event(
         tag=EventTag.Project.RoleRevokeInvite,
-        ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "role_name": role_name,
@@ -2410,7 +2418,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     )
     user.record_event(
         tag=EventTag.Account.RoleRevokeInvite,
-        ip_address=request.remote_addr,
+        request=request,
         additional={
             "submitted_by": request.user.username,
             "project_name": project.name,
@@ -2461,13 +2469,12 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                             role.role_name, role.user.username, form.role_name.data
                         ),
                         submitted_by=request.user,
-                        submitted_from=request.remote_addr,
                     )
                 )
                 role.role_name = form.role_name.data
                 project.record_event(
                     tag=EventTag.Project.RoleChange,
-                    ip_address=request.remote_addr,
+                    request=request,
                     additional={
                         "submitted_by": request.user.username,
                         "role_name": form.role_name.data,
@@ -2476,7 +2483,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
                 )
                 role.user.record_event(
                     tag=EventTag.Account.RoleChange,
-                    ip_address=request.remote_addr,
+                    request=request,
                     additional={
                         "submitted_by": request.user.username,
                         "project_name": project.name,
@@ -2546,12 +2553,11 @@ def delete_project_role(project, request):
                     name=project.name,
                     action=f"remove {role.role_name} {role.user.username}",
                     submitted_by=request.user,
-                    submitted_from=request.remote_addr,
                 )
             )
             project.record_event(
                 tag=EventTag.Project.RoleRemove,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={
                     "submitted_by": request.user.username,
                     "role_name": role.role_name,

@@ -13,8 +13,7 @@
 import datetime
 import enum
 
-from citext import CIText
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
@@ -32,7 +31,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -71,7 +70,7 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    username = Column(CIText, nullable=False, unique=True)
+    username = Column(CITEXT, nullable=False, unique=True)
     name = Column(String(length=100), nullable=False)
     password = Column(String(length=128), nullable=False)
     password_date = Column(TZDateTime, nullable=True, server_default=sql.func.now())
@@ -86,7 +85,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     hide_avatar = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
     last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
-    disabled_for = Column(
+    disabled_for = Column(  # type: ignore[var-annotated]
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )
@@ -108,7 +107,6 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     macaroons = orm.relationship(
         "Macaroon",
-        backref="user",
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
@@ -141,7 +139,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     @email.expression  # type: ignore
     def email(self):
         return (
-            select([Email.email])
+            select(Email.email)
             .where((Email.user_id == self.id) & (Email.primary.is_(True)))
             .scalar_subquery()
         )
@@ -192,6 +190,18 @@ class User(SitemapMixin, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    def __principals__(self) -> list[str]:
+        principals = [Authenticated, f"user:{self.id}"]
+
+        if self.is_superuser:
+            principals.append("group:admins")
+        if self.is_moderator or self.is_superuser:
+            principals.append("group:moderators")
+        if self.is_psf_staff or self.is_superuser:
+            principals.append("group:psf_staff")
+
+        return principals
 
     def __acl__(self):
         return [
@@ -260,7 +270,7 @@ class Email(db.ModelBase):
     public = Column(Boolean, nullable=False, server_default=sql.false())
 
     # Deliverability information
-    unverify_reason = Column(
+    unverify_reason = Column(  # type: ignore[var-annotated]
         Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
     )

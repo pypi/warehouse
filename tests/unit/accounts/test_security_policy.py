@@ -14,16 +14,13 @@
 import pretend
 import pytest
 
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.security import Allowed, Denied
+from pyramid.authorization import Allow
+from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import IUserService
-from warehouse.errors import WarehouseDenied
 from warehouse.utils.security_policy import AuthenticationMethod
-
-from ...common.db.packaging import ProjectFactory
 
 
 class TestBasicAuthSecurityPolicy:
@@ -37,8 +34,6 @@ class TestBasicAuthSecurityPolicy:
         policy = security_policy.BasicAuthSecurityPolicy()
         with pytest.raises(NotImplementedError):
             policy.authenticated_userid(pretend.stub())
-        with pytest.raises(NotImplementedError):
-            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
     def test_forget_and_remember(self):
         policy = security_policy.BasicAuthSecurityPolicy()
@@ -221,8 +216,6 @@ class TestSessionSecurityPolicy:
         policy = security_policy.SessionSecurityPolicy()
         with pytest.raises(NotImplementedError):
             policy.authenticated_userid(pretend.stub())
-        with pytest.raises(NotImplementedError):
-            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
     def test_forget_and_remember(self, monkeypatch):
         request = pretend.stub()
@@ -510,205 +503,134 @@ class TestSessionSecurityPolicy:
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
 
-class TestTwoFactorAuthorizationPolicy:
-    def test_verify(self):
-        assert verifyClass(
-            IAuthorizationPolicy, security_policy.TwoFactorAuthorizationPolicy
-        )
+@pytest.mark.parametrize(
+    "policy_class",
+    [security_policy.BasicAuthSecurityPolicy, security_policy.SessionSecurityPolicy],
+)
+class TestPermits:
+    @pytest.mark.parametrize(
+        "principals,expected", [("user:5", True), ("user:1", False)]
+    )
+    def test_acl(self, monkeypatch, policy_class, principals, expected):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
 
-    def test_permits_no_active_request(self, monkeypatch):
-        get_current_request = pretend.call_recorder(lambda: None)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
+        request = pretend.stub(identity=pretend.stub(__principals__=lambda: principals))
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
 
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: pretend.stub())
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-
-        assert result == WarehouseDenied("")
-        assert result.s == "There was no active request."
-
-    def test_permits_if_context_is_not_permitted_by_backing_policy(self, monkeypatch):
-        request = pretend.stub()
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        permits_result = Denied("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-
-        assert result == permits_result
-
-    def test_permits_if_non_2fa_requireable_context(self, monkeypatch):
-        request = pretend.stub()
-        get_current_request = pretend.call_recorder(lambda: request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        permits_result = Allowed("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        result = policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
-
-        assert result == permits_result
-
-    def test_permits_if_context_does_not_require_2fa(self, monkeypatch, db_request):
-        db_request.user = pretend.stub()
-        db_request.registry.settings = {
-            "warehouse.two_factor_mandate.enabled": True,
-            "warehouse.two_factor_mandate.available": True,
-            "warehouse.two_factor_requirement.enabled": True,
-        }
-        get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        permits_result = Allowed("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        context = ProjectFactory.create(
-            owners_require_2fa=False,
-            pypi_mandates_2fa=False,
-        )
-        result = policy.permits(context, pretend.stub(), pretend.stub())
-
-        assert result == permits_result
-
-    def test_flashes_if_context_requires_2fa_but_not_enabled(
-        self, monkeypatch, db_request
-    ):
-        db_request.registry.settings = {
-            "warehouse.two_factor_mandate.enabled": False,
-            "warehouse.two_factor_mandate.available": True,
-            "warehouse.two_factor_requirement.enabled": True,
-        }
-        db_request.session.flash = pretend.call_recorder(lambda m, queue: None)
-        db_request.user = pretend.stub(has_two_factor=False)
-        get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        permits_result = Allowed("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        context = ProjectFactory.create(
-            owners_require_2fa=False,
-            pypi_mandates_2fa=True,
-        )
-        result = policy.permits(context, pretend.stub(), pretend.stub())
-
-        assert result == permits_result
-        assert db_request.session.flash.calls == [
-            pretend.call(
-                "This project is included in PyPI's two-factor mandate "
-                "for critical projects. In the future, you will be unable to "
-                "perform this action without enabling 2FA for your account",
-                queue="warning",
-            ),
-        ]
-
-    @pytest.mark.parametrize("owners_require_2fa", [True, False])
-    @pytest.mark.parametrize("pypi_mandates_2fa", [True, False])
-    @pytest.mark.parametrize("two_factor_requirement_enabled", [True, False])
-    @pytest.mark.parametrize("two_factor_mandate_available", [True, False])
-    @pytest.mark.parametrize("two_factor_mandate_enabled", [True, False])
-    def test_permits_if_user_has_2fa(
-        self,
-        monkeypatch,
-        owners_require_2fa,
-        pypi_mandates_2fa,
-        two_factor_requirement_enabled,
-        two_factor_mandate_available,
-        two_factor_mandate_enabled,
-        db_request,
-    ):
-        db_request.registry.settings = {
-            "warehouse.two_factor_requirement.enabled": two_factor_requirement_enabled,
-            "warehouse.two_factor_mandate.available": two_factor_mandate_available,
-            "warehouse.two_factor_mandate.enabled": two_factor_mandate_enabled,
-        }
-        user = pretend.stub(has_two_factor=True)
-        db_request.user = user
-        get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
-
-        permits_result = Allowed("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        context = ProjectFactory.create(
-            owners_require_2fa=owners_require_2fa, pypi_mandates_2fa=pypi_mandates_2fa
-        )
-        result = policy.permits(context, pretend.stub(), pretend.stub())
-
-        assert result == permits_result
+        policy = policy_class()
+        assert bool(policy.permits(request, context, "myperm")) == expected
 
     @pytest.mark.parametrize(
-        "owners_require_2fa, pypi_mandates_2fa, reason",
+        "mfa_required,has_mfa,expected",
         [
-            (True, False, "owners_require_2fa"),
-            (False, True, "pypi_mandates_2fa"),
-            (True, True, "pypi_mandates_2fa"),
+            (True, True, True),
+            (False, True, True),
+            (True, False, False),
+            (False, False, True),
         ],
     )
-    def test_denies_if_2fa_is_required_but_user_doesnt_have_2fa(
-        self,
-        monkeypatch,
-        owners_require_2fa,
-        pypi_mandates_2fa,
-        reason,
-        db_request,
+    def test_2fa_owner_requires(
+        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
     ):
-        db_request.registry.settings = {
-            "warehouse.two_factor_requirement.enabled": owners_require_2fa,
-            "warehouse.two_factor_mandate.enabled": pypi_mandates_2fa,
-        }
-        user = pretend.stub(has_two_factor=False)
-        db_request.user = user
-        get_current_request = pretend.call_recorder(lambda: db_request)
-        monkeypatch.setattr(security_policy, "get_current_request", get_current_request)
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
 
-        permits_result = Allowed("Because")
-        backing_policy = pretend.stub(
-            permits=pretend.call_recorder(lambda *a, **kw: permits_result)
-        )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-        context = ProjectFactory.create(
-            owners_require_2fa=owners_require_2fa, pypi_mandates_2fa=pypi_mandates_2fa
-        )
-        result = policy.permits(context, pretend.stub(), pretend.stub())
-
-        summary = {
-            "owners_require_2fa": (
-                "This project requires two factor authentication to be enabled "
-                "for all contributors.",
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
             ),
-            "pypi_mandates_2fa": (
-                "PyPI requires two factor authentication to be enabled "
-                "for all contributors to this project.",
+            registry=pretend.stub(
+                settings={
+                    "warehouse.two_factor_requirement.enabled": True,
+                    "warehouse.two_factor_mandate.enabled": False,
+                    "warehouse.two_factor_mandate.available": False,
+                }
             ),
-        }[reason]
-
-        assert result == WarehouseDenied(summary, reason="two_factor_required")
-
-    def test_principals_allowed_by_permission(self):
-        principals = pretend.stub()
-        backing_policy = pretend.stub(
-            principals_allowed_by_permission=pretend.call_recorder(
-                lambda *a: principals
-            )
         )
-        policy = security_policy.TwoFactorAuthorizationPolicy(policy=backing_policy)
-
-        assert (
-            policy.principals_allowed_by_permission(pretend.stub(), pretend.stub())
-            is principals
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", "myperm")], owners_require_2fa=mfa_required
         )
+
+        policy = policy_class()
+        assert bool(policy.permits(request, context, "myperm")) == expected
+
+    @pytest.mark.parametrize(
+        "mfa_required,has_mfa,expected",
+        [
+            (True, True, True),
+            (False, True, True),
+            (True, False, False),
+            (False, False, True),
+        ],
+    )
+    def test_2fa_pypi_mandates_2fa(
+        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
+    ):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
+            ),
+            registry=pretend.stub(
+                settings={
+                    "warehouse.two_factor_requirement.enabled": False,
+                    "warehouse.two_factor_mandate.enabled": True,
+                    "warehouse.two_factor_mandate.available": False,
+                }
+            ),
+        )
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", "myperm")], pypi_mandates_2fa=mfa_required
+        )
+
+        policy = policy_class()
+        assert bool(policy.permits(request, context, "myperm")) == expected
+
+    @pytest.mark.parametrize(
+        "mfa_required,has_mfa,expected",
+        [
+            (True, True, True),
+            (False, True, True),
+            (True, False, False),
+            (False, False, True),
+        ],
+    )
+    def test_2fa_pypi_mandates_2fa_with_warning(
+        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
+    ):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
+            ),
+            registry=pretend.stub(
+                settings={
+                    "warehouse.two_factor_requirement.enabled": False,
+                    "warehouse.two_factor_mandate.enabled": False,
+                    "warehouse.two_factor_mandate.available": True,
+                }
+            ),
+            session=pretend.stub(flash=pretend.call_recorder(lambda msg, queue: None)),
+        )
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", "myperm")], pypi_mandates_2fa=mfa_required
+        )
+
+        policy = policy_class()
+        assert bool(policy.permits(request, context, "myperm"))
+
+        if not expected:
+            assert request.session.flash.calls == [
+                pretend.call(
+                    "This project is included in PyPI's two-factor mandate "
+                    "for critical projects. In the future, you will be unable to "
+                    "perform this action without enabling 2FA for your account",
+                    queue="warning",
+                )
+            ]
+        else:
+            assert request.session.flash.calls == []

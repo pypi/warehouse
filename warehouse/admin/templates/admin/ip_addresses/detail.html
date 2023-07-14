@@ -1,0 +1,53 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}{{ ip_address.id }}{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.ip_address.list') }}">IP Addresses</a></li>
+  <li class="breadcrumb-item active">{{ ip_address.id }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title"><code>IpAddress</code> Record</h3>
+  </div> <!-- /.card-header -->
+
+  <div class="card-body">
+    <dl class="row">
+      <dt class="col-sm-4">IP Address:</dt>
+      <dd class="col-sm-8">{{ ip_address.ip_address }}</dd>
+
+      <dt class="col-sm-4">Hashed IP Address:</dt>
+      <dd class="col-sm-8">{{ ip_address.hashed_ip_address }}</dd>
+
+      <dt class="col-sm-4">Last Seen Geo IP Info:</dt>
+      <dd class="col-sm-8">{{ ip_address.geoip_info }}</dd>
+
+      <dt class="col-sm-4">Banned?</dt>
+      <dd class="col-sm-8">{% if ip_address.is_banned %}<i class="fa fa-check text-red"></i>{% else %}False{% endif %}</dd>
+
+      <dt class="col-sm-4">Ban Date:</dt>
+      <dd class="col-sm-8">{{ ip_address.ban_date }}</dd>
+
+      <dt class="col-sm-4">Ban Reason:</dt>
+      <dd class="col-sm-8">{{ ip_address.ban_reason.value }}</dd>
+    </dl>
+  </div> <!-- /.card-body -->
+</div>
+{% endblock %}

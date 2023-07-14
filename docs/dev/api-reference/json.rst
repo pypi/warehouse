@@ -14,6 +14,27 @@ Project
     In the future, the ``releases`` key may be removed from this response.
 
 
+.. attention::
+    The ``downloads`` key on this response should be considered deprecated.
+
+    It currently always returns ``-1`` and in the future, the ``downloads``
+    key may be removed from this response.
+
+
+.. attention::
+    The ``has_sig`` key on this response should be considered deprecated.
+
+    It currently always returns ``false`` and in the future, the ``has_sig``
+    key may be removed from this response.
+
+
+.. attention::
+    The ``bugtrack_url`` key on this response should be considered deprecated.
+
+    It currently always returns ``null`` and in the future, the ``bugtrack_url``
+    key may be removed from this response.
+
+
 .. http:get:: /pypi/<project_name>/json
 
     Returns metadata (info) about an individual project at the latest version,
@@ -260,6 +281,27 @@ Release
 
     To access all files, you should preferrably use the simple API, or otherwise
     use the non versioned json api at ``/pypi/<project_name>/json``.
+
+
+.. attention::
+    The ``downloads`` key on this response should be considered deprecated.
+
+    It currently always returns ``-1`` and in the future, the ``downloads``
+    key may be removed from this response.
+
+
+.. attention::
+    The ``has_sig`` key on this response should be considered deprecated.
+
+    It currently always returns ``false`` and in the future, the ``has_sig``
+    key may be removed from this response.
+
+
+.. attention::
+    The ``bugtrack_url`` key on this response should be considered deprecated.
+
+    It currently always returns ``null`` and in the future, the ``bugtrack_url``
+    key may be removed from this response.
 
 
 .. http:get:: /pypi/<project_name>/<version>/json

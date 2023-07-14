@@ -74,7 +74,7 @@ def user_list(request):
 
 
 class EmailForm(forms.Form):
-    email = wtforms.fields.EmailField(validators=[wtforms.validators.DataRequired()])
+    email = wtforms.fields.EmailField(validators=[wtforms.validators.InputRequired()])
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
@@ -207,7 +207,6 @@ def _nuke_user(user, request):
                 name=project.name,
                 action="remove project",
                 submitted_by=request.user,
-                submitted_from=request.remote_addr,
             )
         )
     projects.delete(synchronize_session=False)
@@ -217,7 +216,7 @@ def _nuke_user(user, request):
 
     journals = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.submitted_by == user)
         .all()
     )
@@ -239,7 +238,6 @@ def _nuke_user(user, request):
             name=f"user:{user.username}",
             action="nuke user",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 
@@ -268,6 +266,14 @@ def user_delete(user, request):
     return HTTPSeeOther(request.route_path("admin.user.list"))
 
 
+def _user_reset_password(user, request):
+    login_service = request.find_service(IUserService, context=None)
+    send_password_compromised_email(request, user)
+    login_service.disable_password(
+        user.id, request, reason=DisableReason.CompromisedPassword
+    )
+
+
 @view_config(
     route_name="admin.user.reset_password",
     require_methods=["POST"],
@@ -287,11 +293,39 @@ def user_reset_password(user, request):
             request.route_path("admin.user.detail", username=user.username)
         )
 
-    login_service = request.find_service(IUserService, context=None)
-    send_password_compromised_email(request, user)
-    login_service.disable_password(user.id, reason=DisableReason.CompromisedPassword)
+    _user_reset_password(user, request)
 
     request.session.flash(f"Reset password for {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+
+
+@view_config(
+    route_name="admin.user.wipe_factors",
+    require_methods=["POST"],
+    permission="admin",
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_wipe_factors(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user.totp_secret = None
+    user.webauthn = []
+    user.recovery_codes = []
+    _user_reset_password(user, request)
+
+    request.session.flash(
+        f"Wiped factors and reset password for {user.username!r}", queue="success"
+    )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 

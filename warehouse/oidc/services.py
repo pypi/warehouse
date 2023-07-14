@@ -24,10 +24,7 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
-
-
-class InsecureOIDCPublisherWarning(UserWarning):
-    pass
+from warehouse.utils.exceptions import InsecureOIDCPublisherWarning
 
 
 @implementer(IOIDCPublisherService)
@@ -139,7 +136,7 @@ class OIDCPublisherService:
 
         oidc_url = f"{self.issuer_url}/.well-known/openid-configuration"
 
-        resp = requests.get(oidc_url)
+        resp = requests.get(oidc_url, timeout=5)
 
         # For whatever reason, an OIDC publisher's configuration URL might be
         # offline. We don't want to completely explode here, since other
@@ -164,7 +161,7 @@ class OIDCPublisherService:
             )
             return keys
 
-        resp = requests.get(jwks_url)
+        resp = requests.get(jwks_url, timeout=5)
 
         # Same reasoning as above.
         if not resp.ok:

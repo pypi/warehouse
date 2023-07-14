@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 from collections.abc import Callable
-from typing import Any
+from typing import Any, TypeVar
 
 import sentry_sdk
 
@@ -23,8 +25,12 @@ from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
+C = TypeVar("C")
 
-def _check_claim_binary(binary_func):
+CheckClaimCallable = Callable[[C, C, SignedClaims], bool]
+
+
+def check_claim_binary(binary_func: Callable[[C, C], bool]) -> CheckClaimCallable[C]:
     """
     Wraps a binary comparison function so that it takes three arguments instead,
     ignoring the third.
@@ -33,13 +39,13 @@ def _check_claim_binary(binary_func):
     comparison checks like `str.__eq__`.
     """
 
-    def wrapper(ground_truth, signed_claim, all_signed_claims):
+    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
         return binary_func(ground_truth, signed_claim)
 
     return wrapper
 
 
-def _check_claim_invariant(value: Any):
+def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
     """
     Wraps a fixed value comparison into a three-argument function.
 
@@ -47,7 +53,7 @@ def _check_claim_invariant(value: Any):
     comparison checks, like "claim x is always the literal `true` value".
     """
 
-    def wrapper(ground_truth, signed_claim, all_signed_claims):
+    def wrapper(ground_truth: C, signed_claim: C, all_signed_claims: SignedClaims):
         return ground_truth == signed_claim == value
 
     return wrapper
@@ -80,14 +86,10 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __required_verifiable_claims__: dict[
-        str, Callable[[Any, Any, dict[str, Any]], bool]
-    ] = dict()
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Simlar to __verificable_claims__, but these claims are optional
-    __optional_verifiable_claims__: dict[
-        str, Callable[[Any, Any, dict[str, Any]], bool]
-    ] = dict()
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Claims that have already been verified during the JWT signature
     # verification phase.
@@ -104,8 +106,39 @@ class OIDCPublisherMixin:
     # not checked as part of verifying the JWT.
     __unchecked_claims__: set[str] = set()
 
+    # Individual publishers can have complex unique constraints on their
+    # required and optional attributes, and thus can't be naively looked
+    # up from a raw claim set.
+    #
+    # Each subclass should explicitly override this list to contain
+    # class methods that take a `SignedClaims` and return a SQLAlchemy
+    # expression that, when queried, should produce exactly one or no result.
+    # This list should be ordered by specificity, e.g. selecting for the
+    # expression with the most optional constraints first, and ending with
+    # the expression with only required constraints.
+    #
+    # TODO(ww): In principle this list is computable directly from
+    # `__required_verifiable_claims__` and `__optional_verifiable_claims__`,
+    # but there are a few problems: those claim sets don't map to their
+    # "equivalent" column (only to an instantiated property), and may not
+    # even have an "equivalent" column.
+    __lookup_strategies__: list = []
+
     @classmethod
-    def all_known_claims(cls):
+    def lookup_by_claims(cls, session, signed_claims: SignedClaims):
+        for lookup in cls.__lookup_strategies__:
+            query = lookup(cls, signed_claims)
+            if not query:
+                # We might not build a query if we know the claim set can't
+                # satisfy it. If that's the case, then we skip.
+                continue
+
+            if publisher := query.with_session(session).one_or_none():
+                return publisher
+        return None
+
+    @classmethod
+    def all_known_claims(cls) -> set[str]:
         """
         Returns all claims "known" to this publisher.
         """
@@ -174,12 +207,15 @@ class OIDCPublisherMixin:
         return True
 
     @property
-    def publisher_name(self):  # pragma: no cover
+    def publisher_name(self) -> str:  # pragma: no cover
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    @property
-    def publisher_url(self):  # pragma: no cover
+    def publisher_url(self, claims=None) -> str | None:  # pragma: no cover
+        """
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `publisher_url()`
+        """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
@@ -192,9 +228,7 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
         secondary=OIDCPublisherProjectAssociation.__table__,  # type: ignore
         backref="oidc_publishers",
     )
-    macaroons = orm.relationship(
-        Macaroon, backref="oidc_publisher", cascade="all, delete-orphan", lazy=True
-    )
+    macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_publishers",

@@ -37,7 +37,6 @@ Get involved or find help using:
     development-database
     cloud
     email
-    malware-checks
     token-scanning
 
 .. _`GitHub`: https://github.com/pypi/warehouse

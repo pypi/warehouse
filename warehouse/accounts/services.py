@@ -20,6 +20,7 @@ import os
 import secrets
 import urllib.parse
 
+import passlib.exc
 import requests
 
 from passlib.context import CryptContext
@@ -120,6 +121,21 @@ class DatabaseUserService:
         return None if user_id is None else self.get_user(user_id)
 
     @functools.lru_cache
+    def get_users_by_prefix(self, prefix: str) -> list[User]:
+        """
+        Get the first 10 matches by username prefix.
+        No need to apply `ILIKE` here, as the `username` column is already
+        `CIText`.
+        """
+        return (
+            self.db.query(User)
+            .filter(User.username.startswith(prefix))
+            .order_by(User.username)
+            .limit(10)
+            .all()
+        )
+
+    @functools.lru_cache
     def get_admin_user(self):
         """Useful for notifications to the admin@ email address."""
         return self.get_user_by_username("admin")
@@ -208,7 +224,10 @@ class DatabaseUserService:
 
             # Actually check our hash, optionally getting a new hash for it if
             # we should upgrade our saved hashed.
-            ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            try:
+                ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            except passlib.exc.PasswordValueError:
+                ok = False
 
             # First, check to see if the password that we were given was OK.
             if ok:
@@ -300,13 +319,13 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None, ip_address="127.0.0.1"):
+    def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
         user.record_event(
             tag=EventTag.Account.PasswordDisabled,
-            ip_address=ip_address,
+            request=request,
             additional={"reason": reason.value if reason else None},
         )
 
@@ -759,7 +778,11 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics_increment("warehouse.compromised_password_check.start", tags=tags)
 
         # To work with the HIBP API, we need the sha1 of the UTF8 encoded password.
-        hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
+        hashed_password = (
+            hashlib.sha1(password.encode("utf8"), usedforsecurity=False)
+            .hexdigest()
+            .lower()
+        )
 
         # Fetch the passwords from the HIBP data set.
         try:
@@ -849,6 +872,7 @@ class HaveIBeenPwnedEmailBreachedService:
             resp = self._http.get(
                 urllib.parse.urljoin(self._api_base, email),
                 headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+                timeout=(0.25, 0.25),
             )
             resp.raise_for_status()
         except requests.RequestException as exc:

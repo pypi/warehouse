@@ -550,7 +550,7 @@ class TestFile:
         )
 
         assert rfile.path == expected
-        assert rfile.pgp_path == expected + ".asc"
+        assert rfile.metadata_path == expected + ".metadata"
 
     def test_query_paths(self, db_session):
         project = DBProjectFactory.create()
@@ -571,10 +571,10 @@ class TestFile:
         )
 
         results = (
-            db_session.query(File.path, File.pgp_path)
+            db_session.query(File.path, File.metadata_path)
             .filter(File.id == rfile.id)
             .limit(1)
             .one()
         )
 
-        assert results == (expected, expected + ".asc")
+        assert results == (expected, expected + ".metadata")

@@ -28,7 +28,7 @@ from warehouse.packaging.interfaces import (
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
-    check_file_archive_tasks_outstanding,
+    check_file_cache_tasks_outstanding,
     compute_2fa_mandate,
     update_description_html,
 )
@@ -75,7 +75,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
     packaging.includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(storage_class.create_service, IFileStorage, name="primary"),
+        pretend.call(storage_class.create_service, IFileStorage, name="cache"),
         pretend.call(storage_class.create_service, IFileStorage, name="archive"),
         pretend.call(storage_class.create_service, ISimpleStorage),
         pretend.call(storage_class.create_service, IDocsStorage),
@@ -179,7 +179,7 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         )
 
     assert (
-        pretend.call(crontab(minute="*/1"), check_file_archive_tasks_outstanding)
+        pretend.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)
         in config.add_periodic_task.calls
     )
     assert (

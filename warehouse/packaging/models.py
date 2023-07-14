@@ -17,7 +17,6 @@ from urllib.parse import urlparse
 
 import packaging.utils
 
-from citext import CIText
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
 from pyramid.threadlocal import get_current_request
@@ -40,13 +39,11 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declared_attr  # type: ignore
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import validates
-from sqlalchemy.orm.collections import attribute_mapped_collection
+from sqlalchemy.orm import attribute_keyed_dict, declared_attr, validates
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -76,10 +73,10 @@ class Role(db.Model):
     __repr__ = make_repr("role_name")
 
     role_name = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -104,17 +101,17 @@ class RoleInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "project")
 
-    invite_status = Column(
+    invite_status = Column(  # type: ignore[var-annotated]
         Enum(RoleInvitationStatus, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
     token = Column(Text, nullable=False)
-    user_id = Column(
+    user_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -160,17 +157,6 @@ class TwoFactorRequireable:
 
 class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     __tablename__ = "projects"
-    __table_args__ = (
-        CheckConstraint(
-            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
-            name="projects_valid_name",
-        ),
-        CheckConstraint(
-            "upload_limit <= 1073741824",  # 1.0 GiB == 1073741824 bytes
-            name="projects_upload_limit_max_value",
-        ),
-    )
-
     __repr__ = make_repr("name")
 
     name = Column(Text, nullable=False)
@@ -219,6 +205,21 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         passive_deletes=True,
     )
 
+    __table_args__ = (
+        CheckConstraint(
+            "name ~* '^([A-Z0-9]|[A-Z0-9][A-Z0-9._-]*[A-Z0-9])$'::text",
+            name="projects_valid_name",
+        ),
+        CheckConstraint(
+            "upload_limit <= 1073741824",  # 1.0 GiB == 1073741824 bytes
+            name="projects_upload_limit_max_value",
+        ),
+        Index(
+            "project_name_ultranormalized",
+            func.ultranormalize_name(name),
+        ),
+    )
+
     def __getitem__(self, version):
         session = orm.object_session(self)
         canonical_version = packaging.utils.canonicalize_version(version)
@@ -264,8 +265,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
-        query = query.options(orm.lazyload("project"))
-        query = query.options(orm.lazyload("user"))
+        query = query.options(orm.lazyload(Role.project))
+        query = query.options(orm.lazyload(Role.user))
         permissions = {
             (role.user_id, "Administer" if role.role_name == "Owner" else "Upload")
             for role in query.all()
@@ -273,8 +274,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         # Add all of the team members for this project.
         query = session.query(TeamProjectRole).filter(TeamProjectRole.project == self)
-        query = query.options(orm.lazyload("project"))
-        query = query.options(orm.lazyload("team"))
+        query = query.options(orm.lazyload(TeamProjectRole.project))
+        query = query.options(orm.lazyload(TeamProjectRole.team))
         for role in query.all():
             permissions |= {
                 (user.id, "Administer" if role.role_name.value == "Owner" else "Upload")
@@ -287,8 +288,8 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
                 OrganizationRole.organization == self.organization,
                 OrganizationRole.role_name == OrganizationRoleType.Owner,
             )
-            query = query.options(orm.lazyload("organization"))
-            query = query.options(orm.lazyload("user"))
+            query = query.options(orm.lazyload(OrganizationRole.organization))
+            query = query.options(orm.lazyload(OrganizationRole.user))
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
@@ -367,7 +368,7 @@ class Dependency(db.Model):
     )
     __repr__ = make_repr("release", "kind", "specifier")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -405,7 +406,7 @@ class ReleaseURL(db.Model):
     )
     __repr__ = make_repr("name", "url")
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -432,7 +433,7 @@ class Release(db.Model):
     __parent__ = dotted_navigator("project")
     __name__ = dotted_navigator("version")
 
-    project_id = Column(
+    project_id = Column(  # type: ignore[var-annotated]
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -455,7 +456,7 @@ class Release(db.Model):
         DateTime(timezone=False), nullable=False, server_default=sql.func.now()
     )
 
-    description_id = Column(
+    description_id = Column(  # type: ignore[var-annotated]
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -488,7 +489,7 @@ class Release(db.Model):
     _project_urls = orm.relationship(
         ReleaseURL,
         backref="release",
-        collection_class=attribute_mapped_collection("name"),
+        collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
         order_by=lambda: ReleaseURL.name.asc(),
         passive_deletes=True,
@@ -543,7 +544,7 @@ class Release(db.Model):
     _requires_external = _dependency_relation(DependencyKind.requires_external)
     requires_external = association_proxy("_requires_external", "specifier")
 
-    uploader_id = Column(
+    uploader_id = Column(  # type: ignore[var-annotated]
         ForeignKey("users.id", onupdate="CASCADE", ondelete="SET NULL"),
         nullable=True,
         index=True,
@@ -638,15 +639,16 @@ class File(HasEvents, db.Model):
             ),
             Index("release_files_release_id_idx", "release_id"),
             Index("release_files_archived_idx", "archived"),
+            Index("release_files_cached_idx", "cached"),
         )
 
-    release_id = Column(
+    release_id = Column(  # type: ignore[var-annotated]
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
     python_version = Column(Text)
     requires_python = Column(Text)
-    packagetype = Column(
+    packagetype = Column(  # type: ignore[var-annotated]
         Enum(
             "bdist_dmg",
             "bdist_dumb",
@@ -662,18 +664,27 @@ class File(HasEvents, db.Model):
     filename = Column(Text, unique=True)
     path = Column(Text, unique=True, nullable=False)
     size = Column(Integer)
-    has_signature = Column(Boolean)
     md5_digest = Column(Text, unique=True, nullable=False)
-    sha256_digest = Column(CIText, unique=True, nullable=False)
-    blake2_256_digest = Column(CIText, unique=True, nullable=False)
+    sha256_digest = Column(CITEXT, unique=True, nullable=False)
+    blake2_256_digest = Column(CITEXT, unique=True, nullable=False)
     upload_time = Column(DateTime(timezone=False), server_default=func.now())
     uploaded_via = Column(Text)
+
+    # PEP 658
+    metadata_file_sha256_digest = Column(CITEXT, nullable=True)
+    metadata_file_blake2_256_digest = Column(CITEXT, nullable=True)
 
     # We need this column to allow us to handle the currently existing "double"
     # sdists that exist in our database. Eventually we should try to get rid
     # of all of them and then remove this column.
     allow_multiple_sdist = Column(Boolean, nullable=False, server_default=sql.false())
 
+    cached = Column(
+        Boolean,
+        comment="If True, the object has been populated to our cache bucket.",
+        nullable=False,
+        server_default=sql.false(),
+    )
     archived = Column(
         Boolean,
         comment="If True, the object has been archived to our archival bucket.",
@@ -682,12 +693,12 @@ class File(HasEvents, db.Model):
     )
 
     @hybrid_property
-    def pgp_path(self):
-        return self.path + ".asc"
+    def metadata_path(self):
+        return self.path + ".metadata"
 
-    @pgp_path.expression  # type: ignore
-    def pgp_path(self):
-        return func.concat(self.path, ".asc")
+    @metadata_path.expression  # type: ignore
+    def metadata_path(self):
+        return func.concat(self.path, ".metadata")
 
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
@@ -737,12 +748,11 @@ class JournalEntry(db.ModelBase):
     )
     _submitted_by = Column(
         "submitted_by",
-        CIText,
+        CITEXT,
         ForeignKey("users.username", onupdate="CASCADE"),
         nullable=True,
     )
     submitted_by = orm.relationship(User, lazy="raise_on_sql")
-    submitted_from = Column(Text)
 
 
 class ProhibitedProjectName(db.Model):

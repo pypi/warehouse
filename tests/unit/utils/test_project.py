@@ -134,13 +134,12 @@ def test_remove_project(db_request, flash):
 
     journal_entry = (
         db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == "foo")
         .one()
     )
     assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -158,13 +157,12 @@ def test_destroy_docs(db_request, flash):
 
     journal_entry = (
         db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == "foo")
         .one()
     )
     assert journal_entry.action == "docdestroy"
     assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
 
     assert not (
         db_request.db.query(Project)

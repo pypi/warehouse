@@ -16,6 +16,7 @@ from email.errors import HeaderParseError
 from email.headerregistry import Address
 
 import disposable_email_domains
+import humanize
 import markupsafe
 import wtforms
 import wtforms.fields
@@ -47,7 +48,7 @@ INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
 
 
 class UsernameMixin:
-    username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
+    username = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
 
     def validate_username(self, field):
         userid = self.user_service.find_userid(field.data)
@@ -61,7 +62,7 @@ class UsernameMixin:
 class TOTPValueMixin:
     totp_value = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
                 message=_(
@@ -74,13 +75,13 @@ class TOTPValueMixin:
 
 
 class WebAuthnCredentialMixin:
-    credential = wtforms.StringField(wtforms.validators.DataRequired())
+    credential = wtforms.StringField(wtforms.validators.InputRequired())
 
 
 class RecoveryCodeValueMixin:
     recovery_code_value = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
                 message=_(
@@ -95,7 +96,7 @@ class RecoveryCodeValueMixin:
 class NewUsernameMixin:
     username = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Length(
                 max=50, message=_("Choose a username with 50 characters or less.")
             ),
@@ -130,7 +131,7 @@ class NewUsernameMixin:
 class PasswordMixin:
     password = wtforms.PasswordField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Length(
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
@@ -158,15 +159,19 @@ class PasswordMixin:
                     user = self.user_service.get_user(userid)
                     user.record_event(
                         tag=f"account:{self.action}:failure",
-                        ip_address=self.request.remote_addr,
+                        request=self.request,
                         additional={"reason": "invalid_password"},
                     )
                     raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
-            except TooManyFailedLogins:
+            except TooManyFailedLogins as err:
                 raise wtforms.validators.ValidationError(
                     _(
                         "There have been too many unsuccessful login attempts. "
-                        "Try again later."
+                        "You have been locked out for ${time}. "
+                        "Please try again later.",
+                        mapping={
+                            "time": humanize.naturaldelta(err.resets_in.total_seconds())
+                        },
                     )
                 ) from None
 
@@ -174,7 +179,7 @@ class PasswordMixin:
 class NewPasswordMixin:
     new_password = wtforms.PasswordField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Length(
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
@@ -187,7 +192,7 @@ class NewPasswordMixin:
 
     password_confirm = wtforms.PasswordField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Length(
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
@@ -201,6 +206,8 @@ class NewPasswordMixin:
     # These fields are here to provide the various user-defined fields to the
     # PasswordStrengthValidator of the new_password field, to ensure that the
     # newly set password doesn't contain any of them
+    # NOTE: These intentionally use `DataRequired` instead of `InputRequired`,
+    # since they may not be form inputs (i.e., they may be precomputed).
     full_name = wtforms.StringField()  # May be empty
     username = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
     email = wtforms.StringField(validators=[wtforms.validators.DataRequired()])
@@ -221,9 +228,12 @@ class NewPasswordMixin:
 class NewEmailMixin:
     email = wtforms.fields.EmailField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 r".+@.+\..+", message=_("The email address isn't valid. Try again.")
+            ),
+            wtforms.validators.Length(
+                max=254, message=_("The email address is too long. Try again.")
             ),
         ]
     )
@@ -343,8 +353,8 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
                 send_password_compromised_email_hibp(self.request, user)
                 self.user_service.disable_password(
                     user.id,
+                    self.request,
                     reason=DisableReason.CompromisedPassword,
-                    ip_address=self.request.remote_addr,
                 )
                 raise wtforms.validators.ValidationError(
                     markupsafe.Markup(self.breach_service.failure_message)
@@ -367,7 +377,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_totp"},
             )
             raise wtforms.validators.ValidationError(_("Invalid TOTP code."))
@@ -403,7 +413,7 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_webauthn"},
             )
             raise wtforms.validators.ValidationError(str(e))
@@ -412,16 +422,25 @@ class WebAuthnAuthenticationForm(WebAuthnCredentialMixin, _TwoFactorAuthenticati
 
 
 class ReAuthenticateForm(PasswordMixin, forms.Form):
-    __params__ = ["username", "password", "next_route", "next_route_matchdict"]
+    __params__ = [
+        "username",
+        "password",
+        "next_route",
+        "next_route_matchdict",
+        "next_route_query",
+    ]
 
     username = wtforms.fields.HiddenField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[wtforms.validators.InputRequired()]
     )
     next_route = wtforms.fields.HiddenField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[wtforms.validators.InputRequired()]
     )
     next_route_matchdict = wtforms.fields.HiddenField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[wtforms.validators.InputRequired()]
+    )
+    next_route_query = wtforms.fields.HiddenField(
+        validators=[wtforms.validators.InputRequired()]
     )
 
     def __init__(self, *args, user_service, **kwargs):
@@ -444,7 +463,7 @@ class RecoveryCodeAuthenticationForm(
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "invalid_recovery_code"},
             )
             raise wtforms.validators.ValidationError(_("Invalid recovery code."))
@@ -452,7 +471,7 @@ class RecoveryCodeAuthenticationForm(
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=self.request.remote_addr,
+                request=self.request,
                 additional={"reason": "burned_recovery_code"},
             )
             raise wtforms.validators.ValidationError(
@@ -462,7 +481,7 @@ class RecoveryCodeAuthenticationForm(
 
 class RequestPasswordResetForm(forms.Form):
     username_or_email = wtforms.StringField(
-        validators=[wtforms.validators.DataRequired()]
+        validators=[wtforms.validators.InputRequired()]
     )
 
     def __init__(self, *args, user_service, **kwargs):

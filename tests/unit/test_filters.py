@@ -268,10 +268,10 @@ def test_is_recent_none():
         ('"Foo Bar" <foo@bar.com>', "Foo Bar", "foo@bar.com"),
     ],
 )
-def test_format_author_email(meta_email, expected_name, expected_email):
-    author_name, author_email = filters.format_author_email(meta_email)
-    assert author_name == expected_name
-    assert author_email == expected_email
+def test_format_email(meta_email, expected_name, expected_email):
+    name, email = filters.format_email(meta_email)
+    assert name == expected_name
+    assert email == expected_email
 
 
 @pytest.mark.parametrize(

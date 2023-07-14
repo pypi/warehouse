@@ -16,13 +16,14 @@ from pyramid.authentication import (
     SessionAuthenticationHelper,
     extract_http_basic_credentials,
 )
+from pyramid.authorization import ACLHelper
 from pyramid.httpexceptions import HTTPUnauthorized
-from pyramid.interfaces import IAuthorizationPolicy, ISecurityPolicy
-from pyramid.threadlocal import get_current_request
+from pyramid.interfaces import ISecurityPolicy
+from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, User
 from warehouse.cache.http import add_vary_callback
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (
@@ -33,7 +34,7 @@ from warehouse.errors import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.packaging.models import TwoFactorRequireable
-from warehouse.utils.security_policy import AuthenticationMethod
+from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
 def _format_exc_status(exc, message):
@@ -86,8 +87,8 @@ def _basic_auth_check(username, password, request):
                 send_password_compromised_email_hibp(request, user)
                 login_service.disable_password(
                     user.id,
+                    request,
                     reason=DisableReason.CompromisedPassword,
-                    ip_address=request.remote_addr,
                 )
                 raise _format_exc_status(
                     BasicAuthBreachedPassword(), breach_service.failure_message_plain
@@ -96,14 +97,14 @@ def _basic_auth_check(username, password, request):
             login_service.update_user(user.id, last_login=datetime.datetime.utcnow())
             user.record_event(
                 tag=EventTag.Account.LoginSuccess,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={"auth_method": "basic"},
             )
             return True
         else:
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
-                ip_address=request.remote_addr,
+                request=request,
                 additional={"reason": "invalid_password", "auth_method": "basic"},
             )
             raise _format_exc_status(
@@ -122,6 +123,7 @@ def _basic_auth_check(username, password, request):
 class SessionSecurityPolicy:
     def __init__(self):
         self._session_helper = SessionAuthenticationHelper()
+        self._acl = ACLHelper()
 
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
@@ -182,12 +184,14 @@ class SessionSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
+        return _permits_for_user_policy(self._acl, request, context, permission)
 
 
 @implementer(ISecurityPolicy)
 class BasicAuthSecurityPolicy:
+    def __init__(self):
+        self._acl = ACLHelper()
+
     def identity(self, request):
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
@@ -223,82 +227,77 @@ class BasicAuthSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        # Handled by MultiSecurityPolicy
-        raise NotImplementedError
+        return _permits_for_user_policy(self._acl, request, context, permission)
 
 
-@implementer(IAuthorizationPolicy)
-class TwoFactorAuthorizationPolicy:
-    def __init__(self, policy):
-        self.policy = policy
+def _permits_for_user_policy(acl, request, context, permission):
+    # It should only be possible for request.identity to be a User object
+    # at this point, and we only a User in these policies.
+    assert isinstance(request.identity, User)
 
-    def permits(self, context, principals, permission):
-        # The Pyramid API doesn't let us access the request here, so we have to pull it
-        # out of the thread local instead.
-        # TODO: Work with Pyramid devs to figure out if there is a better way to support
-        #       the worklow we are using here or not.
-        request = get_current_request()
+    # Dispatch to our ACL
+    # NOTE: These parameters are in a different order than the signature of this method.
+    res = acl.permits(context, principals_for(request.identity), permission)
 
-        # Our request could possibly be a None, if there isn't an active request, in
-        # that case we're going to always deny, because without a request, we can't
-        # determine if this request is authorized or not.
-        if request is None:
+    # If our underlying permits allowed this, we will check our 2FA status,
+    # that might possibly return a reason to deny the request anyways, and if
+    # it does we'll return that.
+    if isinstance(res, Allowed):
+        mfa = _check_for_mfa(request, context)
+        if mfa is not None:
+            return mfa
+
+    return res
+
+
+def _check_for_mfa(request, context) -> WarehouseDenied | None:
+    # It should only be possible for request.identity to be a User object
+    # at this point, and we only a User in these policies.
+    assert isinstance(request.identity, User)
+
+    # Check if the context is 2FA requireable, if 2FA is indeed required, and if
+    # the user has 2FA enabled.
+    if isinstance(context, TwoFactorRequireable):
+        # Check if we allow owners to require 2FA, and if so does our context owner
+        # require 2FA? And if so does our user have 2FA?
+        if (
+            request.registry.settings["warehouse.two_factor_requirement.enabled"]
+            and context.owners_require_2fa
+            and not request.identity.has_two_factor
+        ):
             return WarehouseDenied(
-                "There was no active request.", reason="no_active_request"
+                "This project requires two factor authentication to be enabled "
+                "for all contributors.",
+                reason="owners_require_2fa",
             )
 
-        # Check if the subpolicy permits authorization
-        subpolicy_permits = self.policy.permits(context, principals, permission)
-
-        # If the request is permitted by the subpolicy, check if the context is
-        # 2FA requireable, if 2FA is indeed required, and if the user has 2FA
-        # enabled.
-        #
-        # We check for `request.user` explicitly because we don't perform
-        # this check for non-user identities: the only way a non-user
-        # identity can be created is after a 2FA check on a 2FA-mandated
-        # project.
+        # Check if PyPI is enforcing the 2FA mandate on "critical" projects, and if it
+        # is does our current context require it, and if it does, does our user have
+        # 2FA?
         if (
-            subpolicy_permits
-            and isinstance(context, TwoFactorRequireable)
-            and request.user
+            request.registry.settings["warehouse.two_factor_mandate.enabled"]
+            and context.pypi_mandates_2fa
+            and not request.identity.has_two_factor
         ):
-            if (
-                request.registry.settings["warehouse.two_factor_requirement.enabled"]
-                and context.owners_require_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "This project requires two factor authentication to be enabled "
-                    "for all contributors.",
-                    reason="owners_require_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.enabled"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                return WarehouseDenied(
-                    "PyPI requires two factor authentication to be enabled "
-                    "for all contributors to this project.",
-                    reason="pypi_mandates_2fa",
-                )
-            if (
-                request.registry.settings["warehouse.two_factor_mandate.available"]
-                and context.pypi_mandates_2fa
-                and not request.user.has_two_factor
-            ):
-                request.session.flash(
-                    "This project is included in PyPI's two-factor mandate "
-                    "for critical projects. In the future, you will be unable to "
-                    "perform this action without enabling 2FA for your account",
-                    queue="warning",
-                )
+            return WarehouseDenied(
+                "PyPI requires two factor authentication to be enabled "
+                "for all contributors to this project.",
+                reason="pypi_mandates_2fa",
+            )
 
-        return subpolicy_permits
+        # Check if PyPI's 2FA mandate is available, but not enforcing, and if it is and
+        # the current context would require 2FA, and if our user doesn't have have 2FA
+        # then we'll flash a warning.
+        if (
+            request.registry.settings["warehouse.two_factor_mandate.available"]
+            and context.pypi_mandates_2fa
+            and not request.identity.has_two_factor
+        ):
+            request.session.flash(
+                "This project is included in PyPI's two-factor mandate "
+                "for critical projects. In the future, you will be unable to "
+                "perform this action without enabling 2FA for your account",
+                queue="warning",
+            )
 
-    def principals_allowed_by_permission(self, context, permission):
-        # We just dispatch this, because this policy doesn't restrict what
-        # principals are allowed by a particular permission, it just restricts
-        # specific requests to not have that permission.
-        return self.policy.principals_allowed_by_permission(context, permission)
+    return None

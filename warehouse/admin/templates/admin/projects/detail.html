@@ -249,7 +249,11 @@
             {% for pub in oidc_publishers %}
             <tr>
               <td>{{ pub.publisher_name }}</td>
-              <td><a href="{{ pub.publisher_url }}">{{ pub.repository }}</a></td>
+              {% if pub.publisher_url() %}
+              <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
+              {% else %}
+              <td>N/A</td>
+              {% endif %}
               <td><code>{{ pub }}</code></td>
             </tr>
             {% endfor %}
@@ -280,7 +284,6 @@
             <th>version</th>
             <th>date</th>
             <th>submitted_by</th>
-            <th>submitted_from</th>
             <th>action</th>
           </tr>
         </thead>
@@ -291,7 +294,6 @@
             <td>{{ entry.version }}</td>
             <td>{{ entry.submitted_date }}</td>
             <td><a href="{{ request.route_path('admin.user.detail', username=entry.submitted_by.username) }}">{{ entry.submitted_by.username }}</a></td>
-            <td>{{ entry.submitted_from }}</td>
             <td>{{ entry.action }}</td>
           </tr>
           {% endfor %}
@@ -320,6 +322,9 @@
           <th scope="col">Event</th>
           <th scope="col">Time</th>
           <th scope="col">IP address</th>
+          <th scope="col">Hashed IP address</th>
+          <th scope="col">Location Info</th>
+          <th scope="col">User-Agent</th>
           <th scope="col">Additional information</th>
         </tr>
       </thead>
@@ -329,6 +334,9 @@
           <td>{{ event.tag }}</td>
           <td>{{ event.time }}</td>
           <td>{{ event.ip_address }}</td>
+          <td>{{ event.ip_address.hashed_ip_address }}</td>
+          <td>{{ event.location_info }}</td>
+          <td>{{ event.user_agent_info }}</td>
           <td>{{ event.additional }}</td>
         </tr>
         {% endfor %}

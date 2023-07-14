@@ -26,6 +26,10 @@ class BasicAuthAccountFrozen(HTTPUnauthorized):
     pass
 
 
+class BasicAuthTwoFactorEnabled(HTTPUnauthorized):
+    pass
+
+
 class WarehouseDenied(Denied):
     def __new__(cls, s, *args, reason=None, **kwargs):
         inner = super().__new__(cls, s, *args, **kwargs)

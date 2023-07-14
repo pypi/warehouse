@@ -37,9 +37,10 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
+      start_period: 10s
 
   stripe:
-    image: stripe/stripe-mock:v0.158.0
+    image: stripe/stripe-mock:v0.162.0
     ports:
       - "12111:12111"
 
@@ -77,16 +78,14 @@ services:
       GOCAMO_MAXSIZE: 10000
       GOCAMO_MAXSIZEREDIRECT: "https://warehouse-camo.ingress.cmh1.psfhosted.org/d1e139dd79d95783a48690c79813071314e45a69/68747470733a2f2f73746f726167652e676f6f676c65617069732e636f6d2f707970692d6173736574732f696d6167652d746f6f2d6c617267652d31306d622e706e67"
 
-  web:
+  base:
     build:
       context: .
       args:
         DEVEL: "yes"
         IPYTHON: "no"
     image: warehouse:docker-compose
-    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
-    env_file: dev/environment
-    volumes:
+    volumes: &base_volumes
       # We specify paths explicitly to only add what we need, and to avoid
       # adding the entire repository.
       # The :z option fixes permission issues with SELinux by setting a
@@ -111,6 +110,13 @@ services:
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
+
+  web:
+    image: warehouse:docker-compose
+    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    env_file: dev/environment
+    pull_policy: never
+    volumes: *base_volumes
     ports:
       - "${WEB_PORT:-80}:8000"
     depends_on:
@@ -156,6 +162,8 @@ services:
       context: .
       target: static-deps
     image: warehouse:docker-compose-static
+    ports:
+      - "35729:35729" # LiveReload
     environment:
       NODE_ENV: "development"
     command: bash -c "npm run watch"

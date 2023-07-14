@@ -16,14 +16,17 @@
 {% block content %}
 <h3>{% trans %}What?{% endtrans %}</h3>
 <p>
-  {% trans site=request.registry.settings["site.name"] %}During your recent upload or upload attempt of {{ project_name }} to {{ site }}, we noticed you used basic authentication (username &amp; password). However, your account has two-factor authentication (2FA) enabled.{% endtrans %}
+  {% trans site=request.registry.settings["site.name"] %}During your recent upload or upload attempt of {{ project_name }} to {{ site }}, we noticed you attempted to use basic authentication (username &amp; password). However, your account has two-factor authentication (2FA) enabled.{% endtrans %}
 </p>
 <p>
-  {% trans site=request.registry.settings["site.name"] %}In the near future, {{ site }} will begin prohibiting uploads using basic authentication for accounts with two-factor authentication enabled. Instead, we will require API tokens to be used.{% endtrans %}
+  {% trans site=request.registry.settings["site.name"] %}{{ site }} now prohibits uploads using basic authentication for accounts with two-factor authentication enabled. Instead, we require API tokens or Trusted Publishers to be used instead.{% endtrans %}
 </p>
 
 <h3>{% trans %}What should I do?{% endtrans %}</h3>
 <p>
-  {% trans new_token_url=request.route_url('manage.account.token', _host=request.registry.settings.get('warehouse.domain')), token_help_url=request.help_url(_anchor='apitoken') %}First, generate an API token for your account or project at {{ new_token_url }}. Then, use this token when publishing instead of your username and password. See {{ token_help_url }} for help using API tokens to publish.{% endtrans %}
+  {% trans new_token_url=request.route_url('manage.account.token', _host=request.registry.settings.get('warehouse.domain')), token_help_url=request.help_url(_anchor='apitoken') %}If using API tokens, generate an API token for your account or project at {{ new_token_url }}. Then, use this token when publishing instead of your username and password. See {{ token_help_url }} for help using API tokens to publish.{% endtrans %}
+</p>
+<p>
+{% trans tp_url="https://docs.pypi.org/trusted-publishers/" %}If using Trusted Publishers (preferred), see {{ tp_url }} to get started.{% endtrans %}
 </p>
 {% endblock %}

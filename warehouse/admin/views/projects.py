@@ -22,6 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
+from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, remove_project
@@ -117,7 +118,7 @@ def project_detail(project, request):
         entry
         for entry in (
             request.db.query(JournalEntry)
-            .options(joinedload("submitted_by"))
+            .options(joinedload(JournalEntry.submitted_by))
             .filter(JournalEntry.name == project.name)
             .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
             .limit(30)
@@ -198,13 +199,34 @@ def releases_list(project, request):
 def release_detail(release, request):
     journals = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == release.project.name)
         .filter(JournalEntry.version == release.version)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
     )
     return {"release": release, "journals": journals}
+
+
+@view_config(
+    route_name="admin.project.release.render",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+    require_methods=False,
+)
+def release_render(release, request):
+    request.task(update_release_description).delay(release.id)
+    request.session.flash(
+        f"Task sent to re-render description for {release!r}", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
 
 
 @view_config(
@@ -230,7 +252,7 @@ def journals_list(project, request):
 
     journals_query = (
         request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == project.name)
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
     )
@@ -404,7 +426,6 @@ def add_role(project, request):
             name=project.name,
             action=f"add {role_name} {user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 
@@ -455,7 +476,6 @@ def delete_role(project, request):
             name=project.name,
             action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
-            submitted_from=request.remote_addr,
         )
     )
 

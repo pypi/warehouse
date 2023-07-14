@@ -27,7 +27,7 @@ import packaging.utils
 import packaging.version
 import packaging_legacy.version
 import pkg_resources
-import requests
+import sentry_sdk
 import wtforms
 import wtforms.validators
 
@@ -48,7 +48,12 @@ from trove_classifiers import classifiers, deprecated_classifiers
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.email import send_basic_auth_with_two_factor_email
+from warehouse.email import (
+    send_basic_auth_with_two_factor_email,
+    send_egg_uploads_deprecated_email,
+    send_gpg_signature_uploaded_email,
+)
+from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -62,10 +67,7 @@ from warehouse.packaging.models import (
     Project,
     Release,
 )
-from warehouse.packaging.tasks import (
-    sync_file_to_archive,
-    update_bigquery_release_files,
-)
+from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
@@ -79,6 +81,15 @@ MAX_SIGSIZE = 8 * 1024
 MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
+
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
+
+# If the zip file decompressed to 50x more space
+# than it is uncompressed, consider it a ZIP bomb.
+# Note that packages containing interface descriptions, JSON,
+# such resources can compress really well.
+# See discussion here: https://github.com/pypi/warehouse/issues/13962
+COMPRESSION_RATIO_THRESHOLD = 50
 
 
 # Wheel platform checking
@@ -421,7 +432,7 @@ class MetadataForm(forms.Form):
     metadata_version = wtforms.StringField(
         description="Metadata-Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
@@ -436,7 +447,7 @@ class MetadataForm(forms.Form):
     name = wtforms.StringField(
         description="Name",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE,
                 re.IGNORECASE,
@@ -450,7 +461,7 @@ class MetadataForm(forms.Form):
     version = wtforms.StringField(
         description="Version",
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.Regexp(
                 r"^(?!\s).*(?<!\s)$",
                 message="Can't have leading or trailing whitespace.",
@@ -526,7 +537,7 @@ class MetadataForm(forms.Form):
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
                 ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
             ),
@@ -655,11 +666,6 @@ def _validate_filename(filename):
         )
 
 
-_safe_zipnames = re.compile(r"(purelib|platlib|headers|scripts|data).+", re.I)
-# .tar uncompressed, .tar.gz .tgz, .tar.bz2 .tbz2
-_tar_filenames_re = re.compile(r"\.(?:tar$|t(?:ar\.)?(?P<z_type>gz|bz2)$)")
-
-
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -669,6 +675,22 @@ def _is_valid_dist_file(filename, filetype):
     # If our file is a zipfile, then ensure that it's members are only
     # compressed with supported compression methods.
     if zipfile.is_zipfile(filename):
+        # Ensure the compression ratio is not absurd (decompression bomb)
+        compressed_size = os.stat(filename).st_size
+        with zipfile.ZipFile(filename) as zfp:
+            decompressed_size = sum(e.file_size for e in zfp.infolist())
+        if (
+            decompressed_size > COMPRESSION_RATIO_MIN_SIZE
+            and decompressed_size / compressed_size > COMPRESSION_RATIO_THRESHOLD
+        ):
+            sentry_sdk.capture_message(
+                f"File {filename} ({filetype}) exceeds compression ratio "
+                f"of {COMPRESSION_RATIO_THRESHOLD} "
+                f"({decompressed_size}/{compressed_size})"
+            )
+            return False
+
+        # Check that the compression type is valid
         with zipfile.ZipFile(filename) as zfp:
             for zinfo in zfp.infolist():
                 if zinfo.compress_type not in {
@@ -677,12 +699,13 @@ def _is_valid_dist_file(filename, filetype):
                 }:
                     return False
 
-    tar_fn_match = _tar_filenames_re.search(filename)
-    if tar_fn_match:
+    if filename.endswith(".tar.gz"):
+        # TODO: Ideally Ensure the compression ratio is not absurd
+        # (decompression bomb), like we do for wheel/zip above.
+
         # Ensure that this is a valid tar file, and that it contains PKG-INFO.
-        z_type = tar_fn_match.group("z_type") or ""
         try:
-            with tarfile.open(filename, f"r:{z_type}") as tar:
+            with tarfile.open(filename, "r:gz") as tar:
                 # This decompresses the entire stream to validate it and the
                 # tar within.  Easy CPU DoS attack. :/
                 bad_tar = True
@@ -696,34 +719,6 @@ def _is_valid_dist_file(filename, filetype):
                     return False
         except (tarfile.ReadError, EOFError):
             return False
-    elif filename.endswith(".exe"):
-        # The only valid filetype for a .exe file is "bdist_wininst".
-        if filetype != "bdist_wininst":
-            return False
-
-        # Ensure that the .exe is a valid zip file, and that all of the files
-        # contained within it have safe filenames.
-        try:
-            with zipfile.ZipFile(filename, "r") as zfp:
-                # We need the no branch below to work around a bug in
-                # coverage.py where it's detecting a missed branch where there
-                # isn't one.
-                for zipname in zfp.namelist():  # pragma: no branch
-                    if not _safe_zipnames.match(zipname):
-                        return False
-        except zipfile.BadZipFile:
-            return False
-    elif filename.endswith(".msi"):
-        # The only valid filetype for a .msi is "bdist_msi"
-        if filetype != "bdist_msi":
-            return False
-
-        # Check the first 8 bytes of the MSI file. This was taken from the
-        # legacy implementation of PyPI which itself took it from the
-        # implementation of `file` I believe.
-        with open(filename, "rb") as fp:
-            if fp.read(8) != b"\xD0\xCF\x11\xE0\xA1\xB1\x1A\xE1":
-                return False
     elif filename.endswith(".zip") or filename.endswith(".egg"):
         # Ensure that the .zip/.egg is a valid zip file, and that it has a
         # PKG-INFO file.
@@ -794,6 +789,19 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
+def _extract_wheel_metadata(path):
+    """
+    Extract METADATA file from a wheel and return it as a content.
+    The name of the .whl file is used to find the corresponding .dist-info dir.
+    See https://peps.python.org/pep-0491/#file-contents
+    """
+    filename = os.path.basename(path)
+    namever = _wheel_file_re.match(filename).group("namever")
+    metafile = f"{namever}.dist-info/METADATA"
+    with zipfile.ZipFile(path) as zfp:
+        return zfp.read(metafile)
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -802,6 +810,9 @@ def _is_duplicate_file(db_session, filename, hashes):
     has_translations=True,
 )
 def file_upload(request):
+    # This is a list of warnings that we'll emit *IF* the request is successful.
+    warnings = []
+
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
         raise _exc_with_message(
@@ -875,8 +886,7 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' and 'gpg_signature' fields _should_ be a
-    # FieldStorage, however.
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
@@ -937,13 +947,21 @@ def file_upload(request):
         # Another sanity check: we should be preventing non-user identities
         # from creating projects in the first place with scoped tokens,
         # but double-check anyways.
+        # This can happen if a user mismatches between the project name in
+        # their pending publisher (1) and the project name in their metadata (2):
+        # the pending publisher will create an empty project named (1) and will
+        # produce a valid API token, but the project lookup above uses (2)
+        # and will fail because (1) != (2).
         if not request.user:
             raise _exc_with_message(
                 HTTPBadRequest,
                 (
                     "Non-user identities cannot create new projects. "
-                    "You must first create a project as a user, and then "
-                    "configure the project to use trusted publishers."
+                    "This was probably caused by successfully using a pending "
+                    "publisher but specifying the project name incorrectly (either "
+                    "in the publisher or in your project's metadata). Please ensure "
+                    "that both match. "
+                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
                 ),
             )
 
@@ -955,7 +973,9 @@ def file_upload(request):
 
         project_service = request.find_service(IProjectService)
         try:
-            project = project_service.create_project(form.name.data, request.user)
+            project = project_service.create_project(
+                form.name.data, request.user, request
+            )
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -1000,9 +1020,16 @@ def file_upload(request):
         request.authentication_method == AuthenticationMethod.BASIC_AUTH
         and request.user.has_two_factor
     ):
-        # Eventually, raise here to disable basic auth with 2FA enabled
         send_basic_auth_with_two_factor_email(
             request, request.user, project_name=project.name
+        )
+        raise _exc_with_message(
+            BasicAuthTwoFactorEnabled,
+            (
+                f"User { request.user.username } has two factor auth enabled, "
+                "an API Token or Trusted Publisher must be used to upload "
+                "in place of password."
+            ),
         )
 
     # Update name if it differs but is still equivalent. We don't need to check if
@@ -1129,6 +1156,15 @@ def file_upload(request):
         )
         request.db.add(release)
 
+        if "gpg_signature" in request.POST:
+            warnings.append(
+                "GPG signature support has been removed from PyPI and the "
+                "provided signature has been discarded."
+            )
+            send_gpg_signature_uploaded_email(
+                request, request.user, project_name=project.name
+            )
+
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -1138,19 +1174,20 @@ def file_upload(request):
                 version=release.version,
                 action="new release",
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
         project.record_event(
             tag=EventTag.Project.ReleaseAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
             },
@@ -1178,10 +1215,20 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename)
 
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = pkg_resources.safe_name(
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith((".egg", ".whl"))
+        # For source releases, we know that the version should not contain any
+        # hyphens, so we can split on the last hyphen to get the project name.
+        else filename.rpartition("-")[0]
+    ).lower()
+
     # Make sure that our filename matches the project that it is being uploaded
     # to.
-    prefix = pkg_resources.safe_name(project.name).lower()
-    if not pkg_resources.safe_name(filename).lower().startswith(prefix):
+    if (prefix := pkg_resources.safe_name(project.name).lower()) != filename_prefix:
         raise _exc_with_message(
             HTTPBadRequest,
             f"Start filename for {project.name!r} with {prefix!r}.",
@@ -1208,10 +1255,11 @@ def file_upload(request):
         with open(temporary_filename, "wb") as fp:
             file_size = 0
             file_hashes = {
-                "md5": hashlib.md5(),
+                "md5": hashlib.md5(usedforsecurity=False),
                 "sha256": hashlib.sha256(),
                 "blake2_256": hashlib.blake2b(digest_size=256 // 8),
             }
+            metadata_file_hashes = {}
             for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
                 file_size += len(chunk)
                 if file_size > file_size_limit:
@@ -1322,27 +1370,29 @@ def file_upload(request):
                         "platform tag '{plat}'.".format(filename=filename, plat=plat),
                     )
 
-        # Also buffer the entire signature file to disk.
-        if "gpg_signature" in request.POST:
-            has_signature = True
-            with open(os.path.join(tmpdir, filename + ".asc"), "wb") as fp:
-                signature_size = 0
-                for chunk in iter(
-                    lambda: request.POST["gpg_signature"].file.read(8096), b""
-                ):
-                    signature_size += len(chunk)
-                    if signature_size > MAX_SIGSIZE:
-                        raise _exc_with_message(HTTPBadRequest, "Signature too large.")
-                    fp.write(chunk)
-
-            # Check whether signature is ASCII armored
-            with open(os.path.join(tmpdir, filename + ".asc"), "rb") as fp:
-                if not fp.read().startswith(b"-----BEGIN PGP SIGNATURE-----"):
-                    raise _exc_with_message(
-                        HTTPBadRequest, "PGP signature isn't ASCII armored."
-                    )
-        else:
-            has_signature = False
+            try:
+                wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+            except KeyError:
+                namever = wheel_info.group("namever")
+                metadata_filename = f"{namever}.dist-info/METADATA"
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "Wheel '{filename}' does not contain the required "
+                    "METADATA file: {metadata_filename}".format(
+                        filename=filename, metadata_filename=metadata_filename
+                    ),
+                )
+            with open(temporary_filename + ".metadata", "wb") as fp:
+                fp.write(wheel_metadata_contents)
+            metadata_file_hashes = {
+                "sha256": hashlib.sha256(),
+                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+            }
+            for hasher in metadata_file_hashes.values():
+                hasher.update(wheel_metadata_contents)
+            metadata_file_hashes = {
+                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
+            }
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
@@ -1357,10 +1407,11 @@ def file_upload(request):
             packagetype=form.filetype.data,
             comment_text=form.comment.data,
             size=file_size,
-            has_signature=bool(has_signature),
             md5_digest=file_hashes["md5"],
             sha256_digest=file_hashes["sha256"],
             blake2_256_digest=file_hashes["blake2_256"],
+            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
+            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
             # Figure out what our filepath is going to be, we're going to use a
             # directory structure based on the hash of the file contents. This
             # will ensure that the contents of the file cannot change without
@@ -1380,14 +1431,16 @@ def file_upload(request):
 
         file_.record_event(
             tag=EventTag.File.FileAdd,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "filename": file_.filename,
                 "submitted_by": request.user.username
                 if request.user
                 else "OpenID created token",
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url
+                "publisher_url": request.oidc_publisher.publisher_url(
+                    request.oidc_claims
+                )
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),
@@ -1405,7 +1458,6 @@ def file_upload(request):
                     python_version=file_.python_version, filename=file_.filename
                 ),
                 submitted_by=request.user if request.user else None,
-                submitted_from=request.remote_addr,
             )
         )
 
@@ -1413,7 +1465,7 @@ def file_upload(request):
         #       this won't take affect until after a commit has happened, for
         #       now we'll just ignore it and save it before the transaction is
         #       committed.
-        storage = request.find_service(IFileStorage, name="primary")
+        storage = request.find_service(IFileStorage, name="archive")
         storage.store(
             file_.path,
             os.path.join(tmpdir, filename),
@@ -1424,10 +1476,11 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-        if has_signature:
+
+        if metadata_file_hashes:
             storage.store(
-                file_.pgp_path,
-                os.path.join(tmpdir, filename + ".asc"),
+                file_.metadata_path,
+                os.path.join(tmpdir, filename + ".metadata"),
                 meta={
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
@@ -1437,6 +1490,22 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    # Check that if it's a bdist_egg, notify regarding deprecation.
+    if filename.endswith(".egg"):
+        # send deprecation notice
+        contributors = project.users
+        if project.organization:
+            contributors += project.organization.owners
+            for teamrole in project.team_project_roles:
+                contributors += teamrole.team.members
+
+        for contributor in sorted(set(contributors)):
+            send_egg_uploads_deprecated_email(
+                request,
+                contributor,
+                project_name=project.name,
+            )
 
     # Push updates to BigQuery
     dist_metadata = {
@@ -1473,7 +1542,7 @@ def file_upload(request):
         "packagetype": file_data.packagetype,
         "comment_text": file_data.comment_text,
         "size": file_data.size,
-        "has_signature": file_data.has_signature,
+        "has_signature": False,
         "md5_digest": file_data.md5_digest,
         "sha256_digest": file_data.sha256_digest,
         "blake2_256_digest": file_data.blake2_256_digest,
@@ -1487,15 +1556,11 @@ def file_upload(request):
     # Log a successful upload
     metrics.increment("warehouse.upload.ok", tags=[f"filetype:{form.filetype.data}"])
 
-    # Dispatch our archive task to sync this as soon as possible
-    request.task(sync_file_to_archive).delay(file_.id)
+    # Dispatch our task to sync this to cache as soon as possible
+    request.task(sync_file_to_cache).delay(file_.id)
 
-    return Response()
-
-
-def _legacy_purge(status, *args, **kwargs):
-    if status:
-        requests.post(*args, **kwargs)
+    # Return any warnings that we've accumulated as the response body.
+    return Response("\n".join(warnings))
 
 
 @view_config(

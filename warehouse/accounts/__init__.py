@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.authorization import ACLAuthorizationPolicy
-
 from warehouse.accounts.interfaces import (
     IEmailBreachedService,
     IPasswordBreachedService,
@@ -22,7 +20,6 @@ from warehouse.accounts.models import User
 from warehouse.accounts.security_policy import (
     BasicAuthSecurityPolicy,
     SessionSecurityPolicy,
-    TwoFactorAuthorizationPolicy,
 )
 from warehouse.accounts.services import (
     HaveIBeenPwnedEmailBreachedService,
@@ -33,11 +30,8 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.macaroons.security_policy import (
-    MacaroonAuthorizationPolicy,
-    MacaroonSecurityPolicy,
-)
-from warehouse.oidc.models import OIDCPublisher
+from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
+from warehouse.oidc.utils import OIDCContext
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -64,7 +58,17 @@ def _user(request):
 
 
 def _oidc_publisher(request):
-    return request.identity if isinstance(request.identity, OIDCPublisher) else None
+    return (
+        request.identity.publisher
+        if isinstance(request.identity, OIDCContext)
+        else None
+    )
+
+
+def _oidc_claims(request):
+    return (
+        request.identity.claims if isinstance(request.identity, OIDCContext) else None
+    )
 
 
 def _organization_access(request):
@@ -117,10 +121,7 @@ def includeme(config):
         breached_email_class.create_service, IEmailBreachedService
     )
 
-    # Register our security policies (AuthN + AuthZ)
-    authz_policy = TwoFactorAuthorizationPolicy(
-        policy=MacaroonAuthorizationPolicy(policy=ACLAuthorizationPolicy())
-    )
+    # Register our security policies.
     config.set_security_policy(
         MultiSecurityPolicy(
             [
@@ -128,7 +129,6 @@ def includeme(config):
                 BasicAuthSecurityPolicy(),
                 MacaroonSecurityPolicy(),
             ],
-            authz_policy,
         )
     )
 
@@ -136,6 +136,7 @@ def includeme(config):
     # request identity by type, if they know it.
     config.add_request_method(_user, name="user", reify=True)
     config.add_request_method(_oidc_publisher, name="oidc_publisher", reify=True)
+    config.add_request_method(_oidc_claims, name="oidc_claims", reify=True)
     config.add_request_method(
         _organization_access, name="organization_access", reify=True
     )
@@ -181,4 +182,12 @@ def includeme(config):
         RateLimit(verify_email_ratelimit_string),
         IRateLimiter,
         name="email.verify",
+    )
+    accounts_search_ratelimit_string = config.registry.settings.get(
+        "warehouse.account.accounts_search_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(accounts_search_ratelimit_string),
+        IRateLimiter,
+        name="accounts.search",
     )

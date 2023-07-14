@@ -47,6 +47,12 @@
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       {% endif %}
     </small>
+    <small>
+    {% if event.additional.publisher_url %}
+      {% trans %}URL:{% endtrans %}
+      <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
+    {% endif %}
+    </small>
     {% elif event.tag == EventTag.Project.ReleaseRemove %}
     <strong>
       {# No link to removed release #}
@@ -94,6 +100,12 @@
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
       {% endif %}
+    </small>
+    <small>
+    {% if event.additional.publisher_url %}
+      {% trans %}URL:{% endtrans %}
+      <a href="{{ event.additional.publisher_url }}">{{ event.additional.publisher_url }}</a>
+    {% endif %}
     </small>
     {# NOTE: "project:release:file:remove" is deprecated #}
     {% elif event.tag == EventTag.File.FileRemove or event.tag == "project:release:file:remove" %}
@@ -222,11 +234,15 @@
     </small>
     {% endif %}
     <small>
-      {% trans %}Creator: {% endtrans %}
+      {% trans %}Creator{% endtrans %}:
+      {% if event.additional.publisher_url %}
       {{ event.additional.publisher_name }}:
       <a href="{{ event.additional.publisher_url }}">
         {{ event.additional.publisher_url }}
       </a>
+      {% else %}
+      {{ event.additional.publisher_name }}
+      {% endif %}
       {% if event.additional.workflow %}
       <small>{% trans %}Workflow:{% endtrans %} {{ event.additional.workflow }}</small>
       {% endif %}
@@ -287,7 +303,7 @@
       <tr>
         <th scope="col">{% trans %}Event{% endtrans %}</th>
         <th scope="col">{% trans %}Time{% endtrans %}</th>
-        <th scope="col">{% trans %}IP address{% endtrans %}</th>
+        <th scope="col">{% trans %}Additional info{% endtrans %}</th>
       </tr>
     </thead>
     <tbody>
@@ -299,8 +315,10 @@
           {{ humanize(event.time, time="true") }}
         </td>
         <td>
-          <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-          {{ event.ip_address }}
+          <span class="table__mobile-label">{% trans %}Location info{% endtrans %}</span>
+          {{ "Redacted" if event.additional.redact_ip else event.location_info }}<br>
+          <span class="table__mobile-label">{% trans %}Device Info{% endtrans %}</span>
+          {{ event.user_agent_info }}
         </td>
       </tr>
       {% endfor %}

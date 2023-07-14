@@ -12,7 +12,6 @@
 from datetime import date
 
 from sqlalchemy import Boolean, Column, Date, String, Text
-from sqlalchemy_utils.types.url import URLType
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
@@ -29,7 +28,7 @@ class Banner(db.Model):
 
     # banner display configuration
     text = Column(Text, nullable=False)
-    link_url = Column(URLType, nullable=False)
+    link_url = Column(Text, nullable=False)
     link_label = Column(String, nullable=False, default=DEFAULT_BTN_LABEL)
     fa_icon = Column(String, nullable=False, default=DEFAULT_FA_ICON)
 

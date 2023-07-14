@@ -244,7 +244,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
 
     database_macaroon.user.record_event(
         tag=EventTag.Account.APITokenRemovedLeak,
-        ip_address=request.remote_addr,
+        request=request,
         additional={
             "macaroon_id": str(database_macaroon.id),
             "public_url": disclosure.public_url,

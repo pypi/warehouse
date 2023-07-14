@@ -13,18 +13,20 @@
 -#}
 
 {% if request.has_permission("moderator") %}
-<div class="admin-include">
-<h4>Admin tools for project: <code>{{ project_name }}</code></h4>
-  <a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}" class="button button--primary package-description__edit-button" {{ "" if project else "disabled" }}>View project in admin</a>
-  {% if prohibited %}
-  <a href="{{ request.route_path('admin.prohibited_project_names.list', _query={'q': project_name}) }}" class="button button--secondary package-description__edit-button">🚫 Prohibited</a>
-  {% else %}
-  <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
-    <input name="project" type="hidden" value="{{ project_name }}">
-    <input name="comment" type="hidden" value="malware" id="prohibitedComment">
-    <button type="submit" class="button button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') or prohibited }}>Remove project as malware</button>
-  </form>
-  {% endif %}
-  <a href="https://inspector.pypi.io/project/{{ project_name }}/" class="button button--secondary package-description__edit-button">🕵️ Inspect</a>
+<div class="admin-include split-layout split-layout--middle">
+  <span><b>Admin tools for project: <code>{{ project_name }}</code></b></span>
+  <div>
+    <a href="{{ request.route_path('admin.project.detail', project_name=project_name) }}" class="button button--small button--primary package-description__edit-button" {{ "" if project else "disabled" }}>View project in admin</a>
+    {% if prohibited %}
+    <a href="{{ request.route_path('admin.prohibited_project_names.list', _query={'q': project_name}) }}" class="button button--small button--secondary package-description__edit-button">🚫 Prohibited</a>
+    {% else %}
+    <form class="form-inline" method="GET" action="{{ request.route_path('admin.prohibited_project_names.add') }}">
+      <input name="project" type="hidden" value="{{ project_name }}">
+      <input name="comment" type="hidden" value="malware" id="prohibitedComment">
+      <button type="submit" class="button button--small button--danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}"  {{ "disabled" if not request.has_permission('admin') or prohibited }}>Remove project as malware</button>
+    </form>
+    {% endif %}
+    <a href="https://inspector.pypi.io/project/{{ project_name }}/" class="button button--small button--tertiary package-description__edit-button">🕵️ Inspect</a>
+  </div>
 </div>
 {% endif %}

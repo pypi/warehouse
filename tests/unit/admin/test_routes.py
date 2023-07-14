@@ -35,13 +35,23 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
-            "admin.organization.approve",
-            "/admin/organizations/{organization_id}/approve/",
+            "admin.organization_application.list",
+            "/admin/organization_applications/",
             domain=warehouse,
         ),
         pretend.call(
-            "admin.organization.decline",
-            "/admin/organizations/{organization_id}/decline/",
+            "admin.organization_application.detail",
+            "/admin/organization_applications/{organization_application_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization_application.approve",
+            "/admin/organization_applications/{organization_application_id}/approve/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.organization_application.decline",
+            "/admin/organization_applications/{organization_application_id}/decline/",
             domain=warehouse,
         ),
         pretend.call("admin.user.list", "/admin/users/", domain=warehouse),
@@ -74,8 +84,21 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.wipe_factors",
+            "/admin/users/{username}/wipe_factors/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.prohibited_user_names.bulk_add",
             "/admin/prohibited_user_names/bulk/",
+            domain=warehouse,
+        ),
+        pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
+        pretend.call(
+            "admin.ip_address.detail",
+            "/admin/ip-addresses/{ip_address_id}",
             domain=warehouse,
         ),
         pretend.call("admin.project.list", "/admin/projects/", domain=warehouse),
@@ -96,6 +119,13 @@ def test_includeme():
         pretend.call(
             "admin.project.release",
             "/admin/projects/{project_name}/release/{version}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}/{version}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.project.release.render",
+            "/admin/projects/{project_name}/release/{version}/render/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}/{version}",
             domain=warehouse,
@@ -182,29 +212,6 @@ def test_includeme():
         ),
         pretend.call("admin.flags", "/admin/flags/", domain=warehouse),
         pretend.call("admin.flags.edit", "/admin/flags/edit/", domain=warehouse),
-        pretend.call("admin.checks.list", "/admin/checks/", domain=warehouse),
-        pretend.call(
-            "admin.checks.detail", "/admin/checks/{check_name}", domain=warehouse
-        ),
-        pretend.call(
-            "admin.checks.change_state",
-            "/admin/checks/{check_name}/change_state",
-            domain=warehouse,
-        ),
-        pretend.call(
-            "admin.checks.run_evaluation",
-            "/admin/checks/{check_name}/run_evaluation",
-            domain=warehouse,
-        ),
-        pretend.call("admin.verdicts.list", "/admin/verdicts/", domain=warehouse),
-        pretend.call(
-            "admin.verdicts.detail", "/admin/verdicts/{verdict_id}", domain=warehouse
-        ),
-        pretend.call(
-            "admin.verdicts.review",
-            "/admin/verdicts/{verdict_id}/review",
-            domain=warehouse,
-        ),
         pretend.call(
             "admin.sponsor.list",
             "/admin/sponsors/",
@@ -248,6 +255,11 @@ def test_includeme():
         pretend.call(
             "admin.banner.edit",
             "/admin/banners/{banner_id}/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.helpscout",
+            "/admin/helpscout/app/",
             domain=warehouse,
         ),
     ]

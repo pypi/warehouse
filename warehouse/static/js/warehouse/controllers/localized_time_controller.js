@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 import { Controller } from "@hotwired/stimulus";
-import distanceInWordsToNow from "date-fns/distance_in_words_to_now";
+import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import format from "date-fns/format";
 
 export default class extends Controller {
@@ -31,7 +31,7 @@ export default class extends Controller {
     const timestamp = this.element.getAttribute("datetime");
     const locale = document.documentElement.lang;
     let localTime = this.getLocalTimeFromTimestamp(timestamp);
-    let isoDate = format(localTime, "YYYY-MM-DD HH:mm:ss (Z)");
+    let isoDate = format(localTime, "yyyy-MM-dd HH:mm:ss (xxx)");
     let startOfDay = new Date();
     startOfDay.setUTCHours(0, 0, 0, 0);
 
@@ -40,7 +40,7 @@ export default class extends Controller {
     const options = { month: "short", day: "numeric", year: "numeric" };
 
     if (isRelative && localTime > startOfDay) {
-      this.element.textContent = distanceInWordsToNow(localTime, {includeSeconds: true}) + " ago";
+      this.element.textContent = formatDistanceToNow(localTime, {includeSeconds: true}) + " ago";
     } else {
       if (showTime) {
         this.element.textContent = localTime.toLocaleTimeString(locale, options);

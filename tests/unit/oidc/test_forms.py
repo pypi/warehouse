@@ -21,13 +21,26 @@ from warehouse.oidc import forms
 
 
 class TestPendingGitHubPublisherForm:
-    def test_creation(self):
-        project_factory = pretend.stub()
+    def test_validate(self, monkeypatch):
+        project_factory = []
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+                "project_name": "some-project",
+            }
+        )
         form = forms.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
         )
 
+        # We're testing only the basic validation here.
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
+
         assert form._project_factory == project_factory
+        assert form.validate()
 
     def test_validate_project_name_already_in_use(self):
         project_factory = ["some-project"]
@@ -38,25 +51,6 @@ class TestPendingGitHubPublisherForm:
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_project_name(field)
-
-    def test_validate(self, monkeypatch):
-        data = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repo",
-                "workflow_filename": "some-workflow.yml",
-                "project_name": "some-project",
-            }
-        )
-        form = forms.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=[]
-        )
-
-        # We're testing only the basic validation here.
-        owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
-
-        assert form.validate()
 
 
 class TestGitHubPublisherForm:
@@ -70,11 +64,23 @@ class TestGitHubPublisherForm:
             ("fake-token", {"Authorization": "token fake-token"}),
         ],
     )
-    def test_creation(self, token, headers):
-        form = forms.GitHubPublisherForm(api_token=token)
+    def test_validate(self, token, headers, monkeypatch):
+        data = MultiDict(
+            {
+                "owner": "some-owner",
+                "repository": "some-repo",
+                "workflow_filename": "some-workflow.yml",
+            }
+        )
+        form = forms.GitHubPublisherForm(MultiDict(data), api_token=token)
+
+        # We're testing only the basic validation here.
+        owner_info = {"login": "fake-username", "id": "1234"}
+        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
         assert form._api_token == token
         assert form._headers_auth() == headers
+        assert form.validate(), str(form.errors)
 
     def test_lookup_owner_404(self, monkeypatch):
         response = pretend.stub(
@@ -97,6 +103,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
 
@@ -126,6 +133,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
         assert sentry_sdk.capture_message.calls == [
@@ -162,6 +170,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
 
@@ -237,6 +246,7 @@ class TestGitHubPublisherForm:
                     "Authorization": "token fake-token",
                 },
                 allow_redirects=True,
+                timeout=5,
             )
         ]
         assert response.raise_for_status.calls == [pretend.call()]
@@ -271,22 +281,6 @@ class TestGitHubPublisherForm:
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
         assert not form.validate()
-
-    def test_validate(self, monkeypatch):
-        data = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repo",
-                "workflow_filename": "some-workflow.yml",
-            }
-        )
-        form = forms.GitHubPublisherForm(MultiDict(data), api_token=pretend.stub())
-
-        # We're testing only the basic validation here.
-        owner_info = {"login": "fake-username", "id": "1234"}
-        monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
-
-        assert form.validate()
 
     def test_validate_owner(self, monkeypatch):
         form = forms.GitHubPublisherForm(api_token=pretend.stub())

@@ -26,7 +26,9 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="dog")
     FileFactory.create(release=release1)
-    FileFactory.create(release=release2)
+    FileFactory.create(
+        release=release2, metadata_file_sha256_digest="beefdeadbeefdeadbeefdeadbeefdead"
+    )
 
     fake_hasher = pretend.stub(
         update=pretend.call_recorder(lambda x: None),

@@ -11,255 +11,144 @@
 # limitations under the License.
 
 import pretend
-import pytest
 
-from pyramid.authorization import Authenticated
-from pyramid.security import Denied
+from pyramid.interfaces import ISecurityPolicy
+from zope.interface.verify import verifyClass
 
 from warehouse.utils import security_policy
 
-from ...common.db.accounts import UserFactory
-from ...common.db.oidc import GitHubPublisherFactory
+
+def test_principals_for():
+    identity = pretend.stub(__principals__=lambda: ["a", "b", "z"])
+    assert security_policy.principals_for(identity) == ["a", "b", "z"]
 
 
-@pytest.mark.parametrize(
-    (
-        "is_superuser",
-        "is_moderator",
-        "is_psf_staff",
-        "expected",
-    ),
-    [
-        (False, False, False, []),
-        (
-            True,
-            False,
-            False,
-            [
-                "group:admins",
-                "group:moderators",
-                "group:psf_staff",
-                "group:with_admin_dashboard_access",
-            ],
-        ),
-        (
-            False,
-            True,
-            False,
-            ["group:moderators", "group:with_admin_dashboard_access"],
-        ),
-        (
-            True,
-            True,
-            False,
-            [
-                "group:admins",
-                "group:moderators",
-                "group:psf_staff",
-                "group:with_admin_dashboard_access",
-            ],
-        ),
-        (
-            False,
-            False,
-            True,
-            ["group:psf_staff", "group:with_admin_dashboard_access"],
-        ),
-        (
-            False,
-            True,
-            True,
-            [
-                "group:moderators",
-                "group:psf_staff",
-                "group:with_admin_dashboard_access",
-            ],
-        ),
-    ],
-)
-def test_principals_for_authenticated_user(
-    is_superuser,
-    is_moderator,
-    is_psf_staff,
-    expected,
-):
-    user = pretend.stub(
-        id=1,
-        is_superuser=is_superuser,
-        is_moderator=is_moderator,
-        is_psf_staff=is_psf_staff,
-    )
-    assert security_policy._principals_for_authenticated_user(user) == expected
+def test_principals_for_with_none():
+    assert security_policy.principals_for(pretend.stub()) == []
 
 
 class TestMultiSecurityPolicy:
-    def test_initializes(self):
-        subpolicies = pretend.stub()
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+    def test_verify(self):
+        assert verifyClass(
+            ISecurityPolicy,
+            security_policy.MultiSecurityPolicy,
+        )
 
-        assert policy._policies is subpolicies
-        assert policy._authz is authz
+    def test_reset(self):
+        identity1 = pretend.stub()
+        identity2 = pretend.stub()
+        identities = iter([identity1, identity2])
+
+        subpolicies = [pretend.stub(identity=lambda r: next(identities))]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+
+        assert policy.identity(request) is identity1
+        assert policy.identity(request) is identity1
+
+        policy.reset(request)
+
+        assert policy.identity(request) is identity2
 
     def test_identity_none(self):
-        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: None))]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        subpolicies = [pretend.stub(identity=lambda r: None)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub()
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
         assert policy.identity(request) is None
-        for p in subpolicies:
-            assert p.identity.calls == [pretend.call(request)]
 
     def test_identity_first_come_first_serve(self):
         identity1 = pretend.stub()
         identity2 = pretend.stub()
         subpolicies = [
-            pretend.stub(identity=pretend.call_recorder(lambda r: None)),
-            pretend.stub(identity=pretend.call_recorder(lambda r: identity1)),
-            pretend.stub(identity=pretend.call_recorder(lambda r: identity2)),
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(identity=lambda r: identity1),
+            pretend.stub(identity=lambda r: identity2),
         ]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-        request = pretend.stub()
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
         assert policy.identity(request) is identity1
-        assert subpolicies[0].identity.calls == [pretend.call(request)]
-        assert subpolicies[1].identity.calls == [pretend.call(request)]
-        assert subpolicies[2].identity.calls == []
 
     def test_authenticated_userid_no_identity(self):
-        request = pretend.stub()
-        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: None))]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+        subpolicies = [pretend.stub(identity=lambda r: None)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert policy.authenticated_userid(request) is None
-        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
     def test_authenticated_userid_nonuser_identity(self, db_request):
-        request = pretend.stub()
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
         nonuser = pretend.stub(id="not-a-user-instance")
-        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: nonuser))]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        subpolicies = [pretend.stub(identity=lambda r: nonuser)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert policy.authenticated_userid(request) is None
-        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
-    def test_authenticated_userid(self, db_request):
-        request = pretend.stub()
-        user = UserFactory.create()
-        subpolicies = [pretend.stub(identity=pretend.call_recorder(lambda r: user))]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+    def test_authenticated_userid(self, monkeypatch):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+        user = pretend.stub(id="a fake user")
+        subpolicies = [pretend.stub(identity=lambda r: user)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert policy.authenticated_userid(request) == str(user.id)
-        assert subpolicies[0].identity.calls == [pretend.call(request)]
 
     def test_forget(self):
-        header = pretend.stub()
-        subpolicies = [
-            pretend.stub(forget=pretend.call_recorder(lambda r, **kw: [header]))
-        ]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        subpolicies = [pretend.stub(forget=lambda r, **kw: [("ForgetMe", "1")])]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         request = pretend.stub()
-        assert policy.forget(request, foo=None) == [header]
-        assert subpolicies[0].forget.calls == [pretend.call(request, foo=None)]
+        assert policy.forget(request, foo=None) == [("ForgetMe", "1")]
 
     def test_remember(self):
-        header = pretend.stub()
         subpolicies = [
-            pretend.stub(remember=pretend.call_recorder(lambda r, uid, **kw: [header]))
+            pretend.stub(remember=lambda r, uid, foo, **kw: [("RememberMe", foo)])
         ]
-        authz = pretend.stub()
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         request = pretend.stub()
         userid = pretend.stub()
-        assert policy.remember(request, userid, foo=None) == [header]
-        assert subpolicies[0].remember.calls == [
-            pretend.call(request, userid, foo=None)
+        assert policy.remember(request, userid, foo="bob") == [("RememberMe", "bob")]
+
+    def test_permits(self):
+        identity1 = pretend.stub()
+        identity2 = pretend.stub()
+        context = pretend.stub()
+
+        subpolicies = [
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(
+                identity=lambda r: identity1,
+                permits=(
+                    lambda r, c, p: r.identity == identity1
+                    and c == context
+                    and p == "myperm"
+                ),
+            ),
+            pretend.stub(identity=lambda r: identity2),
         ]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
 
-    def test_permits_user(self, db_request, monkeypatch):
-        subpolicies = pretend.stub()
-        status = pretend.stub()
-        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: status))
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
-
-        principals_for_authenticated_user = pretend.call_recorder(
-            lambda *a: ["some:principal"]
+        request = pretend.stub(
+            identity=identity1,
+            add_finished_callback=lambda *a, **kw: None,
         )
-        monkeypatch.setattr(
-            security_policy,
-            "_principals_for_authenticated_user",
-            principals_for_authenticated_user,
+
+        assert policy.permits(request, context, "myperm")
+
+    def test_permits_no_policy(self):
+        subpolicies = [
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(identity=lambda r: None),
+            pretend.stub(identity=lambda r: None),
+        ]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+        request = pretend.stub(
+            identity=None, add_finished_callback=lambda *a, **kw: None
         )
-
-        user = UserFactory.create()
-        request = pretend.stub(identity=user)
         context = pretend.stub()
-        permission = pretend.stub()
-        assert policy.permits(request, context, permission) is status
-        assert authz.permits.calls == [
-            pretend.call(
-                context,
-                [Authenticated, f"user:{user.id}", "some:principal"],
-                permission,
-            )
-        ]
 
-    def test_permits_oidc_publisher(self, db_request):
-        subpolicies = pretend.stub()
-        status = pretend.stub()
-        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: status))
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
-
-        publisher = GitHubPublisherFactory.create()
-        request = pretend.stub(identity=publisher)
-        context = pretend.stub()
-        permission = pretend.stub()
-        assert policy.permits(request, context, permission) is status
-        assert authz.permits.calls == [
-            pretend.call(
-                context,
-                [Authenticated, f"oidc:{publisher.id}"],
-                permission,
-            )
-        ]
-
-    def test_permits_nonuser_denied(self):
-        subpolicies = pretend.stub()
-        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: pretend.stub()))
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
-
-        # Anything that doesn't pass an isinstance check for User
-        fakeuser = pretend.stub()
-        request = pretend.stub(identity=fakeuser)
-        context = pretend.stub()
-        permission = pretend.stub()
-        assert policy.permits(request, context, permission) == Denied("unimplemented")
-        assert authz.permits.calls == []
-
-    def test_permits_no_identity(self):
-        subpolicies = pretend.stub()
-        status = pretend.stub()
-        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: status))
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
-
-        request = pretend.stub(identity=None)
-        context = pretend.stub()
-        permission = pretend.stub()
-        assert policy.permits(request, context, permission) is status
-        assert authz.permits.calls == [pretend.call(context, [], permission)]
-
-    def test_cant_use_unauthenticated_userid(self):
-        subpolicies = pretend.stub()
-        authz = pretend.stub(permits=pretend.call_recorder(lambda *a: pretend.stub()))
-        policy = security_policy.MultiSecurityPolicy(subpolicies, authz)
-
-        with pytest.raises(NotImplementedError):
-            policy.unauthenticated_userid(pretend.stub())
+        assert not policy.permits(request, context, "myperm")

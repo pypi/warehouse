@@ -84,12 +84,12 @@
   <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
   {% endif %}
   {% if release.author_email %}
-    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_author_email|last }}">{{ release.author or release.author_email|format_author_email|first }}</a></p>
+    <p><strong>{% trans %}Author:{% endtrans %}</strong> <a href="mailto:{{ release.author_email|format_email|last }}">{{ release.author or release.author_email|format_email|first }}</a></p>
   {% elif release.author %}
     <p><strong>{% trans %}Author:{% endtrans %}</strong> {{ release.author }}</p>
   {% endif %}
   {% if release.maintainer_email %}
-    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email }}">{{ release.maintainer or release.maintainer_email }}</a></p>
+    <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> <a href="mailto:{{ release.maintainer_email|format_email|last }}">{{ release.maintainer or release.maintainer_email|format_email|first }}</a></p>
   {% elif release.maintainer %}
     <p><strong>{% trans %}Maintainer:{% endtrans %}</strong> {{ release.maintainer }}</p>
   {% endif %}

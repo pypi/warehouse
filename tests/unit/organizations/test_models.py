@@ -183,6 +183,64 @@ class TestOrganization:
             key=lambda x: x[1],
         )
 
+    def test_record_event_with_geoip(self, db_request):
+        """
+        Test to cover condition when record_event is called with geoip_info as
+        part of the inbound request.
+        Possibly could be removed once more comprehensive tests are in place,
+        but nothing explicitly covers `HasEvents.record_event`
+        """
+        db_request.ip_address.geoip_info = {"country_name": "United States"}
+
+        organization = DBOrganizationFactory.create()
+
+        organization.record_event(
+            tag="",
+            request=db_request,
+            additional={},
+        )
+
+        event = organization.events[0]
+
+        assert event.additional == {
+            "organization_name": organization.name,
+            "geoip_info": {"country_name": "United States"},
+        }
+        assert event.location_info == "United States"
+
+    def test_location_info_without_geoip(self, db_request):
+        organization = DBOrganizationFactory.create()
+        organization.record_event(
+            tag="",
+            request=db_request,
+            additional={},
+        )
+
+        event = organization.events[0]
+
+        assert event.additional == {
+            "organization_name": organization.name,
+        }
+        assert event.location_info == db_request.ip_address
+
+    def test_location_info_with_partial(self, db_request):
+        db_request.ip_address.geoip_info = {"country_code3": "USA"}
+
+        organization = DBOrganizationFactory.create()
+        organization.record_event(
+            tag="",
+            request=db_request,
+            additional={},
+        )
+
+        event = organization.events[0]
+
+        assert event.additional == {
+            "organization_name": organization.name,
+            "geoip_info": {"country_code3": "USA"},
+        }
+        assert event.location_info == db_request.ip_address
+
 
 class TestTeamFactory:
     def test_traversal_finds(self, db_request):

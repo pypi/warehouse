@@ -29,7 +29,7 @@ class GitHubPublisherBase(forms.Form):
 
     owner = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(
+            wtforms.validators.InputRequired(
                 message=_("Specify GitHub repository owner (username or organization)"),
             ),
         ]
@@ -37,7 +37,7 @@ class GitHubPublisherBase(forms.Form):
 
     repository = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message=_("Specify repository name")),
+            wtforms.validators.InputRequired(message=_("Specify repository name")),
             wtforms.validators.Regexp(
                 _VALID_GITHUB_REPO, message=_("Invalid repository name")
             ),
@@ -46,7 +46,7 @@ class GitHubPublisherBase(forms.Form):
 
     workflow_filename = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message=_("Specify workflow filename"))
+            wtforms.validators.InputRequired(message=_("Specify workflow filename"))
         ]
     )
 
@@ -75,6 +75,7 @@ class GitHubPublisherBase(forms.Form):
                     **self._headers_auth(),
                 },
                 allow_redirects=True,
+                timeout=5,
             )
             response.raise_for_status()
         except requests.HTTPError:
@@ -170,7 +171,7 @@ class PendingGitHubPublisherForm(GitHubPublisherBase):
 
     project_name = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message=_("Specify project name")),
+            wtforms.validators.InputRequired(message=_("Specify project name")),
             wtforms.validators.Regexp(
                 PROJECT_NAME_RE, message=_("Invalid project name")
             ),
@@ -199,7 +200,7 @@ class DeletePublisherForm(forms.Form):
 
     publisher_id = wtforms.StringField(
         validators=[
-            wtforms.validators.DataRequired(message=_("Specify a publisher ID")),
+            wtforms.validators.InputRequired(message=_("Specify a publisher ID")),
             wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
         ]
     )

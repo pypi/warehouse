@@ -18,6 +18,8 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import DecodeError, PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
+import warehouse.utils.exceptions
+
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import interfaces, services
 
@@ -351,7 +353,7 @@ class TestOIDCPublisherService:
         monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
 
         requests = pretend.stub(
-            get=pretend.call_recorder(lambda url: pretend.stub(ok=False))
+            get=pretend.call_recorder(lambda url, timeout: pretend.stub(ok=False))
         )
         sentry_sdk = pretend.stub(
             capture_message=pretend.call_recorder(lambda msg: pretend.stub())
@@ -364,7 +366,9 @@ class TestOIDCPublisherService:
         assert keys == {}
         assert metrics.increment.calls == []
         assert requests.get.calls == [
-            pretend.call("https://example.com/.well-known/openid-configuration")
+            pretend.call(
+                "https://example.com/.well-known/openid-configuration", timeout=5
+            )
         ]
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -388,7 +392,7 @@ class TestOIDCPublisherService:
 
         requests = pretend.stub(
             get=pretend.call_recorder(
-                lambda url: pretend.stub(ok=True, json=lambda: {})
+                lambda url, timeout: pretend.stub(ok=True, json=lambda: {})
             )
         )
         sentry_sdk = pretend.stub(
@@ -402,7 +406,9 @@ class TestOIDCPublisherService:
         assert keys == {}
         assert metrics.increment.calls == []
         assert requests.get.calls == [
-            pretend.call("https://example.com/.well-known/openid-configuration")
+            pretend.call(
+                "https://example.com/.well-known/openid-configuration", timeout=5
+            )
         ]
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -432,7 +438,7 @@ class TestOIDCPublisherService:
         )
         jwks_resp = pretend.stub(ok=False)
 
-        def get(url):
+        def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
             else:
@@ -450,8 +456,10 @@ class TestOIDCPublisherService:
         assert keys == {}
         assert metrics.increment.calls == []
         assert requests.get.calls == [
-            pretend.call("https://example.com/.well-known/openid-configuration"),
-            pretend.call("https://example.com/.well-known/jwks.json"),
+            pretend.call(
+                "https://example.com/.well-known/openid-configuration", timeout=5
+            ),
+            pretend.call("https://example.com/.well-known/jwks.json", timeout=5),
         ]
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
@@ -481,7 +489,7 @@ class TestOIDCPublisherService:
         )
         jwks_resp = pretend.stub(ok=True, json=lambda: {})
 
-        def get(url):
+        def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
             else:
@@ -499,8 +507,10 @@ class TestOIDCPublisherService:
         assert keys == {}
         assert metrics.increment.calls == []
         assert requests.get.calls == [
-            pretend.call("https://example.com/.well-known/openid-configuration"),
-            pretend.call("https://example.com/.well-known/jwks.json"),
+            pretend.call(
+                "https://example.com/.well-known/openid-configuration", timeout=5
+            ),
+            pretend.call("https://example.com/.well-known/jwks.json", timeout=5),
         ]
         assert sentry_sdk.capture_message.calls == [
             pretend.call("OIDC publisher example returned JWKS JSON but no keys")
@@ -529,7 +539,7 @@ class TestOIDCPublisherService:
             ok=True, json=lambda: {"keys": [{"kid": "fake-key-id", "foo": "bar"}]}
         )
 
-        def get(url):
+        def get(url, timeout=5):
             if url == "https://example.com/.well-known/jwks.json":
                 return jwks_resp
             else:
@@ -547,8 +557,10 @@ class TestOIDCPublisherService:
         assert keys == {"fake-key-id": {"kid": "fake-key-id", "foo": "bar"}}
         assert metrics.increment.calls == []
         assert requests.get.calls == [
-            pretend.call("https://example.com/.well-known/openid-configuration"),
-            pretend.call("https://example.com/.well-known/jwks.json"),
+            pretend.call(
+                "https://example.com/.well-known/openid-configuration", timeout=5
+            ),
+            pretend.call("https://example.com/.well-known/jwks.json", timeout=5),
         ]
         assert sentry_sdk.capture_message.calls == []
 
@@ -716,7 +728,7 @@ class TestNullOIDCPublisherService:
                 "NullOIDCPublisherService is intended only for use in development, "
                 "you should not use it in production due to the lack of actual "
                 "JWT verification.",
-                services.InsecureOIDCPublisherWarning,
+                warehouse.utils.exceptions.InsecureOIDCPublisherWarning,
             )
         ]
 

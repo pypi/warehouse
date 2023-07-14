@@ -22,7 +22,7 @@ from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
 
 class TestIpAddress:
     def test_repr(self, db_request):
-        ip_address = DBIpAddressFactory(ip_address="1.2.3.4")
+        ip_address = db_request.ip_address
         assert isinstance(repr(ip_address), str)
         assert repr(ip_address) == "1.2.3.4"
 

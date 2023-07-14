@@ -10,8 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import base64
 import distutils.util
 import enum
+import json
 import os
 import shlex
 
@@ -30,7 +32,7 @@ from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
-class Environment(enum.Enum):
+class Environment(str, enum.Enum):
     production = "production"
     development = "development"
 
@@ -58,9 +60,11 @@ class RootFactory:
 
     __acl__ = [
         (Allow, "group:admins", "admin"),
+        (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
+        (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:with_admin_dashboard_access", "admin_dashboard_access"),
+        (Allow, "group:psf_staff", "admin_dashboard_access"),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -134,6 +138,10 @@ def maybe_set_compound(settings, base, name, envvar):
             settings[".".join([base, key])] = value
 
 
+def from_base64_encoded_json(configuration):
+    return json.loads(base64.urlsafe_b64decode(configuration.encode("ascii")))
+
+
 def configure(settings=None):
     if settings is None:
         settings = {}
@@ -153,6 +161,7 @@ def configure(settings=None):
 
     # Pull in default configuration from the environment.
     maybe_set(settings, "warehouse.token", "WAREHOUSE_TOKEN")
+    maybe_set(settings, "warehouse.ip_salt", "WAREHOUSE_IP_SALT")
     maybe_set(settings, "warehouse.num_proxies", "WAREHOUSE_NUM_PROXIES", int)
     maybe_set(settings, "warehouse.domain", "WAREHOUSE_DOMAIN")
     maybe_set(settings, "forklift.domain", "FORKLIFT_DOMAIN")
@@ -164,8 +173,13 @@ def configure(settings=None):
     maybe_set(settings, "aws.region", "AWS_REGION")
     maybe_set(settings, "b2.application_key_id", "B2_APPLICATION_KEY_ID")
     maybe_set(settings, "b2.application_key", "B2_APPLICATION_KEY")
-    maybe_set(settings, "gcloud.credentials", "GCLOUD_CREDENTIALS")
     maybe_set(settings, "gcloud.project", "GCLOUD_PROJECT")
+    maybe_set(
+        settings,
+        "gcloud.service_account_info",
+        "GCLOUD_SERVICE_JSON",
+        from_base64_encoded_json,
+    )
     maybe_set(
         settings, "warehouse.release_files_table", "WAREHOUSE_RELEASE_FILES_TABLE"
     )
@@ -231,6 +245,13 @@ def configure(settings=None):
         coercer=int,
         default=21600,  # 6 hours
     )
+    maybe_set(
+        settings,
+        "reconcile_file_storages.batch_size",
+        "RECONCILE_FILE_STORAGES_BATCH_SIZE",
+        coercer=int,
+        default=100,
+    )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
     maybe_set_compound(settings, "archive_files", "backend", "ARCHIVE_FILES_BACKEND")
@@ -241,7 +262,6 @@ def configure(settings=None):
     maybe_set_compound(settings, "mail", "backend", "MAIL_BACKEND")
     maybe_set_compound(settings, "metrics", "backend", "METRICS_BACKEND")
     maybe_set_compound(settings, "breached_passwords", "backend", "BREACHED_PASSWORDS")
-    maybe_set_compound(settings, "malware_check", "backend", "MALWARE_CHECK_BACKEND")
     maybe_set(
         settings,
         "oidc.backend",
@@ -250,8 +270,18 @@ def configure(settings=None):
     )
 
     # Pythondotorg integration settings
-    maybe_set(settings, "pythondotorg.host", "PYTHONDOTORG_HOST", default="python.org")
+    maybe_set(
+        settings,
+        "pythondotorg.host",
+        "PYTHONDOTORG_HOST",
+        default="https://www.python.org",
+    )
     maybe_set(settings, "pythondotorg.api_token", "PYTHONDOTORG_API_TOKEN")
+
+    # Helpscout integration settings
+    maybe_set(
+        settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
+    )
 
     # Configure our ratelimiters
     maybe_set(
@@ -284,6 +314,12 @@ def configure(settings=None):
         "VERIFY_EMAIL_RATELIMIT_STRING",
         default="3 per 6 hours",
     )
+    maybe_set(
+        settings,
+        "warehouse.account.accounts_search_ratelimit_string",
+        "ACCOUNTS_SEARCH_RATELIMIT_STRING",
+        default="100 per hour",
+    ),
     maybe_set(
         settings,
         "warehouse.account.password_reset_ratelimit_string",
@@ -347,12 +383,13 @@ def configure(settings=None):
 
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
+
     maybe_set(
         settings,
-        "warehouse.oidc.enabled",
-        "OIDC_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
+        "warehouse.organizations.max_undecided_organization_applications",
+        "ORGANIZATION_MAX_UNDECIDED_APPLICATIONS",
+        coercer=int,
+        default=3,
     )
 
     # Add the settings we use when the environment is set to development.
@@ -380,6 +417,12 @@ def configure(settings=None):
                     "introspection.IntrospectionDebugPanel",
                 ]
             ],
+        )
+        maybe_set(
+            settings,
+            "livereload.url",
+            "LIVERELOAD_URL",
+            default="http://localhost:35729",
         )
 
     # Actually setup our Pyramid Configurator with the values pulled in from
@@ -457,7 +500,7 @@ def configure(settings=None):
     filters.setdefault("ctime", "warehouse.filters:ctime")
     filters.setdefault("is_recent", "warehouse.filters:is_recent")
     filters.setdefault("canonicalize_name", "packaging.utils:canonicalize_name")
-    filters.setdefault("format_author_email", "warehouse.filters:format_author_email")
+    filters.setdefault("format_email", "warehouse.filters:format_email")
     filters.setdefault(
         "remove_invalid_xml_unicode", "warehouse.filters:remove_invalid_xml_unicode"
     )
@@ -584,9 +627,6 @@ def configure(settings=None):
     # Register support for OIDC based authentication
     config.include(".oidc")
 
-    # Register support for malware checks
-    config.include(".malware")
-
     # Register logged-in views
     config.include(".manage")
 
@@ -662,6 +702,7 @@ def configure(settings=None):
     config.add_wsgi_middleware(
         ProxyFixer,
         token=config.registry.settings["warehouse.token"],
+        ip_salt=config.registry.settings["warehouse.ip_salt"],
         num_proxies=config.registry.settings.get("warehouse.num_proxies", 1),
     )
 

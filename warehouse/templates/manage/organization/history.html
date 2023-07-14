@@ -200,7 +200,7 @@
       <tr>
         <th scope="col">{% trans %}Event{% endtrans %}</th>
         <th scope="col">{% trans %}Time{% endtrans %}</th>
-        <th scope="col">{% trans %}IP address{% endtrans %}</th>
+        <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
       </tr>
     </thead>
     <tbody>
@@ -212,8 +212,10 @@
           {{ humanize(event.time, time="true") }}
         </td>
         <td>
-          <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-          {{ event.ip_address }}
+          <span class="table__mobile-label">{% trans %}Location Info{% endtrans %}</span>
+          {{ "Redacted" if event.additional.redact_ip else event.location_info }}<br>
+          <span class="table__mobile-label">{% trans %}Device Info{% endtrans %}</span>
+          {{ event.user_agent_info }}
         </td>
       </tr>
       {% endfor %}

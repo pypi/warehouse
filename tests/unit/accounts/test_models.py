@@ -11,10 +11,14 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pytest
 
+from pyramid.authorization import Authenticated
+
 from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
+from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
@@ -102,23 +106,20 @@ class TestUser:
 
     def test_recent_events(self, db_session):
         user = DBUserFactory.create()
-        recent_event = DBUserEventFactory(source=user, tag="foo", ip_address="0.0.0.0")
+        recent_event = DBUserEventFactory(source=user, tag="foo")
         legacy_event = DBUserEventFactory(
             source=user,
             tag="wu",
-            ip_address_string="0.0.0.0",
             time=datetime.datetime.now() - datetime.timedelta(days=1),
         )
         stale_event = DBUserEventFactory(
             source=user,
             tag="bar",
-            ip_address="0.0.0.0",
             time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
         assert user.events.all() == [recent_event, legacy_event, stale_event]
         assert user.recent_events.all() == [recent_event, legacy_event]
-        assert user.recent_events.all()[-1].ip_address == "0.0.0.0"
 
     def test_regular_user_not_prohibited_password_reset(self, db_session):
         user = DBUserFactory.create()
@@ -162,3 +163,62 @@ class TestUser:
             ("Allow", "group:admins", "admin"),
             ("Allow", "group:moderators", "moderator"),
         ]
+
+    @pytest.mark.parametrize(
+        (
+            "is_superuser",
+            "is_moderator",
+            "is_psf_staff",
+            "expected",
+        ),
+        [
+            (False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (
+                False,
+                True,
+                False,
+                ["group:moderators"],
+            ),
+            (
+                True,
+                True,
+                False,
+                ["group:admins", "group:moderators", "group:psf_staff"],
+            ),
+            (
+                False,
+                False,
+                True,
+                ["group:psf_staff"],
+            ),
+            (
+                False,
+                True,
+                True,
+                ["group:moderators", "group:psf_staff"],
+            ),
+        ],
+    )
+    def test_principals(
+        self,
+        is_superuser,
+        is_moderator,
+        is_psf_staff,
+        expected,
+    ):
+        user = User(
+            id=uuid.uuid4(),
+            is_superuser=is_superuser,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
+
+        expected = expected[:] + [f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)

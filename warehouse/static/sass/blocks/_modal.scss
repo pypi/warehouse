@@ -123,6 +123,12 @@
       width: auto;
       margin: 0;
     }
+
+    .inline-checkbox {
+      // Resets width for checkboxes in modal
+      width: auto;
+      min-width: auto;
+    }
   }
 
   &--wide {

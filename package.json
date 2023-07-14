@@ -6,8 +6,9 @@
     "build": "webpack",
     "watch": "webpack --watch",
     "lint": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
+    "lint:fix": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
     "stylelint": "stylelint '**/*.scss' --cache",
-    "stylelint-fix": "stylelint '**/*.scss' --cache --fix",
+    "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
     "test": "jest --coverage"
   },
   "jest": {
@@ -22,11 +23,12 @@
     "@hotwired/stimulus": "^3.2.1",
     "@hotwired/stimulus-webpack-helpers": "^1.0.1",
     "admin-lte": "^3.2.0",
-    "cookie": "0.4.0",
-    "date-fns": "1.29.0",
-    "debounce": "1.2.0",
-    "jquery": "3.5.0",
-    "normalize.css": "^8.0.1"
+    "cookie": "^0.5.0",
+    "date-fns": "^2.30.0",
+    "debounce": "^1.2.1",
+    "jquery": "^3.7.0",
+    "normalize.css": "^8.0.1",
+    "stimulus-autocomplete": "^3.1.0"
   },
   "overrides": {
     "sweetalert2": "11.4.8"
@@ -54,12 +56,13 @@
     "sass-embedded": "^1.57.1",
     "sass-loader": "^13.2.0",
     "sharp": "^0.32.0",
-    "stylelint": "^15.3.0",
+    "stylelint": "^15.10.1",
     "stylelint-config-standard-scss": "^9.0.0",
     "stylelint-selector-bem-pattern": "^2.1.1",
     "svgo": "^3.0.2",
     "webpack": "^5.80.0",
     "webpack-cli": "^5.0.2",
+    "webpack-livereload-plugin": "^3.0.2",
     "webpack-manifest-plugin": "^5.0.0",
     "webpack-remove-empty-scripts": "^1.0.3"
   },

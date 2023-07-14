@@ -39,7 +39,6 @@ from tests.common.db.subscriptions import (
 )
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.accounts.interfaces import TokenExpired
-from warehouse.events.tags import EventTag
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations import IOrganizationService
@@ -57,12 +56,14 @@ from warehouse.utils.paginate import paginate_url_factory
 
 class TestManageOrganizations:
     def test_default_response(self, monkeypatch):
-        create_organization_obj = pretend.stub()
-        create_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_obj
+        create_organization_application_obj = pretend.stub()
+        create_organization_application_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_application_obj
         )
         monkeypatch.setattr(
-            org_views, "CreateOrganizationForm", create_organization_cls
+            org_views,
+            "CreateOrganizationApplicationForm",
+            create_organization_application_cls,
         )
 
         organization = pretend.stub(name=pretend.stub(), is_approved=None)
@@ -82,31 +83,40 @@ class TestManageOrganizations:
         )
         user_service = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(id=pretend.stub(), username=pretend.stub()),
+            user=pretend.stub(
+                id=pretend.stub(), username=pretend.stub(), organization_applications=[]
+            ),
             find_service=lambda interface, **kw: {
                 IOrganizationService: organization_service,
                 IUserService: user_service,
             }[interface],
+            registry=pretend.stub(
+                settings={
+                    "warehouse.organizations.max_undecided_organization_applications": 3
+                }
+            ),
         )
 
         view = org_views.ManageOrganizationsViews(request)
 
         assert view.default_response == {
+            "organization_applications": [],
             "organization_invites": [],
             "organizations": [organization],
             "organizations_managed": [],
             "organizations_owned": [organization.name],
             "organizations_billing": [],
-            "create_organization_form": create_organization_obj,
+            "create_organization_application_form": create_organization_application_obj,
         }
 
     def test_manage_organizations(self, monkeypatch):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
             organization_access=True,
+            user=pretend.stub(),
         )
 
-        default_response = {"default": "response"}
+        default_response = MultiDict({"default": "response"})
         monkeypatch.setattr(
             org_views.ManageOrganizationsViews,
             "default_response",
@@ -127,7 +137,7 @@ class TestManageOrganizations:
         with pytest.raises(HTTPNotFound):
             view.manage_organizations()
 
-    def test_create_organization(self, enable_organizations, monkeypatch):
+    def test_create_organization_application(self, enable_organizations, monkeypatch):
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
@@ -151,7 +161,9 @@ class TestManageOrganizations:
         catalog_entry = pretend.stub()
         role = pretend.stub()
         organization_service = pretend.stub(
-            add_organization=pretend.call_recorder(lambda *a, **kw: organization),
+            add_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization
+            ),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
         )
@@ -178,19 +190,31 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
             path="request-path",
+            registry=pretend.stub(
+                settings={
+                    "warehouse.organizations.max_undecided_organization_applications": 3
+                }
+            ),
         )
 
-        create_organization_obj = pretend.stub(
+        create_organization_application_obj = pretend.stub(
             data=request.POST,
             orgtype=pretend.stub(data=request.POST["orgtype"]),
             validate=lambda: True,
         )
-        create_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_obj
+        create_organization_application_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_application_obj
         )
         monkeypatch.setattr(
-            org_views, "CreateOrganizationForm", create_organization_cls
+            org_views,
+            "CreateOrganizationApplicationForm",
+            create_organization_application_cls,
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -206,57 +230,22 @@ class TestManageOrganizations:
         )
 
         view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization()
+        result = view.create_organization_application()
 
         assert user_service.get_admins.calls == []
-        assert organization_service.add_organization.calls == [
+        assert organization_service.add_organization_application.calls == [
             pretend.call(
                 name=organization.name,
                 display_name=organization.display_name,
                 orgtype=organization.orgtype,
                 link_url=organization.link_url,
                 description=organization.description,
+                submitted_by=request.user,
             )
         ]
-        assert organization_service.add_organization_role.calls == [
-            pretend.call(
-                organization.id,
-                request.user.id,
-                OrganizationRoleType.Owner,
-            )
-        ]
-        assert organization.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                ip_address=request.remote_addr,
-                additional={"submitted_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                tag=EventTag.Organization.OrganizationCreate,
-                ip_address=request.remote_addr,
-                additional={"created_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                tag=EventTag.Organization.OrganizationRoleAdd,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(request.user.id),
-                },
-            ),
-        ]
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.OrganizationRoleAdd,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "organization_name": organization.name,
-                    "role_name": "Owner",
-                },
-            ),
-        ]
+        assert organization_service.add_organization_role.calls == []
+        assert organization.record_event.calls == []
+        assert request.user.record_event.calls == []
         assert send_email.calls == [
             pretend.call(
                 request,
@@ -266,7 +255,7 @@ class TestManageOrganizations:
         ]
         assert isinstance(result, HTTPSeeOther)
 
-    def test_create_organization_with_subscription(
+    def test_create_organization_application_with_subscription(
         self, enable_organizations, monkeypatch
     ):
         admins = []
@@ -293,7 +282,9 @@ class TestManageOrganizations:
         catalog_entry = pretend.stub()
         role = pretend.stub()
         organization_service = pretend.stub(
-            add_organization=pretend.call_recorder(lambda *a, **kw: organization),
+            add_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization
+            ),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
         )
@@ -320,20 +311,32 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
             route_path=lambda *a, **kw: "manage-subscription-url",
             path="request-path",
+            registry=pretend.stub(
+                settings={
+                    "warehouse.organizations.max_undecided_organization_applications": 3
+                }
+            ),
         )
 
-        create_organization_obj = pretend.stub(
+        create_organization_application_obj = pretend.stub(
             data=request.POST,
             orgtype=pretend.stub(data=request.POST["orgtype"]),
             validate=lambda: True,
         )
-        create_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_obj
+        create_organization_application_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_application_obj
         )
         monkeypatch.setattr(
-            org_views, "CreateOrganizationForm", create_organization_cls
+            org_views,
+            "CreateOrganizationApplicationForm",
+            create_organization_application_cls,
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -349,57 +352,22 @@ class TestManageOrganizations:
         )
 
         view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization()
+        result = view.create_organization_application()
 
         assert user_service.get_admins.calls == []
-        assert organization_service.add_organization.calls == [
+        assert organization_service.add_organization_application.calls == [
             pretend.call(
                 name=organization.name,
                 display_name=organization.display_name,
                 orgtype=organization.orgtype,
                 link_url=organization.link_url,
                 description=organization.description,
+                submitted_by=request.user,
             )
         ]
-        assert organization_service.add_organization_role.calls == [
-            pretend.call(
-                organization.id,
-                request.user.id,
-                OrganizationRoleType.Owner,
-            )
-        ]
-        assert organization.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Organization.CatalogEntryAdd,
-                ip_address=request.remote_addr,
-                additional={"submitted_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                tag=EventTag.Organization.OrganizationCreate,
-                ip_address=request.remote_addr,
-                additional={"created_by_user_id": str(request.user.id)},
-            ),
-            pretend.call(
-                tag=EventTag.Organization.OrganizationRoleAdd,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "role_name": "Owner",
-                    "target_user_id": str(request.user.id),
-                },
-            ),
-        ]
-        assert request.user.record_event.calls == [
-            pretend.call(
-                tag=EventTag.Account.OrganizationRoleAdd,
-                ip_address=request.remote_addr,
-                additional={
-                    "submitted_by_user_id": str(request.user.id),
-                    "organization_name": organization.name,
-                    "role_name": "Owner",
-                },
-            ),
-        ]
+        assert organization_service.add_organization_role.calls == []
+        assert organization.record_event.calls == []
+        assert request.user.record_event.calls == []
         assert send_email.calls == [
             pretend.call(
                 request,
@@ -410,7 +378,7 @@ class TestManageOrganizations:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "request-path"
 
-    def test_create_organization_validation_fails(self, monkeypatch):
+    def test_create_organization_application_validation_fails(self, monkeypatch):
         admins = []
         user_service = pretend.stub(
             get_admins=pretend.call_recorder(lambda *a, **kw: admins),
@@ -422,7 +390,9 @@ class TestManageOrganizations:
         catalog_entry = pretend.stub()
         role = pretend.stub()
         organization_service = pretend.stub(
-            add_organization=pretend.call_recorder(lambda *a, **kw: organization),
+            add_organization_application=pretend.call_recorder(
+                lambda *a, **kw: organization
+            ),
             add_catalog_entry=pretend.call_recorder(lambda *a, **kw: catalog_entry),
             add_organization_role=pretend.call_recorder(lambda *a, **kw: role),
         )
@@ -448,16 +418,28 @@ class TestManageOrganizations:
             }[interface],
             organization_access=True,
             remote_addr="0.0.0.0",
+            ip_address=pretend.stub(
+                ip_address="0.0.0.0",
+                hashed_ip_address="deadbeef",
+                geoip_info={"country_code": "US"},
+            ),
+            registry=pretend.stub(
+                settings={
+                    "warehouse.organizations.max_undecided_organization_applications": 3
+                }
+            ),
         )
 
-        create_organization_obj = pretend.stub(
+        create_organization_application_obj = pretend.stub(
             validate=lambda: False, data=request.POST
         )
-        create_organization_cls = pretend.call_recorder(
-            lambda *a, **kw: create_organization_obj
+        create_organization_application_cls = pretend.call_recorder(
+            lambda *a, **kw: create_organization_application_obj
         )
         monkeypatch.setattr(
-            org_views, "CreateOrganizationForm", create_organization_cls
+            org_views,
+            "CreateOrganizationApplicationForm",
+            create_organization_application_cls,
         )
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
@@ -466,17 +448,19 @@ class TestManageOrganizations:
         )
 
         view = org_views.ManageOrganizationsViews(request)
-        result = view.create_organization()
+        result = view.create_organization_application()
 
         assert user_service.get_admins.calls == []
-        assert organization_service.add_organization.calls == []
+        assert organization_service.add_organization_application.calls == []
         assert organization_service.add_catalog_entry.calls == []
         assert organization_service.add_organization_role.calls == []
         assert organization.record_event.calls == []
         assert send_email.calls == []
-        assert result == {"create_organization_form": create_organization_obj}
+        assert result == {
+            "create_organization_application_form": create_organization_application_obj
+        }
 
-    def test_create_organization_disable_organizations(self):
+    def test_create_organization_application_disable_organizations(self):
         request = pretend.stub(
             find_service=lambda *a, **kw: pretend.stub(),
             organization_access=False,
@@ -484,13 +468,14 @@ class TestManageOrganizations:
 
         view = org_views.ManageOrganizationsViews(request)
         with pytest.raises(HTTPNotFound):
-            view.create_organization()
+            view.create_organization_application()
 
 
 class TestManageOrganizationSettings:
     def test_manage_organization(
         self, db_request, organization_service, enable_organizations, monkeypatch
     ):
+        db_request.user = pretend.stub()
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
@@ -523,11 +508,15 @@ class TestManageOrganizationSettings:
         }
         assert save_organization_cls.calls == [
             pretend.call(
-                name=organization.name,
-                display_name=organization.display_name,
-                link_url=organization.link_url,
-                description=organization.description,
-                orgtype=organization.orgtype,
+                MultiDict(
+                    {
+                        "name": organization.name,
+                        "display_name": organization.display_name,
+                        "link_url": organization.link_url,
+                        "description": organization.description,
+                        "orgtype": organization.orgtype,
+                    }
+                )
             ),
         ]
 
@@ -634,6 +623,7 @@ class TestManageOrganizationSettings:
             "description": organization.description,
             "orgtype": organization.orgtype,
         }
+        db_request.user = pretend.stub()
 
         monkeypatch.setattr(
             organization_service,
@@ -787,6 +777,7 @@ class TestManageOrganizationSettings:
             "confirm_current_organization_name": organization.name,
             "name": "FooBar",
         }
+        db_request.user = pretend.stub()
 
         def rename_organization(organization_id, organization_name):
             organization.name = organization_name
@@ -2845,13 +2836,11 @@ class TestManageOrganizationHistory:
         older_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = OrganizationEventFactory.create(
             source=organization,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
@@ -2892,10 +2881,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event"
+        )
         events_query = (
             db_request.db.query(Organization.Event)
             .join(Organization.Event.source)
@@ -2924,10 +2912,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event"
+        )
         events_query = (
             db_request.db.query(Organization.Event)
             .join(Organization.Event.source)
@@ -2956,10 +2943,9 @@ class TestManageOrganizationHistory:
         organization = OrganizationFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            OrganizationEventFactory.create(
-                source=organization, tag="fake:event", ip_address="0.0.0.0"
-            )
+        OrganizationEventFactory.create_batch(
+            total_items, source=organization, tag="fake:event"
+        )
 
         with pytest.raises(HTTPNotFound):
             assert org_views.manage_organization_history(organization, db_request)

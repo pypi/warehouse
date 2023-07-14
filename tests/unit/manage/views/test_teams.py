@@ -610,13 +610,11 @@ class TestManageTeamHistory:
         older_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
         )
         newer_event = TeamEventFactory.create(
             source=team,
             tag="fake:event",
-            ip_address="0.0.0.0",
             time=datetime.datetime(2018, 2, 5, 17, 18, 18, 462_634),
         )
 
@@ -657,8 +655,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -687,8 +684,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
         events_query = (
             db_request.db.query(Team.Event)
             .join(Team.Event.source)
@@ -717,8 +713,7 @@ class TestManageTeamHistory:
         team = TeamFactory.create()
         items_per_page = 25
         total_items = items_per_page + 2
-        for _ in range(total_items):
-            TeamEventFactory.create(source=team, tag="fake:event", ip_address="0.0.0.0")
+        TeamEventFactory.create_batch(total_items, source=team, tag="fake:event")
 
         with pytest.raises(HTTPNotFound):
             assert team_views.manage_team_history(team, db_request)
@@ -832,13 +827,14 @@ class TestChangeTeamProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == organization_project.name
         assert entry.action == f"change Owner {organization_team.name} to Maintainer"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
     def test_change_role_invalid_role_name(self, pyramid_request, organization_project):
         pyramid_request.method = "POST"
@@ -1017,13 +1013,14 @@ class TestDeleteTeamProjectRole:
         assert result.headers["Location"] == "/the-redirect"
 
         entry = (
-            db_request.db.query(JournalEntry).options(joinedload("submitted_by")).one()
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
         )
 
         assert entry.name == organization_project.name
         assert entry.action == f"remove Owner {organization_team.name}"
         assert entry.submitted_by == db_request.user
-        assert entry.submitted_from == db_request.remote_addr
 
     def test_delete_missing_role(self, db_request, organization_project):
         missing_role_id = str(uuid.uuid4())

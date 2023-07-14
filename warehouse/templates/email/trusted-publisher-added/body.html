@@ -27,8 +27,20 @@
 <p>
   {% trans %}Publisher information{% endtrans %}:
   <ul>
-    <li>{% trans %}Publisher name{% endtrans %}: {{ publisher_name }}</li>
-    <li>{% trans %}Publisher specification{% endtrans %}: {{ publisher_spec }}</li>
+    <li>{% trans %}Publisher name{% endtrans %}: {{ publisher.publisher_name }}</li>
+    {% if publisher.publisher_name == "GitHub" %}
+    <li>{% trans %}Workflow{% endtrans %}: {{ publisher }}</li>
+    <li>{% trans %}Owner{% endtrans %}: {{ publisher.repository_owner }}</li>
+    <li>{% trans %}Repository{% endtrans %}: {{ publisher.repository_name }}</li>
+    {% if publisher.environment %}
+    <li>{% trans %}Environment{% endtrans %}: {{ publisher.environment }}</li>
+    {% endif %}
+    {% elif publisher.publisher_name == "Google" %}
+    <li>{% trans %}Email{% endtrans %}: {{ publisher.email }}</li>
+    {% if publisher.sub %}
+    <li>{% trans %}Subject{% endtrans %}: {{ publisher.sub }}</li>
+    {% endif %}
+    {% endif %}
   </ul>
 </p>
 

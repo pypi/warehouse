@@ -230,14 +230,12 @@
                   {% trans %}Account settings{% endtrans %}
                 </a>
               </li>
-              {% if request.registry.settings["warehouse.oidc.enabled"] %}
               <li>
-                <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
+                <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
                   <i class="fa fa-upload" aria-hidden="true"></i>
                   {% trans %}Publishing{% endtrans %}
                 </a>
               </li>
-              {% endif %}
             </ul>
           </nav>
         </div>
@@ -261,9 +259,15 @@
             </li>
             {% endif %}
             <li>
-              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
+              <a href="{{ request.route_path('manage.account') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'account' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'account' %}aria-selected="true"{% endif %}>
                 <i class="fa fa-cog" aria-hidden="true"></i>
                 {% trans %}Account settings{% endtrans %}
+              </a>
+            </li>
+            <li>
+              <a href="{{ request.route_path('manage.account.publishing') }}" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--with-icon vertical-tabs__tab--no-top-border {% if active_tab == 'publishing' %}vertical-tabs__tab--is-active{% endif %}" {% if active_tab == 'publishing' %}aria-selected="true"{% endif %}>
+                <i class="fa fa-upload" aria-hidden="true"></i>
+                {% trans %}Publishing{% endtrans %}
               </a>
             </li>
           </ul>
@@ -508,7 +512,7 @@
     {{ publisher.publisher_name }}
   </td>
   <td scope="row">
-    <a href="{{ publisher.publisher_url }}">{{ publisher.repository }}</a>
+    <a href="{{ publisher.publisher_url() }}">{{ publisher.repository }}</a>
   </td>
   <td scope="row">
     {{ publisher.workflow_filename }}

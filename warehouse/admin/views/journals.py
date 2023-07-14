@@ -55,8 +55,6 @@ def journals_list(request):
                     filters.append(JournalEntry.version.ilike(value))
                 if field.lower() == "user":
                     filters.append(JournalEntry._submitted_by.like(value))
-                if field.lower() == "ip":
-                    filters.append(JournalEntry.submitted_from.ilike(value))
             else:
                 filters.append(JournalEntry.name.ilike(term))
 

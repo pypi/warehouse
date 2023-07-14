@@ -62,6 +62,19 @@ Configure the development environment
    it's unnecessary for Warehouse development. Our Makefile scripts execute all
    developer actions inside Docker containers.
 
+Verifying Make Installation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Verify that you have make installed in your environment
+
+.. code-block:: console
+
+    make --version
+
+If you do not have it installed,
+consult your OS documentation on how to install ``make``.
+
+
 Why Docker?
 ~~~~~~~~~~~
 
@@ -82,8 +95,7 @@ Installing Docker
 The best experience for building Warehouse on Windows 10 is to use the
 `Windows Subsystem for Linux`_ (WSL) in combination with both
 `Docker for Windows`_ and `Docker for Linux`_. Follow the instructions
-for both platforms, and see `Docker and Windows Subsystem
-for Linux Quirks`_ for extra configuration instructions.
+for both platforms.
 
 .. _Docker for Mac: https://docs.docker.com/engine/installation/mac/
 .. _Docker for Windows: https://docs.docker.com/engine/installation/windows/
@@ -131,16 +143,16 @@ If the port is in use, the command will produce output, and you will need to
 determine what is occupying the port and shut down the corresponding service.
 Otherwise, the port is available for Warehouse to use, and you can continue.
 
-Alternately, you may set the ``WEB_HOST`` environment variable for
+Alternately, you may set the ``WEB_PORT`` environment variable for
 ``docker compose`` to use instead. An example:
 
 .. code-block:: console
 
-    export WEB_HOST=8080
+    export WEB_PORT=8080
     make ...
 
     # or inline:
-    WEB_HOST=8080 make ...
+    WEB_PORT=8080 make ...
 
 Building the Warehouse Container
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -172,8 +184,8 @@ application.
    than the default setting of the Docker Engine of 2 GB. Thus, you
    need to increase the memory allocated to Docker in
    `Docker Preferences <https://docs.docker.com/docker-for-mac/#memory>`_
-   (on Mac) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
-   (on Windows) by moving the slider to 4 GB in the GUI.
+   (on Mac by moving the slider to 4 GB in the GUI) or `Docker Settings <https://docs.docker.com/docker-for-windows/#advanced>`_
+   (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
    the `elasticsearch` up and running. According to the
@@ -258,7 +270,7 @@ At this point all the services are up, and web container is listening on port
     `this bug report <https://bugzilla.mozilla.org/show_bug.cgi?id=1262842>`_
     for more info).
 
-If you've set a different port via the ``WEB_HOST`` environment variable,
+If you've set a different port via the ``WEB_PORT`` environment variable,
 use that port instead.
 
 Logging in to Warehouse
@@ -269,7 +281,7 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password``.
+``password``. Due to session invalidation, you may have to login twice.
 
 
 Stopping Warehouse and other services
@@ -445,34 +457,6 @@ Note that disabling services might cause things to fail in unexpected ways.
 
 This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
 in the root of your local repo.
-
-
-Docker and Windows Subsystem for Linux Quirks
----------------------------------------------
-
-Once you have installed Docker for Windows, the Windows Subsystem for
-Linux, and Docker and Docker Compose in WSL, there are some extra
-configuration steps to deal with current quirks in WSL.
-`Nick Janetakis`_ has a detailed blog post on these steps, including
-installation, but this is a summary of the required steps:
-
-1. In WSL, run ``sudo mkdir /c`` and ``sudo mount --bind /mnt/c /c``
-to mount your root drive at :file:`/c` (or whichever drive you are
-using).  You should clone into this mount and run
-:command:`docker compose` from within it, to ensure that when volumes
-are linked into the container they can be found by Hyper-V.
-
-2. In Windows, configure Docker to enable "Expose daemon on
-``tcp://localhost:2375`` without TLS". Note that this may expose your
-machine to certain remote code execution attacks, so use with
-caution.
-
-3. Add ``export DOCKER_HOST=tcp://0.0.0.0:2375`` to your
-:file:`.bashrc` file in WSL, and/or run it directly to enable for the
-current session.  Without this, the :command:`docker` command in WSL
-will not be able to find the daemon running in Windows.
-
-.. _Nick Janetakis: https://nickjanetakis.com/blog/setting-up-docker-for-windows-and-wsl-to-work-flawlessly
 
 
 Building Styles

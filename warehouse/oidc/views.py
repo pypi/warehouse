@@ -54,12 +54,10 @@ def _ratelimiters(request):
     has_translations=False,
 )
 def oidc_audience(request):
-    oidc_enabled = request.registry.settings[
-        "warehouse.oidc.enabled"
-    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
-
-    if not oidc_enabled:
-        return Response(status=403, json={"message": "OIDC functionality not enabled"})
+    if request.flags.disallow_oidc():
+        return Response(
+            status=403, json={"message": "Trusted publishing functionality not enabled"}
+        )
 
     audience = request.registry.settings["warehouse.oidc.audience"]
     return {"audience": audience}
@@ -70,22 +68,21 @@ def oidc_audience(request):
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
-    has_translations=False,
+    has_translations=True,
 )
 def mint_token_from_oidc(request):
     def _invalid(errors):
         request.response.status = 422
         return {"message": "Token request failed", "errors": errors}
 
-    oidc_enabled = request.registry.settings[
-        "warehouse.oidc.enabled"
-    ] and not request.flags.enabled(AdminFlagValue.DISALLOW_OIDC)
-    if not oidc_enabled:
+    if request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
         return _invalid(
             errors=[
                 {
                     "code": "not-enabled",
-                    "description": "OIDC functionality not enabled",
+                    "description": (
+                        "GitHub-based trusted publishing functionality not enabled"
+                    ),
                 }
             ]
         )
@@ -133,6 +130,7 @@ def mint_token_from_oidc(request):
         new_project = project_service.create_project(
             pending_publisher.project_name,
             pending_publisher.added_by,
+            request,
             ratelimited=False,
         )
         oidc_service.reify_pending_publisher(pending_publisher, new_project)
@@ -191,20 +189,23 @@ def mint_token_from_oidc(request):
             f"({datetime.fromtimestamp(not_before).isoformat()})"
         ),
         [
-            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+            caveats.OIDCPublisher(
+                oidc_publisher_id=str(publisher.id),
+            ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=publisher.id,
+        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
     )
     for project in publisher.projects:
         project.record_event(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
-            ip_address=request.remote_addr,
+            request=request,
             additional={
                 "expires": expires_at,
                 "publisher_name": publisher.publisher_name,
-                "publisher_url": publisher.publisher_url,
+                "publisher_url": publisher.publisher_url(),
             },
         )
     return {"success": True, "token": serialized}

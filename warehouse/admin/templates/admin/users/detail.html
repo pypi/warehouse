@@ -101,11 +101,14 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
+            </button>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not request.has_permission('admin') }}>
+              <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
@@ -176,7 +179,41 @@
                   </div>
                 </div>
               </form>
-              </div>
+            </div>
+            <div class="modal fade" id="wipeFactorsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.wipe_factors', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="wipeFactorsModalLabel">Wipe second/recovery factors for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will permanently remove the user's second factors and recovery codes,
+                        and cannot be undone.
+                      </p>
+                      <p>
+                        It will also permanently remove the user's current password,
+                        and send them a password reset request.
+                      </p>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Wipe factors</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div> <!-- .card -->
@@ -433,7 +470,11 @@
                 <tr>
                   <td>{{ pub.project_name }}</td>
                   <td>{{ pub.publisher_name }}</td>
-                  <td><a href="{{ pub.publisher_url }}">{{ pub.repository }}</a></td>
+                  {% if pub.publisher_url() %}
+                  <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
+                  {% else %}
+                  <td>N/A</td>
+                  {% endif %}
                   <td><code>{{ pub }}</code></td>
                 </tr>
                 {% endfor %}
@@ -457,6 +498,9 @@
                 <th scope="col">Event</th>
                 <th scope="col">Time</th>
                 <th scope="col">IP address</th>
+                <th scope="col">Hashed IP address</th>
+                <th scope="col">Location info</th>
+                <th scope="col">User-Agent</th>
                 <th scope="col">Additional information</th>
               </tr>
             </thead>
@@ -466,6 +510,9 @@
                 <td>{{ event.tag }}</td>
                 <td>{{ event.time }}</td>
                 <td>{{ event.ip_address }}</td>
+                <td>{{ event.ip_address.hashed_ip_address }}</td>
+                <td>{{ event.location_info }}</td>
+                <td>{{ event.user_agent_info }}</td>
                 <td>{{ event.additional }}</td>
               </tr>
               {% endfor %}

@@ -19,6 +19,8 @@ jobs:
   pypi-publish:
     name: upload release to PyPI
     runs-on: ubuntu-latest
+    # Specifying a GitHub environment is optional, but strongly encouraged
+    environment: release
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
@@ -37,6 +39,8 @@ flow, your diff might look like this:
    pypi-publish:
      name: upload release to PyPI
      runs-on: ubuntu-latest
++    # Specifying a GitHub environment is optional, but strongly encouraged
++    environment: release
 +    permissions:
 +      # IMPORTANT: this permission is mandatory for trusted publishing
 +      id-token: write

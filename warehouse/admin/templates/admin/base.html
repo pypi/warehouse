@@ -27,6 +27,9 @@
 
     <link rel="stylesheet" href="{{ request.static_url('warehouse.admin:static/dist/css/all.css') }}">
 
+    {% if devPyPI %}
+    <script src="{{ request.registry.settings.get("livereload.url") }}/livereload.js"></script>
+    {% endif %}
   </head>
 
 <body class="hold-transition sidebar-mini">
@@ -110,13 +113,23 @@
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
           {% if request.has_permission('moderator') %}
           <li class="nav-item">
+            <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
+              <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications <span class="right badge badge-danger">New</span></p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization.list') }}" class="nav-link">
-              <i class="fa fa-sitemap nav-icon"></i> <p>Organizations <span class="right badge badge-danger">New</span></p>
+              <i class="fa fa-sitemap nav-icon"></i> <p>Organizations</p>
             </a>
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.user.list') }}" class="nav-link">
               <i class="fa fa-user nav-icon"></i> <p>Users</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ request.route_path('admin.ip_address.list') }}" class="nav-link">
+              <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</span></p>
             </a>
           </li>
           <li class="nav-item">
@@ -142,16 +155,6 @@
           <li class="nav-item">
             <a href="{{ request.route_path('admin.flags') }}" class="nav-link">
               <i class="fa fa-flag nav-icon"></i> <p>Flags</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.checks.list') }}" class="nav-link">
-              <i class="fa fa-check nav-icon"></i> <p>Checks</p>
-            </a>
-          </li>
-          <li class="nav-item">
-            <a href="{{ request.route_path('admin.verdicts.list', _query={'classification':'threat', 'manually_reviewed':'0'}) }}" class="nav-link">
-              <i class="fa fa-gavel nav-icon"></i> <p>Verdicts</p>
             </a>
           </li>
           {% endif %}
