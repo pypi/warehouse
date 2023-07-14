@@ -20,8 +20,8 @@ def test_gcloud_bigquery_factory(monkeypatch):
 
     bigquery = pretend.stub(
         Client=pretend.stub(
-            from_service_account_json=pretend.call_recorder(
-                lambda path, project: client
+            from_service_account_info=pretend.call_recorder(
+                lambda account_info, project: client
             )
         )
     )
@@ -30,15 +30,15 @@ def test_gcloud_bigquery_factory(monkeypatch):
     request = pretend.stub(
         registry=pretend.stub(
             settings={
-                "gcloud.credentials": "/the/path/to/gcloud.json",
+                "gcloud.service_json": b"{}",
                 "gcloud.project": "my-cool-project",
             }
         )
     )
 
     assert gcloud.gcloud_bigquery_factory(None, request) is client
-    assert bigquery.Client.from_service_account_json.calls == [
-        pretend.call("/the/path/to/gcloud.json", project="my-cool-project")
+    assert bigquery.Client.from_service_account_info.calls == [
+        pretend.call({}, project="my-cool-project")
     ]
 
 
@@ -46,22 +46,24 @@ def test_gcloud_gcs_factory(monkeypatch):
     client = pretend.stub()
 
     storage_client = pretend.stub(
-        from_service_account_json=pretend.call_recorder(lambda path, project: client)
+        from_service_account_info=pretend.call_recorder(
+            lambda account_info, project: client
+        )
     )
     monkeypatch.setattr(gcloud, "storage_Client", storage_client)
 
     request = pretend.stub(
         registry=pretend.stub(
             settings={
-                "gcloud.credentials": "/the/path/to/gcloud.json",
+                "gcloud.service_json": b"{}",
                 "gcloud.project": "my-cool-project",
             }
         )
     )
 
     assert gcloud.gcloud_gcs_factory(None, request) is client
-    assert storage_client.from_service_account_json.calls == [
-        pretend.call("/the/path/to/gcloud.json", project="my-cool-project")
+    assert storage_client.from_service_account_info.calls == [
+        pretend.call({}, project="my-cool-project")
     ]
 
 
