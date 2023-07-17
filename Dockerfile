@@ -78,8 +78,9 @@ COPY requirements /tmp/requirements
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -x \
-    && pip --no-cache-dir --disable-pip-version-check \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && pip --disable-pip-version-check \
             install --no-deps \
             -r /tmp/requirements/docs-dev.txt \
             -r /tmp/requirements/docs-user.txt \
@@ -155,18 +156,21 @@ COPY requirements /tmp/requirements
 
 # Install our development dependencies if we're building a development install
 # otherwise this will do nothing.
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
 
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -x \
-    && pip --no-cache-dir --disable-pip-version-check \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && pip --disable-pip-version-check \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
