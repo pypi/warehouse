@@ -12,7 +12,8 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci
 
 
 
