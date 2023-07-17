@@ -42,6 +42,7 @@ SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/
 
 MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=1025 ssl=false sender=noreply@pypi.org
 
+BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
 BREACHED_PASSWORDS=warehouse.accounts.NullPasswordBreachedService
 
 OIDC_BACKEND=warehouse.oidc.services.NullOIDCPublisherService
