@@ -37,9 +37,18 @@ RUN NODE_ENV=production npm run build
 # We'll build a light-weight layer along the way with just docs stuff
 FROM python:3.11.4-slim-bullseye as docs
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+
 # Install System level build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
@@ -106,9 +115,18 @@ ARG DEVEL=no
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
@@ -183,7 +201,9 @@ RUN set -x \
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
