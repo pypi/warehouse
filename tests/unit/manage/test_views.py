@@ -1952,7 +1952,10 @@ class TestProvisionMacaroonViews:
         assert set(view.project_names) == {"foo", "bar", "baz"}
 
     def test_manage_macaroons(self, monkeypatch):
-        request = pretend.stub(find_service=lambda *a, **kw: pretend.stub())
+        request = pretend.stub(
+            find_service=lambda *a, **kw: pretend.stub(),
+            params=pretend.stub(get=lambda s: pretend.stub()),
+        )
 
         default_response = {"default": "response"}
         monkeypatch.setattr(

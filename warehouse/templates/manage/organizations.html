@@ -73,6 +73,7 @@
             <a href="{{ request.route_path('organizations.profile', organization=organization.name) }}">{{ organization.name }}</a>
             {% else %}{{ organization.name }}{% endif %}
 
+            <span class="badge" title="{% trans org_type=organization.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization.orgtype.name %}{{ org_type }}{% endtrans %}</span>
             {% if organization.is_approved is none %}
             <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
             {% elif organization.orgtype == OrganizationType.Company and not organization.active_subscription %}
@@ -153,6 +154,7 @@
           <h3 class="organization-snippet__title">
             {{ organization_application.name }}
 
+            <span class="badge" title="{% trans org_type=organization_application.orgtype.name %}Organization Type: {{ org_type }}{% endtrans %}">{% trans org_type=organization_application.orgtype.name %}{{ org_type }}{% endtrans %}</span>
             <span class="badge badge--neutral" title="{% trans %}You will receive an email when the organization has been approved{% endtrans %}">{% trans %}Request Submitted{% endtrans %}</span>
           </h3>
           <p class="organization-snippet__meta">
