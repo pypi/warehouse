@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from celery.schedules import crontab
+
 from warehouse.accounts.interfaces import (
     IEmailBreachedService,
     IPasswordBreachedService,
@@ -29,6 +31,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
+from warehouse.accounts.tasks import compute_user_metrics
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
 from warehouse.oidc.utils import OIDCContext
@@ -191,3 +194,6 @@ def includeme(config):
         IRateLimiter,
         name="accounts.search",
     )
+
+    # Add a periodic task to generate Account metrics
+    config.add_periodic_task(crontab(minute="*/20"), compute_user_metrics)
