@@ -2368,7 +2368,11 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Start filename for {!r} with {!r}.".format(
-                project.name, pkg_resources.safe_name(project.name).lower()
+                project.name,
+                pkg_resources.safe_name(project.name)
+                .lower()
+                .replace(".", "_")
+                .replace("-", "_"),
             )
         )
 
