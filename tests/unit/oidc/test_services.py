@@ -751,7 +751,7 @@ class TestNullOIDCPublisherService:
         #   "iat": 1516239022,
         #   "nbf": 1516239022,
         #   "exp": 9999999999
-        #  }
+        # }
         jwt = (
             "eyJhbGciOiJSUzI1NiJ9.eyJpc3MiOiJmb28iLCJpYXQiOjE1MTYyMzkwMjIsIm5iZ"
             "iI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5fQ.CAR9tx9_A6kxIDYWzXotuLfQ"
@@ -797,6 +797,31 @@ class TestNullOIDCPublisherService:
             publisher="example",
             issuer_url="https://example.com",
             audience="fakeaudience",
+            cache_url="rediss://fake.example.com",
+            metrics=pretend.stub(),
+        )
+
+        assert service.verify_jwt_signature(jwt) is None
+
+    def test_verify_jwt_signature_strict_aud(self):
+        # {
+        #   "iss": "foo",
+        #   "iat": 1516239022,
+        #   "nbf": 1516239022,
+        #   "exp": 9999999999,
+        #   "aud": ["notpypi", "pypi"]
+        # }
+        jwt = (
+            "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJmb28iLCJpYXQiOjE1M"
+            "TYyMzkwMjIsIm5iZiI6MTUxNjIzOTAyMiwiZXhwIjo5OTk5OTk5OTk5LCJhdWQiOls"
+            "ibm90cHlwaSIsInB5cGkiXX0.NhUFfjwUdXPT0IAVRuXeHbCq9ZDSY5JLEiDbAjrNwDM"
+        )
+
+        service = services.NullOIDCPublisherService(
+            session=pretend.stub(),
+            publisher="example",
+            issuer_url="https://example.com",
+            audience="pypi",
             cache_url="rediss://fake.example.com",
             metrics=pretend.stub(),
         )
@@ -938,22 +963,20 @@ class TestPyJWTBackstop:
     "Backstop" tests against unexpected PyJWT API changes.
     """
 
-    def test_decodes_token_bare_key(self):
-        privkey = rsa.generate_private_key(65537, 2048)
-        pubkey = privkey.public_key()
+    def __init__(self) -> None:
+        self._privkey = rsa.generate_private_key(65537, 2048)
+        self._pubkey = self._privkey.public_key()
 
+    def test_decodes_token_bare_key(self):
         # Bare cryptography key objects work.
-        token = jwt.encode({"foo": "bar"}, privkey, algorithm="RS256")
-        decoded = jwt.decode(token, pubkey, algorithms=["RS256"])
+        token = jwt.encode({"foo": "bar"}, self._privkey, algorithm="RS256")
+        decoded = jwt.decode(token, self._pubkey, algorithms=["RS256"])
 
         assert decoded == {"foo": "bar"}
 
     def test_decodes_token_jwk_roundtrip(self):
-        privkey = rsa.generate_private_key(65537, 2048)
-        pubkey = privkey.public_key()
-
-        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(privkey))
-        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(pubkey))
+        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._privkey))
+        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._pubkey))
 
         # Each PyJWK's `key` attribute works.
         token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
@@ -962,14 +985,29 @@ class TestPyJWTBackstop:
         assert decoded == {"foo": "bar"}
 
     def test_decodes_token_typeerror_on_pyjwk(self):
-        privkey = rsa.generate_private_key(65537, 2048)
-        pubkey = privkey.public_key()
-
-        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(privkey))
-        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(pubkey))
+        privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._privkey))
+        pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._pubkey))
 
         token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
 
         # Passing a `PyJWK` directly into `jwt.decode` does not work.
         with pytest.raises(TypeError, match=r"Expecting a PEM-formatted key\."):
             jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
+
+    def test_decode_strict_aud(self):
+        token = jwt.encode(
+            {"sub": "lol", "aud": ["a", "b"]}, self._privkey, algorithm="RS256"
+        )
+
+        # jwt.decode(...) should honor strict_aud and should reject JWTs with
+        # multiple audiences.
+        with pytest.raises(
+            jwt.PyJWTError, match=r"Invalid claim format in token \(strict\)"
+        ):
+            jwt.decode(
+                token,
+                self._pubkey,
+                algorithms=["RS256"],
+                options=dict(verify_signature=True, verify_aud=True, strict_aud=True),
+                audience="a",
+            )
