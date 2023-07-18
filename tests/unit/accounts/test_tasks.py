@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta, timezone
-
 import pretend
 
 from warehouse.accounts.tasks import compute_user_metrics
@@ -20,16 +18,11 @@ from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.packaging import ProjectFactory, ReleaseFactory
 
 
-def _create_old_users_and_releases():
-    users = UserFactory.create_batch(3, is_active=True)
-    for user in users:
-        EmailFactory.create(user=user, verified=False)
-        project = ProjectFactory.create()
-        ReleaseFactory.create(
-            project=project,
-            uploader=user,
-            created=datetime.now(timezone.utc) - timedelta(days=365 * 2 + 1),
-        )
+def _create_email_project_with_release(user, verified):
+    EmailFactory.create(user=user, verified=verified)
+    result = ProjectFactory.create()
+    ReleaseFactory.create(project=result, uploader=user)
+    return result
 
 
 def test_compute_user_metrics(db_request, metrics):
@@ -45,33 +38,21 @@ def test_compute_user_metrics(db_request, metrics):
     EmailFactory.create(user=verified_email_user, verified=True)
     # Create a user with a verified email and a release
     verified_email_release_user = UserFactory.create()
-    EmailFactory.create(user=verified_email_release_user, verified=True)
-    project1 = ProjectFactory.create()
-    ReleaseFactory.create(project=project1, uploader=verified_email_release_user)
+    _create_email_project_with_release(verified_email_release_user, verified=True)
     # Create an active user with an unverified email and a release
     unverified_email_release_user = UserFactory.create(is_active=True)
-    EmailFactory.create(user=unverified_email_release_user, verified=False)
-    project2 = ProjectFactory.create()
-    ReleaseFactory.create(project=project2, uploader=unverified_email_release_user)
-    # Create active users with unverified emails and releases over two years
-    _create_old_users_and_releases()
-
+    _create_email_project_with_release(unverified_email_release_user, verified=False)
     compute_user_metrics(db_request)
 
     assert metrics.gauge.calls == [
-        pretend.call("warehouse.users.count", 9),
-        pretend.call("warehouse.users.count", 8, tags=["active:true"]),
+        pretend.call("warehouse.users.count", 6),
+        pretend.call("warehouse.users.count", 5, tags=["active:true"]),
         pretend.call(
-            "warehouse.users.count", 6, tags=["active:true", "verified:false"]
-        ),
-        pretend.call(
-            "warehouse.users.count",
-            4,
-            tags=["active:true", "verified:false", "releases:true"],
+            "warehouse.users.count", 3, tags=["active:true", "verified:false"]
         ),
         pretend.call(
             "warehouse.users.count",
             1,
-            tags=["active:true", "verified:false", "releases:true", "window:2years"],
+            tags=["active:true", "verified:false", "releases:true"],
         ),
     ]
