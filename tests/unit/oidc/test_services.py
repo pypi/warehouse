@@ -99,6 +99,7 @@ class TestOIDCPublisherService:
                     verify_nbf=True,
                     verify_exp=True,
                     verify_aud=True,
+                    strict_aud=True,
                 ),
                 issuer=service.issuer_url,
                 audience="fakeaudience",
