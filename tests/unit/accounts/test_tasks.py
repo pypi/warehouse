@@ -53,25 +53,43 @@ def test_compute_user_metrics(db_request, metrics):
     EmailFactory.create(user=unverified_email_release_user, verified=False)
     project2 = ProjectFactory.create()
     ReleaseFactory.create(project=project2, uploader=unverified_email_release_user)
+    # Create an active user with an unverified primary email,
+    # a verified secondary email, and a release
+    unverified_primary_email = UserFactory.create(is_active=True)
+    EmailFactory.create(user=unverified_primary_email, verified=False, primary=True)
+    EmailFactory.create(user=unverified_primary_email, verified=True, primary=False)
+    project3 = ProjectFactory.create()
+    ReleaseFactory.create(project=project3, uploader=unverified_primary_email)
     # Create active users with unverified emails and releases over two years
     _create_old_users_and_releases()
 
     compute_user_metrics(db_request)
 
     assert metrics.gauge.calls == [
-        pretend.call("warehouse.users.count", 9),
-        pretend.call("warehouse.users.count", 8, tags=["active:true"]),
+        pretend.call("warehouse.users.count", 10),
+        pretend.call("warehouse.users.count", 9, tags=["active:true"]),
         pretend.call(
-            "warehouse.users.count", 6, tags=["active:true", "verified:false"]
+            "warehouse.users.count", 7, tags=["active:true", "verified:false"]
         ),
         pretend.call(
             "warehouse.users.count",
-            4,
+            5,
             tags=["active:true", "verified:false", "releases:true"],
         ),
         pretend.call(
             "warehouse.users.count",
-            1,
+            2,
             tags=["active:true", "verified:false", "releases:true", "window:2years"],
+        ),
+        pretend.call(
+            "warehouse.users.count",
+            2,
+            tags=[
+                "active:true",
+                "verified:false",
+                "releases:true",
+                "window:2years",
+                "primary:true",
+            ],
         ),
     ]
