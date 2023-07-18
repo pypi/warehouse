@@ -35,7 +35,7 @@ def compute_user_metrics(request):
     metrics.gauge(
         "warehouse.users.count",
         request.db.query(func.count(User.id)).filter(User.is_active).scalar(),
-        tags={"active": "true"},
+        tags=["active:true"],
     )
 
     # Total active users with unverified emails
@@ -46,7 +46,7 @@ def compute_user_metrics(request):
         .filter(User.is_active)
         .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
         .scalar(),
-        tags={"active": "true", "verified": "false"},
+        tags=["active:true", "verified:false"],
     )
 
     # Total active users with unverified emails, and have project releases
@@ -58,5 +58,5 @@ def compute_user_metrics(request):
         .filter(User.is_active)
         .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
         .scalar(),
-        tags={"active": "true", "verified": "false", "releases": "true"},
+        tags=["active:true", "verified:false", "releases:true"],
     )
