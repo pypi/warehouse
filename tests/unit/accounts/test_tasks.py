@@ -46,13 +46,13 @@ def test_compute_user_metrics(db_request, metrics):
 
     assert metrics.gauge.calls == [
         pretend.call("warehouse.users.count", 6),
-        pretend.call("warehouse.users.count", 5, tags={"active": "true"}),
+        pretend.call("warehouse.users.count", 5, tags=["active:true"]),
         pretend.call(
-            "warehouse.users.count", 3, tags={"active": "true", "verified": "false"}
+            "warehouse.users.count", 3, tags=["active:true", "verified:false"]
         ),
         pretend.call(
             "warehouse.users.count",
             1,
-            tags={"active": "true", "verified": "false", "releases": "true"},
+            tags=["active:true", "verified:false", "releases:true"],
         ),
     ]
