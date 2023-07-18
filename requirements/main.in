@@ -53,7 +53,7 @@ pyramid_services>=2.1
 pyramid_tm>=0.12
 python-slugify
 pytz
-PyJWT[crypto]>=2.3.0
+PyJWT[crypto]>=2.8.0
 readme-renderer[md]>=36.0
 requests
 requests-aws4auth
