@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy import func
 
 from warehouse import tasks
@@ -59,4 +61,39 @@ def compute_user_metrics(request):
         .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
         .scalar(),
         tags=["active:true", "verified:false", "releases:true"],
+    )
+
+    # Total active users with unverified emails, and have project releases that
+    # were uploaded within the past two years
+    metrics.gauge(
+        "warehouse.users.count",
+        request.db.query(func.count(User.id))
+        .outerjoin(Email)
+        .join(Release, Release.uploader_id == User.id)
+        .filter(User.is_active)
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter(Release.created > datetime.now(tz=timezone.utc) - timedelta(days=730))
+        .scalar(),
+        tags=["active:true", "verified:false", "releases:true", "window:2years"],
+    )
+
+    # Total active users with unverified primary emails, and have project
+    # releases that were uploaded within the past two years
+    metrics.gauge(
+        "warehouse.users.count",
+        request.db.query(func.count(User.id))
+        .outerjoin(Email)
+        .join(Release, Release.uploader_id == User.id)
+        .filter(User.is_active)
+        .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
+        .filter(Email.primary)
+        .filter(Release.created > datetime.now(tz=timezone.utc) - timedelta(days=730))
+        .scalar(),
+        tags=[
+            "active:true",
+            "verified:false",
+            "releases:true",
+            "window:2years",
+            "primary:true",
+        ],
     )

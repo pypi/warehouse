@@ -449,9 +449,9 @@ deprecated==1.2.14 \
     --hash=sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c \
     --hash=sha256:e5323eb936458dccc2582dc6f9c322c852a775a27065ff2b0c4970b9d53d01b3
     # via limits
-disposable-email-domains==0.0.90 \
-    --hash=sha256:505573f4afb902341c1c0f7c9830a0ad8c889fd88dec51de40e5822d6e12a038 \
-    --hash=sha256:50aff9fab321b561b0facc7c1124fb5c6e7c1fc3062c9117929630b7072048f4
+disposable-email-domains==0.0.91 \
+    --hash=sha256:2cb9f85c3683a0f4c555902c81d963455cb95f1b2dd2a03e53a429972b6990ca \
+    --hash=sha256:f10d3662cdadca173a85f5b8e0b8fe6a49778a6f3c550b11025521a4918a62ef
     # via -r requirements/main.in
 dnspython==2.4.0 \
     --hash=sha256:46b4052a55b56beea3a3bdd7b30295c292bd6827dd442348bc116f2d35b17f0a \
@@ -1301,9 +1301,9 @@ pygments==2.15.1 \
     --hash=sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c \
     --hash=sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1
     # via readme-renderer
-pyjwt[crypto]==2.7.0 \
-    --hash=sha256:ba2b425b15ad5ef12f200dc67dd56af4e26de2331f965c5439994dad075876e1 \
-    --hash=sha256:bd6ca4a3c4285c1a2d4349e5a035fdf8fb94e04ccd0fcbe6ba289dae9cc3e074
+pyjwt[crypto]==2.8.0 \
+    --hash=sha256:57e28d156e3d5c10088e0c68abb90bfac3df82b40a71bd0daa20c65ccd5c23de \
+    --hash=sha256:59127c392cc44c2da5bb3192169a91f429924e17aff6534d70fdc02ab3e04320
     # via -r requirements/main.in
 pymacaroons==0.13.0 \
     --hash=sha256:1e6bba42a5f66c245adf38a5a4006a99dcc06a0703786ea636098667d42903b8 \
