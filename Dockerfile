@@ -12,7 +12,8 @@ COPY package.json package-lock.json .babelrc /opt/warehouse/src/
 # Installing npm dependencies is done as a distinct step and *prior* to copying
 # over our static files so that, you guessed it, we don't invalidate the cache
 # of installed dependencies just because files have been modified.
-RUN npm ci
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci
 
 
 
@@ -37,9 +38,18 @@ RUN NODE_ENV=production npm run build
 # We'll build a light-weight layer along the way with just docs stuff
 FROM python:3.11.4-slim-bullseye as docs
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+
 # Install System level build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
@@ -69,8 +79,9 @@ COPY requirements /tmp/requirements
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -x \
-    && pip --no-cache-dir --disable-pip-version-check \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && pip --disable-pip-version-check \
             install --no-deps \
             -r /tmp/requirements/docs-dev.txt \
             -r /tmp/requirements/docs-user.txt \
@@ -106,9 +117,18 @@ ARG DEVEL=no
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
 ARG IPYTHON=no
 
+# By default, Docker has special steps to avoid keeping APT caches in the layers, which
+# is good, but in our case, we're going to mount a special cache volume (kept between
+# builds), so we WANT the cache to persist.
+RUN set -eux; \
+    rm -f /etc/apt/apt.conf.d/docker-clean; \
+    echo 'Binary::apt::APT::Keep-Downloaded-Packages "true";' > /etc/apt/apt.conf.d/keep-cache;
+
 # Install System level Warehouse build requirements, this is done before
 # everything else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
@@ -137,18 +157,21 @@ COPY requirements /tmp/requirements
 
 # Install our development dependencies if we're building a development install
 # otherwise this will do nothing.
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
 
-RUN set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --no-cache-dir --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
-RUN set -x \
-    && pip --no-cache-dir --disable-pip-version-check \
+RUN --mount=type=cache,target=/root/.cache/pip \
+    set -x \
+    && pip --disable-pip-version-check \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
@@ -183,7 +206,9 @@ RUN set -x \
 
 # Install System level Warehouse requirements, this is done before everything
 # else because these are rarely ever going to change.
-RUN set -x \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
