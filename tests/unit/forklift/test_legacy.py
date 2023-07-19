@@ -2368,7 +2368,11 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Start filename for {!r} with {!r}.".format(
-                project.name, pkg_resources.safe_name(project.name).lower()
+                project.name,
+                pkg_resources.safe_name(project.name)
+                .lower()
+                .replace(".", "_")
+                .replace("-", "_"),
             )
         )
 
@@ -2787,6 +2791,65 @@ class TestFileUpload:
             pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
+    def test_upload_succeeds_pep427_normalized_filename(
+        self, monkeypatch, db_request, pyramid_config, metrics
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="flufl.enum")
+        RoleFactory.create(user=user, project=project)
+
+        filename = "flufl_enum-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(name="flufl_enum", version="1.0.0")
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(File.filename == filename).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
     def test_upload_succeeds_with_wheel_after_sdist(
         self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
@@ -3067,7 +3130,6 @@ class TestFileUpload:
 
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
-    # here
     @pytest.mark.parametrize(
         "version, expected_version",
         [
