@@ -259,6 +259,33 @@ class TestForbiddenView:
             )
         ]
 
+    @pytest.mark.parametrize(
+        "requested_path",
+        ("/manage/projects/", "/manage/account/two-factor/", "/manage/organizations/"),
+    )
+    def test_unverified_email_redirects(self, requested_path):
+        result = WarehouseDenied("Some summary", reason="unverified_email")
+        exc = pretend.stub(result=result)
+        request = pretend.stub(
+            authenticated_userid=1,
+            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
+            path_qs=requested_path,
+            route_url=pretend.call_recorder(lambda route, _query: "/manage/account/"),
+            _=lambda x: x,
+        )
+
+        resp = forbidden(exc, request)
+
+        assert resp.status_code == 303
+        assert resp.location == "/manage/account/"
+        assert request.session.flash.calls == [
+            pretend.call(
+                "You must verify your **primary** email address before you "
+                "can perform this action.",
+                queue="error",
+            )
+        ]
+
     def test_generic_warehousedeined(self, pyramid_config):
         result = WarehouseDenied(
             "This project requires two factor authentication to be enabled "
