@@ -101,9 +101,9 @@ envier==0.4.0 \
     --hash=sha256:7b91af0f16ea3e56d91ec082f038987e81b441fc19c657a8b8afe0909740a706 \
     --hash=sha256:e68dcd1ed67d8b6313883e27dff3e701b7fba944d2ed4b7f53d0cc2e12364a82
     # via ddtrace
-gunicorn==20.1.0 \
-    --hash=sha256:9dcc4547dbb1cb284accfb15ab5667a0e5d1881cc443e0677b4882a4067a807e \
-    --hash=sha256:e0a968b5ba15f8a328fdfd7ab1fcb5af4470c28aaf7e55df02a99bc13138e6e8
+gunicorn==21.1.0 \
+    --hash=sha256:11fc98ea214a5845f614891e8c90b0211fbe595e677d204d7cd7d80f6f348891 \
+    --hash=sha256:37ced4b6622f263a6483eb7cbe9606df81afd57dc0fa464883600624790271c5
     # via -r requirements/deploy.in
 importlib-metadata==6.0.1 \
     --hash=sha256:1543daade821c89b1c4a55986c326f36e54f2e6ca3bad96be4563d0acb74dcd4 \
@@ -113,6 +113,10 @@ opentelemetry-api==1.19.0 \
     --hash=sha256:db374fb5bea00f3c7aa290f5d94cea50b659e6ea9343384c5f6c2bb5d5e8db65 \
     --hash=sha256:dcd2a0ad34b691964947e1d50f9e8c415c32827a1d87f0459a72deb9afdf5597
     # via ddtrace
+packaging==23.1 \
+    --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
+    --hash=sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f
+    # via gunicorn
 protobuf==4.23.4 \
     --hash=sha256:0a5759f5696895de8cc913f084e27fd4125e8fb0914bb729a17816a33819f474 \
     --hash=sha256:351cc90f7d10839c480aeb9b870a211e322bf05f6ab3f55fcb2f51331f80a7d2 \
@@ -225,9 +229,3 @@ zipp==3.16.2 \
     --hash=sha256:679e51dd4403591b2d6838a48de3d283f3d188412a9782faadf845f298736ba0 \
     --hash=sha256:ebc15946aa78bd63458992fc81ec3b6f7b1e92d51c35e6de1c3804e73b799147
     # via importlib-metadata
-
-# The following packages are considered to be unsafe in a requirements file:
-setuptools==68.0.0 \
-    --hash=sha256:11e52c67415a381d10d6b462ced9cfb97066179f0e871399e006c4ab101fc85f \
-    --hash=sha256:baf1fdb41c6da4cd2eae722e135500da913332ab3f2f5c7d33af9b492acb5235
-    # via gunicorn
