@@ -20,7 +20,6 @@ import zipfile
 from cgi import FieldStorage
 from unittest import mock
 
-import pkg_resources
 import pretend
 import pytest
 

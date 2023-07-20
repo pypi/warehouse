@@ -26,7 +26,6 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
-import pkg_resources
 import sentry_sdk
 import wtforms
 import wtforms.validators
