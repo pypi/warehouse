@@ -43,7 +43,7 @@ def compute_user_metrics(request):
     # Total active users with unverified emails
     metrics.gauge(
         "warehouse.users.count",
-        request.db.query(func.count(User.id))
+        request.db.query(func.count(User.id.distinct()))
         .outerjoin(Email)
         .filter(User.is_active)
         .filter((Email.verified == None) | (Email.verified == False))  # noqa E711
@@ -54,7 +54,7 @@ def compute_user_metrics(request):
     # Total active users with unverified emails, and have project releases
     metrics.gauge(
         "warehouse.users.count",
-        request.db.query(func.count(User.id))
+        request.db.query(func.count(User.id.distinct()))
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
@@ -67,7 +67,7 @@ def compute_user_metrics(request):
     # were uploaded within the past two years
     metrics.gauge(
         "warehouse.users.count",
-        request.db.query(func.count(User.id))
+        request.db.query(func.count(User.id.distinct()))
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
@@ -81,7 +81,7 @@ def compute_user_metrics(request):
     # releases that were uploaded within the past two years
     metrics.gauge(
         "warehouse.users.count",
-        request.db.query(func.count(User.id))
+        request.db.query(func.count(User.id.distinct()))
         .outerjoin(Email)
         .join(Release, Release.uploader_id == User.id)
         .filter(User.is_active)
