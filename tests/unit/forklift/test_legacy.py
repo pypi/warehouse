@@ -20,7 +20,6 @@ import zipfile
 from cgi import FieldStorage
 from unittest import mock
 
-import pkg_resources
 import pretend
 import pytest
 
@@ -2324,6 +2323,8 @@ class TestFileUpload:
             ("no-way-{version}.tar.gz", "no"),
             ("no_way-{version}-py3-none-any.whl", "no"),
             ("no_way-{version}-py3-none-any.egg", "no"),
+            # multiple delimiters
+            ("foo__bar-{version}-py3-none-any.whl", "foo-.bar"),
         ],
     )
     def test_upload_fails_with_wrong_filename(
@@ -2369,10 +2370,7 @@ class TestFileUpload:
         assert resp.status == (
             "400 Start filename for {!r} with {!r}.".format(
                 project.name,
-                pkg_resources.safe_name(project.name)
-                .lower()
-                .replace(".", "_")
-                .replace("-", "_"),
+                project.normalized_name.replace("-", "_"),
             )
         )
 
@@ -2791,16 +2789,29 @@ class TestFileUpload:
             pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
+    @pytest.mark.parametrize(
+        "project_name, filename_prefix",
+        [
+            ("flufl.enum", "flufl_enum"),
+            ("foo-.bar", "foo_bar"),
+        ],
+    )
     def test_upload_succeeds_pep427_normalized_filename(
-        self, monkeypatch, db_request, pyramid_config, metrics
+        self,
+        monkeypatch,
+        db_request,
+        pyramid_config,
+        metrics,
+        project_name,
+        filename_prefix,
     ):
         user = UserFactory.create()
         EmailFactory.create(user=user)
-        project = ProjectFactory.create(name="flufl.enum")
+        project = ProjectFactory.create(name=project_name)
         RoleFactory.create(user=user, project=project)
 
-        filename = "flufl_enum-1.0.0-py3-none-any.whl"
-        filebody = _get_whl_testdata(name="flufl_enum", version="1.0.0")
+        filename = f"{filename_prefix}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(name=filename_prefix, version="1.0.0")
 
         @pretend.call_recorder
         def storage_service_store(path, file_path, *, meta):
