@@ -346,9 +346,9 @@ types-setuptools==68.0.0.2 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-stripe==3.5.2.13 \
-    --hash=sha256:13758055f0a06184c1e7196ecd16cfa822eccb10174384dc910ab96c50f0c648 \
-    --hash=sha256:243214ed6e2c6ee364e4d789461bdbcb4634eaf2dd67e65255b351b7c94e932a
+types-stripe==3.5.2.14 \
+    --hash=sha256:bcc020aa5ba9acd796b9f2ac21f044c8e377ce2c0f570057f0f64c4b4637bbe7 \
+    --hash=sha256:f5f1249f72a35ada1db95523edc7e8f7b543dc8434b2ff23eaa9ec2e251c2e59
     # via -r requirements/lint.in
 types-urllib3==1.26.25.13 \
     --hash=sha256:3300538c9dc11dad32eae4827ac313f5d986b8b21494801f1bf97a1ac6c03ae5 \
