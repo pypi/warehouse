@@ -2810,7 +2810,7 @@ class TestFileUpload:
         project = ProjectFactory.create(name=project_name)
         RoleFactory.create(user=user, project=project)
 
-        filename = filename_prefix + "-1.0.0-py3-none-any.whl"
+        filename = f"{filename_prefix}-1.0.0-py3-none-any.whl"
         filebody = _get_whl_testdata(name=filename_prefix, version="1.0.0")
 
         @pretend.call_recorder
