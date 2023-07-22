@@ -2790,6 +2790,77 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
+        "project_name, version",
+        [
+            ("foo", "1.0.0"),
+            ("foo-bar", "1.0.0"),
+            ("typesense-server-wrapper-chunk1", "1"),
+        ],
+    )
+    def test_upload_succeeds_metadata_check(
+        self,
+        monkeypatch,
+        db_request,
+        pyramid_config,
+        metrics,
+        project_name,
+        version,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name=project_name)
+        RoleFactory.create(user=user, project=project)
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize(
         "project_name, filename_prefix",
         [
             ("flufl.enum", "flufl_enum"),
