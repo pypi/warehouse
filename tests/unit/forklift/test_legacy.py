@@ -2790,6 +2790,38 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
+        "filename, expected",
+        [
+            (
+                "foo-1.0-py3-none-any.whl",
+                {
+                    "namever": "foo-1.0",
+                    "name": "foo",
+                    "ver": "1.0",
+                    "build": None,
+                    "pyver": "py3",
+                    "abi": "none",
+                    "plat": "any",
+                },
+            ),
+            (
+                "typesense_server_wrapper_chunk1-1-py3-none-any.whl",
+                {
+                    "namever": "typesense_server_wrapper_chunk1-1",
+                    "name": "typesense_server_wrapper_chunk1",
+                    "ver": "1",
+                    "build": None,
+                    "pyver": "py3",
+                    "abi": "none",
+                    "plat": "any",
+                },
+            ),
+        ],
+    )
+    def test_wheel_file_re(self, filename, expected):
+        assert legacy._wheel_file_re.match(filename).groupdict() == expected
+
+    @pytest.mark.parametrize(
         "project_name, version",
         [
             ("foo", "1.0.0"),
