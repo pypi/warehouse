@@ -3122,10 +3122,7 @@ class TestFileUpload:
 
         temp_f = io.BytesIO()
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-            zfp.writestr(
-                f"{project.name.lower()}-{release.version}.dist-info/METADATA",
-                "Fake metadata",
-            )
+            zfp.writestr("some_file", "some_data")
 
         filename = f"{project.name}-{release.version}-cp34-none-any.whl"
         filebody = temp_f.getvalue()
