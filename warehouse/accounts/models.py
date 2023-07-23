@@ -157,6 +157,10 @@ class User(SitemapMixin, HasEvents, db.Model):
         return len(self.webauthn) > 0
 
     @property
+    def has_multiple_2fa(self):
+        return len(self.webauthn) >= 2 or (self.has_totp and len(self.webauthn) == 1)
+
+    @property
     def has_recovery_codes(self):
         return any(not code.burned for code in self.recovery_codes)
 

@@ -592,6 +592,10 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
+        if not self.request.user.has_multiple_2fa:
+            self.request.session.flash("Cannot remove last 2FA method", queue="error")
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
         form = DeleteTOTPForm(
             formdata=MultiDict(
                 {
@@ -721,6 +725,10 @@ class ProvisionWebAuthnViews:
             self.request.session.flash(
                 "There is no security device to delete", queue="error"
             )
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+
+        if not self.request.user.has_multiple_2fa:
+            self.request.session.flash("Cannot remove last 2FA method", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
         form = DeleteWebAuthnForm(
