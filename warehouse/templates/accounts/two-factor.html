@@ -57,6 +57,14 @@
               {% endtrans %}
             </li>
           </ul>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="remember_device_webauthn" name="remember_device" value="true" />
+              {% trans %}Remember this device for 30 days{% endtrans %}
+            </label>
+          </div>
+
           <p class="margin-top--large">{% trans href='/help/#utfkey' %}Lost your device? Not working? <a href="{{ href }}">Get help</a>.{% endtrans %}</p>
         </form>
       </div>
@@ -110,6 +118,13 @@
           </div>
           <div class="form-group">
             <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="remember_device" value="true" />
+              {% trans %}Remember this device for 30 days{% endtrans %}
+            </label>
           </div>
 
           {% trans href='/help/#totp' %}

@@ -246,6 +246,7 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.commit": "null",
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
+        "token.remember_device.max_age": 2592000,
         "token.default.max_age": 21600,
         "pythondotorg.host": "https://www.python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
