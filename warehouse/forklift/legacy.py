@@ -795,8 +795,8 @@ def _extract_wheel_metadata(path):
     See https://peps.python.org/pep-0491/#file-contents
     """
     filename = os.path.basename(path)
-    namever = _wheel_file_re.match(filename).group("namever")
-    metafile = f"{namever}.dist-info/METADATA"
+    name, version, _, __ = packaging.utils.parse_wheel_filename(filename)
+    metafile = f"{name.replace('-', '_')}-{version}.dist-info/METADATA"
     with zipfile.ZipFile(path) as zfp:
         return zfp.read(metafile)
 

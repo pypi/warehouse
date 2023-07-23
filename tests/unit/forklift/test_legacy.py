@@ -80,6 +80,7 @@ def _get_tar_testdata(compression_type=""):
 
 def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
+    name = name.lower().replace(".", "_").replace("-", "_")
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
     return temp_f.getvalue()
@@ -2788,38 +2789,6 @@ class TestFileUpload:
             pretend.call("warehouse.upload.attempt"),
             pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
-
-    @pytest.mark.parametrize(
-        "filename, expected",
-        [
-            (
-                "foo-1.0-py3-none-any.whl",
-                {
-                    "namever": "foo-1.0",
-                    "name": "foo",
-                    "ver": "1.0",
-                    "build": None,
-                    "pyver": "py3",
-                    "abi": "none",
-                    "plat": "any",
-                },
-            ),
-            (
-                "typesense_server_wrapper_chunk1-1-py3-none-any.whl",
-                {
-                    "namever": "typesense_server_wrapper_chunk1-1",
-                    "name": "typesense_server_wrapper_chunk1",
-                    "ver": "1",
-                    "build": None,
-                    "pyver": "py3",
-                    "abi": "none",
-                    "plat": "any",
-                },
-            ),
-        ],
-    )
-    def test_wheel_file_re(self, filename, expected):
-        assert legacy._wheel_file_re.match(filename).groupdict() == expected
 
     @pytest.mark.parametrize(
         "project_name, version",
