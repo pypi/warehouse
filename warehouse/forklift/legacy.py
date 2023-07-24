@@ -1348,7 +1348,7 @@ def file_upload(request):
             # should use packaging.utils.parse_wheel_filename(filename), but until then
             # we can't use this as it adds additional normailzation to the project name
             # and version.
-            name, version, _ = filename.split('-', 2)
+            name, version, _ = filename.split("-", 2)
             metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:
