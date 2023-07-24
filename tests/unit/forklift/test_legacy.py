@@ -80,7 +80,6 @@ def _get_tar_testdata(compression_type=""):
 
 def _get_whl_testdata(name="fake_package", version="1.0"):
     temp_f = io.BytesIO()
-    name = name.lower().replace(".", "_").replace("-", "_")
     with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
         zfp.writestr(f"{name}-{version}.dist-info/METADATA", "Fake metadata")
     return temp_f.getvalue()
