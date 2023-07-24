@@ -1344,8 +1344,12 @@ def file_upload(request):
             See https://peps.python.org/pep-0491/#file-contents
             """
             filename = os.path.basename(temporary_filename)
-            name, version, _, __ = packaging.utils.parse_wheel_filename(filename)
-            metadata_filename = f"{name.replace('-', '_')}-{version}.dist-info/METADATA"
+            # Get the name and version from the original filename. Eventually this
+            # should use packaging.utils.parse_wheel_filename(filename), but until then
+            # we can't use this as it adds additional normailzation to the project name
+            # and version.
+            name, version, _ = filename.split('-', 2)
+            metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
                 with zipfile.ZipFile(temporary_filename) as zfp:
                     wheel_metadata_contents = zfp.read(metadata_filename)
