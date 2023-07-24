@@ -8,17 +8,17 @@ babel==2.12.1 \
     --hash=sha256:b4246fb7677d3b98f501a39d43396d3cafdc8eadb045f4a31be01863f655c610 \
     --hash=sha256:cc2d99999cd01d44420ae725a21c9e3711b3aadc7976d6147f622d8581963455
     # via mkdocs-blogging-plugin
-cairocffi==1.6.0 \
-    --hash=sha256:e7f21ea1546a5d490ceba77b6216c1393d7e0a7856e292864a88a7506092bf4d \
-    --hash=sha256:fec979f3e904c1a38350b06dcc91d3c15f9a4954e618a068761622e3a0d5058c
+cairocffi==1.6.1 \
+    --hash=sha256:78e6bbe47357640c453d0be929fa49cd05cce2e1286f3d2a1ca9cbda7efdb8b7 \
+    --hash=sha256:aa78ee52b9069d7475eeac457389b6275aa92111895d78fbaa2202a52dac112e
     # via cairosvg
 cairosvg==2.7.0 \
     --hash=sha256:17cb96423a896258848322a95c80160e714a58f1af3dd73b8e1750994519b9f9 \
     --hash=sha256:ac4dc7c1d38b3a15717db2633a3a383012e0be664c727c911637e6af6a49293c
     # via -r requirements/docs-blog.in
-certifi==2023.5.7 \
-    --hash=sha256:0f0d56dc5a6ad56fd4ba36484d6cc34451e1c6548c61daad8c320169f91eddc7 \
-    --hash=sha256:c6c2e98f5c7869efca1f8916fed228dd91539f9f1b444c314c06eef02980c716
+certifi==2023.7.22 \
+    --hash=sha256:539cc1d13202e33ca466e88b2807e29f4c13049d6d87031a3c110744495cb082 \
+    --hash=sha256:92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9
     # via requests
 cffi==1.15.1 \
     --hash=sha256:00a9ed42e88df81ffae7a8ab6d9356b371399b91dbdf0c3cb1e84c03a13aceb5 \
@@ -275,9 +275,9 @@ mkdocs==1.4.3 \
     #   mkdocs-blogging-plugin
     #   mkdocs-material
     #   mkdocs-rss-plugin
-mkdocs-blogging-plugin==2.2.9 \
-    --hash=sha256:5ba0c0bfc7ba3800176956d877feb93887585bf601c7506cd25333bd942ca1bd \
-    --hash=sha256:c847749d82896b033c7e562e7e6a2add1e2c3ac43c87908ff18fe527a900eff4
+mkdocs-blogging-plugin==2.2.11 \
+    --hash=sha256:7e0f14e5a5d9d7fa106ee014b04a49e2fdb5ffe70a0026106dceb79930ba8ac2 \
+    --hash=sha256:91b3ebc1ee3870958a0f9304d985f73a8e170a1f8d17948488415fa1a4257b2e
     # via -r requirements/docs-blog.in
 mkdocs-material==9.1.19 \
     --hash=sha256:73b94b08c765e92a80645aac58d6a741fc5f587deec2b715489c714827b15a6f \
