@@ -61,7 +61,11 @@
           <div class="form-group">
             <label>
               <input type="checkbox" id="remember_device_webauthn" name="remember_device" value="true" />
-              {% trans %}Remember this device for 30 days{% endtrans %}
+              {% trans remember_device_days=remember_device_days %}
+              Remember this device for {{ remember_device_days }} day
+              {% pluralize %}
+              Remember this device for {{ remember_device_days }} days
+              {% endtrans %}
             </label>
           </div>
 
@@ -123,7 +127,11 @@
           <div class="form-group">
             <label>
               <input type="checkbox" name="remember_device" value="true" />
-              {% trans %}Remember this device for 30 days{% endtrans %}
+              {% trans remember_device_days=remember_device_days %}
+              Remember this device for {{ remember_device_days }} day
+              {% pluralize %}
+              Remember this device for {{ remember_device_days }} days
+              {% endtrans %}
             </label>
           </div>
 

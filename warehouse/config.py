@@ -17,6 +17,8 @@ import json
 import os
 import shlex
 
+from datetime import timedelta
+
 import orjson
 import transaction
 
@@ -241,10 +243,17 @@ def configure(settings=None):
     )
     maybe_set(
         settings,
-        "token.remember_device.max_age",
-        "TOKEN_REMEMBER_DEVICE_MAX_AGE",
+        "remember_device.days",
+        "REMEMBER_DEVICE_DAYS",
         coercer=int,
-        default=2592000,  # 30 days,
+        default=30,
+    )
+    settings.setdefault(
+        "remember_device.seconds",
+        timedelta(days=settings.get("remember_device.days")).total_seconds(),
+    )
+    settings.setdefault(
+        "token.remember_device.max_age", settings.get("remember_device.seconds")
     )
     maybe_set(
         settings,

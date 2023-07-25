@@ -94,7 +94,6 @@ from warehouse.utils.http import is_safe_url
 
 USER_ID_INSECURE_COOKIE = "user_id__insecure"
 REMEMBER_DEVICE_COOKIE = "remember_device"
-REMEMBER_DEVICE_SECONDS = 2592000  # 30 days
 
 
 @view_config(context=TooManyFailedLogins, has_translations=True)
@@ -334,6 +333,9 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
         two_factor_state["has_webauthn"] = True
     if user_service.has_recovery_codes(userid):
         two_factor_state["has_recovery_codes"] = True
+    two_factor_state["remember_device_days"] = request.registry.settings[
+        "remember_device.days"
+    ]
 
     if request.method == "POST":
         form = two_factor_state["totp_form"]
@@ -484,10 +486,10 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
     response.set_cookie(
         REMEMBER_DEVICE_COOKIE,
         token,
-        max_age=REMEMBER_DEVICE_SECONDS,
+        max_age=request.registry.settings["remember_device.seconds"],
         httponly=True,
         secure=request.scheme == "https",
-        samesite=b"lax",
+        samesite=b"strict",
         path=request.route_path("accounts.login"),
     )
     request.user.record_event(

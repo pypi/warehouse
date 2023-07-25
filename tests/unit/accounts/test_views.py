@@ -14,6 +14,8 @@ import datetime
 import json
 import uuid
 
+from datetime import timedelta
+
 import freezegun
 import pretend
 import pytest
@@ -48,7 +50,6 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.views import (
     REMEMBER_DEVICE_COOKIE,
-    REMEMBER_DEVICE_SECONDS,
     two_factor_and_totp_validate,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
@@ -600,7 +601,7 @@ class TestTwoFactor:
             ITokenService: token_service,
             IUserService: user_service,
         }[interface]
-
+        pyramid_request.registry.settings = {"remember_device.days": 30}
         pyramid_request.query_string = pretend.stub()
 
         form_obj = pretend.stub()
@@ -613,7 +614,7 @@ class TestTwoFactor:
         assert token_service.loads.calls == [
             pretend.call(pyramid_request.query_string, return_timestamp=True)
         ]
-        assert result == {"totp_form": form_obj}
+        assert result == {"totp_form": form_obj, "remember_device_days": 30}
         assert form_class.calls == [
             pretend.call(
                 pyramid_request.POST,
@@ -653,8 +654,9 @@ class TestTwoFactor:
             ITokenService: token_service,
             IUserService: user_service,
         }[interface]
-
+        pyramid_request.registry.settings = {"remember_device.days": 30}
         pyramid_request.query_string = pretend.stub()
+
         result = views.two_factor_and_totp_validate(
             pyramid_request, _form_class=pretend.stub()
         )
@@ -662,7 +664,7 @@ class TestTwoFactor:
         assert token_service.loads.calls == [
             pretend.call(pyramid_request.query_string, return_timestamp=True)
         ]
-        assert result == {"has_webauthn": True}
+        assert result == {"has_webauthn": True, "remember_device_days": 30}
 
     @pytest.mark.parametrize("redirect_url", [None, "/foo/bar/", "/wat/"])
     def test_get_returns_recovery_code_status(self, pyramid_request, redirect_url):
@@ -693,7 +695,7 @@ class TestTwoFactor:
             ITokenService: token_service,
             IUserService: user_service,
         }[interface]
-
+        pyramid_request.registry.settings = {"remember_device.days": 30}
         pyramid_request.query_string = pretend.stub()
         result = views.two_factor_and_totp_validate(
             pyramid_request, _form_class=pretend.stub()
@@ -702,7 +704,7 @@ class TestTwoFactor:
         assert token_service.loads.calls == [
             pretend.call(pyramid_request.query_string, return_timestamp=True)
         ]
-        assert result == {"has_recovery_codes": True}
+        assert result == {"has_recovery_codes": True, "remember_device_days": 30}
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     @pytest.mark.parametrize("has_recovery_codes", [True, False])
@@ -770,6 +772,7 @@ class TestTwoFactor:
             lambda *args: None
         )
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
+        pyramid_request.registry.settings = {"remember_device.days": 30}
 
         form_obj = pretend.stub(
             validate=pretend.call_recorder(lambda: True),
@@ -862,6 +865,7 @@ class TestTwoFactor:
                 IUserService: user_service,
             }[interface],
             query_string=pretend.stub(),
+            registry=pretend.stub(settings={"remember_device.days": 30}),
         )
 
         form_obj = pretend.stub(
@@ -875,7 +879,7 @@ class TestTwoFactor:
         assert token_service.loads.calls == [
             pretend.call(request.query_string, return_timestamp=True)
         ]
-        assert result == {"totp_form": form_obj}
+        assert result == {"totp_form": form_obj, "remember_device_days": 30}
 
     def test_two_factor_token_missing_userid(self, pyramid_request):
         token_service = pretend.stub(
@@ -1149,7 +1153,7 @@ class TestRememberDevice:
         )
         assert not views._check_remember_device_token(request, 1)
 
-    def test_remember_device(self, monkeypatch, pyramid_request):
+    def test_remember_device(self):
         token_service = pretend.stub(dumps=lambda *a: "token_data")
         pyramid_request = pretend.stub(
             find_service=lambda interface, **kwargs: {
@@ -1160,6 +1164,9 @@ class TestRememberDevice:
             user=pretend.stub(
                 record_event=pretend.call_recorder(lambda *a, **kw: None)
             ),
+            registry=pretend.stub(
+                settings={"remember_device.seconds": timedelta(days=30).total_seconds()}
+            ),
         )
         response = pretend.stub(set_cookie=pretend.call_recorder(lambda *a, **kw: None))
 
@@ -1169,10 +1176,10 @@ class TestRememberDevice:
             pretend.call(
                 REMEMBER_DEVICE_COOKIE,
                 "token_data",
-                max_age=REMEMBER_DEVICE_SECONDS,
+                max_age=timedelta(days=30).total_seconds(),
                 httponly=True,
                 secure=True,
-                samesite=b"lax",
+                samesite=b"strict",
                 path="/accounts/login",
             )
         ]
@@ -1236,7 +1243,6 @@ class TestRecoveryCode:
             ITokenService: token_service,
             IUserService: user_service,
         }[interface]
-
         pyramid_request.query_string = pretend.stub()
 
         form_obj = pretend.stub()
@@ -1383,6 +1389,7 @@ class TestRecoveryCode:
                 IUserService: user_service,
             }[interface],
             query_string=pretend.stub(),
+            # registry=pretend.stub(settings={"remember_device.days": 30}),
         )
 
         form_obj = pretend.stub(

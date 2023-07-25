@@ -12,6 +12,7 @@
 
 import os
 
+from datetime import timedelta
 from unittest import mock
 
 import orjson
@@ -246,7 +247,9 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.commit": "null",
         "site.name": "Warehouse",
         "token.two_factor.max_age": 300,
-        "token.remember_device.max_age": 2592000,
+        "remember_device.days": 30,
+        "remember_device.seconds": timedelta(days=30).total_seconds(),
+        "token.remember_device.max_age": timedelta(days=30).total_seconds(),
         "token.default.max_age": 21600,
         "pythondotorg.host": "https://www.python.org",
         "warehouse.xmlrpc.client.ratelimit_string": "3600 per hour",
