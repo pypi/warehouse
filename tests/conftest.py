@@ -242,7 +242,7 @@ def database(request):
     def drop_database():
         janitor.drop()
 
-    return f"postgresql://{pg_user}@{pg_host}:{pg_port}/{pg_db}"
+    return f"postgresql+psycopg://{pg_user}@{pg_host}:{pg_port}/{pg_db}"
 
 
 class MockManifestCacheBuster(ManifestCacheBuster):
