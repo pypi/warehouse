@@ -1329,7 +1329,14 @@ def file_upload(request):
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
-            _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+            try:
+                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+            except packaging.utils.InvalidWheelFilename as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    str(e),
+                )
+
             for tag in tags:
                 if not _valid_platform_tag(tag.platform):
                     raise _exc_with_message(

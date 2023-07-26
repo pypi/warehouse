@@ -3058,6 +3058,61 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
+        "filename, expected",
+        [
+            (
+                "foo-1.0.whl",
+                "400 Invalid wheel filename (wrong number of parts): foo-1.0",
+            ),
+            (
+                "foo-1.0-q-py3-none-any.whl",
+                "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
+            ),
+        ],
+    )
+    def test_upload_fails_with_invalid_filename(
+        self, monkeypatch, pyramid_config, db_request, filename, expected
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="foo")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filebody = _get_whl_testdata(name=project.name, version=release.version)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == expected
+
+    @pytest.mark.parametrize(
         "plat",
         [
             "linux_x86_64",
