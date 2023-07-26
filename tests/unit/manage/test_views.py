@@ -1284,7 +1284,7 @@ class TestProvisionTOTP:
                 totp_secret=b"secret",
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
-                has_multiple_2fa=True,
+                has_single_2fa=False,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
             remote_addr="0.0.0.0",
@@ -1338,7 +1338,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
-                has_multiple_2fa=True,
+                has_single_2fa=False,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1430,7 +1430,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
-                has_multiple_2fa=False,
+                has_single_2fa=True,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1622,7 +1622,7 @@ class TestProvisionWebAuthn:
                     remove=pretend.call_recorder(lambda *a: pretend.stub()),
                 ),
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
-                has_multiple_2fa=True,
+                has_single_2fa=False,
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
@@ -1691,7 +1691,7 @@ class TestProvisionWebAuthn:
                 id=1234,
                 username=pretend.stub(),
                 webauthn=[pretend.stub()],
-                has_multiple_2fa=True,
+                has_single_2fa=False,
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
@@ -1716,9 +1716,7 @@ class TestProvisionWebAuthn:
 
     def test_delete_webauthn_last_2fa(self):
         request = pretend.stub(
-            user=pretend.stub(
-                id=1234, webauthn=[pretend.stub()], has_multiple_2fa=False
-            ),
+            user=pretend.stub(id=1234, webauthn=[pretend.stub()], has_single_2fa=True),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
             find_service=lambda *a, **kw: pretend.stub(),

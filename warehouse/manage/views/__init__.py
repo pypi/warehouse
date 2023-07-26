@@ -592,7 +592,7 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        if not self.request.user.has_multiple_2fa:
+        if self.request.user.has_single_2fa:
             self.request.session.flash("Cannot remove last 2FA method", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
@@ -727,7 +727,7 @@ class ProvisionWebAuthnViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        if not self.request.user.has_multiple_2fa:
+        if self.request.user.has_single_2fa:
             self.request.session.flash("Cannot remove last 2FA method", queue="error")
             return HTTPSeeOther(self.request.route_path("manage.account"))
 

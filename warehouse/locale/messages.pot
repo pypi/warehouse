@@ -3588,9 +3588,14 @@ msgid "Two factor method"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:65
-#: warehouse/templates/manage/manage_base.html:72
 #: warehouse/templates/manage/manage_base.html:85
-#: warehouse/templates/manage/manage_base.html:96
+msgid "Cannot remove last 2FA method"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:89
 #: warehouse/templates/manage/manage_base.html:540
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
@@ -3605,28 +3610,23 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:70
 msgid "Remove authentication application"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:67
+#: warehouse/templates/manage/manage_base.html:71
 msgid "Remove application"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:71
-#: warehouse/templates/manage/manage_base.html:95
-msgid "Cannot remove last 2FA method"
-msgstr ""
-
-#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:90
 msgid "Remove two factor security device"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:87
+#: warehouse/templates/manage/manage_base.html:91
 msgid "Remove device"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:93
+#: warehouse/templates/manage/manage_base.html:97
 msgid "Device name"
 msgstr ""
 

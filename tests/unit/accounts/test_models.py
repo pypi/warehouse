@@ -227,14 +227,14 @@ class TestUser:
         ("has_totp", "count_webauthn", "expected"),
         [
             (False, 0, False),
-            (False, 1, False),
-            (False, 2, True),
-            (True, 0, False),
-            (True, 1, True),
-            (True, 2, True),
+            (False, 1, True),
+            (False, 2, False),
+            (True, 0, True),
+            (True, 1, False),
+            (True, 2, False),
         ],
     )
-    def test_has_multiple_2fa(self, db_session, has_totp, count_webauthn, expected):
+    def test_has_single_2fa(self, db_session, has_totp, count_webauthn, expected):
         user = DBUserFactory.create()
         if has_totp:
             user.totp_secret = b"secret"
@@ -249,4 +249,4 @@ class TestUser:
                 )
             )
         db_session.flush()
-        assert user.has_multiple_2fa == expected
+        assert user.has_single_2fa == expected
