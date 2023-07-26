@@ -3057,10 +3057,19 @@ class TestFileUpload:
             )
         ]
 
-    @pytest.mark.parametrize("filename, expected", [
-        ("foo-1.0.whl", "400 Invalid wheel filename (wrong number of parts): foo-1.0"),
-        ("foo-1.0-q-py3-none-any.whl", "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'"),
-    ])
+    @pytest.mark.parametrize(
+        "filename, expected",
+        [
+            (
+                "foo-1.0.whl",
+                "400 Invalid wheel filename (wrong number of parts): foo-1.0",
+            ),
+            (
+                "foo-1.0-q-py3-none-any.whl",
+                "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
+            ),
+        ],
+    )
     def test_upload_fails_with_invalid_filename(
         self, monkeypatch, pyramid_config, db_request, filename, expected
     ):
@@ -3102,7 +3111,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == expected
-
 
     @pytest.mark.parametrize(
         "plat",
