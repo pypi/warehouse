@@ -1209,10 +1209,13 @@ protobuf==4.23.4 \
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg==3.1.9 \
+psycopg[c]==3.1.9 \
     --hash=sha256:ab400f207a8c120bafdd8077916d8f6c0106e809401378708485b016508c30c9 \
     --hash=sha256:fbbac339274d8733ee70ba9822297af3e8871790a26e967b5ea53e30a4b74dcc
     # via -r requirements/main.in
+psycopg-c==3.1.9 \
+    --hash=sha256:d160b45b0ee1eb05d78a81538c2bc6868bacb5f421b7190ed65d4681e4552455
+    # via psycopg
 pyasn1==0.5.0 \
     --hash=sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57 \
     --hash=sha256:97b7290ca68e62a832558ec3976f15cbf911bf5d7c7039d8b861c2a0ece69fde
@@ -1519,6 +1522,7 @@ typing-extensions==4.7.1 \
     # via
     #   alembic
     #   limits
+    #   psycopg
     #   pydantic
     #   sqlalchemy
 tzdata==2023.3 \
