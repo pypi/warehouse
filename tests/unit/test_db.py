@@ -131,16 +131,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
     ]
 
 
-@pytest.mark.parametrize(
-    ("read_only", "tx_status"),
-    [
-        (True, psycopg.pq.TransactionStatus.IDLE),
-        (True, psycopg.pq.TransactionStatus.INTRANS),
-        (False, psycopg.pq.TransactionStatus.IDLE),
-        (False, psycopg.pq.TransactionStatus.INTRANS),
-    ],
-)
-def test_create_session(monkeypatch, pyramid_services, read_only, tx_status):
+def test_create_session(monkeypatch, pyramid_services):
     session_obj = pretend.stub(
         close=pretend.call_recorder(lambda: None),
         get=pretend.call_recorder(lambda *a: None),
@@ -175,15 +166,6 @@ def test_create_session(monkeypatch, pyramid_services, read_only, tx_status):
     assert session_obj.close.calls == [pretend.call()]
     assert connection.close.calls == [pretend.call()]
 
-    if read_only:
-        assert connection.info == {"warehouse.needs_reset": True}
-        assert connection.connection.set_session.calls == [
-            pretend.call(isolation_level="SERIALIZABLE", readonly=True, deferrable=True)
-        ]
-
-    if tx_status != psycopg.pq.TransactionStatus.IDLE:
-        connection.connection.rollback.calls == [pretend.call()]
-
 
 @pytest.mark.parametrize(
     "admin_flag, is_superuser, doom_calls",
@@ -217,7 +199,6 @@ def test_create_session_read_only_mode(
 
     connection = pretend.stub(
         connection=pretend.stub(
-            get_transaction_status=lambda: pretend.stub(),
             set_session=lambda **kw: None,
             rollback=lambda: None,
         ),
