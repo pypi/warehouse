@@ -16,6 +16,7 @@ import freezegun
 import pretend
 import pytest
 
+from celery.schedules import crontab
 from pyramid.httpexceptions import HTTPUnauthorized
 
 from warehouse import accounts
@@ -34,6 +35,7 @@ from warehouse.accounts.services import (
     TokenServiceFactory,
     database_login_factory,
 )
+from warehouse.accounts.tasks import compute_user_metrics
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.events.tags import EventTag
 from warehouse.oidc.interfaces import SignedClaims
@@ -423,6 +425,7 @@ def test_includeme(monkeypatch):
         set_security_policy=pretend.call_recorder(lambda p: None),
         maybe_dotted=pretend.call_recorder(lambda path: path),
         add_route_predicate=pretend.call_recorder(lambda name, cls: None),
+        add_periodic_task=pretend.call_recorder(lambda *a, **kw: None),
     )
 
     accounts.includeme(config)
@@ -473,3 +476,7 @@ def test_includeme(monkeypatch):
             ]
         )
     ]
+    assert (
+        pretend.call(crontab(minute="*/20"), compute_user_metrics)
+        in config.add_periodic_task.calls
+    )

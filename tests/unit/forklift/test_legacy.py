@@ -20,7 +20,6 @@ import zipfile
 from cgi import FieldStorage
 from unittest import mock
 
-import pkg_resources
 import pretend
 import pytest
 
@@ -2282,6 +2281,8 @@ class TestFileUpload:
             # starts with same prefix with hyphen
             ("no-way-{version}.tar.gz", "no"),
             ("no_way-{version}-py3-none-any.whl", "no"),
+            # multiple delimiters
+            ("foo__bar-{version}-py3-none-any.whl", "foo-.bar"),
         ],
     )
     def test_upload_fails_with_wrong_filename(
@@ -2326,7 +2327,8 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status == (
             "400 Start filename for {!r} with {!r}.".format(
-                project.name, pkg_resources.safe_name(project.name).lower()
+                project.name,
+                project.normalized_name.replace("-", "_"),
             )
         )
 
@@ -2745,6 +2747,149 @@ class TestFileUpload:
             pretend.call("warehouse.upload.ok", tags=["filetype:bdist_wheel"]),
         ]
 
+    @pytest.mark.parametrize(
+        "project_name, version",
+        [
+            ("foo", "1.0.0"),
+            ("foo-bar", "1.0.0"),
+            ("typesense-server-wrapper-chunk1", "1"),
+        ],
+    )
+    def test_upload_succeeds_metadata_check(
+        self,
+        monkeypatch,
+        db_request,
+        pyramid_config,
+        metrics,
+        project_name,
+        version,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name=project_name)
+        RoleFactory.create(user=user, project=project)
+
+        filename = (
+            f"{project.normalized_name.replace('-', '_')}-{version}-py3-none-any.whl"
+        )
+        filebody = _get_whl_testdata(
+            name=project.normalized_name.replace("-", "_"), version=version
+        )
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+    @pytest.mark.parametrize(
+        "project_name, filename_prefix",
+        [
+            ("flufl.enum", "flufl_enum"),
+            ("foo-.bar", "foo_bar"),
+        ],
+    )
+    def test_upload_succeeds_pep427_normalized_filename(
+        self,
+        monkeypatch,
+        db_request,
+        pyramid_config,
+        metrics,
+        project_name,
+        filename_prefix,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name=project_name)
+        RoleFactory.create(user=user, project=project)
+
+        filename = f"{filename_prefix}-1.0.0-py3-none-any.whl"
+        filebody = _get_whl_testdata(name=filename_prefix, version="1.0.0")
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0.0",
+                "filetype": "bdist_wheel",
+                "pyversion": "py3",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(File.filename == filename).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
     def test_upload_succeeds_with_wheel_after_sdist(
         self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
@@ -2871,6 +3016,61 @@ class TestFileUpload:
         ]
 
     @pytest.mark.parametrize(
+        "filename, expected",
+        [
+            (
+                "foo-1.0.whl",
+                "400 Invalid wheel filename (wrong number of parts): foo-1.0",
+            ),
+            (
+                "foo-1.0-q-py3-none-any.whl",
+                "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
+            ),
+        ],
+    )
+    def test_upload_fails_with_invalid_filename(
+        self, monkeypatch, pyramid_config, db_request, filename, expected
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="foo")
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filebody = _get_whl_testdata(name=project.name, version=release.version)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": "bdist_wheel",
+                "pyversion": "cp34",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == expected
+
+    @pytest.mark.parametrize(
         "plat",
         [
             "linux_x86_64",
@@ -2934,10 +3134,7 @@ class TestFileUpload:
 
         temp_f = io.BytesIO()
         with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-            zfp.writestr(
-                f"{project.name.lower()}-{release.version}.dist-info/METADATA",
-                "Fake metadata",
-            )
+            zfp.writestr("some_file", "some_data")
 
         filename = f"{project.name}-{release.version}-cp34-none-any.whl"
         filebody = temp_f.getvalue()
@@ -3025,7 +3222,6 @@ class TestFileUpload:
 
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
-    # here
     @pytest.mark.parametrize(
         "version, expected_version",
         [

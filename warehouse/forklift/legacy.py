@@ -26,7 +26,6 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
-import pkg_resources
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -183,29 +182,9 @@ def _valid_platform_tag(platform_tag):
 
 _error_message_order = ["metadata_version", "name", "version"]
 
-
 _dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl)$", re.I)
 
-
-_wheel_file_re = re.compile(
-    r"""
-    ^
-    (?P<namever>(?P<name>.+?)(-(?P<ver>\d.+?))?)
-    (
-        (-(?P<build>\d.*?))?
-        -(?P<pyver>.+?)
-        -(?P<abi>.+?)
-        -(?P<plat>.+?)
-        (?:\.whl|\.dist-info)
-    )
-    $
-    """,
-    re.VERBOSE,
-)
-
-
 _legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
-
 
 _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 
@@ -788,19 +767,6 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _extract_wheel_metadata(path):
-    """
-    Extract METADATA file from a wheel and return it as a content.
-    The name of the .whl file is used to find the corresponding .dist-info dir.
-    See https://peps.python.org/pep-0491/#file-contents
-    """
-    filename = os.path.basename(path)
-    namever = _wheel_file_re.match(filename).group("namever")
-    metafile = f"{namever}.dist-info/METADATA"
-    with zipfile.ZipFile(path) as zfp:
-        return zfp.read(metafile)
-
-
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -1215,7 +1181,7 @@ def file_upload(request):
     _validate_filename(filename)
 
     # Extract the project name from the filename and normalize it.
-    filename_prefix = pkg_resources.safe_name(
+    filename_prefix = (
         # For wheels, the project name is normalized and won't contain hyphens, so
         # we can split on the first hyphen.
         filename.partition("-")[0]
@@ -1223,11 +1189,14 @@ def file_upload(request):
         # For source releases, we know that the version should not contain any
         # hyphens, so we can split on the last hyphen to get the project name.
         else filename.rpartition("-")[0]
-    ).lower()
+    )
 
-    # Make sure that our filename matches the project that it is being uploaded
-    # to.
-    if (prefix := pkg_resources.safe_name(project.name).lower()) != filename_prefix:
+    # Normalize the prefix in the filename. Eventually this should be unnecessary once
+    # we become more restrictive in what we permit
+    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
+
+    # Make sure that our filename matches the project that it is being uploaded to.
+    if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
         raise _exc_with_message(
             HTTPBadRequest,
             f"Start filename for {project.name!r} with {prefix!r}.",
@@ -1359,21 +1328,38 @@ def file_upload(request):
 
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
-            wheel_info = _wheel_file_re.match(filename)
-            plats = wheel_info.group("plat").split(".")
-            for plat in plats:
-                if not _valid_platform_tag(plat):
+            try:
+                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+            except packaging.utils.InvalidWheelFilename as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    str(e),
+                )
+
+            for tag in tags:
+                if not _valid_platform_tag(tag.platform):
                     raise _exc_with_message(
                         HTTPBadRequest,
-                        "Binary wheel '{filename}' has an unsupported "
-                        "platform tag '{plat}'.".format(filename=filename, plat=plat),
+                        f"Binary wheel '{filename}' has an unsupported "
+                        f"platform tag '{tag.platform}'.",
                     )
 
+            """
+            Extract METADATA file from a wheel and return it as a content.
+            The name of the .whl file is used to find the corresponding .dist-info dir.
+            See https://peps.python.org/pep-0491/#file-contents
+            """
+            filename = os.path.basename(temporary_filename)
+            # Get the name and version from the original filename. Eventually this
+            # should use packaging.utils.parse_wheel_filename(filename), but until then
+            # we can't use this as it adds additional normailzation to the project name
+            # and version.
+            name, version, _ = filename.split("-", 2)
+            metadata_filename = f"{name}-{version}.dist-info/METADATA"
             try:
-                wheel_metadata_contents = _extract_wheel_metadata(temporary_filename)
+                with zipfile.ZipFile(temporary_filename) as zfp:
+                    wheel_metadata_contents = zfp.read(metadata_filename)
             except KeyError:
-                namever = wheel_info.group("namever")
-                metadata_filename = f"{namever}.dist-info/METADATA"
                 raise _exc_with_message(
                     HTTPBadRequest,
                     "Wheel '{filename}' does not contain the required "

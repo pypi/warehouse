@@ -55,6 +55,9 @@ class NullOIDCPublisherService:
                         verify_nbf=False,
                         verify_exp=False,
                         verify_aud=True,
+                        # We don't accept JWTs with multiple audiences; we
+                        # want to be the ONLY audience listed.
+                        strict_aud=True,
                     ),
                     audience="pypi",
                 )
@@ -253,6 +256,9 @@ class OIDCPublisherService:
                     verify_nbf=True,
                     verify_exp=True,
                     verify_aud=True,
+                    # We don't accept JWTs with multiple audiences; we
+                    # want to be the ONLY audience listed.
+                    strict_aud=True,
                 ),
                 issuer=self.issuer_url,
                 audience=self.audience,

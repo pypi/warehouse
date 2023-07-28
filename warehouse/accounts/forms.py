@@ -250,7 +250,7 @@ class NewEmailMixin:
         # Check if the domain is valid
         domain = field.data.split("@")[-1]
 
-        if domain in disposable_email_domains.blacklist:
+        if domain in disposable_email_domains.blocklist:
             raise wtforms.validators.ValidationError(
                 _(
                     "You can't use an email address from this domain. Use a "

@@ -17,7 +17,7 @@ import pytest
 
 from pyramid.authorization import Authenticated
 
-from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
+from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
 from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
@@ -222,3 +222,31 @@ class TestUser:
         expected = expected[:] + [f"user:{user.id}", Authenticated]
 
         assert set(principals_for(user)) == set(expected)
+
+    @pytest.mark.parametrize(
+        ("has_totp", "count_webauthn", "expected"),
+        [
+            (False, 0, False),
+            (False, 1, True),
+            (False, 2, False),
+            (True, 0, True),
+            (True, 1, False),
+            (True, 2, False),
+        ],
+    )
+    def test_has_single_2fa(self, db_session, has_totp, count_webauthn, expected):
+        user = DBUserFactory.create()
+        if has_totp:
+            user.totp_secret = b"secret"
+        for i in range(count_webauthn):
+            user.webauthn.append(
+                WebAuthn(
+                    user_id=user.id,
+                    label=f"label{i}",
+                    credential_id=f"foo{i}",
+                    public_key=f"bar{i}",
+                    sign_count=i,
+                )
+            )
+        db_session.flush()
+        assert user.has_single_2fa == expected

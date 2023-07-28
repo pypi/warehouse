@@ -502,6 +502,20 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
+    def test_permits_with_unverified_email(self, monkeypatch):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"], has_primary_verified_email=False
+            ),
+            matched_route=pretend.stub(name="manage.projects"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = security_policy.SessionSecurityPolicy()
+        assert not policy.permits(request, context, "myperm")
+
 
 @pytest.mark.parametrize(
     "policy_class",
@@ -514,7 +528,11 @@ class TestPermits:
     def test_acl(self, monkeypatch, policy_class, principals, expected):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
-        request = pretend.stub(identity=pretend.stub(__principals__=lambda: principals))
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: principals, has_primary_verified_email=True
+            )
+        )
         context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
 
         policy = policy_class()
@@ -537,7 +555,9 @@ class TestPermits:
 
         request = pretend.stub(
             identity=pretend.stub(
-                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=has_mfa,
             ),
             registry=pretend.stub(
                 settings={
@@ -571,7 +591,9 @@ class TestPermits:
 
         request = pretend.stub(
             identity=pretend.stub(
-                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=has_mfa,
             ),
             registry=pretend.stub(
                 settings={
@@ -605,7 +627,9 @@ class TestPermits:
 
         request = pretend.stub(
             identity=pretend.stub(
-                __principals__=lambda: ["user:5"], has_two_factor=has_mfa
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=has_mfa,
             ),
             registry=pretend.stub(
                 settings={

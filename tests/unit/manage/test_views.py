@@ -1284,6 +1284,7 @@ class TestProvisionTOTP:
                 totp_secret=b"secret",
                 has_primary_verified_email=True,
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
+                has_single_2fa=False,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
             remote_addr="0.0.0.0",
@@ -1337,6 +1338,7 @@ class TestProvisionTOTP:
                 email=pretend.stub(),
                 name=pretend.stub(),
                 has_primary_verified_email=True,
+                has_single_2fa=False,
             ),
             route_path=lambda *a, **kw: "/foo/bar/",
         )
@@ -1412,6 +1414,36 @@ class TestProvisionTOTP:
                 "Verify your email to modify two factor authentication", queue="error"
             )
         ]
+
+    def test_delete_totp_last_2fa(self, monkeypatch, db_request):
+        user_service = pretend.stub(
+            get_totp_secret=lambda id: b"secret",
+            update_user=pretend.call_recorder(lambda *a, **kw: None),
+        )
+        request = pretend.stub(
+            POST={"confirm_password": pretend.stub()},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(
+                id=pretend.stub(),
+                username=pretend.stub(),
+                email=pretend.stub(),
+                name=pretend.stub(),
+                has_primary_verified_email=True,
+                has_single_2fa=True,
+            ),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        view = views.ProvisionTOTPViews(request)
+        result = view.delete_totp()
+
+        assert user_service.update_user.calls == []
+        assert request.session.flash.calls == [
+            pretend.call("Cannot remove last 2FA method", queue="error")
+        ]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar/"
 
 
 class TestProvisionWebAuthn:
@@ -1590,6 +1622,7 @@ class TestProvisionWebAuthn:
                     remove=pretend.call_recorder(lambda *a: pretend.stub()),
                 ),
                 record_event=pretend.call_recorder(lambda *a, **kw: None),
+                has_single_2fa=False,
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
@@ -1655,7 +1688,10 @@ class TestProvisionWebAuthn:
         request = pretend.stub(
             POST={},
             user=pretend.stub(
-                id=1234, username=pretend.stub(), webauthn=[pretend.stub()]
+                id=1234,
+                username=pretend.stub(),
+                webauthn=[pretend.stub()],
+                has_single_2fa=False,
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             route_path=pretend.call_recorder(lambda x: "/foo/bar"),
@@ -1673,6 +1709,24 @@ class TestProvisionWebAuthn:
 
         assert request.session.flash.calls == [
             pretend.call("Invalid credentials", queue="error")
+        ]
+        assert request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/foo/bar"
+
+    def test_delete_webauthn_last_2fa(self):
+        request = pretend.stub(
+            user=pretend.stub(id=1234, webauthn=[pretend.stub()], has_single_2fa=True),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=pretend.call_recorder(lambda x: "/foo/bar"),
+            find_service=lambda *a, **kw: pretend.stub(),
+        )
+
+        view = views.ProvisionWebAuthnViews(request)
+        result = view.delete_webauthn()
+
+        assert request.session.flash.calls == [
+            pretend.call("Cannot remove last 2FA method", queue="error")
         ]
         assert request.route_path.calls == [pretend.call("manage.account")]
         assert isinstance(result, HTTPSeeOther)
