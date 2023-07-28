@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import alembic_lock, db
+from warehouse.cli.db import db
 
 
 @db.command()
@@ -23,7 +23,4 @@ def history(config, revision_range, **kwargs):
     """
     List changeset scripts in chronological order.
     """
-    with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
-    ) as alembic_config:
-        alembic.command.history(alembic_config, revision_range, **kwargs)
+    alembic.command.history(config.alembic_config(), revision_range, **kwargs)

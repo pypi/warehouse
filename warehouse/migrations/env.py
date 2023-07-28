@@ -42,37 +42,24 @@ def run_migrations_online():
     In this scenario we need to create an Engine
     and associate a connection with the context.
     """
-    connectable = context.config.attributes.get("connection", None)
+    options = context.config.get_section(context.config.config_ini_section)
+    url = options.pop("url")
+    connectable = create_engine(url, poolclass=pool.NullPool)
 
-    if connectable is None:
-        options = context.config.get_section(context.config.config_ini_section)
-        url = options.pop("url")
-        connectable = create_engine(url, poolclass=pool.NullPool)
+    with connectable.connect() as connection:
+        connection.execute(text("SET statement_timeout = 5000"))
+        connection.execute(text("SET lock_timeout = 4000"))
 
-        with connectable.connect() as connection:
-            connection.execute(text("SET statement_timeout = 5000"))
-            connection.execute(text("SET lock_timeout = 4000"))
-
-            context.configure(
-                connection=connection,
-                target_metadata=db.metadata,
-                compare_server_default=True,
-                transaction_per_migration=True,
-            )
-            with context.begin_transaction():
-                context.run_migrations()
-    else:
         context.configure(
-            connection=connectable,
+            connection=connection,
             target_metadata=db.metadata,
             compare_server_default=True,
             transaction_per_migration=True,
         )
-        context.execute(text("SET statement_timeout = 5000"))
-        context.execute(text("SET lock_timeout = 4000"))
-
         with context.begin_transaction():
+            connection.execute(text("SELECT pg_advisory_lock(hashtext('alembic'))"))
             context.run_migrations()
+            connection.execute(text("SELECT pg_advisory_unlock(hashtext('alembic'))"))
 
 
 if context.is_offline_mode():
