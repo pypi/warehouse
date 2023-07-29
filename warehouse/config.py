@@ -271,7 +271,7 @@ def configure(settings=None):
     )
     maybe_set(settings, "tuf.database.url", "TUF_DATABASE_URL")
     maybe_set(settings, "tuf.metadata.url", "TUF_METADATA_URL")
-    maybe_set(settings, "tuf.api.url", "TUF_API_URL")
+    maybe_set(settings, "tuf.api.url", "RSTUF_API_URL")
     maybe_set(settings, "tuf.root1.secret", "TUF_ROOT_SECRET")
     maybe_set(settings, "tuf.root2.secret", "TUF_ROOT_SECRET")
     maybe_set(settings, "tuf.online.secret", "TUF_ROOT_SECRET")
