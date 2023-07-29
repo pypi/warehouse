@@ -8,7 +8,7 @@
       "bins": 1
     },
     "services": {
-      "number_of_delegated_bins": 256,
+      "number_of_delegated_bins": 8,
       "targets_base_url": "http://127.0.0.1:9001/simple/",
       "targets_online_key": true
     }
