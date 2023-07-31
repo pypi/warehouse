@@ -193,14 +193,3 @@ class PendingGitHubPublisherForm(GitHubPublisherBase):
 
 class GitHubPublisherForm(GitHubPublisherBase):
     pass
-
-
-class DeletePublisherForm(forms.Form):
-    __params__ = ["publisher_id"]
-
-    publisher_id = wtforms.StringField(
-        validators=[
-            wtforms.validators.InputRequired(message=_("Specify a publisher ID")),
-            wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
-        ]
-    )
