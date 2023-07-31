@@ -47,7 +47,7 @@ jobs:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host localhost -vv -x
+            command: bin/tests --postgresql-host localhost
           - name: Lint
             command: bin/lint
           - name: User Documentation
