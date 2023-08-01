@@ -3174,7 +3174,6 @@ msgid "Active API tokens for this account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:449
-#: warehouse/templates/manage/account/token.html:17
 msgid "Add API token"
 msgstr ""
 
@@ -4357,6 +4356,10 @@ msgstr ""
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
+#: warehouse/templates/manage/account/token.html:17
+msgid "Create API token"
+msgstr ""
+
 #: warehouse/templates/manage/account/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
@@ -4461,7 +4464,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:122
-msgid "Add another token"
+msgid "Create another token"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:131
@@ -4469,7 +4472,7 @@ msgid "Token name"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:140
-msgid "What is this token for?"
+msgid "What will you use this token for?"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:154
@@ -4483,7 +4486,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:170
-msgid "Add token"
+msgid "Create token"
 msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:17
