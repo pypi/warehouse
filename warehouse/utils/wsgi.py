@@ -16,8 +16,6 @@ import hmac
 
 from typing import TYPE_CHECKING
 
-from sqlalchemy import type_coerce
-from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.ip_addresses.models import IpAddress
@@ -140,11 +138,12 @@ def _remote_addr_hashed(request: Request) -> str:
 
 def _ip_address(request):
     """Return the IpAddress object for the remote address from the environment."""
-    remote_inet = type_coerce(request.remote_addr, INET)
     try:
-        ip_address = request.db.query(IpAddress).filter_by(ip_address=remote_inet).one()
+        ip_address = (
+            request.db.query(IpAddress).filter_by(ip_address=request.remote_addr).one()
+        )
     except NoResultFound:
-        ip_address = IpAddress(ip_address=remote_inet)
+        ip_address = IpAddress(ip_address=request.remote_addr)
         request.db.add(ip_address)
 
     ip_address.hashed_ip_address = request.remote_addr_hashed

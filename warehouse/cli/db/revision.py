@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import db
+from warehouse.cli.db import alembic_lock, db
 
 
 @db.command()
@@ -49,4 +49,7 @@ def revision(config, **kwargs):
     """
     Create a new revision file.
     """
-    alembic.command.revision(config.alembic_config(), **kwargs)
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
+        alembic.command.revision(alembic_config, **kwargs)

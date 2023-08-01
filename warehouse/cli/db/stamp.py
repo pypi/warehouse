@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import db
+from warehouse.cli.db import alembic_lock, db
 
 
 @db.command()
@@ -23,4 +23,7 @@ def stamp(config, revision, **kwargs):
     """
     Stamp the revision table with the given revision.
     """
-    alembic.command.stamp(config.alembic_config(), revision, **kwargs)
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
+        alembic.command.stamp(alembic_config, revision, **kwargs)

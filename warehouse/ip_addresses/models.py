@@ -45,8 +45,8 @@ class IpAddress(db.Model):
         {"comment": "Tracks IP Addresses that have modified PyPI state"},
     )
 
-    def __repr__(self) -> str:
-        return str(self.ip_address)
+    def __repr__(self):
+        return self.ip_address
 
     def __lt__(self, other):
         return self.id < other.id
