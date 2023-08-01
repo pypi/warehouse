@@ -144,7 +144,7 @@ def _ip_address(request):
     try:
         ip_address = request.db.query(IpAddress).filter_by(ip_address=remote_inet).one()
     except NoResultFound:
-        ip_address = IpAddress(ip_address=remote_inet)
+        ip_address = IpAddress(ip_address=request.remote_addr)
         request.db.add(ip_address)
 
     ip_address.hashed_ip_address = request.remote_addr_hashed
