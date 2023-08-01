@@ -27,6 +27,7 @@ extensions = [
     "sphinx.ext.todo",
     "sphinxcontrib.httpdomain",
     "myst_parser",
+    "sphinxcontrib.mermaid",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
