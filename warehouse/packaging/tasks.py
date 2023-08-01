@@ -25,7 +25,6 @@ from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
-from warehouse.email import send_egg_uploads_deprecated_initial_email
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
@@ -528,30 +527,3 @@ def sync_bigquery_release_files(request):
                 json_rows, table_name, job_config=LoadJobConfig(schema=table_schema)
             ).result()
             break
-
-
-@tasks.task(ignore_result=True, acks_late=True)
-def send_pep_715_notices(request):
-    """
-    Notifies projects that have uploaded eggs since Jan 1, 2023 of PEP 715
-    """
-    projects = set()
-    for release_file in request.db.query(File).filter(
-        File.packagetype == "bdist_egg",
-        File.upload_time >= "2023-01-01",
-    ):
-        projects.add(release_file.release.project)
-
-    for project in projects:
-        contributors = project.users
-        if project.organization:
-            contributors += project.organization.owners
-            for teamrole in project.team_project_roles:
-                contributors += teamrole.team.members
-
-        for contributor in sorted(set(contributors)):
-            send_egg_uploads_deprecated_initial_email(
-                request,
-                contributor,
-                project_name=project.name,
-            )
