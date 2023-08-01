@@ -194,7 +194,7 @@ msgstr "Jo todennettu"
 msgid "Successful WebAuthn assertion"
 msgstr "Onnistunut WebAuthn-vahvistus"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Palautuskoodi hyväksytty. Annettua koodia ei voi käyttää uudelleen."
 
@@ -354,7 +354,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Olet nyt ${role} projektissa '${project_name}'."
 
 #: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
-#: warehouse/manage/views/__init__.py:1231
+#: warehouse/manage/views/__init__.py:1239
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -366,7 +366,7 @@ msgstr ""
 "Uuden käyttäjän rekisteröinti on väliaikaisesti poistettu käytöstä. Katso "
 "lisätietoja kohdasta https://pypi.org/help#admin-interventio."
 
-#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1247
+#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1255
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -388,7 +388,7 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1266
+#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1274
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -398,7 +398,7 @@ msgid ""
 msgstr ""
 "Liian monta epäonnistunutta kirjautumisyritystä. Yritä uudelleen myöhemmin."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1280
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1288
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -568,33 +568,33 @@ msgstr ""
 "Sähköpostiosoite ${email_address} lisätty - tarkista sähköpostistasi "
 "vahvistuslinkki"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Palautuskoodit on jo luotu"
 
-#: warehouse/manage/views/__init__.py:774
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Uusien palautuskoodien luominen mitätöi olemassa olevat koodisi."
 
-#: warehouse/manage/views/__init__.py:883
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Vahvista sähköpostiosoitteesi tai lisää uusi osoite."
 
-#: warehouse/manage/views/__init__.py:1008
+#: warehouse/manage/views/__init__.py:1016
 msgid "Invalid credentials. Try again"
 msgstr "Virheelliset tunnistetiedot. Yritä uudelleen"
 
-#: warehouse/manage/views/__init__.py:1130
+#: warehouse/manage/views/__init__.py:1138
 #, fuzzy
 #| msgid "(required)"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "(pakollinen)"
 
-#: warehouse/manage/views/__init__.py:1485
-#: warehouse/manage/views/__init__.py:1786
-#: warehouse/manage/views/__init__.py:1894
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1794
+#: warehouse/manage/views/__init__.py:1902
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -606,75 +606,75 @@ msgstr ""
 "Uuden käyttäjän rekisteröinti on väliaikaisesti poistettu käytöstä. Katso "
 "lisätietoja kohdasta https://pypi.org/help#admin-interventio."
 
-#: warehouse/manage/views/__init__.py:1617
-#: warehouse/manage/views/__init__.py:1702
-#: warehouse/manage/views/__init__.py:1803
-#: warehouse/manage/views/__init__.py:1903
+#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1911
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Vahvista kutsu"
 
-#: warehouse/manage/views/__init__.py:1629
+#: warehouse/manage/views/__init__.py:1637
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1714
+#: warehouse/manage/views/__init__.py:1722
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1823
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1923
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1919
+#: warehouse/manage/views/__init__.py:1927
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2069
+#: warehouse/manage/views/__init__.py:2077
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2176
+#: warehouse/manage/views/__init__.py:2184
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2251
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Olet nyt ${role} projektissa '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2275
+#: warehouse/manage/views/__init__.py:2283
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2288
+#: warehouse/manage/views/__init__.py:2296
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2353
+#: warehouse/manage/views/__init__.py:2361
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "Kutsu lähetetty käyttäjälle '${username}'"
 
-#: warehouse/manage/views/__init__.py:2386
+#: warehouse/manage/views/__init__.py:2394
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2397
+#: warehouse/manage/views/__init__.py:2405
 msgid "Invitation already expired."
 msgstr "Kutsu on jo vanhentunut."
 
-#: warehouse/manage/views/__init__.py:2429
+#: warehouse/manage/views/__init__.py:2437
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -862,7 +862,7 @@ msgstr "Monty Python - juustokauppasketsi"
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #: warehouse/templates/manage/project/release.html:144
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
@@ -1113,8 +1113,8 @@ msgstr "Vaihda mobiiliversioon"
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:744
-#: warehouse/templates/manage/manage_base.html:317
-#: warehouse/templates/manage/manage_base.html:376
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:388
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1430,7 +1430,7 @@ msgstr "Vahvista salasana jatkaaksesi"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:385
+#: warehouse/templates/manage/manage_base.html:397
 #: warehouse/templates/re-auth.html:50
 msgid "Password"
 msgstr "Salasana"
@@ -1499,7 +1499,7 @@ msgid "Your password"
 msgstr "Salasanasi"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:388
+#: warehouse/templates/manage/manage_base.html:400
 #: warehouse/templates/re-auth.html:73
 msgid "Show password"
 msgstr "Näytä salasana"
@@ -1899,7 +1899,6 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr "PyPi-tilisi <strong>%(username)s</strong> on poistettu."
 
 #: warehouse/templates/email/account-deleted/body.html:20
-#: warehouse/templates/email/new-email-added/body.html:19
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
 #: warehouse/templates/email/recovery-code-used/body.html:25
@@ -2119,8 +2118,15 @@ msgstr ""
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
-"Hello, %(username)s. A new email '%(email_address)s' has been added to your "
-"account."
+"Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
+"your account."
+msgstr ""
+
+#: warehouse/templates/email/new-email-added/body.html:19
+#, python-format
+msgid ""
+"If you did not make this change, you can email <a href=\"%(href)s\">"
+"%(new_email_address)s</a> to communicate with the PyPI administrators."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
@@ -2844,16 +2850,16 @@ msgid "Admin"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:216
-#: warehouse/templates/manage/manage_base.html:250
+#: warehouse/templates/manage/manage_base.html:228
+#: warehouse/templates/manage/manage_base.html:262
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "Projektisi"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:257
+#: warehouse/templates/manage/manage_base.html:235
+#: warehouse/templates/manage/manage_base.html:269
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -2862,8 +2868,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:230
-#: warehouse/templates/manage/manage_base.html:264
+#: warehouse/templates/manage/manage_base.html:242
+#: warehouse/templates/manage/manage_base.html:276
 msgid "Account settings"
 msgstr "Tilin asetukset"
 
@@ -2893,8 +2899,8 @@ msgstr "Hylkää tämä ilmoitus"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:306
-#: warehouse/templates/manage/manage_base.html:308
+#: warehouse/templates/manage/manage_base.html:318
+#: warehouse/templates/manage/manage_base.html:320
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -3085,8 +3091,8 @@ msgid "Documentation"
 msgstr "Dokumentaatio"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:236
-#: warehouse/templates/manage/manage_base.html:270
+#: warehouse/templates/manage/manage_base.html:248
+#: warehouse/templates/manage/manage_base.html:282
 msgid "Publishing"
 msgstr ""
 
@@ -3433,7 +3439,6 @@ msgid "Active API tokens for this account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:449
-#: warehouse/templates/manage/account/token.html:17
 msgid "Add API token"
 msgstr ""
 
@@ -3478,7 +3483,7 @@ msgid "None"
 msgstr "Ei mikään"
 
 #: warehouse/templates/manage/account.html:487
-#: warehouse/templates/manage/manage_base.html:75
+#: warehouse/templates/manage/manage_base.html:81
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 
@@ -3876,9 +3881,18 @@ msgstr ""
 msgid "Two factor method"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:64
-#: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:528
+#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:85
+#, fuzzy
+#| msgid "You are not an owner of this project"
+msgid "Cannot remove last 2FA method"
+msgstr "Et ole tämän projektin omistaja"
+
+#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:89
+#: warehouse/templates/manage/manage_base.html:540
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -3892,82 +3906,82 @@ msgstr ""
 msgid "Remove"
 msgstr "Poista"
 
-#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:70
 msgid "Remove authentication application"
 msgstr "Poista tunnistautumissovellus"
 
-#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:71
 msgid "Remove application"
 msgstr "Poista sovellus"
 
-#: warehouse/templates/manage/manage_base.html:79
+#: warehouse/templates/manage/manage_base.html:90
 msgid "Remove two factor security device"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:80
+#: warehouse/templates/manage/manage_base.html:91
 msgid "Remove device"
 msgstr "Poista laite"
 
-#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:97
 msgid "Device name"
 msgstr "Laitteen nimi"
 
-#: warehouse/templates/manage/manage_base.html:99
+#: warehouse/templates/manage/manage_base.html:111
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
 "additional two factor authentication methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:104
+#: warehouse/templates/manage/manage_base.html:116
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
 "two factor authentication on your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:127
 msgid ""
 "You must generate and safely store recovery codes before adding additional "
 "two factor authentication methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:120
+#: warehouse/templates/manage/manage_base.html:132
 msgid ""
 "You must generate and safely store recovery codes before enabling two factor "
 "authentication on your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:126
+#: warehouse/templates/manage/manage_base.html:138
 msgid "Generate recovery codes"
 msgstr "Luo palautuskoodit"
 
-#: warehouse/templates/manage/manage_base.html:135
+#: warehouse/templates/manage/manage_base.html:147
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:140
+#: warehouse/templates/manage/manage_base.html:152
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:149
+#: warehouse/templates/manage/manage_base.html:161
 #, fuzzy
 #| msgid "Enter recovery code"
 msgid "Use a recovery code"
 msgstr "Anna palautuskoodi"
 
-#: warehouse/templates/manage/manage_base.html:160
+#: warehouse/templates/manage/manage_base.html:172
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "You have not enabled two factor authentication on your account."
 msgstr "%(user)s ei ole ladannut vielä yhtään projektia PyPI:in"
 
-#: warehouse/templates/manage/manage_base.html:168
+#: warehouse/templates/manage/manage_base.html:180
 #, fuzzy
 #| msgid "Two factor authentication removed"
 msgid ""
@@ -3975,7 +3989,7 @@ msgid ""
 "application"
 msgstr "Kaksivaiheinen tunnistautuminen poistettu"
 
-#: warehouse/templates/manage/manage_base.html:173
+#: warehouse/templates/manage/manage_base.html:185
 #, fuzzy
 #| msgid "Two factor authentication removed"
 msgid ""
@@ -3984,14 +3998,14 @@ msgid ""
 msgstr "Kaksivaiheinen tunnistautuminen poistettu"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:180
+#: warehouse/templates/manage/manage_base.html:192
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
 msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -3999,84 +4013,84 @@ msgid ""
 "security device (e.g. USB key)"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:208
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
 msgid "Breadcrumbs"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/manage_base.html:213
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "Tilisi"
 
-#: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:245
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:257
 msgid "Account navigation"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:318
-#: warehouse/templates/manage/manage_base.html:377
+#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:389
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:342
 msgid "Confirm your username to continue."
 msgstr "Vahvista käyttäjätunnuksesi jatkaaksesi."
 
-#: warehouse/templates/manage/manage_base.html:332
+#: warehouse/templates/manage/manage_base.html:344
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:343
-#: warehouse/templates/manage/manage_base.html:395
+#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:407
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "Peruuta"
 
-#: warehouse/templates/manage/manage_base.html:366
+#: warehouse/templates/manage/manage_base.html:378
 msgid "close"
 msgstr "sulje"
 
-#: warehouse/templates/manage/manage_base.html:382
+#: warehouse/templates/manage/manage_base.html:394
 msgid "Enter your password to continue."
 msgstr "Syötä salasanasi jatkaaksesi."
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:477
 #, fuzzy
 #| msgid "Username"
 msgid "Trusted Publisher Management"
 msgstr "Käyttäjätunnus"
 
-#: warehouse/templates/manage/manage_base.html:470
+#: warehouse/templates/manage/manage_base.html:482
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:478
+#: warehouse/templates/manage/manage_base.html:490
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:485
+#: warehouse/templates/manage/manage_base.html:497
 #, python-format
 msgid ""
 "You can read more about trusted publishers and how to use them <a href="
 "\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:524
+#: warehouse/templates/manage/manage_base.html:536
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:535
+#: warehouse/templates/manage/manage_base.html:547
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4087,7 +4101,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Lisännyt:"
 
-#: warehouse/templates/manage/manage_base.html:537
+#: warehouse/templates/manage/manage_base.html:549
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4098,30 +4112,30 @@ msgstr "Lisännyt:"
 msgid "Removed by:"
 msgstr "Poistanut:"
 
-#: warehouse/templates/manage/manage_base.html:539
+#: warehouse/templates/manage/manage_base.html:551
 #, fuzzy
 #| msgid "Created by:"
 msgid "Submitted by:"
 msgstr "Luonut:"
 
-#: warehouse/templates/manage/manage_base.html:542
+#: warehouse/templates/manage/manage_base.html:554
 #: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "Nimesi"
 
-#: warehouse/templates/manage/manage_base.html:544
+#: warehouse/templates/manage/manage_base.html:556
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:547
+#: warehouse/templates/manage/manage_base.html:559
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Käyttäjätunnus"
 
-#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:561
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -4691,6 +4705,12 @@ msgstr ""
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
+#: warehouse/templates/manage/account/token.html:17
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create API token"
+msgstr "Luo tili"
+
 #: warehouse/templates/manage/account/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
@@ -4794,15 +4814,17 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:122
-msgid "Add another token"
-msgstr ""
+#, fuzzy
+#| msgid "Create an account"
+msgid "Create another token"
+msgstr "Luo tili"
 
 #: warehouse/templates/manage/account/token.html:131
 msgid "Token name"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:140
-msgid "What is this token for?"
+msgid "What will you use this token for?"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:154
@@ -4816,8 +4838,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:170
-msgid "Add token"
-msgstr ""
+#, fuzzy
+#| msgid "Create account"
+msgid "Create token"
+msgstr "Luo tili"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"

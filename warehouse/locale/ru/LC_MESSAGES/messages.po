@@ -26,13 +26,14 @@
 # Andrej730 <azhilenkov@gmail.com>, 2023.
 # Alex <hostspepc@gmail.com>, 2023.
 # Александр Аникин <anika0231111@gmail.com>, 2023.
+# Syrodil Eventalious <giannis.yalanskyi@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-06-09 15:20+0000\n"
-"Last-Translator: Александр Аникин <anika0231111@gmail.com>\n"
+"PO-Revision-Date: 2023-07-26 14:18+0000\n"
+"Last-Translator: Syrodil Eventalious <giannis.yalanskyi@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -41,7 +42,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
 "%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.0-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:141
@@ -49,6 +50,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Вы должны подтвердить ваш **основной** адрес электронной почты прежде чем вы "
+"сможете выполнить это действие."
 
 #: warehouse/views.py:157
 msgid ""
@@ -102,21 +105,18 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
 #: warehouse/accounts/forms.py:198
-#, fuzzy
 msgid "Password too long."
 msgstr "Пароль слишком длинный."
 
 #: warehouse/accounts/forms.py:173
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "Вы сделали слишком много неверных попыток входа. Попробуйте позже."
+msgstr ""
+"Было совершено слишком много неудачных попыток входа в систему. Вы "
+"заблокированы на ${time}. Пожалуйста, повторите попытку позже."
 
 #: warehouse/accounts/forms.py:201
-#, fuzzy
 msgid "Your passwords don't match. Try again."
 msgstr "Ваши пароли не совпадают. Попробуйте ещё раз."
 
@@ -125,10 +125,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
 
 #: warehouse/accounts/forms.py:236
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
+msgstr "Слишком длинный адрес электронной почты. Попробуйте ещё раз."
 
 #: warehouse/accounts/forms.py:255
 msgid "You can't use an email address from this domain. Use a different email."
@@ -177,13 +175,12 @@ msgid "No user found with that username or email"
 msgstr "Пользователь с таким именем или адресом электронной почты не найден"
 
 #: warehouse/accounts/views.py:103
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "Вы сделали слишком много неверных попыток входа. Попробуйте позже."
+msgstr ""
+"Было совершено слишком много неудачных попыток входа. Вы заблокированы на "
+"{}. Пожалуйста, повторите попытку позже."
 
 #: warehouse/accounts/views.py:120
 msgid ""
@@ -218,7 +215,7 @@ msgstr "Уже подтверждён"
 msgid "Successful WebAuthn assertion"
 msgstr "Успешное утверждение WebAuthn"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Код восстановления принят. Предоставленный код не может быть использован "
@@ -369,19 +366,15 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
 #: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
-#: warehouse/manage/views/__init__.py:1231
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1239
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Регистрация новых пользователей временно отключена. Подробнее смотрите "
-"здесь: https://pypi.org/help#admin-intervention."
+"Авторитетная публикация временно отключена. Подробнее смотрите здесь: "
+"https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1247
+#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1255
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -390,69 +383,58 @@ msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Регистрация новых пользователей временно отключена. Подробнее смотрите "
-"здесь: https://pypi.org/help#admin-intervention."
+"Авторитетная публикация на базе GitHub временно отключена. Подробнее "
+"смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/accounts/views.py:1468
-#, fuzzy
-#| msgid ""
-#| "You must have a verified email in order to register a pending OpenID "
-#| "Connect provider. See https://pypi.org/help#openid-connect for details."
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 "У вас должен быть подтвержденный адрес электронной почты, чтобы "
-"зарегистрировать ожидающего подключения поставщика OpenID Connect. Перейдите "
-"на https://pypi.org/help#openid-connect для получения подробной информации."
+"зарегистрировать ожидающего подключения доверенного поставщика. Перейдите на "
+"https://pypi.org/help#openid-connect для получения подробной информации."
 
 #: warehouse/accounts/views.py:1481
-#, fuzzy
-#| msgid ""
-#| "You can't register more than 3 pending OpenID Connect providers at once."
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
-"Вы не можете зарегистрировать более 3-х ожидающих подключения поставщиков "
-"OpenID Connect одновременно."
+"Вы не можете зарегистрировать более 3-х ожидающих подключения доверенных "
+"поставщиков одновременно."
 
-#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1266
-#, fuzzy
-#| msgid ""
-#| "There have been too many attempted OpenID Connect registrations. Try "
-#| "again later."
+#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1274
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
-"Было предпринято слишком много попыток регистрации OpenID Connect. "
+"Было предпринято слишком много попыток регистрации доверенного издателя. "
 "Попробуйте еще раз позже."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1280
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1288
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "Не удалось зарегистрировать доверенного издателя"
 
 #: warehouse/accounts/views.py:1530
+#, fuzzy
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
+"Этот доверенный издатель был уже зарегистрирован. Пожалуйста, свяжитесь с "
+"администрацией PyPI если это не было умышленно."
 
 #: warehouse/accounts/views.py:1565
-#, fuzzy
-#| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
-msgstr "Управление этим проектом"
+msgstr "Зарегистрирован новый издатель, ожидающий подключения "
 
 #: warehouse/accounts/views.py:1599 warehouse/accounts/views.py:1612
 #: warehouse/accounts/views.py:1619
-#, fuzzy
-#| msgid "Manage version"
 msgid "Invalid publisher ID"
-msgstr "Управлять версией"
+msgstr "Неверный ID издателя"
 
 #: warehouse/accounts/views.py:1625
+#, fuzzy
 msgid "Removed trusted publisher for project "
-msgstr ""
+msgstr "Доверенный издатель был удалён из проекта "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -499,10 +481,8 @@ msgid "Select project"
 msgstr "Выберите проект"
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms.py:174
-#, fuzzy
-#| msgid "Project name"
 msgid "Specify project name"
-msgstr "Название проекта"
+msgstr "Укажите название проекта"
 
 #: warehouse/manage/forms.py:498
 msgid ""
@@ -551,7 +531,7 @@ msgstr "Слишком длинное имя. Выберите имя, испо�
 
 #: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
-msgstr ""
+msgstr "Вы уже подали максимальное количество "
 
 #: warehouse/manage/forms.py:671
 #, fuzzy
@@ -590,35 +570,35 @@ msgstr ""
 "Электронная почта ${email_address} добавлена — проверьте свою почту на "
 "наличие ссылки для подтверждения"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Коды восстановления уже сгенерированы"
 
-#: warehouse/manage/views/__init__.py:774
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Генерация новых кодов восстановления сделает ваши существующие коды "
 "недействительными."
 
-#: warehouse/manage/views/__init__.py:883
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Подтвердите свою электронную почту или добавьте новый адрес."
 
-#: warehouse/manage/views/__init__.py:1008
+#: warehouse/manage/views/__init__.py:1016
 msgid "Invalid credentials. Try again"
 msgstr "Недействительные учётные данные. Попробуйте ещё раз"
 
-#: warehouse/manage/views/__init__.py:1130
+#: warehouse/manage/views/__init__.py:1138
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "Двухфакторная авторизация отключена"
 
-#: warehouse/manage/views/__init__.py:1485
-#: warehouse/manage/views/__init__.py:1786
-#: warehouse/manage/views/__init__.py:1894
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1794
+#: warehouse/manage/views/__init__.py:1902
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -630,60 +610,60 @@ msgstr ""
 "Регистрация новых пользователей временно отключена. Подробнее смотрите "
 "здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1617
-#: warehouse/manage/views/__init__.py:1702
-#: warehouse/manage/views/__init__.py:1803
-#: warehouse/manage/views/__init__.py:1903
+#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1911
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Подтверждение приглашения"
 
-#: warehouse/manage/views/__init__.py:1629
+#: warehouse/manage/views/__init__.py:1637
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "Восстановление выпуска"
 
-#: warehouse/manage/views/__init__.py:1714
+#: warehouse/manage/views/__init__.py:1722
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "Восстановление выпуска"
 
-#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1823
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Удалить выпуск"
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1923
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/__init__.py:1919
+#: warehouse/manage/views/__init__.py:1927
 msgid "Could not delete file - "
-msgstr ""
+msgstr "Не удалось удалить файл - "
 
-#: warehouse/manage/views/__init__.py:2069
+#: warehouse/manage/views/__init__.py:2077
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2176
+#: warehouse/manage/views/__init__.py:2184
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2251
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
-#: warehouse/manage/views/__init__.py:2275
+#: warehouse/manage/views/__init__.py:2283
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -691,7 +671,7 @@ msgstr ""
 "Пользователь «${username}» не имеет проверенного основного адреса "
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2288
+#: warehouse/manage/views/__init__.py:2296
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -699,20 +679,20 @@ msgstr ""
 "Пользователь «${username}» уже имеет активное приглашение. Пожалуйста, "
 "повторите попытку позже."
 
-#: warehouse/manage/views/__init__.py:2353
+#: warehouse/manage/views/__init__.py:2361
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "Приглашение отправлено пользователю «${username}»"
 
-#: warehouse/manage/views/__init__.py:2386
+#: warehouse/manage/views/__init__.py:2394
 msgid "Could not find role invitation."
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/__init__.py:2397
+#: warehouse/manage/views/__init__.py:2405
 msgid "Invitation already expired."
 msgstr "Приглашение уже истекло."
 
-#: warehouse/manage/views/__init__.py:2429
+#: warehouse/manage/views/__init__.py:2437
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "Приглашение для «${username}» отозвано."
@@ -770,16 +750,20 @@ msgid "Invalid repository name"
 msgstr "Неверный код восстановления."
 
 #: warehouse/oidc/forms.py:49
+#, fuzzy
 msgid "Specify workflow filename"
-msgstr ""
+msgstr "Укажите имя файла рабочего процесса"
 
 #: warehouse/oidc/forms.py:84
 msgid "Unknown GitHub user or organization."
-msgstr ""
+msgstr "Неизвестный GitHub пользователь или организация."
 
 #: warehouse/oidc/forms.py:94
+#, fuzzy
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
+"GitHub ограничил количество запросов для этого действия. Попробуйте ещё раз "
+"через несколько минут."
 
 #: warehouse/oidc/forms.py:104
 msgid "Unexpected error from GitHub. Try again."
@@ -823,7 +807,7 @@ msgstr ""
 
 #: warehouse/oidc/forms.py:204
 msgid "Publisher must be specified by ID"
-msgstr ""
+msgstr "Издатель должен быть указан через ID"
 
 #: warehouse/subscriptions/models.py:42
 #: warehouse/templates/manage/project/history.html:230
@@ -904,7 +888,7 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #: warehouse/templates/manage/project/release.html:144
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
@@ -1164,8 +1148,8 @@ msgstr "Переключиться на мобильную версию"
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:744
-#: warehouse/templates/manage/manage_base.html:317
-#: warehouse/templates/manage/manage_base.html:376
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:388
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1483,7 +1467,7 @@ msgstr "Для продолжения подтвердите пароль"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:385
+#: warehouse/templates/manage/manage_base.html:397
 #: warehouse/templates/re-auth.html:50
 msgid "Password"
 msgstr "Пароль"
@@ -1552,7 +1536,7 @@ msgid "Your password"
 msgstr "Ваш пароль"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:388
+#: warehouse/templates/manage/manage_base.html:400
 #: warehouse/templates/re-auth.html:73
 msgid "Show password"
 msgstr "Показать пароль"
@@ -1980,7 +1964,6 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr "Ваша учётная запись PyPI <strong>%(username)s</strong> была удалена."
 
 #: warehouse/templates/email/account-deleted/body.html:20
-#: warehouse/templates/email/new-email-added/body.html:19
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
 #: warehouse/templates/email/recovery-code-used/body.html:25
@@ -2222,11 +2205,28 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-email-added/body.html:17
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Hello, %(username)s. A new email '%(email_address)s' has been added to "
+#| "your account."
 msgid ""
-"Hello, %(username)s. A new email '%(email_address)s' has been added to your "
-"account."
+"Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
+"your account."
 msgstr ""
+"Здравствуйте, %(username)s. Новый адрес электронной почты "
+"'%(email_address)s' был добавлен к вашей учётной записи."
+
+#: warehouse/templates/email/new-email-added/body.html:19
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If you did not make this change, you can email <a href=\"%(href)s\">"
+"%(new_email_address)s</a> to communicate with the PyPI administrators."
+msgstr ""
+"Если вы не делали этого изменения, вы можете написать письмо на <a href="
+"\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, fuzzy, python-format
@@ -3145,16 +3145,16 @@ msgid "Admin"
 msgstr "Администратор"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:216
-#: warehouse/templates/manage/manage_base.html:250
+#: warehouse/templates/manage/manage_base.html:228
+#: warehouse/templates/manage/manage_base.html:262
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "Ваши проекты"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:257
+#: warehouse/templates/manage/manage_base.html:235
+#: warehouse/templates/manage/manage_base.html:269
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -3163,8 +3163,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:230
-#: warehouse/templates/manage/manage_base.html:264
+#: warehouse/templates/manage/manage_base.html:242
+#: warehouse/templates/manage/manage_base.html:276
 msgid "Account settings"
 msgstr "Настройки учётной записи"
 
@@ -3194,8 +3194,8 @@ msgstr "Скрыть это уведомление"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:306
-#: warehouse/templates/manage/manage_base.html:308
+#: warehouse/templates/manage/manage_base.html:318
+#: warehouse/templates/manage/manage_base.html:320
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -3406,8 +3406,8 @@ msgid "Documentation"
 msgstr "Документация"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:236
-#: warehouse/templates/manage/manage_base.html:270
+#: warehouse/templates/manage/manage_base.html:248
+#: warehouse/templates/manage/manage_base.html:282
 msgid "Publishing"
 msgstr ""
 
@@ -3782,7 +3782,6 @@ msgid "Active API tokens for this account"
 msgstr "Активные API-токены этой учётной записи"
 
 #: warehouse/templates/manage/account.html:449
-#: warehouse/templates/manage/account/token.html:17
 msgid "Add API token"
 msgstr "Добавить API-токен"
 
@@ -3829,7 +3828,7 @@ msgid "None"
 msgstr "Отсутствует"
 
 #: warehouse/templates/manage/account.html:487
-#: warehouse/templates/manage/manage_base.html:75
+#: warehouse/templates/manage/manage_base.html:81
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 "Устройство безопасности (<abbr title=\"веб аутентификация\">WebAuthn</abbr>)"
@@ -4258,9 +4257,18 @@ msgstr "Включённые методы двухфакторной аутен�
 msgid "Two factor method"
 msgstr "Метод двухфакторной аутентификации"
 
-#: warehouse/templates/manage/manage_base.html:64
-#: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:528
+#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:85
+#, fuzzy
+#| msgid "Cannot remove yourself as owner"
+msgid "Cannot remove last 2FA method"
+msgstr "Удалить себя из владельцев нельзя"
+
+#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:89
+#: warehouse/templates/manage/manage_base.html:540
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4274,27 +4282,27 @@ msgstr "Метод двухфакторной аутентификации"
 msgid "Remove"
 msgstr "Удалить"
 
-#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:70
 msgid "Remove authentication application"
 msgstr "Удаление приложения аутентификации"
 
-#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:71
 msgid "Remove application"
 msgstr "Удалить приложение"
 
-#: warehouse/templates/manage/manage_base.html:79
+#: warehouse/templates/manage/manage_base.html:90
 msgid "Remove two factor security device"
 msgstr "Удаление двухфакторного устройства безопасности"
 
-#: warehouse/templates/manage/manage_base.html:80
+#: warehouse/templates/manage/manage_base.html:91
 msgid "Remove device"
 msgstr "Удалить устройство"
 
-#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:97
 msgid "Device name"
 msgstr "Название устройства"
 
-#: warehouse/templates/manage/manage_base.html:99
+#: warehouse/templates/manage/manage_base.html:111
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
@@ -4304,7 +4312,7 @@ msgstr ""
 "прежде чем добавлять варианты двухфакторной аутентификации в свою учётную "
 "запись."
 
-#: warehouse/templates/manage/manage_base.html:104
+#: warehouse/templates/manage/manage_base.html:116
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before enabling "
@@ -4313,7 +4321,7 @@ msgstr ""
 "<a href=\"%(href)s\">Подтвердите свой основной адрес электронной почты</"
 "a>прежде чем включать двухфакторную аутентификацию в своей учётной записи."
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:127
 msgid ""
 "You must generate and safely store recovery codes before adding additional "
 "two factor authentication methods to your account."
@@ -4322,7 +4330,7 @@ msgstr ""
 "добавлять дополнительные методы двухфакторной аутентификации к своей учётной "
 "записи."
 
-#: warehouse/templates/manage/manage_base.html:120
+#: warehouse/templates/manage/manage_base.html:132
 msgid ""
 "You must generate and safely store recovery codes before enabling two factor "
 "authentication on your account."
@@ -4330,11 +4338,11 @@ msgstr ""
 "Вы должны сгенерировать и надёжно сохранить коды восстановления прежде чем "
 "включать двухфакторную аутентификацию для своей учётной записи."
 
-#: warehouse/templates/manage/manage_base.html:126
+#: warehouse/templates/manage/manage_base.html:138
 msgid "Generate recovery codes"
 msgstr "Сгенерировать коды восстановления"
 
-#: warehouse/templates/manage/manage_base.html:135
+#: warehouse/templates/manage/manage_base.html:147
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
@@ -4342,7 +4350,7 @@ msgstr ""
 "Используйте код восстановления прежде чем добавлять дополнительные методы\n"
 "двухфакторной аутентификации к своей учётной записи."
 
-#: warehouse/templates/manage/manage_base.html:140
+#: warehouse/templates/manage/manage_base.html:152
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
@@ -4351,17 +4359,17 @@ msgstr ""
 "аутентификацию для своей учётной записи."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:149
+#: warehouse/templates/manage/manage_base.html:161
 #, fuzzy
 #| msgid "Enter recovery code"
 msgid "Use a recovery code"
 msgstr "Введите код восстановления"
 
-#: warehouse/templates/manage/manage_base.html:160
+#: warehouse/templates/manage/manage_base.html:172
 msgid "You have not enabled two factor authentication on your account."
 msgstr "Вы не включили двухфакторную аутентификацию в своей учётной записи."
 
-#: warehouse/templates/manage/manage_base.html:168
+#: warehouse/templates/manage/manage_base.html:180
 #, fuzzy
 #| msgid ""
 #| "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
@@ -4372,7 +4380,7 @@ msgid ""
 msgstr ""
 "Чтобы настроить двухфакторную аутентификацию с приложением аутентификации:"
 
-#: warehouse/templates/manage/manage_base.html:173
+#: warehouse/templates/manage/manage_base.html:185
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
@@ -4381,7 +4389,7 @@ msgstr ""
 "устройства безопасности (например, USB-ключа)"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:180
+#: warehouse/templates/manage/manage_base.html:192
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
@@ -4390,7 +4398,7 @@ msgstr ""
 "безопасности (например, USB-ключа), включите JavaScript"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -4401,7 +4409,7 @@ msgstr ""
 "\">Обновите свой браузер</a>, чтобы настроить двухфакторную аутентификацию "
 "через устройство безопасности (например, USB-ключ)"
 
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:208
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
@@ -4410,66 +4418,66 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr "Навигационная цепочка"
 
-#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/manage_base.html:213
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "Ваша учётная запись"
 
-#: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:245
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:257
 msgid "Account navigation"
 msgstr "Навигация учётной записи"
 
-#: warehouse/templates/manage/manage_base.html:318
-#: warehouse/templates/manage/manage_base.html:377
+#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:389
 msgid "This action cannot be undone!"
 msgstr "Это действие не может быть отменено!"
 
-#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:342
 msgid "Confirm your username to continue."
 msgstr "Подтвердите свое имя пользователя, чтобы продолжить."
 
-#: warehouse/templates/manage/manage_base.html:332
+#: warehouse/templates/manage/manage_base.html:344
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "Подтвердите %(item)s, чтобы продолжить."
 
-#: warehouse/templates/manage/manage_base.html:343
-#: warehouse/templates/manage/manage_base.html:395
+#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:407
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "Отмена"
 
-#: warehouse/templates/manage/manage_base.html:366
+#: warehouse/templates/manage/manage_base.html:378
 msgid "close"
 msgstr "закрыть"
 
-#: warehouse/templates/manage/manage_base.html:382
+#: warehouse/templates/manage/manage_base.html:394
 msgid "Enter your password to continue."
 msgstr "Введите пароль, чтобы продолжить."
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:477
 #, fuzzy
 #| msgid "Username"
 msgid "Trusted Publisher Management"
 msgstr "Имя пользователя"
 
-#: warehouse/templates/manage/manage_base.html:470
+#: warehouse/templates/manage/manage_base.html:482
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:478
+#: warehouse/templates/manage/manage_base.html:490
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:485
+#: warehouse/templates/manage/manage_base.html:497
 #, fuzzy, python-format
 #| msgid ""
 #| "You can read more about OpenID Connect and how to use it <a href="
@@ -4481,11 +4489,11 @@ msgstr ""
 "Вы можете прочитать больше об OpenID Connect и о том, как им пользоваться <a "
 "href=\"%(href)s\">здесь</a>"
 
-#: warehouse/templates/manage/manage_base.html:524
+#: warehouse/templates/manage/manage_base.html:536
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:535
+#: warehouse/templates/manage/manage_base.html:547
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4496,7 +4504,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "Добавлен:"
 
-#: warehouse/templates/manage/manage_base.html:537
+#: warehouse/templates/manage/manage_base.html:549
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4507,32 +4515,32 @@ msgstr "Добавлен:"
 msgid "Removed by:"
 msgstr "Удалён:"
 
-#: warehouse/templates/manage/manage_base.html:539
+#: warehouse/templates/manage/manage_base.html:551
 #, fuzzy
 #| msgid "Invite"
 msgid "Submitted by:"
 msgstr "Пригласить"
 
-#: warehouse/templates/manage/manage_base.html:542
+#: warehouse/templates/manage/manage_base.html:554
 #: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "Ваше имя"
 
-#: warehouse/templates/manage/manage_base.html:544
+#: warehouse/templates/manage/manage_base.html:556
 #, fuzzy
 #| msgid "Specification"
 msgid "Specifier:"
 msgstr "Спецификация"
 
-#: warehouse/templates/manage/manage_base.html:547
+#: warehouse/templates/manage/manage_base.html:559
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "Имя пользователя"
 
-#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:561
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -5136,6 +5144,12 @@ msgstr "Эти коды больше не будут видны."
 msgid "Ensure that you have securely stored them before continuing."
 msgstr "Перед продолжением убедитесь в том, что они надёжно сохранены."
 
+#: warehouse/templates/manage/account/token.html:17
+#, fuzzy
+#| msgid "Remove API token"
+msgid "Create API token"
+msgstr "Удалить API-токен"
+
 #: warehouse/templates/manage/account/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
@@ -5256,7 +5270,9 @@ msgstr ""
 "\"%(href)s\">посетите страницу помощи PyPI</a>."
 
 #: warehouse/templates/manage/account/token.html:122
-msgid "Add another token"
+#, fuzzy
+#| msgid "Add another token"
+msgid "Create another token"
 msgstr "Добавить другой токен"
 
 #: warehouse/templates/manage/account/token.html:131
@@ -5264,7 +5280,9 @@ msgid "Token name"
 msgstr "Название токена"
 
 #: warehouse/templates/manage/account/token.html:140
-msgid "What is this token for?"
+#, fuzzy
+#| msgid "What is this token for?"
+msgid "What will you use this token for?"
 msgstr "Для чего нужен этот токен?"
 
 #: warehouse/templates/manage/account/token.html:154
@@ -5280,8 +5298,10 @@ msgstr ""
 "на загрузку для всех ваших текущих и будущих проектов."
 
 #: warehouse/templates/manage/account/token.html:170
-msgid "Add token"
-msgstr "Добавить токен"
+#, fuzzy
+#| msgid "Create account"
+msgid "Create token"
+msgstr "Создать учётную запись"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -10494,6 +10514,9 @@ msgstr[0] "Не было результатов для фильтра '%(filters
 msgstr[1] "Не было результатов для фильтра '%(filters)s'"
 msgstr[2] "Не было результатов для фильтров '%(filters)s'"
 
+#~ msgid "Add token"
+#~ msgstr "Добавить токен"
+
 #~ msgid "IP address"
 #~ msgstr "IP-адрес"
 
@@ -10794,9 +10817,6 @@ msgstr[2] "Не было результатов для фильтров '%(filte
 #, python-format
 #~ msgid "Release version %(version)s yanked"
 #~ msgstr "Выпуск версии %(version)s"
-
-#~ msgid "Cannot remove yourself as owner"
-#~ msgstr "Удалить себя из владельцев нельзя"
 
 #, python-format
 #~ msgid "All %(project_name)s releases"
