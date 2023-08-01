@@ -12,7 +12,7 @@ This list of FAQs pertain to organization accounts in PyPI.
 
     Yes, anyone can create an organization. They are available as a paid feature
     for commercial entities and free of cost for community projects.
-    To know how to create an organization account, please see the steps
+    To learn how to create an organization account, please see the steps
     to follow [here](https://docs.pypi.org/organization-accounts/actions/org-actions/).
 
 1. **How do I access an organization account?**
@@ -31,7 +31,7 @@ This list of FAQs pertain to organization accounts in PyPI.
     The PyPI admin has to approve the orgnaization account request to ensure
     everyone is billed fairly. We ensure commercial projects pay for the feature
     and community projects can access the account free of charge.
-    
+
     The PyPI admin also arbitrates any conflict with account names
     when multiple projects have requested the same account name.
 
@@ -41,7 +41,7 @@ account request?**
     We are unable to specify a timeline by which the PyPI admin will approve
     the organization account request. As resources are limited and
     there is no dedicated user support for organization accounts, the PyPI admin will review
-    all organization account requests peiodically.
+    all organization account requests periodically.
 
 1. **Who ensures that the organization account request is from a private
 organization or a community  project?**
@@ -55,13 +55,13 @@ organization or a community  project?**
     projects owned by the organization to another organization or user.
     This ensures that the project history is maintained.
     Once the account is deleted, the team permissions will be deleted.
-    
+
     Individual project permissions assigned to users will exist
     after the deletion.
 
 1. **Does the PyPI admin have to approve deletion of an organization account?**
 
-    No, PyPI admin is not involved in the deletion of an organization account.
+    No, the PyPI admin is not involved in the deletion of an organization account.
 
 1. **Is there a limit to the number of users within the organization?**
 
@@ -71,7 +71,7 @@ organization or a community  project?**
 1. **Are command line options available to manage teams/users/projects?**
 
     Right now, we are unable to support command line options. If this is a feature that you would
-    find useful, please submit a feature request 
+    find useful, please submit a feature request
     [here](https://github.com/pypi/warehouse/issues).
 
 1. **How many organizations can a user create?**
@@ -80,22 +80,22 @@ organization or a community  project?**
     A user can create a new account only when the previous
     request has been approved.
 
-1. **Does organization accounts support namespaces?**
+1. **Do organization accounts support namespaces?**
 
-    No. Organizations accounts do not support namespaces. While this is a feature that is on our
+    No, organizations accounts do not support namespaces. While this is a feature that is on our
     to-do list, we do not have any immediate development plans for namespaces.
 
-1. **Does an organization account support private packages?**
+1. **Do organization accounts support private packages?**
 
-    No. Organizations accounts do not support private packages. If this is a feature that you would
-    find useful, please submit a feature request 
+    No, organization accounts do not support private packages. If this is a feature that you would
+    find useful, please submit a feature request
     [here](https://github.com/pypi/warehouse/issues).
 
 1. **If namespaces or private packages are not available,
-what does organization accounts offer?**
+what do organization accounts offer?**
 
     Organization accounts are a convenient way to manage projects, users and teams.
-    For more details, please see the blog post announcing 
+    For more details, please see the blog post announcing
     [PyPI organization account](https://blog.pypi.org/posts/2023-04-23-introducing-pypi-organizations/).
 
 1. **I have a special query. How can I contact the PyPI admins?**
