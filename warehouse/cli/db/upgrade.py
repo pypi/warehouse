@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import alembic_lock, db
+from warehouse.cli.db import db
 
 
 @db.command()
@@ -23,7 +23,4 @@ def upgrade(config, revision, **kwargs):
     """
     Upgrade database.
     """
-    with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
-    ) as alembic_config:
-        alembic.command.upgrade(alembic_config, revision, **kwargs)
+    alembic.command.upgrade(config.alembic_config(), revision, **kwargs)
