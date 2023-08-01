@@ -14,7 +14,7 @@
 {% extends "manage/manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = gettext("Add API token") %}
+{% set title = gettext("Create API token") %}
 
 {% set active_tab = 'account' %}
 
@@ -119,10 +119,10 @@
     <p>{% trans href='/help#apitoken' %}For further instructions on how to use this token, <a href="{{ href }}">visit the PyPI help page</a>.{% endtrans %}</p>
   </section>
   <hr>
-  <a href="." class="button">{% trans %}Add another token{% endtrans %}</a>
+  <a href="." class="button">{% trans %}Create another token{% endtrans %}</a>
   {% else %}
   {{ form_error_anchor(create_macaroon_form) }}
-  <section id="add-token">
+  <section id="create-token">
     <form method="POST">
       <input type="hidden" name="csrf_token" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(create_macaroon_form) }}
@@ -137,7 +137,7 @@
         <div id="token-name-errors">
           {{ field_errors(create_macaroon_form.description) }}
         </div>
-        <p id="description-help-text" class="form-group__help-text">{% trans %}What is this token for?{% endtrans %}</p>
+        <p id="description-help-text" class="form-group__help-text">{% trans %}What will you use this token for?{% endtrans %}</p>
       </div>
       <div class="form-group">
         <span class="form-group__label">{% trans %}Permissions{% endtrans %}</span>
@@ -167,7 +167,7 @@
         <p>{% trans %}An API token scoped to your entire account will have upload permissions for all of your current and future projects.{% endtrans %}</p>
       </div>
       <div>
-        <input value="{% trans %}Add token{% endtrans %}" class="button button--primary" type="submit">
+        <input value="{% trans %}Create token{% endtrans %}" class="button button--primary" type="submit">
       </div>
     </form>
   </section>

@@ -1,4 +1,6 @@
 furo
 Sphinx
+sphinx-autobuild
 sphinxcontrib-httpdomain
+sphinxcontrib-mermaid
 myst-parser
