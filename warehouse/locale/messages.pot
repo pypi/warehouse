@@ -1672,7 +1672,6 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr ""
 
 #: warehouse/templates/email/account-deleted/body.html:20
-#: warehouse/templates/email/new-email-added/body.html:19
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
 #: warehouse/templates/email/recovery-code-used/body.html:25
@@ -1889,8 +1888,16 @@ msgstr ""
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
-"Hello, %(username)s. A new email '%(email_address)s' has been added to "
-"your account."
+"Hello, %(username)s. A new email '%(new_email_address)s' has been added "
+"to your account."
+msgstr ""
+
+#: warehouse/templates/email/new-email-added/body.html:19
+#, python-format
+msgid ""
+"If you did not make this change, you can email <a "
+"href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
+"administrators."
 msgstr ""
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
