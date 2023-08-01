@@ -169,7 +169,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     )
     created = Column(
         DateTime(timezone=False),
-        nullable=False,
+        nullable=True,
         server_default=sql.func.now(),
         index=True,
     )

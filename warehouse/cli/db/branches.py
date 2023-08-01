@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import alembic_lock, db
+from warehouse.cli.db import db
 
 
 @db.command()
@@ -22,7 +22,4 @@ def branches(config, **kwargs):
     """
     Show current branch points.
     """
-    with alembic_lock(
-        config.registry["sqlalchemy.engine"], config.alembic_config()
-    ) as alembic_config:
-        alembic.command.branches(alembic_config, **kwargs)
+    alembic.command.branches(config.alembic_config(), **kwargs)

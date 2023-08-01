@@ -84,7 +84,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     )
     hide_avatar = Column(Boolean, nullable=False, server_default=sql.false())
     date_joined = Column(DateTime, server_default=sql.func.now())
-    last_login = Column(TZDateTime, nullable=False, server_default=sql.func.now())
+    last_login = Column(TZDateTime, nullable=True, server_default=sql.func.now())
     disabled_for = Column(  # type: ignore[var-annotated]
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
