@@ -39,7 +39,7 @@ paginate_sqlalchemy
 passlib>=1.6.4
 pip-api
 premailer
-psycopg2
+psycopg[c]
 pycurl
 pydantic
 pyqrcode
