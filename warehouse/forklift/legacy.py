@@ -183,13 +183,19 @@ def _valid_platform_tag(platform_tag):
 
 _error_message_order = ["metadata_version", "name", "version"]
 
-_dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I)
+_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl|egg))$", re.I)
 
 _legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
 
 _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 
 _valid_markdown_variants = {"CommonMark", "GFM"}
+
+_filetype_extension_mapping = {
+    "sdist": {".zip", ".tar.gz"},
+    "bdist_wheel": {".whl"},
+    "bdist_egg": {".egg"},
+}
 
 
 def _exc_with_message(exc, message, **kwargs):
@@ -518,7 +524,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
-                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
+                _filetype_extension_mapping.keys(), message="Use a known file type."
             ),
         ]
     )
@@ -611,7 +617,7 @@ class MetadataForm(forms.Form):
             )
 
 
-def _validate_filename(filename):
+def _validate_filename(filename, filetype):
     # Our object storage does not tolerate some specific characters
     # ref: https://www.backblaze.com/b2/docs/files.html#file-names
     #
@@ -636,7 +642,16 @@ def _validate_filename(filename):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
+    if m := _dist_file_re.match(filename):
+        extension = m.group("extension")
+        if extension not in _filetype_extension_mapping[filetype]:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Invalid file extension: Extension {extension} is invalid for "
+                f"filetype {filetype}. See https://www.python.org/dev/peps/pep-0527 "
+                "for more information.",
+            )
+    else:
         raise _exc_with_message(
             HTTPBadRequest,
             "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
@@ -1179,7 +1194,7 @@ def file_upload(request):
     filename = request.POST["content"].filename
 
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
-    _validate_filename(filename)
+    _validate_filename(filename, filetype=form.filetype.data)
 
     # Extract the project name from the filename and normalize it.
     filename_prefix = (
