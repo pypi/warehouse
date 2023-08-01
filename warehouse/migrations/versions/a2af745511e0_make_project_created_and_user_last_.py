@@ -26,8 +26,6 @@ revision = "a2af745511e0"
 down_revision = "4a0276f260c7"
 
 
-
-
 def upgrade():
     op.execute("SET statement_timeout = 5000")
     op.execute("SET lock_timeout = 4000")
@@ -71,4 +69,3 @@ def downgrade():
     # Data migration
     op.execute("UPDATE projects SET created = '-infinity' where created = NULL")
     op.execute("UPDATE users SET last_login = '-infinity' where last_login = NULL")
-
