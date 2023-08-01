@@ -126,6 +126,9 @@ C4Container
 
     SystemQueue(sqs, "AWS SQS", "task broker")
     Rel(web_app, sqs, "queue sync to cache task")
+
+    SystemDb(redis, "Redis", "Store short-term cache data")
+    Rel(web_app, redis, "get/set rate limits and cache data")
   }
 
   Rel(endUser, web_app, "POST files and metadata", "HTTPS")
