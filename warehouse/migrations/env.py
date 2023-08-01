@@ -59,8 +59,8 @@ def run_migrations_online():
         with context.begin_transaction():
             connection.execute(text("SELECT pg_advisory_lock(hashtext('alembic'))"))
             context.run_migrations()
-            connection.execute(text("SELECT pg_advisory_unlock(hashtext('alembic'))"))
             context.get_bind().commit()
+            connection.execute(text("SELECT pg_advisory_unlock(hashtext('alembic'))"))
 
 
 if context.is_offline_mode():
