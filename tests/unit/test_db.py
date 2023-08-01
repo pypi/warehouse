@@ -14,7 +14,7 @@ from unittest import mock
 
 import alembic.config
 import pretend
-import psycopg
+import psycopg2.extensions
 import pytest
 import sqlalchemy
 import venusian
@@ -114,7 +114,7 @@ def test_configure_alembic(monkeypatch):
 
 def test_raises_db_available_error(pyramid_services, metrics):
     def raiser():
-        raise OperationalError("foo", {}, psycopg.OperationalError())
+        raise OperationalError("foo", {}, psycopg2.OperationalError())
 
     engine = pretend.stub(connect=raiser)
     request = pretend.stub(
@@ -199,6 +199,7 @@ def test_create_session_read_only_mode(
 
     connection = pretend.stub(
         connection=pretend.stub(
+            get_transaction_status=lambda: pretend.stub(),
             set_session=lambda **kw: None,
             rollback=lambda: None,
         ),

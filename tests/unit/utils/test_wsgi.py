@@ -13,8 +13,6 @@
 import pretend
 import pytest
 
-from sqlalchemy import type_coerce
-from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.ip_addresses.models import IpAddress
@@ -198,9 +196,7 @@ def test_ip_address_exists(db_request):
 
 def test_ip_address_created(db_request):
     with pytest.raises(NoResultFound):
-        db_request.db.query(IpAddress).filter_by(
-            ip_address=type_coerce("192.0.2.69", INET)
-        ).one()
+        db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
 
     db_request.environ["GEOIP_CITY"] = "Anytown, ST"
     db_request.remote_addr = "192.0.2.69"
@@ -208,12 +204,8 @@ def test_ip_address_created(db_request):
 
     wsgi._ip_address(db_request)
 
-    ip_address = (
-        db_request.db.query(IpAddress)
-        .filter_by(ip_address=type_coerce("192.0.2.69", INET))
-        .one()
-    )
-    assert str(ip_address.ip_address) == "192.0.2.69"
+    ip_address = db_request.db.query(IpAddress).filter_by(ip_address="192.0.2.69").one()
+    assert ip_address.ip_address == "192.0.2.69"
     assert ip_address.hashed_ip_address == "deadbeef"
     assert ip_address.geoip_info == {"city": "Anytown, ST"}
 

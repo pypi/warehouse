@@ -26,16 +26,15 @@ down_revision = "8a335305fd39"
 def upgrade():
     # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll close
     # our transaction here and issue the statement.
-    op.get_bind().commit()
+    op.execute("COMMIT")
 
-    with op.get_context().autocommit_block():
-        op.create_index(
-            "release_canonical_version_idx",
-            "releases",
-            ["canonical_version"],
-            unique=False,
-            postgresql_concurrently=True,
-        )
+    op.create_index(
+        "release_canonical_version_idx",
+        "releases",
+        ["canonical_version"],
+        unique=False,
+        postgresql_concurrently=True,
+    )
 
 
 def downgrade():

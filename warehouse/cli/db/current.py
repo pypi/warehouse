@@ -13,7 +13,7 @@
 import alembic.command
 import click
 
-from warehouse.cli.db import db
+from warehouse.cli.db import alembic_lock, db
 
 
 @db.command()
@@ -22,4 +22,7 @@ def current(config, **kwargs):
     """
     Display the current revision for a database.
     """
-    alembic.command.current(config.alembic_config(), **kwargs)
+    with alembic_lock(
+        config.registry["sqlalchemy.engine"], config.alembic_config()
+    ) as alembic_config:
+        alembic.command.current(alembic_config, **kwargs)

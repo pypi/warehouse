@@ -834,7 +834,7 @@ def verify_email(request):
     try:
         email = (
             request.db.query(Email)
-            .filter(Email.id == int(data["email.id"]), Email.user == request.user)
+            .filter(Email.id == data["email.id"], Email.user == request.user)
             .one()
         )
     except NoResultFound:
