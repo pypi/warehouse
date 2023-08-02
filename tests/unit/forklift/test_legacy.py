@@ -2270,23 +2270,23 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
-        "filename, project_name",
+        "filename, filetype, project_name",
         [
             # completely different
-            ("nope-{version}.tar.gz", "something_else"),
-            ("nope-{version}-py3-none-any.whl", "something_else"),
+            ("nope-{version}.tar.gz", "sdist", "something_else"),
+            ("nope-{version}-py3-none-any.whl", "bdist_wheel", "something_else"),
             # starts with same prefix
-            ("nope-{version}.tar.gz", "no"),
-            ("nope-{version}-py3-none-any.whl", "no"),
+            ("nope-{version}.tar.gz", "sdist", "no"),
+            ("nope-{version}-py3-none-any.whl", "bdist_wheel", "no"),
             # starts with same prefix with hyphen
-            ("no-way-{version}.tar.gz", "no"),
-            ("no_way-{version}-py3-none-any.whl", "no"),
+            ("no-way-{version}.tar.gz", "sdist", "no"),
+            ("no_way-{version}-py3-none-any.whl", "bdist_wheel", "no"),
             # multiple delimiters
-            ("foo__bar-{version}-py3-none-any.whl", "foo-.bar"),
+            ("foo__bar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
         ],
     )
     def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, filename, project_name
+        self, pyramid_config, db_request, metrics, filename, filetype, project_name
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2308,8 +2308,13 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "sdist",
+                "filetype": filetype,
                 "md5_digest": _TAR_GZ_PKG_MD5,
+                "pyversion": {
+                    "bdist_wheel": "1.0",
+                    "bdist_egg": "1.0",
+                    "sdist": "source",
+                }[filetype],
                 "content": pretend.stub(
                     filename=filename.format(version=release.version),
                     file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
@@ -2330,6 +2335,59 @@ class TestFileUpload:
                 project.name,
                 project.normalized_name.replace("-", "_"),
             )
+        )
+
+    @pytest.mark.parametrize(
+        "filetype, extension",
+        [
+            ("sdist", ".whl"),
+            ("bdist_wheel", ".tar.gz"),
+            ("bdist_wheel", ".zip"),
+        ],
+    )
+    def test_upload_fails_with_invalid_filetype(
+        self, pyramid_config, db_request, filetype, extension
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        RoleFactory.create(user=user, project=project)
+
+        filename = f"{project.name}-{release.version}{extension}"
+
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": release.version,
+                "filetype": filetype,
+                "md5_digest": "nope!",
+                "pyversion": {
+                    "bdist_wheel": "1.0",
+                    "bdist_egg": "1.0",
+                    "sdist": "source",
+                }[filetype],
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == (
+            f"400 Invalid file extension: Extension {extension} is invalid for "
+            f"filetype {filetype}. See https://www.python.org/dev/peps/pep-0527 "
+            "for more information."
         )
 
     def test_upload_fails_with_invalid_extension(self, pyramid_config, db_request):
@@ -3025,6 +3083,10 @@ class TestFileUpload:
             (
                 "foo-1.0-q-py3-none-any.whl",
                 "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
+            ),
+            (
+                "foo-0.0.4test1-py3-none-any.whl",
+                "400 Invalid filename: Invalid version: '0.0.4test1'",
             ),
         ],
     )
