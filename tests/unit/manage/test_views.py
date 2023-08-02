@@ -946,28 +946,6 @@ class TestProvisionTOTP:
         assert isinstance(result, Response)
         assert result.content_type == "image/svg+xml"
 
-    def test_generate_totp_qr_already_provisioned(self, monkeypatch):
-        user_service = pretend.stub(get_totp_secret=lambda id: b"secret")
-        request = pretend.stub(
-            session=pretend.stub(),
-            find_service=lambda interface, **kw: {IUserService: user_service}[
-                interface
-            ],
-            user=pretend.stub(
-                id=pretend.stub(),
-                username="foobar",
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-        )
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.generate_totp_qr()
-
-        assert isinstance(result, Response)
-        assert result.status_code == 403
-
     def test_generate_totp_qr_two_factor_not_allowed(self):
         user_service = pretend.stub()
         request = pretend.stub(
@@ -991,12 +969,14 @@ class TestProvisionTOTP:
             )
         ]
 
-    def test_totp_provision(self, monkeypatch):
-        user_service = pretend.stub(get_totp_secret=lambda id: None)
+    @pytest.mark.parametrize("current_totp_secret", [b"foobar", None])
+    def test_totp_provision(self, monkeypatch, current_totp_secret):
+        user_service = pretend.stub(get_totp_secret=lambda id: current_totp_secret)
         request = pretend.stub(
             session=pretend.stub(
                 flash=pretend.call_recorder(lambda *a, **kw: None),
                 get_totp_secret=lambda: b"secret",
+                clear_totp_secret=pretend.call_recorder(lambda: None),
             ),
             find_service=lambda interface, **kw: {IUserService: user_service}[
                 interface
@@ -1027,44 +1007,15 @@ class TestProvisionTOTP:
         result = view.totp_provision()
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
+        if current_totp_secret:
+            assert request.session.clear_totp_secret.calls == [pretend.call()]
+        else:
+            assert request.session.clear_totp_secret.calls == []
         assert result == {
             "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
             "provision_totp_uri": "not_a_real_uri",
         }
-
-    def test_totp_provision_already_provisioned(self, monkeypatch):
-        user_service = pretend.stub(get_totp_secret=lambda id: b"foobar")
-        request = pretend.stub(
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: pretend.stub(),
-            ),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-                has_burned_recovery_codes=True,
-            ),
-            route_path=lambda *a, **kw: "/foo/bar/",
-        )
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.totp_provision()
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
-                queue="error",
-            )
-        ]
 
     @pytest.mark.parametrize(
         "user, expected_flash_calls",
@@ -1107,9 +1058,10 @@ class TestProvisionTOTP:
         assert result.headers["Location"] == "/foo/bar/"
         assert request.session.flash.calls == expected_flash_calls
 
-    def test_validate_totp_provision(self, monkeypatch):
+    @pytest.mark.parametrize("current_totp_secret", [b"foobar", None])
+    def test_validate_totp_provision(self, monkeypatch, current_totp_secret):
         user_service = pretend.stub(
-            get_totp_secret=lambda id: None,
+            get_totp_secret=lambda id: current_totp_secret,
             update_user=pretend.call_recorder(lambda *a, **kw: None),
         )
         request = pretend.stub(
@@ -1156,7 +1108,9 @@ class TestProvisionTOTP:
         ]
         assert request.user.record_event.calls == [
             pretend.call(
-                tag=EventTag.Account.TwoFactorMethodAdded,
+                tag=EventTag.Account.TwoFactorMethodEdited
+                if current_totp_secret
+                else EventTag.Account.TwoFactorMethodAdded,
                 request=request,
                 additional={"method": "totp"},
             )
@@ -1164,43 +1118,6 @@ class TestProvisionTOTP:
         assert send_email.calls == [
             pretend.call(request, request.user, method="totp"),
         ]
-
-    def test_validate_totp_provision_already_provisioned(self, monkeypatch):
-        user_service = pretend.stub(
-            get_totp_secret=lambda id: b"secret",
-            update_user=pretend.call_recorder(lambda *a, **kw: None),
-        )
-        request = pretend.stub(
-            session=pretend.stub(
-                flash=pretend.call_recorder(lambda *a, **kw: None),
-                get_totp_secret=lambda: pretend.stub(),
-            ),
-            find_service=lambda *a, **kw: user_service,
-            user=pretend.stub(
-                id=pretend.stub(),
-                username=pretend.stub(),
-                email=pretend.stub(),
-                name=pretend.stub(),
-                has_primary_verified_email=True,
-            ),
-            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar"),
-        )
-
-        view = views.ProvisionTOTPViews(request)
-        result = view.validate_totp_provision()
-
-        assert user_service.update_user.calls == []
-        assert request.route_path.calls == [pretend.call("manage.account")]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
-                queue="error",
-            )
-        ]
-
-        assert isinstance(result, HTTPSeeOther)
-        assert result.headers["Location"] == "/foo/bar"
 
     def test_validate_totp_provision_invalid_form(self, monkeypatch):
         user_service = pretend.stub(get_totp_secret=lambda id: None)
