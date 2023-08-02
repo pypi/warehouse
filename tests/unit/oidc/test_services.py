@@ -963,9 +963,10 @@ class TestPyJWTBackstop:
     "Backstop" tests against unexpected PyJWT API changes.
     """
 
-    def __init__(self) -> None:
-        self._privkey = rsa.generate_private_key(65537, 2048)
-        self._pubkey = self._privkey.public_key()
+    @classmethod
+    def setup_class(cls) -> None:
+        cls._privkey = rsa.generate_private_key(65537, 2048)
+        cls._pubkey = cls._privkey.public_key()
 
     def test_decodes_token_bare_key(self):
         # Bare cryptography key objects work.

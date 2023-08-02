@@ -65,11 +65,6 @@ def test_templates_for_empty_titles(template: Path):
 
     env.filters.update(FILTERS)
 
-    if template.suffixes == [".csi", ".html"]:
-        # Skips `.csi.html` files, which are used for client-side includes.
-        # TODO: do we have any of these left?
-        return
-
     if any(
         parent.name in ["includes", "api", "legacy", "email"]
         for parent in template.parents
