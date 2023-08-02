@@ -31,7 +31,7 @@ from warehouse.packaging.models import (
     Description,
     Project,
     Release,
-    release_classifiers,
+    ReleaseClassifiers,
 )
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
@@ -58,9 +58,9 @@ def _project_docs(db, project_name=None):
 
     classifiers = (
         select(func.array_agg(Classifier.classifier))
-        .select_from(release_classifiers)
-        .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
-        .filter(Release.id == release_classifiers.c.release_id)
+        .select_from(ReleaseClassifiers)
+        .join(Classifier, Classifier.id == ReleaseClassifiers.trove_id)
+        .filter(Release.id == ReleaseClassifiers.release_id)
         .correlate(Release)
         .scalar_subquery()
         .label("classifiers")

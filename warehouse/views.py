@@ -57,7 +57,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectFactory,
     Release,
-    release_classifiers,
+    ReleaseClassifiers,
 )
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
 from warehouse.utils.http import is_safe_url
@@ -338,8 +338,8 @@ def search(request):
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
         .filter(
-            exists(release_classifiers.c.trove_id).where(
-                release_classifiers.c.trove_id == Classifier.id
+            exists(ReleaseClassifiers.trove_id).where(
+                ReleaseClassifiers.trove_id == Classifier.id
             ),
             Classifier.classifier.notin_(deprecated_classifiers.keys()),
         )
