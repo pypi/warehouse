@@ -1349,6 +1349,11 @@ def file_upload(request):
                     HTTPBadRequest,
                     str(e),
                 )
+            except packaging.version.InvalidVersion as e:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid filename: {e}",
+                )
 
             for tag in tags:
                 if not _valid_platform_tag(tag.platform):
