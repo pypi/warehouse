@@ -22,8 +22,7 @@
   <section id="two-factor">
     <h2 class="sub-title">{% trans %}Two factor authentication (2FA){% endtrans %}</h2>
     <p>
-      {% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>.{% endtrans %}</p>
-
+      {% trans href='/help#twofa' %}Two factor authentication adds an additional layer of security to your account. <a href="{{ href }}">Learn more about <abbr title="two factor authentication">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled.{% endtrans %}</p>
 
     {% if user.has_recovery_codes %}
     <table class="table table--2fa">
@@ -57,6 +56,15 @@
         </tr>
       </thead>
       <tbody>
+        {% if user.has_single_2fa %}
+        <tr>
+          <td colspan="2" class="table__no-bottom-border">
+            <div class="callout-block callout-block--warning no-top-margin no-bottom-margin">
+              {% trans %}To remove this 2FA method, you must first add another method.{% endtrans %}
+            </div>
+          </td>
+        </tr>
+        {% endif %}
         {% if user.totp_secret %}
         <tr>
           <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
