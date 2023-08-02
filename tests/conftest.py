@@ -505,18 +505,6 @@ def webtest(app_config):
         app_config.registry["sqlalchemy.engine"].dispose()
 
 
-@pytest.fixture(scope="session")
-def monkeypatch_session():
-    # NOTE: This is a minor hack to avoid duplicate monkeypatching
-    # on every function scope for dummy_localize.
-    # https://github.com/pytest-dev/pytest/issues/1872#issuecomment-375108891
-    from _pytest.monkeypatch import MonkeyPatch
-
-    m = MonkeyPatch()
-    yield m
-    m.undo()
-
-
 class _MockRedis:
     """
     Just enough Redis for our tests.
