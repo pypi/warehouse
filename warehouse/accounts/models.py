@@ -15,7 +15,7 @@ import datetime
 import enum
 import typing
 
-from uuid import UUID as _UUID
+from uuid import UUID
 
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
@@ -34,7 +34,7 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID
+from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
@@ -78,48 +78,34 @@ class User(SitemapMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("username")
 
-    username: Mapped[CITEXT] = mapped_column(CITEXT, nullable=False, unique=True)
-    name: Mapped[str] = mapped_column(String(length=100), nullable=False)
-    password: Mapped[str] = mapped_column(String(length=128), nullable=False)
-    password_date: Mapped[datetime.datetime] = mapped_column(
-        TZDateTime, nullable=True, server_default=sql.func.now()
+    username: Mapped[CITEXT] = mapped_column(CITEXT, unique=True)
+    name: Mapped[str] = mapped_column(String(length=100))
+    password: Mapped[str] = mapped_column(String(length=128))
+    password_date: Mapped[datetime.datetime | None] = mapped_column(
+        TZDateTime, server_default=sql.func.now()
     )
-    is_active: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
-    is_frozen: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
-    is_superuser: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
-    is_moderator: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
-    is_psf_staff: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
+    is_active: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    is_frozen: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    is_moderator: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    is_psf_staff: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
     prohibit_password_reset: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
+        Boolean, server_default=sql.false()
     )
-    hide_avatar: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
-    date_joined: Mapped[datetime.datetime] = mapped_column(
+    hide_avatar: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    date_joined: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,
         server_default=sql.func.now(),
-        nullable=True,
     )
-    last_login: Mapped[datetime.datetime] = mapped_column(
-        TZDateTime, nullable=True, server_default=sql.func.now()
+    last_login: Mapped[datetime.datetime | None] = mapped_column(
+        TZDateTime, server_default=sql.func.now()
     )
-    disabled_for: Mapped[Enum] = mapped_column(
+    disabled_for: Mapped[Enum | None] = mapped_column(
         Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
-        nullable=True,
     )
 
-    totp_secret: Mapped[int] = mapped_column(LargeBinary(length=20), nullable=True)
-    last_totp_value: Mapped[str] = mapped_column(String, nullable=True)
+    totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
+    last_totp_value: Mapped[str | None]
 
     webauthn: Mapped[list[WebAuthn]] = orm.relationship(
         "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
@@ -253,32 +239,32 @@ class WebAuthn(db.Model):
         UniqueConstraint("label", "user_id", name="_user_security_keys_label_uc"),
     )
 
-    user_id: Mapped[_UUID] = mapped_column(
-        UUID(as_uuid=True),
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
     )
-    label: Mapped[str] = mapped_column(String, nullable=False)
-    credential_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
-    public_key: Mapped[str] = mapped_column(String, unique=True, nullable=True)
-    sign_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    label: Mapped[str]
+    credential_id: Mapped[str] = mapped_column(String, unique=True)
+    public_key: Mapped[str | None] = mapped_column(String, unique=True)
+    sign_count: Mapped[int | None] = mapped_column(Integer, default=0)
 
 
 class RecoveryCode(db.Model):
     __tablename__ = "user_recovery_codes"
 
-    user_id: Mapped[_UUID] = mapped_column(
-        UUID(as_uuid=True),
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
         nullable=False,
         index=True,
     )
-    code: Mapped[str] = mapped_column(String(length=128), nullable=False)
+    code: Mapped[str] = mapped_column(String(length=128))
     generated: Mapped[datetime.datetime] = mapped_column(
-        DateTime, nullable=False, server_default=sql.func.now()
+        DateTime, server_default=sql.func.now()
     )
-    burned: Mapped[datetime.datetime] = mapped_column(DateTime, nullable=True)
+    burned: Mapped[datetime.datetime | None]
 
 
 class UnverifyReasons(enum.Enum):
@@ -294,26 +280,22 @@ class Email(db.ModelBase):
         Index("user_emails_user_id", "user_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, nullable=False)
-    user_id: Mapped[_UUID] = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    user_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
-        nullable=False,
     )
-    email: Mapped[str] = mapped_column(String(length=254), nullable=False)
-    primary: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    verified: Mapped[bool] = mapped_column(Boolean, nullable=False)
-    public: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, server_default=sql.false()
-    )
+    email: Mapped[str] = mapped_column(String(length=254))
+    primary: Mapped[bool]
+    verified: Mapped[bool]
+    public: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
 
     # Deliverability information
-    unverify_reason: Mapped[Enum] = mapped_column(
+    unverify_reason: Mapped[Enum | None] = mapped_column(
         Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
-        nullable=True,
     )
     transient_bounces: Mapped[int] = mapped_column(
-        Integer, nullable=False, server_default=sql.text("0")
+        Integer, server_default=sql.text("0")
     )
 
 
@@ -332,15 +314,14 @@ class ProhibitedUserName(db.Model):
     __repr__ = make_repr("name")
 
     created: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=False), nullable=False, server_default=sql.func.now()
+        DateTime(timezone=False), server_default=sql.func.now()
     )
-    name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
-    _prohibited_by: Mapped[_UUID] = mapped_column(
+    name: Mapped[str] = mapped_column(Text, unique=True)
+    _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
-        UUID(as_uuid=True),
+        PG_UUID(as_uuid=True),
         ForeignKey("users.id"),
         index=True,
-        nullable=True,
     )
     prohibited_by: Mapped[User] = orm.relationship(User)
-    comment: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+    comment: Mapped[str] = mapped_column(Text, server_default="")
