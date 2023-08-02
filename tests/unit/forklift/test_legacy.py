@@ -3084,6 +3084,10 @@ class TestFileUpload:
                 "foo-1.0-q-py3-none-any.whl",
                 "400 Invalid build number: q in 'foo-1.0-q-py3-none-any'",
             ),
+            (
+                "foo-0.0.4test1-py3-none-any.whl",
+                "400 Invalid filename: Invalid version: '0.0.4test1'",
+            ),
         ],
     )
     def test_upload_fails_with_invalid_filename(
