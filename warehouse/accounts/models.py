@@ -13,8 +13,8 @@ from __future__ import annotations
 
 import datetime
 import enum
-import typing
 
+from typing import TYPE_CHECKING, Annotated
 from uuid import UUID
 
 from pyramid.authorization import Allow, Authenticated
@@ -45,9 +45,13 @@ from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime
 
-if typing.TYPE_CHECKING:
+if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
+
+
+# Custom column types
+bool_false = Annotated[bool, mapped_column(Boolean, server_default=sql.false())]
 
 
 class UserFactory:
@@ -84,15 +88,13 @@ class User(SitemapMixin, HasEvents, db.Model):
     password_date: Mapped[datetime.datetime | None] = mapped_column(
         TZDateTime, server_default=sql.func.now()
     )
-    is_active: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
-    is_frozen: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
-    is_superuser: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
-    is_moderator: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
-    is_psf_staff: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
-    prohibit_password_reset: Mapped[bool] = mapped_column(
-        Boolean, server_default=sql.false()
-    )
-    hide_avatar: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    is_active: Mapped[bool_false]
+    is_frozen: Mapped[bool_false]
+    is_superuser: Mapped[bool_false]
+    is_moderator: Mapped[bool_false]
+    is_psf_staff: Mapped[bool_false]
+    prohibit_password_reset: Mapped[bool_false]
+    hide_avatar: Mapped[bool_false]
     date_joined: Mapped[datetime.datetime | None] = mapped_column(
         DateTime,
         server_default=sql.func.now(),
@@ -288,7 +290,7 @@ class Email(db.ModelBase):
     email: Mapped[str] = mapped_column(String(length=254))
     primary: Mapped[bool]
     verified: Mapped[bool]
-    public: Mapped[bool] = mapped_column(Boolean, server_default=sql.false())
+    public: Mapped[bool_false]
 
     # Deliverability information
     unverify_reason: Mapped[Enum | None] = mapped_column(
