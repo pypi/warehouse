@@ -358,13 +358,13 @@ class TestManageAccount:
         assert request.session.flash.calls == []
 
     def test_delete_email(self, monkeypatch):
-        email = pretend.stub(id=pretend.stub(), primary=False, email=pretend.stub())
+        email = pretend.stub(id=5, primary=False, email=pretend.stub())
         some_other_email = pretend.stub()
         user_service = pretend.stub(
             record_event=pretend.call_recorder(lambda *a, **kw: None)
         )
         request = pretend.stub(
-            POST={"delete_email_id": email.id},
+            POST={"delete_email_id": str(email.id)},
             user=pretend.stub(
                 id=pretend.stub(),
                 emails=[email, some_other_email],
@@ -406,7 +406,7 @@ class TestManageAccount:
             raise NoResultFound
 
         request = pretend.stub(
-            POST={"delete_email_id": "missing_id"},
+            POST={"delete_email_id": "999999999999"},
             user=pretend.stub(id=pretend.stub(), emails=[email], name=pretend.stub()),
             db=pretend.stub(
                 query=lambda a: pretend.stub(
@@ -431,7 +431,7 @@ class TestManageAccount:
         email = pretend.stub(primary=True)
 
         request = pretend.stub(
-            POST={"delete_email_id": "missing_id"},
+            POST={"delete_email_id": "99999"},
             user=pretend.stub(id=pretend.stub(), emails=[email], name=pretend.stub()),
             db=pretend.stub(
                 query=lambda a: pretend.stub(
@@ -462,7 +462,7 @@ class TestManageAccount:
 
         user_service = pretend.stub()
         db_request.find_service = lambda *a, **kw: user_service
-        db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.POST = {"primary_email_id": str(new_primary.id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -500,7 +500,7 @@ class TestManageAccount:
 
         user_service = pretend.stub()
         db_request.find_service = lambda *a, **kw: user_service
-        db_request.POST = {"primary_email_id": new_primary.id}
+        db_request.POST = {"primary_email_id": str(new_primary.id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -533,7 +533,7 @@ class TestManageAccount:
 
         db_request.user = user
         db_request.find_service = lambda *a, **kw: pretend.stub()
-        db_request.POST = {"primary_email_id": missing_email_id}
+        db_request.POST = {"primary_email_id": str(missing_email_id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
             views.ManageAccountViews, "default_response", {"_": pretend.stub()}
@@ -556,7 +556,7 @@ class TestManageAccount:
         )
 
         request = pretend.stub(
-            POST={"reverify_email_id": pretend.stub()},
+            POST={"reverify_email_id": "99999"},
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one=lambda: email)
@@ -603,7 +603,7 @@ class TestManageAccount:
         )
 
         request = pretend.stub(
-            POST={"reverify_email_id": pretend.stub()},
+            POST={"reverify_email_id": "9999"},
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one=lambda: email)
@@ -645,7 +645,7 @@ class TestManageAccount:
             raise NoResultFound
 
         request = pretend.stub(
-            POST={"reverify_email_id": pretend.stub()},
+            POST={"reverify_email_id": "9999"},
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one=raise_no_result)
@@ -672,7 +672,7 @@ class TestManageAccount:
         email = pretend.stub(verified=True, email="email_address")
 
         request = pretend.stub(
-            POST={"reverify_email_id": pretend.stub()},
+            POST={"reverify_email_id": "9999"},
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one=lambda: email)

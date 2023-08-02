@@ -1022,20 +1022,6 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     }
 
 
-@_email("egg-uploads-deprecated")
-def send_egg_uploads_deprecated_email(request, user, project_name):
-    return {
-        "project_name": project_name,
-    }
-
-
-@_email("egg-uploads-deprecated-initial-notice")
-def send_egg_uploads_deprecated_initial_email(request, user, project_name):
-    return {
-        "project_name": project_name,
-    }
-
-
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)

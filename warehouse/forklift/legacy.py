@@ -49,7 +49,6 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
-    send_egg_uploads_deprecated_email,
     send_gpg_signature_uploaded_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -183,13 +182,18 @@ def _valid_platform_tag(platform_tag):
 
 _error_message_order = ["metadata_version", "name", "version"]
 
-_dist_file_re = re.compile(r".+?\.(tar\.gz|zip|whl|egg)$", re.I)
+_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
 
 _legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
 
 _valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
 
 _valid_markdown_variants = {"CommonMark", "GFM"}
+
+_filetype_extension_mapping = {
+    "sdist": {".zip", ".tar.gz"},
+    "bdist_wheel": {".whl"},
+}
 
 
 def _exc_with_message(exc, message, **kwargs):
@@ -518,7 +522,7 @@ class MetadataForm(forms.Form):
         validators=[
             wtforms.validators.InputRequired(),
             wtforms.validators.AnyOf(
-                ["bdist_egg", "bdist_wheel", "sdist"], message="Use a known file type."
+                _filetype_extension_mapping.keys(), message="Use a known file type."
             ),
         ]
     )
@@ -611,7 +615,7 @@ class MetadataForm(forms.Form):
             )
 
 
-def _validate_filename(filename):
+def _validate_filename(filename, filetype):
     # Our object storage does not tolerate some specific characters
     # ref: https://www.backblaze.com/b2/docs/files.html#file-names
     #
@@ -636,12 +640,21 @@ def _validate_filename(filename):
         )
 
     # Make sure the filename ends with an allowed extension.
-    if _dist_file_re.search(filename) is None:
+    if m := _dist_file_re.match(filename):
+        extension = m.group("extension")
+        if extension not in _filetype_extension_mapping[filetype]:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Invalid file extension: Extension {extension} is invalid for "
+                f"filetype {filetype}. See https://www.python.org/dev/peps/pep-0527 "
+                "for more information.",
+            )
+    else:
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "Invalid file extension: Use .tar.gz, .whl or .zip "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information.",
+            "and https://peps.python.org/pep-0715/ for more information",
         )
 
 
@@ -698,8 +711,8 @@ def _is_valid_dist_file(filename, filetype):
                     return False
         except (tarfile.ReadError, EOFError):
             return False
-    elif filename.endswith(".zip") or filename.endswith(".egg"):
-        # Ensure that the .zip/.egg is a valid zip file, and that it has a
+    elif filename.endswith(".zip"):
+        # Ensure that the .zip is a valid zip file, and that it has a
         # PKG-INFO file.
         try:
             with zipfile.ZipFile(filename, "r") as zfp:
@@ -1179,14 +1192,14 @@ def file_upload(request):
     filename = request.POST["content"].filename
 
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
-    _validate_filename(filename)
+    _validate_filename(filename, filetype=form.filetype.data)
 
     # Extract the project name from the filename and normalize it.
     filename_prefix = (
         # For wheels, the project name is normalized and won't contain hyphens, so
         # we can split on the first hyphen.
         filename.partition("-")[0]
-        if filename.endswith((".egg", ".whl"))
+        if filename.endswith(".whl")
         # For source releases, we know that the version should not contain any
         # hyphens, so we can split on the last hyphen to get the project name.
         else filename.rpartition("-")[0]
@@ -1476,22 +1489,6 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
-
-    # Check that if it's a bdist_egg, notify regarding deprecation.
-    if filename.endswith(".egg"):
-        # send deprecation notice
-        contributors = project.users
-        if project.organization:
-            contributors += project.organization.owners
-            for teamrole in project.team_project_roles:
-                contributors += teamrole.team.members
-
-        for contributor in sorted(set(contributors)):
-            send_egg_uploads_deprecated_email(
-                request,
-                contributor,
-                project_name=project.name,
-            )
 
     # Push updates to BigQuery
     dist_metadata = {

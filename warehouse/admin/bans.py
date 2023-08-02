@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from sqlalchemy import type_coerce
+from sqlalchemy.dialects.postgresql import INET
+
 from warehouse.accounts.interfaces import IUserService
 from warehouse.events.models import IpAddress
 
@@ -18,10 +21,10 @@ class Bans:
     def __init__(self, request):
         self.request = request
 
-    def by_ip(self, ip_address):
+    def by_ip(self, ip_address: str) -> bool:
         banned = (
             self.request.db.query(IpAddress)
-            .filter_by(ip_address=ip_address, is_banned=True)
+            .filter_by(ip_address=type_coerce(ip_address, INET), is_banned=True)
             .one_or_none()
         )
         if banned is not None:

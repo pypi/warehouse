@@ -8,6 +8,7 @@ Contents:
 
    development/index
    application
+   architecture
    api-reference/index
    ui-principles
    security

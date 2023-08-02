@@ -245,7 +245,7 @@ class ManageAccountViews:
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == self.request.POST["delete_email_id"],
+                    Email.id == int(self.request.POST["delete_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()
@@ -282,7 +282,7 @@ class ManageAccountViews:
                 self.request.db.query(Email)
                 .filter(
                     Email.user_id == self.request.user.id,
-                    Email.id == self.request.POST["primary_email_id"],
+                    Email.id == int(self.request.POST["primary_email_id"]),
                     Email.verified.is_(True),
                 )
                 .one()
@@ -324,7 +324,7 @@ class ManageAccountViews:
             email = (
                 self.request.db.query(Email)
                 .filter(
-                    Email.id == self.request.POST["reverify_email_id"],
+                    Email.id == int(self.request.POST["reverify_email_id"]),
                     Email.user_id == self.request.user.id,
                 )
                 .one()

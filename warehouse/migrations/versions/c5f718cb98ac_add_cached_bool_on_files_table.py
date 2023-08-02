@@ -38,14 +38,15 @@ def upgrade():
     )
     # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll close
     # our transaction here and issue the statement.
-    op.execute("COMMIT")
-    op.create_index(
-        "release_files_cached_idx",
-        "release_files",
-        ["cached"],
-        unique=False,
-        postgresql_concurrently=True,
-    )
+    op.get_bind().commit()
+    with op.get_context().autocommit_block():
+        op.create_index(
+            "release_files_cached_idx",
+            "release_files",
+            ["cached"],
+            unique=False,
+            postgresql_concurrently=True,
+        )
 
 
 def downgrade():

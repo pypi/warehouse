@@ -207,7 +207,7 @@ msgstr "이미 인증됨"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:825
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
@@ -361,7 +361,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
 #: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
-#: warehouse/manage/views/__init__.py:1231
+#: warehouse/manage/views/__init__.py:1239
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -373,7 +373,7 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1247
+#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1255
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -398,7 +398,7 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "한 번의 3개 이상의 처리되지 않은 신뢰할 수 있는 공급자를 등록할 수 없습니다"
 
-#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1266
+#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1274
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -407,7 +407,7 @@ msgid ""
 "again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1280
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1288
 msgid "The trusted publisher could not be registered"
 msgstr "신뢰할 수 있는 공급자가 등록될 수 없습니다"
 
@@ -562,33 +562,33 @@ msgstr ""
 "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
 "세요"
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "복구 코드가 이미 생성되었습니다"
 
-#: warehouse/manage/views/__init__.py:774
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views/__init__.py:883
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "이메일을 확인하거나 새로운 주소를 추가하세요."
 
-#: warehouse/manage/views/__init__.py:1008
+#: warehouse/manage/views/__init__.py:1016
 msgid "Invalid credentials. Try again"
 msgstr "잘못된 자격 증명입니다. 다시 한 번 시도해 보세요"
 
-#: warehouse/manage/views/__init__.py:1130
+#: warehouse/manage/views/__init__.py:1138
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "요구사항:"
 
-#: warehouse/manage/views/__init__.py:1485
-#: warehouse/manage/views/__init__.py:1786
-#: warehouse/manage/views/__init__.py:1894
+#: warehouse/manage/views/__init__.py:1493
+#: warehouse/manage/views/__init__.py:1794
+#: warehouse/manage/views/__init__.py:1902
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -600,44 +600,44 @@ msgstr ""
 "새 사용자 등록이 잠시 불가능한 상태입니다. https://pypi.org/help#admin-"
 "intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1617
-#: warehouse/manage/views/__init__.py:1702
-#: warehouse/manage/views/__init__.py:1803
-#: warehouse/manage/views/__init__.py:1903
+#: warehouse/manage/views/__init__.py:1625
+#: warehouse/manage/views/__init__.py:1710
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1911
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "초대 확인"
 
-#: warehouse/manage/views/__init__.py:1629
+#: warehouse/manage/views/__init__.py:1637
 #, fuzzy
 #| msgid "New releases"
 msgid "Could not yank release - "
 msgstr "새 릴리즈"
 
-#: warehouse/manage/views/__init__.py:1714
+#: warehouse/manage/views/__init__.py:1722
 #, fuzzy
 #| msgid "New releases"
 msgid "Could not un-yank release - "
 msgstr "새 릴리즈"
 
-#: warehouse/manage/views/__init__.py:1815
+#: warehouse/manage/views/__init__.py:1823
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "릴리즈 삭제"
 
-#: warehouse/manage/views/__init__.py:1915
+#: warehouse/manage/views/__init__.py:1923
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "역할 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views/__init__.py:1919
+#: warehouse/manage/views/__init__.py:1927
 msgid "Could not delete file - "
 msgstr "파일을 삭제할 수 없습니다 - "
 
-#: warehouse/manage/views/__init__.py:2069
+#: warehouse/manage/views/__init__.py:2077
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -645,19 +645,19 @@ msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views/__init__.py:2176
+#: warehouse/manage/views/__init__.py:2184
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views/__init__.py:2243
+#: warehouse/manage/views/__init__.py:2251
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
-#: warehouse/manage/views/__init__.py:2275
+#: warehouse/manage/views/__init__.py:2283
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -665,7 +665,7 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고 있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views/__init__.py:2288
+#: warehouse/manage/views/__init__.py:2296
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -673,20 +673,20 @@ msgstr ""
 "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
 "시 시도해보세요."
 
-#: warehouse/manage/views/__init__.py:2353
+#: warehouse/manage/views/__init__.py:2361
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}'에게 초대가 전송되었습니다"
 
-#: warehouse/manage/views/__init__.py:2386
+#: warehouse/manage/views/__init__.py:2394
 msgid "Could not find role invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views/__init__.py:2397
+#: warehouse/manage/views/__init__.py:2405
 msgid "Invitation already expired."
 msgstr "초대가 이미 만료되었습니다."
 
-#: warehouse/manage/views/__init__.py:2429
+#: warehouse/manage/views/__init__.py:2437
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}'의 초대가 취소되었습니다."
@@ -862,7 +862,7 @@ msgstr "몬티 파이썬 - 치즈 샵 스케치"
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #: warehouse/templates/manage/project/release.html:144
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
@@ -1122,8 +1122,8 @@ msgstr "모바일 버전으로 전환"
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:744
-#: warehouse/templates/manage/manage_base.html:317
-#: warehouse/templates/manage/manage_base.html:376
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:388
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1434,7 +1434,7 @@ msgstr "다음으로 행하기 위해 비밀번호를 확인해주세요"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:385
+#: warehouse/templates/manage/manage_base.html:397
 #: warehouse/templates/re-auth.html:50
 msgid "Password"
 msgstr "패스워드"
@@ -1503,7 +1503,7 @@ msgid "Your password"
 msgstr "패스워드를 입력하세요"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:388
+#: warehouse/templates/manage/manage_base.html:400
 #: warehouse/templates/re-auth.html:73
 msgid "Show password"
 msgstr "패스워드 보이기"
@@ -1948,7 +1948,6 @@ msgid "Your PyPI account <strong>%(username)s</strong> has been deleted."
 msgstr "PyPI 계정 <strong>%(username)s</strong> 삭제되었습니다."
 
 #: warehouse/templates/email/account-deleted/body.html:20
-#: warehouse/templates/email/new-email-added/body.html:19
 #: warehouse/templates/email/password-change/body.html:20
 #: warehouse/templates/email/primary-email-change/body.html:20
 #: warehouse/templates/email/recovery-code-used/body.html:25
@@ -2212,9 +2211,21 @@ msgstr ""
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
-"Hello, %(username)s. A new email '%(email_address)s' has been added to your "
-"account."
+"Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
+"your account."
 msgstr ""
+
+#: warehouse/templates/email/new-email-added/body.html:19
+#, fuzzy, python-format
+#| msgid ""
+#| "If you did not make this change, you can email <a href=\"%(href)s\">"
+#| "%(email_address)s</a> to communicate with the PyPI administrators."
+msgid ""
+"If you did not make this change, you can email <a href=\"%(href)s\">"
+"%(new_email_address)s</a> to communicate with the PyPI administrators."
+msgstr ""
+"이 변경사항을 직접 요청한 것이 아니라면, <a href=\"%(href)s\">"
+"%(email_address)s</a> 에 이메일을 보내 PyPI 관리자에게 연락하세요."
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
 #, python-format
@@ -3121,16 +3132,16 @@ msgid "Admin"
 msgstr "관리자"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:216
-#: warehouse/templates/manage/manage_base.html:250
+#: warehouse/templates/manage/manage_base.html:228
+#: warehouse/templates/manage/manage_base.html:262
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "프로젝트 목록"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:257
+#: warehouse/templates/manage/manage_base.html:235
+#: warehouse/templates/manage/manage_base.html:269
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -3139,8 +3150,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:230
-#: warehouse/templates/manage/manage_base.html:264
+#: warehouse/templates/manage/manage_base.html:242
+#: warehouse/templates/manage/manage_base.html:276
 msgid "Account settings"
 msgstr "계정 설정"
 
@@ -3170,8 +3181,8 @@ msgstr "이 알림 지우기"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:306
-#: warehouse/templates/manage/manage_base.html:308
+#: warehouse/templates/manage/manage_base.html:318
+#: warehouse/templates/manage/manage_base.html:320
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -3379,8 +3390,8 @@ msgid "Documentation"
 msgstr "문서"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:236
-#: warehouse/templates/manage/manage_base.html:270
+#: warehouse/templates/manage/manage_base.html:248
+#: warehouse/templates/manage/manage_base.html:282
 msgid "Publishing"
 msgstr ""
 
@@ -3746,7 +3757,6 @@ msgid "Active API tokens for this account"
 msgstr "이 계정에 활성화된 API 토큰"
 
 #: warehouse/templates/manage/account.html:449
-#: warehouse/templates/manage/account/token.html:17
 msgid "Add API token"
 msgstr "API 토큰 추가하기"
 
@@ -3793,7 +3803,7 @@ msgid "None"
 msgstr "없음"
 
 #: warehouse/templates/manage/account.html:487
-#: warehouse/templates/manage/manage_base.html:75
+#: warehouse/templates/manage/manage_base.html:81
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "보안 장치 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
@@ -4235,9 +4245,18 @@ msgstr "2단계 인증 방법이 활성화됨"
 msgid "Two factor method"
 msgstr "2단계 인증 방법"
 
-#: warehouse/templates/manage/manage_base.html:64
-#: warehouse/templates/manage/manage_base.html:78
-#: warehouse/templates/manage/manage_base.html:528
+#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:85
+#, fuzzy
+#| msgid "Cannot remove yourself as owner"
+msgid "Cannot remove last 2FA method"
+msgstr "스스로를 소유자에서 제거할 수 없습니다"
+
+#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:89
+#: warehouse/templates/manage/manage_base.html:540
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4251,27 +4270,27 @@ msgstr "2단계 인증 방법"
 msgid "Remove"
 msgstr "삭제"
 
-#: warehouse/templates/manage/manage_base.html:65
+#: warehouse/templates/manage/manage_base.html:70
 msgid "Remove authentication application"
 msgstr "인증 앱 삭제"
 
-#: warehouse/templates/manage/manage_base.html:66
+#: warehouse/templates/manage/manage_base.html:71
 msgid "Remove application"
 msgstr "앱 삭제"
 
-#: warehouse/templates/manage/manage_base.html:79
+#: warehouse/templates/manage/manage_base.html:90
 msgid "Remove two factor security device"
 msgstr "2단계 인증 장치 삭제"
 
-#: warehouse/templates/manage/manage_base.html:80
+#: warehouse/templates/manage/manage_base.html:91
 msgid "Remove device"
 msgstr "장치 삭제"
 
-#: warehouse/templates/manage/manage_base.html:86
+#: warehouse/templates/manage/manage_base.html:97
 msgid "Device name"
 msgstr "장치 이름"
 
-#: warehouse/templates/manage/manage_base.html:99
+#: warehouse/templates/manage/manage_base.html:111
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4283,7 +4302,7 @@ msgstr ""
 "2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
 "인증</a>해야 합니다."
 
-#: warehouse/templates/manage/manage_base.html:104
+#: warehouse/templates/manage/manage_base.html:116
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4295,7 +4314,7 @@ msgstr ""
 "2단계 인증을 추가하기 위해서는 먼저 <a href=\"%(href)s\">기본 이메일 주소를 "
 "인증</a>해야 합니다."
 
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:127
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4303,7 +4322,7 @@ msgid ""
 "two factor authentication methods to your account."
 msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
 
-#: warehouse/templates/manage/manage_base.html:120
+#: warehouse/templates/manage/manage_base.html:132
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4311,11 +4330,11 @@ msgid ""
 "authentication on your account."
 msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
 
-#: warehouse/templates/manage/manage_base.html:126
+#: warehouse/templates/manage/manage_base.html:138
 msgid "Generate recovery codes"
 msgstr "복구 코드를 생성하기"
 
-#: warehouse/templates/manage/manage_base.html:135
+#: warehouse/templates/manage/manage_base.html:147
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4323,7 +4342,7 @@ msgid ""
 "methods to your account."
 msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
 
-#: warehouse/templates/manage/manage_base.html:140
+#: warehouse/templates/manage/manage_base.html:152
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4332,19 +4351,19 @@ msgid ""
 msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:149
+#: warehouse/templates/manage/manage_base.html:161
 #, fuzzy
 #| msgid "Enter recovery code"
 msgid "Use a recovery code"
 msgstr "복구 코드를 입력하세요"
 
-#: warehouse/templates/manage/manage_base.html:160
+#: warehouse/templates/manage/manage_base.html:172
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid "You have not enabled two factor authentication on your account."
 msgstr "계정에 2단계 인증을 활성화하지 않았습니다."
 
-#: warehouse/templates/manage/manage_base.html:168
+#: warehouse/templates/manage/manage_base.html:180
 #, fuzzy
 #| msgid ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
@@ -4355,7 +4374,7 @@ msgid ""
 msgstr ""
 "인증 앱으로 <abbr title=\"two factor authentication\">2FA</abbr> 추가하기"
 
-#: warehouse/templates/manage/manage_base.html:173
+#: warehouse/templates/manage/manage_base.html:185
 #, fuzzy
 #| msgid ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -4368,7 +4387,7 @@ msgstr ""
 "추가하기"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:180
+#: warehouse/templates/manage/manage_base.html:192
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
@@ -4376,7 +4395,7 @@ msgstr ""
 "인증 장치(예: USB 키)로 2단계 인증을 설정하려면 자바스크립트를 활성화하세요"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:197
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -4387,7 +4406,7 @@ msgstr ""
 "\"%(title)s\" target=\"_blank\" rel=\"noopener\">브라우저를 업그레이드</a>하"
 "세요"
 
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:208
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
@@ -4396,66 +4415,66 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr "이동 경로"
 
-#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/manage_base.html:213
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "사용자 계정"
 
-#: warehouse/templates/manage/manage_base.html:211
-#: warehouse/templates/manage/manage_base.html:245
+#: warehouse/templates/manage/manage_base.html:223
+#: warehouse/templates/manage/manage_base.html:257
 msgid "Account navigation"
 msgstr "계정 내비게이션"
 
-#: warehouse/templates/manage/manage_base.html:318
-#: warehouse/templates/manage/manage_base.html:377
+#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:389
 msgid "This action cannot be undone!"
 msgstr "이 작업은 되돌릴 수 없습니다!"
 
-#: warehouse/templates/manage/manage_base.html:330
+#: warehouse/templates/manage/manage_base.html:342
 msgid "Confirm your username to continue."
 msgstr "계속하기 위해 사용자 이름을 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:332
+#: warehouse/templates/manage/manage_base.html:344
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "계속하기 위해 %(item)s 를 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:343
-#: warehouse/templates/manage/manage_base.html:395
+#: warehouse/templates/manage/manage_base.html:355
+#: warehouse/templates/manage/manage_base.html:407
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "취소"
 
-#: warehouse/templates/manage/manage_base.html:366
+#: warehouse/templates/manage/manage_base.html:378
 msgid "close"
 msgstr "닫기"
 
-#: warehouse/templates/manage/manage_base.html:382
+#: warehouse/templates/manage/manage_base.html:394
 msgid "Enter your password to continue."
 msgstr "계속하기 위해 패스워드를 확인해주세요."
 
-#: warehouse/templates/manage/manage_base.html:465
+#: warehouse/templates/manage/manage_base.html:477
 #, fuzzy
 #| msgid "Username"
 msgid "Trusted Publisher Management"
 msgstr "사용자명"
 
-#: warehouse/templates/manage/manage_base.html:470
+#: warehouse/templates/manage/manage_base.html:482
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:478
+#: warehouse/templates/manage/manage_base.html:490
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:485
+#: warehouse/templates/manage/manage_base.html:497
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -4467,11 +4486,11 @@ msgstr ""
 "계정에 다시 접근 권한을 얻기 위해서는, PyPI에서 <a href=\"%(href)s\">패스워드"
 "를 재설정</a>하세요."
 
-#: warehouse/templates/manage/manage_base.html:524
+#: warehouse/templates/manage/manage_base.html:536
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:535
+#: warehouse/templates/manage/manage_base.html:547
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4482,7 +4501,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "추가한 사용자:"
 
-#: warehouse/templates/manage/manage_base.html:537
+#: warehouse/templates/manage/manage_base.html:549
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4493,32 +4512,32 @@ msgstr "추가한 사용자:"
 msgid "Removed by:"
 msgstr "제거한 사용자:"
 
-#: warehouse/templates/manage/manage_base.html:539
+#: warehouse/templates/manage/manage_base.html:551
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "변경한 사용자:"
 
-#: warehouse/templates/manage/manage_base.html:542
+#: warehouse/templates/manage/manage_base.html:554
 #: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "이름을 입력해주세요"
 
-#: warehouse/templates/manage/manage_base.html:544
+#: warehouse/templates/manage/manage_base.html:556
 #, fuzzy
 #| msgid "Verify application"
 msgid "Specifier:"
 msgstr "앱 확인하기"
 
-#: warehouse/templates/manage/manage_base.html:547
+#: warehouse/templates/manage/manage_base.html:559
 #, fuzzy
 #| msgid "Username"
 msgid "Publisher:"
 msgstr "사용자명"
 
-#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:561
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -5107,6 +5126,12 @@ msgstr ""
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
+#: warehouse/templates/manage/account/token.html:17
+#, fuzzy
+#| msgid "Remove API token"
+msgid "Create API token"
+msgstr "API 토큰 제거"
+
 #: warehouse/templates/manage/account/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
@@ -5219,7 +5244,9 @@ msgid ""
 msgstr "또는, <a href=\"%(href)s\">PyPI 홈페이지</a>를 방문해보세요."
 
 #: warehouse/templates/manage/account/token.html:122
-msgid "Add another token"
+#, fuzzy
+#| msgid "Add another token"
+msgid "Create another token"
 msgstr "다른 토큰 추가하기"
 
 #: warehouse/templates/manage/account/token.html:131
@@ -5227,7 +5254,9 @@ msgid "Token name"
 msgstr "토큰 이름"
 
 #: warehouse/templates/manage/account/token.html:140
-msgid "What is this token for?"
+#, fuzzy
+#| msgid "What is this token for?"
+msgid "What will you use this token for?"
 msgstr "무엇을 위한 토큰입니까?"
 
 #: warehouse/templates/manage/account/token.html:154
@@ -5241,8 +5270,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:170
-msgid "Add token"
-msgstr "토큰 추가하기"
+#, fuzzy
+#| msgid "Create account"
+msgid "Create token"
+msgstr "계정 생성"
 
 #: warehouse/templates/manage/account/totp-provision.html:17
 msgid "Set up 2FA with an authentication application (TOTP)"
@@ -9802,6 +9833,9 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s'의 결과는 없습니다"
 
+#~ msgid "Add token"
+#~ msgstr "토큰 추가하기"
+
 #~ msgid "IP address"
 #~ msgstr "IP 어드레스"
 
@@ -10038,9 +10072,6 @@ msgstr[0] "'%(term)s'의 결과는 없습니다"
 #~| msgid "Release version %(version)s"
 #~ msgid "Release version %(version)s yanked"
 #~ msgstr "릴리즈 버전 %(version)s"
-
-#~ msgid "Cannot remove yourself as owner"
-#~ msgstr "스스로를 소유자에서 제거할 수 없습니다"
 
 #, python-format
 #~ msgid "All %(project_name)s releases"
