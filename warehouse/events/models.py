@@ -16,9 +16,9 @@ import typing
 from dataclasses import dataclass
 
 from linehaul.ua import parser as linehaul_user_agent_parser
-from sqlalchemy import Column, DateTime, ForeignKey, Index, String, orm, sql
+from sqlalchemy import DateTime, ForeignKey, Index, String, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import declared_attr, mapped_column
 from ua_parser import user_agent_parser
 
 from warehouse import db
@@ -115,13 +115,13 @@ class UserAgentInfo:
 
 
 class Event:
-    tag = Column(String, nullable=False)
-    time = Column(DateTime, nullable=False, server_default=sql.func.now())
-    additional = Column(JSONB, nullable=True)
+    tag = mapped_column(String, nullable=False)
+    time = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
+    additional = mapped_column(JSONB, nullable=True)
 
     @declared_attr
     def ip_address_id(cls):  # noqa: N805
-        return Column(
+        return mapped_column(
             UUID(as_uuid=True),
             ForeignKey("ip_addresses.id", onupdate="CASCADE", ondelete="CASCADE"),
             nullable=True,
@@ -174,7 +174,7 @@ class HasEvents:
                 __table_args__=(
                     Index(f"ix_{cls.__name__.lower()}_events_source_id", "source_id"),
                 ),
-                source_id=Column(
+                source_id=mapped_column(
                     UUID(as_uuid=True),
                     ForeignKey(
                         f"{cls.__tablename__}.id",

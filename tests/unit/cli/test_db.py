@@ -16,6 +16,7 @@ import pytest
 import sqlalchemy
 
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import mapped_column
 
 import warehouse.cli.db.dbml
 import warehouse.db
@@ -342,29 +343,29 @@ def test_generate_dbml_file(tmp_path_factory):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
 
-        name = sqlalchemy.Column(sqlalchemy.Text, unique=True, nullable=False)
-        fetched = sqlalchemy.Column(
+        name = mapped_column(sqlalchemy.Text, unique=True, nullable=False)
+        fetched = mapped_column(
             sqlalchemy.Text,
             server_default=sqlalchemy.FetchedValue(),
             comment="fetched value",
         )
-        for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+        for_the_children = mapped_column(sqlalchemy.Boolean, default=True)
+        nice = mapped_column(sqlalchemy.String(length=69))
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"
 
-        name = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-        clan_id = sqlalchemy.Column(
+        name = mapped_column(sqlalchemy.Text, nullable=False)
+        clan_id = mapped_column(
             UUID(as_uuid=True),
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
-        joined = sqlalchemy.Column(
+        joined = mapped_column(
             sqlalchemy.DateTime,
             nullable=False,
             server_default=sqlalchemy.sql.func.now(),
         )
-        departed = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)
+        departed = mapped_column(sqlalchemy.DateTime, nullable=True)
 
     outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
     warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), outpath)
@@ -382,29 +383,29 @@ def test_generate_dbml_console(capsys, monkeypatch):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
 
-        name = sqlalchemy.Column(sqlalchemy.Text, unique=True, nullable=False)
-        fetched = sqlalchemy.Column(
+        name = mapped_column(sqlalchemy.Text, unique=True, nullable=False)
+        fetched = mapped_column(
             sqlalchemy.Text,
             server_default=sqlalchemy.FetchedValue(),
             comment="fetched value",
         )
-        for_the_children = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
-        nice = sqlalchemy.Column(sqlalchemy.String(length=69))
+        for_the_children = mapped_column(sqlalchemy.Boolean, default=True)
+        nice = mapped_column(sqlalchemy.String(length=69))
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"
 
-        name = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-        clan_id = sqlalchemy.Column(
+        name = mapped_column(sqlalchemy.Text, nullable=False)
+        clan_id = mapped_column(
             UUID(as_uuid=True),
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
-        joined = sqlalchemy.Column(
+        joined = mapped_column(
             sqlalchemy.DateTime,
             nullable=False,
             server_default=sqlalchemy.sql.func.now(),
         )
-        departed = sqlalchemy.Column(sqlalchemy.DateTime, nullable=True)
+        departed = mapped_column(sqlalchemy.DateTime, nullable=True)
 
     warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
     captured = capsys.readouterr()
@@ -424,7 +425,7 @@ def test_generate_dbml_bad_conversion():
         __tablename__ = "puddle"
         __table_args__ = {"comment": "various clans"}
 
-        name = sqlalchemy.Column(BadText, unique=True, nullable=False)
+        name = mapped_column(BadText, unique=True, nullable=False)
 
     with pytest.raises(SystemExit):
         warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)

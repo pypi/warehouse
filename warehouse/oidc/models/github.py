@@ -10,9 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, mapped_column
 from sqlalchemy.sql.expression import func, literal
 
 from warehouse.oidc.interfaces import SignedClaims
@@ -86,11 +86,11 @@ class GitHubPublisherMixin:
     Common functionality for both pending and concrete GitHub OIDC publishers.
     """
 
-    repository_name = Column(String, nullable=False)
-    repository_owner = Column(String, nullable=False)
-    repository_owner_id = Column(String, nullable=False)
-    workflow_filename = Column(String, nullable=False)
-    environment = Column(String, nullable=True)
+    repository_name = mapped_column(String, nullable=False)
+    repository_owner = mapped_column(String, nullable=False)
+    repository_owner_id = mapped_column(String, nullable=False)
+    workflow_filename = mapped_column(String, nullable=False)
+    environment = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__ = {
         "sub": _check_sub,
@@ -224,7 +224,9 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = Column(UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True)
+    id = mapped_column(
+        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
+    )
 
 
 class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
@@ -240,7 +242,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
         ),
     )
 
-    id = Column(
+    id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 

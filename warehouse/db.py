@@ -22,7 +22,7 @@ import zope.sqlalchemy
 from sqlalchemy import event, inspect
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm import DeclarativeBase, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, mapped_column, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
@@ -83,7 +83,7 @@ class ModelBase(DeclarativeBase):
 class Model(ModelBase):
     __abstract__ = True
 
-    id = sqlalchemy.Column(
+    id = mapped_column(
         UUID(as_uuid=True),
         primary_key=True,
         server_default=sqlalchemy.text("gen_random_uuid()"),
