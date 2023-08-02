@@ -56,6 +56,15 @@
         </tr>
       </thead>
       <tbody>
+        {% if user.has_single_2fa %}
+        <tr>
+          <td colspan="2" class="table__no-bottom-border">
+            <div class="callout-block callout-block--warning no-top-margin no-bottom-margin">
+              {% trans %}To remove this 2FA method, you must first add another method.{% endtrans %}
+            </div>
+          </td>
+        </tr>
+        {% endif %}
         {% if user.totp_secret %}
         <tr>
           <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
@@ -101,11 +110,6 @@
 
       </tbody>
     </table>
-    {% if user.has_single_2fa %}
-    <div class="callout-block">
-        <p>{% trans %}To remove this 2FA method, you must first add another method.{% endtrans %}</p>
-    </div>
-    {% endif %}
     {% endif %}
 
     {% if not user.has_primary_verified_email %}

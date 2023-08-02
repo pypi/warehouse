@@ -381,4 +381,11 @@
       @include mobile-friendly-table;
     }
   }
+
+  td {
+    &.table__no-bottom-border {
+      border-bottom: none;
+    }
+  }
+
 }

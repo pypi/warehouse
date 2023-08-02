@@ -681,7 +681,7 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/manage_base.html:205
 #: warehouse/templates/manage/project/release.html:144
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
@@ -917,8 +917,8 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:744
-#: warehouse/templates/manage/manage_base.html:333
-#: warehouse/templates/manage/manage_base.html:392
+#: warehouse/templates/manage/manage_base.html:337
+#: warehouse/templates/manage/manage_base.html:396
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1217,7 +1217,7 @@ msgstr ""
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:401
+#: warehouse/templates/manage/manage_base.html:405
 #: warehouse/templates/re-auth.html:50
 msgid "Password"
 msgstr ""
@@ -1286,7 +1286,7 @@ msgid "Your password"
 msgstr ""
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:404
+#: warehouse/templates/manage/manage_base.html:408
 #: warehouse/templates/re-auth.html:73
 msgid "Show password"
 msgstr ""
@@ -2537,16 +2537,16 @@ msgid "Admin"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:232
-#: warehouse/templates/manage/manage_base.html:266
+#: warehouse/templates/manage/manage_base.html:236
+#: warehouse/templates/manage/manage_base.html:270
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr ""
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:239
-#: warehouse/templates/manage/manage_base.html:273
+#: warehouse/templates/manage/manage_base.html:243
+#: warehouse/templates/manage/manage_base.html:277
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -2555,8 +2555,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:246
-#: warehouse/templates/manage/manage_base.html:280
+#: warehouse/templates/manage/manage_base.html:250
+#: warehouse/templates/manage/manage_base.html:284
 msgid "Account settings"
 msgstr ""
 
@@ -2586,8 +2586,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:322
-#: warehouse/templates/manage/manage_base.html:324
+#: warehouse/templates/manage/manage_base.html:326
+#: warehouse/templates/manage/manage_base.html:328
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -2777,8 +2777,8 @@ msgid "Documentation"
 msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:252
-#: warehouse/templates/manage/manage_base.html:286
+#: warehouse/templates/manage/manage_base.html:256
+#: warehouse/templates/manage/manage_base.html:290
 msgid "Publishing"
 msgstr ""
 
@@ -3172,12 +3172,12 @@ msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:487
-#: warehouse/templates/manage/manage_base.html:80
+#: warehouse/templates/manage/manage_base.html:89
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:489
-#: warehouse/templates/manage/manage_base.html:61
+#: warehouse/templates/manage/manage_base.html:70
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -3548,16 +3548,20 @@ msgstr ""
 msgid "Two factor method"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:64
-#: warehouse/templates/manage/manage_base.html:84
+#: warehouse/templates/manage/manage_base.html:63
+msgid "To remove this 2FA method, you must first add another method."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:73
+#: warehouse/templates/manage/manage_base.html:93
 msgid "Cannot remove last 2FA method"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:65
-#: warehouse/templates/manage/manage_base.html:68
-#: warehouse/templates/manage/manage_base.html:85
-#: warehouse/templates/manage/manage_base.html:88
-#: warehouse/templates/manage/manage_base.html:544
+#: warehouse/templates/manage/manage_base.html:74
+#: warehouse/templates/manage/manage_base.html:77
+#: warehouse/templates/manage/manage_base.html:94
+#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:548
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -3571,102 +3575,98 @@ msgstr ""
 msgid "Remove"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:69
+#: warehouse/templates/manage/manage_base.html:78
 msgid "Remove authentication application"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/manage_base.html:79
 msgid "Remove application"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:89
+#: warehouse/templates/manage/manage_base.html:98
 msgid "Remove two factor security device"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:90
+#: warehouse/templates/manage/manage_base.html:99
 msgid "Remove device"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:96
+#: warehouse/templates/manage/manage_base.html:105
 msgid "Device name"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:106
-msgid "To remove this 2FA method, you must first add another method."
-msgstr ""
-
-#: warehouse/templates/manage/manage_base.html:115
+#: warehouse/templates/manage/manage_base.html:119
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before adding "
 "additional two factor authentication methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:120
+#: warehouse/templates/manage/manage_base.html:124
 #, python-format
 msgid ""
 "<a href=\"%(href)s\">Verify your primary email address</a> before "
 "enabling two factor authentication on your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:131
+#: warehouse/templates/manage/manage_base.html:135
 msgid ""
 "You must generate and safely store recovery codes before adding "
 "additional two factor authentication methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:136
+#: warehouse/templates/manage/manage_base.html:140
 msgid ""
 "You must generate and safely store recovery codes before enabling two "
 "factor authentication on your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:142
+#: warehouse/templates/manage/manage_base.html:146
 msgid "Generate recovery codes"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:151
+#: warehouse/templates/manage/manage_base.html:155
 msgid ""
 "Use a recovery code before adding additional two factor authentication "
 "methods to your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:156
+#: warehouse/templates/manage/manage_base.html:160
 msgid ""
 "Use a recovery code before enabling two factor authentication on your "
 "account."
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:165
+#: warehouse/templates/manage/manage_base.html:169
 msgid "Use a recovery code"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:176
+#: warehouse/templates/manage/manage_base.html:180
 msgid "You have not enabled two factor authentication on your account."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:184
+#: warehouse/templates/manage/manage_base.html:188
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with "
 "authentication application"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:189
+#: warehouse/templates/manage/manage_base.html:193
 msgid ""
 "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
 "device (e.g. USB key)"
 msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:196
+#: warehouse/templates/manage/manage_base.html:200
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security "
 "device (e.g. USB key)"
 msgstr ""
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:201
+#: warehouse/templates/manage/manage_base.html:205
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -3674,82 +3674,82 @@ msgid ""
 "authentication with a security device (e.g. USB key)"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:212
+#: warehouse/templates/manage/manage_base.html:216
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
 msgid "Breadcrumbs"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:217
+#: warehouse/templates/manage/manage_base.html:221
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:227
-#: warehouse/templates/manage/manage_base.html:261
+#: warehouse/templates/manage/manage_base.html:231
+#: warehouse/templates/manage/manage_base.html:265
 msgid "Account navigation"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:334
-#: warehouse/templates/manage/manage_base.html:393
+#: warehouse/templates/manage/manage_base.html:338
+#: warehouse/templates/manage/manage_base.html:397
 msgid "This action cannot be undone!"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:346
+#: warehouse/templates/manage/manage_base.html:350
 msgid "Confirm your username to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:348
+#: warehouse/templates/manage/manage_base.html:352
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:359
-#: warehouse/templates/manage/manage_base.html:411
+#: warehouse/templates/manage/manage_base.html:363
+#: warehouse/templates/manage/manage_base.html:415
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:382
+#: warehouse/templates/manage/manage_base.html:386
 msgid "close"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:398
+#: warehouse/templates/manage/manage_base.html:402
 msgid "Enter your password to continue."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:481
+#: warehouse/templates/manage/manage_base.html:485
 msgid "Trusted Publisher Management"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:486
+#: warehouse/templates/manage/manage_base.html:490
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third "
 "party service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:494
+#: warehouse/templates/manage/manage_base.html:498
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their "
 "release processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:501
+#: warehouse/templates/manage/manage_base.html:505
 #, python-format
 msgid ""
 "You can read more about trusted publishers and how to use them <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:540
+#: warehouse/templates/manage/manage_base.html:544
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:551
+#: warehouse/templates/manage/manage_base.html:555
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -3760,7 +3760,7 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:553
+#: warehouse/templates/manage/manage_base.html:557
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -3771,24 +3771,24 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:555
+#: warehouse/templates/manage/manage_base.html:559
 msgid "Submitted by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:558
+#: warehouse/templates/manage/manage_base.html:562
 #: warehouse/templates/manage/project/history.html:247
 msgid "Workflow:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:560
+#: warehouse/templates/manage/manage_base.html:564
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:563
+#: warehouse/templates/manage/manage_base.html:567
 msgid "Publisher:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:565
+#: warehouse/templates/manage/manage_base.html:569
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
