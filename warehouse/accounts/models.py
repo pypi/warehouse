@@ -106,7 +106,9 @@ class User(SitemapMixin, HasEvents, db.Model):
         Boolean, nullable=False, server_default=sql.false()
     )
     date_joined: Mapped[datetime.datetime] = mapped_column(
-        DateTime, server_default=sql.func.now()
+        DateTime,
+        server_default=sql.func.now(),
+        nullable=True,
     )
     last_login: Mapped[datetime.datetime] = mapped_column(
         TZDateTime, nullable=True, server_default=sql.func.now()
@@ -260,7 +262,7 @@ class WebAuthn(db.Model):
     label: Mapped[str] = mapped_column(String, nullable=False)
     credential_id: Mapped[str] = mapped_column(String, unique=True, nullable=False)
     public_key: Mapped[str] = mapped_column(String, unique=True, nullable=True)
-    sign_count: Mapped[int] = mapped_column(Integer, default=0)
+    sign_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
 
 
 class RecoveryCode(db.Model):
@@ -334,7 +336,11 @@ class ProhibitedUserName(db.Model):
     )
     name: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
     _prohibited_by: Mapped[_UUID] = mapped_column(
-        "prohibited_by", UUID(as_uuid=True), ForeignKey("users.id"), index=True
+        "prohibited_by",
+        UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        index=True,
+        nullable=True,
     )
     prohibited_by: Mapped[User] = orm.relationship(User)
     comment: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
