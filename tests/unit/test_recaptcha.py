@@ -160,7 +160,7 @@ class TestVerifyResponse:
         serv = recaptcha.Service(_REQUEST)
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
-            assert str(err) == "Unexpected error code: slartibartfast"
+        assert str(err.value) == "Unexpected error code: slartibartfast"
 
     @responses.activate
     def test_challenge_response_missing_timestamp_success(self):

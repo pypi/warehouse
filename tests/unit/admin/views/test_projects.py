@@ -488,8 +488,8 @@ class TestDeleteProject:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.delete_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -505,8 +505,8 @@ class TestDeleteProject:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.delete_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call(

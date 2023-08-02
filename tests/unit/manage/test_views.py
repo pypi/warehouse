@@ -2854,8 +2854,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             org_views.remove_organization_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -2879,8 +2879,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             org_views.remove_organization_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call(
@@ -3096,8 +3096,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             org_views.transfer_organization_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -3120,8 +3120,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             org_views.transfer_organization_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call(
@@ -3557,8 +3557,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.delete_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_DELETION)
@@ -3578,8 +3578,8 @@ class TestManageProjectSettings:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.delete_project(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.flags.enabled.calls == [
             pretend.call(AdminFlagValue.DISALLOW_DELETION)
@@ -3832,8 +3832,8 @@ class TestManageProjectDocumentation:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.destroy_project_docs(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call("Confirm the request", queue="error")
@@ -3849,8 +3849,8 @@ class TestManageProjectDocumentation:
 
         with pytest.raises(HTTPSeeOther) as exc:
             views.destroy_project_docs(project, request)
-            assert exc.value.status_code == 303
-            assert exc.value.headers["Location"] == "/foo/bar/"
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
 
         assert request.session.flash.calls == [
             pretend.call(
