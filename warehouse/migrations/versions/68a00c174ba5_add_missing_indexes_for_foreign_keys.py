@@ -33,16 +33,17 @@ def upgrade():
     op.create_index(
         op.f("ix_ses_events_email_id"), "ses_events", ["email_id"], unique=False
     )
-    # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll close
-    # our transaction here and issue the statement.
-    op.execute("COMMIT")
-    op.create_index(
-        "journals_submitted_by_idx",
-        "journals",
-        ["submitted_by"],
-        unique=False,
-        postgresql_concurrently=True,
-    )
+    # CREATE INDEX CONCURRENTLY cannot happen inside a transaction. We'll run this
+    # outside of the transaction for the migration.
+    op.get_bind().commit()
+    with op.get_context().autocommit_block():
+        op.create_index(
+            "journals_submitted_by_idx",
+            "journals",
+            ["submitted_by"],
+            unique=False,
+            postgresql_concurrently=True,
+        )
 
 
 def downgrade():

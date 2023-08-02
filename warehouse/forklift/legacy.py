@@ -49,7 +49,6 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
-    send_egg_uploads_deprecated_email,
     send_gpg_signature_uploaded_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -183,7 +182,7 @@ def _valid_platform_tag(platform_tag):
 
 _error_message_order = ["metadata_version", "name", "version"]
 
-_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl|egg))$", re.I)
+_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
 
 _legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
 
@@ -194,7 +193,6 @@ _valid_markdown_variants = {"CommonMark", "GFM"}
 _filetype_extension_mapping = {
     "sdist": {".zip", ".tar.gz"},
     "bdist_wheel": {".whl"},
-    "bdist_egg": {".egg"},
 }
 
 
@@ -654,9 +652,9 @@ def _validate_filename(filename, filetype):
     else:
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "Invalid file extension: Use .tar.gz, .whl or .zip "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information.",
+            "and https://peps.python.org/pep-0715/ for more information",
         )
 
 
@@ -713,8 +711,8 @@ def _is_valid_dist_file(filename, filetype):
                     return False
         except (tarfile.ReadError, EOFError):
             return False
-    elif filename.endswith(".zip") or filename.endswith(".egg"):
-        # Ensure that the .zip/.egg is a valid zip file, and that it has a
+    elif filename.endswith(".zip"):
+        # Ensure that the .zip is a valid zip file, and that it has a
         # PKG-INFO file.
         try:
             with zipfile.ZipFile(filename, "r") as zfp:
@@ -1201,7 +1199,7 @@ def file_upload(request):
         # For wheels, the project name is normalized and won't contain hyphens, so
         # we can split on the first hyphen.
         filename.partition("-")[0]
-        if filename.endswith((".egg", ".whl"))
+        if filename.endswith(".whl")
         # For source releases, we know that the version should not contain any
         # hyphens, so we can split on the last hyphen to get the project name.
         else filename.rpartition("-")[0]
@@ -1491,22 +1489,6 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
-
-    # Check that if it's a bdist_egg, notify regarding deprecation.
-    if filename.endswith(".egg"):
-        # send deprecation notice
-        contributors = project.users
-        if project.organization:
-            contributors += project.organization.owners
-            for teamrole in project.team_project_roles:
-                contributors += teamrole.team.members
-
-        for contributor in sorted(set(contributors)):
-            send_egg_uploads_deprecated_email(
-                request,
-                contributor,
-                project_name=project.name,
-            )
 
     # Push updates to BigQuery
     dist_metadata = {

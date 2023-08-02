@@ -95,7 +95,7 @@ def rss_packages(request):
     newest_projects = (
         request.db.query(Project)
         .options(joinedload(Project.releases, innerjoin=True))
-        .order_by(Project.created.desc())
+        .order_by(Project.created.desc().nulls_last())
         .limit(40)
         .all()
     )

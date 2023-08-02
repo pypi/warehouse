@@ -31,14 +31,6 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
-from tests.common.db.organizations import (
-    OrganizationFactory,
-    OrganizationProjectFactory,
-    OrganizationRoleFactory,
-    TeamFactory,
-    TeamProjectRoleFactory,
-    TeamRoleFactory,
-)
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -85,13 +77,6 @@ def _get_whl_testdata(name="fake_package", version="1.0"):
     return temp_f.getvalue()
 
 
-def _get_egg_testdata():
-    temp_f = io.BytesIO()
-    with zipfile.ZipFile(file=temp_f, mode="w") as zfp:
-        zfp.writestr("fake_package/PKG-INFO", "Fake metadata")
-    return temp_f.getvalue()
-
-
 def _storage_hash(data):
     return hashlib.blake2b(data, digest_size=256 // 8).hexdigest()
 
@@ -105,12 +90,6 @@ _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
-
-
-_EGG_PKG_TESTDATA = _get_egg_testdata()
-_EGG_PKG_MD5 = hashlib.md5(_EGG_PKG_TESTDATA).hexdigest()
-_EGG_PKG_SHA256 = hashlib.sha256(_EGG_PKG_TESTDATA).hexdigest()
-_EGG_PKG_STORAGE_HASH = _storage_hash(_EGG_PKG_TESTDATA)
 
 
 class TestExcWithMessage:
@@ -510,7 +489,6 @@ class TestFileValidation:
         ("filename", "filetype"),
         [
             ("test.zip", "sdist"),
-            ("test.egg", "bdist_egg"),
             ("test.whl", "bdist_wheel"),
         ],
     )
@@ -609,23 +587,6 @@ class TestFileValidation:
             zfp.writestr("1.dat", b"0" * 65 * legacy.ONE_MB, zipfile.ZIP_DEFLATED)
 
         assert not legacy._is_valid_dist_file(f, "")
-
-    def test_egg_no_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.egg"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-
-        assert not legacy._is_valid_dist_file(f, "bdist_egg")
-
-    def test_egg_has_pkg_info(self, tmpdir):
-        f = str(tmpdir.join("test.egg"))
-
-        with zipfile.ZipFile(f, "w") as zfp:
-            zfp.writestr("something.txt", b"Just a placeholder file")
-            zfp.writestr("PKG-INFO", b"this is the package info")
-
-        assert legacy._is_valid_dist_file(f, "bdist_egg")
 
     def test_wheel_no_wheel_file(self, tmpdir):
         f = str(tmpdir.join("test.whl"))
@@ -1594,9 +1555,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information."
+            "and https://peps.python.org/pep-0715/ for more information"
         )
 
     def test_upload_fails_for_second_sdist(self, pyramid_config, db_request):
@@ -2314,15 +2275,12 @@ class TestFileUpload:
             # completely different
             ("nope-{version}.tar.gz", "sdist", "something_else"),
             ("nope-{version}-py3-none-any.whl", "bdist_wheel", "something_else"),
-            ("nope-{version}-py3-none-any.egg", "bdist_egg", "something_else"),
             # starts with same prefix
             ("nope-{version}.tar.gz", "sdist", "no"),
             ("nope-{version}-py3-none-any.whl", "bdist_wheel", "no"),
-            ("nope-{version}-py3-none-any.egg", "bdist_egg", "no"),
             # starts with same prefix with hyphen
             ("no-way-{version}.tar.gz", "sdist", "no"),
             ("no_way-{version}-py3-none-any.whl", "bdist_wheel", "no"),
-            ("no_way-{version}-py3-none-any.egg", "bdist_egg", "no"),
             # multiple delimiters
             ("foo__bar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
         ],
@@ -2465,9 +2423,9 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == (
-            "400 Invalid file extension: Use .egg, .tar.gz, .whl or .zip "
+            "400 Invalid file extension: Use .tar.gz, .whl or .zip "
             "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "for more information."
+            "and https://peps.python.org/pep-0715/ for more information"
         )
 
     @pytest.mark.parametrize("character", ["/", "\\"])
@@ -3978,111 +3936,6 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information. "
             "See /the/help/url/ for more information."
         )
-
-    def test_egg_upload_sends_pep_715_notice(
-        self, pyramid_config, db_request, metrics, monkeypatch
-    ):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0.0",
-                "summary": "This is my summary!",
-                "filetype": "bdist_egg",
-                "pyversion": "2.7",
-                "md5_digest": _EGG_PKG_MD5,
-                "content": pretend.stub(
-                    filename="{}-{}.egg".format(project.name, "1.0.0"),
-                    file=io.BytesIO(_EGG_PKG_TESTDATA),
-                    type="application/zip",
-                ),
-            }
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_egg_uploads_deprecated_email", send_email)
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-        assert send_email.calls == [
-            pretend.call(db_request, user, project_name=project.name)
-        ]
-
-    def test_egg_upload_sends_pep_715_notice_org_roles(
-        self, pyramid_config, db_request, metrics, monkeypatch
-    ):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
-
-        org = OrganizationFactory()
-        OrganizationProjectFactory(organization=org, project=project)
-        org_owner = UserFactory.create()
-        OrganizationRoleFactory.create(user=org_owner, organization=org)
-
-        org_member = UserFactory.create()
-        OrganizationRoleFactory.create(
-            user=org_member, organization=org, role_name="Member"
-        )
-        team = TeamFactory.create(organization=org)
-        TeamRoleFactory.create(team=team, user=org_member)
-        # Duplicate the role directly on the project to ensure only one email
-        RoleFactory.create(user=org_member, project=project, role_name="Maintainer")
-        TeamProjectRoleFactory.create(project=project, team=team)
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0.0",
-                "summary": "This is my summary!",
-                "filetype": "bdist_egg",
-                "pyversion": "2.7",
-                "md5_digest": _EGG_PKG_MD5,
-                "content": pretend.stub(
-                    filename="{}-{}.egg".format(project.name, "1.0.0"),
-                    file=io.BytesIO(_EGG_PKG_TESTDATA),
-                    type="application/zip",
-                ),
-            }
-        )
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_egg_uploads_deprecated_email", send_email)
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        resp = legacy.file_upload(db_request)
-
-        assert resp.status_code == 200
-        assert set(send_email.calls) == {
-            pretend.call(db_request, user, project_name=project.name),
-            pretend.call(db_request, org_owner, project_name=project.name),
-            pretend.call(db_request, org_member, project_name=project.name),
-        }
 
 
 def test_submit(pyramid_request):

@@ -1759,8 +1759,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:17
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:17
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -1785,8 +1783,6 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:25
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:25
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -1825,48 +1821,6 @@ msgstr ""
 msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:19
-#, python-format
-msgid ""
-"During a recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded an <code>.egg</code>/<code>bdist_egg</code> distribution file."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:22
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:22
-#, python-format
-msgid ""
-"%(site)s is in the process of deprecating <code>bdist_egg</code> "
-"distribution file uploads, and will not accept them beginning August 1, "
-"2023."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:27
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:27
-msgid ""
-"Update your release tooling to cease upload of "
-"<code>.egg</code>/<code>bdist_egg</code> distribution files. If you are "
-"not already, and require binary releases, update your release tooling to "
-"upload <code>.whl</code>/<code>bdist_wheel</code> distribution files "
-"instead."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:30
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:30
-msgid ""
-"Read more about <a "
-"href=\"https://packaging.python.org/en/latest/discussions/wheel-vs-"
-"egg/\">Wheels vs Egg</a> distribution files."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:19
-#, python-format
-msgid ""
-"Since January 1, 2023, we noticed upload(s) of "
-"<code>.egg</code>/<code>bdist_egg</code> distribution file(s) to %(site)s"
-" for %(project_name)s."
 msgstr ""
 
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:19
@@ -3174,7 +3128,6 @@ msgid "Active API tokens for this account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:449
-#: warehouse/templates/manage/account/token.html:17
 msgid "Add API token"
 msgstr ""
 
@@ -4357,6 +4310,10 @@ msgstr ""
 msgid "Ensure that you have securely stored them before continuing."
 msgstr ""
 
+#: warehouse/templates/manage/account/token.html:17
+msgid "Create API token"
+msgstr ""
+
 #: warehouse/templates/manage/account/token.html:38
 #, python-format
 msgid "Token for \"%(macaroon_description)s\""
@@ -4461,7 +4418,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:122
-msgid "Add another token"
+msgid "Create another token"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:131
@@ -4469,7 +4426,7 @@ msgid "Token name"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:140
-msgid "What is this token for?"
+msgid "What will you use this token for?"
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:154
@@ -4483,7 +4440,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:170
-msgid "Add token"
+msgid "Create token"
 msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:17
