@@ -16,7 +16,7 @@ from uuid import UUID
 
 import automat
 
-from sqlalchemy import Enum, ForeignKey, Text, orm, sql
+from sqlalchemy import Enum, ForeignKey, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
@@ -274,7 +274,7 @@ class Event(db.Model):
         index=True,
     )
 
-    event_id: Mapped[str] = mapped_column(Text, unique=True, index=True)
+    event_id: Mapped[str] = mapped_column(unique=True, index=True)
     event_type: Mapped[Enum] = mapped_column(
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x])
     )
