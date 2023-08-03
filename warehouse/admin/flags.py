@@ -13,7 +13,7 @@
 import enum
 
 from sqlalchemy import Boolean, Text, sql
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 
@@ -33,10 +33,12 @@ class AdminFlagValue(enum.Enum):
 class AdminFlag(db.ModelBase):
     __tablename__ = "admin_flags"
 
-    id = mapped_column(Text, primary_key=True, nullable=False)
-    description = mapped_column(Text, nullable=False)
-    enabled = mapped_column(Boolean, nullable=False)
-    notify = mapped_column(Boolean, nullable=False, server_default=sql.false())
+    id: Mapped[str] = mapped_column(Text, primary_key=True, nullable=False)
+    description: Mapped[str] = mapped_column(Text, nullable=False)
+    enabled: Mapped[bool]
+    notify: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=sql.false()
+    )
 
 
 class Flags:
