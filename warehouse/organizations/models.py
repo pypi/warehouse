@@ -19,7 +19,6 @@ from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
-    Column,
     DateTime,
     Enum,
     ForeignKey,
@@ -32,7 +31,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.orm import declared_attr, mapped_column
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -64,14 +63,14 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = mapped_column(
         Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(  # type: ignore[var-annotated]
+    user_id = mapped_column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -94,11 +93,11 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    project_id = Column(  # type: ignore[var-annotated]
+    project_id = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -125,11 +124,11 @@ class OrganizationStripeSubscription(db.Model):
 
     __repr__ = make_repr("organization_id", "subscription_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    subscription_id = Column(  # type: ignore[var-annotated]
+    subscription_id = mapped_column(
         ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -154,11 +153,11 @@ class OrganizationStripeCustomer(db.Model):
 
     __repr__ = make_repr("organization_id", "stripe_customer_id")
 
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    stripe_customer_id = Column(  # type: ignore[var-annotated]
+    stripe_customer_id = mapped_column(
         ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -229,28 +228,30 @@ class OrganizationMixin:
             ),
         )
 
-    name = Column(Text, nullable=False, comment="The account name used in URLS")
+    name = mapped_column(Text, nullable=False, comment="The account name used in URLS")
 
     @declared_attr
     def normalized_name(cls):  # noqa: N805
         return orm.column_property(func.normalize_pep426_name(cls.name))
 
-    display_name = Column(Text, nullable=False, comment="Display name used in UI")
-    orgtype = Column(  # type: ignore[var-annotated]
+    display_name = mapped_column(
+        Text, nullable=False, comment="Display name used in UI"
+    )
+    orgtype = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         comment="What type of organization such as Community or Company",
     )
-    link_url = Column(
+    link_url = mapped_column(
         Text, nullable=False, comment="External URL associated with the organization"
     )
-    description = Column(
+    description = mapped_column(
         Text,
         nullable=False,
         comment="Description of the business or project the organization represents",
     )
 
-    is_approved = Column(
+    is_approved = mapped_column(
         Boolean, comment="Status of administrator approval of the request"
     )
 
@@ -262,20 +263,20 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
-    is_active = Column(
+    is_active = mapped_column(
         Boolean,
         nullable=False,
         server_default=sql.false(),
         comment="When True, the organization is active and all features are available.",
     )
-    created = Column(
+    created = mapped_column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
         comment="Datetime the organization was created.",
     )
-    date_approved = Column(
+    date_approved = mapped_column(
         DateTime(timezone=False),
         nullable=True,
         onupdate=func.now(),
@@ -451,7 +452,7 @@ class OrganizationApplication(OrganizationMixin, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
 
-    submitted_by_id = Column(
+    submitted_by_id = mapped_column(
         UUID(as_uuid=True),
         ForeignKey(
             User.id,
@@ -462,14 +463,14 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         nullable=False,
         comment="ID of the User which submitted the request",
     )
-    submitted = Column(
+    submitted = mapped_column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),
         index=True,
         comment="Datetime the request was submitted",
     )
-    organization_id = Column(
+    organization_id = mapped_column(
         UUID(as_uuid=True),
         ForeignKey(
             Organization.id,
@@ -503,8 +504,8 @@ class OrganizationNameCatalog(db.Model):
 
     __repr__ = make_repr("normalized_name", "organization_id")
 
-    normalized_name = Column(Text, nullable=False, index=True)
-    organization_id = Column(UUID(as_uuid=True), nullable=True, index=True)
+    normalized_name = mapped_column(Text, nullable=False, index=True)
+    organization_id = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
 
 
 class OrganizationInvitationStatus(enum.Enum):
@@ -525,19 +526,19 @@ class OrganizationInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "organization")
 
-    invite_status = Column(  # type: ignore[var-annotated]
+    invite_status = mapped_column(
         Enum(
             OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
         ),
         nullable=False,
     )
-    token = Column(Text, nullable=False)
-    user_id = Column(  # type: ignore[var-annotated]
+    token = mapped_column(Text, nullable=False)
+    user_id = mapped_column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
     )
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
         index=True,
@@ -565,14 +566,14 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = mapped_column(
         Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    user_id = Column(  # type: ignore[var-annotated]
+    user_id = mapped_column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
     )
-    team_id = Column(  # type: ignore[var-annotated]
+    team_id = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -600,15 +601,15 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    role_name = Column(  # type: ignore[var-annotated]
+    role_name = mapped_column(
         Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
     )
-    project_id = Column(  # type: ignore[var-annotated]
+    project_id = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    team_id = Column(  # type: ignore[var-annotated]
+    team_id = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
@@ -658,13 +659,13 @@ class Team(HasEvents, db.Model):
 
     __repr__ = make_repr("name", "organization")
 
-    name = Column(Text, nullable=False)
+    name = mapped_column(Text, nullable=False)
     normalized_name = orm.column_property(func.normalize_team_name(name))  # type: ignore[var-annotated] # noqa: E501
-    organization_id = Column(  # type: ignore[var-annotated]
+    organization_id = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
         nullable=False,
     )
-    created = Column(
+    created = mapped_column(
         DateTime(timezone=False),
         nullable=False,
         server_default=sql.func.now(),

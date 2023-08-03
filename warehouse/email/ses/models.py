@@ -14,9 +14,10 @@ import enum
 
 import automat
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
@@ -229,18 +230,18 @@ class EmailStatus:
 class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
-    status = Column(  # type: ignore[var-annotated]
+    created = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
+    status = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
     )
 
-    message_id = Column(Text, nullable=False, unique=True, index=True)
-    from_ = Column("from", Text, nullable=False)
-    to = Column(Text, nullable=False, index=True)
-    subject = Column(Text, nullable=False)
-    missing = Column(Boolean, nullable=False, server_default=sql.false())
+    message_id = mapped_column(Text, nullable=False, unique=True, index=True)
+    from_ = mapped_column("from", Text, nullable=False)
+    to = mapped_column(Text, nullable=False, index=True)
+    subject = mapped_column(Text, nullable=False)
+    missing = mapped_column(Boolean, nullable=False, server_default=sql.false())
 
     # Relationships!
     events = orm.relationship(
@@ -261,9 +262,9 @@ class EventTypes(enum.Enum):
 class Event(db.Model):
     __tablename__ = "ses_events"
 
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
+    created = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
 
-    email_id = Column(
+    email_id = mapped_column(
         UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
@@ -272,11 +273,11 @@ class Event(db.Model):
         index=True,
     )
 
-    event_id = Column(Text, nullable=False, unique=True, index=True)
-    event_type = Column(  # type: ignore[var-annotated]
+    event_id = mapped_column(Text, nullable=False, unique=True, index=True)
+    event_type = mapped_column(
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
     )
 
-    data = Column(  # type: ignore[var-annotated]
+    data = mapped_column(
         MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")  # type: ignore[arg-type] # noqa: E501
     )

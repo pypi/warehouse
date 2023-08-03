@@ -10,7 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, Integer, String, Text
+from sqlalchemy import Boolean, Integer, String, Text
+from sqlalchemy.orm import mapped_column
 
 from warehouse import db
 from warehouse.utils import readme
@@ -21,27 +22,27 @@ class Sponsor(db.Model):
     __tablename__ = "sponsors"
     __repr__ = make_repr("name")
 
-    name = Column(String, nullable=False)
-    service = Column(String)
-    activity_markdown = Column(Text)
+    name = mapped_column(String, nullable=False)
+    service = mapped_column(String)
+    activity_markdown = mapped_column(Text)
 
-    link_url = Column(Text, nullable=False)
-    color_logo_url = Column(Text, nullable=False)
-    white_logo_url = Column(Text)
+    link_url = mapped_column(Text, nullable=False)
+    color_logo_url = mapped_column(Text, nullable=False)
+    white_logo_url = mapped_column(Text)
 
     # control flags
-    is_active = Column(Boolean, default=False, nullable=False)
-    footer = Column(Boolean, default=False, nullable=False)
-    psf_sponsor = Column(Boolean, default=False, nullable=False)
-    infra_sponsor = Column(Boolean, default=False, nullable=False)
-    one_time = Column(Boolean, default=False, nullable=False)
-    sidebar = Column(Boolean, default=False, nullable=False)
+    is_active = mapped_column(Boolean, default=False, nullable=False)
+    footer = mapped_column(Boolean, default=False, nullable=False)
+    psf_sponsor = mapped_column(Boolean, default=False, nullable=False)
+    infra_sponsor = mapped_column(Boolean, default=False, nullable=False)
+    one_time = mapped_column(Boolean, default=False, nullable=False)
+    sidebar = mapped_column(Boolean, default=False, nullable=False)
 
     # pythondotorg integration
-    origin = Column(String, default="manual")
-    level_name = Column(String)
-    level_order = Column(Integer, default=0)
-    slug = Column(String)
+    origin = mapped_column(String, default="manual")
+    level_name = mapped_column(String)
+    level_order = mapped_column(Integer, default=0)
+    slug = mapped_column(String)
 
     @property
     def color_logo_img(self):

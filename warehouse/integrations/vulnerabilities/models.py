@@ -13,9 +13,11 @@
 
 from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm
 from sqlalchemy.dialects.postgresql import ARRAY, TIMESTAMP
+from sqlalchemy.orm import mapped_column
 
 from warehouse import db
 
+# TODO: convert to Declarative API
 release_vulnerabilities = Table(
     "release_vulnerabilities",
     db.metadata,
@@ -47,28 +49,28 @@ release_vulnerabilities = Table(
 class VulnerabilityRecord(db.ModelBase):
     __tablename__ = "vulnerabilities"
 
-    source = Column(String, primary_key=True)
-    id = Column(String, primary_key=True)
+    source = mapped_column(String, primary_key=True)
+    id = mapped_column(String, primary_key=True)
 
     # The URL for the vulnerability report at the source
     # e.g. "https://osv.dev/vulnerability/PYSEC-2021-314"
-    link = Column(String)
+    link = mapped_column(String)
 
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
-    aliases = Column(ARRAY(String))  # type: ignore[var-annotated]
+    aliases = mapped_column(ARRAY(String))  # type: ignore[var-annotated]
 
     # Details about the vulnerability
-    details = Column(String)
+    details = mapped_column(String)
 
     # A short, plaintext summary of the vulnerability
-    summary = Column(String)
+    summary = mapped_column(String)
 
     # Events of introduced/fixed versions
-    fixed_in = Column(ARRAY(String))  # type: ignore[var-annotated]
+    fixed_in = mapped_column(ARRAY(String))  # type: ignore[var-annotated]
 
     # When the vulnerability was withdrawn, if it has been withdrawn.
-    withdrawn = Column(TIMESTAMP, nullable=True)
+    withdrawn = mapped_column(TIMESTAMP, nullable=True)
 
     releases = orm.relationship(
         "Release",
