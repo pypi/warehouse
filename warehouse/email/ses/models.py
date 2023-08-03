@@ -12,12 +12,14 @@
 
 import enum
 
+from datetime import datetime
+
 import automat
 
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Text, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import ENUM, JSONB, UUID
 from sqlalchemy.ext.mutable import MutableDict
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
@@ -230,18 +232,24 @@ class EmailStatus:
 class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
-    created = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
-    status = mapped_column(
+    created: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=sql.func.now()
+    )
+    status: Mapped[ENUM] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         nullable=False,
         server_default=EmailStatuses.Accepted.value,
     )
 
-    message_id = mapped_column(Text, nullable=False, unique=True, index=True)
-    from_ = mapped_column("from", Text, nullable=False)
-    to = mapped_column(Text, nullable=False, index=True)
-    subject = mapped_column(Text, nullable=False)
-    missing = mapped_column(Boolean, nullable=False, server_default=sql.false())
+    message_id: Mapped[str] = mapped_column(
+        Text, nullable=False, unique=True, index=True
+    )
+    from_: Mapped[str] = mapped_column("from", Text, nullable=False)
+    to: Mapped[str] = mapped_column(Text, nullable=False, index=True)
+    subject: Mapped[str] = mapped_column(Text, nullable=False)
+    missing: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=sql.false()
+    )
 
     # Relationships!
     events = orm.relationship(
@@ -262,9 +270,11 @@ class EventTypes(enum.Enum):
 class Event(db.Model):
     __tablename__ = "ses_events"
 
-    created = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
+    created: Mapped[datetime] = mapped_column(
+        DateTime, nullable=False, server_default=sql.func.now()
+    )
 
-    email_id = mapped_column(
+    email_id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
@@ -273,11 +283,11 @@ class Event(db.Model):
         index=True,
     )
 
-    event_id = mapped_column(Text, nullable=False, unique=True, index=True)
-    event_type = mapped_column(
+    event_id: Mapped[str] = mapped_column(Text, nullable=False, unique=True, index=True)
+    event_type: Mapped[ENUM] = mapped_column(
         Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
     )
 
-    data = mapped_column(
+    data: Mapped[JSONB] = mapped_column(
         MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")  # type: ignore[arg-type] # noqa: E501
     )
