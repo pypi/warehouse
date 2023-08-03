@@ -11,7 +11,12 @@
 # limitations under the License.
 import datetime
 
-from sqlalchemy import DateTime, TypeDecorator
+from typing import Annotated
+
+from sqlalchemy import Boolean, DateTime, TypeDecorator, sql
+from sqlalchemy.orm import mapped_column
+
+bool_false = Annotated[bool, mapped_column(Boolean, server_default=sql.false())]
 
 
 class TZDateTime(TypeDecorator):

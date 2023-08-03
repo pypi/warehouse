@@ -14,12 +14,11 @@ from __future__ import annotations
 import datetime
 import enum
 
-from typing import TYPE_CHECKING, Annotated
+from typing import TYPE_CHECKING
 from uuid import UUID
 
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
-    Boolean,
     CheckConstraint,
     DateTime,
     Enum,
@@ -43,15 +42,11 @@ from warehouse import db
 from warehouse.events.models import HasEvents
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import TZDateTime
+from warehouse.utils.db.types import TZDateTime, bool_false
 
 if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
-
-
-# Custom column types
-bool_false = Annotated[bool, mapped_column(Boolean, server_default=sql.false())]
 
 
 class UserFactory:
