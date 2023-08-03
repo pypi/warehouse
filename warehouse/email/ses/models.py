@@ -17,7 +17,7 @@ from uuid import UUID
 
 import automat
 
-from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Text, orm, sql
+from sqlalchemy import DateTime, Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
@@ -233,9 +233,7 @@ class EmailStatus:
 class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
-    created: Mapped[datetime] = mapped_column(
-        server_default=sql.func.now()
-    )
+    created: Mapped[datetime] = mapped_column(server_default=sql.func.now())
     status: Mapped[Enum] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         server_default=EmailStatuses.Accepted.value,
