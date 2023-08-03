@@ -10,11 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Column, FetchedValue, Text
+from sqlalchemy import FetchedValue, Text
+from sqlalchemy.orm import mapped_column
 
 
 class SitemapMixin:
-    sitemap_bucket = Column(
+    sitemap_bucket = mapped_column(
         Text,
         nullable=False,
         server_default=FetchedValue(),

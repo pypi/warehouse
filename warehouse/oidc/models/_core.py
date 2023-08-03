@@ -17,8 +17,9 @@ from typing import Any, TypeVar
 
 import sentry_sdk
 
-from sqlalchemy import Column, ForeignKey, String, orm
+from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import mapped_column
 
 from warehouse import db
 from warehouse.macaroons.models import Macaroon
@@ -62,13 +63,13 @@ def check_claim_invariant(value: C) -> CheckClaimCallable[C]:
 class OIDCPublisherProjectAssociation(db.Model):
     __tablename__ = "oidc_publisher_project_association"
 
-    oidc_publisher_id = Column(
+    oidc_publisher_id = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("oidc_publishers.id"),
         nullable=False,
         primary_key=True,
     )
-    project_id = Column(
+    project_id = mapped_column(
         UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, primary_key=True
     )
 
@@ -82,7 +83,7 @@ class OIDCPublisherMixin:
     # Each hierarchy of OIDC publishers (both `OIDCPublisher` and
     # `PendingOIDCPublisher`) use a `discriminator` column for model
     # polymorphism, but the two are not mutually polymorphic at the DB level.
-    discriminator = Column(String)
+    discriminator = mapped_column(String)
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
@@ -244,8 +245,8 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
 
     __tablename__ = "pending_oidc_publishers"
 
-    project_name = Column(String, nullable=False)
-    added_by_id = Column(
+    project_name = mapped_column(String, nullable=False)
+    added_by_id = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
 

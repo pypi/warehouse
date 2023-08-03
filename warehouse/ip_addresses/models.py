@@ -14,18 +14,9 @@ import ipaddress
 
 import sentry_sdk
 
-from sqlalchemy import (
-    Boolean,
-    CheckConstraint,
-    Column,
-    DateTime,
-    Enum,
-    Index,
-    Text,
-    sql,
-)
+from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, Index, Text, sql
 from sqlalchemy.dialects.postgresql import INET, JSONB
-from sqlalchemy.orm import validates
+from sqlalchemy.orm import mapped_column, validates
 
 from warehouse import db
 
@@ -51,30 +42,30 @@ class IpAddress(db.Model):
     def __lt__(self, other):
         return self.id < other.id
 
-    ip_address = Column(
+    ip_address = mapped_column(
         INET, nullable=False, unique=True, comment="Structured IP Address value"
     )
-    hashed_ip_address = Column(
+    hashed_ip_address = mapped_column(
         Text, nullable=True, unique=True, comment="Hash that represents an IP Address"
     )
-    geoip_info = Column(
+    geoip_info = mapped_column(
         JSONB,
         nullable=True,
         comment="JSON containing GeoIP data associated with an IP Address",
     )
 
-    is_banned = Column(
+    is_banned = mapped_column(
         Boolean,
         nullable=False,
         server_default=sql.false(),
         comment="If True, this IP Address will be marked as banned",
     )
-    ban_reason = Column(  # type: ignore[var-annotated]
+    ban_reason = mapped_column(  # type: ignore[var-annotated]
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
         nullable=True,
         comment="Reason for banning, must be in the BanReason enumeration",
     )
-    ban_date = Column(
+    ban_date = mapped_column(
         DateTime,
         nullable=True,
         comment="Date that IP Address was last marked as banned",

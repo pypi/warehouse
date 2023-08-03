@@ -12,9 +12,9 @@
 
 from typing import Any
 
-from sqlalchemy import Column, ForeignKey, String, UniqueConstraint
+from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import Query
+from sqlalchemy.orm import Query, mapped_column
 
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
@@ -48,8 +48,8 @@ class GooglePublisherMixin:
     providers.
     """
 
-    email = Column(String, nullable=False)
-    sub = Column(String, nullable=True)
+    email = mapped_column(String, nullable=False)
+    sub = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "email": check_claim_binary(str.__eq__),
@@ -105,7 +105,9 @@ class GooglePublisher(GooglePublisherMixin, OIDCPublisher):
         ),
     )
 
-    id = Column(UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True)
+    id = mapped_column(
+        UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
+    )
 
 
 class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
@@ -119,7 +121,7 @@ class PendingGooglePublisher(GooglePublisherMixin, PendingOIDCPublisher):
         ),
     )
 
-    id = Column(
+    id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
 
