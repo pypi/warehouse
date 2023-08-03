@@ -13,11 +13,11 @@ import datetime
 
 from typing import Annotated
 
-from sqlalchemy import Boolean, DateTime, TypeDecorator, sql
+from sqlalchemy import DateTime, TypeDecorator, sql
 from sqlalchemy.orm import mapped_column
 
 # Custom Types for SQLAlchemy Columns `Mapped` values
-bool_false = Annotated[bool, mapped_column(Boolean, server_default=sql.false())]
+bool_false = Annotated[bool, mapped_column(server_default=sql.false())]
 datetime_now = Annotated[
     datetime.datetime, mapped_column(server_default=sql.func.now())
 ]
