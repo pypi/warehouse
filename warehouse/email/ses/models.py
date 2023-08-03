@@ -24,7 +24,7 @@ from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
-from warehouse.utils.db.types import datetime_now
+from warehouse.utils.db.types import bool_false, datetime_now
 
 MAX_TRANSIENT_BOUNCES = 5
 
@@ -243,7 +243,7 @@ class EmailMessage(db.Model):
     from_: Mapped[str] = mapped_column("from")
     to: Mapped[str] = mapped_column(index=True)
     subject: Mapped[str]
-    missing: Mapped[bool] = mapped_column(server_default=sql.false())
+    missing: Mapped[bool_false]
 
     # Relationships!
     events = orm.relationship(
