@@ -11,7 +11,16 @@
 # limitations under the License.
 import datetime
 
-from sqlalchemy import DateTime, TypeDecorator
+from typing import Annotated
+
+from sqlalchemy import DateTime, TypeDecorator, sql
+from sqlalchemy.orm import mapped_column
+
+# Custom Types for SQLAlchemy Columns `Mapped` values
+bool_false = Annotated[bool, mapped_column(server_default=sql.false())]
+datetime_now = Annotated[
+    datetime.datetime, mapped_column(server_default=sql.func.now())
+]
 
 
 class TZDateTime(TypeDecorator):
