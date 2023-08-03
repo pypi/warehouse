@@ -12,12 +12,11 @@
 
 import enum
 
-from datetime import datetime
 from uuid import UUID
 
 import automat
 
-from sqlalchemy import DateTime, Enum, ForeignKey, Text, orm, sql
+from sqlalchemy import Enum, ForeignKey, Text, orm, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, mapped_column
@@ -25,6 +24,7 @@ from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
+from warehouse.utils.db.types import datetime_now
 
 MAX_TRANSIENT_BOUNCES = 5
 
@@ -233,7 +233,7 @@ class EmailStatus:
 class EmailMessage(db.Model):
     __tablename__ = "ses_emails"
 
-    created: Mapped[datetime] = mapped_column(server_default=sql.func.now())
+    created: Mapped[datetime_now]
     status: Mapped[Enum] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
         server_default=EmailStatuses.Accepted.value,
@@ -264,7 +264,7 @@ class EventTypes(enum.Enum):
 class Event(db.Model):
     __tablename__ = "ses_events"
 
-    created: Mapped[datetime] = mapped_column(DateTime, server_default=sql.func.now())
+    created: Mapped[datetime_now]
 
     email_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),

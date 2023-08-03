@@ -17,6 +17,9 @@ from sqlalchemy import Boolean, DateTime, TypeDecorator, sql
 from sqlalchemy.orm import mapped_column
 
 bool_false = Annotated[bool, mapped_column(Boolean, server_default=sql.false())]
+datetime_now = Annotated[
+    datetime.datetime, mapped_column(server_default=sql.func.now())
+]
 
 
 class TZDateTime(TypeDecorator):

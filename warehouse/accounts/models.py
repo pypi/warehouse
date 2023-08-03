@@ -20,7 +20,6 @@ from uuid import UUID
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     CheckConstraint,
-    DateTime,
     Enum,
     ForeignKey,
     Index,
@@ -42,7 +41,7 @@ from warehouse import db
 from warehouse.events.models import HasEvents
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
-from warehouse.utils.db.types import TZDateTime, bool_false
+from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 
 if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
@@ -90,10 +89,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     is_psf_staff: Mapped[bool_false]
     prohibit_password_reset: Mapped[bool_false]
     hide_avatar: Mapped[bool_false]
-    date_joined: Mapped[datetime.datetime | None] = mapped_column(
-        DateTime,
-        server_default=sql.func.now(),
-    )
+    date_joined: Mapped[datetime_now | None]
     last_login: Mapped[datetime.datetime | None] = mapped_column(
         TZDateTime, server_default=sql.func.now()
     )
@@ -258,9 +254,7 @@ class RecoveryCode(db.Model):
         index=True,
     )
     code: Mapped[str] = mapped_column(String(length=128))
-    generated: Mapped[datetime.datetime] = mapped_column(
-        DateTime, server_default=sql.func.now()
-    )
+    generated: Mapped[datetime_now]
     burned: Mapped[datetime.datetime | None]
 
 
@@ -310,9 +304,7 @@ class ProhibitedUserName(db.Model):
 
     __repr__ = make_repr("name")
 
-    created: Mapped[datetime.datetime] = mapped_column(
-        DateTime(timezone=False), server_default=sql.func.now()
-    )
+    created: Mapped[datetime_now]
     name: Mapped[str] = mapped_column(Text, unique=True)
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
