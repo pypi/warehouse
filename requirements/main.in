@@ -67,7 +67,6 @@ stripe
 structlog
 transaction
 trove-classifiers
-typeguard
 ua-parser
 webauthn>=1.0.0,<2.0.0
 whitenoise
