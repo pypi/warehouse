@@ -257,9 +257,9 @@ pygments==2.15.1 \
     --hash=sha256:8ace4d3c1dd481894b2005f560ead0f9f19ee64fe983366be1a21e171d12775c \
     --hash=sha256:db2db3deb4b4179f399a09054b023b6a586b76499d36965813c71aa8ed7b5fd1
     # via doc8
-pyupgrade==3.9.0 \
-    --hash=sha256:1807e324a1432f05a830bc1847095c90b604c91de66237fff55cb98b99d4da10 \
-    --hash=sha256:a4c7132f4614f7acbacb756275c8a7881ad418f8a1c6ff6512c30dcf4c98f500
+pyupgrade==3.10.1 \
+    --hash=sha256:1d8d138c2ccdd3c42b1419230ae036d5607dc69465a26feacc069642fc8d1b90 \
+    --hash=sha256:f565b4d26daa46ed522e98746834e77e444269103f8bc04413d77dad95169a24
     # via -r requirements/lint.in
 restructuredtext-lint==1.4.0 \
     --hash=sha256:1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45
@@ -268,9 +268,9 @@ stevedore==5.1.0 \
     --hash=sha256:8cc040628f3cea5d7128f2e76cf486b2251a4e543c7b938f58d9a377f6694a2d \
     --hash=sha256:a54534acf9b89bc7ed264807013b505bf07f74dbe4bcfa37d32bd063870b087c
     # via doc8
-tokenize-rt==5.1.0 \
-    --hash=sha256:08f0c2daa94c4052e53c2fcaa8e32585e6ae9bdfc800974092d031401694e002 \
-    --hash=sha256:9b7bb843e77dd6ed0be5564bfaaba200083911e0497841cd3e9235a6a9794d74
+tokenize-rt==5.2.0 \
+    --hash=sha256:9fe80f8a5c1edad2d3ede0f37481cc0cc1538a2f442c9c2f9e4feacd2792d054 \
+    --hash=sha256:b79d41a65cfec71285433511b50271b05da3584a1da144a0752e9c621a285289
     # via pyupgrade
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
