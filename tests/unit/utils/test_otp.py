@@ -34,7 +34,7 @@ def test_generate_totp_secret():
     secret = generate_totp_secret()
 
     # secret should be bytes
-    assert type(secret) == bytes
+    assert type(secret) is bytes
 
     # secret should be 20 bytes long, i.e. 160 bits
     assert len(secret) == 20
