@@ -43,16 +43,16 @@ class ReleaseVulnerability(db.ModelBase):
 class VulnerabilityRecord(db.ModelBase):
     __tablename__ = "vulnerabilities"
 
-    source: Mapped[str] = mapped_column(String, primary_key=True)
+    source: Mapped[str] = mapped_column(primary_key=True)
     id: Mapped[str] = mapped_column(primary_key=True)
 
     # The URL for the vulnerability report at the source
     # e.g. "https://osv.dev/vulnerability/PYSEC-2021-314"
-    link: Mapped[str]
+    link: Mapped[str | None]
 
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
-    aliases = mapped_column(ARRAY(String))
+    aliases: Mapped[list[str] | None] = mapped_column(ARRAY(String))
 
     # Details about the vulnerability
     details: Mapped[str]
@@ -61,7 +61,7 @@ class VulnerabilityRecord(db.ModelBase):
     summary: Mapped[str]
 
     # Events of introduced/fixed versions
-    fixed_in = mapped_column(ARRAY(String))
+    fixed_in: Mapped[list[str] | None] = mapped_column(ARRAY(String))
 
     # When the vulnerability was withdrawn, if it has been withdrawn.
     withdrawn: Mapped[datetime.datetime | None]
