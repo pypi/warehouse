@@ -269,9 +269,9 @@ mergedeep==1.3.4 \
     --hash=sha256:0096d52e9dad9939c3d975a774666af186eda617e6ca84df4c94dec30004f2a8 \
     --hash=sha256:70775750742b25c0d8f36c55aed03d24c3384d17c951b3175d898bd778ef0307
     # via mkdocs
-mkdocs==1.5.0 \
-    --hash=sha256:91a75e3a5a75e006b2149814d5c56af170039ceda0732f51e7af1a463599c00d \
-    --hash=sha256:ff54eac0b74bf39a2e91f179e2ac16ef36f0294b9ab161c22f564382b30a31ae
+mkdocs==1.5.2 \
+    --hash=sha256:60a62538519c2e96fe8426654a67ee177350451616118a41596ae7c876bb7eac \
+    --hash=sha256:70d0da09c26cff288852471be03c23f0f521fc15cf16ac89c7a3bfb9ae8d24f9
     # via
     #   -r requirements/docs-blog.in
     #   mkdocs-blogging-plugin
