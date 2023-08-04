@@ -523,7 +523,8 @@ class ProvisionTOTPViews:
 
         totp_secret = self.user_service.get_totp_secret(self.request.user.id)
         if totp_secret:
-            # User wants to replace their existing TOTP application.
+            # User wants to edit their existing TOTP application. We're clearing it so
+            # that the old TOTP codes will no longer be valid.
             self.request.session.clear_totp_secret()
 
         return self.default_response
@@ -547,10 +548,14 @@ class ProvisionTOTPViews:
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
             self.request.session.clear_totp_secret()
+            if old_totp_secret:
+                self.request.user.record_event(
+                    tag=EventTag.Account.TwoFactorMethodRemoved,
+                    request=self.request,
+                    additional={"method": "totp"},
+                )
             self.request.user.record_event(
-                tag=EventTag.Account.TwoFactorMethodEdited
-                if old_totp_secret
-                else EventTag.Account.TwoFactorMethodAdded,
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 request=self.request,
                 additional={"method": "totp"},
             )

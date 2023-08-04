@@ -99,7 +99,6 @@ class EventTag:
         TeamRoleAdd = "account:team_role:add"
         TeamRoleRemove = "account:team_role:remove"
         TwoFactorMethodAdded = "account:two_factor:method_added"
-        TwoFactorMethodEdited = "account:two_factor:method_edited"
         TwoFactorMethodRemoved = "account:two_factor:method_removed"
         EmailSent = "account:email:sent"
         # The following tags are no longer used when recording events.

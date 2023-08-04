@@ -1106,15 +1106,23 @@ class TestProvisionTOTP:
                 "Authentication application successfully set up", queue="success"
             )
         ]
-        assert request.user.record_event.calls == [
+        expected_record_event_calls = [
             pretend.call(
-                tag=EventTag.Account.TwoFactorMethodEdited
-                if current_totp_secret
-                else EventTag.Account.TwoFactorMethodAdded,
+                tag=EventTag.Account.TwoFactorMethodAdded,
                 request=request,
                 additional={"method": "totp"},
             )
         ]
+        if current_totp_secret:
+            expected_record_event_calls.insert(
+                0,
+                pretend.call(
+                    tag=EventTag.Account.TwoFactorMethodRemoved,
+                    request=request,
+                    additional={"method": "totp"},
+                ),
+            )
+        assert request.user.record_event.calls == expected_record_event_calls
         assert send_email.calls == [
             pretend.call(request, request.user, method="totp"),
         ]
