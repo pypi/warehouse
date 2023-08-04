@@ -34,7 +34,7 @@ def test_xmlrpc_succeeds(app_config, webtest, metrics):
 def test_invalid_arguments(app_config, webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
-        match="client error; missing a required argument: 'package_name'",
+        match=r"client error; \('package_name',\): field required",
     ):
         webtest.xmlrpc("/pypi", "package_releases")
 
@@ -42,7 +42,7 @@ def test_invalid_arguments(app_config, webtest):
 def test_arguments_with_wrong_type(app_config, webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
-        match='client error; type of argument "serial" must be int; got str instead',
+        match=r"client error; \('serial',\): value is not a valid integer",
     ):
         webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
 
@@ -50,6 +50,9 @@ def test_arguments_with_wrong_type(app_config, webtest):
 def test_multiple_garbage_types(app_config, webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
-        match='client error; type of argument "serial" must be int; got str instead',
+        match=(
+            r"client error; \('since',\): value is not a valid integer; "
+            r"\('with_ids',\): value could not be parsed to a boolean"
+        ),
     ):
         webtest.xmlrpc("/pypi", "changelog", "wrong!", "also wrong!")

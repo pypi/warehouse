@@ -215,7 +215,7 @@ class TypedMapplyViewMapper(MapplyViewMapper):
         try:
             validated = ValidatedFunction(fn, None)
             values = validated.build_values(args, kwargs)
-            model = validated.model(**values)
+            validated.model(**values)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
                 "; ".join([f"{e['loc']}: {e['msg']}" for e in exc.errors()])
