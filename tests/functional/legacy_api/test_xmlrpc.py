@@ -45,3 +45,11 @@ def test_arguments_with_wrong_type(app_config, webtest):
         match='client error; type of argument "serial" must be int; got str instead',
     ):
         webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
+
+
+def test_multiple_garbage_types(app_config, webtest):
+    with pytest.raises(
+        xmlrpc.client.Fault,
+        match='client error; type of argument "serial" must be int; got str instead',
+    ):
+        webtest.xmlrpc("/pypi", "changelog", "wrong!", "also wrong!")
