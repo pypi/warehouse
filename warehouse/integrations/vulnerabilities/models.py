@@ -10,71 +10,65 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
 
-from sqlalchemy import Column, ForeignKey, ForeignKeyConstraint, String, Table, orm
-from sqlalchemy.dialects.postgresql import ARRAY, TIMESTAMP
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import ForeignKey, ForeignKeyConstraint, String, orm
+from sqlalchemy.dialects.postgresql import ARRAY
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.packaging.models import Release
 
-# TODO: convert to Declarative API
-release_vulnerabilities = Table(
-    "release_vulnerabilities",
-    db.metadata,
-    Column(
-        "release_id",
+
+class ReleaseVulnerability(db.ModelBase):
+    __tablename__ = "release_vulnerabilities"
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ["vulnerability_source", "vulnerability_id"],
+            ["vulnerabilities.source", "vulnerabilities.id"],
+            onupdate="CASCADE",
+            ondelete="CASCADE",
+        ),
+    )
+
+    release_id: Mapped[str] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
         index=True,
-    ),
-    Column(
-        "vulnerability_source",
-        String,
-        nullable=False,
-    ),
-    Column(
-        "vulnerability_id",
-        String,
-        nullable=False,
-    ),
-    ForeignKeyConstraint(
-        ["vulnerability_source", "vulnerability_id"],
-        ["vulnerabilities.source", "vulnerabilities.id"],
-        onupdate="CASCADE",
-        ondelete="CASCADE",
-    ),
-)
+        primary_key=True,
+    )
+    vulnerability_source: Mapped[str]
+    vulnerability_id: Mapped[str]
 
 
 class VulnerabilityRecord(db.ModelBase):
     __tablename__ = "vulnerabilities"
 
-    source = mapped_column(String, primary_key=True)
-    id = mapped_column(String, primary_key=True)
+    source: Mapped[str] = mapped_column(String, primary_key=True)
+    id: Mapped[str] = mapped_column(primary_key=True)
 
     # The URL for the vulnerability report at the source
     # e.g. "https://osv.dev/vulnerability/PYSEC-2021-314"
-    link = mapped_column(String)
+    link: Mapped[str]
 
     # Alternative IDs for this vulnerability
     # e.g. "CVE-2021-12345"
-    aliases = mapped_column(ARRAY(String))  # type: ignore[var-annotated]
+    aliases = mapped_column(ARRAY(String))
 
     # Details about the vulnerability
-    details = mapped_column(String)
+    details: Mapped[str]
 
     # A short, plaintext summary of the vulnerability
-    summary = mapped_column(String)
+    summary: Mapped[str]
 
     # Events of introduced/fixed versions
-    fixed_in = mapped_column(ARRAY(String))  # type: ignore[var-annotated]
+    fixed_in = mapped_column(ARRAY(String))
 
     # When the vulnerability was withdrawn, if it has been withdrawn.
-    withdrawn = mapped_column(TIMESTAMP, nullable=True)
+    withdrawn: Mapped[datetime.datetime | None]
 
-    releases = orm.relationship(
+    releases: Mapped[list[Release]] = orm.relationship(
         "Release",
         back_populates="vulnerabilities",
-        secondary=lambda: release_vulnerabilities,
+        secondary="release_vulnerabilities",
         passive_deletes=True,
     )
