@@ -204,9 +204,9 @@ jinja2==3.1.2 \
     #   mkdocs
     #   mkdocs-blogging-plugin
     #   mkdocs-material
-markdown==3.3.7 \
-    --hash=sha256:cbb516f16218e643d8e0a95b309f77eb118cb138d39a4f27851e6a63581db874 \
-    --hash=sha256:f5da449a6e1c989a4cea2631aa8ee67caa5a2ef855d551c88f9e309f4634c621
+markdown==3.4.4 \
+    --hash=sha256:225c6123522495d4119a90b3a3ba31a1e87a70369e03f14799ea9c0d7183a3d6 \
+    --hash=sha256:a4c1b65c0957b4bd9e7d86ddc7b3c9868fb9670660f6f99f6d1bca8954d5a941
     # via
     #   mkdocs
     #   mkdocs-material
@@ -289,9 +289,9 @@ mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
     --hash=sha256:e41d9f38e4798b6617ad98ca8f7f1157b1e4385ac1459ca1e4ea219b556df945
     # via mkdocs-material
-mkdocs-rss-plugin==1.7.0 \
-    --hash=sha256:ab4ad36e5501de6df22617f95313b9e49273f78bdbbc6a402dae3b39b8928cbd \
-    --hash=sha256:f0360daddebc308fde336d44b578967568eee77cdf51f2e3c5cee391804a2bfc
+mkdocs-rss-plugin==1.8.0 \
+    --hash=sha256:0fa13c99730c1d3ad9ec05102ff3d148c9849396c40b30be789339d38722fa8f \
+    --hash=sha256:475bf4ea05cbe786af38d519b55352b1b2eb87597ad680fcbc309056864ed5c4
     # via -r requirements/docs-blog.in
 packaging==23.1 \
     --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
