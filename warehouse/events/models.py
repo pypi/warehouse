@@ -16,13 +16,14 @@ import typing
 from dataclasses import dataclass
 
 from linehaul.ua import parser as linehaul_user_agent_parser
-from sqlalchemy import DateTime, ForeignKey, Index, String, orm, sql
+from sqlalchemy import ForeignKey, Index, orm
 from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import declared_attr, mapped_column
+from sqlalchemy.orm import Mapped, declared_attr, mapped_column
 from ua_parser import user_agent_parser
 
 from warehouse import db
 from warehouse.ip_addresses.models import IpAddress
+from warehouse.utils.db.types import datetime_now
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
@@ -115,9 +116,9 @@ class UserAgentInfo:
 
 
 class Event:
-    tag = mapped_column(String, nullable=False)
-    time = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
-    additional = mapped_column(JSONB, nullable=True)
+    tag: Mapped[str]
+    time: Mapped[datetime_now]
+    additional: Mapped[dict | None] = mapped_column(JSONB)
 
     @declared_attr
     def ip_address_id(cls):  # noqa: N805
