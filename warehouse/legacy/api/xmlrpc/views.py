@@ -18,9 +18,9 @@ import xmlrpc.server
 
 from collections.abc import Mapping
 
-import typeguard
-
 from packaging.utils import canonicalize_name
+from pydantic import ValidationError
+from pydantic.decorator import ValidatedFunction
 from pyramid.httpexceptions import HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
@@ -213,10 +213,13 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            memo = typeguard._CallMemo(fn, args=args, kwargs=kwargs)
-            typeguard.check_argument_types(memo)
-        except TypeError as exc:
-            raise XMLRPCInvalidParamTypes(exc)
+            validated = ValidatedFunction(fn, None)
+            values = validated.build_values(args, kwargs)
+            model = validated.model(**values)
+        except ValidationError as exc:
+            raise XMLRPCInvalidParamTypes(
+                "; ".join([f"{e['loc']}: {e['msg']}" for e in exc.errors()])
+            )
 
         return super().mapply(fn, args, kwargs)
 
