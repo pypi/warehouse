@@ -268,9 +268,9 @@ stevedore==5.1.0 \
     --hash=sha256:8cc040628f3cea5d7128f2e76cf486b2251a4e543c7b938f58d9a377f6694a2d \
     --hash=sha256:a54534acf9b89bc7ed264807013b505bf07f74dbe4bcfa37d32bd063870b087c
     # via doc8
-tokenize-rt==5.1.0 \
-    --hash=sha256:08f0c2daa94c4052e53c2fcaa8e32585e6ae9bdfc800974092d031401694e002 \
-    --hash=sha256:9b7bb843e77dd6ed0be5564bfaaba200083911e0497841cd3e9235a6a9794d74
+tokenize-rt==5.2.0 \
+    --hash=sha256:9fe80f8a5c1edad2d3ede0f37481cc0cc1538a2f442c9c2f9e4feacd2792d054 \
+    --hash=sha256:b79d41a65cfec71285433511b50271b05da3584a1da144a0752e9c621a285289
     # via pyupgrade
 toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
