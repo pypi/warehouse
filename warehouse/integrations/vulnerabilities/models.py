@@ -55,10 +55,10 @@ class VulnerabilityRecord(db.ModelBase):
     aliases: Mapped[list[str] | None] = mapped_column(ARRAY(String))
 
     # Details about the vulnerability
-    details: Mapped[str]
+    details: Mapped[str | None]
 
     # A short, plaintext summary of the vulnerability
-    summary: Mapped[str]
+    summary: Mapped[str | None]
 
     # Events of introduced/fixed versions
     fixed_in: Mapped[list[str] | None] = mapped_column(ARRAY(String))
