@@ -610,7 +610,7 @@ class TestRegistrationForm:
             "Choose a different username."
         )
 
-    @pytest.mark.parametrize("username", ["_foo", "bar_", "foo^bar"])
+    @pytest.mark.parametrize("username", ["_foo", "bar_", "foo^bar", "boo\0far"])
     def test_username_is_valid(self, username, pyramid_config):
         form = forms.RegistrationForm(
             formdata=MultiDict({"username": username}),
