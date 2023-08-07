@@ -328,10 +328,10 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         )
         and not request.identity.has_two_factor
     ) and (
-        # Start enforcement from 2023-08-01, but we should remove this check
+        # Start enforcement from 2023-08-08, but we should remove this check
         # at the end of 2023.
         request.identity.date_joined
-        and request.identity.date_joined > datetime.datetime(2023, 8, 1)
+        and request.identity.date_joined > datetime.datetime(2023, 8, 8)
     ):
         return WarehouseDenied(
             "You must enable two factor authentication to manage other settings",
