@@ -25,11 +25,9 @@ updates:
     interval: monthly
   groups:
     # Items in these groups are combined in a single PR
-    boto3:
+    boto-deps:
       patterns:
         - "boto3*"
-    botocore:
-      patterns:
         - "botocore*"
 
 - package-ecosystem: github-actions
