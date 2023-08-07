@@ -107,9 +107,9 @@ docutils==0.20.1 \
     # via
     #   myst-parser
     #   sphinx
-furo==2023.5.20 \
-    --hash=sha256:40e09fa17c6f4b22419d122e933089226dcdb59747b5b6c79363089827dea16f \
-    --hash=sha256:594a8436ddfe0c071f3a9e9a209c314a219d8341f3f1af33fdf7c69544fab9e6
+furo==2023.7.26 \
+    --hash=sha256:1c7936929ec57c5ddecc7c85f07fa8b2ce536b5c89137764cca508be90e11efd \
+    --hash=sha256:257f63bab97aa85213a1fa24303837a3c3f30be92901ec732fea74290800f59e
     # via -r requirements/docs-dev.in
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
@@ -269,9 +269,9 @@ soupsieve==2.4.1 \
     --hash=sha256:1c1bfee6819544a3447586c889157365a27e10d88cde3ad3da0cf0ddf646feb8 \
     --hash=sha256:89d12b2d5dfcd2c9e8c22326da9d9aa9cb3dfab0a83a024f05704076ee8d35ea
     # via beautifulsoup4
-sphinx==7.0.1 \
-    --hash=sha256:60c5e04756c1709a98845ed27a2eed7a556af3993afb66e77fec48189f742616 \
-    --hash=sha256:61e025f788c5977d9412587e733733a289e2b9fdc2fef8868ddfbfc4ccfe881d
+sphinx==7.1.2 \
+    --hash=sha256:780f4d32f1d7d1126576e0e5ecc19dc32ab76cd24e950228dcf7b1f6d3d9e22f \
+    --hash=sha256:d170a81825b2fcacb6dfd5a0d7f578a053e45d3f2b153fecc948c37344eb4cbe
     # via
     #   -r requirements/docs-dev.in
     #   furo

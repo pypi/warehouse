@@ -184,7 +184,11 @@ class HasEvents:
                     ),
                     nullable=False,
                 ),
-                source=orm.relationship(cls, back_populates="events"),
+                source=orm.relationship(
+                    cls,
+                    back_populates="events",
+                    order_by=f"desc({cls.__name__}Event.time)",
+                ),
             ),
         )
         return orm.relationship(
