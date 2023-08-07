@@ -184,16 +184,7 @@ class SessionSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        res = _permits_for_user_policy(self._acl, request, context, permission)
-        # Verify email before you can manage account/projects.
-        if (
-            isinstance(res, Allowed)
-            and not request.identity.has_primary_verified_email
-            and request.matched_route.name.startswith("manage")
-            and request.matched_route.name != "manage.account"
-        ):
-            return WarehouseDenied("unverified", reason="unverified_email")
-        return res
+        return _permits_for_user_policy(self._acl, request, context, permission)
 
 
 @implementer(ISecurityPolicy)
@@ -247,6 +238,15 @@ def _permits_for_user_policy(acl, request, context, permission):
     # Dispatch to our ACL
     # NOTE: These parameters are in a different order than the signature of this method.
     res = acl.permits(context, principals_for(request.identity), permission)
+
+    # Verify email before you can manage account/projects.
+    if (
+        isinstance(res, Allowed)
+        and not request.identity.has_primary_verified_email
+        and request.matched_route.name.startswith("manage")
+        and request.matched_route.name != "manage.account"
+    ):
+        return WarehouseDenied("unverified", reason="unverified_email")
 
     # If our underlying permits allowed this, we will check our 2FA status,
     # that might possibly return a reason to deny the request anyways, and if

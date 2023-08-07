@@ -502,20 +502,6 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_permits_with_unverified_email(self, monkeypatch):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
-        request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"], has_primary_verified_email=False
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = security_policy.SessionSecurityPolicy()
-        assert not policy.permits(request, context, "myperm")
-
 
 @pytest.mark.parametrize(
     "policy_class",
@@ -658,3 +644,17 @@ class TestPermits:
             ]
         else:
             assert request.session.flash.calls == []
+
+    def test_permits_with_unverified_email(self, monkeypatch, policy_class):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"], has_primary_verified_email=False
+            ),
+            matched_route=pretend.stub(name="manage.projects"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert not policy.permits(request, context, "myperm")
