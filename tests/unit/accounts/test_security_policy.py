@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 
 import pretend
 import pytest
@@ -516,8 +517,11 @@ class TestPermits:
 
         request = pretend.stub(
             identity=pretend.stub(
-                __principals__=lambda: principals, has_primary_verified_email=True
-            )
+                __principals__=lambda: principals,
+                has_primary_verified_email=True,
+                has_two_factor=False,
+            ),
+            matched_route=pretend.stub(name="random.route"),
         )
         context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
 
@@ -545,6 +549,7 @@ class TestPermits:
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
             ),
+            matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
                 settings={
                     "warehouse.two_factor_requirement.enabled": True,
@@ -581,6 +586,7 @@ class TestPermits:
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
             ),
+            matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
                 settings={
                     "warehouse.two_factor_requirement.enabled": False,
@@ -617,6 +623,7 @@ class TestPermits:
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
             ),
+            matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
                 settings={
                     "warehouse.two_factor_requirement.enabled": False,
@@ -650,7 +657,9 @@ class TestPermits:
 
         request = pretend.stub(
             identity=pretend.stub(
-                __principals__=lambda: ["user:5"], has_primary_verified_email=False
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=False,
+                has_two_factor=False,
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -658,3 +667,87 @@ class TestPermits:
 
         policy = policy_class()
         assert not policy.permits(request, context, "myperm")
+
+    # TODO: remove this test when we remove the conditional
+    def test_permits_manage_projects_without_2fa_for_older_users(
+        self, monkeypatch, policy_class
+    ):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=False,
+                date_joined=datetime(2019, 1, 1),
+            ),
+            matched_route=pretend.stub(name="manage.projects"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert policy.permits(request, context, "myperm")
+
+    def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=True,
+            ),
+            matched_route=pretend.stub(name="manage.projects"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert policy.permits(request, context, "myperm")
+
+    def test_deny_manage_projects_without_2fa(self, monkeypatch, policy_class):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=False,
+                date_joined=datetime.now(),
+            ),
+            matched_route=pretend.stub(name="manage.projects"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert not policy.permits(request, context, "myperm")
+
+    @pytest.mark.parametrize(
+        "matched_route",
+        [
+            "manage.account",
+            "manage.account.recovery-codes",
+            "manage.account.totp-provision",
+            "manage.account.two-factor",
+            "manage.account.webauthn-provision",
+            "manage.account.webauthn-provision.validate",
+        ],
+    )
+    def test_permits_2fa_routes_without_2fa(
+        self, monkeypatch, policy_class, matched_route
+    ):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=False,
+                date_joined=datetime.now(),
+            ),
+            matched_route=pretend.stub(name=matched_route),
+        )
+
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert policy.permits(request, context, "myperm")

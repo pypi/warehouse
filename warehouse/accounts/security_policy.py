@@ -309,4 +309,33 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
                 queue="warning",
             )
 
+    # Regardless of TwoFactorRequireable, if we're in the manage namespace, we'll
+    # check if the user has 2FA enabled, and if they don't we'll deny them.
+
+    # Management routes that don't require 2FA, mostly to set up 2FA.
+    _exempt_routes = [
+        "manage.account.recovery-codes",
+        "manage.account.totp-provision",
+        "manage.account.two-factor",
+        "manage.account.webauthn-provision",
+    ]
+
+    if (
+        request.matched_route.name.startswith("manage")
+        and request.matched_route.name != "manage.account"
+        and not any(
+            request.matched_route.name.startswith(route) for route in _exempt_routes
+        )
+        and not request.identity.has_two_factor
+    ) and (
+        # Start enforcement from 2023-08-01, but we should remove this check
+        # at the end of 2023.
+        request.identity.date_joined
+        and request.identity.date_joined > datetime.datetime(2023, 8, 1)
+    ):
+        return WarehouseDenied(
+            "You must enable two factor authentication to manage other settings",
+            reason="manage_2fa_required",
+        )
+
     return None
