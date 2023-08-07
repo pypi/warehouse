@@ -152,7 +152,11 @@ def forbidden(exc, request):
 
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
-        if exc.result.reason in {"owners_require_2fa", "pypi_mandates_2fa"}:
+        if exc.result.reason in {
+            "owners_require_2fa",
+            "pypi_mandates_2fa",
+            "manage_2fa_required",
+        }:
             request.session.flash(
                 request._(
                     "Two-factor authentication must be enabled on your account to "

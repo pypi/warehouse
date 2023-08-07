@@ -184,16 +184,7 @@ class SessionSecurityPolicy:
         raise NotImplementedError
 
     def permits(self, request, context, permission):
-        res = _permits_for_user_policy(self._acl, request, context, permission)
-        # Verify email before you can manage account/projects.
-        if (
-            isinstance(res, Allowed)
-            and not request.identity.has_primary_verified_email
-            and request.matched_route.name.startswith("manage")
-            and request.matched_route.name != "manage.account"
-        ):
-            return WarehouseDenied("unverified", reason="unverified_email")
-        return res
+        return _permits_for_user_policy(self._acl, request, context, permission)
 
 
 @implementer(ISecurityPolicy)
@@ -247,6 +238,15 @@ def _permits_for_user_policy(acl, request, context, permission):
     # Dispatch to our ACL
     # NOTE: These parameters are in a different order than the signature of this method.
     res = acl.permits(context, principals_for(request.identity), permission)
+
+    # Verify email before you can manage account/projects.
+    if (
+        isinstance(res, Allowed)
+        and not request.identity.has_primary_verified_email
+        and request.matched_route.name.startswith("manage")
+        and request.matched_route.name != "manage.account"
+    ):
+        return WarehouseDenied("unverified", reason="unverified_email")
 
     # If our underlying permits allowed this, we will check our 2FA status,
     # that might possibly return a reason to deny the request anyways, and if
@@ -308,5 +308,34 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
                 "perform this action without enabling 2FA for your account",
                 queue="warning",
             )
+
+    # Regardless of TwoFactorRequireable, if we're in the manage namespace, we'll
+    # check if the user has 2FA enabled, and if they don't we'll deny them.
+
+    # Management routes that don't require 2FA, mostly to set up 2FA.
+    _exempt_routes = [
+        "manage.account.recovery-codes",
+        "manage.account.totp-provision",
+        "manage.account.two-factor",
+        "manage.account.webauthn-provision",
+    ]
+
+    if (
+        request.matched_route.name.startswith("manage")
+        and request.matched_route.name != "manage.account"
+        and not any(
+            request.matched_route.name.startswith(route) for route in _exempt_routes
+        )
+        and not request.identity.has_two_factor
+    ) and (
+        # Start enforcement from 2023-08-08, but we should remove this check
+        # at the end of 2023.
+        request.identity.date_joined
+        and request.identity.date_joined > datetime.datetime(2023, 8, 8)
+    ):
+        return WarehouseDenied(
+            "You must enable two factor authentication to manage other settings",
+            reason="manage_2fa_required",
+        )
 
     return None
