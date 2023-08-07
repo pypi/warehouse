@@ -13,23 +13,11 @@ updates:
   ignore:
   # Always ignore elasticsearch, future versions are always incompatible with our provider
   - dependency-name: "elasticsearch"
-  groups:
-    # Items in these groups are combined in a single PR
-    psycopg:
-      patterns:
-        # Combine both `psycopg` and `psycopg[c]`
-        - "psycopg*"
-- package-ecosystem: pip
-  directory: "/"
-  schedule:
-    interval: monthly
-  groups:
-    # Items in these groups are combined in a single PR
-    boto-deps:
-      patterns:
-        - "boto3*"
-        - "botocore*"
-
+  # These update basically every day, and 99.9% of the time we don't care
+  - dependency-name: "boto3"
+  - dependency-name: "boto3-stubs"
+  - dependency-name: "botocore"
+  - dependency-name: "botocore-stubs"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
