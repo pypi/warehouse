@@ -712,7 +712,7 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=False,
-                date_joined=datetime.now(),
+                date_joined=datetime(2023, 8, 9),
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
