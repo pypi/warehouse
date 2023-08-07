@@ -521,11 +521,10 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-        if totp_secret:
-            # User wants to edit their existing TOTP application. We're clearing it so
-            # that the old TOTP codes will no longer be valid.
-            self.request.session.clear_totp_secret()
+        # Clear the TOTP secret in the current session (if it exists) so this
+        # page will generate a new TOTP secret rather than using the existing
+        # secret to render the QR code.
+        self.request.session.clear_totp_secret()
 
         return self.default_response
 

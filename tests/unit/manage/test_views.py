@@ -1007,10 +1007,7 @@ class TestProvisionTOTP:
         result = view.totp_provision()
 
         assert provision_totp_cls.calls == [pretend.call(totp_secret=b"secret")]
-        if current_totp_secret:
-            assert request.session.clear_totp_secret.calls == [pretend.call()]
-        else:
-            assert request.session.clear_totp_secret.calls == []
+        assert request.session.clear_totp_secret.calls == [pretend.call()]
         assert result == {
             "provision_totp_secret": base64.b32encode(b"secret").decode(),
             "provision_totp_form": provision_totp_obj,
