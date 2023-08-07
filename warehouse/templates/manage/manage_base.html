@@ -69,6 +69,9 @@
         <tr>
           <th scope="row">{% trans %}Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}</th>
           <td class="table__align-right">
+            {% if user.totp_secret %}
+            <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary">Edit</a>
+            {% endif %}
             {% if user.has_single_2fa %}
             <button class="button" disabled title="{% trans %}Cannot remove last 2FA method{% endtrans %}" >
             {% trans %}Remove{% endtrans %}
@@ -184,7 +187,7 @@
       </div>
     {% endif %}
     <div class="wrap-children">
-      <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary {{ "button--disabled" if disabled else "" }}">
+      <a href="{{ request.route_path('manage.account.totp-provision') }}" class="button button--primary {{ "button--disabled" if disabled or user.totp_secret else "" }}" title="{{ "Only one authentication application (TOTP) can be used at a time" if user.totp_secret else ""}} ">
         {% trans %}
         Add <abbr title="two factor authentication">2FA</abbr> with authentication application
         {% endtrans %}
