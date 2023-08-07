@@ -502,10 +502,6 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-        if totp_secret:
-            return Response(status=403)
-
         totp_qr = pyqrcode.create(self.default_response["provision_totp_uri"])
         qr_buffer = io.BytesIO()
         totp_qr.svg(qr_buffer, scale=5)
@@ -525,14 +521,10 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-        if totp_secret:
-            self.request.session.flash(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
+        # Clear the TOTP secret in the current session (if it exists) so this
+        # page will generate a new TOTP secret rather than using the existing
+        # secret to render the QR code.
+        self.request.session.clear_totp_secret()
 
         return self.default_response
 
@@ -544,25 +536,23 @@ class ProvisionTOTPViews:
             )
             return HTTPSeeOther(self.request.route_path("manage.account"))
 
-        totp_secret = self.user_service.get_totp_secret(self.request.user.id)
-        if totp_secret:
-            self.request.session.flash(
-                "Account cannot be linked to more than one authentication "
-                "application at a time",
-                queue="error",
-            )
-            return HTTPSeeOther(self.request.route_path("manage.account"))
-
         form = ProvisionTOTPForm(
             MultiDict(**self.request.POST),
             totp_secret=self.request.session.get_totp_secret(),
         )
 
         if form.validate():
+            old_totp_secret = self.user_service.get_totp_secret(self.request.user.id)
             self.user_service.update_user(
                 self.request.user.id, totp_secret=self.request.session.get_totp_secret()
             )
             self.request.session.clear_totp_secret()
+            if old_totp_secret:
+                self.request.user.record_event(
+                    tag=EventTag.Account.TwoFactorMethodRemoved,
+                    request=self.request,
+                    additional={"method": "totp"},
+                )
             self.request.user.record_event(
                 tag=EventTag.Account.TwoFactorMethodAdded,
                 request=self.request,

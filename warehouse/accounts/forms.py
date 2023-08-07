@@ -45,10 +45,39 @@ MAX_PASSWORD_SIZE = 4096
 
 # Common messages, set as constants to keep them from drifting.
 INVALID_PASSWORD_MESSAGE = _("The password is invalid. Try again.")
+INVALID_USERNAME_MESSAGE = _(
+    "The username is invalid. Usernames "
+    "must be composed of letters, numbers, "
+    "dots, hyphens and underscores. And must "
+    "also start and finish with a letter or number. "
+    "Choose a different username."
+)
+
+
+class PreventNullBytesValidator:
+    """
+    Validation if field contains a null byte.
+    Use after `InputRequired()` but before other validators to prevent
+    sending null bytes to the database, which would result in `psycopg.DataError`
+    """
+
+    def __init__(self, message=None):
+        if message is None:
+            message = _("Null bytes are not allowed.")
+        self.message = message
+
+    def __call__(self, form, field):
+        if "\x00" in field.data:
+            raise wtforms.validators.StopValidation(self.message)
 
 
 class UsernameMixin:
-    username = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
+    username = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
+        ]
+    )
 
     def validate_username(self, field):
         userid = self.user_service.find_userid(field.data)
@@ -63,6 +92,7 @@ class TOTPValueMixin:
     totp_value = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
             wtforms.validators.Regexp(
                 rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
                 message=_(
@@ -82,6 +112,7 @@ class RecoveryCodeValueMixin:
     recovery_code_value = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
             wtforms.validators.Regexp(
                 rf"^ *([0-9a-f] *){{{2*RECOVERY_CODE_BYTES}}}$",
                 message=_(
@@ -97,6 +128,7 @@ class NewUsernameMixin:
     username = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
             wtforms.validators.Length(
                 max=50, message=_("Choose a username with 50 characters or less.")
             ),
@@ -104,13 +136,7 @@ class NewUsernameMixin:
             # for the username field in accounts.models.User
             wtforms.validators.Regexp(
                 r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$",
-                message=_(
-                    "The username is invalid. Usernames "
-                    "must be composed of letters, numbers, "
-                    "dots, hyphens and underscores. And must "
-                    "also start and finish with a letter or number. "
-                    "Choose a different username."
-                ),
+                message=INVALID_USERNAME_MESSAGE,
             ),
         ]
     )
@@ -132,6 +158,7 @@ class PasswordMixin:
     password = wtforms.PasswordField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(message=INVALID_PASSWORD_MESSAGE),
             wtforms.validators.Length(
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
@@ -180,6 +207,7 @@ class NewPasswordMixin:
     new_password = wtforms.PasswordField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(message=INVALID_PASSWORD_MESSAGE),
             wtforms.validators.Length(
                 max=MAX_PASSWORD_SIZE,
                 message=_("Password too long."),
@@ -229,6 +257,7 @@ class NewEmailMixin:
     email = wtforms.fields.EmailField(
         validators=[
             wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
             wtforms.validators.Regexp(
                 r".+@.+\..+", message=_("The email address isn't valid. Try again.")
             ),
