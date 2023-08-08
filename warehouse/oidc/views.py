@@ -24,6 +24,7 @@ from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import IProjectService
@@ -106,8 +107,8 @@ def mint_token_from_oidc(request):
         )
 
     # First, try to find a pending publisher.
-    pending_publisher = oidc_service.find_publisher(claims, pending=True)
-    if pending_publisher is not None:
+    try:
+        pending_publisher = oidc_service.find_publisher(claims, pending=True)
         factory = ProjectFactory(request)
 
         # If the project already exists, this pending publisher is no longer
@@ -160,17 +161,22 @@ def mint_token_from_oidc(request):
                 project_name=stale_publisher.project_name,
             )
             request.db.delete(stale_publisher)
+    except InvalidPublisherError:
+        # If the claim set isn't valid for a pending publisher, it's OK, we
+        # will try finding a regular publisher
+        pass
 
     # We either don't have a pending OIDC publisher, or we *did*
     # have one and we've just converted it. Either way, look for a full publisher
     # to actually do the macaroon minting with.
-    publisher = oidc_service.find_publisher(claims, pending=False)
-    if not publisher:
+    try:
+        publisher = oidc_service.find_publisher(claims, pending=False)
+    except InvalidPublisherError as e:
         return _invalid(
             errors=[
                 {
                     "code": "invalid-publisher",
-                    "description": "valid token, but no corresponding publisher",
+                    "description": f"valid token, but no corresponding publisher ({e})",
                 }
             ]
         )
