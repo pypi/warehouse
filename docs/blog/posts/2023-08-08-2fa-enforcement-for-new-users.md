@@ -38,7 +38,7 @@ Management actions may include any of the following:
 This is not an exhaustive list,
 but should provide a good idea of the actions we're talking about.
 
-## How does the affect me?
+## How does this affect me?
 
 If you only need to browse, download, and install packages from PyPI
 then a PyPI account isn't needed so this change doesn't affect you.
