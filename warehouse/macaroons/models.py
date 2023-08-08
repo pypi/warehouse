@@ -12,20 +12,16 @@
 
 import os
 
-from sqlalchemy import (
-    CheckConstraint,
-    DateTime,
-    ForeignKey,
-    LargeBinary,
-    String,
-    UniqueConstraint,
-    orm,
-    sql,
-)
-from sqlalchemy.dialects.postgresql import JSONB, UUID
-from sqlalchemy.orm import mapped_column
+from datetime import datetime
+from uuid import UUID
+
+from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, orm, sql
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.accounts.models import User
+from warehouse.utils.db.types import datetime_now
 
 
 def _generate_key():
@@ -51,29 +47,33 @@ class Macaroon(db.Model):
     # * In the project case, a Macaroon does *not* have an explicit associated
     #   project. Instead, depending on how its used (its request context),
     #   it identifies one of the projects scoped in its caveats.
-    user_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("users.id"), nullable=True, index=True
+    user_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        index=True,
     )
 
-    oidc_publisher_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("oidc_publishers.id"), nullable=True, index=True
+    oidc_publisher_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID(as_uuid=True),
+        ForeignKey("oidc_publishers.id"),
+        index=True,
     )
 
     # Store some information about the Macaroon to give users some mechanism
     # to differentiate between them.
-    description = mapped_column(String, nullable=False)
-    created = mapped_column(DateTime, nullable=False, server_default=sql.func.now())
-    last_used = mapped_column(DateTime, nullable=True)
+    description: Mapped[str]
+    created: Mapped[datetime_now]
+    last_used: Mapped[datetime | None]
 
     # Human-readable "permissions" for this macaroon, corresponding to the
     # body of the permissions ("V1") caveat.
-    permissions_caveat = mapped_column(
-        JSONB, nullable=False, server_default=sql.text("'{}'")
+    permissions_caveat: Mapped[dict] = mapped_column(
+        JSONB, server_default=sql.text("'{}'")
     )
 
     # Additional state associated with this macaroon.
     # For OIDC publisher-issued macaroons, this will contain a subset of OIDC claims.
-    additional = mapped_column(JSONB, nullable=True)
+    additional: Mapped[dict | None] = mapped_column(JSONB)
 
     # It might be better to move this default into the database, that way we
     # make it less likely that something does it incorrectly (since the
@@ -82,9 +82,11 @@ class Macaroon(db.Model):
     # instead of urandom. This is less than optimal, and we would generally
     # prefer to just always use urandom. Thus we'll do this ourselves here
     # in our application.
-    key = mapped_column(LargeBinary, nullable=False, default=_generate_key)
+    key: Mapped[bytes] = mapped_column(default=_generate_key)
 
     # Intentionally not using a back references here, since we express
     # relationships in terms of the "other" side of the relationship.
-    user = orm.relationship("User", lazy=True, viewonly=True)
+    user: Mapped["User"] = orm.relationship(lazy=True, viewonly=True)
+    # TODO: Can't annotate this as "OIDCPublisher" because that would create a
+    #  circular import.
     oidc_publisher = orm.relationship("OIDCPublisher", lazy=True, viewonly=True)
