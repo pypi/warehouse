@@ -43,7 +43,7 @@ msgstr ""
 "このアクションを実行できるようになるためには、あなたの **プライマリな** 電子"
 "メールアドレスを検証しなければなりません。"
 
-#: warehouse/views.py:157
+#: warehouse/views.py:161
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -51,7 +51,7 @@ msgstr ""
 "この操作を実行するには、アカウントで 2 要素認証を有効にする必要があります。"
 
 # | msgid "Stay updated:"
-#: warehouse/views.py:282
+#: warehouse/views.py:286
 msgid "Locale updated"
 msgstr "ロケールが更新されました (Locale updated)"
 
@@ -59,23 +59,7 @@ msgstr "ロケールが更新されました (Locale updated)"
 msgid "The password is invalid. Try again."
 msgstr "パスワードが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:58
-msgid "No user found with that username"
-msgstr "そのユーザー名のユーザーは見つかりませんでした"
-
-#: warehouse/accounts/forms.py:68
-msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
-
-#: warehouse/accounts/forms.py:87
-msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "リカバリーコード"
-
-#: warehouse/accounts/forms.py:101
-msgid "Choose a username with 50 characters or less."
-msgstr "50文字以下のユーザー名を選択してください。"
-
-#: warehouse/accounts/forms.py:107
+#: warehouse/accounts/forms.py:48
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -85,7 +69,27 @@ msgstr ""
 "コアで構成する必要があります。また、文字または数字で開始および終了する必要が"
 "あります。別のユーザー名を選択してください。"
 
-#: warehouse/accounts/forms.py:124
+#: warehouse/accounts/forms.py:66
+msgid "Null bytes are not allowed."
+msgstr ""
+
+#: warehouse/accounts/forms.py:87
+msgid "No user found with that username"
+msgstr "そのユーザー名のユーザーは見つかりませんでした"
+
+#: warehouse/accounts/forms.py:98
+msgid "TOTP code must be ${totp_length} digits."
+msgstr "TOTP コードは ${totp_length} 桁でなければなりません。"
+
+#: warehouse/accounts/forms.py:118
+msgid "Recovery Codes must be ${recovery_code_length} characters."
+msgstr "リカバリーコード"
+
+#: warehouse/accounts/forms.py:133
+msgid "Choose a username with 50 characters or less."
+msgstr "50文字以下のユーザー名を選択してください。"
+
+#: warehouse/accounts/forms.py:150
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -93,12 +97,12 @@ msgstr ""
 "このユーザー名はすでに別のアカウントで使用されています。別のユーザー名を選択"
 "してください。"
 
-#: warehouse/accounts/forms.py:137 warehouse/accounts/forms.py:185
-#: warehouse/accounts/forms.py:198
+#: warehouse/accounts/forms.py:164 warehouse/accounts/forms.py:213
+#: warehouse/accounts/forms.py:226
 msgid "Password too long."
 msgstr "パスワードが長すぎます。"
 
-#: warehouse/accounts/forms.py:173
+#: warehouse/accounts/forms.py:200
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -106,25 +110,25 @@ msgstr ""
 "ログインの失敗が多数発生しました。${time} の間ロックアウトされました。後でや"
 "り直してください。"
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
 msgstr "パスワードが一致しません。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:233 warehouse/accounts/forms.py:247
+#: warehouse/accounts/forms.py:262 warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "メールアドレスが無効です。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:236
+#: warehouse/accounts/forms.py:265
 msgid "The email address is too long. Try again."
 msgstr "メールアドレスが長過ぎます。もう一度やり直してください。"
 
-#: warehouse/accounts/forms.py:255
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "このドメインからのメールアドレスは使用できません。別のメールアドレスを使用し"
 "てください。"
 
-#: warehouse/accounts/forms.py:266
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -132,7 +136,7 @@ msgstr ""
 "このメールアドレスはすでにこのアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:273
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -140,28 +144,28 @@ msgstr ""
 "このメールアドレスはすでに別のアカウントで使用されています。別のメールアドレ"
 "スを使用してください。"
 
-#: warehouse/accounts/forms.py:294 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:323 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名前が長過ぎます。100字以下の名前を選択してください。"
 
-#: warehouse/accounts/forms.py:383
+#: warehouse/accounts/forms.py:412
 msgid "Invalid TOTP code."
 msgstr "不正なTOTPコード。"
 
-#: warehouse/accounts/forms.py:400
+#: warehouse/accounts/forms.py:429
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無効なWebAuthnアサーション：不正なペイロード"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:469
+#: warehouse/accounts/forms.py:498
 msgid "Invalid recovery code."
 msgstr "回復コードが無効です。"
 
-#: warehouse/accounts/forms.py:478
+#: warehouse/accounts/forms.py:507
 msgid "Recovery code has been previously used."
 msgstr "復旧コードは以前に使用済みです。"
 
-#: warehouse/accounts/forms.py:497
+#: warehouse/accounts/forms.py:526
 msgid "No user found with that username or email"
 msgstr "そのユーザ名またはメールアドレスのユーザは見つかりませんでした"
 
@@ -204,7 +208,7 @@ msgstr "既に認証済みです"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthnアサーションに成功しました"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:833
+#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:823
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "リカバリーコードを受け付けました。今回入力されたコードを再度使用することはで"
@@ -349,7 +353,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
 #: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
-#: warehouse/manage/views/__init__.py:1239
+#: warehouse/manage/views/__init__.py:1229
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -361,7 +365,7 @@ msgstr ""
 "信頼できる発行元が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
 
-#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1255
+#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1245
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -385,7 +389,7 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr "一度に保留中の信頼できる発行元を 3 つ以上登録することはできません。"
 
-#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1274
+#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1264
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -397,7 +401,7 @@ msgstr ""
 "OpenID Connect の登録が試行された回数が多すぎます。後でもう一度やり直してくだ"
 "さい。"
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1288
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1278
 msgid "The trusted publisher could not be registered"
 msgstr "信頼できる発行元を登録できませんでした"
 
@@ -539,31 +543,31 @@ msgstr ""
 "メールアドレス ${email_address} が追加されました - メールにある確認用のリンク"
 "をチェックしてください"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:771
 msgid "Recovery codes already generated"
 msgstr "リカバリーコードは既に生成済みです"
 
-#: warehouse/manage/views/__init__.py:782
+#: warehouse/manage/views/__init__.py:772
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "新しいリカバリーコードを生成すると、既存のコードが無効となります。"
 
-#: warehouse/manage/views/__init__.py:891
+#: warehouse/manage/views/__init__.py:881
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "メールアドレスを確認するか、新しいアドレスを追加してください。"
 
-#: warehouse/manage/views/__init__.py:1016
+#: warehouse/manage/views/__init__.py:1006
 msgid "Invalid credentials. Try again"
 msgstr "資格情報が無効です。再度試してみてください"
 
-#: warehouse/manage/views/__init__.py:1138
+#: warehouse/manage/views/__init__.py:1128
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "重要なプロジェクトでは２要素認証を無効にすることはできません"
 
-#: warehouse/manage/views/__init__.py:1493
-#: warehouse/manage/views/__init__.py:1794
-#: warehouse/manage/views/__init__.py:1902
+#: warehouse/manage/views/__init__.py:1483
+#: warehouse/manage/views/__init__.py:1784
+#: warehouse/manage/views/__init__.py:1892
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -571,62 +575,62 @@ msgstr ""
 "プロジェクトの削除が一時的に無効になっています。詳細については https://pypi."
 "org/help#admin-intervention を参照してください。"
 
-#: warehouse/manage/views/__init__.py:1625
-#: warehouse/manage/views/__init__.py:1710
-#: warehouse/manage/views/__init__.py:1811
-#: warehouse/manage/views/__init__.py:1911
+#: warehouse/manage/views/__init__.py:1615
+#: warehouse/manage/views/__init__.py:1700
+#: warehouse/manage/views/__init__.py:1801
+#: warehouse/manage/views/__init__.py:1901
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "招待の確認"
 
-#: warehouse/manage/views/__init__.py:1637
+#: warehouse/manage/views/__init__.py:1627
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "プレリリース"
 
-#: warehouse/manage/views/__init__.py:1722
+#: warehouse/manage/views/__init__.py:1712
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "プレリリース"
 
-#: warehouse/manage/views/__init__.py:1823
+#: warehouse/manage/views/__init__.py:1813
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "リリース削除"
 
-#: warehouse/manage/views/__init__.py:1923
+#: warehouse/manage/views/__init__.py:1913
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views/__init__.py:1927
+#: warehouse/manage/views/__init__.py:1917
 msgid "Could not delete file - "
 msgstr "ファイルを削除できませんでした - "
 
-#: warehouse/manage/views/__init__.py:2077
+#: warehouse/manage/views/__init__.py:2067
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "チーム '${team_name}' には、既にプロジェクトの ${role_name} の役割が与えられ"
 "ています"
 
-#: warehouse/manage/views/__init__.py:2184
+#: warehouse/manage/views/__init__.py:2174
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "ユーザ '${username}' には、既にプロジェクトの ${role_name} の役割が与えられて"
 "います"
 
-#: warehouse/manage/views/__init__.py:2251
+#: warehouse/manage/views/__init__.py:2241
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "プロジェクト '${project_name}' の ${role} になりました。"
 
-#: warehouse/manage/views/__init__.py:2283
+#: warehouse/manage/views/__init__.py:2273
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -634,7 +638,7 @@ msgstr ""
 "ユーザ '${username}' には確認済みの主要メールアドレスが登録されていないため、"
 "プロジェクトの ${role_name} に追加することはできません"
 
-#: warehouse/manage/views/__init__.py:2296
+#: warehouse/manage/views/__init__.py:2286
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -642,20 +646,20 @@ msgstr ""
 "ユーザ '${username}' には既にアクティブな招待があります。後でもう一度お試しく"
 "ださい。"
 
-#: warehouse/manage/views/__init__.py:2361
+#: warehouse/manage/views/__init__.py:2351
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}' に招待を送信しました"
 
-#: warehouse/manage/views/__init__.py:2394
+#: warehouse/manage/views/__init__.py:2384
 msgid "Could not find role invitation."
 msgstr "役割への招待が見つかりません。"
 
-#: warehouse/manage/views/__init__.py:2405
+#: warehouse/manage/views/__init__.py:2395
 msgid "Invitation already expired."
 msgstr "招待の期限が切れています。"
 
-#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2427
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}' の招待を無効化しました。"
@@ -853,7 +857,7 @@ msgstr "モンティ・パイソン — チーズ・ショップ"
 #: warehouse/templates/manage/account/webauthn-provision.html:28
 #: warehouse/templates/manage/account/webauthn-provision.html:53
 #: warehouse/templates/manage/account/webauthn-provision.html:74
-#: warehouse/templates/manage/manage_base.html:197
+#: warehouse/templates/manage/manage_base.html:208
 #: warehouse/templates/manage/project/release.html:144
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
@@ -1119,8 +1123,8 @@ msgstr "モバイル版に切替"
 #: warehouse/templates/includes/flash-messages.html:30
 #: warehouse/templates/includes/session-notifications.html:20
 #: warehouse/templates/manage/account.html:744
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:388
+#: warehouse/templates/manage/manage_base.html:340
+#: warehouse/templates/manage/manage_base.html:399
 #: warehouse/templates/manage/organization/settings.html:194
 #: warehouse/templates/manage/organization/settings.html:250
 #: warehouse/templates/manage/organization/settings.html:256
@@ -1431,7 +1435,7 @@ msgstr "続行するにはパスワードを入力してください"
 #: warehouse/templates/accounts/login.html:69
 #: warehouse/templates/accounts/register.html:112
 #: warehouse/templates/accounts/reset-password.html:38
-#: warehouse/templates/manage/manage_base.html:397
+#: warehouse/templates/manage/manage_base.html:408
 #: warehouse/templates/re-auth.html:50
 msgid "Password"
 msgstr "パスワード"
@@ -1473,11 +1477,11 @@ msgstr "パスワード"
 #: warehouse/templates/manage/organization/settings.html:104
 #: warehouse/templates/manage/organization/settings.html:129
 #: warehouse/templates/manage/organization/teams.html:89
-#: warehouse/templates/manage/organizations.html:186
-#: warehouse/templates/manage/organizations.html:209
-#: warehouse/templates/manage/organizations.html:231
-#: warehouse/templates/manage/organizations.html:249
-#: warehouse/templates/manage/organizations.html:268
+#: warehouse/templates/manage/organizations.html:187
+#: warehouse/templates/manage/organizations.html:210
+#: warehouse/templates/manage/organizations.html:232
+#: warehouse/templates/manage/organizations.html:250
+#: warehouse/templates/manage/organizations.html:269
 #: warehouse/templates/manage/project/publishing.html:78
 #: warehouse/templates/manage/project/publishing.html:93
 #: warehouse/templates/manage/project/publishing.html:108
@@ -1500,7 +1504,7 @@ msgid "Your password"
 msgstr "あなたのパスワード"
 
 #: warehouse/templates/accounts/login.html:92
-#: warehouse/templates/manage/manage_base.html:400
+#: warehouse/templates/manage/manage_base.html:411
 #: warehouse/templates/re-auth.html:73
 msgid "Show password"
 msgstr "パスワードを表示"
@@ -1710,7 +1714,7 @@ msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgstr "%(user)s はまだPyPIにプロジェクトをアップロードしていません"
 
 #: warehouse/templates/accounts/recovery-code.html:18
-#: warehouse/templates/manage/manage_base.html:39
+#: warehouse/templates/manage/manage_base.html:38
 msgid "Recovery codes"
 msgstr "リカバリコード"
 
@@ -2079,8 +2083,6 @@ msgid ""
 msgstr "<a href=\"%(href)s\">%(username)s</a> を %(role_name)s として削除"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:17
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:17
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:17
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:17
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
@@ -2118,8 +2120,6 @@ msgstr ""
 "す。"
 
 #: warehouse/templates/email/basic-auth-with-2fa/body.html:25
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:25
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:25
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:22
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
@@ -2182,51 +2182,6 @@ msgid ""
 msgstr ""
 "\"%(organization_name)s\" という名前の新しい組織を作成する要求が承認されませ"
 "んでした。"
-
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "During your recent upload or upload attempt to %(site)s, we noticed you "
-#| "used basic authentication (username &amp; password). However, your "
-#| "account has two-factor authentication (2FA) enabled."
-msgid ""
-"During a recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded an <code>.egg</code>/<code>bdist_egg</code> distribution file."
-msgstr ""
-"最近のアップロードや %(site)s へのアップロードの試みで、基本認証 (ユーザ名と"
-"パスワード) を使っていることに気付きました。ただし、アカウントでは 2 要素認"
-"証 (2FA) が有効になっています。"
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:22
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:22
-#, python-format
-msgid ""
-"%(site)s is in the process of deprecating <code>bdist_egg</code> "
-"distribution file uploads, and will not accept them beginning August 1, 2023."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:27
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:27
-msgid ""
-"Update your release tooling to cease upload of <code>.egg</code>/"
-"<code>bdist_egg</code> distribution files. If you are not already, and "
-"require binary releases, update your release tooling to upload <code>.whl</"
-"code>/<code>bdist_wheel</code> distribution files instead."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:30
-#: warehouse/templates/email/egg-uploads-deprecated/body.html:30
-msgid ""
-"Read more about <a href=\"https://packaging.python.org/en/latest/discussions/"
-"wheel-vs-egg/\">Wheels vs Egg</a> distribution files."
-msgstr ""
-
-#: warehouse/templates/email/egg-uploads-deprecated-initial-notice/body.html:19
-#, python-format
-msgid ""
-"Since January 1, 2023, we noticed upload(s) of <code>.egg</code>/"
-"<code>bdist_egg</code> distribution file(s) to %(site)s for %(project_name)s."
-msgstr ""
 
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:19
 #, fuzzy, python-format
@@ -3321,16 +3276,16 @@ msgid "Admin"
 msgstr "管理"
 
 #: warehouse/templates/includes/current-user-indicator.html:37
-#: warehouse/templates/manage/manage_base.html:228
-#: warehouse/templates/manage/manage_base.html:262
+#: warehouse/templates/manage/manage_base.html:239
+#: warehouse/templates/manage/manage_base.html:273
 #: warehouse/templates/manage/projects.html:18
 #: warehouse/templates/manage/projects.html:62
 msgid "Your projects"
 msgstr "自分のプロジェクト"
 
 #: warehouse/templates/includes/current-user-indicator.html:44
-#: warehouse/templates/manage/manage_base.html:235
-#: warehouse/templates/manage/manage_base.html:269
+#: warehouse/templates/manage/manage_base.html:246
+#: warehouse/templates/manage/manage_base.html:280
 #: warehouse/templates/manage/organizations.html:18
 #: warehouse/templates/manage/organizations.html:63
 msgid "Your organizations"
@@ -3339,8 +3294,8 @@ msgstr ""
 #: warehouse/templates/includes/current-user-indicator.html:51
 #: warehouse/templates/manage/account.html:17
 #: warehouse/templates/manage/account/two-factor.html:17
-#: warehouse/templates/manage/manage_base.html:242
-#: warehouse/templates/manage/manage_base.html:276
+#: warehouse/templates/manage/manage_base.html:253
+#: warehouse/templates/manage/manage_base.html:287
 msgid "Account settings"
 msgstr "アカウント設定"
 
@@ -3370,8 +3325,8 @@ msgstr "通知を無視"
 #: warehouse/templates/manage/account.html:199
 #: warehouse/templates/manage/account.html:201
 #: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:318
-#: warehouse/templates/manage/manage_base.html:320
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:111
@@ -3583,8 +3538,8 @@ msgid "Documentation"
 msgstr "ドキュメント"
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:51
-#: warehouse/templates/manage/manage_base.html:248
-#: warehouse/templates/manage/manage_base.html:282
+#: warehouse/templates/manage/manage_base.html:259
+#: warehouse/templates/manage/manage_base.html:293
 msgid "Publishing"
 msgstr ""
 
@@ -4006,12 +3961,12 @@ msgid "None"
 msgstr "なし"
 
 #: warehouse/templates/manage/account.html:487
-#: warehouse/templates/manage/manage_base.html:81
+#: warehouse/templates/manage/manage_base.html:92
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "セキュリティ端末 (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:489
-#: warehouse/templates/manage/manage_base.html:62
+#: warehouse/templates/manage/manage_base.html:70
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time password"
 "\">TOTP</abbr>)"
@@ -4421,63 +4376,71 @@ msgid "Two factor authentication (2FA)"
 msgstr "二要素認証（2FA）"
 
 #: warehouse/templates/manage/manage_base.html:25
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "Two factor authentication adds an additional layer of security to your "
+#| "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
+#| "authentication\">2FA</abbr></a>."
 msgid ""
 "Two factor authentication adds an additional layer of security to your "
 "account. <a href=\"%(href)s\">Learn more about <abbr title=\"two factor "
-"authentication\">2FA</abbr></a>."
+"authentication\">2FA</abbr></a>. Once 2FA is enabled, it cannot be disabled."
 msgstr ""
 "二要素認証はアカウントのセキュリティレベルを高めます。<a href=\"%(href)s"
 "\"><abbr title=\"two factor authentication\">2FA</abbr>について詳細を学ぶ</"
 "a>。"
 
-#: warehouse/templates/manage/manage_base.html:30
+#: warehouse/templates/manage/manage_base.html:29
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery methods enabled"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/manage_base.html:33
+#: warehouse/templates/manage/manage_base.html:32
 #, fuzzy
 #| msgid "Recovery Codes"
 msgid "Recovery method"
 msgstr "リカバリーコード"
 
-#: warehouse/templates/manage/manage_base.html:39
+#: warehouse/templates/manage/manage_base.html:38
 #, python-format
 msgid "generated %(generated_datetime)s"
 msgstr "リリース日: %(generated_datetime)s"
 
-#: warehouse/templates/manage/manage_base.html:39
+#: warehouse/templates/manage/manage_base.html:38
 #, python-format
 msgid "%(remaining)s unused"
 msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:49
-#: warehouse/templates/manage/manage_base.html:43
+#: warehouse/templates/manage/manage_base.html:42
 msgid "Regenerate"
 msgstr "再生成"
 
-#: warehouse/templates/manage/manage_base.html:53
+#: warehouse/templates/manage/manage_base.html:52
 msgid "Two factor authentication methods enabled"
 msgstr "二要素認証が有効"
 
-#: warehouse/templates/manage/manage_base.html:56
+#: warehouse/templates/manage/manage_base.html:55
 msgid "Two factor method"
 msgstr "二要素認証の方法:"
 
-#: warehouse/templates/manage/manage_base.html:65
-#: warehouse/templates/manage/manage_base.html:85
+#: warehouse/templates/manage/manage_base.html:63
+msgid "To remove this 2FA method, you must first add another method."
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:76
+#: warehouse/templates/manage/manage_base.html:96
 #, fuzzy
 #| msgid "Cannot remove yourself as owner"
 msgid "Cannot remove last 2FA method"
 msgstr "オーナーである自分自身を削除できません"
 
-#: warehouse/templates/manage/manage_base.html:66
-#: warehouse/templates/manage/manage_base.html:69
-#: warehouse/templates/manage/manage_base.html:86
-#: warehouse/templates/manage/manage_base.html:89
-#: warehouse/templates/manage/manage_base.html:540
+#: warehouse/templates/manage/manage_base.html:77
+#: warehouse/templates/manage/manage_base.html:80
+#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:100
+#: warehouse/templates/manage/manage_base.html:551
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4491,27 +4454,27 @@ msgstr "オーナーである自分自身を削除できません"
 msgid "Remove"
 msgstr "削除"
 
-#: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/manage_base.html:81
 msgid "Remove authentication application"
 msgstr "認証アプリケーションを削除する"
 
-#: warehouse/templates/manage/manage_base.html:71
+#: warehouse/templates/manage/manage_base.html:82
 msgid "Remove application"
 msgstr "アプリケーションを削除"
 
-#: warehouse/templates/manage/manage_base.html:90
+#: warehouse/templates/manage/manage_base.html:101
 msgid "Remove two factor security device"
 msgstr "二要素セキュリティ端末を削除する"
 
-#: warehouse/templates/manage/manage_base.html:91
+#: warehouse/templates/manage/manage_base.html:102
 msgid "Remove device"
 msgstr "端末を削除"
 
-#: warehouse/templates/manage/manage_base.html:97
+#: warehouse/templates/manage/manage_base.html:108
 msgid "Device name"
 msgstr "端末名"
 
-#: warehouse/templates/manage/manage_base.html:111
+#: warehouse/templates/manage/manage_base.html:122
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4523,7 +4486,7 @@ msgstr ""
 "アカウントの二要素認証を有効にするには<a href=\"%(href)s\">主要メールアドレス"
 "を確認してください</a>。"
 
-#: warehouse/templates/manage/manage_base.html:116
+#: warehouse/templates/manage/manage_base.html:127
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
@@ -4535,7 +4498,7 @@ msgstr ""
 "アカウントの二要素認証を有効にするには<a href=\"%(href)s\">主要メールアドレス"
 "を確認してください</a>。"
 
-#: warehouse/templates/manage/manage_base.html:127
+#: warehouse/templates/manage/manage_base.html:138
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4543,7 +4506,7 @@ msgid ""
 "two factor authentication methods to your account."
 msgstr "このアカウントでは二要素認証が有効になっていません。"
 
-#: warehouse/templates/manage/manage_base.html:132
+#: warehouse/templates/manage/manage_base.html:143
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4552,13 +4515,13 @@ msgid ""
 msgstr "このアカウントでは二要素認証が有効になっていません。"
 
 # | msgid "Error code"
-#: warehouse/templates/manage/manage_base.html:138
+#: warehouse/templates/manage/manage_base.html:149
 #, fuzzy
 #| msgid "Enter recovery code"
 msgid "Generate recovery codes"
 msgstr "リカバリーコードの入力"
 
-#: warehouse/templates/manage/manage_base.html:147
+#: warehouse/templates/manage/manage_base.html:158
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4566,7 +4529,7 @@ msgid ""
 "methods to your account."
 msgstr "このアカウントでは二要素認証が有効になっていません。"
 
-#: warehouse/templates/manage/manage_base.html:152
+#: warehouse/templates/manage/manage_base.html:163
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid ""
@@ -4576,19 +4539,19 @@ msgstr "このアカウントでは二要素認証が有効になっていませ
 
 # | msgid "Error code"
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
-#: warehouse/templates/manage/manage_base.html:161
+#: warehouse/templates/manage/manage_base.html:172
 #, fuzzy
 #| msgid "Enter recovery code"
 msgid "Use a recovery code"
 msgstr "リカバリーコードの入力"
 
-#: warehouse/templates/manage/manage_base.html:172
+#: warehouse/templates/manage/manage_base.html:183
 #, fuzzy
 #| msgid "You have not enabled two factor authentication on your account."
 msgid "You have not enabled two factor authentication on your account."
 msgstr "このアカウントでは二要素認証が有効になっていません。"
 
-#: warehouse/templates/manage/manage_base.html:180
+#: warehouse/templates/manage/manage_base.html:191
 #, fuzzy
 #| msgid ""
 #| "To set up <abbr title=\"two factor authentication\">2FA</abbr> with an "
@@ -4600,7 +4563,7 @@ msgstr ""
 "認証アプリケーションを使って<abbr title=\"two factor authentication\">2FA</"
 "abbr>を設定するには:"
 
-#: warehouse/templates/manage/manage_base.html:185
+#: warehouse/templates/manage/manage_base.html:196
 #, fuzzy
 #| msgid ""
 #| "Add <abbr title=\"two factor authentication\">2FA</abbr> with security "
@@ -4613,7 +4576,7 @@ msgstr ""
 "\">2FA</abbr>の追加"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:37
-#: warehouse/templates/manage/manage_base.html:192
+#: warehouse/templates/manage/manage_base.html:203
 msgid ""
 "Enable JavaScript to set up two factor authentication with a security device "
 "(e.g. USB key)"
@@ -4622,7 +4585,7 @@ msgstr ""
 "JavaScript を有効にして下さい"
 
 #: warehouse/templates/manage/account/webauthn-provision.html:53
-#: warehouse/templates/manage/manage_base.html:197
+#: warehouse/templates/manage/manage_base.html:208
 #, python-format
 msgid ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
@@ -4633,7 +4596,7 @@ msgstr ""
 "\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">ブラウザ"
 "をアップグレード</a>して下さい"
 
-#: warehouse/templates/manage/manage_base.html:208
+#: warehouse/templates/manage/manage_base.html:219
 #: warehouse/templates/manage/organization/manage_organization_base.html:28
 #: warehouse/templates/manage/project/manage_project_base.html:28
 #: warehouse/templates/manage/team/manage_team_base.html:28
@@ -4642,66 +4605,66 @@ msgstr ""
 msgid "Breadcrumbs"
 msgstr "パンくずリスト"
 
-#: warehouse/templates/manage/manage_base.html:213
+#: warehouse/templates/manage/manage_base.html:224
 #: warehouse/templates/manage/organization/manage_organization_base.html:32
 #: warehouse/templates/manage/project/manage_project_base.html:32
 #: warehouse/templates/manage/team/manage_team_base.html:32
 msgid "Your account"
 msgstr "あなたのアカウント"
 
-#: warehouse/templates/manage/manage_base.html:223
-#: warehouse/templates/manage/manage_base.html:257
+#: warehouse/templates/manage/manage_base.html:234
+#: warehouse/templates/manage/manage_base.html:268
 msgid "Account navigation"
 msgstr "アカウントナビゲーション"
 
-#: warehouse/templates/manage/manage_base.html:330
-#: warehouse/templates/manage/manage_base.html:389
+#: warehouse/templates/manage/manage_base.html:341
+#: warehouse/templates/manage/manage_base.html:400
 msgid "This action cannot be undone!"
 msgstr "この操作は取り消せません！"
 
-#: warehouse/templates/manage/manage_base.html:342
+#: warehouse/templates/manage/manage_base.html:353
 msgid "Confirm your username to continue."
 msgstr "続行するにはユーザ名を確認してください。"
 
-#: warehouse/templates/manage/manage_base.html:344
+#: warehouse/templates/manage/manage_base.html:355
 #, python-format
 msgid "Confirm the %(item)s to continue."
 msgstr "%(item)s を確認して続行します。"
 
-#: warehouse/templates/manage/manage_base.html:355
-#: warehouse/templates/manage/manage_base.html:407
+#: warehouse/templates/manage/manage_base.html:366
+#: warehouse/templates/manage/manage_base.html:418
 #: warehouse/templates/manage/organization/activate_subscription.html:32
 msgid "Cancel"
 msgstr "キャンセル"
 
-#: warehouse/templates/manage/manage_base.html:378
+#: warehouse/templates/manage/manage_base.html:389
 msgid "close"
 msgstr "閉じる"
 
-#: warehouse/templates/manage/manage_base.html:394
+#: warehouse/templates/manage/manage_base.html:405
 msgid "Enter your password to continue."
 msgstr "続行するにはパスワードを入力してください。"
 
-#: warehouse/templates/manage/manage_base.html:477
+#: warehouse/templates/manage/manage_base.html:488
 #, fuzzy
 #| msgid "Publisher name"
 msgid "Trusted Publisher Management"
 msgstr "発行者名"
 
-#: warehouse/templates/manage/manage_base.html:482
+#: warehouse/templates/manage/manage_base.html:493
 msgid ""
 "OpenID Connect (OIDC) provides a flexible, credential-free mechanism for "
 "delegating publishing authority for a PyPI package to a trusted third party "
 "service, like GitHub Actions."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:490
+#: warehouse/templates/manage/manage_base.html:501
 msgid ""
 "PyPI users and projects can use trusted publishers to automate their release "
 "processes, without needing to use API tokens or passwords."
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:497
+#: warehouse/templates/manage/manage_base.html:508
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -4713,11 +4676,11 @@ msgstr ""
 "あなたのアカウントへのアクセスを回復するには、 PyPI で<a href=\"%(href)s\">パ"
 "スワードをリセット</a>して下さい。"
 
-#: warehouse/templates/manage/manage_base.html:536
+#: warehouse/templates/manage/manage_base.html:547
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:547
+#: warehouse/templates/manage/manage_base.html:558
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4728,7 +4691,7 @@ msgstr ""
 msgid "Added by:"
 msgstr "追加者:"
 
-#: warehouse/templates/manage/manage_base.html:549
+#: warehouse/templates/manage/manage_base.html:560
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4739,32 +4702,32 @@ msgstr "追加者:"
 msgid "Removed by:"
 msgstr "削除者:"
 
-#: warehouse/templates/manage/manage_base.html:551
+#: warehouse/templates/manage/manage_base.html:562
 #, fuzzy
 #| msgid "Changed by:"
 msgid "Submitted by:"
 msgstr "変更者:"
 
-#: warehouse/templates/manage/manage_base.html:554
+#: warehouse/templates/manage/manage_base.html:565
 #: warehouse/templates/manage/project/history.html:247
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow:"
 msgstr "氏名"
 
-#: warehouse/templates/manage/manage_base.html:556
+#: warehouse/templates/manage/manage_base.html:567
 #, fuzzy
 #| msgid "Specification"
 msgid "Specifier:"
 msgstr "仕様"
 
-#: warehouse/templates/manage/manage_base.html:559
+#: warehouse/templates/manage/manage_base.html:570
 #, fuzzy
 #| msgid "Publisher name"
 msgid "Publisher:"
 msgstr "発行者名"
 
-#: warehouse/templates/manage/manage_base.html:561
+#: warehouse/templates/manage/manage_base.html:572
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -4921,88 +4884,95 @@ msgid "Submitted %(submitted)s"
 msgstr "変更者:"
 
 #: warehouse/templates/manage/organizations.html:178
-#: warehouse/templates/manage/organizations.html:289
+#: warehouse/templates/manage/organizations.html:297
 #, fuzzy
 #| msgid "Create an account"
 msgid "Request a new organization"
 msgstr "アカウントを作成する"
 
 #: warehouse/templates/manage/organization/settings.html:29
-#: warehouse/templates/manage/organizations.html:184
+#: warehouse/templates/manage/organizations.html:185
 msgid "Organization account name"
 msgstr ""
 
-#: warehouse/templates/manage/organizations.html:189
+#: warehouse/templates/manage/organizations.html:190
 msgid "Select an organization account name"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:32
-#: warehouse/templates/manage/organizations.html:200
+#: warehouse/templates/manage/organizations.html:201
 msgid "This account name is used in URLs on PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:71
 #: warehouse/templates/manage/organization/settings.html:95
-#: warehouse/templates/manage/organizations.html:201
-#: warehouse/templates/manage/organizations.html:223
-#: warehouse/templates/manage/organizations.html:241
+#: warehouse/templates/manage/organizations.html:202
+#: warehouse/templates/manage/organizations.html:224
+#: warehouse/templates/manage/organizations.html:242
 msgid "For example"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
-#: warehouse/templates/manage/organizations.html:207
+#: warehouse/templates/manage/organizations.html:208
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization display name"
 msgstr "プロジェクトの説明"
 
 #: warehouse/templates/manage/organization/settings.html:54
-#: warehouse/templates/manage/organizations.html:212
+#: warehouse/templates/manage/organizations.html:213
 msgid "Name of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:78
-#: warehouse/templates/manage/organizations.html:229
+#: warehouse/templates/manage/organizations.html:230
 msgid "️Organization URL"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:84
-#: warehouse/templates/manage/organizations.html:235
+#: warehouse/templates/manage/organizations.html:236
 msgid "URL for your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:102
-#: warehouse/templates/manage/organizations.html:247
+#: warehouse/templates/manage/organizations.html:248
 #, fuzzy
 #| msgid "Project description"
 msgid "Organization description"
 msgstr "プロジェクトの説明"
 
 #: warehouse/templates/manage/organization/settings.html:108
-#: warehouse/templates/manage/organizations.html:252
+#: warehouse/templates/manage/organizations.html:253
 msgid "Description of your business, product, or project"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:127
-#: warehouse/templates/manage/organizations.html:266
+#: warehouse/templates/manage/organizations.html:267
 msgid "️Organization type"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:145
-#: warehouse/templates/manage/organizations.html:278
+#: warehouse/templates/manage/organizations.html:279
 msgid ""
 "Companies can create organization accounts as a paid service while community "
 "projects are granted complimentary access."
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:101
-#: warehouse/templates/manage/organizations.html:284
+#: warehouse/templates/manage/organizations.html:285
 #, fuzzy
 #| msgid "Created"
 msgid "Create"
 msgstr "作成日時"
 
-#: warehouse/templates/manage/organizations.html:291
+#: warehouse/templates/manage/organizations.html:289
+#, python-format
+msgid ""
+"You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
+"your account before requesting an organization."
+msgstr ""
+
+#: warehouse/templates/manage/organizations.html:299
 #, fuzzy
 #| msgid ""
 #| "Your request for a new PyPI organization named \"%(organization_name)s\" "
@@ -5012,7 +4982,7 @@ msgstr ""
 "\"%(organization_name)s\" という名前の新しい PyPI 組織に対するリクエストが送"
 "信されました。"
 
-#: warehouse/templates/manage/organizations.html:294
+#: warehouse/templates/manage/organizations.html:302
 #, fuzzy
 #| msgid ""
 #| "You will receive another email when the PyPI organization has been "
@@ -5020,7 +4990,7 @@ msgstr ""
 msgid "You will receive an email when each organization has been approved"
 msgstr "PyPI組織が承認されると、別のメールが届きます。"
 
-#: warehouse/templates/manage/organizations.html:294
+#: warehouse/templates/manage/organizations.html:302
 #: warehouse/templates/manage/project/roles.html:146
 #: warehouse/templates/manage/project/roles.html:203
 #: warehouse/templates/manage/project/roles.html:236
@@ -10780,6 +10750,19 @@ msgstr "'%(term)s'に一致する結果はありませんでした"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s'に一致する結果はありませんでした"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "During your recent upload or upload attempt to %(site)s, we noticed you "
+#~| "used basic authentication (username &amp; password). However, your "
+#~| "account has two-factor authentication (2FA) enabled."
+#~ msgid ""
+#~ "During a recent upload of %(project_name)s to %(site)s, we noticed you "
+#~ "uploaded an <code>.egg</code>/<code>bdist_egg</code> distribution file."
+#~ msgstr ""
+#~ "最近のアップロードや %(site)s へのアップロードの試みで、基本認証 (ユーザ名"
+#~ "とパスワード) を使っていることに気付きました。ただし、アカウントでは 2 要"
+#~ "素認証 (2FA) が有効になっています。"
 
 #~ msgid "Add token"
 #~ msgstr "トークンの追加"
