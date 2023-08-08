@@ -52,7 +52,7 @@ def test_multiple_garbage_types(app_config, webtest):
         xmlrpc.client.Fault,
         match=(
             r"client error; \('since',\): value is not a valid integer; "
-            r"\('with_ids',\): value could not be parsed to a boolean"
+            r"\('with_ids',\): value is not a valid boolean"
         ),
     ):
         webtest.xmlrpc("/pypi", "changelog", "wrong!", "also wrong!")
