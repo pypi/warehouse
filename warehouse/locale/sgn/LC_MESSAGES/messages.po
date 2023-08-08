@@ -1,28 +1,17 @@
-# Translations template for Warehouse.
-# Copyright (C) 2019 PyPA
-# This file is distributed under the same license as the Warehouse project.
-# FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Ayan Banerjee <ayanbanerjee7777@gmail.com>, 2019, 2022.
-# রিং <toshazed@gmail.com>, 2020, 2022.
-# Anonymous <noreply@weblate.org>, 2020.
-# DANIEL ROZARIO <daniel.rozario.2005@gmail.com>, 2020, 2022.
-# Md Nachir <mnachir907@gmail.com>, 2023.
+# 王玎珰 <1330274738@qq.com>, 2023.
 msgid ""
 msgstr ""
-"Project-Id-Version: Warehouse VERSION\n"
-"Report-Msgid-Bugs-To: admin@pypi.org\n"
-"POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-03-24 15:03+0000\n"
-"Last-Translator: Md Nachir <mnachir907@gmail.com>\n"
-"Language-Team: Bengali <https://hosted.weblate.org/projects/pypa/warehouse/"
-"bn/>\n"
-"Language: bn\n"
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-08-04 17:25+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Automatically generated\n"
+"Language-Team: none\n"
+"Language: sgn\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.17-dev\n"
-"Generated-By: Babel 2.7.0\n"
+"X-Generator: Translate Toolkit 3.10.0\n"
 
 #: warehouse/views.py:141
 msgid ""
@@ -31,19 +20,18 @@ msgid ""
 msgstr ""
 
 #: warehouse/views.py:161
-#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
-msgstr "Nasir"
+msgstr ""
 
 #: warehouse/views.py:286
 msgid "Locale updated"
-msgstr "অনুবাদ হালনাগাদকৃত"
+msgstr ""
 
 #: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
-msgstr "পাসওয়ার্ডটি অবৈধ। আবার চেষ্টা করুন |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:48
 msgid ""
@@ -51,9 +39,6 @@ msgid ""
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
-"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
-"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
@@ -61,11 +46,11 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
-msgstr "এই ব্যবহারকারীর নামের কোনও ব্যবহারকারীকে পাওয়া যায়নি"
+msgstr ""
 
 #: warehouse/accounts/forms.py:98
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP কোড ${totp_length} দৈর্ঘ্যর হতে হবে |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:118
 msgid "Recovery Codes must be ${recovery_code_length} characters."
@@ -73,15 +58,13 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:133
 msgid "Choose a username with 50 characters or less."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:150
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/accounts/forms.py:164 warehouse/accounts/forms.py:213
 #: warehouse/accounts/forms.py:226
@@ -89,64 +72,54 @@ msgid "Password too long."
 msgstr ""
 
 #: warehouse/accounts/forms.py:200
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ্টা করা হয়েছে । পরে আবার চেষ্টা করুন।"
+msgstr ""
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
-msgstr "আপনার পাসওয়ার্ড মেলেনি । আবার চেষ্টা করুন |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:262 warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
-msgstr "ইমেলটি বৈধ নয়। আবার চেষ্টা করুন |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:265
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "ইমেলটি বৈধ নয়। আবার চেষ্টা করুন |"
+msgstr ""
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
-"আপনি এই ডোমেইন হতে কোনো ইমেইল ব্যবহার করতে পারবেন না। ভিন্ন ইমেইল ব্যবহার করুন।"
 
 #: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
-"এই ইমেল ঠিকানাটি ইতিমধ্যে এই অ্যাকাউন্টটি দ্বারা ব্যবহৃত হচ্ছে। একটি ভিন্ন ইমেল "
-"ব্যবহার করুন।"
 
 #: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr "এই ইমেইলটি ইতোমধ্যে অন্য একটি একাউন্টে ব্যবহৃত। ভিন্ন ইমেইল ব্যবহার করুন"
+msgstr ""
 
 #: warehouse/accounts/forms.py:323 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
-msgstr "নামটি অনেক দীর্ঘ। 100 টি অক্ষর বা তারও কম সংখ্যক নাম চয়ন করুন।"
+msgstr ""
 
 #: warehouse/accounts/forms.py:412
 msgid "Invalid TOTP code."
-msgstr "টিওটিপি কোডটি সঠিক নয়"
+msgstr ""
 
 #: warehouse/accounts/forms.py:429
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
 #: warehouse/accounts/forms.py:498
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid recovery code."
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/accounts/forms.py:507
 msgid "Recovery code has been previously used."
@@ -154,51 +127,36 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:526
 msgid "No user found with that username or email"
-msgstr "এই ব্যবহারকারী নাম বা ইমেলসহ কোনও ব্যবহারকারীকে পাওয়া যায় নি"
+msgstr ""
 
 #: warehouse/accounts/views.py:103
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ্টা করা হয়েছে । পরে আবার চেষ্টা করুন।"
+msgstr ""
 
 #: warehouse/accounts/views.py:120
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
-"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
 #: warehouse/accounts/views.py:132
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"এই অ্যাকাউন্টে অনেকগুলি ইমেলগুলি যাচাই না করে যুক্ত করা হয়েছে। আপনার ইনবক্সটি "
-"পরীক্ষা করুন এবং যাচাইকরণ লিঙ্কগুলি অনুসরণ করুন।"
 
 #: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
 #: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
 msgid "Invalid or expired two factor login."
-msgstr "অবৈধ বা মেয়াদোত্তীর্ণ টু ফ্যাক্টর লগইন।"
+msgstr ""
 
 #: warehouse/accounts/views.py:365
 msgid "Already authenticated"
-msgstr "ইতিমধ্যে প্রমাণীকৃত"
+msgstr ""
 
 #: warehouse/accounts/views.py:444
 msgid "Successful WebAuthn assertion"
@@ -206,21 +164,17 @@ msgstr ""
 
 #: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:823
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "পুনরুদ্ধার কোড গৃহীত। সরবরাহকৃত কোডটি দ্বিতীয়বার ব্যবহার করা যাবে না।"
+msgstr ""
 
 #: warehouse/accounts/views.py:591
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
-"help#admin-intervention দেখুন।"
 
 #: warehouse/accounts/views.py:722
 msgid "Expired token: request a new password reset link"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:724
 msgid "Invalid token: request a new password reset link"
@@ -237,7 +191,7 @@ msgstr ""
 
 #: warehouse/accounts/views.py:735
 msgid "Invalid token: user not found"
-msgstr "অবৈধ্য টোকেন: সদস্য খুঁজে পাওয়া যায় নি"
+msgstr ""
 
 #: warehouse/accounts/views.py:746
 msgid "Invalid token: user has logged in since this token was requested"
@@ -286,28 +240,16 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
 #: warehouse/accounts/views.py:923
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:925
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:931
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:935
 msgid "Organization invitation is not valid."
@@ -326,20 +268,12 @@ msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
 #: warehouse/accounts/views.py:1092
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:1094
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/accounts/views.py:1100
 msgid "Invalid token: not a collaboration invitation token"
@@ -363,28 +297,16 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
 #: warehouse/manage/views/__init__.py:1229
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
-"help#admin-intervention দেখুন।"
 
 #: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1245
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
-"help#admin-intervention দেখুন।"
 
 #: warehouse/accounts/views.py:1468
 msgid ""
@@ -397,13 +319,10 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
 #: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1264
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
-msgstr "অনেকবার ব্যর্থ লগইন প্রচেষ্টা করা হয়েছে । পরে আবার চেষ্টা করুন।"
+msgstr ""
 
 #: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1278
 msgid "The trusted publisher could not be registered"
@@ -433,50 +352,28 @@ msgid "Banner Preview"
 msgstr ""
 
 #: warehouse/manage/forms.py:408
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/manage/forms.py:416
-#, fuzzy
-#| msgid ""
-#| "The username is invalid. Usernames must be composed of letters, numbers, "
-#| "dots, hyphens and underscores. And must also start and finish with a "
-#| "letter or number. Choose a different username."
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"ব্যবহারকারীর নামটি অবৈধ। ব্যবহারকারীর নাম অবশ্যই অক্ষর, সংখ্যা, বিন্দু, হাইফেন এবং "
-"আন্ডারস্কোর সমন্বয়ে গঠিত হতে হবে । এবং অবশ্যই একটি অক্ষর বা নম্বর দিয়ে শুরু এবং শেষ "
-"করতে হবে। একটি পৃথক ব্যবহারকারীর নাম বাছুন।"
 
 #: warehouse/manage/forms.py:439
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/manage/forms.py:454
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/manage/forms.py:490
 msgid "Select project"
@@ -493,53 +390,39 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/forms.py:505
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/manage/forms.py:576
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
-msgstr "নামটি অনেক দীর্ঘ। 100 টি অক্ষর বা তারও কম সংখ্যক নাম চয়ন করুন।"
+msgstr ""
 
 #: warehouse/manage/forms.py:588
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
-msgstr "নামটি অনেক দীর্ঘ। 100 টি অক্ষর বা তারও কম সংখ্যক নাম চয়ন করুন।"
+msgstr ""
 
 #: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
 #: warehouse/manage/forms.py:606
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
-msgstr "নামটি অনেক দীর্ঘ। 100 টি অক্ষর বা তারও কম সংখ্যক নাম চয়ন করুন।"
+msgstr ""
 
 #: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
 #: warehouse/manage/forms.py:671
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/manage/forms.py:677
 msgid ""
@@ -548,14 +431,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/forms.py:705
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/manage/views/__init__.py:191
 msgid "Account details updated"
@@ -588,16 +465,10 @@ msgstr ""
 #: warehouse/manage/views/__init__.py:1483
 #: warehouse/manage/views/__init__.py:1784
 #: warehouse/manage/views/__init__.py:1892
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"নতুন সদস্য নিবন্ধন সাময়িকভাবে বন্ধ আছে. আরো তথ্যের জন্য https://pypi.org/"
-"help#admin-intervention দেখুন।"
 
 #: warehouse/manage/views/__init__.py:1615
 #: warehouse/manage/views/__init__.py:1700
@@ -700,10 +571,8 @@ msgid "Specify repository name"
 msgstr ""
 
 #: warehouse/oidc/forms.py:42
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid repository name"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/oidc/forms.py:49
 msgid "Specify workflow filename"
@@ -742,20 +611,12 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
 #: warehouse/oidc/forms.py:176
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid project name"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/oidc/forms.py:190
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This project name is already in use"
 msgstr ""
-"এই ব্যবহারকারীর নামটি ইতিমধ্যে অন্য অ্যাকাউন্ট দ্বারা ব্যবহৃত হচ্ছে। একটি পৃথক নাম "
-"বাছুন।"
 
 #: warehouse/oidc/forms.py:203
 msgid "Specify a publisher ID"
@@ -1611,10 +1472,8 @@ msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:18
 #: warehouse/templates/manage/manage_base.html:38
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Recovery codes"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:24
 #: warehouse/templates/accounts/two-factor.html:129
@@ -2207,16 +2066,12 @@ msgid "New description:"
 msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:60
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Old organization type:"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:63
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "New organization type:"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/email/password-change/body.html:18
 #, python-format
@@ -2588,10 +2443,8 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:36
 #: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Environment"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:39
 #: warehouse/templates/email/trusted-publisher-removed/body.html:37
@@ -3332,10 +3185,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:491
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Recovery code"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:496
 msgid "Login failed"
@@ -3357,23 +3208,17 @@ msgid "Incorrect Password"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:508
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (TOTP)"
-msgstr "অবৈধ বা মেয়াদোত্তীর্ণ টু ফ্যাক্টর লগইন।"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:510
-#, fuzzy
-#| msgid "Invalid or expired two factor login."
 msgid "Invalid two factor (WebAuthn)"
-msgstr "অবৈধ বা মেয়াদোত্তীর্ণ টু ফ্যাক্টর লগইন।"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:512
 #: warehouse/templates/manage/account.html:514
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Invalid two factor (Recovery code)"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:521
 msgid "Session reauthentication failed"
@@ -3676,16 +3521,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:29
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Recovery methods enabled"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:32
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Recovery method"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:38
 #, python-format
@@ -3716,10 +3557,8 @@ msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:76
 #: warehouse/templates/manage/manage_base.html:96
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Cannot remove last 2FA method"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:77
 #: warehouse/templates/manage/manage_base.html:80
@@ -3786,10 +3625,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:149
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Generate recovery codes"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:158
 msgid ""
@@ -3805,10 +3642,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:17
 #: warehouse/templates/manage/manage_base.html:172
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Use a recovery code"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:183
 msgid "You have not enabled two factor authentication on your account."
@@ -3993,10 +3828,9 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:76
 #: warehouse/templates/manage/organizations.html:157
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "Organization Type: %(org_type)s"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organizations.html:76
 #: warehouse/templates/manage/organizations.html:157
@@ -4075,10 +3909,8 @@ msgid "You have not joined any organizations on PyPI, yet."
 msgstr ""
 
 #: warehouse/templates/manage/organizations.html:140
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Pending organization requests"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organizations.html:145
 msgid ""
@@ -4093,10 +3925,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organizations.html:178
 #: warehouse/templates/manage/organizations.html:297
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Request a new organization"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:29
 #: warehouse/templates/manage/organizations.html:185
@@ -4122,10 +3952,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:48
 #: warehouse/templates/manage/organizations.html:208
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Organization display name"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:54
 #: warehouse/templates/manage/organizations.html:213
@@ -4342,10 +4170,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:47
 #: warehouse/templates/manage/project/publishing.html:121
-#, fuzzy
-#| msgid "Invalid Recovery Code."
 msgid "Environment name"
-msgstr "অবৈধ পুনরুদ্ধার কোড।"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:96
 #: warehouse/templates/manage/project/publishing.html:125
@@ -4768,22 +4594,19 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:32
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "'%(organization_name)s' registered as organization name"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:36
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(organization_name)s organization created"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:38
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(organization_name)s organization deleted"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:40
 #, python-format
@@ -4792,16 +4615,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:42
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(organization_name)s organization approved"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:44
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(organization_name)s organization declined"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:49
 #, python-format
@@ -5076,10 +4897,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:41
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Organization Roles"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:43
 #, python-format
@@ -5090,10 +4909,8 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:47
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Organization Role Permissions Matrix"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:51
 #: warehouse/templates/manage/organization/roles.html:168
@@ -5102,32 +4919,24 @@ msgid "Member"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:61
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "View organization/teams"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:70
 msgid "Create/manage teams"
 msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:79
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Invite/manage organization members"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:88
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Delete the organization"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:98
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Manage organization billing"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:106
 msgid "Own/maintain specific projects"
@@ -5167,10 +4976,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/project/roles.html:200
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Cannot remove yourself as Sole Owner"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:207
 #, python-format
@@ -5259,10 +5066,9 @@ msgid "Manage '%(organization_name)s' settings"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:33
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "Change the organization account name <a href=\"%(href)s\">below</a>."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:37
 #: warehouse/templates/manage/team/settings.html:57
@@ -5299,10 +5105,8 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:190
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Change organization account name"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:195
 msgid ""
@@ -5311,16 +5115,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Change organization account name for"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:211
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Current organization account name"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:218
 #: warehouse/templates/manage/organization/settings.html:268
@@ -5347,16 +5147,12 @@ msgid "Transfer ownership and remove the project from your organization"
 msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:231
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Delete the project"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:233
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Before you can delete your organization."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/settings.html:239
 #, python-format
@@ -5388,25 +5184,21 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:17
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Organization teams"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:21
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "Manage '%(organization_name)s' teams"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/organization/teams.html:42
 #: warehouse/templates/manage/team/manage_team_base.html:73
-#, fuzzy, python-format
-#| msgid "Invalid Recovery Code."
+#, python-format
 msgid "%(member_count)s member"
 msgid_plural "%(member_count)s members"
-msgstr[0] "অবৈধ পুনরুদ্ধার কোড।"
-msgstr[1] "অবৈধ পুনরুদ্ধার কোড।"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/organization/teams.html:55
 msgid "Manage this team"
@@ -5834,10 +5626,9 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:167
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/project/release.html:174
 #: warehouse/templates/manage/project/releases.html:126
@@ -6055,18 +5846,15 @@ msgid "Collaborator"
 msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:75
-#, fuzzy, python-format
-#| msgid "Choose a username with 50 characters or less."
+#, python-format
 msgid "%(count)s organization owner"
 msgid_plural "%(count)s organization owners"
-msgstr[0] "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
-msgstr[1] "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/templates/manage/project/roles.html:89
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Cannot remove organization owners"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/manage/project/roles.html:103
 #, python-format
@@ -6288,12 +6076,8 @@ msgid "Add the project to another organization that you own."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:198
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Add the project to an organization that you own."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/templates/manage/project/settings.html:202
 msgid "Grant full project permissions to owners of the organization."
@@ -6318,28 +6102,20 @@ msgid "Cannot transfer project to an organization"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:231
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid ""
 "Organization owners can transfer the project to organizations that they own "
 "or manage."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/templates/manage/project/settings.html:232
 msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:234
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid ""
 "Project owners can transfer the project to organizations that they own or "
 "manage."
 msgstr ""
-"মেয়াদ উত্তীর্ণ টোকেন: একটি নতুন পাসওয়ার্ড পুনরায় সেট করার জন্য রিসেট লিঙ্কের অনুরোধ "
-"করুন"
 
 #: warehouse/templates/manage/project/settings.html:235
 msgid "You are not an owner or manager of any organizations."
@@ -6498,10 +6274,8 @@ msgid "Profile of %(orgname)s"
 msgstr ""
 
 #: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Organization"
-msgstr "50 টিরও কম অক্ষরসহ একটি ব্যবহারকারী নাম বাছুন |"
+msgstr ""
 
 #: warehouse/templates/organizations/profile.html:73
 #, python-format
@@ -8674,19 +8448,3 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
-
-#, fuzzy
-#~| msgid "Invalid Recovery Code."
-#~ msgid ""
-#~ "\n"
-#~ "        Generate recovery codes\n"
-#~ "        "
-#~ msgstr "অবৈধ পুনরুদ্ধার কোড।"
-
-#, fuzzy
-#~| msgid "Invalid Recovery Code."
-#~ msgid ""
-#~ "\n"
-#~ "        Use a recovery code\n"
-#~ "        "
-#~ msgstr "অবৈধ পুনরুদ্ধার কোড।"
