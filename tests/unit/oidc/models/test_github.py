@@ -236,54 +236,115 @@ class TestGitHubPublisher:
         )
 
     @pytest.mark.parametrize(
-        ("claim", "ref", "valid"),
+        ("claim", "ref", "valid", "expected"),
         [
             # okay: workflow name, followed by a nonempty ref
             (
                 "foo/bar/.github/workflows/baz.yml@refs/tags/v0.0.1",
                 "refs/tags/v0.0.1",
                 True,
+                None,
             ),
-            ("foo/bar/.github/workflows/baz.yml@refs/pulls/6", "refs/pulls/6", True),
+            (
+                "foo/bar/.github/workflows/baz.yml@refs/pulls/6",
+                "refs/pulls/6",
+                True,
+                None,
+            ),
             (
                 "foo/bar/.github/workflows/baz.yml@refs/heads/main",
                 "refs/heads/main",
                 True,
+                None,
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@notrailingslash",
                 "notrailingslash",
                 True,
+                None,
             ),
             # bad: workflow name, empty or missing ref
-            ("foo/bar/.github/workflows/baz.yml@emptyref", "", False),
-            ("foo/bar/.github/workflows/baz.yml@missingref", None, False),
+            (
+                "foo/bar/.github/workflows/baz.yml@emptyref",
+                "",
+                False,
+                "The ref claim is empty",
+            ),
+            (
+                "foo/bar/.github/workflows/baz.yml@missingref",
+                None,
+                False,
+                "The ref claim is empty",
+            ),
             # bad: workflow name with various attempted impersonations
             (
                 "foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash",
                 "notrailingslash",
                 False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'",
             ),
             (
                 "foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6",
                 "refs/pulls/6",
                 False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@refs/pulls/6', got "
+                "'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'",
             ),
             # bad: missing tail or workflow name or otherwise partial
-            ("foo/bar/.github/workflows/baz.yml@", "notrailingslash", False),
-            ("foo/bar/.github/workflows/@", "notrailingslash", False),
-            ("foo/bar/.github/workflows/", "notrailingslash", False),
-            ("baz.yml", "notrailingslash", False),
+            (
+                "foo/bar/.github/workflows/baz.yml@",
+                "notrailingslash",
+                False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/baz.yml@'",
+            ),
+            (
+                "foo/bar/.github/workflows/@",
+                "notrailingslash",
+                False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/@'",
+            ),
+            (
+                "foo/bar/.github/workflows/",
+                "notrailingslash",
+                False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/'",
+            ),
+            (
+                "baz.yml",
+                "notrailingslash",
+                False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got 'baz.yml'",
+            ),
             (
                 "foo/bar/.github/workflows/baz.yml@malicious.yml@",
                 "notrailingslash",
                 False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/baz.yml@malicious.yml@'",
             ),
-            ("foo/bar/.github/workflows/baz.yml@@", "notrailingslash", False),
-            ("", "notrailingslash", False),
+            (
+                "foo/bar/.github/workflows/baz.yml@@",
+                "notrailingslash",
+                False,
+                "The claim does not match, expecting "
+                "'foo/bar/.github/workflows/baz.yml@notrailingslash', got "
+                "'foo/bar/.github/workflows/baz.yml@@'",
+            ),
+            ("", "notrailingslash", False, "The job_workflow_ref claim is empty"),
         ],
     )
-    def test_github_publisher_job_workflow_ref(self, claim, ref, valid):
+    def test_github_publisher_job_workflow_ref(self, claim, ref, valid, expected):
         publisher = github.GitHubPublisher(
             repository_name="bar",
             repository_owner="foo",
@@ -294,7 +355,12 @@ class TestGitHubPublisher:
         check = github.GitHubPublisher.__required_verifiable_claims__[
             "job_workflow_ref"
         ]
-        assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is valid
+        if valid:
+            assert check(publisher.job_workflow_ref, claim, {"ref": ref}) is True
+        else:
+            with pytest.raises(errors.InvalidPublisherError) as e:
+                check(publisher.job_workflow_ref, claim, {"ref": ref}) is True
+            assert str(e.value) == expected
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
