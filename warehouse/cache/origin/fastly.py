@@ -143,3 +143,23 @@ class FastlyCache:
                     tags=[f"ip_address:{self.api_connect_via}"],
                 )
                 self._double_purge_key(key)  # Do not connect via on fallback
+
+
+@implementer(IOriginCache)
+class NullFastlyCache(FastlyCache):
+    """Same as FastlyCache, but it doesn't issue any requests"""
+
+    def _purge_key(self, key, connect_via=None):
+        path = "/service/{service_id}/purge/{key}".format(
+            service_id=self.service_id, key=key
+        )
+        url = urllib.parse.urljoin(self.api_endpoint, path)
+        headers = {
+            "Accept": "application/json",
+            "Fastly-Key": self.api_key,
+            "Fastly-Soft-Purge": "1",
+        }
+
+        print("Origin cache purge issued:")
+        print(f"* URL: {url!r}")
+        print(f"* Headers: {headers!r}")
