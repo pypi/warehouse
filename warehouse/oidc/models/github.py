@@ -15,6 +15,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
 from sqlalchemy.sql.expression import func, literal
 
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     OIDCPublisher,
@@ -31,13 +32,18 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # Defensive: GitHub should never give us an empty job_workflow_ref,
     # but we check for one anyways just in case.
     if not signed_claim:
-        return False
+        raise InvalidPublisherError("The job_workflow_ref claim is empty")
 
     ref = all_signed_claims.get("ref")
     if not ref:
-        return False
+        raise InvalidPublisherError("The ref claim is empty")
 
-    return f"{ground_truth}@{ref}" == signed_claim
+    if not (expected := f"{ground_truth}@{ref}") == signed_claim:
+        raise InvalidPublisherError(
+            f"The claim does not match, expecting {expected!r}, got {signed_claim!r}"
+        )
+
+    return True
 
 
 def _check_environment(ground_truth, signed_claim, all_signed_claims):
