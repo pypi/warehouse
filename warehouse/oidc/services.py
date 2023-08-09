@@ -21,6 +21,7 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
@@ -288,29 +289,22 @@ class OIDCPublisherService:
             tags=metrics_tags,
         )
 
-        publisher = find_publisher_by_issuer(
-            self.db, self.issuer_url, signed_claims, pending=pending
-        )
-        if publisher is None:
-            self.metrics.increment(
-                "warehouse.oidc.find_publisher.publisher_not_found",
-                tags=metrics_tags,
+        try:
+            publisher = find_publisher_by_issuer(
+                self.db, self.issuer_url, signed_claims, pending=pending
             )
-            return None
-
-        if not publisher.verify_claims(signed_claims):
-            self.metrics.increment(
-                "warehouse.oidc.find_publisher.invalid_claims",
-                tags=metrics_tags,
-            )
-            return None
-        else:
+            publisher.verify_claims(signed_claims)
             self.metrics.increment(
                 "warehouse.oidc.find_publisher.ok",
                 tags=metrics_tags,
             )
-
-        return publisher
+            return publisher
+        except InvalidPublisherError as e:
+            self.metrics.increment(
+                "warehouse.oidc.find_publisher.publisher_not_found",
+                tags=metrics_tags,
+            )
+            raise e
 
     def reify_pending_publisher(self, pending_publisher, project):
         new_publisher = pending_publisher.reify(self.db)

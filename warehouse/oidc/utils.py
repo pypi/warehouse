@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
 
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
     GitHubPublisher,
@@ -52,7 +53,7 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
     except KeyError:
         # This indicates a logic error, since we shouldn't have verified
         # claims for an issuer that we don't recognize and support.
-        return None
+        raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
 
     return publisher_cls.lookup_by_claims(session, signed_claims)
 

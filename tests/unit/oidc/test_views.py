@@ -23,7 +23,7 @@ from tests.common.db.packaging import ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
-from warehouse.oidc import views
+from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -162,9 +162,12 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
 
 def test_mint_token_from_trusted_publisher_lookup_fails():
     claims = pretend.stub()
+    message = "some message"
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
-        find_publisher=pretend.call_recorder(lambda claims, **kw: None),
+        find_publisher=pretend.call_recorder(
+            pretend.raiser(errors.InvalidPublisherError(message))
+        ),
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
@@ -180,13 +183,15 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         "errors": [
             {
                 "code": "invalid-publisher",
-                "description": "valid token, but no corresponding publisher",
+                "description": (
+                    f"valid token, but no corresponding publisher ({message})"
+                ),
             }
         ],
     }
 
     assert request.find_service.calls == [
-        pretend.call(IOIDCPublisherService, name="github")
+        pretend.call(IOIDCPublisherService, name="github"),
     ]
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
     assert oidc_service.find_publisher.calls == [
@@ -396,11 +401,15 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
     # NOTE: Can't set __str__ using pretend.stub()
     monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
+    def _find_publisher(claims, pending=False):
+        if pending:
+            raise errors.InvalidPublisherError
+        else:
+            return publisher
+
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims_in_token),
-        find_publisher=pretend.call_recorder(
-            lambda claims, pending=False: publisher if not pending else None
-        ),
+        find_publisher=pretend.call_recorder(_find_publisher),
     )
 
     db_macaroon = pretend.stub(description="fakemacaroon")

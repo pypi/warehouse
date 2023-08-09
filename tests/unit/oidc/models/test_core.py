@@ -11,7 +11,9 @@
 # limitations under the License.
 
 import pretend
+import pytest
 
+from warehouse.oidc import errors
 from warehouse.oidc.models import _core
 
 
@@ -40,12 +42,14 @@ def test_check_claim_invariant():
 
 
 class TestOIDCPublisher:
-    def test_lookup_by_claims_default_none(self):
-        assert (
-            _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub()) is None
-        )
+    def test_lookup_by_claims_raises(self):
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            _core.OIDCPublisher.lookup_by_claims(pretend.stub(), pretend.stub())
+        assert str(e.value) == "All lookup strategies exhausted"
 
     def test_oidc_publisher_not_default_verifiable(self):
         publisher = _core.OIDCPublisher(projects=[])
 
-        assert not publisher.verify_claims(signed_claims={})
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(signed_claims={})
+        assert str(e.value) == "No required verifiable claims"

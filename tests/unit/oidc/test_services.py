@@ -21,7 +21,7 @@ from zope.interface.verify import verifyClass
 import warehouse.utils.exceptions
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
-from warehouse.oidc import interfaces, services
+from warehouse.oidc import errors, interfaces, services
 
 
 def test_oidc_publisher_service_factory():
@@ -230,13 +230,14 @@ class TestOIDCPublisherService:
             ),
         )
 
-        find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: None)
+        find_publisher_by_issuer = pretend.raiser(errors.InvalidPublisherError("foo"))
         monkeypatch.setattr(
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
 
         claims = pretend.stub()
-        assert service.find_publisher(claims) is None
+        with pytest.raises(errors.InvalidPublisherError):
+            service.find_publisher(claims)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
@@ -260,21 +261,26 @@ class TestOIDCPublisherService:
             ),
         )
 
-        publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c: False))
+        publisher = pretend.stub(
+            verify_claims=pretend.call_recorder(
+                pretend.raiser(errors.InvalidPublisherError)
+            )
+        )
         find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
         monkeypatch.setattr(
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
 
         claims = pretend.stub()
-        assert service.find_publisher(claims) is None
+        with pytest.raises(errors.InvalidPublisherError):
+            service.find_publisher(claims)
         assert service.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.find_publisher.attempt",
                 tags=["publisher:fakepublisher"],
             ),
             pretend.call(
-                "warehouse.oidc.find_publisher.invalid_claims",
+                "warehouse.oidc.find_publisher.publisher_not_found",
                 tags=["publisher:fakepublisher"],
             ),
         ]
