@@ -610,3 +610,28 @@ class TestFastlyCache:
 
         assert cacher._purge_key.calls == _purge_key_calls
         assert metrics.increment.calls == []
+
+
+class TestNullFastlyCache:
+    def test_purge_key_prints(self, capsys, metrics):
+        purge_key = pretend.stub(delay=pretend.stub())
+        request = pretend.stub(
+            registry=pretend.stub(
+                settings={
+                    "origin_cache.api_endpoint": "https://api.example.com",
+                    "origin_cache.api_key": "the api key",
+                    "origin_cache.service_id": "the service id",
+                }
+            ),
+            task=lambda f: purge_key,
+        )
+        cacher = fastly.NullFastlyCache.create_service(None, request)
+        cacher.purge_key("one", metrics=metrics)
+
+        captured = capsys.readouterr()
+        expected = """
+Origin cache purge issued:
+* URL: 'https://api.example.com/service/the service id/purge/one'
+* Headers: {'Accept': 'application/json', 'Fastly-Key': 'the api key', 'Fastly-Soft-Purge': '1'}
+"""  # noqa
+        assert captured.out.strip() == expected.strip()

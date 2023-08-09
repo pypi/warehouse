@@ -39,7 +39,7 @@ ARCHIVE_FILES_BACKEND=warehouse.packaging.services.LocalArchiveFileStorage path=
 SIMPLE_BACKEND=warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://localhost:9001/simple/{path}
 DOCS_BACKEND=warehouse.packaging.services.LocalDocsStorage path=/var/opt/warehouse/docs/
 SPONSORLOGOS_BACKEND=warehouse.admin.services.LocalSponsorLogoStorage path=/var/opt/warehouse/sponsorlogos/
-
+ORIGIN_CACHE=warehouse.cache.origin.fastly.NullFastlyCache api_key=some_api_key service_id=some_service_id
 MAIL_BACKEND=warehouse.email.services.ConsoleAndSMTPEmailSender host=maildev port=1025 ssl=false sender=noreply@pypi.org
 
 BREACHED_EMAILS=warehouse.accounts.NullEmailBreachedService
