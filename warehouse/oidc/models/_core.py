@@ -23,6 +23,7 @@ from sqlalchemy.orm import mapped_column
 
 from warehouse import db
 from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
@@ -136,7 +137,7 @@ class OIDCPublisherMixin:
 
             if publisher := query.with_session(session).one_or_none():
                 return publisher
-        return None
+        raise InvalidPublisherError("All lookup strategies exhausted")
 
     @classmethod
     def all_known_claims(cls) -> set[str]:
@@ -160,7 +161,7 @@ class OIDCPublisherMixin:
         # Defensive programming: treat the absence of any claims to verify
         # as a failure rather than trivially valid.
         if not self.__required_verifiable_claims__:
-            return False
+            raise InvalidPublisherError("No required verifiable claims")
 
         # All claims should be accounted for.
         # The presence of an unaccounted claim is not an error, only a warning
@@ -189,10 +190,12 @@ class OIDCPublisherMixin:
                         f"JWT for {self.__class__.__name__} is missing claim: "
                         f"{claim_name}"
                     )
-                return False
+                raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
-                return False
+                raise InvalidPublisherError(
+                    f"Check failed for required claim {claim_name!r}"
+                )
 
         # Check optional verifiable claims
         for claim_name, check in self.__optional_verifiable_claims__.items():
@@ -203,7 +206,9 @@ class OIDCPublisherMixin:
             signed_claim = signed_claims.get(claim_name)
 
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
-                return False
+                raise InvalidPublisherError(
+                    f"Check failed for optional claim {claim_name!r}"
+                )
 
         return True
 

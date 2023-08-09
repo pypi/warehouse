@@ -18,17 +18,15 @@ import pytest
 from pyramid.authorization import Authenticated
 
 from tests.common.db.oidc import GitHubPublisherFactory, GooglePublisherFactory
-from warehouse.oidc import utils
+from warehouse.oidc import errors, utils
 from warehouse.utils.security_policy import principals_for
 
 
 def test_find_publisher_by_issuer_bad_issuer_url():
-    assert (
+    with pytest.raises(errors.InvalidPublisherError):
         utils.find_publisher_by_issuer(
             pretend.stub(), "https://fake-issuer.url", pretend.stub()
         )
-        is None
-    )
 
 
 @pytest.mark.parametrize(

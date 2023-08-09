@@ -14,6 +14,7 @@ import pretend
 import pytest
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
+from warehouse.oidc import errors
 from warehouse.oidc.models import _core, github
 
 
@@ -124,7 +125,9 @@ class TestGitHubPublisher:
         }
         signed_claims["fake-claim"] = "fake"
         signed_claims["another-fake-claim"] = "also-fake"
-        assert not publisher.verify_claims(signed_claims=signed_claims)
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(signed_claims=signed_claims)
+        assert str(e.value) == "Check failed for required claim 'sub'"
         assert sentry_sdk.capture_message.calls == [
             pretend.call(
                 "JWT for GitHubPublisher has unaccounted claims: "
@@ -160,7 +163,9 @@ class TestGitHubPublisher:
         signed_claims.pop("sub")
         assert "sub" not in signed_claims
         assert publisher.__required_verifiable_claims__
-        assert not publisher.verify_claims(signed_claims=signed_claims)
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(signed_claims=signed_claims)
+        assert str(e.value) == "Missing claim 'sub'"
         assert sentry_sdk.capture_message.calls == [
             pretend.call("JWT for GitHubPublisher is missing claim: sub")
         ]
@@ -185,7 +190,9 @@ class TestGitHubPublisher:
         signed_claims["ref"] = "ref"
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
-        assert not publisher.verify_claims(signed_claims=signed_claims)
+        with pytest.raises(errors.InvalidPublisherError) as e:
+            publisher.verify_claims(signed_claims=signed_claims)
+        assert str(e.value) == "Check failed for optional claim 'environment'"
         assert sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize("environment", [None, "some-environment"])
