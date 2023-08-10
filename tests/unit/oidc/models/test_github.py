@@ -190,6 +190,7 @@ class TestGitHubPublisher:
             for claim_name in github.GitHubPublisher.__required_verifiable_claims__
         }
         signed_claims["ref"] = "ref"
+        signed_claims["sha"] = "sha"
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
