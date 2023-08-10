@@ -264,18 +264,11 @@ class TestGitHubPublisher:
                 True,
                 None,
             ),
-            # bad: workflow name, empty or missing ref
-            (
-                "foo/bar/.github/workflows/baz.yml@emptyref",
-                "",
-                False,
-                "The ref claim is empty",
-            ),
             (
                 "foo/bar/.github/workflows/baz.yml@missingref",
                 None,
                 False,
-                "The ref claim is empty",
+                "The ref claim is missing",
             ),
             # bad: workflow name with various attempted impersonations
             (
@@ -362,6 +355,39 @@ class TestGitHubPublisher:
             with pytest.raises(errors.InvalidPublisherError) as e:
                 check(publisher.job_workflow_ref, claim, {"ref": ref}) is True
             assert str(e.value) == expected
+
+    def test_github_publisher_job_workflow_ref_empty_string_ref(self, monkeypatch):
+        publisher = github.GitHubPublisher(
+            repository_name="bar",
+            repository_owner="foo",
+            repository_owner_id=pretend.stub(),
+            workflow_filename="baz.yml",
+        )
+
+        scope = pretend.stub()
+        sentry_sdk = pretend.stub(
+            capture_message=pretend.call_recorder(lambda s: None),
+            push_scope=pretend.call_recorder(
+                lambda: pretend.stub(
+                    __enter__=lambda *a: scope, __exit__=lambda *a: None
+                )
+            ),
+        )
+        monkeypatch.setattr(github, "sentry_sdk", sentry_sdk)
+
+        check = github.GitHubPublisher.__required_verifiable_claims__[
+            "job_workflow_ref"
+        ]
+        claim = "foo/bar/.github/workflows/baz.yml@"
+        claims = {"ref": "", "sub": "something_unique"}
+        check(publisher.job_workflow_ref, claim, claims)
+
+        assert sentry_sdk.capture_message.calls == [
+            pretend.call(
+                f"GitHub JWT has empty-string ref claim, other claims are: {claims}"
+            )
+        ]
+        assert scope.fingerprint == claims["sub"]
 
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
