@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Integer, String, Text
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.utils import readme
@@ -22,27 +21,30 @@ class Sponsor(db.Model):
     __tablename__ = "sponsors"
     __repr__ = make_repr("name")
 
-    name = mapped_column(String, nullable=False)
-    service = mapped_column(String)
-    activity_markdown = mapped_column(Text)
+    name: Mapped[str]
+    service: Mapped[str | None]
+    activity_markdown: Mapped[str | None]
 
-    link_url = mapped_column(Text, nullable=False)
-    color_logo_url = mapped_column(Text, nullable=False)
-    white_logo_url = mapped_column(Text)
+    link_url: Mapped[str]
+    color_logo_url: Mapped[str]
+    white_logo_url: Mapped[str | None]
 
     # control flags
-    is_active = mapped_column(Boolean, default=False, nullable=False)
-    footer = mapped_column(Boolean, default=False, nullable=False)
-    psf_sponsor = mapped_column(Boolean, default=False, nullable=False)
-    infra_sponsor = mapped_column(Boolean, default=False, nullable=False)
-    one_time = mapped_column(Boolean, default=False, nullable=False)
-    sidebar = mapped_column(Boolean, default=False, nullable=False)
+    # TODO: These cannot use `bool_false` type, as `default=False` is performed
+    #  locally prior to sending the value to the database.
+    #  Changing incurs a migration, which we should do as a later refactor.
+    is_active: Mapped[bool] = mapped_column(default=False)
+    footer: Mapped[bool] = mapped_column(default=False)
+    psf_sponsor: Mapped[bool] = mapped_column(default=False)
+    infra_sponsor: Mapped[bool] = mapped_column(default=False)
+    one_time: Mapped[bool] = mapped_column(default=False)
+    sidebar: Mapped[bool] = mapped_column(default=False)
 
     # pythondotorg integration
-    origin = mapped_column(String, default="manual")
-    level_name = mapped_column(String)
-    level_order = mapped_column(Integer, default=0)
-    slug = mapped_column(String)
+    origin: Mapped[str | None] = mapped_column(default="manual")
+    level_name: Mapped[str | None]
+    level_order: Mapped[int | None] = mapped_column(default=0)
+    slug: Mapped[str | None]
 
     @property
     def color_logo_img(self):

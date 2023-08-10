@@ -10,8 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import CheckConstraint, Integer, Text
-from sqlalchemy.orm import mapped_column
+from sqlalchemy import CheckConstraint
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
@@ -26,6 +26,6 @@ class Classifier(db.ModelBase):
 
     __repr__ = make_repr("classifier")
 
-    id = mapped_column(Integer, primary_key=True, nullable=False)
-    classifier = mapped_column(Text, unique=True)
-    ordering = mapped_column(Integer, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    classifier: Mapped[str | None] = mapped_column(unique=True)
+    ordering: Mapped[int | None]
