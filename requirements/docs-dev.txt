@@ -279,6 +279,7 @@ sphinx==7.1.2 \
     #   sphinx-autobuild
     #   sphinx-basic-ng
     #   sphinxcontrib-applehelp
+    #   sphinxcontrib-htmlhelp
     #   sphinxcontrib-httpdomain
     #   sphinxcontrib-serializinghtml
 sphinx-autobuild==2021.3.14 \
@@ -297,9 +298,9 @@ sphinxcontrib-devhelp==1.0.2 \
     --hash=sha256:8165223f9a335cc1af7ffe1ed31d2871f325254c0423bc0c4c7cd1c1e4734a2e \
     --hash=sha256:ff7f1afa7b9642e7060379360a67e9c41e8f3121f2ce9164266f61b9f4b338e4
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.1 \
-    --hash=sha256:0cbdd302815330058422b98a113195c9249825d681e18f11e8b1f78a2f11efff \
-    --hash=sha256:c38cb46dccf316c79de6e5515e1770414b797162b23cd3d06e67020e1d2a6903
+sphinxcontrib-htmlhelp==2.0.3 \
+    --hash=sha256:14358d0f88ccf58447f2b54343cdcc0012f32de2f8d27cf934fdbc0b362f9597 \
+    --hash=sha256:abee4e6c5471203ad2fc40dc6a16ed99884a5d6b15a6f79c9269a7e82cf04149
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1 \
     --hash=sha256:21eefe1270e4d9de8d717cc89ee92cc4871b8736774393bafc5e38a6bb77b1d5 \
