@@ -177,7 +177,8 @@ class OIDCPublisherMixin:
                     f"{unaccounted_claims}"
                 )
 
-        # Finally, perform the actual claim verification.
+        # Finally, perform the actual claim verification. First, verify that
+        # all requred claims are present.
         for claim_name, check in self.__required_verifiable_claims__.items():
             # All required claims are mandatory. The absence of a missing
             # claim *is* an error with the JWT, since it indicates a breaking
@@ -192,6 +193,9 @@ class OIDCPublisherMixin:
                     )
                 raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 
+        # Now that we've verified all claims are present, verify each claim is correct
+        for claim_name, check in self.__required_verifiable_claims__.items():
+            signed_claim = signed_claims.get(claim_name)
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
                 raise InvalidPublisherError(
                     f"Check failed for required claim {claim_name!r}"
