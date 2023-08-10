@@ -46,8 +46,8 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     expected = {f"{ground_truth}@{_ref}" for _ref in [ref, sha] if _ref}
     if signed_claim not in expected:
         raise InvalidPublisherError(
-            f"The claim does not match, expecting one of {sorted(expected)!r}, got "
-            f"{signed_claim!r}"
+            "The job_workflow_ref claim does not match, expecting one of"
+            f"{sorted(expected)!r}, got {signed_claim!r}"
         )
 
     return True

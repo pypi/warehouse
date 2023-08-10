@@ -312,7 +312,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@fake.yml@notrailingslash'",
@@ -322,7 +322,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "refs/pulls/6",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@refs/pulls/6', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@fake.yml@refs/pulls/6'",
@@ -333,7 +333,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@'",
@@ -343,7 +343,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/@'",
@@ -353,7 +353,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/'",
@@ -363,7 +363,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'baz.yml'",
@@ -373,7 +373,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@malicious.yml@'",
@@ -383,7 +383,7 @@ class TestGitHubPublisher:
                 "somesha",
                 "notrailingslash",
                 False,
-                "The claim does not match, expecting one of "
+                "The job_workflow_ref claim does not match, expecting one of "
                 "['foo/bar/.github/workflows/baz.yml@notrailingslash', "
                 "'foo/bar/.github/workflows/baz.yml@somesha'], "
                 "got 'foo/bar/.github/workflows/baz.yml@@'",
