@@ -113,7 +113,7 @@ class GitHubPublisherMixin:
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
-    __required_unverifiable_claims__: set[str] = {"ref"}
+    __required_unverifiable_claims__: set[str] = {"ref", "sha"}
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
@@ -123,7 +123,6 @@ class GitHubPublisherMixin:
         "actor",
         "actor_id",
         "jti",
-        "sha",
         "run_id",
         "run_number",
         "run_attempt",

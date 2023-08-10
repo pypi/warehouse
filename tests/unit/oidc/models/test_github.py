@@ -41,13 +41,15 @@ class TestGitHubPublisher:
 
     def test_github_publisher_all_known_claims(self):
         assert github.GitHubPublisher.all_known_claims() == {
-            # verifiable claims
+            # required verifiable claims
             "sub",
-            "ref",
             "repository",
             "repository_owner",
             "repository_owner_id",
             "job_workflow_ref",
+            # required unverifiable claims
+            "ref",
+            "sha",
             # optional verifiable claims
             "environment",
             # preverified claims
@@ -60,7 +62,6 @@ class TestGitHubPublisher:
             "actor",
             "actor_id",
             "jti",
-            "sha",
             "run_id",
             "run_number",
             "run_attempt",
