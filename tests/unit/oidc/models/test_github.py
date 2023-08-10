@@ -264,18 +264,11 @@ class TestGitHubPublisher:
                 True,
                 None,
             ),
-            # bad: workflow name, empty or missing ref
-            (
-                "foo/bar/.github/workflows/baz.yml@emptyref",
-                "",
-                False,
-                "The ref claim is empty",
-            ),
             (
                 "foo/bar/.github/workflows/baz.yml@missingref",
                 None,
                 False,
-                "The ref claim is empty",
+                "The ref claim is missing",
             ),
             # bad: workflow name with various attempted impersonations
             (

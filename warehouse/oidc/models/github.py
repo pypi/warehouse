@@ -38,8 +38,8 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
         raise InvalidPublisherError("The job_workflow_ref claim is empty")
 
     ref = all_signed_claims.get("ref")
-    if not ref:
-        raise InvalidPublisherError("The ref claim is empty")
+    if ref is None:
+        raise InvalidPublisherError("The ref claim is missing")
 
     if not (expected := f"{ground_truth}@{ref}") == signed_claim:
         raise InvalidPublisherError(
