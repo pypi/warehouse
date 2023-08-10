@@ -196,7 +196,9 @@ class OIDCPublisherMixin:
         # Now that we've verified all claims are present, verify each claim is correct
         for claim_name, check in self.__required_verifiable_claims__.items():
             signed_claim = signed_claims.get(claim_name)
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if check and not check(
+                getattr(self, claim_name), signed_claim, signed_claims
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for required claim {claim_name!r}"
                 )
@@ -209,7 +211,9 @@ class OIDCPublisherMixin:
             # required for a given publisher.
             signed_claim = signed_claims.get(claim_name)
 
-            if not check(getattr(self, claim_name), signed_claim, signed_claims):
+            if check and not check(
+                getattr(self, claim_name), signed_claim, signed_claims
+            ):
                 raise InvalidPublisherError(
                     f"Check failed for optional claim {claim_name!r}"
                 )
