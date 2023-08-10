@@ -90,6 +90,9 @@ class OIDCPublisherMixin:
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
+    # A set of claim names which must be present, but can't be verified
+    __required_unverifiable_claims__: set[str] = set()
+
     # Simlar to __verificable_claims__, but these claims are optional
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
@@ -146,6 +149,7 @@ class OIDCPublisherMixin:
         """
         return (
             cls.__required_verifiable_claims__.keys()
+            | cls.__required_unverifiable_claims__
             | cls.__optional_verifiable_claims__.keys()
             | cls.__preverified_claims__
             | cls.__unchecked_claims__
@@ -177,8 +181,12 @@ class OIDCPublisherMixin:
                     f"{unaccounted_claims}"
                 )
 
-        # Finally, perform the actual claim verification.
-        for claim_name, check in self.__required_verifiable_claims__.items():
+        # Finally, perform the actual claim verification. First, verify that
+        # all requred claims are present.
+        for claim_name in (
+            self.__required_verifiable_claims__.keys()
+            | self.__required_unverifiable_claims__
+        ):
             # All required claims are mandatory. The absence of a missing
             # claim *is* an error with the JWT, since it indicates a breaking
             # change in the JWT's payload.
@@ -192,6 +200,10 @@ class OIDCPublisherMixin:
                     )
                 raise InvalidPublisherError(f"Missing claim {claim_name!r}")
 
+        # Now that we've verified all claims are present, verify each
+        # verifiable claim is correct
+        for claim_name, check in self.__required_verifiable_claims__.items():
+            signed_claim = signed_claims.get(claim_name)
             if not check(getattr(self, claim_name), signed_claim, signed_claims):
                 raise InvalidPublisherError(
                     f"Check failed for required claim {claim_name!r}"
