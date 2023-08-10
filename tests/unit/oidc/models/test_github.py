@@ -136,7 +136,8 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    def test_github_publisher_missing_claims(self, monkeypatch):
+    @pytest.mark.parametrize("missing", ["sub", "ref"])
+    def test_github_publisher_missing_claims(self, monkeypatch, missing):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
             repository_owner="fakeowner",
@@ -159,17 +160,17 @@ class TestGitHubPublisher:
             claim_name: "fake"
             for claim_name in github.GitHubPublisher.all_known_claims()
         }
-        # Pop the first signed claim, so that it's the first one to fail.
-        signed_claims.pop("sub")
-        assert "sub" not in signed_claims
+        # Pop the missing claim, so that it's missing.
+        signed_claims.pop(missing)
+        assert missing not in signed_claims
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
             publisher.verify_claims(signed_claims=signed_claims)
-        assert str(e.value) == "Missing claim 'sub'"
+        assert str(e.value) == f"Missing claim {missing!r}"
         assert sentry_sdk.capture_message.calls == [
-            pretend.call("JWT for GitHubPublisher is missing claim: sub")
+            pretend.call(f"JWT for GitHubPublisher is missing claim: {missing}")
         ]
-        assert scope.fingerprint == ["sub"]
+        assert scope.fingerprint == [missing]
 
     def test_github_publisher_missing_optional_claims(self, monkeypatch):
         publisher = github.GitHubPublisher(
