@@ -26,8 +26,6 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
 )
 
-unpredictable = object()
-
 
 def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # We expect a string formatted as follows:
@@ -103,16 +101,17 @@ class GitHubPublisherMixin:
     workflow_filename = mapped_column(String, nullable=False)
     environment = mapped_column(String, nullable=True)
 
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = {
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
-        "ref": None,  # We only want to ensure it is present
         "repository": check_claim_binary(str.__eq__),
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = {
+    __required_unverifiable_claims__: set[str] = {"ref"}
+
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
     }
 
@@ -209,10 +208,6 @@ class GitHubPublisherMixin:
     @property
     def sub(self):
         return f"repo:{self.repository}"
-
-    @property
-    def ref(self):
-        return unpredictable
 
     def publisher_url(self, claims=None):
         base = f"https://github.com/{self.repository}"

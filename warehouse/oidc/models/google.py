@@ -51,12 +51,12 @@ class GooglePublisherMixin:
     email = mapped_column(String, nullable=False)
     sub = mapped_column(String, nullable=True)
 
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = {
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "email": check_claim_binary(str.__eq__),
         "email_verified": check_claim_invariant(True),
     }
 
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = {
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub
     }
 
