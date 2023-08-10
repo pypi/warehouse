@@ -43,6 +43,7 @@ class TestGitHubPublisher:
         assert github.GitHubPublisher.all_known_claims() == {
             # verifiable claims
             "sub",
+            "ref",
             "repository",
             "repository_owner",
             "repository_owner_id",
@@ -59,7 +60,6 @@ class TestGitHubPublisher:
             "actor",
             "actor_id",
             "jti",
-            "ref",
             "sha",
             "run_id",
             "run_number",

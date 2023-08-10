@@ -23,6 +23,8 @@ from warehouse.oidc.models._core import (
     check_claim_binary,
 )
 
+unpredictable = object()
+
 
 def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # We expect a string formatted as follows:
@@ -100,6 +102,7 @@ class GitHubPublisherMixin:
 
     __required_verifiable_claims__ = {
         "sub": _check_sub,
+        "ref": None,  # We only want to ensure it is present
         "repository": check_claim_binary(str.__eq__),
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
@@ -114,7 +117,6 @@ class GitHubPublisherMixin:
         "actor",
         "actor_id",
         "jti",
-        "ref",
         "sha",
         "run_id",
         "run_number",
@@ -204,6 +206,10 @@ class GitHubPublisherMixin:
     @property
     def sub(self):
         return f"repo:{self.repository}"
+
+    @property
+    def ref(self):
+        return unpredictable
 
     def publisher_url(self, claims=None):
         base = f"https://github.com/{self.repository}"
