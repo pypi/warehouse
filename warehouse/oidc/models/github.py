@@ -12,6 +12,8 @@
 
 from typing import Any
 
+import sentry_sdk
+
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -40,6 +42,14 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     ref = all_signed_claims.get("ref")
     if ref is None:
         raise InvalidPublisherError("The ref claim is missing")
+
+    if ref == "":
+        with sentry_sdk.push_scope() as scope:
+            scope.fingerprint = all_signed_claims["sub"]
+            sentry_sdk.capture_message(
+                "GitHub JWT has empty-string ref claim, other claims are: "
+                f"{all_signed_claims}"
+            )
 
     if not (expected := f"{ground_truth}@{ref}") == signed_claim:
         raise InvalidPublisherError(
