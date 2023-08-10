@@ -13,16 +13,18 @@
 import functools
 import logging
 
+from uuid import UUID
+
 import alembic.config
 import pyramid_retry
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
-from sqlalchemy import event, inspect
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy import event, func, inspect
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
-from sqlalchemy.orm import DeclarativeBase, mapped_column, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
@@ -83,10 +85,10 @@ class ModelBase(DeclarativeBase):
 class Model(ModelBase):
     __abstract__ = True
 
-    id = mapped_column(
-        UUID(as_uuid=True),
+    id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         primary_key=True,
-        server_default=sqlalchemy.text("gen_random_uuid()"),
+        server_default=func.gen_random_uuid(),
     )
 
 

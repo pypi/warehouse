@@ -12,13 +12,16 @@
 import enum
 import ipaddress
 
+from datetime import datetime
+
 import sentry_sdk
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, Enum, Index, Text, sql
+from sqlalchemy import CheckConstraint, Enum, Index
 from sqlalchemy.dialects.postgresql import INET, JSONB
-from sqlalchemy.orm import mapped_column, validates
+from sqlalchemy.orm import Mapped, mapped_column, validates
 
 from warehouse import db
+from warehouse.utils.db.types import bool_false
 
 
 class BanReason(enum.Enum):
@@ -39,35 +42,28 @@ class IpAddress(db.Model):
     def __repr__(self) -> str:
         return str(self.ip_address)
 
-    def __lt__(self, other):
+    def __lt__(self, other) -> bool:
         return self.id < other.id
 
-    ip_address = mapped_column(
-        INET, nullable=False, unique=True, comment="Structured IP Address value"
+    ip_address: Mapped[ipaddress.IPv4Address | ipaddress.IPv6Address] = mapped_column(
+        INET, unique=True, comment="Structured IP Address value"
     )
-    hashed_ip_address = mapped_column(
-        Text, nullable=True, unique=True, comment="Hash that represents an IP Address"
+    hashed_ip_address: Mapped[str | None] = mapped_column(
+        unique=True, comment="Hash that represents an IP Address"
     )
-    geoip_info = mapped_column(
+    geoip_info: Mapped[dict | None] = mapped_column(
         JSONB,
-        nullable=True,
         comment="JSON containing GeoIP data associated with an IP Address",
     )
 
-    is_banned = mapped_column(
-        Boolean,
-        nullable=False,
-        server_default=sql.false(),
+    is_banned: Mapped[bool_false] = mapped_column(
         comment="If True, this IP Address will be marked as banned",
     )
-    ban_reason = mapped_column(  # type: ignore[var-annotated]
+    ban_reason: Mapped[Enum | None] = mapped_column(
         Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
-        nullable=True,
         comment="Reason for banning, must be in the BanReason enumeration",
     )
-    ban_date = mapped_column(
-        DateTime,
-        nullable=True,
+    ban_date: Mapped[datetime | None] = mapped_column(
         comment="Date that IP Address was last marked as banned",
     )
 
