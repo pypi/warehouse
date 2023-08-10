@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
+
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -18,6 +20,7 @@ from sqlalchemy.sql.expression import func, literal
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
+    CheckClaimCallable,
     OIDCPublisher,
     PendingOIDCPublisher,
     check_claim_binary,
@@ -98,7 +101,7 @@ class GitHubPublisherMixin:
     workflow_filename = mapped_column(String, nullable=False)
     environment = mapped_column(String, nullable=True)
 
-    __required_verifiable_claims__ = {
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
         "repository": check_claim_binary(str.__eq__),
         "repository_owner": check_claim_binary(str.__eq__),
@@ -106,7 +109,9 @@ class GitHubPublisherMixin:
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
-    __optional_verifiable_claims__ = {
+    __required_unverifiable_claims__: set[str] = {"ref"}
+
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
     }
 
@@ -114,7 +119,6 @@ class GitHubPublisherMixin:
         "actor",
         "actor_id",
         "jti",
-        "ref",
         "sha",
         "run_id",
         "run_number",
