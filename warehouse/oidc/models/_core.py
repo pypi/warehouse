@@ -88,10 +88,10 @@ class OIDCPublisherMixin:
 
     # A map of claim names to "check" functions, each of which
     # has the signature `check(ground-truth, signed-claim, all-signed-claims) -> bool`.
-    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __required_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = dict()
 
     # Simlar to __verificable_claims__, but these claims are optional
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
+    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any] | None] = dict()
 
     # Claims that have already been verified during the JWT signature
     # verification phase.
