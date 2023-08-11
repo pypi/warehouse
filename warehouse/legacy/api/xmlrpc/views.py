@@ -21,10 +21,11 @@ from collections.abc import Mapping
 from packaging.utils import canonicalize_name
 from pydantic import StrictBool, StrictInt, StrictStr, ValidationError
 from pydantic.decorator import ValidatedFunction
-from pyramid.httpexceptions import HTTPTooManyRequests
+from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
 from pyramid_rpc.xmlrpc import (
+    XmlRpcApplicationError,
     XmlRpcError,
     XmlRpcInvalidMethodParams,
     exception_view as _exception_view,
@@ -226,6 +227,8 @@ class TypedMapplyViewMapper(MapplyViewMapper):
 
 @view_config(route_name="xmlrpc.pypi", context=Exception, renderer="xmlrpc")
 def exception_view(exc, request):
+    if isinstance(exc, HTTPMethodNotAllowed):
+        return XmlRpcApplicationError()
     return _exception_view(exc, request)
 
 

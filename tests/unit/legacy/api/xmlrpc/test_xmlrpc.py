@@ -15,6 +15,9 @@ import datetime
 import pretend
 import pytest
 
+from pyramid.httpexceptions import HTTPMethodNotAllowed
+from pyramid_rpc.xmlrpc import XmlRpcApplicationError
+
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -518,3 +521,10 @@ def test_multicall(pyramid_request):
 )
 def test_clean_for_xml(string, expected):
     assert xmlrpc._clean_for_xml(string) == expected
+
+
+def test_http_method_not_allowed_does_not_bubble_up(pyramid_request):
+    assert isinstance(
+        xmlrpc.exception_view(HTTPMethodNotAllowed(), pyramid_request),
+        XmlRpcApplicationError,
+    )
