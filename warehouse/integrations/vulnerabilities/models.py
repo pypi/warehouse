@@ -10,14 +10,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import annotations
+
 import datetime
+
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, ForeignKeyConstraint, String, orm
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
-from warehouse.packaging.models import Release
+
+if TYPE_CHECKING:
+    from warehouse.packaging.models import Release
 
 
 class ReleaseVulnerability(db.ModelBase):
