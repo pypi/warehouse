@@ -49,6 +49,7 @@ from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
+from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.organizations.models import (
     Organization,
     OrganizationProject,
@@ -520,7 +521,7 @@ class Release(db.Model):
     )
 
     vulnerabilities = orm.relationship(
-        "VulnerabilityRecord",
+        VulnerabilityRecord,
         back_populates="releases",
         secondary="release_vulnerabilities",
         passive_deletes=True,
