@@ -475,8 +475,9 @@ first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
     # via -r requirements/main.in
-forcediphttpsadapter==1.0.2 \
-    --hash=sha256:f7582b34aaa6ab6b17f69ab1abbfe67097b952ed0682b758b5e01e18fe24433e
+forcediphttpsadapter==1.1.0 \
+    --hash=sha256:0d224cf6e8e50eb788c9f5994a7afa6d389bac6dbe540b7dfd77a32590ad0153 \
+    --hash=sha256:5e7662ece61735585332d09b87d94fffe4752469d5c0d3feff48746e5d70744b
     # via -r requirements/main.in
 github-reserved-names==2023.5.2 \
     --hash=sha256:29746284bf02fe21a83c6cac3419d6de6c550df502dd8f0fa708137ee08d7360 \
@@ -1147,6 +1148,7 @@ packaging==23.1 \
     --hash=sha256:a392980d2b6cffa644431898be54b0045151319d1e7ec34f0cfed48767dd334f
     # via
     #   -r requirements/main.in
+    #   forcediphttpsadapter
     #   google-cloud-bigquery
     #   limits
     #   linehaul
