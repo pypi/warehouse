@@ -208,6 +208,7 @@
     {% endtrans %}
   </p>
 
+  {% if request.user.has_two_factor %}
   {% set publishers = [("GitHub", github_form(request, pending_github_publisher_form))] %}
 
   <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
@@ -224,5 +225,13 @@
     </div>
     {% endfor %}
   </div>
+
+  {% else %}{# user has not enabled 2FA #}
+  <div class="callout-block">
+    {% trans href=request.route_path('manage.account.two-factor') %}
+    You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+    {% endtrans %}
+  </div>
+  {% endif %}
 
 {% endblock %}

@@ -59,6 +59,7 @@
     {% endif %}
 
     <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
+    {% if request.user.has_two_factor %}
     <h3>GitHub</h3>
 
     <p>
@@ -145,6 +146,14 @@
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
     </form>
+
+    {% else %}{# user has not enabled 2FA #}
+    <div class="callout-block">
+      {% trans href=request.route_path('manage.account.two-factor') %}
+      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+      {% endtrans %}
+    </div>
+    {% endif %}
   </div>
 </div>
 
