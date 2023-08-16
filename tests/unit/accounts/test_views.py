@@ -3298,6 +3298,7 @@ class TestManageAccountPublishingViews:
                 repository_owner="some-owner",
                 repository_owner_id="some-id",
                 workflow_filename="some-filename",
+                environment="",
                 added_by_id=db_request.user.id,
             )
             db_request.db.add(pending_publisher)
@@ -3717,6 +3718,7 @@ class TestManageAccountPublishingViews:
             repository_owner="some-owner",
             repository_owner_id="some-id",
             workflow_filename="some-filename",
+            environment="",
             added_by_id=db_request.user.id,
         )
         db_request.db.add(pending_publisher)
@@ -3757,6 +3759,7 @@ class TestManageAccountPublishingViews:
             repository_owner="some-owner",
             repository_owner_id="some-id",
             workflow_filename="some-filename",
+            environment="",
             added_by_id=some_other_user.id,
         )
         db_request.db.add(pending_publisher)
@@ -3798,6 +3801,7 @@ class TestManageAccountPublishingViews:
             repository_owner="some-owner",
             repository_owner_id="some-id",
             workflow_filename="some-filename",
+            environment="",
             added_by_id=db_request.user.id,
         )
         db_request.db.add(pending_publisher)

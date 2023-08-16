@@ -162,7 +162,7 @@ class GitHubPublisherBase(forms.Form):
         return (
             self.environment.data.lower()
             if self.environment.data and not self.environment.data.isspace()
-            else None
+            else ""
         )
 
 

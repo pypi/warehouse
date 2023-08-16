@@ -447,7 +447,7 @@ class TestGitHubPublisher:
             repository_owner="repository_owner",
             repository_owner_id="666",
             workflow_filename="workflow_filename.yml",
-            environment=None,
+            environment="",
         )
         db_request.db.add(publisher1)
         db_request.db.commit()
