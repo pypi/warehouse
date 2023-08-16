@@ -28,11 +28,11 @@ down_revision = "a2af745511e0"
 def upgrade():
     # Data migration
     op.execute(
-        "UPDATE github_oidc_publishers SET environment = '' where environment = NULL"
+        "UPDATE github_oidc_publishers SET environment = '' where environment IS NULL"
     )
     op.execute(
         "UPDATE pending_github_oidc_publishers "
-        "SET environment = '' where environment = NULL"
+        "SET environment = '' where environment IS NULL"
     )
 
     op.alter_column(
@@ -65,9 +65,9 @@ def downgrade():
 
     # Data migration
     op.execute(
-        "UPDATE github_oidc_publishers SET environment = NULL where environment = ''"
+        "UPDATE github_oidc_publishers SET environment IS NULL where environment = ''"
     )
     op.execute(
         "UPDATE pending_github_oidc_publishers "
-        "SET environment = NULL where environment = ''"
+        "SET environment IS NULL where environment = ''"
     )
