@@ -17,6 +17,7 @@ import xmlrpc.client
 import xmlrpc.server
 
 from collections.abc import Mapping
+from inspect import signature
 
 from packaging.utils import canonicalize_name
 from pydantic import StrictBool, StrictInt, StrictStr, ValidationError, validate_call
@@ -216,7 +217,18 @@ class TypedMapplyViewMapper(MapplyViewMapper):
             validate_call(fn)(*args, **kwargs)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
-                "; ".join([f"{e['loc']}: {e['msg']}" for e in exc.errors()])
+                "; ".join(
+                    [
+                        (
+                            list(signature(fn).parameters.keys())[e["loc"][0]]
+                            if isinstance(e["loc"][0], int)
+                            else e["loc"][0]
+                        )
+                        + ": "
+                        + e["msg"]
+                        for e in exc.errors()
+                    ]
+                )
             )
 
         return super().mapply(fn, args, kwargs)
