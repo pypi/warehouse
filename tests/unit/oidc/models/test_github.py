@@ -12,6 +12,7 @@
 
 import pretend
 import pytest
+import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
@@ -439,6 +440,28 @@ class TestGitHubPublisher:
     def test_github_publisher_environment_claim(self, truth, claim, valid):
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
+
+    def test_github_publisher_duplicates_cant_be_created(self, db_request):
+        publisher1 = github.GitHubPublisher(
+            repository_name="repository_name",
+            repository_owner="repository_owner",
+            repository_owner_id="666",
+            workflow_filename="workflow_filename.yml",
+            environment="",
+        )
+        db_request.db.add(publisher1)
+        db_request.db.commit()
+
+        with pytest.raises(sqlalchemy.exc.IntegrityError):
+            publisher2 = github.GitHubPublisher(
+                repository_name="repository_name",
+                repository_owner="repository_owner",
+                repository_owner_id="666",
+                workflow_filename="workflow_filename.yml",
+                environment="",
+            )
+            db_request.db.add(publisher2)
+            db_request.db.commit()
 
 
 class TestPendingGitHubPublisher:

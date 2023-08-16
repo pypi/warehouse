@@ -103,7 +103,7 @@ class GitHubPublisherMixin:
     repository_owner = mapped_column(String, nullable=False)
     repository_owner_id = mapped_column(String, nullable=False)
     workflow_filename = mapped_column(String, nullable=False)
-    environment = mapped_column(String, nullable=True)
+    environment = mapped_column(String, nullable=False)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -180,7 +180,7 @@ class GitHubPublisherMixin:
                 repository_name=repository_name,
                 repository_owner=repository_owner,
                 repository_owner_id=signed_claims["repository_owner_id"],
-                environment=None,
+                environment="",
             )
             .filter(
                 literal(workflow_ref).like(func.concat(klass.workflow_filename, "%"))
