@@ -17,10 +17,10 @@ import xmlrpc.client
 import xmlrpc.server
 
 from collections.abc import Mapping
+from inspect import signature
 
 from packaging.utils import canonicalize_name
-from pydantic import StrictBool, StrictInt, StrictStr, ValidationError
-from pydantic.decorator import ValidatedFunction
+from pydantic import StrictBool, StrictInt, StrictStr, ValidationError, validate_call
 from pyramid.httpexceptions import HTTPMethodNotAllowed, HTTPTooManyRequests
 from pyramid.view import view_config
 from pyramid_rpc.mapper import MapplyViewMapper
@@ -214,12 +214,21 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            validated = ValidatedFunction(fn, None)
-            values = validated.build_values(args, kwargs)
-            validated.model(**values)
+            validate_call(fn)(*args, **kwargs)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
-                "; ".join([f"{e['loc']}: {e['msg']}" for e in exc.errors()])
+                "; ".join(
+                    [
+                        (
+                            list(signature(fn).parameters.keys())[e["loc"][0]]
+                            if isinstance(e["loc"][0], int)
+                            else e["loc"][0]
+                        )
+                        + ": "
+                        + e["msg"]
+                        for e in exc.errors()
+                    ]
+                )
             )
 
         return super().mapply(fn, args, kwargs)
