@@ -213,9 +213,7 @@ class XMLRPCWrappedError(xmlrpc.client.Fault):
 class TypedMapplyViewMapper(MapplyViewMapper):
     def mapply(self, fn, args, kwargs):
         try:
-            validated = validate_call(fn, None)
-            values = validated.build_values(args, kwargs)
-            validated.model(**values)
+            validate_call(fn)(*args, **kwargs)
         except ValidationError as exc:
             raise XMLRPCInvalidParamTypes(
                 "; ".join([f"{e['loc']}: {e['msg']}" for e in exc.errors()])
