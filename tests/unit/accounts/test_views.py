@@ -3294,7 +3294,7 @@ class TestManageAccountPublishingViews:
         for i in range(3):
             pending_publisher = PendingGitHubPublisher(
                 project_name="some-project-name-" + str(i),
-                repository_name="some-repository",
+                repository_name="some-repository" + str(i),
                 repository_owner="some-owner",
                 repository_owner_id="some-id",
                 workflow_filename="some-filename",
