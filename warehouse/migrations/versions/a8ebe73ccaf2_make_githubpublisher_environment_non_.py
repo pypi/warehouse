@@ -65,9 +65,9 @@ def downgrade():
 
     # Data migration
     op.execute(
-        "UPDATE github_oidc_publishers SET environment IS NULL where environment = ''"
+        "UPDATE github_oidc_publishers SET environment = NULL where environment = ''"
     )
     op.execute(
         "UPDATE pending_github_oidc_publishers "
-        "SET environment IS NULL where environment = ''"
+        "SET environment = NULL where environment = ''"
     )
