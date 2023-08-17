@@ -38,14 +38,13 @@ class MessageVerifier:
     def verify(self, message):
         if message.get("SignatureVersion") == "1":
             self._validate_v1_signature(message)
-            self._validate_timestamp(message["Timestamp"])
-            self._validate_topic(message["TopicArn"])
         elif message.get("SignatureVersion") == "2":
             self._validate_v2_signature(message)
-            self._validate_timestamp(message["Timestamp"])
-            self._validate_topic(message["TopicArn"])
         else:
             raise InvalidMessageError("Unknown SignatureVersion")
+
+        self._validate_timestamp(message["Timestamp"])
+        self._validate_topic(message["TopicArn"])
 
     def _validate_topic(self, topic):
         if topic not in self.topics:
