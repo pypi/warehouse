@@ -95,6 +95,7 @@ class TestMessageVerifier:
         ("topics", "data", "error"),
         [
             ([], {}, "Unknown SignatureVersion"),
+            ([], {"SignatureVersion": "3"}, "Unknown SignatureVersion"),
             (
                 [],
                 {
