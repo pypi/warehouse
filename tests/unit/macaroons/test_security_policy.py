@@ -131,7 +131,7 @@ class TestMacaroonSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_frozen_user(self, monkeypatch):
+    def test_identity_disabled_user(self, monkeypatch):
         policy = security_policy.MacaroonSecurityPolicy()
 
         vary_cb = pretend.stub()
