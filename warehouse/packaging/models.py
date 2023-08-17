@@ -24,7 +24,6 @@ from sqlalchemy import (
     BigInteger,
     Boolean,
     CheckConstraint,
-    Column,
     DateTime,
     Enum,
     FetchedValue,
@@ -32,7 +31,6 @@ from sqlalchemy import (
     Index,
     Integer,
     String,
-    Table,
     Text,
     UniqueConstraint,
     func,
@@ -484,7 +482,7 @@ class Release(db.Model):
     _classifiers = orm.relationship(
         Classifier,
         backref="project_releases",
-        secondary=lambda: release_classifiers,  # type: ignore
+        secondary="release_classifiers",
         order_by=Classifier.ordering,
         passive_deletes=True,
     )
@@ -718,19 +716,23 @@ class Filename(db.ModelBase):
     filename = mapped_column(Text, unique=True, nullable=False)
 
 
-# TODO: Convert to Declarative API
-release_classifiers = Table(
-    "release_classifiers",
-    db.metadata,
-    Column(
-        "release_id",
+class ReleaseClassifiers(db.ModelBase):
+    __tablename__ = "release_classifiers"
+    __table_args__ = (
+        Index("rel_class_trove_id_idx", "trove_id"),
+        Index("rel_class_release_id_idx", "release_id"),
+    )
+
+    trove_id = mapped_column(
+        Integer,
+        ForeignKey("trove_classifiers.id"),
+        primary_key=True,
+    )
+    release_id = mapped_column(
+        UUID,
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
-    ),
-    Column("trove_id", Integer(), ForeignKey("trove_classifiers.id")),
-    Index("rel_class_trove_id_idx", "trove_id"),
-    Index("rel_class_release_id_idx", "release_id"),
-)
+        primary_key=True,
+    )
 
 
 class JournalEntry(db.ModelBase):

@@ -42,8 +42,8 @@ from warehouse.packaging.models import (
     JournalEntry,
     Project,
     Release,
+    ReleaseClassifiers,
     Role,
-    release_classifiers,
 )
 from warehouse.rate_limiting import IRateLimiter
 
@@ -514,8 +514,8 @@ def browse(request, classifiers: list[StrictStr]):
     )
 
     release_classifiers_q = (
-        select(release_classifiers)
-        .where(release_classifiers.c.trove_id == classifiers_q.c.id)
+        select(ReleaseClassifiers)
+        .where(ReleaseClassifiers.trove_id == classifiers_q.c.id)
         .alias("rc")
     )
 
