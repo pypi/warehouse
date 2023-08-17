@@ -21,7 +21,7 @@ from cryptography import x509
 from cryptography.exceptions import InvalidSignature as _InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-from cryptography.hazmat.primitives.hashes import SHA1
+from cryptography.hazmat.primitives.hashes import SHA1, SHA256
 
 _signing_url_host_re = re.compile(r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$")
 
@@ -36,10 +36,13 @@ class MessageVerifier:
         self.http = session if session is not None else requests.session()
 
     def verify(self, message):
-        if message.get("SignatureVersion") != "1":
+        if message.get("SignatureVersion") == "1":
+            self._validate_v1_signature(message)
+        elif message.get("SignatureVersion") == "2":
+            self._validate_v2_signature(message)
+        else:
             raise InvalidMessageError("Unknown SignatureVersion")
 
-        self._validate_signature(message)
         self._validate_timestamp(message["Timestamp"])
         self._validate_topic(message["TopicArn"])
 
@@ -61,13 +64,23 @@ class MessageVerifier:
         if age > datetime.timedelta(hours=1):
             raise InvalidMessageError("Message has expired")
 
-    def _validate_signature(self, message):
+    def _validate_v1_signature(self, message):
         pubkey = self._get_pubkey(message["SigningCertURL"])
         signature = self._get_signature(message)
         data = self._get_data_to_sign(message)
 
         try:
             pubkey.verify(signature, data, PKCS1v15(), SHA1())
+        except _InvalidSignature:
+            raise InvalidMessageError("Invalid Signature") from None
+
+    def _validate_v2_signature(self, message):
+        pubkey = self._get_pubkey(message["SigningCertURL"])
+        signature = self._get_signature(message)
+        data = self._get_data_to_sign(message)
+
+        try:
+            pubkey.verify(signature, data, PKCS1v15(), SHA256())
         except _InvalidSignature:
             raise InvalidMessageError("Invalid Signature") from None
 
