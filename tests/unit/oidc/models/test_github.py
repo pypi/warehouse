@@ -429,8 +429,9 @@ class TestGitHubPublisher:
     @pytest.mark.parametrize(
         ("truth", "claim", "valid"),
         [
-            (None, None, True),
-            (None, "some-environment", True),
+            ("", None, True),
+            ("", "", True),
+            ("", "some-environment", True),
             ("some-environment", "some-environment", True),
             ("some-environment", "sOmE-eNvIrOnMeNt", True),
             ("some-environment", None, False),
