@@ -61,7 +61,7 @@ def _check_environment(ground_truth, signed_claim, all_signed_claims):
 
     # If we haven't set an environment name for the publisher, we don't need to
     # check this claim
-    if ground_truth is None:
+    if ground_truth == "":
         return True
 
     # Defensive: GitHub might give us an empty environment if this token wasn't
