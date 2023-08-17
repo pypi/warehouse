@@ -16,6 +16,7 @@ from pyramid.authorization import ACLHelper
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
@@ -102,8 +103,13 @@ class MacaroonSecurityPolicy:
         except InvalidMacaroonError:
             return None
 
+        login_service = request.find_service(IUserService, context=None)
+
         # Every Macaroon is either associated with a user or an OIDC publisher.
         if dm.user is not None:
+            is_disabled, _ = login_service.is_disabled(dm.user.id)
+            if is_disabled:
+                return None
             return dm.user
 
         return OIDCContext(dm.oidc_publisher, oidc_claims)
