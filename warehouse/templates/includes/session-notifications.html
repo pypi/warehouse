@@ -30,7 +30,7 @@
       </a>
     </span>
   </div>
-  {% elif not request.user.has_two_factor %}
+  {% elif not request.referrer.endswith('/account/two-factor/') and not request.user.has_two_factor %}
   <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-notification-target="notification">
     <span class="notification-bar__message">
       {% trans href=request.route_path('manage.account.two-factor') %}

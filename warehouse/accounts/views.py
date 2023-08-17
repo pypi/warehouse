@@ -874,7 +874,7 @@ def verify_email(request):
         ),
         queue="success",
     )
-    return HTTPSeeOther(request.route_path("manage.account"))
+    return HTTPSeeOther(request.route_path("manage.account.two-factor"))
 
 
 def _get_two_factor_data(request, _redirect_to="/"):

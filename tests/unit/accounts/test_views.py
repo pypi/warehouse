@@ -2168,7 +2168,9 @@ class TestVerifyEmail:
         assert user.is_active
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
-        assert db_request.route_path.calls == [pretend.call("manage.account")]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.account.two-factor")
+        ]
         assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
         assert email_limiter.clear.calls == [pretend.call(db_request.remote_addr)]
         assert verify_limiter.clear.calls == [pretend.call(user.id)]
