@@ -2266,6 +2266,36 @@ class TestVerifyEmail:
             pretend.call("Email already verified", queue="error")
         ]
 
+    def test_verify_email_with_existing_2fa(self, db_request, token_service):
+        user = UserFactory(is_active=False, totp_secret=b"secret")
+        email = EmailFactory(user=user, verified=False, primary=False)
+        db_request.user = user
+        db_request.GET.update({"token": "RANDOM_KEY"})
+        db_request.route_path = pretend.call_recorder(lambda name: "/")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {"action": "email-verify", "email.id": str(email.id)}
+        )
+        email_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        verify_limiter = pretend.stub(clear=pretend.call_recorder(lambda a: None))
+        services = {
+            "email": token_service,
+            "email.add": email_limiter,
+            "email.verify": verify_limiter,
+        }
+        db_request.find_service = pretend.call_recorder(
+            lambda a, name, **kwargs: services[name]
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        assert db_request.user.has_two_factor
+
+        result = views.verify_email(db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/"
+        assert db_request.route_path.calls == [pretend.call("manage.account")]
+        assert db_request.user.is_active
+
 
 class TestVerifyOrganizationRole:
     @pytest.mark.parametrize(

@@ -874,6 +874,11 @@ def verify_email(request):
         ),
         queue="success",
     )
+
+    # If they've already set up a 2FA app, send them to their account page.
+    if request.user.has_two_factor:
+        return HTTPSeeOther(request.route_path("manage.account"))
+    # Otherwise, send them to the two-factor setup page.
     return HTTPSeeOther(request.route_path("manage.account.two-factor"))
 
 
