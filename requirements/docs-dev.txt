@@ -316,9 +316,9 @@ sphinxcontrib-mermaid==0.9.2 \
     --hash=sha256:252ef13dd23164b28f16d8b0205cf184b9d8e2b714a302274d9f59eb708e77af \
     --hash=sha256:6795a72037ca55e65663d2a2c1a043d636dc3d30d418e56dd6087d1459d98a5d
     # via -r requirements/docs-dev.in
-sphinxcontrib-qthelp==1.0.5 \
-    --hash=sha256:962730a6ad15d21fd6760b14c9e95c00a097413595aa6ee871dd9dfa4b002a16 \
-    --hash=sha256:d31d1a1beaf3894866bb318fb712f1edc82687f1c06235a01e5b2c50c36d5c40
+sphinxcontrib-qthelp==1.0.6 \
+    --hash=sha256:62b9d1a186ab7f5ee3356d906f648cacb7a6bdb94d201ee7adf26db55092982d \
+    --hash=sha256:bf76886ee7470b934e363da7a954ea2825650013d367728588732c7350f49ea4
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.7 \
     --hash=sha256:424164fc3a8b4355a29d5ea8b7f18199022d160c8f7b96e68bb6c50217729b87 \
