@@ -111,7 +111,7 @@ class TestDatabaseMacaroonService:
         dm = macaroon_service.find_from_raw(serialized)
 
         assert isinstance(dm, Macaroon)
-        assert macaroon.id == macaroon.id
+        assert macaroon.id == dm.id
         assert macaroon.oidc_publisher == publisher
         assert macaroon.additional == claims
 
