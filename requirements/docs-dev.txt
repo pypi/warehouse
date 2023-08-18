@@ -292,9 +292,9 @@ sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
     --hash=sha256:eb09aedbabfb650607e9b4b68c9d240b90b1e1be221d6ad71d61c52e29f7932b
     # via furo
-sphinxcontrib-applehelp==1.0.6 \
-    --hash=sha256:a59274de7a952a99af36b8a5092352d9249279c0e3280b7dceaae8e15873c942 \
-    --hash=sha256:c0578efa23cab5a2f3aaa8af5691b952433f4fdfaac255befd3452448e7ea4a4
+sphinxcontrib-applehelp==1.0.7 \
+    --hash=sha256:094c4d56209d1734e7d252f6e0b3ccc090bd52ee56807a5d9315b19c122ab15d \
+    --hash=sha256:39fdc8d762d33b01a7d8f026a3b7d71563ea3b72787d5f00ad8465bd9d6dfbfa
     # via sphinx
 sphinxcontrib-devhelp==1.0.4 \
     --hash=sha256:4fd751c63dc40895ac8740948f26bf1a3c87e4e441cc008672abd1cb2bc8a3d1 \
