@@ -11,35 +11,44 @@
 # limitations under the License.
 from __future__ import annotations
 
+import datetime
 import enum
 import typing
+
+from uuid import UUID
 
 from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from sqlalchemy import (
-    Boolean,
     CheckConstraint,
-    DateTime,
     Enum,
     ForeignKey,
     Index,
-    Text,
     UniqueConstraint,
     func,
     orm,
-    sql,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
-from sqlalchemy.orm import declared_attr, mapped_column
+from sqlalchemy.orm import (
+    Mapped,
+    column_property,
+    declared_attr,
+    mapped_column,
+    relationship,
+)
 
 from warehouse import db
 from warehouse.accounts.models import User
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+    from warehouse.packaging.models import Project
+    from warehouse.subscriptions.models import StripeCustomer, StripeSubscription
 
 
 class OrganizationRoleType(str, enum.Enum):
@@ -63,20 +72,18 @@ class OrganizationRole(db.Model):
 
     __repr__ = make_repr("role_name")
 
-    role_name = mapped_column(
+    role_name: Mapped[OrganizationRoleType] = mapped_column(
         Enum(OrganizationRoleType, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
     )
-    user_id = mapped_column(
-        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    organization_id = mapped_column(
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    user = orm.relationship(User, lazy=False)
-    organization = orm.relationship("Organization", lazy=False)
+    user: Mapped[User] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(lazy=False)
 
 
 class OrganizationProject(db.Model):
@@ -93,17 +100,15 @@ class OrganizationProject(db.Model):
 
     __repr__ = make_repr("project_id", "organization_id")
 
-    organization_id = mapped_column(
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
-    project_id = mapped_column(
+    project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    organization = orm.relationship("Organization", lazy=False)
-    project = orm.relationship("Project", lazy=False)
+    organization: Mapped[Organization] = relationship(lazy=False)
+    project: Mapped[Project] = relationship(lazy=False)
 
 
 class OrganizationStripeSubscription(db.Model):
@@ -124,17 +129,15 @@ class OrganizationStripeSubscription(db.Model):
 
     __repr__ = make_repr("organization_id", "subscription_id")
 
-    organization_id = mapped_column(
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
-    subscription_id = mapped_column(
+    subscription_id: Mapped[UUID] = mapped_column(
         ForeignKey("stripe_subscriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    organization = orm.relationship("Organization", lazy=False)
-    subscription = orm.relationship("StripeSubscription", lazy=False)
+    organization: Mapped[Organization] = relationship(lazy=False)
+    subscription: Mapped[StripeSubscription] = relationship(lazy=False)
 
 
 class OrganizationStripeCustomer(db.Model):
@@ -153,17 +156,15 @@ class OrganizationStripeCustomer(db.Model):
 
     __repr__ = make_repr("organization_id", "stripe_customer_id")
 
-    organization_id = mapped_column(
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
-    stripe_customer_id = mapped_column(
+    stripe_customer_id: Mapped[UUID] = mapped_column(
         ForeignKey("stripe_customers.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    organization = orm.relationship("Organization", lazy=False)
-    customer = orm.relationship("StripeCustomer", lazy=False)
+    organization: Mapped[Organization] = relationship(lazy=False)
+    customer: Mapped[StripeCustomer] = relationship(lazy=False)
 
 
 class OrganizationType(str, enum.Enum):
@@ -228,31 +229,26 @@ class OrganizationMixin:
             ),
         )
 
-    name = mapped_column(Text, nullable=False, comment="The account name used in URLS")
+    name: Mapped[str] = mapped_column(comment="The account name used in URLS")
 
     @declared_attr
     def normalized_name(cls):  # noqa: N805
-        return orm.column_property(func.normalize_pep426_name(cls.name))
+        return column_property(func.normalize_pep426_name(cls.name))
 
-    display_name = mapped_column(
-        Text, nullable=False, comment="Display name used in UI"
-    )
-    orgtype = mapped_column(
+    display_name: Mapped[str] = mapped_column(comment="Display name used in UI")
+    orgtype: Mapped[enum.Enum] = mapped_column(
         Enum(OrganizationType, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
         comment="What type of organization such as Community or Company",
     )
-    link_url = mapped_column(
-        Text, nullable=False, comment="External URL associated with the organization"
+    link_url: Mapped[str] = mapped_column(
+        comment="External URL associated with the organization"
     )
-    description = mapped_column(
-        Text,
-        nullable=False,
+    description: Mapped[str] = mapped_column(
         comment="Description of the business or project the organization represents",
     )
 
-    is_approved = mapped_column(
-        Boolean, comment="Status of administrator approval of the request"
+    is_approved: Mapped[bool | None] = mapped_column(
+        comment="Status of administrator approval of the request"
     )
 
 
@@ -263,42 +259,40 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
     __repr__ = make_repr("name")
 
-    is_active = mapped_column(
-        Boolean,
-        nullable=False,
-        server_default=sql.false(),
+    is_active: Mapped[bool_false] = mapped_column(
         comment="When True, the organization is active and all features are available.",
     )
-    created = mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
+    created: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the organization was created.",
     )
-    date_approved = mapped_column(
-        DateTime(timezone=False),
-        nullable=True,
+    date_approved: Mapped[datetime.datetime | None] = mapped_column(
         onupdate=func.now(),
         comment="Datetime the organization was approved by administrators.",
     )
 
-    users = orm.relationship(
-        User, secondary=OrganizationRole.__table__, backref="organizations", viewonly=True  # type: ignore # noqa
+    users: Mapped[list[User]] = relationship(
+        secondary=OrganizationRole.__table__, backref="organizations", viewonly=True
     )
-    teams = orm.relationship(
-        "Team",
+    teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
-        order_by=lambda: Team.name.asc(),  # type: ignore
+        order_by=lambda: Team.name.asc(),
     )
-    projects = orm.relationship(
-        "Project", secondary=OrganizationProject.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+    projects: Mapped[list[Project]] = relationship(
+        secondary=OrganizationProject.__table__,
+        back_populates="organization",
+        viewonly=True,
     )
-    customer = orm.relationship(
-        "StripeCustomer", secondary=OrganizationStripeCustomer.__table__, back_populates="organization", uselist=False, viewonly=True  # type: ignore # noqa
+    customer: Mapped[StripeCustomer] = relationship(
+        secondary=OrganizationStripeCustomer.__table__,
+        back_populates="organization",
+        uselist=False,
+        viewonly=True,
     )
-    subscriptions = orm.relationship(
-        "StripeSubscription", secondary=OrganizationStripeSubscription.__table__, back_populates="organization", viewonly=True  # type: ignore # noqa
+    subscriptions: Mapped[list[StripeSubscription]] = relationship(
+        secondary=OrganizationStripeSubscription.__table__,
+        back_populates="organization",
+        viewonly=True,
     )
 
     @property
@@ -452,41 +446,34 @@ class OrganizationApplication(OrganizationMixin, db.Model):
     __tablename__ = "organization_applications"
     __repr__ = make_repr("name")
 
-    submitted_by_id = mapped_column(
-        UUID(as_uuid=True),
+    submitted_by_id: Mapped[UUID] = mapped_column(
+        PG_UUID,
         ForeignKey(
             User.id,
             deferrable=True,
             initially="DEFERRED",
             ondelete="CASCADE",
         ),
-        nullable=False,
         comment="ID of the User which submitted the request",
     )
-    submitted = mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
+    submitted: Mapped[datetime_now] = mapped_column(
         index=True,
         comment="Datetime the request was submitted",
     )
-    organization_id = mapped_column(
-        UUID(as_uuid=True),
+    organization_id: Mapped[UUID | None] = mapped_column(
+        PG_UUID,
         ForeignKey(
             Organization.id,
             deferrable=True,
             initially="DEFERRED",
             ondelete="CASCADE",
         ),
-        nullable=True,
         comment="If the request was approved, ID of resulting Organization",
     )
 
-    submitted_by = orm.relationship(
-        User, backref="organization_applications"  # type: ignore # noqa
-    )
-    organization = orm.relationship(
-        Organization, backref="application", viewonly=True  # type: ignore # noqa
+    submitted_by: Mapped[User] = relationship(backref="organization_applications")
+    organization: Mapped[Organization] = relationship(
+        backref="application", viewonly=True
     )
 
 
@@ -504,8 +491,8 @@ class OrganizationNameCatalog(db.Model):
 
     __repr__ = make_repr("normalized_name", "organization_id")
 
-    normalized_name = mapped_column(Text, nullable=False, index=True)
-    organization_id = mapped_column(UUID(as_uuid=True), nullable=True, index=True)
+    normalized_name: Mapped[str] = mapped_column(index=True)
+    organization_id: Mapped[UUID | None] = mapped_column(PG_UUID, index=True)
 
 
 class OrganizationInvitationStatus(enum.Enum):
@@ -526,26 +513,23 @@ class OrganizationInvitation(db.Model):
 
     __repr__ = make_repr("invite_status", "user", "organization")
 
-    invite_status = mapped_column(
+    invite_status: Mapped[enum.Enum] = mapped_column(
         Enum(
             OrganizationInvitationStatus, values_callable=lambda x: [e.value for e in x]
         ),
-        nullable=False,
     )
-    token = mapped_column(Text, nullable=False)
-    user_id = mapped_column(
+    token: Mapped[str]
+    user_id: Mapped[UUID] = mapped_column(
         ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
         index=True,
     )
-    organization_id = mapped_column(
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
         index=True,
     )
 
-    user = orm.relationship(User, lazy=False)
-    organization = orm.relationship("Organization", lazy=False)
+    user: Mapped[User] = relationship(lazy=False)
+    organization: Mapped[Organization] = relationship(lazy=False)
 
 
 class TeamRoleType(str, enum.Enum):
@@ -566,20 +550,18 @@ class TeamRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "user")
 
-    role_name = mapped_column(
+    role_name: Mapped[enum.Enum] = mapped_column(
         Enum(TeamRoleType, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
     )
-    user_id = mapped_column(
-        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"), nullable=False
+    user_id: Mapped[UUID] = mapped_column(
+        ForeignKey("users.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
-    team_id = mapped_column(
+    team_id: Mapped[UUID] = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    user = orm.relationship(User, lazy=False)
-    team = orm.relationship("Team", lazy=False)
+    user: Mapped[User] = relationship(lazy=False)
+    team: Mapped[Team] = relationship(lazy=False)
 
 
 class TeamProjectRoleType(str, enum.Enum):
@@ -601,28 +583,20 @@ class TeamProjectRole(db.Model):
 
     __repr__ = make_repr("role_name", "team", "project")
 
-    role_name = mapped_column(
+    role_name: Mapped[enum.Enum] = mapped_column(
         Enum(TeamProjectRoleType, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
     )
-    project_id = mapped_column(
+    project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
-    team_id = mapped_column(
+    team_id: Mapped[UUID] = mapped_column(
         ForeignKey("teams.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
 
-    project = orm.relationship(
-        "Project",
-        lazy=False,
-        back_populates="team_project_roles",
+    project: Mapped[Project] = relationship(
+        lazy=False, back_populates="team_project_roles"
     )
-    team = orm.relationship(
-        "Team",
-        lazy=False,
-    )
+    team: Mapped[Team] = relationship(lazy=False)
 
 
 class TeamFactory:
@@ -659,25 +633,21 @@ class Team(HasEvents, db.Model):
 
     __repr__ = make_repr("name", "organization")
 
-    name = mapped_column(Text, nullable=False)
-    normalized_name = orm.column_property(func.normalize_team_name(name))  # type: ignore[var-annotated] # noqa: E501
-    organization_id = mapped_column(
+    name: Mapped[str] = mapped_column()
+    normalized_name: Mapped[str] = column_property(func.normalize_team_name(name))
+    organization_id: Mapped[UUID] = mapped_column(
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
-        nullable=False,
     )
-    created = mapped_column(
-        DateTime(timezone=False),
-        nullable=False,
-        server_default=sql.func.now(),
-        index=True,
-    )
+    created: Mapped[datetime_now] = mapped_column(index=True)
 
-    organization = orm.relationship("Organization", lazy=False, back_populates="teams")
-    members = orm.relationship(
-        User, secondary=TeamRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
+    organization: Mapped[Organization] = relationship(
+        lazy=False, back_populates="teams"
     )
-    projects = orm.relationship(
-        "Project", secondary=TeamProjectRole.__table__, backref="teams", viewonly=True  # type: ignore # noqa
+    members: Mapped[list[User]] = relationship(
+        secondary=TeamRole.__table__, backref="teams", viewonly=True
+    )
+    projects: Mapped[list[Project]] = relationship(
+        secondary=TeamProjectRole.__table__, backref="teams", viewonly=True
     )
 
     def record_event(self, *, tag, request: Request = None, additional=None):
