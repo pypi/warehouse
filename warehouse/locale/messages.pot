@@ -609,32 +609,32 @@ msgstr ""
 msgid "This project name is already in use"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:42
+#: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:43
+#: warehouse/subscriptions/models.py:36
 msgid "Past Due"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:44
+#: warehouse/subscriptions/models.py:37
 msgid "Unpaid"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:45
+#: warehouse/subscriptions/models.py:38
 msgid "Canceled"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:46
+#: warehouse/subscriptions/models.py:39
 msgid "Incomplete"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:47
+#: warehouse/subscriptions/models.py:40
 msgid "Incomplete Expired"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:48
+#: warehouse/subscriptions/models.py:41
 msgid "Trialing"
 msgstr ""
 
