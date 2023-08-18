@@ -347,7 +347,7 @@ class TestSESEmailSender:
         for address in [to, "somebody_else@example.com"]:
             for subject in [subject, "I do not care about this"]:
                 sender.send(
-                    f"Foobar <{ to }>",
+                    f"Foobar <{ address }>",
                     EmailMessage(
                         subject=subject, body_text="This is a plain text body"
                     ),
