@@ -107,9 +107,9 @@ docutils==0.20.1 \
     # via
     #   myst-parser
     #   sphinx
-furo==2023.7.26 \
-    --hash=sha256:1c7936929ec57c5ddecc7c85f07fa8b2ce536b5c89137764cca508be90e11efd \
-    --hash=sha256:257f63bab97aa85213a1fa24303837a3c3f30be92901ec732fea74290800f59e
+furo==2023.8.17 \
+    --hash=sha256:56664be7290d1457a49d6c2c98cbf96537b9ee1cf05d28e05a5178e76abe5c55 \
+    --hash=sha256:baed406fc8f75a585caa330756b6841e6a1d4c844a3a355387e01ba9d1a4c6ee
     # via -r requirements/docs-dev.in
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
@@ -269,9 +269,9 @@ soupsieve==2.4.1 \
     --hash=sha256:1c1bfee6819544a3447586c889157365a27e10d88cde3ad3da0cf0ddf646feb8 \
     --hash=sha256:89d12b2d5dfcd2c9e8c22326da9d9aa9cb3dfab0a83a024f05704076ee8d35ea
     # via beautifulsoup4
-sphinx==7.1.2 \
-    --hash=sha256:780f4d32f1d7d1126576e0e5ecc19dc32ab76cd24e950228dcf7b1f6d3d9e22f \
-    --hash=sha256:d170a81825b2fcacb6dfd5a0d7f578a053e45d3f2b153fecc948c37344eb4cbe
+sphinx==7.2.2 \
+    --hash=sha256:1c0abe6d4de7a6b2c2b109a2e18387bf27b240742e1b34ea42ac3ed2ac99978c \
+    --hash=sha256:ed33bc597dd8f05cd37118f64cbac0b8bf773389a628ddfe95ab9e915c9308dc
     # via
     #   -r requirements/docs-dev.in
     #   furo
@@ -292,17 +292,17 @@ sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
     --hash=sha256:eb09aedbabfb650607e9b4b68c9d240b90b1e1be221d6ad71d61c52e29f7932b
     # via furo
-sphinxcontrib-applehelp==1.0.6 \
-    --hash=sha256:a59274de7a952a99af36b8a5092352d9249279c0e3280b7dceaae8e15873c942 \
-    --hash=sha256:c0578efa23cab5a2f3aaa8af5691b952433f4fdfaac255befd3452448e7ea4a4
+sphinxcontrib-applehelp==1.0.7 \
+    --hash=sha256:094c4d56209d1734e7d252f6e0b3ccc090bd52ee56807a5d9315b19c122ab15d \
+    --hash=sha256:39fdc8d762d33b01a7d8f026a3b7d71563ea3b72787d5f00ad8465bd9d6dfbfa
     # via sphinx
-sphinxcontrib-devhelp==1.0.4 \
-    --hash=sha256:4fd751c63dc40895ac8740948f26bf1a3c87e4e441cc008672abd1cb2bc8a3d1 \
-    --hash=sha256:d4e20a17f78865d4096733989b5efa0d5e7743900e98e1f6ecd6f489380febc8
+sphinxcontrib-devhelp==1.0.5 \
+    --hash=sha256:63b41e0d38207ca40ebbeabcf4d8e51f76c03e78cd61abe118cf4435c73d4212 \
+    --hash=sha256:fe8009aed765188f08fcaadbb3ea0d90ce8ae2d76710b7e29ea7d047177dae2f
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.3 \
-    --hash=sha256:14358d0f88ccf58447f2b54343cdcc0012f32de2f8d27cf934fdbc0b362f9597 \
-    --hash=sha256:abee4e6c5471203ad2fc40dc6a16ed99884a5d6b15a6f79c9269a7e82cf04149
+sphinxcontrib-htmlhelp==2.0.4 \
+    --hash=sha256:6c26a118a05b76000738429b724a0568dbde5b72391a688577da08f11891092a \
+    --hash=sha256:8001661c077a73c29beaf4a79968d0726103c5605e27db92b9ebed8bab1359e9
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1 \
     --hash=sha256:21eefe1270e4d9de8d717cc89ee92cc4871b8736774393bafc5e38a6bb77b1d5 \
@@ -316,13 +316,13 @@ sphinxcontrib-mermaid==0.9.2 \
     --hash=sha256:252ef13dd23164b28f16d8b0205cf184b9d8e2b714a302274d9f59eb708e77af \
     --hash=sha256:6795a72037ca55e65663d2a2c1a043d636dc3d30d418e56dd6087d1459d98a5d
     # via -r requirements/docs-dev.in
-sphinxcontrib-qthelp==1.0.5 \
-    --hash=sha256:962730a6ad15d21fd6760b14c9e95c00a097413595aa6ee871dd9dfa4b002a16 \
-    --hash=sha256:d31d1a1beaf3894866bb318fb712f1edc82687f1c06235a01e5b2c50c36d5c40
+sphinxcontrib-qthelp==1.0.6 \
+    --hash=sha256:62b9d1a186ab7f5ee3356d906f648cacb7a6bdb94d201ee7adf26db55092982d \
+    --hash=sha256:bf76886ee7470b934e363da7a954ea2825650013d367728588732c7350f49ea4
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.7 \
-    --hash=sha256:424164fc3a8b4355a29d5ea8b7f18199022d160c8f7b96e68bb6c50217729b87 \
-    --hash=sha256:ca31afee32e1508cff4034e258060ce2c81a3b1c49e77da60fdb61f0e7a73c22
+sphinxcontrib-serializinghtml==1.1.8 \
+    --hash=sha256:27849e7227277333d3d32f17c138ee148a51fa01f888a41cd6d4e73bcabe2d06 \
+    --hash=sha256:aaf3026335146e688fd209b72320314b1b278320cf232e3cda198f873838511a
     # via sphinx
 tornado==6.3.3 \
     --hash=sha256:1bd19ca6c16882e4d37368e0152f99c099bad93e0950ce55e71daed74045908f \
