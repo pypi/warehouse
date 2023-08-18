@@ -95,97 +95,8 @@ class TestMessageVerifier:
         ("topics", "data", "error"),
         [
             ([], {}, "Unknown SignatureVersion"),
+            ([], {"SignatureVersion": "1"}, "Unknown SignatureVersion"),
             ([], {"SignatureVersion": "3"}, "Unknown SignatureVersion"),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "http://sns.us-west-2.amazonaws.com/cert.pem",
-                },
-                "Invalid scheme for SigningCertURL",
-            ),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.attacker.com/cert.pem",
-                },
-                "Invalid location for SigningCertURL",
-            ),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Signature": "SNYwQnC0BxjSo2E4aZFRiA==",
-                    "Type": "Who Knows?",
-                },
-                "Invalid Type",
-            ),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Signature": "SNYwQnC0BxjSo2E4aZFRiA==",
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "This is My Topic",
-                },
-                "Invalid Signature",
-            ),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Signature": VALID_SIGNATURE,
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": "Wat?",
-                    "TopicArn": "This is My Topic",
-                },
-                "Unknown Timestamp format",
-            ),
-            (
-                [],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Signature": VALID_SIGNATURE,
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        (
-                            datetime.datetime.utcnow() - datetime.timedelta(days=1)
-                        ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "This is My Topic",
-                },
-                "Message has expired",
-            ),
-            (
-                ["The topic I expected"],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Signature": VALID_SIGNATURE,
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "This topic I got but didn't expect",
-                },
-                "Invalid TopicArn",
-            ),
             (
                 [],
                 {
@@ -290,7 +201,7 @@ class TestMessageVerifier:
             signature_bytes = private_key.sign(
                 verifier._get_data_to_sign(data),
                 PKCS1v15(),
-                hashes.SHA1() if data["SignatureVersion"] == "1" else hashes.SHA256(),
+                hashes.SHA256(),
             )
             data["Signature"] = base64.b64encode(signature_bytes)
 
@@ -300,65 +211,6 @@ class TestMessageVerifier:
     @pytest.mark.parametrize(
         ("topics", "data"),
         [
-            (
-                ["valid topic"],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "valid topic",
-                },
-            ),
-            (
-                ["valid topic", "another valid topic"],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Type": "Notification",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "another valid topic",
-                },
-            ),
-            (
-                ["valid topic"],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Type": "Notification",
-                    "Subject": "This is a subject",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "valid topic",
-                },
-            ),
-            (
-                ["valid topic"],
-                {
-                    "SignatureVersion": "1",
-                    "SigningCertURL": "https://sns.us-west-2.amazonaws.com/cert.pem",
-                    "Type": "SubscriptionConfirmation",
-                    "Message": "This is My Message",
-                    "MessageId": "1",
-                    "SubscribeURL": "https://example.com/subscribe",
-                    "Token": "1234",
-                    "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-                    ),
-                    "TopicArn": "valid topic",
-                },
-            ),
             (
                 ["valid topic"],
                 {
@@ -431,7 +283,7 @@ class TestMessageVerifier:
         signature_bytes = private_key.sign(
             verifier._get_data_to_sign(data),
             PKCS1v15(),
-            hashes.SHA1() if data["SignatureVersion"] == "1" else hashes.SHA256(),
+            hashes.SHA256(),
         )
         data["Signature"] = base64.b64encode(signature_bytes)
 
