@@ -41,8 +41,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n"
+"%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
 "X-Generator: Weblate 5.0-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
@@ -180,7 +180,7 @@ msgstr "Код восстановления уже использовался."
 msgid "No user found with that username or email"
 msgstr "Пользователь с таким именем или адресом электронной почты не найден"
 
-#: warehouse/accounts/views.py:103
+#: warehouse/accounts/views.py:104
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -188,7 +188,7 @@ msgstr ""
 "Было совершено слишком много неудачных попыток входа. Вы заблокированы на "
 "{}. Пожалуйста, повторите попытку позже."
 
-#: warehouse/accounts/views.py:120
+#: warehouse/accounts/views.py:121
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -197,7 +197,7 @@ msgstr ""
 "электронной почты. Проверьте свой почтовый ящик и перейдите по ссылкам для "
 "подтверждения. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:132
+#: warehouse/accounts/views.py:133
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -207,27 +207,27 @@ msgstr ""
 "завершения. Проверьте свой почтовый ящик и перейдите по ссылкам для "
 "подтверждения. (IP-адрес: ${ip})"
 
-#: warehouse/accounts/views.py:307 warehouse/accounts/views.py:371
-#: warehouse/accounts/views.py:373 warehouse/accounts/views.py:400
-#: warehouse/accounts/views.py:402 warehouse/accounts/views.py:468
+#: warehouse/accounts/views.py:308 warehouse/accounts/views.py:372
+#: warehouse/accounts/views.py:374 warehouse/accounts/views.py:401
+#: warehouse/accounts/views.py:403 warehouse/accounts/views.py:469
 msgid "Invalid or expired two factor login."
 msgstr "Недействительный или истёкший двухфакторный логин."
 
-#: warehouse/accounts/views.py:365
+#: warehouse/accounts/views.py:366
 msgid "Already authenticated"
 msgstr "Уже подтверждён"
 
-#: warehouse/accounts/views.py:444
+#: warehouse/accounts/views.py:445
 msgid "Successful WebAuthn assertion"
 msgstr "Успешное утверждение WebAuthn"
 
-#: warehouse/accounts/views.py:499 warehouse/manage/views/__init__.py:823
+#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Код восстановления принят. Предоставленный код не может быть использован "
 "повторно."
 
-#: warehouse/accounts/views.py:591
+#: warehouse/accounts/views.py:592
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -235,144 +235,144 @@ msgstr ""
 "Регистрация новых пользователей временно отключена. Подробнее смотрите "
 "здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:722
+#: warehouse/accounts/views.py:723
 msgid "Expired token: request a new password reset link"
 msgstr "Время действия токена истекло: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:724
+#: warehouse/accounts/views.py:725
 msgid "Invalid token: request a new password reset link"
 msgstr "Недействительный токен: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:726 warehouse/accounts/views.py:828
-#: warehouse/accounts/views.py:927 warehouse/accounts/views.py:1096
+#: warehouse/accounts/views.py:727 warehouse/accounts/views.py:829
+#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1102
 msgid "Invalid token: no token supplied"
 msgstr "Недействительный токен: токен не указан"
 
-#: warehouse/accounts/views.py:730
+#: warehouse/accounts/views.py:731
 msgid "Invalid token: not a password reset token"
 msgstr "Недействительный токен: не является токеном для сброса пароля"
 
-#: warehouse/accounts/views.py:735
+#: warehouse/accounts/views.py:736
 msgid "Invalid token: user not found"
 msgstr "Недействительный токен: пользователь не найден"
 
-#: warehouse/accounts/views.py:746
+#: warehouse/accounts/views.py:747
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недействительный токен: пользователь осуществил вход в систему с момента "
 "запроса этого токена"
 
-#: warehouse/accounts/views.py:764
+#: warehouse/accounts/views.py:765
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Недействительный токен: пароль уже был изменен с момента запроса этого токена"
 
-#: warehouse/accounts/views.py:796
+#: warehouse/accounts/views.py:797
 msgid "You have reset your password"
 msgstr "Вы сбросили свой пароль"
 
-#: warehouse/accounts/views.py:824
+#: warehouse/accounts/views.py:825
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Токен с истёкшим сроком действия: запросите новую ссылку для верификации "
 "электронной почты"
 
-#: warehouse/accounts/views.py:826
+#: warehouse/accounts/views.py:827
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "Недействительный токен: запросите новую ссылку для верификации электронной "
 "почты"
 
-#: warehouse/accounts/views.py:832
+#: warehouse/accounts/views.py:833
 msgid "Invalid token: not an email verification token"
 msgstr ""
 "Недействительный токен: не является токеном для верификации электронной почты"
 
-#: warehouse/accounts/views.py:841
+#: warehouse/accounts/views.py:842
 msgid "Email not found"
 msgstr "Электронная почта не найдена"
 
-#: warehouse/accounts/views.py:844
+#: warehouse/accounts/views.py:845
 msgid "Email already verified"
 msgstr "Электронная почта уже подтверждена"
 
-#: warehouse/accounts/views.py:861
+#: warehouse/accounts/views.py:862
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Теперь вы можете установить этот адрес электронной почты в качестве "
 "основного адреса"
 
-#: warehouse/accounts/views.py:865
+#: warehouse/accounts/views.py:866
 msgid "This is your primary address"
 msgstr "Это ваш основной адрес"
 
-#: warehouse/accounts/views.py:870
+#: warehouse/accounts/views.py:871
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Электронная почта ${email_address} подтверждена. ${confirm_message}."
 
-#: warehouse/accounts/views.py:923
+#: warehouse/accounts/views.py:929
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:931
 msgid "Invalid token: request a new organization invitation"
 msgstr "Недействительный токен: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:931
+#: warehouse/accounts/views.py:937
 msgid "Invalid token: not an organization invitation token"
 msgstr "Недействительный токен: не является токеном приглашения организации"
 
-#: warehouse/accounts/views.py:935
+#: warehouse/accounts/views.py:941
 msgid "Organization invitation is not valid."
 msgstr "Приглашение в организацию недействительно."
 
-#: warehouse/accounts/views.py:944
+#: warehouse/accounts/views.py:950
 msgid "Organization invitation no longer exists."
 msgstr "Приглашение в организацию больше не существует."
 
-#: warehouse/accounts/views.py:995
+#: warehouse/accounts/views.py:1001
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Приглашение для «${organization_name}» отклонено."
 
-#: warehouse/accounts/views.py:1058
+#: warehouse/accounts/views.py:1064
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Теперь у вас роль ${role} в организации «${organization_name}»."
 
-#: warehouse/accounts/views.py:1092
+#: warehouse/accounts/views.py:1098
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1094
+#: warehouse/accounts/views.py:1100
 msgid "Invalid token: request a new project role invitation"
 msgstr "Недействительный токен: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1100
+#: warehouse/accounts/views.py:1106
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 "Недействительный токен: не является токеном приглашения к сотрудничеству"
 
-#: warehouse/accounts/views.py:1104
+#: warehouse/accounts/views.py:1110
 msgid "Role invitation is not valid."
 msgstr "Приглашение на роль недействительно."
 
-#: warehouse/accounts/views.py:1119
+#: warehouse/accounts/views.py:1125
 msgid "Role invitation no longer exists."
 msgstr "Приглашение на роль больше не существует."
 
-#: warehouse/accounts/views.py:1150
+#: warehouse/accounts/views.py:1156
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Приглашение для «${project_name}» отклонено."
 
-#: warehouse/accounts/views.py:1216
+#: warehouse/accounts/views.py:1222
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
-#: warehouse/accounts/views.py:1437 warehouse/accounts/views.py:1585
-#: warehouse/manage/views/__init__.py:1229
+#: warehouse/accounts/views.py:1443 warehouse/accounts/views.py:1591
+#: warehouse/manage/views/__init__.py:1230
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -380,7 +380,7 @@ msgstr ""
 "Авторитетная публикация временно отключена. Подробнее смотрите здесь: "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1454 warehouse/manage/views/__init__.py:1245
+#: warehouse/accounts/views.py:1460 warehouse/manage/views/__init__.py:1246
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -392,7 +392,7 @@ msgstr ""
 "Авторитетная публикация на базе GitHub временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1468
+#: warehouse/accounts/views.py:1474
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -401,13 +401,13 @@ msgstr ""
 "зарегистрировать ожидающего подключения доверенного поставщика. Перейдите на "
 "https://pypi.org/help#openid-connect для получения подробной информации."
 
-#: warehouse/accounts/views.py:1481
+#: warehouse/accounts/views.py:1487
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Вы не можете зарегистрировать более 3-х ожидающих подключения доверенных "
 "поставщиков одновременно."
 
-#: warehouse/accounts/views.py:1497 warehouse/manage/views/__init__.py:1264
+#: warehouse/accounts/views.py:1503 warehouse/manage/views/__init__.py:1265
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -415,11 +415,11 @@ msgstr ""
 "Было предпринято слишком много попыток регистрации доверенного издателя. "
 "Попробуйте еще раз позже."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1278
+#: warehouse/accounts/views.py:1517 warehouse/manage/views/__init__.py:1279
 msgid "The trusted publisher could not be registered"
 msgstr "Не удалось зарегистрировать доверенного издателя"
 
-#: warehouse/accounts/views.py:1530
+#: warehouse/accounts/views.py:1536
 #, fuzzy
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -428,16 +428,16 @@ msgstr ""
 "Этот доверенный издатель был уже зарегистрирован. Пожалуйста, свяжитесь с "
 "администрацией PyPI если это не было умышленно."
 
-#: warehouse/accounts/views.py:1565
+#: warehouse/accounts/views.py:1571
 msgid "Registered a new pending publisher to create "
 msgstr "Зарегистрирован новый издатель, ожидающий подключения "
 
-#: warehouse/accounts/views.py:1599 warehouse/accounts/views.py:1612
-#: warehouse/accounts/views.py:1619
+#: warehouse/accounts/views.py:1605 warehouse/accounts/views.py:1618
+#: warehouse/accounts/views.py:1625
 msgid "Invalid publisher ID"
 msgstr "Неверный ID издателя"
 
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1631
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Доверенный издатель был удалён из проекта "
@@ -486,7 +486,7 @@ msgstr ""
 msgid "Select project"
 msgstr "Выберите проект"
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms.py:174
+#: warehouse/manage/forms.py:495 warehouse/oidc/forms/github.py:174
 msgid "Specify project name"
 msgstr "Укажите название проекта"
 
@@ -564,47 +564,47 @@ msgstr ""
 "Это имя пользователя уже используется другой учётной записью. Выберите "
 "другое имя."
 
-#: warehouse/manage/views/__init__.py:191
+#: warehouse/manage/views/__init__.py:192
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Информация об учётной записи"
 
-#: warehouse/manage/views/__init__.py:220
+#: warehouse/manage/views/__init__.py:221
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Электронная почта ${email_address} добавлена — проверьте свою почту на "
 "наличие ссылки для подтверждения"
 
-#: warehouse/manage/views/__init__.py:771
+#: warehouse/manage/views/__init__.py:772
 msgid "Recovery codes already generated"
 msgstr "Коды восстановления уже сгенерированы"
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:773
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Генерация новых кодов восстановления сделает ваши существующие коды "
 "недействительными."
 
-#: warehouse/manage/views/__init__.py:881
+#: warehouse/manage/views/__init__.py:882
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Подтвердите свою электронную почту или добавьте новый адрес."
 
-#: warehouse/manage/views/__init__.py:1006
+#: warehouse/manage/views/__init__.py:1007
 msgid "Invalid credentials. Try again"
 msgstr "Недействительные учётные данные. Попробуйте ещё раз"
 
-#: warehouse/manage/views/__init__.py:1128
+#: warehouse/manage/views/__init__.py:1129
 #, fuzzy
 #| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "Двухфакторная авторизация отключена"
 
-#: warehouse/manage/views/__init__.py:1483
-#: warehouse/manage/views/__init__.py:1784
-#: warehouse/manage/views/__init__.py:1892
+#: warehouse/manage/views/__init__.py:1484
+#: warehouse/manage/views/__init__.py:1785
+#: warehouse/manage/views/__init__.py:1893
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -616,60 +616,60 @@ msgstr ""
 "Регистрация новых пользователей временно отключена. Подробнее смотрите "
 "здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1615
-#: warehouse/manage/views/__init__.py:1700
-#: warehouse/manage/views/__init__.py:1801
-#: warehouse/manage/views/__init__.py:1901
+#: warehouse/manage/views/__init__.py:1616
+#: warehouse/manage/views/__init__.py:1701
+#: warehouse/manage/views/__init__.py:1802
+#: warehouse/manage/views/__init__.py:1902
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Подтверждение приглашения"
 
-#: warehouse/manage/views/__init__.py:1627
+#: warehouse/manage/views/__init__.py:1628
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "Восстановление выпуска"
 
-#: warehouse/manage/views/__init__.py:1712
+#: warehouse/manage/views/__init__.py:1713
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "Восстановление выпуска"
 
-#: warehouse/manage/views/__init__.py:1813
+#: warehouse/manage/views/__init__.py:1814
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Удалить выпуск"
 
-#: warehouse/manage/views/__init__.py:1913
+#: warehouse/manage/views/__init__.py:1914
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/__init__.py:1917
+#: warehouse/manage/views/__init__.py:1918
 msgid "Could not delete file - "
 msgstr "Не удалось удалить файл - "
 
-#: warehouse/manage/views/__init__.py:2067
+#: warehouse/manage/views/__init__.py:2068
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2174
+#: warehouse/manage/views/__init__.py:2175
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2242
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
-#: warehouse/manage/views/__init__.py:2273
+#: warehouse/manage/views/__init__.py:2274
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -677,7 +677,7 @@ msgstr ""
 "Пользователь «${username}» не имеет проверенного основного адреса "
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2286
+#: warehouse/manage/views/__init__.py:2287
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -685,20 +685,20 @@ msgstr ""
 "Пользователь «${username}» уже имеет активное приглашение. Пожалуйста, "
 "повторите попытку позже."
 
-#: warehouse/manage/views/__init__.py:2351
+#: warehouse/manage/views/__init__.py:2352
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "Приглашение отправлено пользователю «${username}»"
 
-#: warehouse/manage/views/__init__.py:2384
+#: warehouse/manage/views/__init__.py:2385
 msgid "Could not find role invitation."
 msgstr "Не удалось найти приглашение на роль."
 
-#: warehouse/manage/views/__init__.py:2395
+#: warehouse/manage/views/__init__.py:2396
 msgid "Invitation already expired."
 msgstr "Приглашение уже истекло."
 
-#: warehouse/manage/views/__init__.py:2427
+#: warehouse/manage/views/__init__.py:2428
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "Приглашение для «${username}» отозвано."
@@ -740,80 +740,80 @@ msgstr "Приглашение в организацию больше не су�
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Приглашение для «${project_name}» отклонено."
 
-#: warehouse/oidc/forms.py:33
+#: warehouse/oidc/forms/__init__.py:23
+msgid "Specify a publisher ID"
+msgstr ""
+
+#: warehouse/oidc/forms/__init__.py:24
+msgid "Publisher must be specified by ID"
+msgstr "Издатель должен быть указан через ID"
+
+#: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
 msgstr ""
 "Укажите владельца репозитория GitHub (имя пользователя или организацию)"
 
-#: warehouse/oidc/forms.py:40
+#: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
 msgstr "Укажите название репозитория"
 
-#: warehouse/oidc/forms.py:42
+#: warehouse/oidc/forms/github.py:42
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid repository name"
 msgstr "Неверный код восстановления."
 
-#: warehouse/oidc/forms.py:49
+#: warehouse/oidc/forms/github.py:49
 #, fuzzy
 msgid "Specify workflow filename"
 msgstr "Укажите имя файла рабочего процесса"
 
-#: warehouse/oidc/forms.py:84
+#: warehouse/oidc/forms/github.py:84
 msgid "Unknown GitHub user or organization."
 msgstr "Неизвестный GitHub пользователь или организация."
 
-#: warehouse/oidc/forms.py:94
+#: warehouse/oidc/forms/github.py:94
 #, fuzzy
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
 msgstr ""
 "GitHub ограничил количество запросов для этого действия. Попробуйте ещё раз "
 "через несколько минут."
 
-#: warehouse/oidc/forms.py:104
+#: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
 msgstr ""
 
-#: warehouse/oidc/forms.py:111
+#: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:121
+#: warehouse/oidc/forms/github.py:121
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgstr ""
 
-#: warehouse/oidc/forms.py:133
+#: warehouse/oidc/forms/github.py:133
 msgid "Invalid GitHub user or organization name."
 msgstr ""
 
-#: warehouse/oidc/forms.py:149
+#: warehouse/oidc/forms/github.py:149
 msgid "Workflow name must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms.py:154
+#: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms.py:176
+#: warehouse/oidc/forms/github.py:176
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid project name"
 msgstr "Неверный код восстановления."
 
-#: warehouse/oidc/forms.py:190
+#: warehouse/oidc/forms/github.py:190
 #, fuzzy
 #| msgid "This project has no releases"
 msgid "This project name is already in use"
 msgstr "Этот проект не имеет выпусков"
-
-#: warehouse/oidc/forms.py:203
-msgid "Specify a publisher ID"
-msgstr ""
-
-#: warehouse/oidc/forms.py:204
-msgid "Publisher must be specified by ID"
-msgstr "Издатель должен быть указан через ID"
 
 #: warehouse/subscriptions/models.py:42
 #: warehouse/templates/manage/project/history.html:230
@@ -1520,10 +1520,10 @@ msgstr "Пароль"
 #: warehouse/templates/manage/organizations.html:232
 #: warehouse/templates/manage/organizations.html:250
 #: warehouse/templates/manage/organizations.html:269
-#: warehouse/templates/manage/project/publishing.html:78
-#: warehouse/templates/manage/project/publishing.html:93
-#: warehouse/templates/manage/project/publishing.html:108
-#: warehouse/templates/manage/project/publishing.html:123
+#: warehouse/templates/manage/project/publishing.html:79
+#: warehouse/templates/manage/project/publishing.html:94
+#: warehouse/templates/manage/project/publishing.html:109
+#: warehouse/templates/manage/project/publishing.html:124
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:284
 #: warehouse/templates/manage/project/roles.html:296
@@ -2962,7 +2962,7 @@ msgstr "Ваше имя"
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
 #: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:76
+#: warehouse/templates/manage/project/publishing.html:77
 #: warehouse/templates/manage/project/roles.html:50
 #: warehouse/templates/manage/project/roles.html:85
 #: warehouse/templates/manage/project/roles.html:115
@@ -4891,47 +4891,47 @@ msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:52
-#: warehouse/templates/manage/project/publishing.html:81
+#: warehouse/templates/manage/project/publishing.html:82
 #, fuzzy
 #| msgid "Owner"
 msgid "owner"
 msgstr "Владелец"
 
 #: warehouse/templates/manage/account/publishing.html:54
-#: warehouse/templates/manage/project/publishing.html:83
+#: warehouse/templates/manage/project/publishing.html:84
 msgid ""
 "The GitHub organization name or GitHub username that owns the repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:62
-#: warehouse/templates/manage/project/publishing.html:91
+#: warehouse/templates/manage/project/publishing.html:92
 msgid "Repository name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:67
-#: warehouse/templates/manage/project/publishing.html:96
+#: warehouse/templates/manage/project/publishing.html:97
 msgid "repository"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:69
-#: warehouse/templates/manage/project/publishing.html:98
+#: warehouse/templates/manage/project/publishing.html:99
 msgid "The name of the GitHub repository that contains the publishing workflow"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:77
-#: warehouse/templates/manage/project/publishing.html:106
+#: warehouse/templates/manage/project/publishing.html:107
 #, fuzzy
 #| msgid "Your name"
 msgid "Workflow name"
 msgstr "Ваше имя"
 
 #: warehouse/templates/manage/account/publishing.html:82
-#: warehouse/templates/manage/project/publishing.html:111
+#: warehouse/templates/manage/project/publishing.html:112
 msgid "workflow.yml"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:84
-#: warehouse/templates/manage/project/publishing.html:113
+#: warehouse/templates/manage/project/publishing.html:114
 msgid ""
 "The filename of the publishing workflow. This file should exist in the "
 "<code>.github/workflows/</code> directory in the repository configured above."
@@ -4940,28 +4940,28 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:92
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/project/publishing.html:47
-#: warehouse/templates/manage/project/publishing.html:121
+#: warehouse/templates/manage/project/publishing.html:122
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Environment name"
 msgstr "Неверный код восстановления."
 
 #: warehouse/templates/manage/account/publishing.html:96
-#: warehouse/templates/manage/project/publishing.html:125
+#: warehouse/templates/manage/project/publishing.html:126
 #, fuzzy
 #| msgid "Reason (optional)"
 msgid "(optional)"
 msgstr "Причина (необязательно)"
 
 #: warehouse/templates/manage/account/publishing.html:99
-#: warehouse/templates/manage/project/publishing.html:128
+#: warehouse/templates/manage/project/publishing.html:129
 #, fuzzy
 #| msgid "Releases"
 msgid "release"
 msgstr "Выпуски"
 
 #: warehouse/templates/manage/account/publishing.html:101
-#: warehouse/templates/manage/project/publishing.html:130
+#: warehouse/templates/manage/project/publishing.html:131
 #, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that the "
@@ -4973,7 +4973,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:116
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/project/publishing.html:146
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
@@ -5039,6 +5039,15 @@ msgid ""
 "more about \"pending\" and ordinary trusted publishers <a href=\"%(href)s"
 "\">here</a>."
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:231
+#: warehouse/templates/manage/project/publishing.html:152
+#, fuzzy, python-format
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
+"your account before adding a new publisher."
+msgstr "Вы не включили двухфакторную аутентификацию в своей учётной записи."
 
 #: warehouse/templates/manage/account/recovery_codes-burn.html:34
 msgid ""
@@ -6586,7 +6595,7 @@ msgstr ""
 msgid "Add a new publisher"
 msgstr "Управление этим проектом"
 
-#: warehouse/templates/manage/project/publishing.html:65
+#: warehouse/templates/manage/project/publishing.html:66
 #, fuzzy, python-format
 #| msgid ""
 #| "You can read more about OpenID Connect and how to use it <a href="
