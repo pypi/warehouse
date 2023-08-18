@@ -16,9 +16,9 @@ annotated-types==0.5.0 \
     --hash=sha256:47cdc3490d9ac1506ce92c7aaa76c579dc3509ff11e098fc867e5130ab7be802 \
     --hash=sha256:58da39888f92c276ad970249761ebea80ba544b77acddaa1a4d6cf78287d45fd
     # via pydantic
-argon2-cffi==21.3.0 \
-    --hash=sha256:8c976986f2c5c0e5000919e6de187906cfd81fb1c72bf9d88c01177e77da7f80 \
-    --hash=sha256:d384164d944190a7dd7ef22c6aa3ff197da12962bd04b17f64d4e93d934dba5b
+argon2-cffi==23.1.0 \
+    --hash=sha256:879c3e79a2729ce768ebb7d36d4609e3a78a4ca2ec3a9f12286ca057e3d0db08 \
+    --hash=sha256:c670642b78ba29641818ab2e68bd4e6a78ba53b7eff7b4c3815ae16abf91c7ea
     # via -r requirements/main.in
 argon2-cffi-bindings==21.2.0 \
     --hash=sha256:20ef543a89dee4db46a1a6e206cd015360e5a75822f76df533845c3cbaf72670 \
