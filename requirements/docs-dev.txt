@@ -300,9 +300,9 @@ sphinxcontrib-devhelp==1.0.4 \
     --hash=sha256:4fd751c63dc40895ac8740948f26bf1a3c87e4e441cc008672abd1cb2bc8a3d1 \
     --hash=sha256:d4e20a17f78865d4096733989b5efa0d5e7743900e98e1f6ecd6f489380febc8
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.3 \
-    --hash=sha256:14358d0f88ccf58447f2b54343cdcc0012f32de2f8d27cf934fdbc0b362f9597 \
-    --hash=sha256:abee4e6c5471203ad2fc40dc6a16ed99884a5d6b15a6f79c9269a7e82cf04149
+sphinxcontrib-htmlhelp==2.0.4 \
+    --hash=sha256:6c26a118a05b76000738429b724a0568dbde5b72391a688577da08f11891092a \
+    --hash=sha256:8001661c077a73c29beaf4a79968d0726103c5605e27db92b9ebed8bab1359e9
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1 \
     --hash=sha256:21eefe1270e4d9de8d717cc89ee92cc4871b8736774393bafc5e38a6bb77b1d5 \
