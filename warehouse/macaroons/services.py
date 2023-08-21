@@ -198,12 +198,12 @@ class DatabaseMacaroonService:
         serialized_macaroon = f"pypi-{m.serialize()}"
         return serialized_macaroon, dm
 
-    def delete_macaroon(self, macaroon_id):
+    def delete_macaroon(self, macaroon_id) -> None:
         """
         Deletes a macaroon from the DB by its identifier.
         """
         dm = self.find_macaroon(macaroon_id)
-        self.db.delete(dm)
+        self.db.delete(dm) if dm else None
 
     def get_macaroon_by_description(self, user_id, description):
         """

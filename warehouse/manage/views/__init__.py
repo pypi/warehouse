@@ -976,6 +976,13 @@ class ProvisionMacaroonViews:
 
         if form.validate():
             macaroon = self.macaroon_service.find_macaroon(form.macaroon_id.data)
+            if not macaroon:
+                # Return early if no macaroon is found
+                self.request.session.flash(
+                    self.request._("API Token does not exist."), queue="warning"
+                )
+                return HTTPSeeOther(self.request.route_path("manage.account"))
+
             self.macaroon_service.delete_macaroon(form.macaroon_id.data)
             self.request.user.record_event(
                 tag=EventTag.Account.APITokenRemoved,
