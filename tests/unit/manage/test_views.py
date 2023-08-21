@@ -2324,6 +2324,50 @@ class TestProvisionMacaroonViews:
             )
         ]
 
+    def test_delete_macaroon_when_non_existent(self, monkeypatch, pyramid_request):
+        user_service = pretend.stub()
+        macaroon_service = pretend.stub(
+            delete_macaroon=pretend.call_recorder(lambda id: pretend.stub()),
+            find_macaroon=pretend.call_recorder(lambda id: None),
+        )
+        delete_macaroon_obj = pretend.stub(
+            validate=lambda: True, macaroon_id=pretend.stub(data=pretend.stub())
+        )
+        delete_macaroon_cls = pretend.call_recorder(
+            lambda *a, **kw: delete_macaroon_obj
+        )
+        monkeypatch.setattr(views, "DeleteMacaroonForm", delete_macaroon_cls)
+
+        pyramid_request.POST = {
+            "confirm_password": "password",
+            "macaroon_id": "macaroon_id",
+        }
+        pyramid_request.find_service = lambda interface, **kw: {
+            IMacaroonService: macaroon_service,
+            IUserService: user_service,
+        }[interface]
+        pyramid_request.route_path = pretend.call_recorder(lambda x: "/manage/account/")
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        pyramid_request.user = pretend.stub(
+            id=pretend.stub(),
+            username=pretend.stub(),
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+        )
+
+        view = views.ProvisionMacaroonViews(pyramid_request)
+        result = view.delete_macaroon()
+
+        assert pyramid_request.route_path.calls == [pretend.call("manage.account")]
+        assert isinstance(result, HTTPSeeOther)
+        assert macaroon_service.find_macaroon.calls == [
+            pretend.call(delete_macaroon_obj.macaroon_id.data)
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call("API Token does not exist.", queue="warning")
+        ]
+
     def test_delete_macaroon_records_events_for_each_project(
         self, monkeypatch, pyramid_request
     ):

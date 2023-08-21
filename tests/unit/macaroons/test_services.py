@@ -331,6 +331,9 @@ class TestDatabaseMacaroonService:
 
         assert macaroon_service.find_macaroon(macaroon_id) is None
 
+    def test_delete_macaroon_no_macaroon(self, macaroon_service):
+        assert macaroon_service.delete_macaroon("no such macaroon") is None
+
     def test_get_macaroon_by_description_no_macaroon(self, macaroon_service):
         user = UserFactory.create()
         assert (
