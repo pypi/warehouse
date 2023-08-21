@@ -679,13 +679,15 @@ class TestSyncBigQueryMetadata:
         release.platform = "test_platform"
         release_file = FileFactory.create(
             release=release,
-            filename=f"foobar-{release.version}.tar.gz",
+            filename=f"{project.name}-{release.version}.tar.gz",
             md5_digest="feca4238a0b923820dcc509a6f75849b",
+            packagetype="sdist",
         )
         release_file2 = FileFactory.create(
             release=release,
-            filename=f"fizzbuzz-{release.version}.tar.gz",
+            filename=f"{project.name}-{release.version}-py3-none-any.whl",
             md5_digest="fecasd342fb952820dcc509a6f75849b",
+            packagetype="bdist_wheel",
         )
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: bar"))
         release._classifiers.append(ClassifierFactory.create(classifier="foo :: baz"))

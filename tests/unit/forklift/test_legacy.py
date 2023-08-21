@@ -624,7 +624,7 @@ class TestIsDuplicateFile:
             "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashes["md5"],
@@ -656,7 +656,7 @@ class TestIsDuplicateFile:
             "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashes["md5"],
@@ -693,7 +693,7 @@ class TestIsDuplicateFile:
             "blake2_256": hashlib.blake2b(file_value, digest_size=256 // 8).hexdigest(),
         }
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashes["md5"],
@@ -730,7 +730,7 @@ class TestIsDuplicateFile:
         wrong_hashes = {"sha256": "nah", "md5": "nope", "blake2_256": "nuh uh"}
 
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashes["md5"],
@@ -2142,7 +2142,7 @@ class TestFileUpload:
         )
 
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
@@ -2188,7 +2188,7 @@ class TestFileUpload:
         )
 
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashlib.md5(filename.encode("utf8")).hexdigest(),
@@ -2243,7 +2243,7 @@ class TestFileUpload:
         )
 
         db_request.db.add(
-            File(
+            FileFactory.create(
                 release=release,
                 filename=filename,
                 md5_digest=hashlib.md5(file_content.getvalue()).hexdigest(),
