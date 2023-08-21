@@ -18,6 +18,7 @@ import webauthn as pywebauthn
 from webauthn.helpers import base64url_to_bytes, generate_challenge
 from webauthn.helpers.exceptions import (
     InvalidAuthenticationResponse,
+    InvalidAuthenticatorDataStructure,
     InvalidRegistrationResponse,
     UnsupportedPublicKeyType,
 )
@@ -134,7 +135,11 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
             expected_origin=origin,
             require_user_verification=False,
         )
-    except (InvalidRegistrationResponse, UnsupportedPublicKeyType) as e:
+    except (
+        InvalidAuthenticatorDataStructure,
+        InvalidRegistrationResponse,
+        UnsupportedPublicKeyType,
+    ) as e:
         raise RegistrationRejectedError(str(e))
 
 
