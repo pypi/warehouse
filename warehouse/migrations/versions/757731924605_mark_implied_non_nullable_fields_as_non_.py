@@ -27,6 +27,9 @@ down_revision = "a0ae1f9388e4"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 61000")  # 61s
+    op.execute("SET lock_timeout = 60000")  # 60s
+
     op.alter_column(
         "release_files", "python_version", existing_type=sa.TEXT(), nullable=False
     )
