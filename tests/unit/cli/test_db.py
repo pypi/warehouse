@@ -9,14 +9,16 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import datetime
+from uuid import UUID
 
 import alembic.command
 import pretend
 import pytest
 import sqlalchemy
 
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column
 
 import warehouse.cli.db.dbml
 import warehouse.db
@@ -31,6 +33,7 @@ from warehouse.cli.db.revision import revision
 from warehouse.cli.db.show import show
 from warehouse.cli.db.stamp import stamp
 from warehouse.cli.db.upgrade import upgrade
+from warehouse.utils.db.types import datetime_now
 
 
 def test_branches_command(monkeypatch, cli, pyramid_config):
@@ -314,8 +317,8 @@ def test_dbml_command(monkeypatch, cli):
 
 
 EXPECTED_DBML = """Table _clan {
-  name text [unique, not null]
-  fetched text [default: `FetchedValue()`, Note: "fetched value"]
+  name varchar [unique, not null]
+  fetched varchar [default: `FetchedValue()`, Note: "fetched value"]
   for_the_children boolean [default: `True`]
   nice varchar
   id varchar [pk, not null, default: `gen_random_uuid()`]
@@ -323,7 +326,7 @@ EXPECTED_DBML = """Table _clan {
 }
 
 Table _clan_member {
-  name text [not null]
+  name varchar [not null]
   clan_id varchar
   joined datetime [not null, default: `now()`]
   departed datetime
@@ -343,29 +346,24 @@ def test_generate_dbml_file(tmp_path_factory):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
 
-        name = mapped_column(sqlalchemy.Text, unique=True, nullable=False)
-        fetched = mapped_column(
-            sqlalchemy.Text,
+        name: Mapped[str] = mapped_column(unique=True)
+        fetched: Mapped[str | None] = mapped_column(
             server_default=sqlalchemy.FetchedValue(),
             comment="fetched value",
         )
-        for_the_children = mapped_column(sqlalchemy.Boolean, default=True)
-        nice = mapped_column(sqlalchemy.String(length=69))
+        for_the_children: Mapped[bool | None] = mapped_column(default=True)
+        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"
 
-        name = mapped_column(sqlalchemy.Text, nullable=False)
-        clan_id = mapped_column(
-            UUID(as_uuid=True),
+        name: Mapped[str]
+        clan_id: Mapped[UUID | None] = mapped_column(
+            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
-        joined = mapped_column(
-            sqlalchemy.DateTime,
-            nullable=False,
-            server_default=sqlalchemy.sql.func.now(),
-        )
-        departed = mapped_column(sqlalchemy.DateTime, nullable=True)
+        joined: Mapped[datetime_now]
+        departed: Mapped[datetime | None]
 
     outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
     warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), outpath)
@@ -383,29 +381,24 @@ def test_generate_dbml_console(capsys, monkeypatch):
         __tablename__ = "_clan"
         __table_args__ = {"comment": "various clans"}
 
-        name = mapped_column(sqlalchemy.Text, unique=True, nullable=False)
-        fetched = mapped_column(
-            sqlalchemy.Text,
+        name: Mapped[str] = mapped_column(unique=True)
+        fetched: Mapped[str | None] = mapped_column(
             server_default=sqlalchemy.FetchedValue(),
             comment="fetched value",
         )
-        for_the_children = mapped_column(sqlalchemy.Boolean, default=True)
-        nice = mapped_column(sqlalchemy.String(length=69))
+        for_the_children: Mapped[bool | None] = mapped_column(default=True)
+        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
 
     class ClanMember(Muddle):
         __tablename__ = "_clan_member"
 
-        name = mapped_column(sqlalchemy.Text, nullable=False)
-        clan_id = mapped_column(
-            UUID(as_uuid=True),
+        name: Mapped[str]
+        clan_id: Mapped[UUID | None] = mapped_column(
+            PG_UUID,
             sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
         )
-        joined = mapped_column(
-            sqlalchemy.DateTime,
-            nullable=False,
-            server_default=sqlalchemy.sql.func.now(),
-        )
-        departed = mapped_column(sqlalchemy.DateTime, nullable=True)
+        joined: Mapped[datetime_now]
+        departed: Mapped[datetime | None]
 
     warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
     captured = capsys.readouterr()
@@ -425,7 +418,7 @@ def test_generate_dbml_bad_conversion():
         __tablename__ = "puddle"
         __table_args__ = {"comment": "various clans"}
 
-        name = mapped_column(BadText, unique=True, nullable=False)
+        name: Mapped[str] = mapped_column(BadText, unique=True)
 
     with pytest.raises(SystemExit):
         warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
