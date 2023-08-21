@@ -19,6 +19,7 @@ from webauthn.helpers import base64url_to_bytes, generate_challenge
 from webauthn.helpers.exceptions import (
     InvalidAuthenticationResponse,
     InvalidRegistrationResponse,
+    UnsupportedPublicKeyType,
 )
 from webauthn.helpers.options_to_json import options_to_json
 from webauthn.helpers.structs import (
@@ -133,7 +134,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
             expected_origin=origin,
             require_user_verification=False,
         )
-    except InvalidRegistrationResponse as e:
+    except (InvalidRegistrationResponse, UnsupportedPublicKeyType) as e:
         raise RegistrationRejectedError(str(e))
 
 
