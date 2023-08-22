@@ -29,6 +29,7 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
+    compute_packaging_metrics,
     sync_bigquery_release_files,
     sync_file_to_cache,
     update_bigquery_release_files,
@@ -89,6 +90,26 @@ def test_sync_file_to_cache(db_request, monkeypatch, cached):
         assert archive_stub.get_metadata.calls == []
         assert archive_stub.get.calls == []
         assert cache_stub.store.calls == []
+
+
+def test_compute_packaging_metrics(db_request, metrics):
+    project1 = ProjectFactory()
+    project2 = ProjectFactory()
+    release1 = ReleaseFactory(project=project1)
+    release2 = ReleaseFactory(project=project2)
+    release3 = ReleaseFactory(project=project2)
+    FileFactory(release=release1)
+    FileFactory(release=release2)
+    FileFactory(release=release3)
+    FileFactory(release=release3)
+
+    compute_packaging_metrics(db_request)
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.total_projects", 2),
+        pretend.call("warehouse.packaging.total_releases", 3),
+        pretend.call("warehouse.packaging.total_files", 4),
+    ]
 
 
 @pytest.mark.parametrize("cached", [True, False])

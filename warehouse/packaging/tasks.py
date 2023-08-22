@@ -29,6 +29,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
+from warehouse.utils.row_counter import RowCount
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,35 @@ def sync_file_to_cache(request, file_id):
             _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
 
         file.cached = True
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def compute_packaging_metrics(request):
+    counts = dict(
+        request.db.query(RowCount.table_name, RowCount.count)
+        .filter(
+            RowCount.table_name.in_(
+                [
+                    Project.__tablename__,
+                    Release.__tablename__,
+                    File.__tablename__,
+                ]
+            )
+        )
+        .all()
+    )
+
+    metrics = request.find_service(IMetricsService, context=None)
+
+    metrics.gauge(
+        "warehouse.packaging.total_projects", counts.get(Project.__tablename__, 0)
+    )
+
+    metrics.gauge(
+        "warehouse.packaging.total_releases", counts.get(Release.__tablename__, 0)
+    )
+
+    metrics.gauge("warehouse.packaging.total_files", counts.get(File.__tablename__, 0))
 
 
 @tasks.task(ignore_result=True, acks_late=True)
