@@ -30,6 +30,7 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_mandate,
     compute_2fa_metrics,
+    compute_packaging_metrics,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -190,6 +191,9 @@ def includeme(config):
 
     # Add a periodic task to generate 2FA metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_2fa_metrics)
+
+    # Add a periodic task to generate general metrics
+    config.add_periodic_task(crontab(minute="*/5"), compute_packaging_metrics)
 
     # TODO: restore this
     # if config.get_settings().get("warehouse.release_files_table"):
