@@ -21,7 +21,6 @@ import pip_api
 
 from google.cloud.bigquery import LoadJobConfig
 from packaging.utils import canonicalize_name
-from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -30,6 +29,7 @@ from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description, File, Project, Release, Role
 from warehouse.utils import readme
+from warehouse.utils.row_counter import RowCount
 
 logger = logging.getLogger(__name__)
 
@@ -59,21 +59,31 @@ def sync_file_to_cache(request, file_id):
 
 @tasks.task(ignore_result=True, acks_late=True)
 def compute_packaging_metrics(request):
+    counts = dict(
+        request.db.query(RowCount.table_name, RowCount.count)
+        .filter(
+            RowCount.table_name.in_(
+                [
+                    Project.__tablename__,
+                    Release.__tablename__,
+                    File.__tablename__,
+                ]
+            )
+        )
+        .all()
+    )
+
     metrics = request.find_service(IMetricsService, context=None)
 
     metrics.gauge(
-        "warehouse.packaging.total_projects",
-        request.db.query(func.count(Project.id)).scalar(),
+        "warehouse.packaging.total_projects", counts.get(Project.__tablename__, 0)
     )
 
     metrics.gauge(
-        "warehouse.packaging.total_releases",
-        request.db.query(func.count(Release.id)).scalar(),
+        "warehouse.packaging.total_releases", counts.get(Release.__tablename__, 0)
     )
 
-    metrics.gauge(
-        "warehouse.packaging.total_files", request.db.query(func.count(File)).scalar()
-    )
+    metrics.gauge("warehouse.packaging.total_files", counts.get(File.__tablename__, 0))
 
 
 @tasks.task(ignore_result=True, acks_late=True)
