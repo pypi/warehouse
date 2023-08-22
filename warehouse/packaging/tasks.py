@@ -21,6 +21,7 @@ import pip_api
 
 from google.cloud.bigquery import LoadJobConfig
 from packaging.utils import canonicalize_name
+from sqlalchemy import func
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
@@ -61,14 +62,18 @@ def compute_packaging_metrics(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     metrics.gauge(
-        "warehouse.packaging.total_projects", request.db.query(Project).count()
+        "warehouse.packaging.total_projects",
+        request.db.query(func.count(Project.id)).scalar(),
     )
 
     metrics.gauge(
-        "warehouse.packaging.total_releases", request.db.query(Release).count()
+        "warehouse.packaging.total_releases",
+        request.db.query(func.count(Release.id)).scalar(),
     )
 
-    metrics.gauge("warehouse.packaging.total_files", request.db.query(File).count())
+    metrics.gauge(
+        "warehouse.packaging.total_files", request.db.query(func.count(File)).scalar()
+    )
 
 
 @tasks.task(ignore_result=True, acks_late=True)
