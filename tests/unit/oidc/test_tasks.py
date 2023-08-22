@@ -108,4 +108,6 @@ def test_compute_oidc_metrics(db_request, metrics):
         pretend.call(
             "warehouse.oidc.total_critical_projects_published_with_oidc_publishers", 1
         ),
+        pretend.call("warehouse.oidc.total_files_published_with_oidc_publishers", 2),
+        pretend.call("warehouse.oidc.github_oidc_publishers.publishers", 4),
     ]

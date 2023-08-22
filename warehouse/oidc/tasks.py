@@ -12,6 +12,7 @@
 
 from warehouse import tasks
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import OIDCPublisher
 from warehouse.packaging.models import File, Project, Release
 
 
@@ -57,3 +58,21 @@ def compute_oidc_metrics(request):
         "warehouse.oidc.total_critical_projects_published_with_oidc_publishers",
         projects_published_with_oidc.where(Project.pypi_mandates_2fa.is_(True)).count(),
     )
+
+    # Metric for total number of files published via OIDC
+    metrics.gauge(
+        "warehouse.oidc.total_files_published_with_oidc_publishers",
+        request.db.query(File.Event)
+        .where(File.Event.additional.op("->>")("publisher_url").is_not(None))
+        .count(),
+    )
+
+    # Number of publishers for specific publishers
+    for t in request.db.query(OIDCPublisher.discriminator).distinct().all():
+        discriminator = t[0]
+        metrics.gauge(
+            f"warehouse.oidc.{discriminator}.publishers",
+            request.db.query(OIDCPublisher)
+            .where(OIDCPublisher.discriminator == discriminator)
+            .count(),
+        )
