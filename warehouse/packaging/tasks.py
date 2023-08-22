@@ -57,6 +57,21 @@ def sync_file_to_cache(request, file_id):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
+def compute_packaging_metrics(request):
+    metrics = request.find_service(IMetricsService, context=None)
+
+    metrics.gauge(
+        "warehouse.packaging.total_projects", request.db.query(Project).count()
+    )
+
+    metrics.gauge(
+        "warehouse.packaging.total_releases", request.db.query(Release).count()
+    )
+
+    metrics.gauge("warehouse.packaging.total_files", request.db.query(File).count())
+
+
+@tasks.task(ignore_result=True, acks_late=True)
 def check_file_cache_tasks_outstanding(request):
     metrics = request.find_service(IMetricsService, context=None)
 
