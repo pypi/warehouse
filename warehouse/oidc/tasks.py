@@ -71,8 +71,9 @@ def compute_oidc_metrics(request):
     for t in request.db.query(OIDCPublisher.discriminator).distinct().all():
         discriminator = t[0]
         metrics.gauge(
-            f"warehouse.oidc.{discriminator}.publishers",
+            "warehouse.oidc.publishers",
             request.db.query(OIDCPublisher)
             .where(OIDCPublisher.discriminator == discriminator)
             .count(),
+            tag=discriminator,
         )
