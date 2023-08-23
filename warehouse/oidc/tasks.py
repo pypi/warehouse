@@ -75,5 +75,5 @@ def compute_oidc_metrics(request):
             request.db.query(OIDCPublisher)
             .where(OIDCPublisher.discriminator == discriminator)
             .count(),
-            tag=discriminator,
+            tags=[f"publisher:{discriminator}"],
         )
