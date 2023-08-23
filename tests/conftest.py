@@ -68,16 +68,40 @@ def metrics_timing(*args, **kwargs):
     yield None
 
 
+def _event(
+    title,
+    text,
+    alert_type=None,
+    aggregation_key=None,
+    source_type_name=None,
+    date_happened=None,
+    priority=None,
+    tags=None,
+    hostname=None,
+):
+    return None
+
+
 @pytest.fixture
 def metrics():
     return pretend.stub(
-        event=pretend.call_recorder(lambda *args, **kwargs: None),
-        gauge=pretend.call_recorder(lambda *args, **kwargs: None),
-        increment=pretend.call_recorder(lambda *args, **kwargs: None),
-        histogram=pretend.call_recorder(lambda *args, **kwargs: None),
-        timing=pretend.call_recorder(lambda *args, **kwargs: None),
+        event=pretend.call_recorder(lambda *args, **kwargs: _event(*args, **kwargs)),
+        gauge=pretend.call_recorder(
+            lambda metric, value, tags=None, sample_rate=1: None
+        ),
+        increment=pretend.call_recorder(
+            lambda metric, value=1, tags=None, sample_rate=1: None
+        ),
+        histogram=pretend.call_recorder(
+            lambda metric, value, tags=None, sample_rate=1: None
+        ),
+        timing=pretend.call_recorder(
+            lambda metric, value, tags=None, sample_rate=1: None
+        ),
         timed=pretend.call_recorder(
-            lambda *args, **kwargs: metrics_timing(*args, **kwargs)
+            lambda metric=None, tags=None, sample_rate=1, use_ms=None: metrics_timing(
+                metric=metric, tags=tags, sample_rate=sample_rate, use_ms=use_ms
+            )
         ),
     )
 
