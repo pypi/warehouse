@@ -155,8 +155,9 @@ freezegun==1.2.2 \
     --hash=sha256:cd22d1ba06941384410cd967d8a99d5ae2442f57dfafeff2fda5de8dc5c05446 \
     --hash=sha256:ea1b963b993cb9ea195adbd893a48d573fda951b0da64f60883d7e988b606c9f
     # via -r requirements/tests.in
-icdiff==2.0.6 \
-    --hash=sha256:a2673b335d671e64fc73c44e1eaa0aa01fd0e68354e58ee17e863ab29912a79a
+icdiff==2.0.7 \
+    --hash=sha256:f05d1b3623223dd1c70f7848da7d699de3d9a2550b902a8234d9026292fb5762 \
+    --hash=sha256:f79a318891adbf59a45e3a7694f5e1f18c5407065264637072ac8363b759866f
     # via pytest-icdiff
 idna==3.4 \
     --hash=sha256:814f528e8dead7d329833b91c5faa87d60bf71824cd12a7530b5526063d02cb4 \
@@ -325,7 +326,7 @@ webtest==3.0.0 \
     # via -r requirements/tests.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==68.1.0 \
-    --hash=sha256:d59c97e7b774979a5ccb96388efc9eb65518004537e85d52e81eaee89ab6dd91 \
-    --hash=sha256:e13e1b0bc760e9b0127eda042845999b2f913e12437046e663b833aa96d89715
+setuptools==68.1.2 \
+    --hash=sha256:3d4dfa6d95f1b101d695a6160a7626e15583af71a5f52176efa5d39a054d475d \
+    --hash=sha256:3d8083eed2d13afc9426f227b24fd1659489ec107c0e86cec2ffdde5c92e790b
     # via pytest-postgresql
