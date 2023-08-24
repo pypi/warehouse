@@ -1458,9 +1458,9 @@ pytz==2023.3 \
     --hash=sha256:1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588 \
     --hash=sha256:a151b3abb88eda1d4e34a9814df37de2a80e301e68ba0fd856fb9b46bfbbbffb
     # via -r requirements/main.in
-readme-renderer[md]==40.0 \
-    --hash=sha256:9f77b519d96d03d7d7dce44977ba543090a14397c4f60de5b6eb5b8048110aa4 \
-    --hash=sha256:e18feb2a1e7706f2865b81ebb460056d93fb29d69daa10b223c00faa7bd9a00a
+readme-renderer[md]==41.0 \
+    --hash=sha256:4f4b11e5893f5a5d725f592c5a343e0dc74f5f273cb3dcf8c42d9703a27073f7 \
+    --hash=sha256:a38243d5b6741b700a850026e62da4bd739edc7422071e95fd5c4bb60171df86
     # via -r requirements/main.in
 redis==5.0.0 \
     --hash=sha256:06570d0b2d84d46c21defc550afbaada381af82f5b83e5b3777600e05d8e2ed0 \
