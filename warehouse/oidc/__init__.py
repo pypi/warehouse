@@ -50,4 +50,4 @@ def includeme(config):
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
 
     # Compute OIDC metrics periodically
-    config.add_periodic_task(crontab(hour="*"), compute_oidc_metrics)
+    config.add_periodic_task(crontab(minute=0, hour="*"), compute_oidc_metrics)
