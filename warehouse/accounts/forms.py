@@ -313,6 +313,13 @@ class HoneypotMixin:
     confirm_form = wtforms.StringField()
 
 
+class UsernameSearchForm(UsernameMixin, forms.Form):
+    def validate_username(self, field):
+        # Override this function from UsernameMixin. We don't care if the
+        # username is valid or not
+        return True
+
+
 class RegistrationForm(
     NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin, forms.Form
 ):
