@@ -43,6 +43,7 @@ from warehouse.accounts.forms import (
     RequestPasswordResetForm,
     ResetPasswordForm,
     TOTPAuthenticationForm,
+    UsernameSearchForm,
     WebAuthnAuthenticationForm,
 )
 from warehouse.accounts.interfaces import (
@@ -178,8 +179,8 @@ def accounts_search(request) -> dict[str, list[User]]:
     if request.authenticated_userid is None:
         raise HTTPUnauthorized()
 
-    prefix = request.params.get("q", "").strip()
-    if not prefix:
+    form = UsernameSearchForm(request.params)
+    if not form.validate():
         raise HTTPBadRequest()
 
     search_limiter = request.find_service(IRateLimiter, name="accounts.search")
@@ -190,7 +191,7 @@ def accounts_search(request) -> dict[str, list[User]]:
         return {"users": []}
 
     user_service = request.find_service(IUserService, context=None)
-    users = user_service.get_users_by_prefix(prefix)
+    users = user_service.get_users_by_prefix(form.username.data.strip())
     search_limiter.hit(request.ip_address)
 
     if not users:

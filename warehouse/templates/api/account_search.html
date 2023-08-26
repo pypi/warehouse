@@ -16,7 +16,7 @@
 
 {% block content -%}
 {% for user in users -%}
-  <li role="option" data-autocomplete-value="{{ user.username }}">
+  <li role="option" data-autocomplete-value="{{ user.username }}" data-autocomplete-query-param-value="username">
     <img src="{{ gravatar(request, user.email, size=20) }}" class="img-circle" alt="User Image">
     {{ user.username }}{% if user.name %} ({{ user.name }}){% endif %}
   </li>
