@@ -40,6 +40,8 @@ Calling a function with the ``_email`` decorator does the following:
   response
 - A security log is added to the user's account
 - The email is sent using Amazon SES (on production environment)
+- A metric is sent to Datadog named `warehouse.emails.scheduled` with the tags
+  ``template_name``, ``allow_unverified``, and ``repeat_window``.
 
 Testing e-mails
 ---------------
