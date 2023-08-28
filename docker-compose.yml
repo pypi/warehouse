@@ -177,7 +177,7 @@ services:
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
-    image: maildev/maildev:2.0.2
+    image: maildev/maildev:2.1.0
     ports:
       - "1080:1080"
       - "1025:1025"
