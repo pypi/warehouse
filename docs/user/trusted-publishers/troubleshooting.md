@@ -55,9 +55,10 @@ endpoint:
   GitHub Actions, check if the workflow is using the same environment
   as configured when the publisher was configured on PyPI.
 * `invalid-publisher` for a previously-working project: this usually indicates
-  that something has changed on either side. One example we've seen in when a
-  GitHub repository is renamed, and the configration on PyPI continues to use
-  the old repository name. Check that the `repository` value is the same on
+  a typo or that something has changed on either side. One example we've seen
+  is when a source repository is renamed, and the configration on PyPI
+  continues to use the old repository name. For GitHub, check that the
+  `repository_owner`, `repository` and workflow filename values are the same on
   both sides.
 
 ## Upload errors
