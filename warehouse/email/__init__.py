@@ -30,6 +30,7 @@ from warehouse.email.interfaces import IEmailSender
 from warehouse.email.services import EmailMessage
 from warehouse.email.ses.tasks import cleanup as ses_cleanup
 from warehouse.events.tags import EventTag
+from warehouse.metrics.interfaces import IMetricsService
 
 
 def _compute_recipient(user, email):
@@ -189,6 +190,17 @@ def _email(
                     email=email,
                     allow_unverified=allow_unverified,
                     repeat_window=repeat_window,
+                )
+                metrics = request.find_service(IMetricsService, context=None)
+                metrics.increment(
+                    "warehouse.emails.scheduled",
+                    tags=[
+                        f"template_name:{name}",
+                        f"allow_unverified:{allow_unverified}",
+                        f"repeat_window:{repeat_window.total_seconds()}"
+                        if repeat_window
+                        else "repeat_window:none",
+                    ],
                 )
 
             return context

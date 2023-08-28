@@ -808,6 +808,7 @@ class TestSendPasswordResetEmail:
         pyramid_request,
         pyramid_config,
         token_service,
+        metrics,
         monkeypatch,
     ):
         stub_user = pretend.stub(
@@ -903,6 +904,16 @@ class TestSendPasswordResetEmail:
                         "redact_ip": False,
                     },
                 },
+            )
+        ]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.scheduled",
+                tags=[
+                    "template_name:password-reset",
+                    "allow_unverified:True",
+                    "repeat_window:none",
+                ],
             )
         ]
 
@@ -1376,7 +1387,7 @@ class TestPasswordCompromisedEmail:
 class TestBasicAuthWith2FAEmail:
     @pytest.mark.parametrize("verified", [True, False])
     def test_basic_auth_with_2fa_email(
-        self, pyramid_request, pyramid_config, monkeypatch, verified
+        self, pyramid_request, pyramid_config, monkeypatch, verified, metrics
     ):
         stub_user = pretend.stub(
             id="id",
@@ -1441,6 +1452,16 @@ class TestBasicAuthWith2FAEmail:
                         "redact_ip": False,
                     },
                 },
+            )
+        ]
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.scheduled",
+                tags=[
+                    "template_name:basic-auth-with-2fa",
+                    "allow_unverified:True",
+                    "repeat_window:86400.0",
+                ],
             )
         ]
 
@@ -1517,7 +1538,9 @@ class TestGPGSignatureUploadedEmail:
 
 
 class TestAccountDeletionEmail:
-    def test_account_deletion_email(self, pyramid_request, pyramid_config, monkeypatch):
+    def test_account_deletion_email(
+        self, pyramid_request, pyramid_config, metrics, monkeypatch
+    ):
         stub_user = pretend.stub(
             id="id",
             username="username",
@@ -1582,6 +1605,17 @@ class TestAccountDeletionEmail:
                         "redact_ip": False,
                     },
                 },
+            )
+        ]
+
+        assert metrics.increment.calls == [
+            pretend.call(
+                "warehouse.emails.scheduled",
+                tags=[
+                    "template_name:account-deleted",
+                    "allow_unverified:False",
+                    "repeat_window:none",
+                ],
             )
         ]
 
