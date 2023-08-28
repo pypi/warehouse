@@ -330,7 +330,7 @@
     {% endif %}
   </h3>
   <form method="POST">
-    <div class="form-group" data-controller="autocomplete" data-autocomplete-url-value="/accounts/search/" role="combobox">
+    <div class="form-group" data-controller="autocomplete" data-autocomplete-url-value="/accounts/search/" data-autocomplete-query-param-value="username" role="combobox">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <label for="username" class="form-group__label">
         {% trans %}User{% endtrans %}

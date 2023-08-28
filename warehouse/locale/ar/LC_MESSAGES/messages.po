@@ -139,31 +139,31 @@ msgid ""
 msgstr ""
 "هذا البريد الاليكتروني يستخدمه حساب آخر. برجاء استخدام بريد اليكتروني مختلف."
 
-#: warehouse/accounts/forms.py:323 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:330 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "هذا الاسم طويل للغاية. برجاء اختيار اسم طوله 100 حرفاً أو أقل."
 
-#: warehouse/accounts/forms.py:412
+#: warehouse/accounts/forms.py:419
 msgid "Invalid TOTP code."
 msgstr "كود TOTP غير صحيح."
 
-#: warehouse/accounts/forms.py:429
+#: warehouse/accounts/forms.py:436
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "توكيد WebAuthn غير صالح: حمولة سيئة"
 
-#: warehouse/accounts/forms.py:498
+#: warehouse/accounts/forms.py:505
 msgid "Invalid recovery code."
 msgstr "رمز الاسترداد غير صالح."
 
-#: warehouse/accounts/forms.py:507
+#: warehouse/accounts/forms.py:514
 msgid "Recovery code has been previously used."
 msgstr "تم استخدام رمز الاسترداد مسبقًا."
 
-#: warehouse/accounts/forms.py:526
+#: warehouse/accounts/forms.py:533
 msgid "No user found with that username or email"
 msgstr "لا يوجد مستخدم بهذا الاسم أو البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:104
+#: warehouse/accounts/views.py:105
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -173,7 +173,7 @@ msgid ""
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
 
-#: warehouse/accounts/views.py:121
+#: warehouse/accounts/views.py:122
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -181,7 +181,7 @@ msgstr ""
 "تمت إضافة عدد كبير جدًا من رسائل البريد الإلكتروني إلى هذا الحساب دون التحقق "
 "منها. تحقق من بريدك الوارد واتبع روابط التحقق. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:133
+#: warehouse/accounts/views.py:134
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -190,25 +190,25 @@ msgstr ""
 "تم طلب تغيير كلمة السر لهذا الحساب مراتٍ كثيرة دون اكمالها. تحقق من بريدك "
 "الوارد واتبع روابط التحقق. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:308 warehouse/accounts/views.py:372
-#: warehouse/accounts/views.py:374 warehouse/accounts/views.py:401
-#: warehouse/accounts/views.py:403 warehouse/accounts/views.py:469
+#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:373
+#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:402
+#: warehouse/accounts/views.py:404 warehouse/accounts/views.py:470
 msgid "Invalid or expired two factor login."
 msgstr "تسجيل دخول ثنائي العامل غير صالح أو منتهي الصلاحية."
 
-#: warehouse/accounts/views.py:366
+#: warehouse/accounts/views.py:367
 msgid "Already authenticated"
 msgstr "موثق بالفعل"
 
-#: warehouse/accounts/views.py:445
+#: warehouse/accounts/views.py:446
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:500 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:501 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "تم قبول رمز الاسترداد. لا يمكن استخدام الرمز مرة أخرى."
 
-#: warehouse/accounts/views.py:592
+#: warehouse/accounts/views.py:593
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -216,131 +216,131 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:723
+#: warehouse/accounts/views.py:724
 msgid "Expired token: request a new password reset link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:725
+#: warehouse/accounts/views.py:726
 msgid "Invalid token: request a new password reset link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:727 warehouse/accounts/views.py:829
-#: warehouse/accounts/views.py:933 warehouse/accounts/views.py:1102
+#: warehouse/accounts/views.py:728 warehouse/accounts/views.py:830
+#: warehouse/accounts/views.py:934 warehouse/accounts/views.py:1103
 msgid "Invalid token: no token supplied"
 msgstr "رمز غير صحيح: لا يوجد رمز"
 
-#: warehouse/accounts/views.py:731
+#: warehouse/accounts/views.py:732
 msgid "Invalid token: not a password reset token"
 msgstr "رمز غير صحيح: ليس رمزاً لتغيير كلمة السر"
 
-#: warehouse/accounts/views.py:736
+#: warehouse/accounts/views.py:737
 msgid "Invalid token: user not found"
 msgstr "رمز غير صحيح: لم يتم العثور على المستخدم"
 
-#: warehouse/accounts/views.py:747
+#: warehouse/accounts/views.py:748
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "رمز غير صحيح: المستخدم سجل الدخول منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:765
+#: warehouse/accounts/views.py:766
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "رمز غير صحيح: كلمة السر تغيرت بالفعل منذ وقت طلب هذا الرمز"
 
-#: warehouse/accounts/views.py:797
+#: warehouse/accounts/views.py:798
 msgid "You have reset your password"
 msgstr "لقد قمت بتغيير كلمة السر الخاصة بك"
 
-#: warehouse/accounts/views.py:825
+#: warehouse/accounts/views.py:826
 msgid "Expired token: request a new email verification link"
 msgstr "رمز منتهي الصلاحية: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:828
 msgid "Invalid token: request a new email verification link"
 msgstr "رمز غير صحيح: برجاء طلب رابط جديد لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:833
+#: warehouse/accounts/views.py:834
 msgid "Invalid token: not an email verification token"
 msgstr "رمز غير صحيح: ليس رمزاً لتأكيد البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:842
+#: warehouse/accounts/views.py:843
 msgid "Email not found"
 msgstr "لم يتم العثور على البريد الاليكتروني"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:846
 msgid "Email already verified"
 msgstr "تم تأكيد البريد الاليكتروني بالفعل"
 
-#: warehouse/accounts/views.py:862
+#: warehouse/accounts/views.py:863
 msgid "You can now set this email as your primary address"
 msgstr "تستطيع الآن استخدام هذا البريد الاليكتروني كبريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:866
+#: warehouse/accounts/views.py:867
 msgid "This is your primary address"
 msgstr "هذا بريدك الاليكتروني الأساسي"
 
-#: warehouse/accounts/views.py:871
+#: warehouse/accounts/views.py:872
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "تم تأكيد البريد الاليكتروني ${email_address}. ${confirm_message}."
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:930
 msgid "Expired token: request a new organization invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد للمنظمة"
 
-#: warehouse/accounts/views.py:931
+#: warehouse/accounts/views.py:932
 msgid "Invalid token: request a new organization invitation"
 msgstr "رمز غير صالح: قم بطلب دعوة جديدة"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:938
 msgid "Invalid token: not an organization invitation token"
 msgstr "رمز غير صالح: ليس رمزاً لدعوة إلى مؤسسة"
 
-#: warehouse/accounts/views.py:941
+#: warehouse/accounts/views.py:942
 msgid "Organization invitation is not valid."
 msgstr "دعوة المنظمة غير صالحة."
 
-#: warehouse/accounts/views.py:950
+#: warehouse/accounts/views.py:951
 msgid "Organization invitation no longer exists."
 msgstr "دعوة المنظمة لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1002
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "تم رفض دعوة '${organization_name}'."
 
-#: warehouse/accounts/views.py:1064
+#: warehouse/accounts/views.py:1065
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${organization_name}."
 
-#: warehouse/accounts/views.py:1098
+#: warehouse/accounts/views.py:1099
 msgid "Expired token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1100
+#: warehouse/accounts/views.py:1101
 msgid "Invalid token: request a new project role invitation"
 msgstr "رمز منتهي الصلاحية: قم بطلب رابط دعوة جديد لدور في المشروع"
 
-#: warehouse/accounts/views.py:1106
+#: warehouse/accounts/views.py:1107
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "رمز غير صحيح: ليس رمزاً لدعوة مشاركة"
 
-#: warehouse/accounts/views.py:1110
+#: warehouse/accounts/views.py:1111
 msgid "Role invitation is not valid."
 msgstr "دعوة الدور غير صالحة."
 
-#: warehouse/accounts/views.py:1125
+#: warehouse/accounts/views.py:1126
 msgid "Role invitation no longer exists."
 msgstr "دعوة الدور لم تعد صالحة."
 
-#: warehouse/accounts/views.py:1156
+#: warehouse/accounts/views.py:1157
 msgid "Invitation for '${project_name}' is declined."
 msgstr "دعوة '${project_name}' تم رفضها."
 
-#: warehouse/accounts/views.py:1222
+#: warehouse/accounts/views.py:1223
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/accounts/views.py:1443 warehouse/accounts/views.py:1591
-#: warehouse/manage/views/__init__.py:1230
+#: warehouse/accounts/views.py:1444 warehouse/accounts/views.py:1592
+#: warehouse/manage/views/__init__.py:1237
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -352,7 +352,7 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:1460 warehouse/manage/views/__init__.py:1246
+#: warehouse/accounts/views.py:1461 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -364,17 +364,17 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/accounts/views.py:1474
+#: warehouse/accounts/views.py:1475
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1487
+#: warehouse/accounts/views.py:1488
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1503 warehouse/manage/views/__init__.py:1265
+#: warehouse/accounts/views.py:1504 warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -384,28 +384,28 @@ msgid ""
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
 
-#: warehouse/accounts/views.py:1517 warehouse/manage/views/__init__.py:1279
+#: warehouse/accounts/views.py:1518 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1536
+#: warehouse/accounts/views.py:1537
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1571
+#: warehouse/accounts/views.py:1572
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1605 warehouse/accounts/views.py:1618
-#: warehouse/accounts/views.py:1625
+#: warehouse/accounts/views.py:1606 warehouse/accounts/views.py:1619
+#: warehouse/accounts/views.py:1626
 #, fuzzy
 #| msgid "Create an account"
 msgid "Invalid publisher ID"
 msgstr "تسجيل مستخدم جديد"
 
-#: warehouse/accounts/views.py:1631
+#: warehouse/accounts/views.py:1632
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -535,19 +535,23 @@ msgstr "اصدار رمز اصلاح جديد سوف يوقف رمز الأصل�
 msgid "Verify your email to create an API token."
 msgstr "قم بتأكيد بريدك الالكتروني أو أضف بريد الكتروني جديد."
 
-#: warehouse/manage/views/__init__.py:1007
+#: warehouse/manage/views/__init__.py:982
+msgid "API Token does not exist."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1014
 msgid "Invalid credentials. Try again"
 msgstr "خطاء فى الأعتمادات (كلمه السر او الأسم او رمز الأصلاح). جرب مره اخرى"
 
-#: warehouse/manage/views/__init__.py:1129
+#: warehouse/manage/views/__init__.py:1136
 #, fuzzy
 #| msgid "Requires:"
 msgid "2FA requirement cannot be disabled for critical projects"
 msgstr "يتطلب:"
 
-#: warehouse/manage/views/__init__.py:1484
-#: warehouse/manage/views/__init__.py:1785
-#: warehouse/manage/views/__init__.py:1893
+#: warehouse/manage/views/__init__.py:1491
+#: warehouse/manage/views/__init__.py:1792
+#: warehouse/manage/views/__init__.py:1900
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -559,58 +563,58 @@ msgstr ""
 "تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
 "intervention."
 
-#: warehouse/manage/views/__init__.py:1616
-#: warehouse/manage/views/__init__.py:1701
-#: warehouse/manage/views/__init__.py:1802
-#: warehouse/manage/views/__init__.py:1902
+#: warehouse/manage/views/__init__.py:1623
+#: warehouse/manage/views/__init__.py:1708
+#: warehouse/manage/views/__init__.py:1809
+#: warehouse/manage/views/__init__.py:1909
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "تأكيد الدعوة"
 
-#: warehouse/manage/views/__init__.py:1628
+#: warehouse/manage/views/__init__.py:1635
 #, fuzzy
 #| msgid "New releases"
 msgid "Could not yank release - "
 msgstr "الإصدارات الجديدة"
 
-#: warehouse/manage/views/__init__.py:1713
+#: warehouse/manage/views/__init__.py:1720
 #, fuzzy
 #| msgid "New releases"
 msgid "Could not un-yank release - "
 msgstr "الإصدارات الجديدة"
 
-#: warehouse/manage/views/__init__.py:1814
+#: warehouse/manage/views/__init__.py:1821
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1914
+#: warehouse/manage/views/__init__.py:1921
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "لم يتم العثور علي الدعوة."
 
-#: warehouse/manage/views/__init__.py:1918
+#: warehouse/manage/views/__init__.py:1925
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2068
+#: warehouse/manage/views/__init__.py:2075
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views/__init__.py:2175
+#: warehouse/manage/views/__init__.py:2182
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views/__init__.py:2242
+#: warehouse/manage/views/__init__.py:2249
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/manage/views/__init__.py:2274
+#: warehouse/manage/views/__init__.py:2281
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -618,7 +622,7 @@ msgstr ""
 "المستخدم '${username}' ليس لديه بريد إلكتروني أولي صالح ولا يمكن إضافتة كـ"
 "${role_name} للمشروع"
 
-#: warehouse/manage/views/__init__.py:2287
+#: warehouse/manage/views/__init__.py:2294
 #: warehouse/manage/views/organizations.py:882
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -626,20 +630,20 @@ msgstr ""
 "دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى "
 "لاحقاً."
 
-#: warehouse/manage/views/__init__.py:2352
+#: warehouse/manage/views/__init__.py:2359
 #: warehouse/manage/views/organizations.py:947
 msgid "Invitation sent to '${username}'"
 msgstr "تم إرسال الدعوة إلي '${username}'"
 
-#: warehouse/manage/views/__init__.py:2385
+#: warehouse/manage/views/__init__.py:2392
 msgid "Could not find role invitation."
 msgstr "لم يتم العثور علي الدعوة."
 
-#: warehouse/manage/views/__init__.py:2396
+#: warehouse/manage/views/__init__.py:2403
 msgid "Invitation already expired."
 msgstr "الدعوه لم تعد صالحه."
 
-#: warehouse/manage/views/__init__.py:2428
+#: warehouse/manage/views/__init__.py:2435
 #: warehouse/manage/views/organizations.py:1134
 msgid "Invitation revoked from '${username}'."
 msgstr "تم إنهاء الدعوة من خلال '${username}'."
@@ -750,32 +754,32 @@ msgstr "اسم المستودع غير صالح"
 msgid "This project name is already in use"
 msgstr "اسم المشروع هذا قيد الاستخدام. اختر اسم مشروعٍ آخر."
 
-#: warehouse/subscriptions/models.py:42
+#: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:43
+#: warehouse/subscriptions/models.py:36
 msgid "Past Due"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:44
+#: warehouse/subscriptions/models.py:37
 msgid "Unpaid"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:45
+#: warehouse/subscriptions/models.py:38
 msgid "Canceled"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:46
+#: warehouse/subscriptions/models.py:39
 msgid "Incomplete"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:47
+#: warehouse/subscriptions/models.py:40
 msgid "Incomplete Expired"
 msgstr ""
 
-#: warehouse/subscriptions/models.py:48
+#: warehouse/subscriptions/models.py:41
 msgid "Trialing"
 msgstr ""
 

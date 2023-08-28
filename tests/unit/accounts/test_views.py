@@ -145,7 +145,7 @@ class TestAccountsSearch:
             views.accounts_search(pyramid_request)
 
     def test_no_query_string_raises_400(self):
-        pyramid_request = pretend.stub(authenticated_userid=1, params={})
+        pyramid_request = pretend.stub(authenticated_userid=1, params=MultiDict({}))
         with pytest.raises(HTTPBadRequest):
             views.accounts_search(pyramid_request)
 
@@ -168,15 +168,15 @@ class TestAccountsSearch:
             ip_address=IpAddressFactory.build(),
         )
 
-        request.params = MultiDict({"q": "f"})
+        request.params = MultiDict({"username": "f"})
         result = views.accounts_search(request)
         assert result == {"users": [foo]}
 
-        request.params = MultiDict({"q": "ba"})
+        request.params = MultiDict({"username": "ba"})
         result = views.accounts_search(request)
         assert result == {"users": bas}
 
-        request.params = MultiDict({"q": "zzz"})
+        request.params = MultiDict({"username": "zzz"})
         with pytest.raises(HTTPNotFound):
             views.accounts_search(request)
 
@@ -192,7 +192,7 @@ class TestAccountsSearch:
             ip_address=IpAddressFactory.build(),
         )
 
-        request.params = MultiDict({"q": "foo"})
+        request.params = MultiDict({"username": "foo"})
         result = views.accounts_search(request)
 
         assert search_limiter.test.calls == [pretend.call(request.ip_address)]
