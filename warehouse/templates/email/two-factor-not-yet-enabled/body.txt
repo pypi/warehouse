@@ -100,7 +100,7 @@ If the solutions there are unable to resolve the issue, contact us via support@p
 {% endtrans %}
 
 {% trans %}Thanks,{% endtrans %}
-{% trans %}The PyPI Admins (aka Mike, Ee, Dustin, Donald){% endtrans %}
+{% trans %}The PyPI Admins{% endtrans %}
 {% endblock %}
 
 {% block reason %}

@@ -345,8 +345,7 @@ def send_basic_auth_with_two_factor_email(request, user, *, project_name):
 @_email(
     "two-factor-not-yet-enabled",
     allow_unverified=True,
-    # may repeat at 15 days due to table cleanup.
-    repeat_window=datetime.timedelta(days=90),
+    repeat_window=datetime.timedelta(days=14),
 )
 def send_two_factor_not_yet_enabled_email(request, user):
     return {"username": user.username}

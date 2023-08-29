@@ -2614,7 +2614,7 @@ msgid "Thanks,"
 msgstr ""
 
 #: warehouse/templates/email/two-factor-not-yet-enabled/body.html:121
-msgid "The PyPI Admins (aka Mike, Ee, Dustin, Donald)"
+msgid "The PyPI Admins"
 msgstr ""
 
 #: warehouse/templates/email/two-factor-not-yet-enabled/body.html:127
