@@ -941,7 +941,7 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
     )
 
     # A critical maintainer with two WebAuthn methods enabled
-    third_critical_project_maintainer = UserFactory.create()
+    third_critical_project_maintainer = UserFactory.create(totp_secret=None)
     RoleFactory.create(user=third_critical_project_maintainer, project=critical_project)
     webauthn = WebAuthn(
         user_id=third_critical_project_maintainer.id,

@@ -38,6 +38,7 @@ class UserFactory(WarehouseFactory):
     last_login = factory.Faker(
         "date_time_between_dates", datetime_start=datetime.datetime(2011, 1, 1)
     )
+    totp_secret = factory.Faker("binary", length=20)
 
 
 class UserEventFactory(WarehouseFactory):

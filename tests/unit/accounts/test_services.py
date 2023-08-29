@@ -536,14 +536,14 @@ class TestDatabaseUserService:
         assert user_service.is_disabled(user.id) == (False, None)
 
     def test_has_two_factor(self, user_service):
-        user = UserFactory.create()
+        user = UserFactory.create(totp_secret=None)
         assert not user_service.has_two_factor(user.id)
 
         user_service.update_user(user.id, totp_secret=b"foobar")
         assert user_service.has_two_factor(user.id)
 
     def test_has_totp(self, user_service):
-        user = UserFactory.create()
+        user = UserFactory.create(totp_secret=None)
         assert not user_service.has_totp(user.id)
         user_service.update_user(user.id, totp_secret=b"foobar")
         assert user_service.has_totp(user.id)
@@ -642,7 +642,7 @@ class TestDatabaseUserService:
         ]
 
     def test_check_totp_value_invalid_secret(self, user_service):
-        user = UserFactory.create()
+        user = UserFactory.create(totp_secret=None)
         limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None), test=lambda *a, **kw: True
         )

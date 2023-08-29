@@ -50,6 +50,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
+    send_two_factor_not_yet_enabled_email,
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
@@ -1492,6 +1493,11 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # Check if the user has any 2FA methods enabled, and if not, email them.
+    if request.user and not request.user.has_two_factor:
+        warnings.append("Two factor authentication is not enabled for your account.")
+        send_two_factor_not_yet_enabled_email(request, request.user)
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
