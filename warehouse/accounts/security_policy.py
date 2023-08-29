@@ -164,6 +164,13 @@ class SessionSecurityPolicy:
         if user is None:
             return None
 
+        # User may have been frozen or disabled since the session was created.
+        is_disabled, _ = login_service.is_disabled(userid)
+        if is_disabled:
+            request.session.invalidate()
+            request.session.flash("Session invalidated", queue="error")
+            return None
+
         # Our session might be "valid" despite predating a password change.
         if request.session.password_outdated(
             login_service.get_password_timestamp(userid)
