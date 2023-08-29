@@ -1569,9 +1569,9 @@ stdlib-list==0.9.0 \
     --hash=sha256:98eb66135976c96b4ee3f4c0ef0552ebb5a9977ce3028433db79f4738b02af26 \
     --hash=sha256:f79957d59e41930d44afcd81e465f740b9a7a9828707a40e24ab1092b12bd423
     # via -r requirements/main.in
-stripe==6.0.0 \
-    --hash=sha256:d8f315c9f2ceb429ad23cd98a50e14cd0e973b3ffbd920f77e5a2da75a94693e \
-    --hash=sha256:f3cf6e619a91d1a49ddde417d444e47435cc472f394f2fa0d82f3d127d8cc17d
+stripe==6.1.0 \
+    --hash=sha256:5a99b50510d74f4ce33bb68961cc073c31df7eb3def90594e8ffe25a5c4dcaea \
+    --hash=sha256:9ad69f1ec57b91d81c39c2c02e3c9445dfc84c06bcbe11d7c1077b40dbbcb67b
     # via -r requirements/main.in
 structlog==23.1.0 \
     --hash=sha256:270d681dd7d163c11ba500bc914b2472d2b50a8ef00faa999ded5ff83a2f906b \
@@ -1617,6 +1617,7 @@ typing-extensions==4.7.1 \
     #   pydantic
     #   pydantic-core
     #   sqlalchemy
+    #   stripe
 tzdata==2023.3 \
     --hash=sha256:11ef1e08e54acb0d4f95bdb1be05da659673de4acbd21bf9c69e94cc5e907a3a \
     --hash=sha256:7e65763eef3120314099b6939b5546db7adce1e7d6f2e179e3df563c70511eda
