@@ -98,6 +98,7 @@ class EventTag:
         RoleRevokeInvite = "account:role:revoke_invite"
         TeamRoleAdd = "account:team_role:add"
         TeamRoleRemove = "account:team_role:remove"
+        TwoFactorDeviceRemembered = "account:two_factor:device_remembered"
         TwoFactorMethodAdded = "account:two_factor:method_added"
         TwoFactorMethodRemoved = "account:two_factor:method_removed"
         EmailSent = "account:email:sent"

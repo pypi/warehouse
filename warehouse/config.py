@@ -17,6 +17,8 @@ import json
 import os
 import shlex
 
+from datetime import timedelta
+
 import orjson
 import transaction
 
@@ -215,6 +217,7 @@ def configure(settings=None):
     maybe_set(settings, "token.password.secret", "TOKEN_PASSWORD_SECRET")
     maybe_set(settings, "token.email.secret", "TOKEN_EMAIL_SECRET")
     maybe_set(settings, "token.two_factor.secret", "TOKEN_TWO_FACTOR_SECRET")
+    maybe_set(settings, "token.remember_device.secret", "TOKEN_REMEMBER_DEVICE_SECRET")
     maybe_set(
         settings,
         "warehouse.xmlrpc.search.enabled",
@@ -237,6 +240,20 @@ def configure(settings=None):
         "TOKEN_TWO_FACTOR_MAX_AGE",
         coercer=int,
         default=300,
+    )
+    maybe_set(
+        settings,
+        "remember_device.days",
+        "REMEMBER_DEVICE_DAYS",
+        coercer=int,
+        default=30,
+    )
+    settings.setdefault(
+        "remember_device.seconds",
+        timedelta(days=settings.get("remember_device.days")).total_seconds(),
+    )
+    settings.setdefault(
+        "token.remember_device.max_age", settings.get("remember_device.seconds")
     )
     maybe_set(
         settings,
