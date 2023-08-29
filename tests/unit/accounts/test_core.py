@@ -440,6 +440,11 @@ def test_includeme(monkeypatch):
             TokenServiceFactory(name="two_factor"), ITokenService, name="two_factor"
         ),
         pretend.call(
+            TokenServiceFactory(name="remember_device"),
+            ITokenService,
+            name="remember_device",
+        ),
+        pretend.call(
             HaveIBeenPwnedPasswordBreachedService.create_service,
             IPasswordBreachedService,
         ),

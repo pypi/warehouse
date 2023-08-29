@@ -404,6 +404,8 @@ class _TwoFactorAuthenticationForm(forms.Form):
         self.user_id = user_id
         self.user_service = user_service
 
+    remember_device = wtforms.BooleanField(default=False)
+
 
 class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
