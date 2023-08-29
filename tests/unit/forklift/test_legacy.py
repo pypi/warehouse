@@ -3798,6 +3798,51 @@ class TestFileUpload:
             pretend.call(db_request, user, project_name="example"),
         ]
 
+    def test_upload_succeeds_without_two_factor(
+        self, pyramid_config, db_request, metrics, project_service, monkeypatch
+    ):
+        user = UserFactory.create(totp_secret=None)
+        EmailFactory.create(user=user)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": "example",
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename="example-1.0.tar.gz",
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(legacy, "send_two_factor_not_yet_enabled_email", send_email)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+        assert resp.body == (
+            b"Two factor authentication is not enabled for your account."
+        )
+
+        assert send_email.calls == [
+            pretend.call(db_request, user),
+        ]
+
     @pytest.mark.parametrize(
         ("emails_verified", "expected_success"),
         [

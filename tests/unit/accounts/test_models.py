@@ -235,7 +235,7 @@ class TestUser:
         ],
     )
     def test_has_single_2fa(self, db_session, has_totp, count_webauthn, expected):
-        user = DBUserFactory.create()
+        user = DBUserFactory.create(totp_secret=None)
         if has_totp:
             user.totp_secret = b"secret"
         for i in range(count_webauthn):

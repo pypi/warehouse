@@ -2504,6 +2504,128 @@ msgid ""
 "method to your PyPI account <strong>%(username)s</strong>."
 msgstr ""
 
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:17
+#, python-format
+msgid "Hi %(username)s!"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:19
+#, python-format
+msgid ""
+"Earlier this year, <a href=\"%(blogpost)s\">we announced</a> that PyPI "
+"would require all users to enable a form of two-factor authentication on "
+"their accounts by the end of 2023."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:26
+msgid ""
+"Keeping your PyPI account secure is important to all of us. We encourage "
+"you to enable two-factor authentication on your PyPI account as soon as "
+"possible."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:34
+msgid "What forms of 2FA can I use?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:37
+msgid "We currently offer two main forms of 2FA for your account:"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:42
+#, python-format
+msgid ""
+"<a href=\"%(utfkey)s\">Security device</a> including modern browsers "
+"(preferred) (e.g. Yubikey, Google Titan)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:48
+#, python-format
+msgid "<a href=\"%(totp)s\">Authentication app</a> (e.g. Google Authenticator)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:54
+#, python-format
+msgid ""
+"Once one of these secure forms is enabled on your account, you will also "
+"need to use either <a href=\"%(trusted_publishers)s\">Trusted "
+"Publishers</a> (preferred) or <a href=\"%(api_token)s\">API tokens</a> to"
+" upload to PyPI."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:63
+msgid "What do I do if I lose my 2FA device?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:66
+msgid ""
+"As part of 2FA enrollment, you will receive one-time use recovery codes. "
+"One of them must be used to confirm receipt before 2FA is fully active. "
+"<strong>Keep these recovery codes safe</strong> - they are equivalent to "
+"your 2FA device. Should you lose access to your 2FA device, use a "
+"recovery code to log in and swap your 2FA to a new device."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:77
+#, python-format
+msgid "Read more about<a href=\"%(recovery_codes)s\">recovery codes</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:83
+msgid "Why is PyPI requiring 2FA?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:86
+msgid ""
+"Keeping all users of PyPI is a shared responsibility we take seriously. "
+"Strong passwords combined with 2FA is a recognized secure practice for "
+"over a decade."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:93
+msgid ""
+"We are requiring 2FA to protect your account and the packages you upload,"
+" and to protect PyPI itself from malicious actors. The most damaging "
+"attacks are account takeover and malicious package upload."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:101
+#, python-format
+msgid ""
+"To see this and other security events for your account, visit your <a "
+"href=\"%(account_events)s\">account security history</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:107
+#, python-format
+msgid "Read more on <a href=\"%(blog_post)s\">this blog post.</a>"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:112
+#, python-format
+msgid ""
+"If you run into problems, read the <a href=\"%(help_page)s\">FAQ "
+"page</a>. If the solutions there are unable to resolve the issue, contact"
+" us via <a href=\"%(support_email)s\">support@pypi.org</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:119
+msgid "Thanks,"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:121
+msgid "The PyPI Admins"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:127
+#, python-format
+msgid ""
+"You're receiving this email because you have not yet enabled two-factor "
+"authentication on your PyPI account. If you have enabled 2FA and believe "
+"this message is an error, please let us know via <a "
+"href=\"%(support_mail)s\">support@pypi.org</a>."
+msgstr ""
+
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
 msgid ""

@@ -2255,7 +2255,7 @@ class TestVerifyEmail:
     def test_verify_email(
         self, db_request, user_service, token_service, is_primary, confirm_message
     ):
-        user = UserFactory(is_active=False)
+        user = UserFactory(is_active=False, totp_secret=None)
         email = EmailFactory(user=user, verified=False, primary=is_primary)
         db_request.user = user
         db_request.GET.update({"token": "RANDOM_KEY"})

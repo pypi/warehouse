@@ -342,6 +342,15 @@ def send_basic_auth_with_two_factor_email(request, user, *, project_name):
     return {"project_name": project_name}
 
 
+@_email(
+    "two-factor-not-yet-enabled",
+    allow_unverified=True,
+    repeat_window=datetime.timedelta(days=14),
+)
+def send_two_factor_not_yet_enabled_email(request, user):
+    return {"username": user.username}
+
+
 @_email("gpg-signature-uploaded", repeat_window=datetime.timedelta(days=1))
 def send_gpg_signature_uploaded_email(request, user, *, project_name):
     return {"project_name": project_name}
