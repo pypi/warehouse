@@ -365,23 +365,21 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         if self.request.banned.by_ip(self.request.remote_addr):
             raise wtforms.validators.ValidationError(INVALID_PASSWORD_MESSAGE)
 
-        # Before we try to validate the user's password, we'll first to check to see if
-        # they are disabled.
-        userid = self.user_service.find_userid(self.username.data)
-        if userid is not None:
-            is_disabled, disabled_for = self.user_service.is_disabled(userid)
-            if is_disabled and disabled_for == DisableReason.CompromisedPassword:
-                raise wtforms.validators.ValidationError(
-                    markupsafe.Markup(self.breach_service.failure_message)
-                )
-
         # Do our typical validation of the password.
         super().validate_password(field)
+
+        userid = self.user_service.find_userid(self.username.data)
 
         # If we have a user ID, then we'll go and check it against our breached password
         # service. If the password has appeared in a breach or is otherwise compromised
         # we will disable the user and reject the login.
         if userid is not None:
+            # Now we'll check to see if the user is disabled.
+            is_disabled, disabled_for = self.user_service.is_disabled(userid)
+            if is_disabled and disabled_for == DisableReason.CompromisedPassword:
+                raise wtforms.validators.ValidationError(
+                    markupsafe.Markup(self.breach_service.failure_message)
+                )
             if self.breach_service.check_password(
                 field.data, tags=["method:auth", "auth_method:login_form"]
             ):

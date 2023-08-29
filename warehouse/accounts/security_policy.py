@@ -58,29 +58,33 @@ def _basic_auth_check(username, password, request):
     request._unauthenticated_userid = userid
     if userid is not None:
         user = login_service.get_user(userid)
-        is_disabled, disabled_for = login_service.is_disabled(user.id)
-        if is_disabled:
-            # This technically violates the contract a little bit, this function is
-            # meant to return False if the user cannot log in. However we want to
-            # present a different error message than is normal when we're denying the
-            # log in because of a compromised password. So to do that, we'll need to
-            # raise a HTTPError that'll ultimately get returned to the client. This is
-            # OK to do here because we've already successfully authenticated the
-            # credentials, so it won't screw up the fall through to other authentication
-            # mechanisms (since we wouldn't have fell through to them anyways).
-            if disabled_for == DisableReason.CompromisedPassword:
-                raise _format_exc_status(
-                    BasicAuthBreachedPassword(), breach_service.failure_message_plain
-                )
-            elif disabled_for == DisableReason.AccountFrozen:
-                raise _format_exc_status(BasicAuthAccountFrozen(), "Account is frozen.")
-            else:
-                raise _format_exc_status(HTTPUnauthorized(), "Account is disabled.")
-        elif login_service.check_password(
+        if login_service.check_password(
             user.id,
             password,
             tags=["mechanism:basic_auth", "method:auth", "auth_method:basic"],
         ):
+            is_disabled, disabled_for = login_service.is_disabled(user.id)
+            if is_disabled:
+                # This technically violates the contract a little bit, this function is
+                # meant to return False if the user cannot log in. However we want to
+                # present a different error message than is normal when we're denying
+                # the log in because of a compromised password. So to do that, we'll
+                # need to raise a HTTPError that'll ultimately get returned to the
+                # client. This is OK to do here because we've already successfully
+                # authenticated the credentials, so it won't screw up the fall through
+                # to other authentication mechanisms (since we wouldn't have fell
+                # through to them anyways).
+                if disabled_for == DisableReason.CompromisedPassword:
+                    raise _format_exc_status(
+                        BasicAuthBreachedPassword(),
+                        breach_service.failure_message_plain,
+                    )
+                elif disabled_for == DisableReason.AccountFrozen:
+                    raise _format_exc_status(
+                        BasicAuthAccountFrozen(), "Account is frozen."
+                    )
+                else:
+                    raise _format_exc_status(HTTPUnauthorized(), "Account is disabled.")
             if breach_service.check_password(
                 password, tags=["method:auth", "auth_method:basic"]
             ):
@@ -158,6 +162,13 @@ class SessionSecurityPolicy:
         # staleness check immediately below.
         user = login_service.get_user(userid)
         if user is None:
+            return None
+
+        # User may have been frozen or disabled since the session was created.
+        is_disabled, _ = login_service.is_disabled(userid)
+        if is_disabled:
+            request.session.invalidate()
+            request.session.flash("Session invalidated", queue="error")
             return None
 
         # Our session might be "valid" despite predating a password change.
