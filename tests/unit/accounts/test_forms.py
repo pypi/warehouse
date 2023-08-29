@@ -121,6 +121,9 @@ class TestLoginForm:
         )
         user_service = pretend.stub(
             find_userid=pretend.call_recorder(lambda userid: 1),
+            check_password=pretend.call_recorder(
+                lambda userid, password, *args, tags=None: True
+            ),
             is_disabled=pretend.call_recorder(
                 lambda userid: (True, DisableReason.CompromisedPassword)
             ),
@@ -137,7 +140,10 @@ class TestLoginForm:
         with pytest.raises(wtforms.validators.ValidationError, match=r"Bad Password\!"):
             form.validate_password(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.find_userid.calls == [
+            pretend.call("my_username"),
+            pretend.call("my_username"),
+        ]
         assert user_service.is_disabled.calls == [pretend.call(1)]
 
     def test_validate_password_ok(self):
@@ -212,9 +218,8 @@ class TestLoginForm:
 
         assert user_service.find_userid.calls == [
             pretend.call("my_username"),
-            pretend.call("my_username"),
         ]
-        assert user_service.is_disabled.calls == [pretend.call(1)]
+        assert user_service.is_disabled.calls == []
         assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
         assert user.record_event.calls == [
             pretend.call(
@@ -254,9 +259,8 @@ class TestLoginForm:
 
         assert user_service.find_userid.calls == [
             pretend.call("my_username"),
-            pretend.call("my_username"),
         ]
-        assert user_service.is_disabled.calls == [pretend.call(1)]
+        assert user_service.is_disabled.calls == []
         assert user_service.check_password.calls == [pretend.call(1, "pw", tags=None)]
 
     def test_password_breached(self, monkeypatch):
