@@ -18,15 +18,13 @@ import pretend
 import pytest
 
 from tests.common.db.accounts import UserFactory
-from tests.common.db.oidc import PendingGitHubPublisherFactory
+from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from tests.common.db.packaging import ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import github
-from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -111,7 +109,7 @@ def test_mint_token_from_github_oidc_not_enabled():
         {"token": {}},
     ],
 )
-def test_mint_token_from_github_oidc_invalid_payload(body):
+def test_mint_token_oidc_invalid_payload(body):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
@@ -202,7 +200,9 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
 
 def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_request):
     project = ProjectFactory.create()
-    pending_publisher = PendingGitHubPublisherFactory.create(project_name=project.name)
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name=project.name,
+    )
 
     db_request.flags.disallow_oidc = lambda f=None: False
     db_request.body = json.dumps({"token": "faketoken"})
@@ -325,22 +325,25 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     )
 
     db_request.flags.oidc_enabled = lambda f: False
-    token = (
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
-        "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
-        "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
-        "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
-        "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
-        "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
-        "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
-        "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
-        "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
-        "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
-        "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
-        "0vbdNhK32c2oC-E"
+    db_request.body = json.dumps(
+        {
+            "token": (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
+                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
+                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
+                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
+                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
+                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
+                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
+                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
+                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
+                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
+                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
+                "0vbdNhK32c2oC-E"
+            )
+        }
     )
-    db_request.body = json.dumps({"token": token})
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -350,9 +353,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
 
-    oidc_service = db_request.find_service(IOIDCPublisherService, name="github")
-
-    resp = views.mint_token(oidc_service, db_request)
+    resp = views.mint_token_from_oidc_github(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
@@ -370,6 +371,71 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ]
 
 
+def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_request):
+    pending_publisher = PendingGitHubPublisherFactory()
+
+    def _find_publisher(claims, pending=False):
+        return pending_publisher
+
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(
+            lambda token: {"ref": "someref", "sha": "somesha"}
+        ),
+        find_publisher=pretend.call_recorder(_find_publisher),
+        reify_pending_publisher=pretend.call_recorder(
+            lambda *a, **kw: pending_publisher
+        ),
+    )
+
+    db_request.body = json.dumps(
+        {
+            "token": (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
+                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
+                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
+                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
+                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
+                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
+                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
+                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
+                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
+                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
+                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
+                "0vbdNhK32c2oC-E"
+            )
+        }
+    )
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
+    send_pending_trusted_publisher_invalidated_email = pretend.call_recorder(
+        lambda *a, **kw: None
+    )
+    monkeypatch.setattr(
+        views,
+        "send_pending_trusted_publisher_invalidated_email",
+        send_pending_trusted_publisher_invalidated_email,
+    )
+
+    response = views.mint_token(oidc_service, db_request)
+
+    assert response == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-publisher",
+                "description": ("valid token, but no corresponding publisher"),
+            }
+        ],
+    }
+
+
 @pytest.mark.parametrize(
     ("claims_in_token", "claims_input"),
     [
@@ -379,30 +445,25 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ],
 )
 def test_mint_token_from_oidc_no_pending_publisher_ok(
-    monkeypatch, claims_in_token, claims_input
+    monkeypatch, db_request, claims_in_token, claims_input
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
-    project = Project(id="fakeprojectid")
-    monkeypatch.setattr(
-        project, "record_event", pretend.call_recorder(lambda **kw: None)
+    project = pretend.stub(
+        id="fakeprojectid",
+        record_event=pretend.call_recorder(lambda **kw: None),
     )
 
-    publisher = github.GitHubPublisher(
-        repository_name="fakerepo",
-        repository_owner="fakeowner",
-        repository_owner_id="fakeid",
-        workflow_filename="fakeworkflow.yml",
-        environment="fakeenv",
-    )
-    publisher.projects = [project]
+    publisher = GitHubPublisherFactory()
+    monkeypatch.setattr(publisher.__class__, "projects", [project])
+    publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
     # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher, "id", "fakepublisherid")
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
     def _find_publisher(claims, pending=False):
         if pending:
-            raise errors.InvalidPublisherError
+            return None
         else:
             return publisher
 
@@ -425,16 +486,11 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
             return macaroon_service
         assert False, iface
 
-    request = pretend.stub(
-        response=pretend.stub(status=None),
-        body=json.dumps({"token": "faketoken"}),
-        find_service=find_service,
-        domain="fakedomain",
-        remote_addr="0.0.0.0",
-        flags=pretend.stub(disallow_oidc=lambda *a: False),
-    )
+    monkeypatch.setattr(db_request, "find_service", find_service)
+    monkeypatch.setattr(db_request, "body", json.dumps({"token": "faketoken"}))
+    monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    response = views.mint_token(oidc_service, request)
+    response = views.mint_token(oidc_service, db_request)
     assert response == {
         "success": True,
         "token": "raw-macaroon",
@@ -445,29 +501,30 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         pretend.call(claims_in_token, pending=True),
         pretend.call(claims_in_token, pending=False),
     ]
+
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: fakeworkflow.yml ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
-                    oidc_publisher_id="fakepublisherid",
+                    oidc_publisher_id=str(publisher.id),
                 ),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
-            oidc_publisher_id="fakepublisherid",
+            oidc_publisher_id=str(publisher.id),
             additional={"oidc": claims_input},
         )
     ]
     assert project.record_event.calls == [
         pretend.call(
             tag=EventTag.Project.ShortLivedAPITokenAdded,
-            request=request,
+            request=db_request,
             additional={
                 "expires": 900,
                 "publisher_name": "GitHub",
-                "publisher_url": f"https://github.com/{publisher.repository_owner}/{publisher.repository_name}",  # noqa
+                "publisher_url": "https://fake/url",
             },
         )
     ]

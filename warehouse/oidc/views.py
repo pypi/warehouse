@@ -27,6 +27,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
@@ -140,9 +141,9 @@ def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResp
     # First, try to find a pending publisher.
     try:
         pending_publisher = oidc_service.find_publisher(claims, pending=True)
-        if isinstance(pending_publisher, PendingOIDCPublisher):
-            factory = ProjectFactory(request)
+        factory = ProjectFactory(request)
 
+        if isinstance(pending_publisher, PendingOIDCPublisher):
             # If the project already exists, this pending publisher is no longer
             # valid and needs to be removed.
             # NOTE: This is mostly a sanity check, since we dispose of invalidated
@@ -168,9 +169,7 @@ def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResp
                 ratelimited=False,
             )
 
-            publisher = oidc_service.reify_pending_publisher(
-                pending_publisher, new_project
-            )
+            oidc_service.reify_pending_publisher(pending_publisher, new_project)
 
             # Successfully converting a pending publisher into a normal publisher
             # is a positive signal, so we reset the associated ratelimits.
@@ -218,40 +217,52 @@ def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResp
             request=request,
         )
 
-    if isinstance(publisher, OIDCPublisher):
-        # At this point, we've verified that the given JWT is valid for the given
-        # project. All we need to do is mint a new token.
-        # NOTE: For OIDC-minted API tokens, the Macaroon's description string
-        # is purely an implementation detail and is not displayed to the user.
-        macaroon_service: DatabaseMacaroonService = request.find_service(
-            IMacaroonService, context=None
-        )
-        not_before = int(time.time())
-        expires_at = not_before + 900
-        serialized, dm = macaroon_service.create_macaroon(
-            request.domain,
-            (
-                f"OpenID token: {str(publisher)} "
-                f"({datetime.fromtimestamp(not_before).isoformat()})"
-            ),
-            [
-                caveats.OIDCPublisher(
-                    oidc_publisher_id=str(publisher.id),
-                ),
-                caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
-                caveats.Expiration(expires_at=expires_at, not_before=not_before),
+    if not isinstance(publisher, OIDCPublisher):
+        # This should be impossible, but we have to perform this type check to
+        # appease mypy otherwise we get type errors in the code after this
+        # point.
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-publisher",
+                    "description": "valid token, but no corresponding publisher",
+                }
             ],
-            oidc_publisher_id=publisher.id,
-            additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
+            request=request,
         )
-        for project in publisher.projects:
-            project.record_event(
-                tag=EventTag.Project.ShortLivedAPITokenAdded,
-                request=request,
-                additional={
-                    "expires": expires_at,
-                    "publisher_name": publisher.publisher_name,
-                    "publisher_url": publisher.publisher_url(),
-                },
-            )
-        return {"success": True, "token": serialized}
+    # At this point, we've verified that the given JWT is valid for the given
+    # project. All we need to do is mint a new token.
+    # NOTE: For OIDC-minted API tokens, the Macaroon's description string
+    # is purely an implementation detail and is not displayed to the user.
+    macaroon_service: DatabaseMacaroonService = request.find_service(
+        IMacaroonService, context=None
+    )
+    not_before = int(time.time())
+    expires_at = not_before + 900
+    serialized, dm = macaroon_service.create_macaroon(
+        request.domain,
+        (
+            f"OpenID token: {str(publisher)} "
+            f"({datetime.fromtimestamp(not_before).isoformat()})"
+        ),
+        [
+            caveats.OIDCPublisher(
+                oidc_publisher_id=str(publisher.id),
+            ),
+            caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
+            caveats.Expiration(expires_at=expires_at, not_before=not_before),
+        ],
+        oidc_publisher_id=str(publisher.id),
+        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
+    )
+    for project in publisher.projects:
+        project.record_event(
+            tag=EventTag.Project.ShortLivedAPITokenAdded,
+            request=request,
+            additional={
+                "expires": expires_at,
+                "publisher_name": publisher.publisher_name,
+                "publisher_url": publisher.publisher_url(),
+            },
+        )
+    return {"success": True, "token": serialized}
