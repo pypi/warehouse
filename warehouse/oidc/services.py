@@ -282,7 +282,7 @@ class OIDCPublisherService:
 
     def find_publisher(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+    ) -> OIDCPublisher | PendingOIDCPublisher:
         metrics_tags = [f"publisher:{self.publisher}"]
         self.metrics.increment(
             "warehouse.oidc.find_publisher.attempt",

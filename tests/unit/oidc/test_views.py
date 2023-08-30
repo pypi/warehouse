@@ -25,6 +25,8 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.oidc.models import github
+from warehouse.packaging.models import Project
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -69,13 +71,13 @@ def test_oidc_audience():
     assert response == {"audience": "fakeaudience"}
 
 
-def test_mint_token_from_oidc_not_enabled():
+def test_mint_token_from_github_oidc_not_enabled():
     request = pretend.stub(
         response=pretend.stub(status=None),
         flags=pretend.stub(disallow_oidc=lambda *a: True),
     )
 
-    response = views.mint_token_from_oidc(request)
+    response = views.mint_token_from_oidc_github(request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -109,7 +111,7 @@ def test_mint_token_from_oidc_not_enabled():
         {"token": {}},
     ],
 )
-def test_mint_token_from_oidc_invalid_payload(body):
+def test_mint_token_from_github_oidc_invalid_payload(body):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
@@ -120,7 +122,7 @@ def test_mint_token_from_oidc_invalid_payload(body):
             return json.dumps(body)
 
     req = Request()
-    resp = views.mint_token_from_oidc(req)
+    resp = views.mint_token_from_oidc_github(req)
 
     assert req.response.status == 422
     assert resp["message"] == "Token request failed"
@@ -142,7 +144,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token_from_oidc(request)
+    response = views.mint_token(oidc_service, request, "faketoken")
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -154,9 +156,6 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         ],
     }
 
-    assert request.find_service.calls == [
-        pretend.call(IOIDCPublisherService, name="github")
-    ]
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
 
 
@@ -176,7 +175,7 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token_from_oidc(request)
+    response = views.mint_token_from_oidc_github(request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -216,7 +215,7 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
 
-    resp = views.mint_token_from_oidc(db_request)
+    resp = views.mint_token(oidc_service, db_request, "faketoken")
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
@@ -230,9 +229,6 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
 
     assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
-    assert db_request.find_service.calls == [
-        pretend.call(IOIDCPublisherService, name="github")
-    ]
 
 
 def test_mint_token_from_oidc_pending_publisher_ok(
@@ -279,7 +275,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
 
-    resp = views.mint_token_from_oidc(db_request)
+    resp = views.mint_token_from_oidc_github(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
@@ -328,25 +324,22 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     )
 
     db_request.flags.oidc_enabled = lambda f: False
-    db_request.body = json.dumps(
-        {
-            "token": (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
-                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
-                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
-                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
-                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
-                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
-                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
-                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
-                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
-                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
-                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
-                "0vbdNhK32c2oC-E"
-            )
-        }
+    token = (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
+        "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
+        "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
+        "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
+        "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
+        "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
+        "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
+        "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
+        "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
+        "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
+        "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
+        "0vbdNhK32c2oC-E"
     )
+    db_request.body = json.dumps({"token": token})
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -356,7 +349,9 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
 
-    resp = views.mint_token_from_oidc(db_request)
+    oidc_service = db_request.find_service(IOIDCPublisherService, name="github")
+
+    resp = views.mint_token(oidc_service, db_request, token)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
@@ -388,18 +383,21 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
 
-    project = pretend.stub(
-        id="fakeprojectid",
-        record_event=pretend.call_recorder(lambda **kw: None),
+    project = Project(id="fakeprojectid")
+    monkeypatch.setattr(
+        project, "record_event", pretend.call_recorder(lambda **kw: None)
     )
-    publisher = pretend.stub(
-        id="fakepublisherid",
-        projects=[project],
-        publisher_name="fakepublishername",
-        publisher_url=lambda x=None: "https://fake/url",
+
+    publisher = github.GitHubPublisher(
+        repository_name="fakerepo",
+        repository_owner="fakeowner",
+        repository_owner_id="fakeid",
+        workflow_filename="fakeworkflow.yml",
+        environment="fakeenv",
     )
+    publisher.projects = [project]
     # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
+    monkeypatch.setattr(publisher, "id", "fakepublisherid")
 
     def _find_publisher(claims, pending=False):
         if pending:
@@ -435,7 +433,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token_from_oidc(request)
+    response = views.mint_token(oidc_service, request, "faketoken")
     assert response == {
         "success": True,
         "token": "raw-macaroon",
@@ -449,7 +447,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: fakeworkflow.yml ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
                     oidc_publisher_id="fakepublisherid",
@@ -467,8 +465,8 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
             request=request,
             additional={
                 "expires": 900,
-                "publisher_name": "fakepublishername",
-                "publisher_url": "https://fake/url",
+                "publisher_name": "GitHub",
+                "publisher_url": f"https://github.com/{publisher.repository_owner}/{publisher.repository_name}",  # noqa
             },
         )
     ]
