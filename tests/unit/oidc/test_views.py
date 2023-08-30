@@ -122,7 +122,8 @@ def test_mint_token_from_github_oidc_invalid_payload(body):
             return json.dumps(body)
 
     req = Request()
-    resp = views.mint_token_from_oidc_github(req)
+    oidc_service = pretend.stub()
+    resp = views.mint_token(oidc_service, req)
 
     assert req.response.status == 422
     assert resp["message"] == "Token request failed"
@@ -144,7 +145,7 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, request, "faketoken")
+    response = views.mint_token(oidc_service, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -215,7 +216,7 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
 
-    resp = views.mint_token(oidc_service, db_request, "faketoken")
+    resp = views.mint_token(oidc_service, db_request)
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
@@ -351,7 +352,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
 
     oidc_service = db_request.find_service(IOIDCPublisherService, name="github")
 
-    resp = views.mint_token(oidc_service, db_request, token)
+    resp = views.mint_token(oidc_service, db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
@@ -433,7 +434,7 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, request, "faketoken")
+    response = views.mint_token(oidc_service, request)
     assert response == {
         "success": True,
         "token": "raw-macaroon",

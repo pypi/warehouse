@@ -107,6 +107,18 @@ def mint_token_from_oidc_github(request: Request):
             request=request,
         )
 
+    # For the time being, GitHub is our only OIDC publisher.
+    # In the future, this should locate the correct service based on an
+    # identifier in the request body.
+    oidc_service: OIDCPublisherService = request.find_service(
+        IOIDCPublisherService, name="github"
+    )
+
+    return mint_token(oidc_service, request)
+
+
+def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonRespone:
+    unverified_jwt: str
     try:
         payload = TokenPayload.model_validate_json(request.body)
         unverified_jwt = payload.token
@@ -116,19 +128,6 @@ def mint_token_from_oidc_github(request: Request):
             request=request,
         )
 
-    # For the time being, GitHub is our only OIDC publisher.
-    # In the future, this should locate the correct service based on an
-    # identifier in the request body.
-    oidc_service: OIDCPublisherService = request.find_service(
-        IOIDCPublisherService, name="github"
-    )
-
-    return mint_token(oidc_service, request, unverified_jwt)
-
-
-def mint_token(
-    oidc_service: OIDCPublisherService, request: Request, unverified_jwt: str
-) -> JsonRespone:
     claims = oidc_service.verify_jwt_signature(unverified_jwt)
     if not claims:
         return _invalid(
