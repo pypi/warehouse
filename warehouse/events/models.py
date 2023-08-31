@@ -143,7 +143,7 @@ class Event:
         Otherwise, return the `ip_address` and let its repr decide.
         """
         if cls.additional is not None and "geoip_info" in cls.additional:
-            g = GeoIPInfo(**cls.additional["geoip_info"])  # type: ignore[arg-type]
+            g = GeoIPInfo(**cls.additional["geoip_info"])
             if g.display():
                 return g.display()
 
@@ -157,7 +157,7 @@ class Event:
         Dig into `.additional` for `user_agent_info` and return that if it exists.
         """
         if cls.additional is not None and "user_agent_info" in cls.additional:
-            return UserAgentInfo(**cls.additional["user_agent_info"]).display()  # type: ignore[arg-type] # noqa: E501
+            return UserAgentInfo(**cls.additional["user_agent_info"]).display()
 
         return "No User-Agent"
 
