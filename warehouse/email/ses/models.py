@@ -166,6 +166,8 @@ class EmailStatus:
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
+    # Sometimes we get delivery events twice, we just ignore them.
+    delivered.upon(deliver, enter=delivered, outputs=[])
     delivered.upon(
         bounce,
         enter=bounced,

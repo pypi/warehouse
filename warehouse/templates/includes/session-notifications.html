@@ -30,7 +30,7 @@
       </a>
     </span>
   </div>
-  {% elif not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_two_factor %}
+  {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_two_factor %}
   <div class="notification-bar notification-bar--dismissable" data-controller="notification" data-notification-target="notification">
     <span class="notification-bar__message">
       {% trans href=request.route_path('manage.account.two-factor') %}
@@ -39,7 +39,7 @@
     </span>
     <button type="button" title="Dismiss this notification" data-notification-target="dismissButton" data-action="click->notification#dismiss" class="notification-bar__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
   </div>
-  {% elif not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
+  {% elif request.referrer and not request.referrer.endswith(request.route_path('manage.account.two-factor')) and not request.user.has_recovery_codes %}
   <div class="notification-bar notification-bar--warning">
     <span class="notification-bar__message">
       {% trans href=request.route_path('manage.account.two-factor') %}
