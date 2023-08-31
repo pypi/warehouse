@@ -222,7 +222,8 @@ class TypedMapplyViewMapper(MapplyViewMapper):
                         (
                             list(signature(fn).parameters.keys())[e["loc"][0]]
                             if isinstance(e["loc"][0], int)
-                            else e["loc"][0]
+                            and e["loc"][0] < len(signature(fn).parameters.keys())
+                            else str(e["loc"][0])
                         )
                         + ": "
                         + e["msg"]

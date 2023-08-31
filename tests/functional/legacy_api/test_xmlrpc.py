@@ -39,6 +39,14 @@ def test_invalid_arguments(app_config, webtest):
         webtest.xmlrpc("/pypi", "package_releases")
 
 
+def test_excess_arguments(app_config, webtest):
+    with pytest.raises(
+        xmlrpc.client.Fault,
+        match=r"client error; 1: Unexpected positional argument",
+    ):
+        webtest.xmlrpc("/pypi", "changelog_last_serial", 1)
+
+
 def test_arguments_with_wrong_type(app_config, webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
