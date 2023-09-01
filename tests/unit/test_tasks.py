@@ -454,49 +454,85 @@ def test_make_celery_app():
             "amqp://guest@rabbitmq:5672//",
             {},
         ),
-        (Environment.development, False, "sqs://", "sqs://", {}),
-        (Environment.production, True, "sqs://", "sqs://", {}),
+        (
+            Environment.development,
+            False,
+            "sqs://",
+            "sqs://",
+            {
+                "client-config": {"tcp_keepalive": True},
+            },
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://",
+            "sqs://",
+            {
+                "client-config": {"tcp_keepalive": True},
+            },
+        ),
         (
             Environment.development,
             False,
             "sqs://?queue_name_prefix=warehouse",
             "sqs://",
-            {"queue_name_prefix": "warehouse-"},
+            {
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs://?queue_name_prefix=warehouse",
             "sqs://",
-            {"queue_name_prefix": "warehouse-"},
+            {
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.development,
             False,
             "sqs://?region=us-east-2",
             "sqs://",
-            {"region": "us-east-2"},
+            {
+                "region": "us-east-2",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs://?region=us-east-2",
             "sqs://",
-            {"region": "us-east-2"},
+            {
+                "region": "us-east-2",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.development,
             False,
             "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+            {
+                "region": "us-east-2",
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+            {
+                "region": "us-east-2",
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
     ],
 )
