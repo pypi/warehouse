@@ -217,6 +217,7 @@ def includeme(config):
         task_routes={},
         task_serializer="json",
         worker_disable_rate_limits=True,
+        worker_proc_alive_timeout=10.0,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
     )
     config.registry["celery.app"].Task = WarehouseTask
