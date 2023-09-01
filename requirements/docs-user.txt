@@ -296,9 +296,9 @@ mkdocs-macros-plugin==1.0.4 \
     --hash=sha256:c8169443d17212e32df5ad68b562d901acc936d6e87f6b41139dcf13d6659890 \
     --hash=sha256:fc601f142b89cf98743b6b3608d5f93f24daf69b88cfa2320d503c83723c3c6d
     # via -r requirements/docs-user.in
-mkdocs-material==9.2.5 \
-    --hash=sha256:02b4d1f662bc022e9497411e679323c30185e031a08a7004c763aa8d47ae9a29 \
-    --hash=sha256:315a59725f0565bccfec7f9d1313beae7658bf874a176264b98f804a0cbc1298
+mkdocs-material==9.2.6 \
+    --hash=sha256:3806c58dd112e7b9677225e2021035ddbe3220fbd29d9dc812aa7e01f70b5e0a \
+    --hash=sha256:84bc7e79c1d0bae65a77123efd5ef74731b8c3671601c7962c5db8dba50a65ad
     # via -r requirements/docs-user.in
 mkdocs-material-extensions==1.1.1 \
     --hash=sha256:9c003da71e2cc2493d910237448c672e00cefc800d3d6ae93d2fc69979e3bd93 \
@@ -323,9 +323,9 @@ pygments==2.16.1 \
     --hash=sha256:13fc09fa63bc8d8671a6d247e1eb303c4b343eaee81d861f3404db2935653692 \
     --hash=sha256:1daff0494820c69bc8941e407aa20f577374ee88364ee10a98fdbe0aece96e29
     # via mkdocs-material
-pymdown-extensions==10.2 \
-    --hash=sha256:06042274876eb4267f12a389daf505eabaebc38bdca26725560c9afda5867549 \
-    --hash=sha256:fbb86243db9a681602e3b869deef000211c55d0261015a5cc41d6f34d2afc57f
+pymdown-extensions==10.2.1 \
+    --hash=sha256:bded105eb8d93f88f2f821f00108cb70cef1269db6a40128c09c5f48bfc60ea4 \
+    --hash=sha256:d0c534b4a5725a4be7ccef25d65a4c97dba58b54ad7c813babf0eb5ba9c81591
     # via mkdocs-material
 pyquery==2.0.0 \
     --hash=sha256:8dfc9b4b7c5f877d619bbae74b1898d5743f6ca248cfd5d72b504dd614da312f \
