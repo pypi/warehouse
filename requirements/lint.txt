@@ -211,9 +211,9 @@ mypy-extensions==1.0.0 \
     # via
     #   black
     #   mypy
-mypy-zope==1.0.0 \
-    --hash=sha256:9732e9b2198f2aec3343b38a51905ff49d44dc9e39e8e8bc6fc490b232388209 \
-    --hash=sha256:be815c2fcb5333aa87e8ec682029ad3214142fe2a05ea383f9ff2d77c98008b7
+mypy-zope==1.0.1 \
+    --hash=sha256:003953896629d762d7f497135171ad549df42a8ac63c1521a230832dd6f7fc25 \
+    --hash=sha256:ffa291a7af9f5904ce9f0e56de44323a4476e28aaf0d68361b62b1b0e997d0b8
     # via -r requirements/lint.in
 packaging==23.1 \
     --hash=sha256:994793af429502c4ea2ebf6bf664629d07c1a9fe974af92966e4b8d2df7edc61 \
@@ -334,9 +334,9 @@ types-s3transfer==0.6.2 \
     --hash=sha256:1068877b6e59be5226fa3006ae64371ac9d5bc590dfdbd9c66fd0a075d3254ac \
     --hash=sha256:4ba9b483796fdcd026aa162ee03bdcedd2bf7d08e9387c820dcdd158b0102057
     # via boto3-stubs
-types-setuptools==68.1.0.0 \
-    --hash=sha256:0c1618fb14850cb482adbec602bbb519c43f24942d66d66196bc7528320f33b1 \
-    --hash=sha256:2bc9b0c0818f77bdcec619970e452b320a423bb3ac074f5f8bc9300ac281c4ae
+types-setuptools==68.1.0.1 \
+    --hash=sha256:271ed8da44885cd9a701c86e48cc6d3cc988052260e72b3ce26c26b3028f86ed \
+    --hash=sha256:a9a0d2ca1da8a15924890d464adcee4004deb07b6a99bd0b1881eac5c73cb3a7
     # via
     #   -r requirements/lint.in
     #   types-babel
