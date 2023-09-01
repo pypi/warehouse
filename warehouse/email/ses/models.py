@@ -253,7 +253,7 @@ class EmailMessage(db.Model):
         backref="email",
         cascade="all, delete-orphan",
         lazy=False,
-        order_by=lambda: Event.created,  # type: ignore
+        order_by=lambda: Event.created,
     )
 
 

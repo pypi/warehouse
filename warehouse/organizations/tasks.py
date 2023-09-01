@@ -88,9 +88,9 @@ def update_organziation_subscription_usage_record(request):
     organization_subscriptions = request.db.query(OrganizationStripeSubscription).all()
 
     # Call the Billing API to update the usage record of this subscription item
-    for organization_subscription in organization_subscriptions:
+    for org_subscription in organization_subscriptions:
         billing_service = request.find_service(IBillingService, context=None)
         billing_service.create_or_update_usage_record(
-            organization_subscription.subscription.subscription_item.subscription_item_id,  # type: ignore # noqa
-            len(organization_subscription.organization.users),
+            org_subscription.subscription.subscription_item.subscription_item_id,
+            len(org_subscription.organization.users),
         )

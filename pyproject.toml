@@ -12,6 +12,7 @@ known_first_party = ['warehouse', 'tests']
 [tool.mypy]
 python_version = "3.11"
 warn_unused_configs = true
+warn_unused_ignores = true
 plugins = ["mypy_zope:plugin"]
 exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 
