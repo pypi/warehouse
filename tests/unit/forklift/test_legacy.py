@@ -2120,6 +2120,7 @@ class TestFileUpload:
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        db_request.tm = pretend.stub(doom=pretend.call_recorder(lambda: None))
         EmailFactory.create(user=user)
         project = ProjectFactory.create()
         release = ReleaseFactory.create(project=project, version="1.0")
@@ -2158,6 +2159,7 @@ class TestFileUpload:
 
         resp = legacy.file_upload(db_request)
 
+        assert db_request.tm.doom.calls == [pretend.call()]
         assert resp.status_code == 200
 
     def test_upload_fails_with_existing_filename_diff_content(
