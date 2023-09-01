@@ -243,7 +243,7 @@ class OIDCPublisher(OIDCPublisherMixin, db.Model):
 
     projects = orm.relationship(
         Project,
-        secondary=OIDCPublisherProjectAssociation.__table__,  # type: ignore
+        secondary=OIDCPublisherProjectAssociation.__table__,
         backref="oidc_publishers",
     )
     macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)

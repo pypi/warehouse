@@ -183,7 +183,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
     organization = orm.relationship(
         Organization,
-        secondary=OrganizationProject.__table__,  # type: ignore
+        secondary=OrganizationProject.__table__,
         back_populates="projects",
         uselist=False,
         viewonly=True,
@@ -198,7 +198,9 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         back_populates="project",
         passive_deletes=True,
     )
-    users = orm.relationship(User, secondary=Role.__table__, backref="projects", viewonly=True)  # type: ignore # noqa
+    users = orm.relationship(
+        User, secondary=Role.__table__, backref="projects", viewonly=True
+    )
     releases = orm.relationship(
         "Release",
         backref="project",
@@ -499,7 +501,7 @@ class Release(db.Model):
     project_urls = association_proxy(
         "_project_urls",
         "url",
-        creator=lambda k, v: ReleaseURL(name=k, url=v),  # type: ignore
+        creator=lambda k, v: ReleaseURL(name=k, url=v),
     )
 
     files = orm.relationship(
