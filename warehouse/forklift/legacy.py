@@ -1296,6 +1296,7 @@ def file_upload(request):
         # Check to see if the file that was uploaded exists already or not.
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
+            request.tm.doom()
             return Response()
         elif is_duplicate is not None:
             raise _exc_with_message(
