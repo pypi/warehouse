@@ -20,7 +20,7 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import User
-from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project

@@ -69,7 +69,7 @@ from warehouse.email import (
     send_yanked_project_release_email,
 )
 from warehouse.events.tags import EventTag
-from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (

@@ -19,6 +19,7 @@ import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 
+import warehouse.constants
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.packaging.models import Project, Role
@@ -97,8 +98,8 @@ class TestProjectDetail:
             "journal": journals[:30],
             "oidc_publishers": oidc_publishers,
             "ONE_MB": views.ONE_MB,
-            "MAX_FILESIZE": views.MAX_FILESIZE,
-            "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
+            "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": warehouse.constants.MAX_PROJECT_SIZE,
             "ONE_GB": views.ONE_GB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
         }
@@ -418,7 +419,7 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        new_upload_limit = views.MAX_FILESIZE // views.ONE_MB
+        new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MB
         db_request.POST["upload_limit"] = str(new_upload_limit)
 
         views.set_upload_limit(project, db_request)
