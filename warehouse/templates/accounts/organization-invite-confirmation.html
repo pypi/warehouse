@@ -17,8 +17,16 @@
     {% trans %}Confirm Organization Invite{% endtrans %}
 {% endblock %}
 
-{% block main %}
+{% block prompt %}
+  {% if request.user.has_two_factor %}
+    {{ super() }}
+  {% else %}
+    <!-- Content hidden -->
+  {% endif %}
+{% endblock %}
 
+{% block main %}
+{% if request.user.has_two_factor %}
 <form method="POST">
   <div class="form-group">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -33,5 +41,10 @@
     <input name="decline" type="submit" value="{% trans %}Decline{% endtrans %}" class="button">
   </div>
 </form>
+{% else %}{# user has not enabled 2FA #}
+{% trans href=request.route_path('manage.account.two-factor') %}
+You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before accepting an invitation to join an organization.
+{% endtrans %}
+{% endif %}
 
 {% endblock %}
