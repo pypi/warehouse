@@ -162,7 +162,7 @@ msgstr "קוד השחזור היה בשימוש בעבר."
 msgid "No user found with that username or email"
 msgstr "לא נמצא משתמש בעל שם המשתמש או האי-מייל הזה"
 
-#: warehouse/accounts/views.py:105
+#: warehouse/accounts/views.py:106
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -171,7 +171,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
-#: warehouse/accounts/views.py:122
+#: warehouse/accounts/views.py:123
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -179,7 +179,7 @@ msgstr ""
 "יותר מדי אי-מיילים נוספו לחשבון זה מבלי שאומתו. בדק/י את תיבת הדואר הנכנס "
 "שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -192,25 +192,25 @@ msgstr ""
 "יותר מדי אי-מיילים נוספו לחשבון זה מבלי שאומתו. בדק/י את תיבת הדואר הנכנס "
 "שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:373
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:402
-#: warehouse/accounts/views.py:404 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:383
+#: warehouse/accounts/views.py:385 warehouse/accounts/views.py:412
+#: warehouse/accounts/views.py:414 warehouse/accounts/views.py:520
 msgid "Invalid or expired two factor login."
 msgstr "זיהוי דו-גורמי לא תקין או לא בתוקף."
 
-#: warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:377
 msgid "Already authenticated"
 msgstr "כבר מאומת"
 
-#: warehouse/accounts/views.py:446
+#: warehouse/accounts/views.py:455
 msgid "Successful WebAuthn assertion"
 msgstr "בדיקת WebAuthn מוצלחת"
 
-#: warehouse/accounts/views.py:501 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:551 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "קוד השחזור התקבל. לא יהיה ניתן להשתמש שוב בקוד שסופק."
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:643
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -218,148 +218,148 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:724
+#: warehouse/accounts/views.py:774
 msgid "Expired token: request a new password reset link"
 msgstr "אסימון פג תוקף: יש לבקש קישור איפוס סיסמא חדש"
 
-#: warehouse/accounts/views.py:726
+#: warehouse/accounts/views.py:776
 msgid "Invalid token: request a new password reset link"
 msgstr "אסימון לא תקין: יש לבקש קישור איפוס סיסמא חדש"
 
-#: warehouse/accounts/views.py:728 warehouse/accounts/views.py:830
-#: warehouse/accounts/views.py:934 warehouse/accounts/views.py:1103
+#: warehouse/accounts/views.py:778 warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:984 warehouse/accounts/views.py:1153
 msgid "Invalid token: no token supplied"
 msgstr "אסימון לא תקין: לא סופק אסימון"
 
-#: warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:782
 msgid "Invalid token: not a password reset token"
 msgstr "אסימון לא תקין: אינו אסימון איפוס סיסמא"
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:787
 msgid "Invalid token: user not found"
 msgstr "אסימון לא תקין: משתמש לא נמצא"
 
-#: warehouse/accounts/views.py:748
+#: warehouse/accounts/views.py:798
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "אסימון לא תקין: משתמש התחבר מאז בקשת אסימון זה"
 
-#: warehouse/accounts/views.py:766
+#: warehouse/accounts/views.py:816
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "אסימון לא תקין: הסיסמא כבר שונתה מאז בקשת אסימון זה"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:848
 msgid "You have reset your password"
 msgstr "איפסת את סיסמתך"
 
-#: warehouse/accounts/views.py:826
+#: warehouse/accounts/views.py:876
 msgid "Expired token: request a new email verification link"
 msgstr "אסימון פג תוקף: יש לבקש קישור אימות אי-מייל חדש"
 
-#: warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:878
 msgid "Invalid token: request a new email verification link"
 msgstr "אסימון לא תקין: יש לבקש אי-מייל אימות סיסמא חדש"
 
-#: warehouse/accounts/views.py:834
+#: warehouse/accounts/views.py:884
 msgid "Invalid token: not an email verification token"
 msgstr "אסימון לא תקין: אינו אסימון אימות אי-מייל"
 
-#: warehouse/accounts/views.py:843
+#: warehouse/accounts/views.py:893
 msgid "Email not found"
 msgstr "אי-מייל לא נמצא"
 
-#: warehouse/accounts/views.py:846
+#: warehouse/accounts/views.py:896
 msgid "Email already verified"
 msgstr "אי-מייל כבר מאומת"
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:913
 msgid "You can now set this email as your primary address"
 msgstr "כעת תוכל להגדיר דוא\"ל זה ככתובת הראשית שלך"
 
-#: warehouse/accounts/views.py:867
+#: warehouse/accounts/views.py:917
 msgid "This is your primary address"
 msgstr "זו הכתובת העיקרית שלך"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:922
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "כתובת האי-מייל ${email_address} אומתה. ${confirm_message}."
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:980
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "האסימון שפג תוקפו: בקש הזמנה לתפקיד פרוייקט חדש"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:982
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "אסימון לא חוקי: בקש הזמנה חדשה לתפקיד פרוייקט"
 
-#: warehouse/accounts/views.py:938
+#: warehouse/accounts/views.py:988
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "אסימון לא חוקי: לא אסימון הזמנה לשיתוף פעולה"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:992
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "הזמנת התפקיד אינה חוקית."
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:1001
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "הזמנת תפקיד כבר לא קיימת."
 
-#: warehouse/accounts/views.py:1002
+#: warehouse/accounts/views.py:1052
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "ההזמנה ל- '${project_name}' נדחתה."
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1115
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "כעת אתה $ {role} של פרויקט '$ {project_name}'."
 
-#: warehouse/accounts/views.py:1099
+#: warehouse/accounts/views.py:1149
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "האסימון שפג תוקפו: בקש הזמנה לתפקיד פרוייקט חדש"
 
-#: warehouse/accounts/views.py:1101
+#: warehouse/accounts/views.py:1151
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "אסימון לא חוקי: בקש הזמנה חדשה לתפקיד פרוייקט"
 
-#: warehouse/accounts/views.py:1107
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "אסימון לא חוקי: לא אסימון הזמנה לשיתוף פעולה"
 
-#: warehouse/accounts/views.py:1111
+#: warehouse/accounts/views.py:1161
 msgid "Role invitation is not valid."
 msgstr "הזמנת התפקיד אינה חוקית."
 
-#: warehouse/accounts/views.py:1126
+#: warehouse/accounts/views.py:1176
 msgid "Role invitation no longer exists."
 msgstr "הזמנת תפקיד כבר לא קיימת."
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1207
 msgid "Invitation for '${project_name}' is declined."
 msgstr "ההזמנה ל- '${project_name}' נדחתה."
 
-#: warehouse/accounts/views.py:1223
+#: warehouse/accounts/views.py:1273
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "כעת אתה $ {role} של פרויקט '$ {project_name}'."
 
-#: warehouse/accounts/views.py:1444 warehouse/accounts/views.py:1592
+#: warehouse/accounts/views.py:1494 warehouse/accounts/views.py:1642
 #: warehouse/manage/views/__init__.py:1237
 #, fuzzy
 #| msgid ""
@@ -372,7 +372,7 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:1461 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -384,17 +384,17 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:1475
+#: warehouse/accounts/views.py:1525
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1488
+#: warehouse/accounts/views.py:1538
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1504 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1554 warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -403,30 +403,30 @@ msgid ""
 "again later."
 msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
-#: warehouse/accounts/views.py:1518 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1568 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1537
+#: warehouse/accounts/views.py:1587
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1572
+#: warehouse/accounts/views.py:1622
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "ניהול פרויקט זה"
 
-#: warehouse/accounts/views.py:1606 warehouse/accounts/views.py:1619
-#: warehouse/accounts/views.py:1626
+#: warehouse/accounts/views.py:1656 warehouse/accounts/views.py:1669
+#: warehouse/accounts/views.py:1676
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "ניהול גרסה"
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1682
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -1479,7 +1479,7 @@ msgstr "סיסמה"
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:62
-#: warehouse/templates/accounts/two-factor.html:89
+#: warehouse/templates/accounts/two-factor.html:101
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account.html:287
 #: warehouse/templates/manage/account.html:344
@@ -1608,14 +1608,14 @@ msgstr ""
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
-#: warehouse/templates/accounts/organization-invite-confirmation.html:32
+#: warehouse/templates/accounts/organization-invite-confirmation.html:40
 #: warehouse/templates/manage/organizations.html:42
 #: warehouse/templates/manage/projects.html:52
 msgid "Accept"
 msgstr "לְקַבֵּל"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
-#: warehouse/templates/accounts/organization-invite-confirmation.html:33
+#: warehouse/templates/accounts/organization-invite-confirmation.html:41
 #: warehouse/templates/manage/organizations.html:46
 #: warehouse/templates/manage/organizations.html:54
 #: warehouse/templates/manage/projects.html:53
@@ -1667,7 +1667,7 @@ msgstr "התנתקות מ-%(account_name)s"
 msgid "Confirm Organization Invite"
 msgstr "אשר הזמנה"
 
-#: warehouse/templates/accounts/organization-invite-confirmation.html:26
+#: warehouse/templates/accounts/organization-invite-confirmation.html:34
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -1682,6 +1682,14 @@ msgstr ""
 "      האם ברצונך לקבל הזמנה זו להצטרף אל '<a href=\"%(project_link)s\">"
 "%(project_name)s </a>' כפרויקט%(role_name)s?\n"
 "      "
+
+#: warehouse/templates/accounts/organization-invite-confirmation.html:45
+#, fuzzy, python-format
+#| msgid "You have not enabled two factor authentication on your account."
+msgid ""
+"You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
+"your account before accepting an invitation to join an organization."
+msgstr "טרם אפשרת אימות דו-גורמי בחשבונך."
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1746,7 +1754,7 @@ msgid "Recovery codes"
 msgstr "קודים לשחזור"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-#: warehouse/templates/accounts/two-factor.html:129
+#: warehouse/templates/accounts/two-factor.html:152
 msgid "Login using recovery codes"
 msgstr "הזדהות באמצעות קוד שחזור"
 
@@ -1763,7 +1771,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/accounts/recovery-code.html:58
-#: warehouse/templates/accounts/two-factor.html:112
+#: warehouse/templates/accounts/two-factor.html:124
 #: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr "אימות"
@@ -1925,20 +1933,30 @@ msgstr ""
 "<a href=\"%(href)s\" title=\"%(title)s\" target=\"%(target)s\" rel=\"%(rel)s"
 "\">יש לעדכן את הדפדפן</a> כדי להזדהות עם מכשיר אבטחה (כגון מפתח USB)"
 
-#: warehouse/templates/accounts/two-factor.html:60
+#: warehouse/templates/accounts/two-factor.html:64
+#: warehouse/templates/accounts/two-factor.html:130
+#, python-format
+msgid "Remember this device for %(remember_device_days)s day"
+msgid_plural "Remember this device for %(remember_device_days)s days"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+msgstr[3] ""
+
+#: warehouse/templates/accounts/two-factor.html:72
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
 msgstr "מכשירך אבד? משהו לא עובד? <a href=\"%(href)s\">קבלת עזרה</a>."
 
-#: warehouse/templates/accounts/two-factor.html:72
+#: warehouse/templates/accounts/two-factor.html:84
 msgid "Authenticate with an app"
 msgstr "אימות באמצעות אפליקציה"
 
-#: warehouse/templates/accounts/two-factor.html:87
+#: warehouse/templates/accounts/two-factor.html:99
 msgid "Enter authentication code"
 msgstr "יש להזין קוד אימות"
 
-#: warehouse/templates/accounts/two-factor.html:115
+#: warehouse/templates/accounts/two-factor.html:138
 #, python-format
 msgid ""
 "<p>Generate a code using the authentication application connected to your "
@@ -1949,11 +1967,11 @@ msgstr ""
 "יש להזין בטופס על מנת לאמת את זהותך.</p> <p>האפליקציה שלך אבדה? משהו לא "
 "עובד? <a href=\"%(href)s\">קבלת עזרה</a>.</p>"
 
-#: warehouse/templates/accounts/two-factor.html:127
+#: warehouse/templates/accounts/two-factor.html:150
 msgid "Lost your security key or application?"
 msgstr "אבד מפתח האבטחה שלך או האפליצקיה?"
 
-#: warehouse/templates/accounts/two-factor.html:132
+#: warehouse/templates/accounts/two-factor.html:155
 #, python-format
 msgid ""
 "<p><strong>You have not generated account recovery codes.</strong></p> <p>If "
@@ -3022,6 +3040,127 @@ msgid ""
 msgstr ""
 "מישהו, אולי את/ה, הוסיף מנגנון אימות דו-גורמי %(method)s עבור חשבון ה-PyPI‏ "
 "שלך <strong>%(username)s</strong>."
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:17
+#, fuzzy, python-format
+#| msgid "Profile of %(username)s"
+msgid "Hi %(username)s!"
+msgstr "הפרופיל של %(username)s"
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:19
+#, python-format
+msgid ""
+"Earlier this year, <a href=\"%(blogpost)s\">we announced</a> that PyPI would "
+"require all users to enable a form of two-factor authentication on their "
+"accounts by the end of 2023."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:26
+msgid ""
+"Keeping your PyPI account secure is important to all of us. We encourage you "
+"to enable two-factor authentication on your PyPI account as soon as possible."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:34
+msgid "What forms of 2FA can I use?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:37
+msgid "We currently offer two main forms of 2FA for your account:"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:42
+#, python-format
+msgid ""
+"<a href=\"%(utfkey)s\">Security device</a> including modern browsers "
+"(preferred) (e.g. Yubikey, Google Titan)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:48
+#, python-format
+msgid "<a href=\"%(totp)s\">Authentication app</a> (e.g. Google Authenticator)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:54
+#, python-format
+msgid ""
+"Once one of these secure forms is enabled on your account, you will also "
+"need to use either <a href=\"%(trusted_publishers)s\">Trusted Publishers</a> "
+"(preferred) or <a href=\"%(api_token)s\">API tokens</a> to upload to PyPI."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:63
+msgid "What do I do if I lose my 2FA device?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:66
+msgid ""
+"As part of 2FA enrollment, you will receive one-time use recovery codes. One "
+"of them must be used to confirm receipt before 2FA is fully active. "
+"<strong>Keep these recovery codes safe</strong> - they are equivalent to "
+"your 2FA device. Should you lose access to your 2FA device, use a recovery "
+"code to log in and swap your 2FA to a new device."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:77
+#, python-format
+msgid "Read more about<a href=\"%(recovery_codes)s\">recovery codes</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:83
+msgid "Why is PyPI requiring 2FA?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:86
+msgid ""
+"Keeping all users of PyPI is a shared responsibility we take seriously. "
+"Strong passwords combined with 2FA is a recognized secure practice for over "
+"a decade."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:93
+msgid ""
+"We are requiring 2FA to protect your account and the packages you upload, "
+"and to protect PyPI itself from malicious actors. The most damaging attacks "
+"are account takeover and malicious package upload."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:101
+#, python-format
+msgid ""
+"To see this and other security events for your account, visit your <a href="
+"\"%(account_events)s\">account security history</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:107
+#, python-format
+msgid "Read more on <a href=\"%(blog_post)s\">this blog post.</a>"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:112
+#, python-format
+msgid ""
+"If you run into problems, read the <a href=\"%(help_page)s\">FAQ page</a>. "
+"If the solutions there are unable to resolve the issue, contact us via <a "
+"href=\"%(support_email)s\">support@pypi.org</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:119
+msgid "Thanks,"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:121
+msgid "The PyPI Admins"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:127
+#, python-format
+msgid ""
+"You're receiving this email because you have not yet enabled two-factor "
+"authentication on your PyPI account. If you have enabled 2FA and believe "
+"this message is an error, please let us know via <a href=\"%(support_mail)s"
+"\">support@pypi.org</a>."
+msgstr ""
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format
