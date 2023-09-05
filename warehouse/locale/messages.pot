@@ -1345,14 +1345,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
-#: warehouse/templates/accounts/organization-invite-confirmation.html:32
+#: warehouse/templates/accounts/organization-invite-confirmation.html:40
 #: warehouse/templates/manage/organizations.html:42
 #: warehouse/templates/manage/projects.html:52
 msgid "Accept"
 msgstr ""
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
-#: warehouse/templates/accounts/organization-invite-confirmation.html:33
+#: warehouse/templates/accounts/organization-invite-confirmation.html:41
 #: warehouse/templates/manage/organizations.html:46
 #: warehouse/templates/manage/organizations.html:54
 #: warehouse/templates/manage/projects.html:53
@@ -1402,11 +1402,18 @@ msgstr ""
 msgid "Confirm Organization Invite"
 msgstr ""
 
-#: warehouse/templates/accounts/organization-invite-confirmation.html:26
+#: warehouse/templates/accounts/organization-invite-confirmation.html:34
 #, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' "
 "as an organization %(role_name)s?"
+msgstr ""
+
+#: warehouse/templates/accounts/organization-invite-confirmation.html:45
+#, python-format
+msgid ""
+"You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
+"on your account before accepting an invitation to join an organization."
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:16
