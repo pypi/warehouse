@@ -202,6 +202,11 @@ def includeme(config):
         if "region" in parsed_query:
             broker_transport_options["region"] = parsed_query["region"][0]
 
+        # Add TCP keepalive options to the SQS connection
+        broker_transport_options["client-config"] = {
+            "tcp_keepalive": True,
+        }
+
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
     )
