@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-07-19 23:09+0000\n"
+"PO-Revision-Date: 2023-08-31 13:55+0000\n"
 "Last-Translator: Maciej Olko <maciej.olko@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:141
@@ -68,7 +68,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Znaki null są niedozwolone."
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -162,7 +162,7 @@ msgstr "Kod odzyskiwania został już użyty."
 msgid "No user found with that username or email"
 msgstr "Nie znaleziono użytkownika z tą nazwą użytkownika lub adresem e-mail."
 
-#: warehouse/accounts/views.py:105
+#: warehouse/accounts/views.py:106
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -170,7 +170,7 @@ msgstr ""
 "Podjęto zbyt wiele nieudanych prób logowania. Zostałeś zablokowany na {}. "
 "Spróbuj ponownie później."
 
-#: warehouse/accounts/views.py:122
+#: warehouse/accounts/views.py:123
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -179,7 +179,7 @@ msgstr ""
 "Sprawdź swoją skrzynkę pocztową i podążaj za linkami weryfikacyjnymi. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -188,25 +188,25 @@ msgstr ""
 "Zażądano zbyt wiele resetów hasła bez zakończenia procesu. Sprawdź swoją "
 "skrzynkę pocztową i podążaj za linkami weryfikacyjnymi. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:309 warehouse/accounts/views.py:373
-#: warehouse/accounts/views.py:375 warehouse/accounts/views.py:402
-#: warehouse/accounts/views.py:404 warehouse/accounts/views.py:470
+#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:383
+#: warehouse/accounts/views.py:385 warehouse/accounts/views.py:412
+#: warehouse/accounts/views.py:414 warehouse/accounts/views.py:520
 msgid "Invalid or expired two factor login."
 msgstr "Niepoprawne lub wygasłe logowanie dwuskładnikowe."
 
-#: warehouse/accounts/views.py:367
+#: warehouse/accounts/views.py:377
 msgid "Already authenticated"
 msgstr "Już uwierzytelnione"
 
-#: warehouse/accounts/views.py:446
+#: warehouse/accounts/views.py:455
 msgid "Successful WebAuthn assertion"
 msgstr "Pomyślne potwierdzenie WebAuthn"
 
-#: warehouse/accounts/views.py:501 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:551 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Kod naprawy zaakceptowany. Podany kod nie może zostać użyty ponownie."
 
-#: warehouse/accounts/views.py:593
+#: warehouse/accounts/views.py:643
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -214,33 +214,33 @@ msgstr ""
 "Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://pypi."
 "org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:724
+#: warehouse/accounts/views.py:774
 msgid "Expired token: request a new password reset link"
 msgstr "Wygasły klucz: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:726
+#: warehouse/accounts/views.py:776
 msgid "Invalid token: request a new password reset link"
 msgstr "Nieprawidłowy token: poproś o nowy link do resetowania hasła"
 
-#: warehouse/accounts/views.py:728 warehouse/accounts/views.py:830
-#: warehouse/accounts/views.py:934 warehouse/accounts/views.py:1103
+#: warehouse/accounts/views.py:778 warehouse/accounts/views.py:880
+#: warehouse/accounts/views.py:984 warehouse/accounts/views.py:1153
 msgid "Invalid token: no token supplied"
 msgstr "Nieprawidłowy token: nie podano tokena"
 
-#: warehouse/accounts/views.py:732
+#: warehouse/accounts/views.py:782
 msgid "Invalid token: not a password reset token"
 msgstr "Nieprawidłowy token: to nie jest token do resetowania hasła"
 
-#: warehouse/accounts/views.py:737
+#: warehouse/accounts/views.py:787
 msgid "Invalid token: user not found"
 msgstr "Nieprawidłowy token: nie znaleziono użytkownika"
 
-#: warehouse/accounts/views.py:748
+#: warehouse/accounts/views.py:798
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Nieprawidłowy token: użytkownik zalogował się odkąd ten token został zażądany"
 
-#: warehouse/accounts/views.py:766
+#: warehouse/accounts/views.py:816
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -248,99 +248,99 @@ msgstr ""
 "Nieprawidłowy token: hasło zostało już zmienione od momentu zażądania tego "
 "tokenu"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:848
 msgid "You have reset your password"
 msgstr "Zresetowałeś swoje hasło"
 
-#: warehouse/accounts/views.py:826
+#: warehouse/accounts/views.py:876
 msgid "Expired token: request a new email verification link"
 msgstr "Wygasł token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:878
 msgid "Invalid token: request a new email verification link"
 msgstr "Nieprawidłowy token: poproś o nowy link weryfikacyjny e-mail"
 
-#: warehouse/accounts/views.py:834
+#: warehouse/accounts/views.py:884
 msgid "Invalid token: not an email verification token"
 msgstr "Nieprawidłowy token: to nie jest token do weryfikacji e-mail"
 
-#: warehouse/accounts/views.py:843
+#: warehouse/accounts/views.py:893
 msgid "Email not found"
 msgstr "Email nie znaleziony"
 
-#: warehouse/accounts/views.py:846
+#: warehouse/accounts/views.py:896
 msgid "Email already verified"
 msgstr "Email już zweryfikowany"
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:913
 msgid "You can now set this email as your primary address"
 msgstr "Możesz teraz ustawić ten e-mail jako swój główny adres"
 
-#: warehouse/accounts/views.py:867
+#: warehouse/accounts/views.py:917
 msgid "This is your primary address"
 msgstr "To jest twój główny adres"
 
-#: warehouse/accounts/views.py:872
+#: warehouse/accounts/views.py:922
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Adres e-mail $ {email_address} zweryfikowany. $ {confirm_message}."
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:980
 msgid "Expired token: request a new organization invitation"
 msgstr "Token wygasł: poproś o nowe zaproszenie do organizacji"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:982
 msgid "Invalid token: request a new organization invitation"
 msgstr "Nieprawidłowy token: poproś o nowe zaproszenie do organizacji"
 
-#: warehouse/accounts/views.py:938
+#: warehouse/accounts/views.py:988
 msgid "Invalid token: not an organization invitation token"
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do organizacji"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:992
 msgid "Organization invitation is not valid."
 msgstr "Zaproszenie do organizacji jest nieważne."
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:1001
 msgid "Organization invitation no longer exists."
 msgstr "Zaproszenie do organizacji już nie istnieje."
 
-#: warehouse/accounts/views.py:1002
+#: warehouse/accounts/views.py:1052
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Zaproszenie do „${organization_name}” zostało odrzucone."
 
-#: warehouse/accounts/views.py:1065
+#: warehouse/accounts/views.py:1115
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Jesteś teraz ${role} w organizacji „${organization_name}”."
 
-#: warehouse/accounts/views.py:1099
+#: warehouse/accounts/views.py:1149
 msgid "Expired token: request a new project role invitation"
 msgstr "Wygasł klucz: poproś o nowe zaproszenie do roli w projekcie"
 
-#: warehouse/accounts/views.py:1101
+#: warehouse/accounts/views.py:1151
 msgid "Invalid token: request a new project role invitation"
 msgstr "Nieprawidłowy token: poproś o nowe zaproszenie do roli w projekcie"
 
-#: warehouse/accounts/views.py:1107
+#: warehouse/accounts/views.py:1157
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Nieprawidłowy token: to nie jest token zaproszenia do współpracy"
 
-#: warehouse/accounts/views.py:1111
+#: warehouse/accounts/views.py:1161
 msgid "Role invitation is not valid."
 msgstr "Zaproszenie do udziału dla tej roli jest nieważne."
 
-#: warehouse/accounts/views.py:1126
+#: warehouse/accounts/views.py:1176
 msgid "Role invitation no longer exists."
 msgstr "Zaproszenie do roli już nie istnieje."
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1207
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Zaproszenie do „${project_name}” zostało odrzucone."
 
-#: warehouse/accounts/views.py:1223
+#: warehouse/accounts/views.py:1273
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Jesteś teraz ${role} w projekcie „${project_name}”."
 
-#: warehouse/accounts/views.py:1444 warehouse/accounts/views.py:1592
+#: warehouse/accounts/views.py:1494 warehouse/accounts/views.py:1642
 #: warehouse/manage/views/__init__.py:1237
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -349,38 +349,30 @@ msgstr ""
 "Zaufane publikowanie jest tymczasowo wyłączone. Zobacz https://pypi.org/"
 "help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:1461 warehouse/manage/views/__init__.py:1253
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1253
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Rejestracja nowych użytkowników tymczasowo wyłączona. Zobacz https://pypi."
+"Zaufane publikowanie GitHub jest tymczasowo wyłączone. Zobacz https://pypi."
 "org/help#admin-intervention aby uzyskać szczegółowe informacje."
 
-#: warehouse/accounts/views.py:1475
-#, fuzzy
-#| msgid ""
-#| "You must have a verified email in order to register a pending OpenID "
-#| "Connect publisher. See https://pypi.org/help#openid-connect for details."
+#: warehouse/accounts/views.py:1525
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
-"Musisz mieć zweryfikowany e-mail, aby zarejestrować oczekującego wydawcę "
-"OpenID Connect. Zobacz https://pypi.org/help#openid-connect, aby uzyskać "
+"Musisz mieć zweryfikowany e-mail, aby zarejestrować oczekującego zaufanego "
+"wydawcę. Zobacz https://pypi.org/help#openid-connect, aby uzyskać "
 "szczegółowe informacje."
 
-#: warehouse/accounts/views.py:1488
+#: warehouse/accounts/views.py:1538
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Nie możesz zarejestrować więcej niż 3 oczekujących zaufanych wydawców "
 "jednocześnie."
 
-#: warehouse/accounts/views.py:1504 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1554 warehouse/manage/views/__init__.py:1272
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -388,11 +380,11 @@ msgstr ""
 "Podjęto zbyt wiele prób rejestracji zaufanych wydawców. Spróbuj ponownie "
 "później."
 
-#: warehouse/accounts/views.py:1518 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1568 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr "Zaufany wydawca nie mógł zostać zarejestrowany"
 
-#: warehouse/accounts/views.py:1537
+#: warehouse/accounts/views.py:1587
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -400,27 +392,18 @@ msgstr ""
 "Ten zaufany wydawca został już zarejestrowany. Prosimy o kontakt z "
 "administratorami PyPI, jeśli nie było to zamierzone."
 
-#: warehouse/accounts/views.py:1572
-#, fuzzy
-#| msgid ""
-#| "You can't register more than 3 pending OpenID Connect publishers at once."
+#: warehouse/accounts/views.py:1622
 msgid "Registered a new pending publisher to create "
-msgstr ""
-"Nie możesz zarejestrować więcej niż 3 oczekujących wydawców OpenID Connect "
-"jednocześnie."
+msgstr "Zarejestrowano nowego oczekującego wydawcę do stworzenia "
 
-#: warehouse/accounts/views.py:1606 warehouse/accounts/views.py:1619
-#: warehouse/accounts/views.py:1626
-#, fuzzy
-#| msgid "Create an account"
+#: warehouse/accounts/views.py:1656 warehouse/accounts/views.py:1669
+#: warehouse/accounts/views.py:1676
 msgid "Invalid publisher ID"
-msgstr "Utwórz konto"
+msgstr "Błędne ID wydawcy"
 
-#: warehouse/accounts/views.py:1632
-#, fuzzy
-#| msgid "The trusted publisher could not be registered"
+#: warehouse/accounts/views.py:1682
 msgid "Removed trusted publisher for project "
-msgstr "Zaufany wydawca nie mógł zostać zarejestrowany"
+msgstr "Usunięto zaufanego wydawcę projektu "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -1416,7 +1399,7 @@ msgstr "Hasło"
 #: warehouse/templates/accounts/request-password-reset.html:41
 #: warehouse/templates/accounts/reset-password.html:40
 #: warehouse/templates/accounts/reset-password.html:62
-#: warehouse/templates/accounts/two-factor.html:89
+#: warehouse/templates/accounts/two-factor.html:101
 #: warehouse/templates/manage/account.html:270
 #: warehouse/templates/manage/account.html:287
 #: warehouse/templates/manage/account.html:344
@@ -1551,14 +1534,14 @@ msgstr ""
 "      "
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
-#: warehouse/templates/accounts/organization-invite-confirmation.html:32
+#: warehouse/templates/accounts/organization-invite-confirmation.html:40
 #: warehouse/templates/manage/organizations.html:42
 #: warehouse/templates/manage/projects.html:52
 msgid "Accept"
 msgstr "Zaakceptuj"
 
 #: warehouse/templates/accounts/invite-confirmation.html:33
-#: warehouse/templates/accounts/organization-invite-confirmation.html:33
+#: warehouse/templates/accounts/organization-invite-confirmation.html:41
 #: warehouse/templates/manage/organizations.html:46
 #: warehouse/templates/manage/organizations.html:54
 #: warehouse/templates/manage/projects.html:53
@@ -1610,7 +1593,7 @@ msgstr "Wyloguj się z %(account_name)s"
 msgid "Confirm Organization Invite"
 msgstr "Potwierdź zaproszenie"
 
-#: warehouse/templates/accounts/organization-invite-confirmation.html:26
+#: warehouse/templates/accounts/organization-invite-confirmation.html:34
 #, fuzzy, python-format
 #| msgid ""
 #| "\n"
@@ -1625,6 +1608,18 @@ msgstr ""
 "      Czy chciałbyś zaakceptować zaproszenie do dołączenia do „<a href="
 "\"%(project_link)s\">%(project_name)s</a>” jako %(role_name)s?\n"
 "      "
+
+#: warehouse/templates/accounts/organization-invite-confirmation.html:45
+#, fuzzy, python-format
+#| msgid ""
+#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
+#| "factor authentication to your account."
+msgid ""
+"You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
+"your account before accepting an invitation to join an organization."
+msgstr ""
+"<a href=\"%(href)s\">Zweryfikuj swój podstawowy adres email</a> aby dodać "
+"uwierzytelnianie dwuskładnikowe do swojego konta."
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -1691,7 +1686,7 @@ msgid "Recovery codes"
 msgstr "Kody odzyskiwania"
 
 #: warehouse/templates/accounts/recovery-code.html:24
-#: warehouse/templates/accounts/two-factor.html:129
+#: warehouse/templates/accounts/two-factor.html:152
 #, fuzzy
 #| msgid "Login using Recovery Code"
 msgid "Login using recovery codes"
@@ -1713,7 +1708,7 @@ msgstr ""
 "(n.p. <code>badc0ffee0ddf00d</code>)."
 
 #: warehouse/templates/accounts/recovery-code.html:58
-#: warehouse/templates/accounts/two-factor.html:112
+#: warehouse/templates/accounts/two-factor.html:124
 #: warehouse/templates/manage/account/recovery_codes-burn.html:83
 msgid "Verify"
 msgstr "Zweryfikuj"
@@ -1881,21 +1876,30 @@ msgstr ""
 "\">Aktualizuj swoją przeglądarkę</a>aby zalogować się za pomocą urządzenia "
 "(np. klucza USB)"
 
-#: warehouse/templates/accounts/two-factor.html:60
+#: warehouse/templates/accounts/two-factor.html:64
+#: warehouse/templates/accounts/two-factor.html:130
+#, python-format
+msgid "Remember this device for %(remember_device_days)s day"
+msgid_plural "Remember this device for %(remember_device_days)s days"
+msgstr[0] ""
+msgstr[1] ""
+msgstr[2] ""
+
+#: warehouse/templates/accounts/two-factor.html:72
 #, python-format
 msgid "Lost your device? Not working? <a href=\"%(href)s\">Get help</a>."
 msgstr ""
 "Zgubiłeś swoje urządzenie? Nie działa?<a href=\"%(href)s\">Znajdź pomoc</a>."
 
-#: warehouse/templates/accounts/two-factor.html:72
+#: warehouse/templates/accounts/two-factor.html:84
 msgid "Authenticate with an app"
 msgstr "Uwierzytelnij się za pomocą aplikacji"
 
-#: warehouse/templates/accounts/two-factor.html:87
+#: warehouse/templates/accounts/two-factor.html:99
 msgid "Enter authentication code"
 msgstr "Wprowadź kod uwierzytelniający"
 
-#: warehouse/templates/accounts/two-factor.html:115
+#: warehouse/templates/accounts/two-factor.html:138
 #, python-format
 msgid ""
 "<p>Generate a code using the authentication application connected to your "
@@ -1907,11 +1911,11 @@ msgstr ""
 "tożsamość.</p><p>Zgubiłeś swoją aplikację? Nie działa?<a href=\"%(href)s"
 "\">Znajdź pomoc</a></p>"
 
-#: warehouse/templates/accounts/two-factor.html:127
+#: warehouse/templates/accounts/two-factor.html:150
 msgid "Lost your security key or application?"
 msgstr "Zgubiłeś swój kod uwierzytelniający lub aplikację?"
 
-#: warehouse/templates/accounts/two-factor.html:132
+#: warehouse/templates/accounts/two-factor.html:155
 #, python-format
 msgid ""
 "<p><strong>You have not generated account recovery codes.</strong></p> <p>If "
@@ -2988,6 +2992,127 @@ msgid ""
 msgstr ""
 "Ktoś, być może ty, dodał %(method)s metodę uwierzytelniania dwuskładnikowego "
 "do Twojego konta PyPI <strong>%(username)s</strong>."
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:17
+#, fuzzy, python-format
+#| msgid "Profile of %(username)s"
+msgid "Hi %(username)s!"
+msgstr "Profil %(username)s"
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:19
+#, python-format
+msgid ""
+"Earlier this year, <a href=\"%(blogpost)s\">we announced</a> that PyPI would "
+"require all users to enable a form of two-factor authentication on their "
+"accounts by the end of 2023."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:26
+msgid ""
+"Keeping your PyPI account secure is important to all of us. We encourage you "
+"to enable two-factor authentication on your PyPI account as soon as possible."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:34
+msgid "What forms of 2FA can I use?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:37
+msgid "We currently offer two main forms of 2FA for your account:"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:42
+#, python-format
+msgid ""
+"<a href=\"%(utfkey)s\">Security device</a> including modern browsers "
+"(preferred) (e.g. Yubikey, Google Titan)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:48
+#, python-format
+msgid "<a href=\"%(totp)s\">Authentication app</a> (e.g. Google Authenticator)"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:54
+#, python-format
+msgid ""
+"Once one of these secure forms is enabled on your account, you will also "
+"need to use either <a href=\"%(trusted_publishers)s\">Trusted Publishers</a> "
+"(preferred) or <a href=\"%(api_token)s\">API tokens</a> to upload to PyPI."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:63
+msgid "What do I do if I lose my 2FA device?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:66
+msgid ""
+"As part of 2FA enrollment, you will receive one-time use recovery codes. One "
+"of them must be used to confirm receipt before 2FA is fully active. "
+"<strong>Keep these recovery codes safe</strong> - they are equivalent to "
+"your 2FA device. Should you lose access to your 2FA device, use a recovery "
+"code to log in and swap your 2FA to a new device."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:77
+#, python-format
+msgid "Read more about<a href=\"%(recovery_codes)s\">recovery codes</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:83
+msgid "Why is PyPI requiring 2FA?"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:86
+msgid ""
+"Keeping all users of PyPI is a shared responsibility we take seriously. "
+"Strong passwords combined with 2FA is a recognized secure practice for over "
+"a decade."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:93
+msgid ""
+"We are requiring 2FA to protect your account and the packages you upload, "
+"and to protect PyPI itself from malicious actors. The most damaging attacks "
+"are account takeover and malicious package upload."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:101
+#, python-format
+msgid ""
+"To see this and other security events for your account, visit your <a href="
+"\"%(account_events)s\">account security history</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:107
+#, python-format
+msgid "Read more on <a href=\"%(blog_post)s\">this blog post.</a>"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:112
+#, python-format
+msgid ""
+"If you run into problems, read the <a href=\"%(help_page)s\">FAQ page</a>. "
+"If the solutions there are unable to resolve the issue, contact us via <a "
+"href=\"%(support_email)s\">support@pypi.org</a>."
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:119
+msgid "Thanks,"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:121
+msgid "The PyPI Admins"
+msgstr ""
+
+#: warehouse/templates/email/two-factor-not-yet-enabled/body.html:127
+#, python-format
+msgid ""
+"You're receiving this email because you have not yet enabled two-factor "
+"authentication on your PyPI account. If you have enabled 2FA and believe "
+"this message is an error, please let us know via <a href=\"%(support_mail)s"
+"\">support@pypi.org</a>."
+msgstr ""
 
 #: warehouse/templates/email/two-factor-removed/body.html:18
 #, python-format

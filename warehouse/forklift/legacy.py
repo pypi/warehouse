@@ -775,7 +775,6 @@ def _is_duplicate_file(db_session, filename, hashes):
         return (
             file_.filename == filename
             and file_.sha256_digest == hashes["sha256"]
-            and file_.md5_digest == hashes["md5"]
             and file_.blake2_256_digest == hashes["blake2_256"]
         )
 
