@@ -68,6 +68,7 @@ structlog
 transaction
 trove-classifiers
 ua-parser
+urllib3
 webauthn>=1.0.0,<2.0.0
 whitenoise
 WTForms[email]>=2.0.0

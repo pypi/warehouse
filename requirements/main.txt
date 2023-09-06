@@ -1630,6 +1630,7 @@ urllib3==1.26.16 \
     --hash=sha256:8d36afa7616d8ab714608411b4a3b13e58f463aee519024578e062e141dce20f \
     --hash=sha256:8f135f6502756bde6b2a9b28989df5fbe87c9970cecaa69041edcce7f0589b14
     # via
+    #   -r requirements/main.in
     #   botocore
     #   celery
     #   elasticsearch
