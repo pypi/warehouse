@@ -18,6 +18,7 @@ import requests_aws4auth
 
 from celery.schedules import crontab
 from elasticsearch_dsl import serializer
+from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.packaging.models import Project, Release
@@ -79,10 +80,10 @@ def es(request):
 
 
 def includeme(config):
-    p = urllib.parse.urlparse(config.registry.settings["elasticsearch.url"])
+    p = parse_url(config.registry.settings["elasticsearch.url"])
     qs = urllib.parse.parse_qs(p.query)
     kwargs = {
-        "hosts": [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+        "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
         "verify_certs": True,
         "ca_certs": certifi.where(),
         "timeout": 2,

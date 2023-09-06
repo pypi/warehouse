@@ -13,7 +13,6 @@
 import enum
 
 from collections import OrderedDict
-from urllib.parse import urlparse
 
 import packaging.utils
 
@@ -42,6 +41,7 @@ from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import attribute_keyed_dict, declared_attr, mapped_column, validates
+from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -582,8 +582,8 @@ class Release(db.Model):
     @staticmethod
     def get_user_name_and_repo_name(urls):
         for url in urls:
-            parsed = urlparse(url)
-            segments = parsed.path.strip("/").split("/")
+            parsed = parse_url(url)
+            segments = parsed.path.strip("/").split("/") if parsed.path else []
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 if user_name in GITHUB_RESERVED_NAMES:

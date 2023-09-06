@@ -13,7 +13,6 @@
 import base64
 import datetime
 import re
-import urllib.parse
 
 import requests
 
@@ -22,6 +21,7 @@ from cryptography.exceptions import InvalidSignature as _InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
 from cryptography.hazmat.primitives.hashes import SHA256
+from urllib3.util import parse_url
 
 _signing_url_host_re = re.compile(r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$")
 
@@ -75,7 +75,7 @@ class MessageVerifier:
     def _get_pubkey(self, cert_url):
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
-        cert_url_p = urllib.parse.urlparse(cert_url)
+        cert_url_p = parse_url(cert_url)
         cert_scheme = cert_url_p.scheme
         cert_host = cert_url_p.netloc
         if cert_scheme != "https":
