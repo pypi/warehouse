@@ -30,6 +30,7 @@ import pytz
 
 from natsort import natsorted
 from pyramid.threadlocal import get_current_request
+from urllib3.util import parse_url
 
 from warehouse.utils.http import is_valid_uri
 
@@ -106,7 +107,7 @@ def tojson(value):
 
 
 def urlparse(value):
-    return urllib.parse.urlparse(value)
+    return parse_url(value)
 
 
 def format_tags(tags):

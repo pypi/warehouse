@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import urllib.parse
 
 from functools import partial
 
@@ -19,6 +18,8 @@ import packaging.version
 import packaging_legacy.version
 import pretend
 import pytest
+
+from urllib3.util import parse_url
 
 from warehouse import filters
 
@@ -113,7 +114,7 @@ def test_tojson(inp, expected):
 
 def test_urlparse():
     inp = "https://google.com/foo/bar?a=b"
-    expected = urllib.parse.urlparse(inp)
+    expected = parse_url(inp)
     assert filters.urlparse(inp) == expected
 
 

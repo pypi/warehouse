@@ -27,6 +27,7 @@ import venusian
 
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
+from urllib3.util import parse_url
 
 from warehouse.config import Environment
 from warehouse.metrics import IMetricsService
@@ -187,11 +188,13 @@ def includeme(config):
 
     broker_url = s["celery.broker_url"]
     if broker_url.startswith("sqs://"):
-        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_url = parse_url(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
         # Celery doesn't handle paths/query arms being passed into the SQS broker,
         # so we'll just remove them from here.
-        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+        broker_url = urllib.parse.urlunparse(
+            (parsed_url.scheme, parsed_url.netloc) + ("",) * 4
+        )
         os.environ["BROKER_URL"] = broker_url
 
         if "queue_name_prefix" in parsed_query:

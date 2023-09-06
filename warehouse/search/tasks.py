@@ -12,7 +12,7 @@
 
 import binascii
 import os
-import urllib
+import urllib.parse
 
 import certifi
 import elasticsearch
@@ -24,6 +24,7 @@ from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import aliased
+from urllib3.util import parse_url
 
 from warehouse import tasks
 from warehouse.packaging.models import (
@@ -123,10 +124,10 @@ def reindex(self, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
         with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
-            p = urllib.parse.urlparse(request.registry.settings["elasticsearch.url"])
+            p = parse_url(request.registry.settings["elasticsearch.url"])
             qs = urllib.parse.parse_qs(p.query)
             kwargs = {
-                "hosts": [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+                "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
                 "verify_certs": True,
                 "ca_certs": certifi.where(),
                 "timeout": 30,
