@@ -17,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install platform dependencies
         run: |
           sudo apt -y update
@@ -79,7 +79,7 @@ jobs:
       BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://localhost:12111 api_version=2020-08-27
     steps:
       - name: Check out repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install platform dependencies
         run: |
           sudo apt -y update
