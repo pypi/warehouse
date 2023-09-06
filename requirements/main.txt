@@ -1454,9 +1454,9 @@ python-slugify==8.0.1 \
     --hash=sha256:70ca6ea68fe63ecc8fa4fcf00ae651fc8a5d02d93dcd12ae6d4fc7ca46c4d395 \
     --hash=sha256:ce0d46ddb668b3be82f4ed5e503dbc33dd815d83e2eb6824211310d3fb172a27
     # via -r requirements/main.in
-pytz==2023.3 \
-    --hash=sha256:1d8ce29db189191fb55338ee6d0387d82ab59f3d00eac103412d64e0ebd0c588 \
-    --hash=sha256:a151b3abb88eda1d4e34a9814df37de2a80e301e68ba0fd856fb9b46bfbbbffb
+pytz==2023.3.post1 \
+    --hash=sha256:7b4fddbeb94a1eba4b557da24f19fdf9db575192544270a9101d8509f9f43d7b \
+    --hash=sha256:ce42d816b81b68506614c11e8937d3aa9e41007ceb50bfdcb0749b921bf646c7
     # via -r requirements/main.in
 readme-renderer[md]==41.0 \
     --hash=sha256:4f4b11e5893f5a5d725f592c5a343e0dc74f5f273cb3dcf8c42d9703a27073f7 \
@@ -1569,9 +1569,9 @@ stdlib-list==0.9.0 \
     --hash=sha256:98eb66135976c96b4ee3f4c0ef0552ebb5a9977ce3028433db79f4738b02af26 \
     --hash=sha256:f79957d59e41930d44afcd81e465f740b9a7a9828707a40e24ab1092b12bd423
     # via -r requirements/main.in
-stripe==6.2.0 \
-    --hash=sha256:c4c72c8b9c84bae08c3f6e40dab647c201eb5bd0a4ae81dbd4ad9068a0771a0c \
-    --hash=sha256:e4decf87227b83616b57038224baba2e7bd210b378c0fe8966707cab1bde0c25
+stripe==6.3.0 \
+    --hash=sha256:7d8b956f0592abc1d1b1cafb49e7ca3378bcf65ddf3ba8996d1a53e268222e49 \
+    --hash=sha256:971639059f162310417901bef260402695cb831c5c5526ba970d11e0f0fff112
     # via -r requirements/main.in
 structlog==23.1.0 \
     --hash=sha256:270d681dd7d163c11ba500bc914b2472d2b50a8ef00faa999ded5ff83a2f906b \
