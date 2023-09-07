@@ -12,6 +12,7 @@
 
 import pretend
 import pytest
+import sentry_sdk
 
 from sqlalchemy import type_coerce
 from sqlalchemy.dialects.postgresql import INET
@@ -42,6 +43,32 @@ class TestProxyFixer:
 
         assert resp is response
         assert app.calls == [pretend.call({}, start_response)]
+
+    def test_token_mismatch_sends_sentry(self, monkeypatch):
+        """In the event someone submits the WAREHOUSE_TOKEN header with an
+        incorrect value, we send a Sentry.
+        """
+        mock_set_context = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(sentry_sdk, "set_context", mock_set_context)
+        mock_capture_message = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(sentry_sdk, "capture_message", mock_capture_message)
+
+        response = pretend.stub()
+        app = pretend.call_recorder(lambda e, s: response)
+
+        environ = {"HTTP_WAREHOUSE_TOKEN": "NOPE"}
+        start_response = pretend.stub()
+
+        resp = wsgi.ProxyFixer(app, token="1234", ip_salt="pepa")(
+            environ, start_response
+        )
+
+        assert resp is response
+        assert app.calls == [pretend.call({}, start_response)]
+        assert mock_set_context.calls == [pretend.call("ProxyFixer", {"token": "NOPE"})]
+        assert mock_capture_message.calls == [
+            pretend.call("Invalid Proxy Token", level="warning")
+        ]
 
     def test_accepts_warehouse_headers(self):
         response = pretend.stub()
