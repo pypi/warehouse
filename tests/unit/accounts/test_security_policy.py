@@ -776,6 +776,23 @@ class TestPermits:
         policy = policy_class()
         assert not policy.permits(request, context, "myperm")
 
+    def test_deny_forklift_file_upload_without_2fa(self, monkeypatch, policy_class):
+        monkeypatch.setattr(security_policy, "User", pretend.stub)
+
+        request = pretend.stub(
+            identity=pretend.stub(
+                __principals__=lambda: ["user:5"],
+                has_primary_verified_email=True,
+                has_two_factor=False,
+                date_joined=datetime(2023, 8, 9),
+            ),
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+        )
+        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
+
+        policy = policy_class()
+        assert not policy.permits(request, context, "myperm")
+
     @pytest.mark.parametrize(
         "matched_route",
         [

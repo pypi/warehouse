@@ -332,7 +332,8 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     ]
 
     if (
-        request.matched_route.name.startswith("manage")
+        request.matched_route.name == "forklift.legacy.file_upload"
+        or request.matched_route.name.startswith("manage")
         and request.matched_route.name != "manage.account"
         and not any(
             request.matched_route.name.startswith(route) for route in _exempt_routes
