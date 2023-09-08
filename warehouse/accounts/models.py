@@ -23,10 +23,8 @@ from sqlalchemy import (
     Enum,
     ForeignKey,
     Index,
-    Integer,
     LargeBinary,
     String,
-    Text,
     UniqueConstraint,
     orm,
     select,
@@ -239,9 +237,9 @@ class WebAuthn(db.Model):
         index=True,
     )
     label: Mapped[str]
-    credential_id: Mapped[str] = mapped_column(String, unique=True)
-    public_key: Mapped[str | None] = mapped_column(String, unique=True)
-    sign_count: Mapped[int | None] = mapped_column(Integer, default=0)
+    credential_id: Mapped[str] = mapped_column(unique=True)
+    public_key: Mapped[str | None] = mapped_column(unique=True)
+    sign_count: Mapped[int | None] = mapped_column(default=0)
 
 
 class RecoveryCode(db.Model):
@@ -271,7 +269,7 @@ class Email(db.ModelBase):
         Index("user_emails_user_id", "user_id"),
     )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[UUID] = mapped_column(
         PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
@@ -285,9 +283,7 @@ class Email(db.ModelBase):
     unverify_reason: Mapped[Enum | None] = mapped_column(
         Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
     )
-    transient_bounces: Mapped[int] = mapped_column(
-        Integer, server_default=sql.text("0")
-    )
+    transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
 
 class ProhibitedUserName(db.Model):
@@ -305,7 +301,7 @@ class ProhibitedUserName(db.Model):
     __repr__ = make_repr("name")
 
     created: Mapped[datetime_now]
-    name: Mapped[str] = mapped_column(Text, unique=True)
+    name: Mapped[str] = mapped_column(unique=True)
     _prohibited_by: Mapped[UUID | None] = mapped_column(
         "prohibited_by",
         PG_UUID(as_uuid=True),
@@ -313,4 +309,4 @@ class ProhibitedUserName(db.Model):
         index=True,
     )
     prohibited_by: Mapped[User] = orm.relationship(User)
-    comment: Mapped[str] = mapped_column(Text, server_default="")
+    comment: Mapped[str] = mapped_column(server_default="")
