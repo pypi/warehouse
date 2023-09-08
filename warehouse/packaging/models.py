@@ -40,7 +40,13 @@ from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import attribute_keyed_dict, declared_attr, mapped_column, validates
+from sqlalchemy.orm import (
+    Mapped,
+    attribute_keyed_dict,
+    declared_attr,
+    mapped_column,
+    validates,
+)
 from urllib3.exceptions import LocationParseError
 from urllib3.util import parse_url
 
@@ -627,6 +633,17 @@ class Release(db.Model):
         )
 
 
+class PackageType(str, enum.Enum):
+    bdist_dmg = "bdist_dmg"
+    bdist_dumb = "bdist_dumb"
+    bdist_egg = "bdist_egg"
+    bdist_msi = "bdist_msi"
+    bdist_rpm = "bdist_rpm"
+    bdist_wheel = "bdist_wheel"
+    bdist_wininst = "bdist_wininst"
+    sdist = "sdist"
+
+
 class File(HasEvents, db.Model):
     __tablename__ = "release_files"
 
@@ -656,19 +673,7 @@ class File(HasEvents, db.Model):
     )
     python_version = mapped_column(Text, nullable=False)
     requires_python = mapped_column(Text)
-    packagetype = mapped_column(
-        Enum(
-            "bdist_dmg",
-            "bdist_dumb",
-            "bdist_egg",
-            "bdist_msi",
-            "bdist_rpm",
-            "bdist_wheel",
-            "bdist_wininst",
-            "sdist",
-        ),
-        nullable=False,
-    )
+    packagetype: Mapped[PackageType] = mapped_column()
     comment_text = mapped_column(Text)
     filename = mapped_column(Text, unique=True, nullable=False)
     path = mapped_column(Text, unique=True, nullable=False)
