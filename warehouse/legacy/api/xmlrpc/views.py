@@ -418,7 +418,7 @@ def release_urls(request, package_name: StrictStr, version: StrictStr):
     return [
         {
             "filename": f.filename,
-            "packagetype": f.packagetype,
+            "packagetype": f.packagetype.value,
             "python_version": f.python_version,
             "size": f.size,
             "md5_digest": f.md5_digest,
