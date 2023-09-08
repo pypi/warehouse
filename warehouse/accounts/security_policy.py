@@ -332,22 +332,29 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     ]
 
     if (
-        request.matched_route.name == "forklift.legacy.file_upload"
-        or request.matched_route.name.startswith("manage")
-        and request.matched_route.name != "manage.account"
-        and not any(
-            request.matched_route.name.startswith(route) for route in _exempt_routes
-        )
-        and not request.identity.has_two_factor
-    ) and (
-        # Start enforcement from 2023-08-08, but we should remove this check
-        # at the end of 2023.
         request.identity.date_joined
         and request.identity.date_joined > datetime.datetime(2023, 8, 8)
     ):
-        return WarehouseDenied(
-            "You must enable two factor authentication to manage other settings",
-            reason="manage_2fa_required",
-        )
+        if (
+            request.matched_route.name.startswith("manage")
+            and request.matched_route.name != "manage.account"
+            and not any(
+                request.matched_route.name.startswith(route) for route in _exempt_routes
+            )
+            and not request.identity.has_two_factor
+        ):
+            return WarehouseDenied(
+                "You must enable two factor authentication to manage other settings",
+                reason="manage_2fa_required",
+            )
+
+        if (
+            request.matched_route.name == "forklift.legacy.file_upload"
+            and not request.identity.has_two_factor
+        ):
+            return WarehouseDenied(
+                "You must enable two factor authentication to upload",
+                reason="upload_2fa_required",
+            )
 
     return None

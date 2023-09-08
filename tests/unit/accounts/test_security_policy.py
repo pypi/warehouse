@@ -575,6 +575,7 @@ class TestPermits:
                 __principals__=lambda: principals,
                 has_primary_verified_email=True,
                 has_two_factor=False,
+                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="random.route"),
         )
@@ -603,6 +604,7 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
+                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
@@ -640,6 +642,7 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
+                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
@@ -677,6 +680,7 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=has_mfa,
+                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="random.route"),
             registry=pretend.stub(
@@ -751,6 +755,7 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=True,
+                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
