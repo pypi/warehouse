@@ -19,6 +19,7 @@ exclude = ["warehouse/locale/.*", "warehouse/migrations/versions.*"]
 [[tool.mypy.overrides]]
 # These modules do not yet have types available.
 module = [
+    "alembic_postgresql_enum.*",
     "automat.*",
     "bpython.*",  # https://github.com/bpython/bpython/issues/892
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148

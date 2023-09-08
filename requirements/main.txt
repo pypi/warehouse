@@ -7,6 +7,12 @@
 alembic==1.12.0 \
     --hash=sha256:03226222f1cf943deee6c85d9464261a6c710cd19b4fe867a3ad1f25afda610f \
     --hash=sha256:8e7645c32e4f200675e69f0745415335eb59a3663f5feb487abfa0b30c45888b
+    # via
+    #   -r requirements/main.in
+    #   alembic-postgresql-enum
+alembic-postgresql-enum==0.1.8 \
+    --hash=sha256:1ade1c9e60fede3e45054d60c6353010adf3569dbf18243268f64cf44a0423af \
+    --hash=sha256:2669f87dff02b53f1875d5dd80da8a937399bf42e6fc963eb828a585f18f383b
     # via -r requirements/main.in
 amqp==5.1.1 \
     --hash=sha256:2c1b13fecc0893e946c65cbd5f36427861cffa4ea2201d8f6fca22e2a373b5e2 \
@@ -1575,6 +1581,7 @@ sqlalchemy[asyncio]==2.0.20 \
     # via
     #   -r requirements/main.in
     #   alembic
+    #   alembic-postgresql-enum
     #   paginate-sqlalchemy
     #   zope-sqlalchemy
 stdlib-list==0.9.0 \
