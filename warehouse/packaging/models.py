@@ -673,7 +673,9 @@ class File(HasEvents, db.Model):
     )
     python_version = mapped_column(Text, nullable=False)
     requires_python = mapped_column(Text)
-    packagetype: Mapped[PackageType] = mapped_column()
+    packagetype: Mapped[PackageType] = mapped_column(
+        Enum(PackageType, values_callable=lambda x: [e.value for e in x]),
+    )
     comment_text = mapped_column(Text)
     filename = mapped_column(Text, unique=True, nullable=False)
     path = mapped_column(Text, unique=True, nullable=False)
