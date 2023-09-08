@@ -17,10 +17,7 @@ Revises: 757731924605
 Create Date: 2023-09-08 18:06:56.085062
 """
 
-import sqlalchemy as sa
-
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 revision = "b985bb544962"
 down_revision = "757731924605"
