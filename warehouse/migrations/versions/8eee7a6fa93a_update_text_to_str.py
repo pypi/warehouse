@@ -20,7 +20,6 @@ Create Date: 2023-09-08 19:14:24.978213
 import sqlalchemy as sa
 
 from alembic import op
-from sqlalchemy.dialects import postgresql
 
 revision = "8eee7a6fa93a"
 down_revision = "b985bb544962"
@@ -92,7 +91,7 @@ def upgrade():
         "description",
         existing_type=sa.TEXT(),
         type_=sa.String(),
-        existing_comment="Description of the business or project the organization represents",
+        existing_comment="Description of the business or project the organization represents",  # noqa
         existing_nullable=False,
     )
     op.alter_column(
@@ -138,7 +137,7 @@ def upgrade():
         "description",
         existing_type=sa.TEXT(),
         type_=sa.String(),
-        existing_comment="Description of the business or project the organization represents",
+        existing_comment="Description of the business or project the organization represents",  # noqa
         existing_nullable=False,
     )
     op.alter_column(
@@ -530,7 +529,7 @@ def downgrade():
         "description",
         existing_type=sa.String(),
         type_=sa.TEXT(),
-        existing_comment="Description of the business or project the organization represents",
+        existing_comment="Description of the business or project the organization represents",  # noqa
         existing_nullable=False,
     )
     op.alter_column(
@@ -576,7 +575,7 @@ def downgrade():
         "description",
         existing_type=sa.String(),
         type_=sa.TEXT(),
-        existing_comment="Description of the business or project the organization represents",
+        existing_comment="Description of the business or project the organization represents",  # noqa
         existing_nullable=False,
     )
     op.alter_column(
