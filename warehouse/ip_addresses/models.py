@@ -16,7 +16,7 @@ from datetime import datetime
 
 import sentry_sdk
 
-from sqlalchemy import CheckConstraint, Enum, Index
+from sqlalchemy import CheckConstraint, Index
 from sqlalchemy.dialects.postgresql import INET, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, validates
 
@@ -59,8 +59,7 @@ class IpAddress(db.Model):
     is_banned: Mapped[bool_false] = mapped_column(
         comment="If True, this IP Address will be marked as banned",
     )
-    ban_reason: Mapped[Enum | None] = mapped_column(
-        Enum(BanReason, values_callable=lambda x: [e.value for e in x]),
+    ban_reason: Mapped[BanReason | None] = mapped_column(
         comment="Reason for banning, must be in the BanReason enumeration",
     )
     ban_date: Mapped[datetime | None] = mapped_column(

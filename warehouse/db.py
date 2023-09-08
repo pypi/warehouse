@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
 import functools
 import logging
 
@@ -73,6 +74,14 @@ class ModelBase(DeclarativeBase):
     """Base class for models using declarative syntax."""
 
     metadata = metadata
+
+    type_annotation_map = {
+        # All of our enums prefer the `.value` for database persistence
+        # instead of `.name`, which is the default.
+        enum.Enum: sqlalchemy.Enum(
+            enum.Enum, values_callable=lambda x: [e.value for e in x]
+        ),
+    }
 
     def __repr__(self):
         inst = inspect(self)

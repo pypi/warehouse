@@ -20,7 +20,6 @@ from uuid import UUID
 from pyramid.authorization import Allow, Authenticated
 from sqlalchemy import (
     CheckConstraint,
-    Enum,
     ForeignKey,
     Index,
     LargeBinary,
@@ -91,9 +90,7 @@ class User(SitemapMixin, HasEvents, db.Model):
     last_login: Mapped[datetime.datetime | None] = mapped_column(
         TZDateTime, server_default=sql.func.now()
     )
-    disabled_for: Mapped[Enum | None] = mapped_column(
-        Enum(DisableReason, values_callable=lambda x: [e.value for e in x]),
-    )
+    disabled_for: Mapped[DisableReason | None]
 
     totp_secret: Mapped[int | None] = mapped_column(LargeBinary(length=20))
     last_totp_value: Mapped[str | None]
@@ -280,9 +277,7 @@ class Email(db.ModelBase):
     public: Mapped[bool_false]
 
     # Deliverability information
-    unverify_reason: Mapped[Enum | None] = mapped_column(
-        Enum(UnverifyReasons, values_callable=lambda x: [e.value for e in x]),
-    )
+    unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
 
