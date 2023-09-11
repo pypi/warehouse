@@ -6,5 +6,8 @@ set -eo pipefail
 # Setup our Redis settings
 source bin/redis-tls
 
+# Override the project-wide
+export DD_SERVICE=warehouse-worker
+
 # Finally, go ahead and execute the given command.
 exec "$@"
