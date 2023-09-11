@@ -13,13 +13,14 @@
 import time
 
 from base64 import b32encode
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import parse_qsl
 
 import pytest
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
+from urllib3.util import parse_url
 
 from warehouse.utils.otp import (
     TOTP_INTERVAL,
@@ -46,7 +47,7 @@ def test_generate_totp_provisioning_uri():
     issuer_name = "pypi.org"
     uri = generate_totp_provisioning_uri(secret, username, issuer_name=issuer_name)
 
-    parsed = urlparse(uri)
+    parsed = parse_url(uri)
 
     assert parsed.scheme == "otpauth"
     assert parsed.netloc == "totp"

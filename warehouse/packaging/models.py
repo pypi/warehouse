@@ -13,7 +13,6 @@
 import enum
 
 from collections import OrderedDict
-from urllib.parse import urlparse
 
 import packaging.utils
 
@@ -41,7 +40,15 @@ from sqlalchemy.dialects.postgresql import CITEXT, UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import attribute_keyed_dict, declared_attr, mapped_column, validates
+from sqlalchemy.orm import (
+    Mapped,
+    attribute_keyed_dict,
+    declared_attr,
+    mapped_column,
+    validates,
+)
+from urllib3.exceptions import LocationParseError
+from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
@@ -582,8 +589,11 @@ class Release(db.Model):
     @staticmethod
     def get_user_name_and_repo_name(urls):
         for url in urls:
-            parsed = urlparse(url)
-            segments = parsed.path.strip("/").split("/")
+            try:
+                parsed = parse_url(url)
+            except LocationParseError:
+                continue
+            segments = parsed.path.strip("/").split("/") if parsed.path else []
             if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
                 if user_name in GITHUB_RESERVED_NAMES:
@@ -623,6 +633,17 @@ class Release(db.Model):
         )
 
 
+class PackageType(str, enum.Enum):
+    bdist_dmg = "bdist_dmg"
+    bdist_dumb = "bdist_dumb"
+    bdist_egg = "bdist_egg"
+    bdist_msi = "bdist_msi"
+    bdist_rpm = "bdist_rpm"
+    bdist_wheel = "bdist_wheel"
+    bdist_wininst = "bdist_wininst"
+    sdist = "sdist"
+
+
 class File(HasEvents, db.Model):
     __tablename__ = "release_files"
 
@@ -652,18 +673,8 @@ class File(HasEvents, db.Model):
     )
     python_version = mapped_column(Text, nullable=False)
     requires_python = mapped_column(Text)
-    packagetype = mapped_column(
-        Enum(
-            "bdist_dmg",
-            "bdist_dumb",
-            "bdist_egg",
-            "bdist_msi",
-            "bdist_rpm",
-            "bdist_wheel",
-            "bdist_wininst",
-            "sdist",
-        ),
-        nullable=False,
+    packagetype: Mapped[PackageType] = mapped_column(
+        Enum(PackageType, values_callable=lambda x: [e.value for e in x]),
     )
     comment_text = mapped_column(Text)
     filename = mapped_column(Text, unique=True, nullable=False)

@@ -16,6 +16,8 @@ import hmac
 
 from typing import TYPE_CHECKING
 
+import sentry_sdk
+
 from sqlalchemy import type_coerce
 from sqlalchemy.dialects.postgresql import INET
 from sqlalchemy.exc import NoResultFound
@@ -66,11 +68,24 @@ class ProxyFixer:
             }
 
             host = environ.get("HTTP_WAREHOUSE_HOST", "")
+
         # If we're not getting headers from a trusted third party via the
         # specialized Warehouse-* headers, then we'll fall back to looking at
         # X-Forwarded-* headers, assuming that whatever we have in front of us
         # will strip invalid ones.
         else:
+            # If there IS a token, but it doesn't match, then tell us about it.
+            if request_token is not None and not hmac.compare_digest(
+                self.token, request_token
+            ):
+                sentry_sdk.set_context(
+                    self.__class__.__name__, {"token": request_token}
+                )
+                sentry_sdk.capture_message(
+                    "Invalid Proxy Token",
+                    level="warning",
+                )
+
             proto = environ.get("HTTP_X_FORWARDED_PROTO", "")
 
             # Special case: if we don't see a X-Forwarded-For, this may be a local
