@@ -1,5 +1,4 @@
-# Origin: https://github.com/hrvey/combine-prs-workflow
-# Adapted to suit our purposes over time.
+# Origin: https://github.com/marketplace/actions/combine-prs
 
 name: 'Combine PRs'
 
@@ -7,15 +6,6 @@ name: 'Combine PRs'
 on:
   workflow_dispatch:
     inputs:
-      mustBeGreen:
-        description: 'Only combine PRs that are green (status is success)'
-        type: boolean
-        required: true
-        default: true
-      combineBranchName:
-        description: 'Name of the branch to combine PRs into'
-        required: true
-        default: 'combine-prs-branch'
       ignoreLabel:
         description: 'Exclude PRs with this label'
         required: true
@@ -25,6 +15,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  checks: read
   actions: write
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
@@ -36,152 +27,12 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      - uses: actions/github-script@v6
-        id: fetch-branch-names
-        name: Fetch branch names
-        # Use GitHub's GraphQL API to minimize API calls.
+      - name: combine-prs
+        id: combine-prs
+        uses: github/combine-prs@v3
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            // Construct the search to return the PRs that match our conditions.
-            const searchString = `repo:${context.repo.owner}/${context.repo.repo} is:pr is:open label:dependencies label:python -label:${{ github.event.inputs.ignoreLabel }}`;
-            console.log('Search string: ' + searchString);
-            // We pick the first 100 results, which should be enough for most
-            // cases, and prevents the API calls from being too large (slow). 
-            const matchingPullRequestQuery = `query {
-              search(
-                query: "${searchString}",
-                type: ISSUE,
-                first: 100
-              ) {
-                edges {
-                  node {
-                    ... on PullRequest {
-                      number
-                      title
-                      headRefOid
-                      mergeable
-                      commits(last: 1) {
-                        nodes {
-                          commit {
-                            statusCheckRollup {
-                              state
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }`;
-            // console.debug('Query: ' + matchingPullRequestQuery);
-            // Run the query and get the results.
-            const matchingPullRequests = await github.graphql(matchingPullRequestQuery);
-            // log the results
-            // console.debug('Matching PRs: ' + JSON.stringify(matchingPullRequests));
-            // Get the PRs from the results.
-            const pullRequests = matchingPullRequests.search.edges;
-            // console.debug('PRs: ' + JSON.stringify(pullRequests));
-            // Create an array to hold the branch names.
-            let branches = [];
-            // Create an array to hold the PRs.
-            let prs = [];
-            // Create a variable to hold the base branch.
-            let baseBranch = null;
-            // Sort the PRs by number, since the API response is tricky.
-            pullRequests.sort((a, b) => a.node.number - b.node.number);
-            // Loop through the PRs.
-            for (const pull of pullRequests) {
-              const prLogString = 'Pull #' + pull.node.number + ' - ' + pull.node.title;
-              console.log('👀 Checking:  ' + prLogString);
-              // If the PR is not mergeable (no conflicts), bail early.
-              if(pull.node.mergeable != 'MERGEABLE') {
-                console.warn('❌ Discarding: ' + prLogString + ' with unmergeable PR, state: ' + pull.node.mergeable);
-                continue;
-              }
-              // If the PR is not green, bail early.
-              if(${{ github.event.inputs.mustBeGreen }}) {
-                if(pull.node.commits.nodes[0].commit.statusCheckRollup.state != 'SUCCESS') {
-                  console.warn('❌ PR Status: ' + prLogString + ' with failed status: ' + pull.node.commits.nodes[0].commit.statusCheckRollup.state);
-                  continue;
-                }
-                console.log('✅ PR Status: ' + prLogString);
-              }
-              // At this point, the PR/branch is good to go.
-              const branch = pull.node.headRefOid;
-              console.log('☑️ Adding branch to array: ' + branch);
-              // Add the branch name to the array.
-              branches.push(branch);
-              // Add the PR to the array.
-              prs.push('Closes #' + pull.node.number + ' ' + pull.node.title);
-              baseBranch = pull.node.headRefOid;
-            }
-
-            if (branches.length == 0) {
-              core.setFailed('No PRs/branches matched criteria');
-              return;
-            }
-
-            core.setOutput('base-branch', baseBranch);
-            core.setOutput('prs-string', prs.join('\n'));
-
-            combined = branches.join(' ')
-            console.log('Combined: ' + combined);
-            return combined
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      # Creates a branch with other PR branches merged together
-      - name: Created combined branch
-        env:
-          BASE_BRANCH: ${{ steps.fetch-branch-names.outputs.base-branch }}
-          BRANCHES_TO_COMBINE: ${{ steps.fetch-branch-names.outputs.result }}
-          COMBINE_BRANCH_NAME: ${{ github.event.inputs.combineBranchName }}
-        run: |
-          sourcebranches="${BRANCHES_TO_COMBINE%\"}"
-          sourcebranches="${sourcebranches#\"}"
-
-          basebranch="${BASE_BRANCH%\"}"
-          basebranch="${basebranch#\"}"
-
-          git config pull.rebase false
-          git config user.name github-actions
-          git config user.email github-actions@github.com
-
-          git branch $COMBINE_BRANCH_NAME $basebranch
-          git checkout $COMBINE_BRANCH_NAME
-          git pull origin $sourcebranches --no-edit
-          git push origin $COMBINE_BRANCH_NAME
-      # Creates a PR with the new combined branch
-      - uses: actions/github-script@v6
-        name: Create Combined Pull Request
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const prString = `${{ steps.fetch-branch-names.outputs.prs-string }}`;
-            const body = 'This PR was created by the Combine PRs action by combining the following PRs:\n\n' + prString;
-            await github.rest.pulls.create({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              title: 'Combined PR',
-              head: '${{ github.event.inputs.combineBranchName }}',
-              base: 'main',
-              body: body
-            });
-      # Trigger downstream workflows
-      # https://github.blog/changelog/2022-09-08-github-actions-use-github_token-with-workflow_dispatch-and-repository_dispatch/
-      - uses: actions/github-script@v6
-        name: Trigger CI
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            for (const workflow_id of ['ci.yml', 'node-ci.yml']) {
-              await github.rest.actions.createWorkflowDispatch({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                workflow_id: workflow_id,
-                ref: '${{ github.event.inputs.combineBranchName }}'
-              });
-            }
+          # TODO: This may be insufficient to kick off CI.
+          # We could set a static user PAT or create a GitHub App (preferable).
+          # See https://github.com/github/combine-prs/blob/e2dee3c2a03a8f9a0ecd82fb53cb852cdc7a2fb3/docs/github-app-setup.md
+          github_token: ${{secrets.GITHUB_TOKEN}}
+          ignore_label: ${{github.event.inputs.ignoreLabel || 'blocked'}}
