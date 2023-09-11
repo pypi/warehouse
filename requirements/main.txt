@@ -705,9 +705,9 @@ grpcio==1.58.0 \
     #   google-api-core
     #   google-cloud-bigquery
     #   grpcio-status
-grpcio-status==1.57.0 \
-    --hash=sha256:15d6af055914ebbc4ed17e55ebfb8e6bb17a45a57fea32e6af19978fb7844690 \
-    --hash=sha256:b098da99df1eebe58337f8f78e50df990273ccacc1226fddeb47c590e3df9e02
+grpcio-status==1.58.0 \
+    --hash=sha256:0b42e70c0405a66a82d9e9867fa255fe59e618964a6099b20568c31dd9099766 \
+    --hash=sha256:36d46072b71a00147709ebce49344ac59b4b8960942acf0f813a8a7d6c1c28e0
     # via google-api-core
 hiredis==2.2.3 \
     --hash=sha256:071c5814b850574036506a8118034f97c3cbf2fe9947ff45a27b07a48da56240 \
