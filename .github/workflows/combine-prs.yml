@@ -29,7 +29,7 @@ jobs:
     steps:
       - name: combine-prs
         id: combine-prs
-        uses: github/combine-prs@v3
+        uses: github/combine-prs@v3.1.2
         with:
           # TODO: This may be insufficient to kick off CI.
           # We could set a static user PAT or create a GitHub App (preferable).
