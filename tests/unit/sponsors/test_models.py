@@ -51,7 +51,7 @@ def test_activity_property_render_markdown_content(db_request):
 def test_ensure_activity_markdown_is_safe_against_xss(db_request):
     sponsor = SponsorFactory.create()
     sponsor.activity_markdown = r"[XSS](javascript://www.google.com%0Aprompt(1))"
-    expected = "<p><a>XSS</a></p>"
+    expected = '<p><a rel="nofollow">XSS</a></p>'
     assert sponsor.activity.strip() == expected.strip()
     # empty string if no data
     sponsor.activity_markdown = None
