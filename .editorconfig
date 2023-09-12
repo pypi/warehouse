@@ -10,6 +10,8 @@ insert_final_newline = true
 
 [*.py]
 indent_size = 4
+# handled by black config
+max_line_length = off
 
 [Makefile]
 indent_style = tab
