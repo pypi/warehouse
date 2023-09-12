@@ -1,14 +1,6 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -ex
 
-# Click requires us to ensure we have a well configured environment to run
-# our click commands. So we'll set our environment to ensure our locale is
-# correct.
-export LC_ALL="${ENCODING:-en_US.UTF-8}"
-export LANG="${ENCODING:-en_US.UTF-8}"
-
-# Print all the following commands
-set -x
-
+find . -name '*.py' -exec python -m pyupgrade --py311-plus {} +
 python -m isort *.py warehouse/ tests/
 python -m black *.py warehouse/ tests/
