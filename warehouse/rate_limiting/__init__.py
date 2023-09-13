@@ -174,14 +174,18 @@ def ratelimit_view_deriver(view, info):
     @view_config(
         ...,
         ratelimit="10/second",
+        ratelimit_by="user.id",  # Optional, defaults to "remote_addr"
     )
     ```
     https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation
     """
     limit_str = info.options.get("ratelimit")
+    limit_by = info.options.get("ratelimit_by", "remote_addr")
     if limit_str:
 
         def wrapper_view(context, request):
+            limit_attr = getattr(request, limit_by)
+
             ratelimiter = request.find_service(
                 IRateLimiter, name="rate_limiting.client"
             )
@@ -193,8 +197,8 @@ def ratelimit_view_deriver(view, info):
 
             request_route = request.matched_route.name
 
-            ratelimiter.hit(request.remote_addr)
-            if not ratelimiter.test(request.remote_addr):
+            ratelimiter.hit(limit_attr)
+            if not ratelimiter.test(limit_attr):
                 metrics.increment(
                     "warehouse.ratelimiter.exceeded",
                     tags=[
@@ -205,7 +209,7 @@ def ratelimit_view_deriver(view, info):
                     "The action could not be performed because there were too "
                     "many requests by the client."
                 )
-                _resets_in = ratelimiter.resets_in(request.remote_addr)
+                _resets_in = ratelimiter.resets_in(limit_attr)
                 if _resets_in is not None:
                     _resets_in = max(1, int(_resets_in.total_seconds()))
                     message += f" Limit may reset in {_resets_in} seconds."
@@ -223,7 +227,7 @@ def ratelimit_view_deriver(view, info):
     return view
 
 
-ratelimit_view_deriver.options = ("ratelimit",)  # type: ignore[attr-defined]
+ratelimit_view_deriver.options = {"ratelimit", "ratelimit_by"}  # type: ignore[attr-defined] # noqa: E501
 
 
 def includeme(config):
@@ -232,8 +236,7 @@ def includeme(config):
     )
 
     config.register_service_factory(
-        # TODO: What's a good default?
-        RateLimit(limit="1/second"),
+        RateLimit(limit="100 per second"),
         IRateLimiter,
         name="rate_limiting.client",
     )

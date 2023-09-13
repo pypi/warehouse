@@ -236,6 +236,7 @@ def opensearchxml(request):
     has_translations=True,
     # FIXME: Remove from here and add to other views. Testing only!
     ratelimit="2 per second",
+    ratelimit_by="remote_addr_hashed",
 )
 def index(request):
     counts = dict(
