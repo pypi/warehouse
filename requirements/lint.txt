@@ -323,9 +323,9 @@ types-pytz==2023.3.0.1 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-redis==4.6.0.5 \
-    --hash=sha256:4f662060247a2363c7a8f0b7e52915d68960870ff16a749a891eabcf87ed0be4 \
-    --hash=sha256:5f179d10bd3ca995a8134aafcddfc3e12d52b208437c4529ef27e68acb301f38
+types-redis==4.6.0.6 \
+    --hash=sha256:7865a843802937ab2ddca33579c4e255bfe73f87af85824ead7a6729ba92fc52 \
+    --hash=sha256:e0e9dcc530623db3a41ec058ccefdcd5c7582557f02ab5f7aa9a27fe10a78d7e
     # via -r requirements/lint.in
 types-requests==2.31.0.2 \
     --hash=sha256:56d181c85b5925cbc59f4489a57e72a8b2166f18273fd8ba7b6fe0c0b986f12a \
@@ -400,9 +400,9 @@ zope-schema==7.0.1 \
     # via mypy-zope
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==68.2.0 \
-    --hash=sha256:00478ca80aeebeecb2f288d3206b0de568df5cd2b8fada1209843cc9a8d88a48 \
-    --hash=sha256:af3d5949030c3f493f550876b2fd1dd5ec66689c4ee5d5344f009746f71fd5a8
+setuptools==68.2.2 \
+    --hash=sha256:4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87 \
+    --hash=sha256:b454a35605876da60632df1a60f736524eb73cc47bbc9f3f1ef1b644de74fd2a
     # via
     #   zope-event
     #   zope-interface
