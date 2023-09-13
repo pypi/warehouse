@@ -21,6 +21,7 @@ from first import first
 from limits import parse_many
 from limits.storage import storage_from_string
 from limits.strategies import MovingWindowRateLimiter
+from pyramid.httpexceptions import HTTPTooManyRequests
 from zope.interface import implementer
 
 from warehouse.metrics import IMetricsService
@@ -162,7 +163,79 @@ class RateLimit:
         )
 
 
+def ratelimit_view_deriver(view, info):
+    """
+    A general-purpose rate limit view deriver based on client's `remote_addr`.
+    https://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hooks.html#custom-view-derivers
+
+    Add `ratelimiter="<limit-string>"` to a `@view_config()`. Example:
+
+    ```
+    @view_config(
+        ...,
+        ratelimit="10/second",
+    )
+    ```
+    https://limits.readthedocs.io/en/stable/quickstart.html#rate-limit-string-notation
+    """
+    limit_str = info.options.get("ratelimit")
+    if limit_str:
+
+        def wrapper_view(context, request):
+            ratelimiter = request.find_service(
+                IRateLimiter, name="rate_limiting.client"
+            )
+            # TODO: Is this Kosher?
+            # Override the default limits with the ones specified in the view
+            ratelimiter._limits = parse_many(limit_str)
+
+            metrics = request.find_service(IMetricsService, context=None)
+
+            request_route = request.matched_route.name
+
+            ratelimiter.hit(request.remote_addr)
+            if not ratelimiter.test(request.remote_addr):
+                metrics.increment(
+                    "warehouse.ratelimiter.exceeded",
+                    tags=[
+                        f"request_route:{request_route}",
+                    ],
+                )
+                message = (
+                    "The action could not be performed because there were too "
+                    "many requests by the client."
+                )
+                _resets_in = ratelimiter.resets_in(request.remote_addr)
+                if _resets_in is not None:
+                    _resets_in = max(1, int(_resets_in.total_seconds()))
+                    message += f" Limit may reset in {_resets_in} seconds."
+                raise HTTPTooManyRequests(message)
+
+            metrics.increment(
+                "warehouse.ratelimiter.hit",
+                tags=[
+                    f"request_route:{request_route}",
+                ],
+            )
+            return view(context, request)
+
+        return wrapper_view
+    return view
+
+
+ratelimit_view_deriver.options = ("ratelimit",)  # type: ignore[attr-defined]
+
+
 def includeme(config):
     config.registry["ratelimiter.storage"] = storage_from_string(
         config.registry.settings["ratelimit.url"]
     )
+
+    config.register_service_factory(
+        # TODO: What's a good default?
+        RateLimit(limit="1/second"),
+        IRateLimiter,
+        name="rate_limiting.client",
+    )
+
+    config.add_view_deriver(ratelimit_view_deriver)

@@ -234,6 +234,8 @@ def opensearchxml(request):
         )
     ],
     has_translations=True,
+    # FIXME: Remove from here and add to other views. Testing only!
+    ratelimit="2 per second",
 )
 def index(request):
     counts = dict(
