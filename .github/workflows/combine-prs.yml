@@ -25,14 +25,18 @@ jobs:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      - name: Use GitHub App Token
+        uses: wow-actions/use-app-token@v2.0.2
+        id: generate_token
+        with:
+          app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
+          private_key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
+          fallback: ${{ secrets.GITHUB_TOKEN }} # fall back to the default token if the app token is
+
       - name: combine-prs
         id: combine-prs
         uses: github/combine-prs@v4.0.0
         with:
-          # TODO: This may be insufficient to kick off CI.
-          # We could set a static user PAT or create a GitHub App (preferable).
-          # See https://github.com/github/combine-prs/blob/e2dee3c2a03a8f9a0ecd82fb53cb852cdc7a2fb3/docs/github-app-setup.md
-          github_token: ${{secrets.GITHUB_TOKEN}}
-          ignore_label: ${{github.event.inputs.ignoreLabel || 'blocked'}}
+          github_token: ${{ steps.generate_token.outputs.BOT_TOKEN }}
+          ignore_label: ${{ github.event.inputs.ignoreLabel || 'blocked' }}
