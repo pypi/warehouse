@@ -16,7 +16,7 @@ from warehouse.cli import warehouse
 from warehouse.search.tasks import reindex as _reindex
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def search():
     """
     Manage the Warehouse Search.

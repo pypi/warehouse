@@ -13,7 +13,7 @@
 from warehouse.cli import warehouse
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def db():
     """
     Manage the Warehouse Database.

@@ -186,7 +186,7 @@ def reindex(self, request):
                 raise
             finally:
                 request.db.rollback()
-                request.db.close()  # pragma: no cover
+                request.db.close()
 
             # Now that we've finished indexing all of our data we can update the
             # replicas and refresh intervals.

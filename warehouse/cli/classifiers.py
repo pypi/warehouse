@@ -17,7 +17,7 @@ from trove_classifiers import all_classifiers as sorted_classifiers
 from warehouse.cli import warehouse
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def classifiers():
     """
     Manage the Warehouse Malware Checks.

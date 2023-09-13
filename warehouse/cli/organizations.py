@@ -15,7 +15,7 @@ import click
 from warehouse.cli import warehouse
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def organizations():
     """
     Group for organizations commands.
