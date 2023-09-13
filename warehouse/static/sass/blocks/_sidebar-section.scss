@@ -28,6 +28,7 @@
   padding-bottom: 20px;
   margin-bottom: 20px;
   border-bottom: 2px solid $border-color;
+  word-wrap: break-word;
 
   .sidebar-section__title {
     font-size: 1.1rem;
@@ -117,7 +118,6 @@
   &__user-gravatar-text {
     margin-bottom: 5px;
     word-break: break-word;
-    word-wrap: break-word;
     display: inline-block;
     max-width: calc(100% - 60px);
     text-decoration: none;
