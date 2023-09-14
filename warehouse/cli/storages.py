@@ -18,7 +18,7 @@ from warehouse.packaging.tasks import (
 )
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def storages():
     """
     Manage the Warehouse Storages.

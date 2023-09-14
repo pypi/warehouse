@@ -14,7 +14,7 @@
 from warehouse.cli import warehouse
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def projects():
     """
     Group for projects commands.

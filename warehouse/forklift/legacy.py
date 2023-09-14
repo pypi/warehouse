@@ -723,7 +723,7 @@ def _is_valid_dist_file(filename, filetype):
                         # We need the no branch below to work around a bug in
                         # coverage.py where it's detecting a missed branch
                         # where there isn't one.
-                        break  # pragma: no branch
+                        break
                 else:
                     return False
         except zipfile.BadZipFile:
@@ -739,7 +739,7 @@ def _is_valid_dist_file(filename, filetype):
                         # We need the no branch below to work around a bug in
                         # coverage.py where it's detecting a missed branch
                         # where there isn't one.
-                        break  # pragma: no branch
+                        break
                 else:
                     return False
         except zipfile.BadZipFile:
