@@ -81,7 +81,6 @@ class DatabaseUserService:
                 "argon2",
                 "bcrypt_sha256",
                 "bcrypt",
-                "django_bcrypt",
                 "unix_disabled",
             ],
             deprecated=["auto"],

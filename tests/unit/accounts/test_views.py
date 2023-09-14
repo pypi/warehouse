@@ -2179,7 +2179,7 @@ class TestResetPassword:
             "user.last_login": str(now),
         }
         token_service = pretend.stub(loads=pretend.call_recorder(lambda token: data))
-        user = pretend.stub(last_login=later)
+        user = pretend.stub(last_login=later, username="time-traveler")
         user_service = pretend.stub(get_user=pretend.call_recorder(lambda userid: user))
         pyramid_request.find_service = lambda interface, **kwargs: {
             IUserService: user_service,
