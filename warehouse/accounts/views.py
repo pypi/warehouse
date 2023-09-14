@@ -803,7 +803,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
             },
         )
         sentry_sdk.capture_message(
-            "Password reset token used after user logged in",
+            f"Password reset token used after user logged in for {user.username}",
             level="warning",
         )
         return _error(
