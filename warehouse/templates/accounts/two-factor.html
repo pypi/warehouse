@@ -103,7 +103,7 @@
             </label>
             {{ totp_form.totp_value(
               autocapitalize="off",
-              autocomplete="off",
+              autocomplete="one-time-code",
               inputmode="numeric",
               pattern="[0-9]*",
               required="required",
