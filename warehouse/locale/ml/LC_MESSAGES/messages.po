@@ -1,13 +1,13 @@
 # Fahad Shihab <fahadshihab@gmail.com>, 2020.
 # Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2020, 2022.
 # Baburaj R <clickmebaburaj@gmail.com>, 2022.
-# Alan Jacob Mathew <alanjacobmathew@gmail.com>, 2022.
+# Alan Jacob Mathew <alanjacobmathew@gmail.com>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-03-17 06:45+0200\n"
-"PO-Revision-Date: 2022-09-23 19:27+0000\n"
+"PO-Revision-Date: 2023-09-11 13:23+0000\n"
 "Last-Translator: Alan Jacob Mathew <alanjacobmathew@gmail.com>\n"
 "Language-Team: Malayalam <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ml/>\n"
@@ -16,13 +16,15 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.14.1\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 
 #: warehouse/views.py:141
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"ഈ പ്രവർത്തനം നടത്തുന്നതിന് മുമ്പ് നിങ്ങളുടെ **പ്രാഥമിക** ഇമെയിൽ വിലാസം നിങ്ങൾ "
+"സ്ഥിരീകരിക്കേണ്ടതുണ്ട്."
 
 #: warehouse/views.py:161
 msgid ""
@@ -64,7 +66,7 @@ msgstr "TOTP കോഡ് ${totp_length} അക്കങ്ങളായിരി
 
 #: warehouse/accounts/forms.py:118
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "റിക്കവറി കോഡുകൾ ${recovery_code_length} പ്രതീകങ്ങളായിരിക്കണം."
 
 #: warehouse/accounts/forms.py:133
 msgid "Choose a username with 50 characters or less."
@@ -83,13 +85,12 @@ msgid "Password too long."
 msgstr "പാസ്സ്‌വേർഡ് വളരെ നീളമുള്ളതാണ്."
 
 #: warehouse/accounts/forms.py:200
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
+msgstr ""
+"നിരവധി ലോഗിൻ ശ്രമങ്ങൾ പരാജയപ്പെട്ടു. നിങ്ങൾ ${time}-ന് ലോക്ക് ഔട്ട് ആയി. ദയവായി പിന്നീട് "
+"വീണ്ടും ശ്രമിക്കുക."
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -100,10 +101,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
 
 #: warehouse/accounts/forms.py:265
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "ഇമെയിൽ വിലാസം സാധുവല്ല. വീണ്ടും ശ്രമിക്ക്."
+msgstr "ഇമെയിൽ വിലാസം വളരെ നീളമുള്ളതാണ്. വീണ്ടും ശ്രമിക്കൂ."
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
@@ -148,16 +147,15 @@ msgstr "റിക്കവറി കോഡ് മുമ്പ് ഉപയോഗ
 msgid "No user found with that username or email"
 msgstr "ആ ഉപയോക്തൃനാമമോ ഇമെയിലോ ഉള്ള ഒരു ഉപയോക്താവിനെയും കണ്ടെത്തിയില്ല"
 
-#: warehouse/accounts/views.py:106
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/views.py:107
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
+msgstr ""
+"നിരവധി ലോഗിൻ ശ്രമങ്ങൾ പരാജയപ്പെട്ടു. നിങ്ങൾ {} -ന് ലോക്ക് ഔട്ട് ചെയ്‌തിരിക്കുന്നു. ദയവായി "
+"പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:124
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -165,7 +163,7 @@ msgstr ""
 "നിരവധി ഇമെയിലുകൾ പരിശോധിച്ചുറപ്പിക്കാതെ ഈ അക്കൗണ്ടിലേക്ക് ചേർത്തിട്ടുണ്ട്. നിങ്ങളുടെ ഇൻബോക്സ് "
 "പരിശോധിച്ച് സ്ഥിരീകരണ ലിങ്കുകൾ പിന്തുടരുക. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:135
+#: warehouse/accounts/views.py:136
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -174,25 +172,25 @@ msgstr ""
 "വളരെയധികം പാസ് വേഡ് റീസെറ്റുകൾ പൂർത്തിയാക്കാതെ തന്നെ ഈ അക്കൗണ്ടിനായി അഭ്യർത്ഥിച്ചിട്ടുണ്ട്. "
 "നിങ്ങളുടെ ഇൻബോക്സ് പരിശോധിച്ച് സ്ഥിരീകരണ ലിങ്കുകൾ പിന്തുടരുക. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:383
-#: warehouse/accounts/views.py:385 warehouse/accounts/views.py:412
-#: warehouse/accounts/views.py:414 warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:315 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:386 warehouse/accounts/views.py:413
+#: warehouse/accounts/views.py:415 warehouse/accounts/views.py:521
 msgid "Invalid or expired two factor login."
 msgstr "അസാധുവായ അല്ലെങ്കിൽ കാലഹരണപ്പെട്ട 2-ഫാക്ടർ ലോഗിൻ."
 
-#: warehouse/accounts/views.py:377
+#: warehouse/accounts/views.py:378
 msgid "Already authenticated"
 msgstr "ഇതിനകം പ്രാമാണീകരിച്ചു"
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:456
 msgid "Successful WebAuthn assertion"
 msgstr "വിജയകരമായ WebAuthn അവകാശവാദം"
 
-#: warehouse/accounts/views.py:551 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:552 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "റിക്കവറി കോഡ് സ്വീകരിച്ചു. നൽകിയ കോഡ് വീണ്ടും ഉപയോഗിക്കാൻ കഴിയില്ല."
 
-#: warehouse/accounts/views.py:643
+#: warehouse/accounts/views.py:644
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -200,131 +198,131 @@ msgstr ""
 "പുതിയ ഉപയോക്തൃ രജിസ്ട്രേഷൻ താൽക്കാലികമായി പ്രവർത്തനരഹിതമാക്കി. വിശദാംശങ്ങൾക്ക് https://"
 "pypi.org/help#admin-intervention കാണുക."
 
-#: warehouse/accounts/views.py:774
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new password reset link"
 msgstr "കാലഹരണപ്പെട്ട ടോക്കൺ: ഒരു പുതിയ പാസ്‌വേഡ് പുനഃസജ്ജീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
 
-#: warehouse/accounts/views.py:776
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new password reset link"
 msgstr "അസാധുവായ ടോക്കൺ: ഒരു പുതിയ പാസ്‌വേഡ് പുനഃസജ്ജീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
 
-#: warehouse/accounts/views.py:778 warehouse/accounts/views.py:880
-#: warehouse/accounts/views.py:984 warehouse/accounts/views.py:1153
+#: warehouse/accounts/views.py:779 warehouse/accounts/views.py:892
+#: warehouse/accounts/views.py:996 warehouse/accounts/views.py:1165
 msgid "Invalid token: no token supplied"
 msgstr "അസാധുവായ ടോക്കൺ: ടോക്കൺ നൽകിയിട്ടില്ല"
 
-#: warehouse/accounts/views.py:782
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not a password reset token"
 msgstr "അസാധുവായ ടോക്കൺ: പാസ്‌വേഡ് റീസെറ്റ് ടോക്കൺ അല്ല"
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:788
 msgid "Invalid token: user not found"
 msgstr "അസാധുവായ ടോക്കൺ: ഉപയോക്താവിനെ കണ്ടെത്തിയില്ല"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "അസാധുവായ ടോക്കൺ: ഈ ടോക്കൺ അഭ്യർത്ഥിച്ചതു ശേഷം ഉപയോക്താവ് ലോഗിൻ ചെയ്തിട്ടുണ്ട്"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:828
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "അസാധുവായ ടോക്കൺ: ഈ ടോക്കൺ അഭ്യർത്ഥിച്ചതിന് ശേഷം പാസ്‌വേഡ് ഇതിനകം തന്നെ മാറ്റിയിട്ടുണ്ട്"
 
-#: warehouse/accounts/views.py:848
+#: warehouse/accounts/views.py:860
 msgid "You have reset your password"
 msgstr "നിങ്ങൾ പാസ്‌വേഡ് പുനഃസജ്ജീകരിച്ചു"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:888
 msgid "Expired token: request a new email verification link"
 msgstr "കാലഹരണപ്പെട്ട ടോക്കൺ: ഒരു പുതിയ ഇമെയിൽ സ്ഥിരീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:890
 msgid "Invalid token: request a new email verification link"
 msgstr "അസാധുവായ ടോക്കൺ: ഒരു പുതിയ ഇമെയിൽ സ്ഥിരീകരണ ലിങ്ക് അഭ്യർത്ഥിക്കുക"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:896
 msgid "Invalid token: not an email verification token"
 msgstr "അസാധുവായ ടോക്കൺ: ഇമെയിൽ വെരിഫിക്കേഷൻ ടോക്കൺ അല്ല"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:905
 msgid "Email not found"
 msgstr "ഇമെയിൽ കണ്ടെത്തിയില്ല"
 
-#: warehouse/accounts/views.py:896
+#: warehouse/accounts/views.py:908
 msgid "Email already verified"
 msgstr "ഇമെയിൽ ഇതിനകം തന്നെ പരിശോധിച്ചുറപ്പിച്ചിരിക്കുന്നു"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:925
 msgid "You can now set this email as your primary address"
 msgstr "നിങ്ങൾക്ക് ഇപ്പോൾ ഈ ഇമെയിൽ നിങ്ങളുടെ പ്രാഥമിക വിലാസമായി സജ്ജീകരിക്കാൻ സാധിക്കും"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:929
 msgid "This is your primary address"
 msgstr "ഇതാണ് നിങ്ങളുടെ പ്രാഥമിക വിലാസം"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:934
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ഇമെയിൽ വിലാസം ${email_address} പരിശോധിച്ചു. ${confirm_message}."
 
-#: warehouse/accounts/views.py:980
-msgid "Expired token: request a new organization invitation"
-msgstr ""
-
-#: warehouse/accounts/views.py:982
-msgid "Invalid token: request a new organization invitation"
-msgstr ""
-
-#: warehouse/accounts/views.py:988
-msgid "Invalid token: not an organization invitation token"
-msgstr ""
-
 #: warehouse/accounts/views.py:992
-msgid "Organization invitation is not valid."
-msgstr ""
+msgid "Expired token: request a new organization invitation"
+msgstr "കാലഹരണപ്പെട്ട ടോക്കൺ: ഒരു പുതിയ ഓർഗനൈസേഷൻ ക്ഷണം അഭ്യർത്ഥിക്കുക"
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:994
+msgid "Invalid token: request a new organization invitation"
+msgstr "അസാധുവായ ടോക്കൺ: ഒരു പുതിയ ഓർഗനൈസേഷൻ ക്ഷണം അഭ്യർത്ഥിക്കുക"
+
+#: warehouse/accounts/views.py:1000
+msgid "Invalid token: not an organization invitation token"
+msgstr "അസാധുവായ ടോക്കൺ: ഒരു ഓർഗനൈസേഷൻ ക്ഷണ ടോക്കൺ അല്ല"
+
+#: warehouse/accounts/views.py:1004
+msgid "Organization invitation is not valid."
+msgstr "ഓർഗനൈസേഷൻ ക്ഷണം സാധുവല്ല."
+
+#: warehouse/accounts/views.py:1013
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1052
+#: warehouse/accounts/views.py:1064
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1127
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1161
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1163
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1169
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1161
+#: warehouse/accounts/views.py:1173
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1176
+#: warehouse/accounts/views.py:1188
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1207
+#: warehouse/accounts/views.py:1219
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1273
+#: warehouse/accounts/views.py:1285
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1494 warehouse/accounts/views.py:1642
+#: warehouse/accounts/views.py:1506 warehouse/accounts/views.py:1654
 #: warehouse/manage/views/__init__.py:1237
 #, fuzzy
 #| msgid ""
@@ -337,7 +335,7 @@ msgstr ""
 "പുതിയ ഉപയോക്തൃ രജിസ്ട്രേഷൻ താൽക്കാലികമായി പ്രവർത്തനരഹിതമാക്കി. വിശദാംശങ്ങൾക്ക് https://"
 "pypi.org/help#admin-intervention കാണുക."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -349,17 +347,17 @@ msgstr ""
 "പുതിയ ഉപയോക്തൃ രജിസ്ട്രേഷൻ താൽക്കാലികമായി പ്രവർത്തനരഹിതമാക്കി. വിശദാംശങ്ങൾക്ക് https://"
 "pypi.org/help#admin-intervention കാണുക."
 
-#: warehouse/accounts/views.py:1525
+#: warehouse/accounts/views.py:1537
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1538
+#: warehouse/accounts/views.py:1550
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1554 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1566 warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -368,26 +366,26 @@ msgid ""
 "again later."
 msgstr "വളരെയധികം പരാജയപ്പെട്ട ലോഗിൻ ശ്രമങ്ങൾ നടന്നിട്ടുണ്ട്. പിന്നീട് വീണ്ടും ശ്രമിക്കുക."
 
-#: warehouse/accounts/views.py:1568 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1580 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1587
+#: warehouse/accounts/views.py:1599
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1622
+#: warehouse/accounts/views.py:1634
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1656 warehouse/accounts/views.py:1669
-#: warehouse/accounts/views.py:1676
+#: warehouse/accounts/views.py:1668 warehouse/accounts/views.py:1681
+#: warehouse/accounts/views.py:1688
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1682
+#: warehouse/accounts/views.py:1694
 msgid "Removed trusted publisher for project "
 msgstr ""
 
