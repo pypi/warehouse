@@ -146,7 +146,7 @@ msgstr ""
 msgid "No user found with that username or email"
 msgstr "वापरकर्तानाव किंवा ईमेल असलेला कोणताही वापरकर्ता आढळला नाही"
 
-#: warehouse/accounts/views.py:106
+#: warehouse/accounts/views.py:107
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -155,7 +155,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:124
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -163,7 +163,7 @@ msgstr ""
 "या खात्यात पुष्टी न करता बर्‍याच ईमेल जोडल्या गेल्या आहेत. आपला इनबॉक्स तपासा आणि "
 "सत्यापन दुव्यांचे अनुसरण करा. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:135
+#: warehouse/accounts/views.py:136
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -176,25 +176,25 @@ msgstr ""
 "या खात्यात पुष्टी न करता बर्‍याच ईमेल जोडल्या गेल्या आहेत. आपला इनबॉक्स तपासा आणि "
 "सत्यापन दुव्यांचे अनुसरण करा. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:383
-#: warehouse/accounts/views.py:385 warehouse/accounts/views.py:412
-#: warehouse/accounts/views.py:414 warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:315 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:386 warehouse/accounts/views.py:413
+#: warehouse/accounts/views.py:415 warehouse/accounts/views.py:521
 msgid "Invalid or expired two factor login."
 msgstr "अवैध किंवा कालबाह्य दोन घटक लॉगिन."
 
-#: warehouse/accounts/views.py:377
+#: warehouse/accounts/views.py:378
 msgid "Already authenticated"
 msgstr "आधीच प्रमाणीकृत"
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:456
 msgid "Successful WebAuthn assertion"
 msgstr "यशस्वी WebAuthn प्रतिपादन"
 
-#: warehouse/accounts/views.py:551 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:552 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "पुनर्प्राप्ती कोड स्वीकारला. पुरवलेला कोड पुन्हा वापरला जाऊ शकत नाही."
 
-#: warehouse/accounts/views.py:643
+#: warehouse/accounts/views.py:644
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -202,148 +202,148 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:774
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new password reset link"
 msgstr "कालबाह्य टोकन: नवीन संकेतशब्द रीसेट दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:776
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new password reset link"
 msgstr "अवैध टोकन: नवीन संकेतशब्द रीसेट दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:778 warehouse/accounts/views.py:880
-#: warehouse/accounts/views.py:984 warehouse/accounts/views.py:1153
+#: warehouse/accounts/views.py:779 warehouse/accounts/views.py:892
+#: warehouse/accounts/views.py:996 warehouse/accounts/views.py:1165
 msgid "Invalid token: no token supplied"
 msgstr "अवैध टोकन: कोणतेही टोकन दिले नाही"
 
-#: warehouse/accounts/views.py:782
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not a password reset token"
 msgstr "अवैध टोकन: संकेतशब्द रीसेट टोकन नाही"
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:788
 msgid "Invalid token: user not found"
 msgstr "अवैध टोकन: वापरकर्ता आढळला नाही"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "अवैध टोकन: या टोकनची विनंती केल्यापासून वापरकर्त्याने लॉग इन केले"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:828
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "अवैध टोकन: हा टोकन विनंती केल्यानंतर संकेतशब्द बदलून झाला आहे"
 
-#: warehouse/accounts/views.py:848
+#: warehouse/accounts/views.py:860
 msgid "You have reset your password"
 msgstr "आपण आपला संकेतशब्द रीसेट केला आहे"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:888
 msgid "Expired token: request a new email verification link"
 msgstr "कालबाह्य टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:890
 msgid "Invalid token: request a new email verification link"
 msgstr "अवैध टोकन: नवीन ईमेल सत्यापन दुव्याची विनंती करा"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:896
 msgid "Invalid token: not an email verification token"
 msgstr "अवैध टोकन: ईमेल सत्यापन टोकन नाही"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:905
 msgid "Email not found"
 msgstr "ईमेल आढळला नाही"
 
-#: warehouse/accounts/views.py:896
+#: warehouse/accounts/views.py:908
 msgid "Email already verified"
 msgstr "ईमेल आधीच सत्यापित आहे"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:925
 msgid "You can now set this email as your primary address"
 msgstr "आपण आता हा ईमेल आपला प्राथमिक ईमेल म्हणून सेट करू शकता"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:929
 msgid "This is your primary address"
 msgstr "हा तुमचा प्राथमिक पत्ता आहे"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:934
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "ईमेल पत्ता ${email_address} सत्यापित. ${confirm_message}."
 
-#: warehouse/accounts/views.py:980
+#: warehouse/accounts/views.py:992
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "कालबाह्य टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:982
+#: warehouse/accounts/views.py:994
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "अवैध टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:988
+#: warehouse/accounts/views.py:1000
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "अवैध टोकन: सहकार्याचे आमंत्रण टोकन नाही"
 
-#: warehouse/accounts/views.py:992
+#: warehouse/accounts/views.py:1004
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "भूमिका आमंत्रण वैध नाही."
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1013
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "भूमिका आमंत्रण यापुढे विद्यमान नाही."
 
-#: warehouse/accounts/views.py:1052
+#: warehouse/accounts/views.py:1064
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "'${project_name}' चे आमंत्रण नाकारले गेले आहे."
 
-#: warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1127
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1161
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "कालबाह्य टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1163
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "अवैध टोकन: नवीन प्रकल्प भूमिकेच्या आमंत्रणाची विनंती करा"
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1169
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "अवैध टोकन: सहकार्याचे आमंत्रण टोकन नाही"
 
-#: warehouse/accounts/views.py:1161
+#: warehouse/accounts/views.py:1173
 msgid "Role invitation is not valid."
 msgstr "भूमिका आमंत्रण वैध नाही."
 
-#: warehouse/accounts/views.py:1176
+#: warehouse/accounts/views.py:1188
 msgid "Role invitation no longer exists."
 msgstr "भूमिका आमंत्रण यापुढे विद्यमान नाही."
 
-#: warehouse/accounts/views.py:1207
+#: warehouse/accounts/views.py:1219
 msgid "Invitation for '${project_name}' is declined."
 msgstr "'${project_name}' चे आमंत्रण नाकारले गेले आहे."
 
-#: warehouse/accounts/views.py:1273
+#: warehouse/accounts/views.py:1285
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "आपण आता '${project_name}' प्रोजेक्टची  ${role}  आहात."
 
-#: warehouse/accounts/views.py:1494 warehouse/accounts/views.py:1642
+#: warehouse/accounts/views.py:1506 warehouse/accounts/views.py:1654
 #: warehouse/manage/views/__init__.py:1237
 #, fuzzy
 #| msgid ""
@@ -356,7 +356,7 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -368,17 +368,17 @@ msgstr ""
 "नवीन वापरकर्ता नोंदणी तात्पुरती अक्षम केली. तपशीलांसाठी https://pypi.org/help#admin-"
 "intervention पहा."
 
-#: warehouse/accounts/views.py:1525
+#: warehouse/accounts/views.py:1537
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1538
+#: warehouse/accounts/views.py:1550
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1554 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1566 warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -387,26 +387,26 @@ msgid ""
 "again later."
 msgstr "बरेच लॉगिन प्रयत्न अयशस्वी झाले. पुन्हा प्रयत्न करा."
 
-#: warehouse/accounts/views.py:1568 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1580 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1587
+#: warehouse/accounts/views.py:1599
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1622
+#: warehouse/accounts/views.py:1634
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1656 warehouse/accounts/views.py:1669
-#: warehouse/accounts/views.py:1676
+#: warehouse/accounts/views.py:1668 warehouse/accounts/views.py:1681
+#: warehouse/accounts/views.py:1688
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1682
+#: warehouse/accounts/views.py:1694
 msgid "Removed trusted publisher for project "
 msgstr ""
 

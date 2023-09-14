@@ -180,7 +180,7 @@ msgstr "Код восстановления уже использовался."
 msgid "No user found with that username or email"
 msgstr "Пользователь с таким именем или адресом электронной почты не найден"
 
-#: warehouse/accounts/views.py:106
+#: warehouse/accounts/views.py:107
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -188,7 +188,7 @@ msgstr ""
 "Было совершено слишком много неудачных попыток входа. Вы заблокированы на "
 "{}. Пожалуйста, повторите попытку позже."
 
-#: warehouse/accounts/views.py:123
+#: warehouse/accounts/views.py:124
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -197,7 +197,7 @@ msgstr ""
 "электронной почты. Проверьте свой почтовый ящик и перейдите по ссылкам для "
 "подтверждения. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:135
+#: warehouse/accounts/views.py:136
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -207,27 +207,27 @@ msgstr ""
 "завершения. Проверьте свой почтовый ящик и перейдите по ссылкам для "
 "подтверждения. (IP-адрес: ${ip})"
 
-#: warehouse/accounts/views.py:314 warehouse/accounts/views.py:383
-#: warehouse/accounts/views.py:385 warehouse/accounts/views.py:412
-#: warehouse/accounts/views.py:414 warehouse/accounts/views.py:520
+#: warehouse/accounts/views.py:315 warehouse/accounts/views.py:384
+#: warehouse/accounts/views.py:386 warehouse/accounts/views.py:413
+#: warehouse/accounts/views.py:415 warehouse/accounts/views.py:521
 msgid "Invalid or expired two factor login."
 msgstr "Недействительный или истёкший двухфакторный логин."
 
-#: warehouse/accounts/views.py:377
+#: warehouse/accounts/views.py:378
 msgid "Already authenticated"
 msgstr "Уже подтверждён"
 
-#: warehouse/accounts/views.py:455
+#: warehouse/accounts/views.py:456
 msgid "Successful WebAuthn assertion"
 msgstr "Успешное утверждение WebAuthn"
 
-#: warehouse/accounts/views.py:551 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:552 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Код восстановления принят. Предоставленный код не может быть использован "
 "повторно."
 
-#: warehouse/accounts/views.py:643
+#: warehouse/accounts/views.py:644
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -235,143 +235,143 @@ msgstr ""
 "Регистрация новых пользователей временно отключена. Подробнее смотрите "
 "здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:774
+#: warehouse/accounts/views.py:775
 msgid "Expired token: request a new password reset link"
 msgstr "Время действия токена истекло: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:776
+#: warehouse/accounts/views.py:777
 msgid "Invalid token: request a new password reset link"
 msgstr "Недействительный токен: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:778 warehouse/accounts/views.py:880
-#: warehouse/accounts/views.py:984 warehouse/accounts/views.py:1153
+#: warehouse/accounts/views.py:779 warehouse/accounts/views.py:892
+#: warehouse/accounts/views.py:996 warehouse/accounts/views.py:1165
 msgid "Invalid token: no token supplied"
 msgstr "Недействительный токен: токен не указан"
 
-#: warehouse/accounts/views.py:782
+#: warehouse/accounts/views.py:783
 msgid "Invalid token: not a password reset token"
 msgstr "Недействительный токен: не является токеном для сброса пароля"
 
-#: warehouse/accounts/views.py:787
+#: warehouse/accounts/views.py:788
 msgid "Invalid token: user not found"
 msgstr "Недействительный токен: пользователь не найден"
 
-#: warehouse/accounts/views.py:798
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недействительный токен: пользователь осуществил вход в систему с момента "
 "запроса этого токена"
 
-#: warehouse/accounts/views.py:816
+#: warehouse/accounts/views.py:828
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Недействительный токен: пароль уже был изменен с момента запроса этого токена"
 
-#: warehouse/accounts/views.py:848
+#: warehouse/accounts/views.py:860
 msgid "You have reset your password"
 msgstr "Вы сбросили свой пароль"
 
-#: warehouse/accounts/views.py:876
+#: warehouse/accounts/views.py:888
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Токен с истёкшим сроком действия: запросите новую ссылку для верификации "
 "электронной почты"
 
-#: warehouse/accounts/views.py:878
+#: warehouse/accounts/views.py:890
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "Недействительный токен: запросите новую ссылку для верификации электронной "
 "почты"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:896
 msgid "Invalid token: not an email verification token"
 msgstr ""
 "Недействительный токен: не является токеном для верификации электронной почты"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:905
 msgid "Email not found"
 msgstr "Электронная почта не найдена"
 
-#: warehouse/accounts/views.py:896
+#: warehouse/accounts/views.py:908
 msgid "Email already verified"
 msgstr "Электронная почта уже подтверждена"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:925
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Теперь вы можете установить этот адрес электронной почты в качестве "
 "основного адреса"
 
-#: warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:929
 msgid "This is your primary address"
 msgstr "Это ваш основной адрес"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:934
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Электронная почта ${email_address} подтверждена. ${confirm_message}."
 
-#: warehouse/accounts/views.py:980
+#: warehouse/accounts/views.py:992
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:982
+#: warehouse/accounts/views.py:994
 msgid "Invalid token: request a new organization invitation"
 msgstr "Недействительный токен: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:988
+#: warehouse/accounts/views.py:1000
 msgid "Invalid token: not an organization invitation token"
 msgstr "Недействительный токен: не является токеном приглашения организации"
 
-#: warehouse/accounts/views.py:992
+#: warehouse/accounts/views.py:1004
 msgid "Organization invitation is not valid."
 msgstr "Приглашение в организацию недействительно."
 
-#: warehouse/accounts/views.py:1001
+#: warehouse/accounts/views.py:1013
 msgid "Organization invitation no longer exists."
 msgstr "Приглашение в организацию больше не существует."
 
-#: warehouse/accounts/views.py:1052
+#: warehouse/accounts/views.py:1064
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Приглашение для «${organization_name}» отклонено."
 
-#: warehouse/accounts/views.py:1115
+#: warehouse/accounts/views.py:1127
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Теперь у вас роль ${role} в организации «${organization_name}»."
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1161
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1163
 msgid "Invalid token: request a new project role invitation"
 msgstr "Недействительный токен: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1157
+#: warehouse/accounts/views.py:1169
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 "Недействительный токен: не является токеном приглашения к сотрудничеству"
 
-#: warehouse/accounts/views.py:1161
+#: warehouse/accounts/views.py:1173
 msgid "Role invitation is not valid."
 msgstr "Приглашение на роль недействительно."
 
-#: warehouse/accounts/views.py:1176
+#: warehouse/accounts/views.py:1188
 msgid "Role invitation no longer exists."
 msgstr "Приглашение на роль больше не существует."
 
-#: warehouse/accounts/views.py:1207
+#: warehouse/accounts/views.py:1219
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Приглашение для «${project_name}» отклонено."
 
-#: warehouse/accounts/views.py:1273
+#: warehouse/accounts/views.py:1285
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
-#: warehouse/accounts/views.py:1494 warehouse/accounts/views.py:1642
+#: warehouse/accounts/views.py:1506 warehouse/accounts/views.py:1654
 #: warehouse/manage/views/__init__.py:1237
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
@@ -380,7 +380,7 @@ msgstr ""
 "Авторитетная публикация временно отключена. Подробнее смотрите здесь: "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1511 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -392,7 +392,7 @@ msgstr ""
 "Авторитетная публикация на базе GitHub временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1525
+#: warehouse/accounts/views.py:1537
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -401,13 +401,13 @@ msgstr ""
 "зарегистрировать ожидающего подключения доверенного поставщика. Перейдите на "
 "https://pypi.org/help#openid-connect для получения подробной информации."
 
-#: warehouse/accounts/views.py:1538
+#: warehouse/accounts/views.py:1550
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Вы не можете зарегистрировать более 3-х ожидающих подключения доверенных "
 "поставщиков одновременно."
 
-#: warehouse/accounts/views.py:1554 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1566 warehouse/manage/views/__init__.py:1272
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -415,11 +415,11 @@ msgstr ""
 "Было предпринято слишком много попыток регистрации доверенного издателя. "
 "Попробуйте еще раз позже."
 
-#: warehouse/accounts/views.py:1568 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1580 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr "Не удалось зарегистрировать доверенного издателя"
 
-#: warehouse/accounts/views.py:1587
+#: warehouse/accounts/views.py:1599
 #, fuzzy
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
@@ -428,16 +428,16 @@ msgstr ""
 "Этот доверенный издатель был уже зарегистрирован. Пожалуйста, свяжитесь с "
 "администрацией PyPI если это не было умышленно."
 
-#: warehouse/accounts/views.py:1622
+#: warehouse/accounts/views.py:1634
 msgid "Registered a new pending publisher to create "
 msgstr "Зарегистрирован новый издатель, ожидающий подключения "
 
-#: warehouse/accounts/views.py:1656 warehouse/accounts/views.py:1669
-#: warehouse/accounts/views.py:1676
+#: warehouse/accounts/views.py:1668 warehouse/accounts/views.py:1681
+#: warehouse/accounts/views.py:1688
 msgid "Invalid publisher ID"
 msgstr "Неверный ID издателя"
 
-#: warehouse/accounts/views.py:1682
+#: warehouse/accounts/views.py:1694
 #, fuzzy
 msgid "Removed trusted publisher for project "
 msgstr "Доверенный издатель был удалён из проекта "
