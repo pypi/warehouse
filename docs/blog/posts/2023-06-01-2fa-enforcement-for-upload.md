@@ -24,7 +24,7 @@ If you have 2FA enabled and have been using only your password to upload,
 the following email is likely familiar to you:
 
 <figure markdown>
-  ![Sample notice email](/assets/2023-06-01-2fa-notice-email.png)
+  ![Sample notice email](../assets/2023-06-01-2fa-notice-email.png)
   <figcaption>
       A sample notice email sent when users with 2FA enabled
       upload using only their password.
@@ -37,12 +37,12 @@ we began enforcement.
 However, some valid concerns were raised regarding
 the use of user-scoped API tokens for new project creation.
 
-With the [introduction of Trusted Publishers](/posts/2023-04-20-introducing-trusted-publishers/)
-PyPI now provides a way for users to publish **new** projects without 
+With the [introduction of Trusted Publishers](./2023-04-20-introducing-trusted-publishers.md)
+PyPI now provides a way for users to publish **new** projects without
 provisioning a user-scoped token, and to continue publishing without
 ever provisioning a long lived API token whatsoever.
 
-Given this, and our [commitment to further rolling out 2FA across PyPI](/posts/2023-05-25-securing-pypi-with-2fa/),
+Given this, and our [commitment to further rolling out 2FA across PyPI](./2023-05-25-securing-pypi-with-2fa.md),
 we are now enforcing this policy.
 
 ---

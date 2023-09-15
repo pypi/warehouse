@@ -1,6 +1,8 @@
 site_name: The Python Package Index
 site_description: The official blog of the Python Package Index
 docs_dir: blog
+exclude_docs:
+  README.md
 site_dir: blog-site
 theme:
   name: material
