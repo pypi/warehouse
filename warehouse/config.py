@@ -29,10 +29,10 @@ from pyramid.response import Response
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GB, ONE_MB
 from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
-from warehouse.constants import ONE_MB, ONE_GB, MAX_FILESIZE, MAX_PROJECT_SIZE
 
 
 class Environment(str, enum.Enum):
@@ -148,8 +148,10 @@ def from_base64_encoded_json(configuration):
 def configure(settings=None):
     if settings is None:
         settings = {}
-    settings['warehouse.forklift.legacy.MAX_FILESIZE_MB'] = MAX_FILESIZE / ONE_MB
-    settings['warehouse.forklift.legacy.MAX_PROJECT_SIZE_GB'] = MAX_PROJECT_SIZE / ONE_GB
+    settings["warehouse.forklift.legacy.MAX_FILESIZE_MB"] = MAX_FILESIZE / ONE_MB
+    settings["warehouse.forklift.legacy.MAX_PROJECT_SIZE_GB"] = (
+        MAX_PROJECT_SIZE / ONE_GB
+    )
     # Add information about the current copy of the code.
     maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 

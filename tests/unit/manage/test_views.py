@@ -39,8 +39,8 @@ from warehouse.accounts.interfaces import (
     TokenExpired,
 )
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.events.tags import EventTag
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage import views

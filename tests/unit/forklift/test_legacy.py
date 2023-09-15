@@ -32,6 +32,7 @@ from wtforms.form import Form
 from wtforms.validators import ValidationError
 
 import warehouse.constants
+
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.errors import BasicAuthTwoFactorEnabled
@@ -585,7 +586,9 @@ class TestFileValidation:
 
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("PKG-INFO", b"this is the package info")
-            zfp.writestr("1.dat", b"0" * 65 * warehouse.constants.ONE_MB, zipfile.ZIP_DEFLATED)
+            zfp.writestr(
+                "1.dat", b"0" * 65 * warehouse.constants.ONE_MB, zipfile.ZIP_DEFLATED
+            )
 
         assert not legacy._is_valid_dist_file(f, "")
 
@@ -1942,8 +1945,11 @@ class TestFileUpload:
             name="foobar",
             upload_limit=warehouse.constants.MAX_FILESIZE,
             total_size=warehouse.constants.MAX_PROJECT_SIZE,
-            total_size_limit=warehouse.constants.MAX_PROJECT_SIZE
-                             + one_megabyte,  # Custom Limit for the project
+            total_size_limit=(
+                warehouse.constants.MAX_PROJECT_SIZE
+                + one_megabyte
+                # Custom Limit for the project
+            ),
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1995,8 +2001,9 @@ class TestFileUpload:
             name="foobar",
             upload_limit=warehouse.constants.MAX_FILESIZE,
             total_size=warehouse.constants.MAX_PROJECT_SIZE,
-            total_size_limit=warehouse.constants.MAX_PROJECT_SIZE
-                             + (one_megabyte * 60),  # Custom Limit for the project
+            total_size_limit=(
+                warehouse.constants.MAX_PROJECT_SIZE + (one_megabyte * 60)
+            ),  # Custom Limit for the project
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)

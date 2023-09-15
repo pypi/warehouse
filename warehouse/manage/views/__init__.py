@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -69,7 +70,6 @@ from warehouse.email import (
     send_yanked_project_release_email,
 )
 from warehouse.events.tags import EventTag
-from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (

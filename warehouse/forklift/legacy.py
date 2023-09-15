@@ -47,7 +47,7 @@ from trove_classifiers import classifiers, deprecated_classifiers
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.constants import ONE_MB, ONE_GB, MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GB, ONE_MB
 from warehouse.email import (
     send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
