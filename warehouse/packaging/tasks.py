@@ -12,7 +12,6 @@
 
 import datetime
 import logging
-import tempfile
 
 from collections import namedtuple
 from itertools import product
@@ -37,10 +36,7 @@ logger = logging.getLogger(__name__)
 def _copy_file_to_cache(archive_storage, cache_storage, path):
     metadata = archive_storage.get_metadata(path)
     file_obj = archive_storage.get(path)
-    with tempfile.NamedTemporaryFile() as file_for_cache:
-        file_for_cache.write(file_obj.read())
-        file_for_cache.flush()
-        cache_storage.store(path, file_for_cache.name, meta=metadata)
+    cache_storage.store_fileobj(path, file_obj, meta=metadata)
 
 
 @tasks.task(ignore_result=True, acks_late=True)

@@ -11,8 +11,8 @@
 # limitations under the License.
 
 import hashlib
+import io
 import os.path
-import tempfile
 
 import packaging_legacy.version
 
@@ -99,27 +99,24 @@ def render_simple_detail(project, request, store=False):
 
     if store:
         storage = request.find_service(ISimpleStorage)
-        with tempfile.NamedTemporaryFile() as f:
-            f.write(content.encode("utf-8"))
-            f.flush()
-
-            storage.store(
-                simple_detail_path,
-                f.name,
-                meta={
-                    "project": project.normalized_name,
-                    "pypi-last-serial": project.last_serial,
-                    "hash": content_hash,
-                },
-            )
-            storage.store(
-                os.path.join(project.normalized_name, "index.html"),
-                f.name,
-                meta={
-                    "project": project.normalized_name,
-                    "pypi-last-serial": project.last_serial,
-                    "hash": content_hash,
-                },
-            )
+        file_obj = io.BytesIO(content.encode("utf-8"))
+        storage.store_fileobj(
+            simple_detail_path,
+            file_obj,
+            meta={
+                "project": project.normalized_name,
+                "pypi-last-serial": project.last_serial,
+                "hash": content_hash,
+            },
+        )
+        storage.store_fileobj(
+            os.path.join(project.normalized_name, "index.html"),
+            file_obj,
+            meta={
+                "project": project.normalized_name,
+                "pypi-last-serial": project.last_serial,
+                "hash": content_hash,
+            },
+        )
 
     return (content_hash, simple_detail_path)
