@@ -51,6 +51,22 @@ class IGenericFileStorage(Interface):
         extra information that an implementation may or may not store.
         """
 
+    def store_fileobj(path, fileobj, *, meta=None):
+        """
+        Save the contents of the file like object fileobj to the file storage at the
+        location specified by path. An additional meta keyword argument may contain
+        extra information that an implementation may or may not store.
+
+        This method should set the fileobj back to the stream position it was in
+        before returning. Something like:
+
+        _initial_pos = fileobj.tell()
+        try:
+            ... # do whatever you need to do to persist the contents
+        finally:
+            fileobj.seek(_initial_pos)
+        """
+
 
 class IFileStorage(IGenericFileStorage):
     pass

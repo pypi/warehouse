@@ -86,6 +86,20 @@ class GenericLocalBlobStorage:
             with open(destination + ".meta", "w") as dest_fp:
                 dest_fp.write(json.dumps(meta))
 
+    def store_fileobj(self, path, fileobj, *, meta=None):
+        destination = os.path.join(self.base, path)
+        os.makedirs(os.path.dirname(destination), exist_ok=True)
+        _initial_pos = fileobj.tell()
+        try:
+            fileobj.seek(0)
+            with open(destination, "wb") as dest_fp:
+                dest_fp.write(fileobj.read())
+        finally:
+            fileobj.seek(_initial_pos)
+        if meta is not None:
+            with open(destination + ".meta", "w") as dest_fp:
+                dest_fp.write(json.dumps(meta))
+
 
 @implementer(IFileStorage)
 class LocalFileStorage(GenericLocalBlobStorage):
@@ -187,6 +201,25 @@ class GenericB2BlobStorage(GenericBlobStorage):
             file_infos=meta,
         )
 
+    def store_fileobj(self, path, fileobj, *, meta=None):
+        path = self._get_path(path)
+        _initial_pos = fileobj.tell()
+
+        def _stream_opener():
+            fileobj.seek(0)
+            return fileobj
+
+        try:
+            self.bucket.upload(
+                upload_source=b2sdk.transfer.outbound.UploadSourceStream(
+                    _stream_opener
+                ),
+                file_name=path,
+                file_info=meta,
+            )
+        finally:
+            fileobj.seek(_initial_pos)
+
 
 @implementer(IFileStorage)
 class B2FileStorage(GenericB2BlobStorage):
@@ -237,6 +270,20 @@ class GenericS3BlobStorage(GenericBlobStorage):
         path = self._get_path(path)
 
         self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
+
+    def store_fileobj(self, path, fileobj, *, meta=None):
+        extra_args = {}
+        if meta is not None:
+            extra_args["Metadata"] = meta
+
+        path = self._get_path(path)
+
+        _initial_pos = fileobj.tell()
+        try:
+            fileobj.seek(0)
+            self.bucket.upload_fileobj(fileobj, path, ExtraArgs=extra_args)
+        finally:
+            fileobj.seek(_initial_pos)
 
 
 @implementer(IFileStorage)
@@ -325,7 +372,7 @@ class GenericGCSBlobStorage(GenericBlobStorage):
         # due missing DB entries for this file, and due to our object store
         # disallowing overwrites.
         #
-        # Because the file_path always includes the file's hash (that we
+        # Because the path always includes the file's hash (that we
         # calculate on upload) we can be assured that any attempt to upload a
         # blob that already exists is a result of this edge case, and we can
         # safely skip the upload.
@@ -333,6 +380,37 @@ class GenericGCSBlobStorage(GenericBlobStorage):
             blob.upload_from_filename(file_path)
         else:
             sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
+
+    @google.api_core.retry.Retry(
+        predicate=google.api_core.retry.if_exception_type(
+            google.api_core.exceptions.ServiceUnavailable
+        )
+    )
+    def store_fileobj(self, path, fileobj, *, meta=None):
+        path = self._get_path(path)
+        blob = self.bucket.blob(path)
+        if meta is not None:
+            blob.metadata = meta
+
+        # Our upload is not fully transactional, meaning that this upload may
+        # succeed, and the corresponding write to DB may fail. If/when that
+        # happens, the distribution will not be on PyPI, but the file will be
+        # in the object store, and future repeated upload attempts will fail
+        # due missing DB entries for this file, and due to our object store
+        # disallowing overwrites.
+        #
+        # Because the path always includes the file's hash (that we
+        # calculate on upload) we can be assured that any attempt to upload a
+        # blob that already exists is a result of this edge case, and we can
+        # safely skip the upload.
+        if not blob.exists():
+            _initial_pos = fileobj.tell()
+            try:
+                blob.upload_from_file(fileobj, rewind=True)
+            finally:
+                fileobj.seek(_initial_pos)
+        else:
+            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {path}")
 
 
 @implementer(IFileStorage)
