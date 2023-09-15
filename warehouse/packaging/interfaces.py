@@ -44,13 +44,6 @@ class IGenericFileStorage(Interface):
         Return the md5 digest of the file at a given path as a lowercase string.
         """
 
-    def store(path, file_path, *, meta=None):
-        """
-        Save the file located at file_path to the file storage at the location
-        specified by path. An additional meta keyword argument may contain
-        extra information that an implementation may or may not store.
-        """
-
     def store_fileobj(path, fileobj, *, meta=None):
         """
         Save the contents of the file like object fileobj to the file storage at the

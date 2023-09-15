@@ -76,16 +76,6 @@ class GenericLocalBlobStorage:
             open(os.path.join(self.base, path), "rb").read(), usedforsecurity=False
         ).hexdigest()
 
-    def store(self, path, file_path, *, meta=None):
-        destination = os.path.join(self.base, path)
-        os.makedirs(os.path.dirname(destination), exist_ok=True)
-        with open(destination, "wb") as dest_fp:
-            with open(file_path, "rb") as src_fp:
-                dest_fp.write(src_fp.read())
-        if meta is not None:
-            with open(destination + ".meta", "w") as dest_fp:
-                dest_fp.write(json.dumps(meta))
-
     def store_fileobj(self, path, fileobj, *, meta=None):
         destination = os.path.join(self.base, path)
         os.makedirs(os.path.dirname(destination), exist_ok=True)
@@ -193,14 +183,6 @@ class GenericB2BlobStorage(GenericBlobStorage):
         except b2sdk.v2.exception.FileNotPresent:
             raise FileNotFoundError(f"No such key: {path!r}") from None
 
-    def store(self, path, file_path, *, meta=None):
-        path = self._get_path(path)
-        self.bucket.upload_local_file(
-            local_file=file_path,
-            file_name=path,
-            file_infos=meta,
-        )
-
     def store_fileobj(self, path, fileobj, *, meta=None):
         path = self._get_path(path)
         _initial_pos = fileobj.tell()
@@ -261,15 +243,6 @@ class GenericS3BlobStorage(GenericBlobStorage):
                 #  https://docs.aws.amazon.com/AmazonS3/latest/API/API_HeadObject.html#API_HeadObject_RequestBody
                 raise
             raise FileNotFoundError(f"No such key: {path!r}") from None
-
-    def store(self, path, file_path, *, meta=None):
-        extra_args = {}
-        if meta is not None:
-            extra_args["Metadata"] = meta
-
-        path = self._get_path(path)
-
-        self.bucket.upload_file(file_path, path, ExtraArgs=extra_args)
 
     def store_fileobj(self, path, fileobj, *, meta=None):
         extra_args = {}
@@ -353,33 +326,6 @@ class GenericGCSBlobStorage(GenericBlobStorage):
 
     def get_checksum(self, path):
         raise NotImplementedError
-
-    @google.api_core.retry.Retry(
-        predicate=google.api_core.retry.if_exception_type(
-            google.api_core.exceptions.ServiceUnavailable
-        )
-    )
-    def store(self, path, file_path, *, meta=None):
-        path = self._get_path(path)
-        blob = self.bucket.blob(path)
-        if meta is not None:
-            blob.metadata = meta
-
-        # Our upload is not fully transactional, meaning that this upload may
-        # succeed, and the corresponding write to DB may fail. If/when that
-        # happens, the distribution will not be on PyPI, but the file will be
-        # in the object store, and future repeated upload attempts will fail
-        # due missing DB entries for this file, and due to our object store
-        # disallowing overwrites.
-        #
-        # Because the path always includes the file's hash (that we
-        # calculate on upload) we can be assured that any attempt to upload a
-        # blob that already exists is a result of this edge case, and we can
-        # safely skip the upload.
-        if not blob.exists():
-            blob.upload_from_filename(file_path)
-        else:
-            sentry_sdk.capture_message(f"Skipped uploading duplicate file: {file_path}")
 
     @google.api_core.retry.Retry(
         predicate=google.api_core.retry.if_exception_type(
