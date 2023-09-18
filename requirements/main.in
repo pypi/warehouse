@@ -1,4 +1,5 @@
 alembic>=0.7.0
+alembic-postgresql-enum
 Automat
 argon2-cffi
 b2sdk

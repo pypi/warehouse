@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import alembic_postgresql_enum  # noqa: F401 # import activates the plugin
+
 from alembic import context
 from sqlalchemy import create_engine, pool, text
 
