@@ -1,6 +1,6 @@
 # PyPI Blog
 
-This blog is hosted at https://blog.pypi.org/ to provide a way for the PyPI
+This blog is hosted at <https://blog.pypi.org/> to provide a way for the PyPI
 Administrators to share new features, breaking changes, and curiosities with
 the community.
 
@@ -20,6 +20,8 @@ The project can be previewed by running `docker compose up blog` from the
 base directory of your clone of `pypa/warehouse`. This will start a `mkdocs`
 development server that will live reload as you change the contents of this
 directory, including the `docs/mkdocs-blog.yml` configuration.
+
+Open <http://localhost:10001/> to view the blog.
 
 ## Building
 
