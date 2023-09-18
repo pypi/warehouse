@@ -30,7 +30,7 @@ Some places of where IP data was historically used:
 - web access logs
 - user events (login,. logout, password reset, et al)
 - project events (creation, new releases, new file uploads, yanks, et al)
-- organization/team membership events ([new!](../2023-04-23-introducing-pypi-organizations))
+- organization/team membership events ([new!](./2023-04-23-introducing-pypi-organizations.md))
 - journal entries (private to PyPI admins)
 
 Security is a spectrum - where on one extreme, it's the wild west, no security.
