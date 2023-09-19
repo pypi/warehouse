@@ -11,6 +11,7 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+{%- for user in users -%}
 <div class="c-sb-section">
   <div class="c-sb-section__title">
     User Details
@@ -110,3 +111,4 @@
     {% endfor %}
   </ul>
 </div>
+{% endfor -%}

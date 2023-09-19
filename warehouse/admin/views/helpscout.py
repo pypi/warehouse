@@ -13,6 +13,7 @@
 import base64
 import hashlib
 import hmac
+import re
 
 from pyramid.view import view_config
 from pyramid_jinja2 import IJinja2Environment
@@ -45,16 +46,22 @@ def helpscout(request):
     email = (
         request.db.query(Email)
         .where(
-            Email.email.ilike(request.json_body.get("customer", {}).get("email", ""))
+            Email.email.ilike(
+                re.sub(
+                    r"\+[^)]*@",
+                    "@",
+                    request.json_body.get("customer", {}).get("email", ""),
+                )
+            )
         )
-        .one_or_none()
+        .all()
     )
 
-    if email is None:
+    if len(email) == 0:
         return {"html": '<span class="badge pending">No PyPI user found</span>'}
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
-    context = {"user": email.user}
+    context = {"users": [e.user for e in email]}
     template = env.get_template("admin/templates/admin/helpscout/app.html")
     content = template.render(**context, request=request)
 
