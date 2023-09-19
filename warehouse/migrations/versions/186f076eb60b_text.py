@@ -38,13 +38,6 @@ def upgrade():
     )
     op.alter_column(
         "journals",
-        "name",
-        existing_type=sa.TEXT(),
-        type_=sa.String(),
-        existing_nullable=True,
-    )
-    op.alter_column(
-        "journals",
         "version",
         existing_type=sa.TEXT(),
         type_=sa.String(),
@@ -510,13 +503,6 @@ def downgrade():
     op.alter_column(
         "journals",
         "version",
-        existing_type=sa.String(),
-        type_=sa.TEXT(),
-        existing_nullable=True,
-    )
-    op.alter_column(
-        "journals",
-        "name",
         existing_type=sa.String(),
         type_=sa.TEXT(),
         existing_nullable=True,

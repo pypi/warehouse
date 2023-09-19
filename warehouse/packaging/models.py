@@ -722,7 +722,7 @@ class JournalEntry(db.ModelBase):
         )
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str | None]
+    name: Mapped[str | None] = mapped_column(Text)
     version: Mapped[str | None]
     action: Mapped[str | None]
     submitted_date: Mapped[datetime_now] = mapped_column()
