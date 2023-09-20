@@ -45,10 +45,10 @@
         <td>
           {%  if db_record.id %}
           <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=db_record.id) }}">
-            {{ macaroon.identifier }}
+            {{ macaroon.identifier.decode() }}
           </a>
           {% else %}
-            {{ macaroon.identifier }}
+            {{ macaroon.identifier.decode() }} (Not found)
           {% endif %}
         </td>
       </tr>
