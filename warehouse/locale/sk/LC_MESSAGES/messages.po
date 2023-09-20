@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2023-07-20 17:08+0200\n"
-"PO-Revision-Date: 2023-09-05 13:42+0000\n"
+"PO-Revision-Date: 2023-09-18 16:06+0000\n"
 "Last-Translator: Milan Šalka <salka.milan@googlemail.com>\n"
 "Language-Team: Slovak <https://hosted.weblate.org/projects/pypa/warehouse/sk/"
 ">\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.0.2\n"
 
 #: warehouse/views.py:141
 msgid ""
@@ -1535,16 +1535,13 @@ msgstr ""
 "organizácia %(role_name)s?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
-#| "on your account before requesting an organization."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join an organization."
 msgstr ""
-"Najprv musíte povoliť <a href=\"%(href)s\">dva-factor overenie</a> na vašom "
-"účte pred požiadaním organizácie."
+"Najprv musíte povoliť <a href=\"%(href)s\">dva-factor overenie</a> na svojom "
+"účte pred prijatím pozvánky, aby ste sa pripojili k organizácii."
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format

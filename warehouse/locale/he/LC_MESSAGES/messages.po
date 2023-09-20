@@ -16,13 +16,14 @@
 # אברהם רוזנטל <tcruo123@gmail.com>, 2022.
 # Mike Fiedler <miketheman@gmail.com>, 2022, 2023.
 # Eytan Goldshmidt <eitntt@gmail.com>, 2023.
+# Oriya Alperin <oriya2011@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-02-15 19:22+0000\n"
-"Last-Translator: Mike Fiedler <miketheman@gmail.com>\n"
+"PO-Revision-Date: 2023-09-20 01:03+0000\n"
+"Last-Translator: Oriya Alperin <oriya2011@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -31,14 +32,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 5.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:141
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
+msgstr "אימות כתובת הדוא\"ל שלך הכרחי לפני ביצוע פעולה זו."
 
 #: warehouse/views.py:161
 msgid ""
@@ -96,13 +97,12 @@ msgid "Password too long."
 msgstr "סיסמא ארוכה מדי."
 
 #: warehouse/accounts/forms.py:200
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
+msgstr ""
+"בוצעו נסיונות הזדהות כושלים רבים מדי. חשבונך ננעל ל${time}. יש לנסות שוב "
+"מאוחר יותר."
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -113,10 +113,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "כתובת האי-מייל אינה תקינה. יש לנסות שוב."
 
 #: warehouse/accounts/forms.py:265
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "כתובת האי-מייל אינה תקינה. יש לנסות שוב."
+msgstr "כתובת הדוא\"ל ארוכה מדי. יש לנסות שוב."
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
@@ -286,28 +284,22 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "כתובת האי-מייל ${email_address} אומתה. ${confirm_message}."
 
 #: warehouse/accounts/views.py:992
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "האסימון שפג תוקפו: בקש הזמנה לתפקיד פרוייקט חדש"
+msgstr "אסימון פג תוקף: בקשו הזמנה חדשה לארגון"
 
 #: warehouse/accounts/views.py:994
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
-msgstr "אסימון לא חוקי: בקש הזמנה חדשה לתפקיד פרוייקט"
+msgstr "אסימון לא חוקי: בקשו הזמנה חדשה לארגון"
 
 #: warehouse/accounts/views.py:1000
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "אסימון לא חוקי: לא אסימון הזמנה לשיתוף פעולה"
+msgstr "אסימון לא חוקי: זהו לא אסימון עבור הזמנה לארגון"
 
 #: warehouse/accounts/views.py:1004
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "הזמנת התפקיד אינה חוקית."
+msgstr "הזמנה לארגון אינה חוקית."
 
 #: warehouse/accounts/views.py:1013
 #, fuzzy
@@ -438,7 +430,7 @@ msgstr "תצוגה מקדימה של כרזה"
 #, fuzzy
 #| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "בחר שם משתמש בעל 50 תווים או פחות."
+msgstr "שם הארגון יכול להיות באורך 50 תווים לכל היותר."
 
 #: warehouse/manage/forms.py:416
 #, fuzzy
@@ -477,10 +469,8 @@ msgid ""
 msgstr "שם המשתמש נמצא בשימוש חשבון אחר. בחר/י שם משתמש אחר."
 
 #: warehouse/manage/forms.py:490
-#, fuzzy
-#| msgid "Delete project"
 msgid "Select project"
-msgstr "מחיקת הפרויקט"
+msgstr "בחירת פרויקט"
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/github.py:174
 #, fuzzy
@@ -504,62 +494,51 @@ msgid ""
 msgstr "שם המשתמש נמצא בשימוש חשבון אחר. בחר/י שם משתמש אחר."
 
 #: warehouse/manage/forms.py:576
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
-msgstr "השם ארוך מדי. יש לבחור שם בעל 100 תווים או פחות."
+msgstr "השם הארגון ארוך מדי. יש לבחור שם בעל 100 תווים לכל היותר."
 
 #: warehouse/manage/forms.py:588
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
-msgstr "השם ארוך מדי. יש לבחור שם בעל 100 תווים או פחות."
+msgstr ""
+"כתובת הurl של הארגון ארוכה מדי. יש לבחור כתובת בעלת 100 תווים לכל היותר."
 
 #: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
-msgstr ""
+msgstr "כתובת הurl של הארגון חייבת להתחיל בhttp:// או https://"
 
 #: warehouse/manage/forms.py:606
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
-msgstr "השם ארוך מדי. יש לבחור שם בעל 100 תווים או פחות."
+msgstr "שם הארגון ארוך מדי. יש לבחור שם בעל 400 תווים לכל היותר."
 
 #: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
 #: warehouse/manage/forms.py:671
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "בחר שם משתמש בעל 50 תווים או פחות."
+msgstr "בחר שם צוות בעל 50 תווים לכל היותר."
 
 #: warehouse/manage/forms.py:677
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"שם הצוות אינו תקין. שמות צוות חייבים להיות מורכבים רק מאותיות, ספרות, "
+"נקודות, מקפים וקווים תחתונים. בחר/י שם צוות אחר."
 
 #: warehouse/manage/forms.py:705
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
-msgstr "שם המשתמש נמצא בשימוש חשבון אחר. בחר/י שם משתמש אחר."
+msgstr "שם הצוות נמצא בשימוש חשבון אחר. בחר/י שם צוות אחר."
 
 #: warehouse/manage/views/__init__.py:192
-#, fuzzy
-#| msgid "Account details"
 msgid "Account details updated"
-msgstr "פרטי חשבון"
+msgstr "פרטי החשבון עודכנו"
 
 #: warehouse/manage/views/__init__.py:221
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -576,14 +555,12 @@ msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "יצירת קודי שחזור חדשים יבטל את תוקפם של הקוד הקיימים."
 
 #: warehouse/manage/views/__init__.py:882
-#, fuzzy
-#| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
-msgstr "יש לאמת את האי-מייל שלך או להוסיף כתובת חדשה."
+msgstr "יש לאמת את האי-מייל שלך כדי ליצור אסימון API."
 
 #: warehouse/manage/views/__init__.py:982
 msgid "API Token does not exist."
-msgstr ""
+msgstr "אסימון API לא קיים."
 
 #: warehouse/manage/views/__init__.py:1014
 msgid "Invalid credentials. Try again"
@@ -714,16 +691,12 @@ msgstr ""
 
 #: warehouse/manage/views/organizations.py:1030
 #: warehouse/manage/views/organizations.py:1072
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
-msgstr "לא הצלחנו למצוא את ההזמנה לתפקיד."
+msgstr "לא הצלחנו למצוא את ההזמנה לארגון."
 
 #: warehouse/manage/views/organizations.py:1040
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
-msgstr "הזמנת תפקיד כבר לא קיימת."
+msgstr "לא ניתן לשלוח מחדש הזמנה לארגון."
 
 #: warehouse/manage/views/organizations.py:1087
 #, fuzzy
@@ -740,66 +713,66 @@ msgid "Publisher must be specified by ID"
 msgstr ""
 
 #: warehouse/oidc/forms/github.py:33
+#, fuzzy
 msgid "Specify GitHub repository owner (username or organization)"
-msgstr ""
+msgstr "ציינ/י את בעל/ת המאגר בגיטהאב (שם משתמש/ארגון)"
 
 #: warehouse/oidc/forms/github.py:40
 msgid "Specify repository name"
-msgstr ""
+msgstr "ציינ/י את שם המאגר"
 
 #: warehouse/oidc/forms/github.py:42
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "קוד שחזור לא תקין."
+msgstr "שם מאגר לא תקין"
 
 #: warehouse/oidc/forms/github.py:49
 msgid "Specify workflow filename"
-msgstr ""
+msgstr "ציינ/י את שם קובץ הworkflow"
 
 #: warehouse/oidc/forms/github.py:84
+#, fuzzy
 msgid "Unknown GitHub user or organization."
-msgstr ""
+msgstr "שם משתמש/הארגון המשוייך לגיטהאב לא קיים."
 
 #: warehouse/oidc/forms/github.py:94
 msgid "GitHub has rate-limited this action. Try again in a few minutes."
-msgstr ""
+msgstr "גיטהאב הגבילו את פעולה זו. נסו שוב בעוד מספר דקות."
 
 #: warehouse/oidc/forms/github.py:104
 msgid "Unexpected error from GitHub. Try again."
-msgstr ""
+msgstr "שגיאה לא צפויה מגיטהאב. נסו שוב."
 
 #: warehouse/oidc/forms/github.py:111
 msgid "Unexpected connection error from GitHub. Try again in a few minutes."
-msgstr ""
+msgstr "שגיאת חיבור לא צפויה מגיטהאב. נסו שוב בעוד מספר דקות."
 
 #: warehouse/oidc/forms/github.py:121
+#, fuzzy
 msgid "Unexpected timeout from GitHub. Try again in a few minutes."
-msgstr ""
+msgstr "שגיאת timeout לא צפויה מגיטהאב. נסו שוב בעוד מספר דקות."
 
 #: warehouse/oidc/forms/github.py:133
+#, fuzzy
 msgid "Invalid GitHub user or organization name."
-msgstr ""
+msgstr "שם משתמש/ארגון בגיטהאב לא תקין."
 
 #: warehouse/oidc/forms/github.py:149
+#, fuzzy
 msgid "Workflow name must end with .yml or .yaml"
-msgstr ""
+msgstr "סיומת שם קובץ הworkflow חייבת להיות .yml או .yaml"
 
 #: warehouse/oidc/forms/github.py:154
+#, fuzzy
 msgid "Workflow filename must be a filename only, without directories"
-msgstr ""
+msgstr "שם קובץ הworkflow חייב להיות שם הקובץ בלבד, ללא תיקיות"
 
 #: warehouse/oidc/forms/github.py:176
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid project name"
-msgstr "קוד שחזור לא תקין."
+msgstr "שם פרויקט לא תקין"
 
 #: warehouse/oidc/forms/github.py:190
-#, fuzzy
-#| msgid "This project has no releases"
 msgid "This project name is already in use"
-msgstr "לפרויקט זה אין גרסאות"
+msgstr "שם הפרויקט נמצא בשימוש"
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -1313,14 +1286,13 @@ msgid "Terms of use"
 msgstr "תנאי שימוש"
 
 #: warehouse/templates/base.html:321
+#, fuzzy
 msgid "Acceptable Use Policy"
-msgstr ""
+msgstr "מדיניות שימוש מקובלת"
 
 #: warehouse/templates/base.html:331
-#, fuzzy
-#| msgid "Status: "
 msgid "Status:"
-msgstr "סטטוס: "
+msgstr "סטטוס:"
 
 #: warehouse/templates/base.html:332
 msgid "all systems operational"
@@ -1348,8 +1320,9 @@ msgid "Confirm Action"
 msgstr "אשר פעולה"
 
 #: warehouse/templates/confirm-action.html:26
+#, fuzzy
 msgid "Are you sure?"
-msgstr ""
+msgstr "האם את/ה בטוח/ה?"
 
 #: warehouse/templates/error-base.html:35
 msgid "Error code"
@@ -1543,28 +1516,16 @@ msgid "Forgot password?"
 msgstr "שכחת סיסמתך?"
 
 #: warehouse/templates/re-auth.html:81
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              <b>Tip:</b> you are about to perform a <a href=\"%(href)s"
-#| "\">sensitive action</a>.\n"
-#| "              If you are not on a personal computer, make sure to log out "
-#| "once you're done with your session.\n"
-#| "              We won't ask you to confirm your password again for the "
-#| "next hour.\n"
-#| "              "
+#, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
 "action</a>. If you are not on a personal computer, make sure to log out once "
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"\n"
-"              <b> טיפ: </b> אתה עומד לבצע <a href=\"%(href)s\">פעולה רגישה</"
-"a>.\n"
-"               אם אינך נמצא במחשב אישי, דאג להתנתק לאחר שתסיים את מוֹשָׁב.\n"
-"               לא נבקש ממך לאשר את הסיסמה שלך שוב לשעה הבאה.\n"
-"              "
+"<b> טיפ: </b> אתה עומד לבצע <a href=\"%(href)s\">פעולה רגישה</a>.אם אינך "
+"נמצא/ת במחשב אישי, דאג/י להתנתק לאחר שתסיימ/י את הגלישה באתר.\n"
+"לא נבקש ממך לאשר את הסיסמה שלך שוב בשעה הקרובה."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1602,10 +1563,8 @@ msgid ""
 "Would you like to accept this invitation to join '<a href=\"%(project_link)s"
 "\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"\n"
-"      האם ברצונך לקבל הזמנה זו להצטרף אל '<a href=\"%(project_link)s\">"
-"%(project_name)s </a>' כפרויקט%(role_name)s?\n"
-"      "
+"האם ברצונך לקבל הזמנה זו להצטרף אל '<a href=\"%(project_link)s\""
+">%(project_name)s </a>' כ%(role_name) של הפרויקט?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:32
 #: warehouse/templates/accounts/organization-invite-confirmation.html:40
@@ -1662,10 +1621,8 @@ msgid "Log out of %(account_name)s"
 msgstr "התנתקות מ-%(account_name)s"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:17
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm Organization Invite"
-msgstr "אשר הזמנה"
+msgstr "אשר/י הזמנה לארגון"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:34
 #, fuzzy, python-format
@@ -1678,10 +1635,8 @@ msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"\n"
-"      האם ברצונך לקבל הזמנה זו להצטרף אל '<a href=\"%(project_link)s\">"
-"%(project_name)s </a>' כפרויקט%(role_name)s?\n"
-"      "
+"האם ברצונך לקבל הזמנה זו להצטרף אל '<a href=\"%(project_link)s\""
+">%(project_name)s </a>' כ%(role_name) של הפרויקט?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:45
 #, fuzzy, python-format
@@ -1689,7 +1644,7 @@ msgstr ""
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join an organization."
-msgstr "טרם אפשרת אימות דו-גורמי בחשבונך."
+msgstr "לא ניתן לאשר הזמנה להצטרפות לארגון לפני הפעלת אימות דו-שלבי."
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -2315,10 +2270,8 @@ msgstr "נוספ/ה על ידי:"
 #: warehouse/templates/email/organization-member-role-changed/body.html:44
 #: warehouse/templates/email/organization-renamed/body.html:37
 #: warehouse/templates/email/organization-updated/body.html:75
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are receiving this because you are an owner of this organization."
-msgstr "אינך בעלים של פרויקט זה"
+msgstr "קיבלת הודעה זו כיוון שאת/ה בעל/ת הארגון."
 
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:19
 #, python-format
@@ -2346,10 +2299,8 @@ msgid ""
 msgstr "<a href=\"%(href)s\">%(username)s</a> שונה להיות %(role_name)s בפרויקט"
 
 #: warehouse/templates/email/organization-member-invited/body.html:33
-#, fuzzy
-#| msgid "Invite"
 msgid "Invited by"
-msgstr "מיידי"
+msgstr "הוזמנ/ה ע\"י"
 
 #: warehouse/templates/email/organization-member-removed/body.html:27
 #, fuzzy, python-format
@@ -2375,16 +2326,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:31
-#, fuzzy
-#| msgid "Save role"
 msgid "New role"
-msgstr "שמירת תפקיד"
+msgstr "תפקיד חדש"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:33
-#, fuzzy
-#| msgid "Changed by:"
 msgid "Changed by"
-msgstr "שונ/תה על ידי:"
+msgstr "שונ/תה על ידי"
 
 #: warehouse/templates/email/organization-project-added/body.html:20
 #, fuzzy, python-format
@@ -2429,23 +2376,19 @@ msgstr ""
 
 #: warehouse/templates/email/organization-updated/body.html:44
 msgid "Old URL:"
-msgstr ""
+msgstr "כתובת url ישנה:"
 
 #: warehouse/templates/email/organization-updated/body.html:47
 msgid "New URL:"
-msgstr ""
+msgstr "כתובת url חדשה:"
 
 #: warehouse/templates/email/organization-updated/body.html:52
-#, fuzzy
-#| msgid "Project description"
 msgid "Old description:"
-msgstr "תיאור הפרויקט"
+msgstr "תיאור ישן:"
 
 #: warehouse/templates/email/organization-updated/body.html:55
-#, fuzzy
-#| msgid "Project description"
 msgid "New description:"
-msgstr "תיאור הפרויקט"
+msgstr "תיאור חדש:"
 
 #: warehouse/templates/email/organization-updated/body.html:60
 #, fuzzy
@@ -2759,10 +2702,8 @@ msgid ""
 msgstr "<a href=\"%(href)s\">%(username)s</a> שונה להיות %(role_name)s בפרויקט"
 
 #: warehouse/templates/email/removed-as-team-member/body.html:23
-#, fuzzy
-#| msgid "You are not an owner of this project"
 msgid "You are receiving this because you were a member of this team."
-msgstr "אינך בעלים של פרויקט זה"
+msgstr "קבלת הודעה זו כיוון שאת/ה חבר/ה בצוות זה."
 
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:20
 #, fuzzy, python-format
@@ -5953,7 +5894,7 @@ msgstr "אימות דו-גורמי הופעל"
 #: warehouse/templates/manage/team/roles.html:23
 #: warehouse/templates/manage/team/roles.html:28
 msgid "2FA"
-msgstr "אימות דו-גורמי"
+msgstr "אימות דו-שלבי"
 
 #: warehouse/templates/manage/organization/roles.html:27
 #: warehouse/templates/manage/project/roles.html:27
@@ -7062,10 +7003,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:203
+#, fuzzy
 msgid ""
 "I understand that my users will no longer be able to install this release of "
 "this project."
 msgstr ""
+"אני מבינ/ה כי המשתמשים שלי לא יוכלו להתקין את הrelease הזה של פרויקט זה."
 
 #: warehouse/templates/manage/project/release.html:204
 #, python-format
@@ -7097,13 +7040,13 @@ msgid "Manage version"
 msgstr "ניהול גרסה"
 
 #: warehouse/templates/manage/project/releases.html:44
-#, python-format
+#, fuzzy, python-format
 msgid "%(count)s file"
 msgid_plural "%(count)s files"
-msgstr[0] ""
-msgstr[1] ""
-msgstr[2] ""
-msgstr[3] ""
+msgstr[0] "קובץ אחד"
+msgstr[1] "שני קבצים"
+msgstr[2] "מספר קבצים"
+msgstr[3] "%(count) קבצים"
 
 #: warehouse/templates/manage/project/releases.html:57
 msgid "No files"
@@ -7163,16 +7106,13 @@ msgid "Manage '%(project_name)s' collaborators"
 msgstr "ניהול משתפי הפעולה של '%(project_name)s'"
 
 #: warehouse/templates/manage/project/roles.html:43
-#, fuzzy, python-format
-#| msgid ""
-#| "Use this page to control which PyPI users can help you to manage "
-#| "%(project_name)s"
+#, python-format
 msgid ""
 "Use this page to control which PyPI users can help you to manage "
 "%(project_name)s."
 msgstr ""
 "השתמש/י בדף זה כדי לשלוט אילו משתמשי PyPI יכולים לעזור לך לנהל את "
-"%(project_name)s"
+"%(project_name)s."
 
 #: warehouse/templates/manage/project/roles.html:45
 #, fuzzy
@@ -7234,16 +7174,14 @@ msgstr "משתפי פעולה"
 #| msgid "Create an account"
 msgid "%(count)s organization owner"
 msgid_plural "%(count)s organization owners"
-msgstr[0] "יצירת חשבון"
-msgstr[1] "יצירת חשבון"
-msgstr[2] "יצירת חשבון"
-msgstr[3] "יצירת חשבון"
+msgstr[0] "בעלי ארגון אחד"
+msgstr[1] "בעלי שני ארגונים"
+msgstr[2] "בעלי כמה ארגונים"
+msgstr[3] "בעלי %(count) ארגונים"
 
 #: warehouse/templates/manage/project/roles.html:89
-#, fuzzy
-#| msgid "Create an account"
 msgid "Cannot remove organization owners"
-msgstr "יצירת חשבון"
+msgstr "אין אפשרות להסיר בעלי ארגון"
 
 #: warehouse/templates/manage/project/roles.html:103
 #, python-format

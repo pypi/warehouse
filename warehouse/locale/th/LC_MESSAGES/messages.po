@@ -12,16 +12,16 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-08-28 01:58+0000\n"
+"PO-Revision-Date: 2023-09-20 13:20+0000\n"
 "Last-Translator: Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>\n"
-"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
-">\n"
+"Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/>"
+"\n"
 "Language: th\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:141
@@ -261,44 +261,36 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "อีเมล์ ${email_address} ยืนยันแล้ว. ${confirm_message}."
 
 #: warehouse/accounts/views.py:992
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new organization invitation"
-msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์จากองค์กรของคุณใหม่"
 
 #: warehouse/accounts/views.py:994
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
-msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr "โทเคนไม่ถูกต้อง: กรุณาขอคำเชิญจากองค์กรของคุณ"
 
 #: warehouse/accounts/views.py:1000
-#, fuzzy
-#| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนในการยืนยันอีเมล์"
+msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคนที่องค์กรเชิญมา"
 
 #: warehouse/accounts/views.py:1004
 msgid "Organization invitation is not valid."
-msgstr ""
+msgstr "คำเชิจากองค์กรไม่ถูกต้อง"
 
 #: warehouse/accounts/views.py:1013
 msgid "Organization invitation no longer exists."
-msgstr ""
+msgstr "ไม่มีคำเชิญเข้าร่วมองค์กรอีกต่อไป"
 
 #: warehouse/accounts/views.py:1064
 msgid "Invitation for '${organization_name}' is declined."
-msgstr ""
+msgstr "คำเชิจาก '${organization_name}' ถูกปฏิเสธ"
 
 #: warehouse/accounts/views.py:1127
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr ""
+msgstr "คุณได้เป็น ${role} ของ '${organization_name}'"
 
 #: warehouse/accounts/views.py:1161
-#, fuzzy
-#| msgid "Expired token: request a new password reset link"
 msgid "Expired token: request a new project role invitation"
-msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์สำหรับโปรเจค"
 
 #: warehouse/accounts/views.py:1163
 #, fuzzy
