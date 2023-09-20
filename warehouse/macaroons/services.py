@@ -25,27 +25,43 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
 
 
+def _extract_raw_macaroon(prefixed_macaroon: str | None) -> str | None:
+    """
+    Returns the base64-encoded macaroon component of a PyPI macaroon,
+    dropping the prefix.
+
+    Returns None if the macaroon is None, has no prefix, or has the
+    wrong prefix.
+    """
+    if prefixed_macaroon is None:
+        return None
+
+    prefix, _, raw_macaroon = prefixed_macaroon.partition("-")
+    return None if prefix != "pypi" or not raw_macaroon else raw_macaroon
+
+
+def deserialize_raw_macaroon(raw_macaroon: str | None) -> pymacaroons.Macaroon:
+    """
+    Returns a pymacaroons.Macaroon instance from a raw (serialized) macaroon.
+    """
+    raw_macaroon = _extract_raw_macaroon(raw_macaroon)
+
+    if raw_macaroon is None:
+        raise InvalidMacaroonError("malformed or nonexistent macaroon")
+
+    try:
+        return pymacaroons.Macaroon.deserialize(raw_macaroon)
+    except (
+        MacaroonDeserializationException,
+        Exception,  # https://github.com/ecordell/pymacaroons/issues/50
+    ) as e:
+        raise InvalidMacaroonError("malformed macaroon") from e
+
+
 @implementer(IMacaroonService)
 class DatabaseMacaroonService:
     def __init__(self, db_session):
         self.db = db_session
-
-    def _extract_raw_macaroon(self, prefixed_macaroon):
-        """
-        Returns the base64-encoded macaroon component of a PyPI macaroon,
-        dropping the prefix.
-
-        Returns None if the macaroon is None, has no prefix, or has the
-        wrong prefix.
-        """
-        if prefixed_macaroon is None:
-            return None
-
-        prefix, _, raw_macaroon = prefixed_macaroon.partition("-")
-        if prefix != "pypi" or not raw_macaroon:
-            return None
-
-        return raw_macaroon
 
     def find_macaroon(self, macaroon_id) -> Macaroon | None:
         """
@@ -67,27 +83,13 @@ class DatabaseMacaroonService:
             .one_or_none()
         )
 
-    def _deserialize_raw_macaroon(self, raw_macaroon):
-        raw_macaroon = self._extract_raw_macaroon(raw_macaroon)
-
-        if raw_macaroon is None:
-            raise InvalidMacaroonError("malformed or nonexistent macaroon")
-
-        try:
-            return pymacaroons.Macaroon.deserialize(raw_macaroon)
-        except (
-            MacaroonDeserializationException,
-            Exception,  # https://github.com/ecordell/pymacaroons/issues/50
-        ):
-            raise InvalidMacaroonError("malformed macaroon")
-
-    def find_userid(self, raw_macaroon):
+    def find_userid(self, raw_macaroon: str) -> uuid.UUID | None:
         """
         Returns the id of the user associated with the given raw (serialized)
         macaroon.
         """
         try:
-            m = self._deserialize_raw_macaroon(raw_macaroon)
+            m = deserialize_raw_macaroon(raw_macaroon)
         except InvalidMacaroonError:
             return None
 
@@ -108,11 +110,11 @@ class DatabaseMacaroonService:
 
         return dm.user.id
 
-    def find_from_raw(self, raw_macaroon):
+    def find_from_raw(self, raw_macaroon: str) -> Macaroon:
         """
         Returns a DB macaroon matching the input, or raises InvalidMacaroonError
         """
-        m = self._deserialize_raw_macaroon(raw_macaroon)
+        m = deserialize_raw_macaroon(raw_macaroon)
 
         try:
             identifier = m.identifier.decode()
@@ -125,14 +127,14 @@ class DatabaseMacaroonService:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
 
-    def verify(self, raw_macaroon, request, context, permission):
+    def verify(self, raw_macaroon: str, request, context, permission) -> bool:
         """
         Returns True if the given raw (serialized) macaroon is
         valid for the request, context, and requested permission.
 
         Raises InvalidMacaroonError if the macaroon is not valid.
         """
-        m = self._deserialize_raw_macaroon(raw_macaroon)
+        m = deserialize_raw_macaroon(raw_macaroon)
         dm = self.find_macaroon(m.identifier.decode())
 
         if dm is None:
