@@ -21,6 +21,7 @@ from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
+from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.utils import OIDCContext
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
@@ -64,9 +65,16 @@ def _extract_http_macaroon(request):
     except ValueError:
         return None
 
-    if auth_method.lower() == "basic":
+    auth_method = auth_method.lower()
+
+    metrics = request.find_service(IMetricsService, context=None)
+    # TODO: As this is called in both `identity` and `permits`, we're going to
+    #       end up double counting the metrics.
+    metrics.increment("warehouse.macaroon.auth_method", tags=[f"method:{auth_method}"])
+
+    if auth_method == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method.lower() == "token":
+    elif auth_method in ["token", "bearer"]:
         return auth
 
     return None
