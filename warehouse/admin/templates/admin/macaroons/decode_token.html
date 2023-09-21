@@ -1,0 +1,72 @@
+{#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% block title %}Decode Token{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active">Decode Token</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">Decode an API Token</div>
+  <div class="card-body">
+    <form action="/admin/token/decode" method="POST">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <div class="input-group input-group-lg">
+        <input name="token" type="text" class="form-control input-lg" placeholder="pypi-AgE... "{% if query %} value="{{ query }}"{% endif %}>
+        <div class="input-group-btn input-group-append">
+          <button type="submit" class="btn btn-default"><i class="fa-solid fa-qrcode"></i></button>
+        </div>
+      </div>
+    </form>
+  {% if macaroon %}
+    <hr/>
+    <table class="table table-striped">
+      <tbody>
+      <tr>
+        <td>Location</td>
+        <td>{{ macaroon.location }}</td>
+      </tr>
+      <tr>
+        <td>Identifier</td>
+        <td>
+          {%  if db_record.id %}
+          <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=db_record.id) }}">
+            {{ macaroon.identifier.decode() }}
+          </a>
+          {% else %}
+            {{ macaroon.identifier.decode() }} (Not found)
+          {% endif %}
+        </td>
+      </tr>
+      <tr>
+        <td>Signature</td>
+        <td>{{ macaroon.signature }}</td>
+      </tr>
+      <tr>
+        <td>Caveats</td>
+        <td>
+          {% for caveat in macaroon.caveats %}
+            {{ caveat.to_dict()|pprint }}
+          {% endfor %}
+        </td>
+      </tr>
+      </tbody>
+    </table>
+{% endif %}
+  </div>
+</div>
+{% endblock %}
