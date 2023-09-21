@@ -66,7 +66,7 @@ def _extract_http_macaroon(request):
 
     if auth_method.lower() == "basic":
         return _extract_basic_macaroon(auth)
-    elif auth_method.lower() == "token":
+    elif auth_method.lower() in ["token", "bearer"]:
         return auth
 
     return None

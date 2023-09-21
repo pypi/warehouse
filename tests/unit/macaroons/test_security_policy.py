@@ -34,6 +34,7 @@ from warehouse.oidc.utils import OIDCContext
         ("notarealtoken", None),
         ("maybeafuturemethod foobar", None),
         ("token foobar", "foobar"),
+        ("bearer foobar", "foobar"),
         ("basic X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
     ],
 )
