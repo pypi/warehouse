@@ -94,6 +94,19 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Macaroon related Admin pages
+    config.add_route(
+        "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
+    )
+    config.add_route(
+        "admin.macaroon.detail", "/admin/macaroons/{macaroon_id}", domain=warehouse
+    )
+    config.add_route(
+        "admin.macaroon.delete",
+        "/admin/macaroons/{macaroon_id}/delete",
+        domain=warehouse,
+    )
+
     # IP Address related Admin pages
     config.add_route("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse)
     config.add_route(

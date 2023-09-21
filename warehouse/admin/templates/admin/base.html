@@ -128,8 +128,13 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="{{ request.route_path('admin.macaroon.decode_token') }}" class="nav-link">
+              <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons <span class="right badge badge-danger">New</span></p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{{ request.route_path('admin.ip_address.list') }}" class="nav-link">
-              <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</span></p>
+              <i class="fa-solid fa-globe nav-icon"></i> <p>IP Addresses</p>
             </a>
           </li>
           <li class="nav-item">

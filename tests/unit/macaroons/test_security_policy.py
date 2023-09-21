@@ -34,12 +34,14 @@ from warehouse.oidc.utils import OIDCContext
         ("notarealtoken", None),
         ("maybeafuturemethod foobar", None),
         ("token foobar", "foobar"),
+        ("bearer foobar", "foobar"),
         ("basic X190b2tlbl9fOmZvb2Jhcg==", "foobar"),  # "__token__:foobar"
     ],
 )
-def test_extract_http_macaroon(auth, result):
+def test_extract_http_macaroon(auth, result, metrics):
     request = pretend.stub(
-        headers=pretend.stub(get=pretend.call_recorder(lambda k: auth))
+        find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+        headers=pretend.stub(get=pretend.call_recorder(lambda k: auth)),
     )
 
     assert security_policy._extract_http_macaroon(request) == result

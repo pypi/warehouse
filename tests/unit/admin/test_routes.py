@@ -95,6 +95,17 @@ def test_includeme():
             "/admin/prohibited_user_names/bulk/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.macaroon.decode_token", "/admin/token/decode", domain=warehouse
+        ),
+        pretend.call(
+            "admin.macaroon.detail", "/admin/macaroons/{macaroon_id}", domain=warehouse
+        ),
+        pretend.call(
+            "admin.macaroon.delete",
+            "/admin/macaroons/{macaroon_id}/delete",
+            domain=warehouse,
+        ),
         pretend.call("admin.ip_address.list", "/admin/ip-addresses/", domain=warehouse),
         pretend.call(
             "admin.ip_address.detail",
