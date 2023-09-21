@@ -539,6 +539,12 @@ def includeme(config):
         domain=warehouse,
     )
 
+    config.add_route(
+        "api.echo",
+        "/api/echo",
+        domain=warehouse,
+    )
+
     # Mock URLs
     config.add_route(
         "mock.billing.checkout-session",

@@ -533,6 +533,12 @@ def test_routes(warehouse):
             traverse="/{name}/",
             domain=warehouse,
         ),
+        # API URLs
+        pretend.call(
+            "api.echo",
+            "/api/echo",
+            domain=warehouse,
+        ),
         # Mock URLs
         pretend.call(
             "mock.billing.checkout-session",

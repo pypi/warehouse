@@ -56,6 +56,17 @@ class SessionSecurityPolicy:
         if request.matched_route.name == "forklift.legacy.file_upload":
             return None
 
+        # TODO: This feels wrong - special casing for paths and
+        #  prefixes isn't sustainable.
+        #  May need to revisit https://github.com/pypi/warehouse/pull/13854
+        #  Without this guard, we raise a RuntimeError related to `uses_session`,
+        #  because the `SessionAuthenticationHelper()` is called with no session.
+        #  Alternately, we could wrap the call to `authenticated_userid` in a
+        #  try/except RuntimeError block, but that feels like a band-aid.
+        # Session authentication cannot be used for /api routes
+        if request.matched_route.name.startswith("api."):
+            return None
+
         userid = self._session_helper.authenticated_userid(request)
         request._unauthenticated_userid = userid
 
