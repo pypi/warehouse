@@ -3,13 +3,14 @@
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
 # Allan Nordhøy <epost@anotheragency.no>, 2019, 2020, 2021, 2022.
+# Robert <rha006@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2022-06-28 19:40+0000\n"
-"Last-Translator: Allan Nordhøy <epost@anotheragency.no>\n"
+"PO-Revision-Date: 2023-09-15 21:54+0000\n"
+"Last-Translator: Robert <rha006@gmail.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/pypa/"
 "warehouse/nb_NO/>\n"
 "Language: nb_NO\n"
@@ -17,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.0.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:141
@@ -25,6 +26,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Du må bekrefte din **primære** e-postadresse før du kan utføre denne "
+"handlingen."
 
 #: warehouse/views.py:161
 msgid ""
@@ -52,7 +55,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Null bytes er ikke tillatt."
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -60,11 +63,11 @@ msgstr "Fant ingen bruker med det brukernavnet"
 
 #: warehouse/accounts/forms.py:98
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "TOTP-kode må være ${totp_length}-nummer."
+msgstr "TOTP-kode må være ${totp_length} siffer langt."
 
 #: warehouse/accounts/forms.py:118
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr ""
+msgstr "Gjenopprettnings koden må være ${recovery_code_length} bokstaver langt."
 
 #: warehouse/accounts/forms.py:133
 msgid "Choose a username with 50 characters or less."
@@ -80,20 +83,16 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:164 warehouse/accounts/forms.py:213
 #: warehouse/accounts/forms.py:226
-#, fuzzy
-#| msgid "Password reset"
 msgid "Password too long."
-msgstr "Tilbakestill passord"
+msgstr "Passordet er for langt."
 
 #: warehouse/accounts/forms.py:200
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Det har blitt utført for mange feilede innloggingsforsøk. Prøv igjen senere."
+"Det har blitt utført for mange feilede innloggingsforsøk. Du har blitt låst "
+"ute i ${time}. Prøv igjen senere."
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -104,10 +103,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "E-postadressen er ikke gyldig. Prøv igjen."
 
 #: warehouse/accounts/forms.py:265
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "E-postadressen er ikke gyldig. Prøv igjen."
+msgstr "E-postadressen er for lang. Prøv igjen."
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
@@ -141,40 +138,35 @@ msgstr "Ugyldig TOTP-kode."
 
 #: warehouse/accounts/forms.py:436
 msgid "Invalid WebAuthn assertion: Bad payload"
-msgstr ""
+msgstr "Ugyldig WebAuthn påstand: Dårlig nyttelast"
 
 #: warehouse/accounts/forms.py:505
-#, fuzzy
-#| msgid "Invalid TOTP code."
 msgid "Invalid recovery code."
-msgstr "Ugyldig TOTP-kode."
+msgstr "Ugyldig gjenopprettingskode."
 
 #: warehouse/accounts/forms.py:514
-#, fuzzy
-#| msgid "Recovery Codes"
 msgid "Recovery code has been previously used."
-msgstr "Gjenopprettelseskoder"
+msgstr "Gjenopprettelseskoden har blitt brukt tidligere."
 
 #: warehouse/accounts/forms.py:533
-#, fuzzy
 msgid "No user found with that username or email"
 msgstr "Fant ingen bruker med det brukernavnet eller e-postadressen"
 
 #: warehouse/accounts/views.py:107
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Det har blitt utført for mange feilede innloggingsforsøk. Prøv igjen senere."
+"Det har blitt utført for mange feilede innloggingsforsøk. Du har blitt låst "
+"ute i {}. Prøv igjen senere."
 
 #: warehouse/accounts/views.py:124
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
+"For mange e-postadresser har blitt lagt til denne brukeren uten å ha blitt "
+"verifisert. Sjekk innboksen din og følg verifiserings linkene. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:136
 msgid ""
@@ -182,6 +174,8 @@ msgid ""
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
+"Det er bedt om for mange tilbakestillinger av passord for denne kontoen uten "
+"å fullføre dem. Sjekk innboksen din og følg bekreftelseslenkene. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:315 warehouse/accounts/views.py:384
 #: warehouse/accounts/views.py:386 warehouse/accounts/views.py:413
@@ -191,21 +185,24 @@ msgstr "Ugyldig eller utløpt to-faktorinnlogging."
 
 #: warehouse/accounts/views.py:378
 msgid "Already authenticated"
-msgstr "Allerede identitetsbekreftet"
+msgstr "Allerede autentisert"
 
 #: warehouse/accounts/views.py:456
 msgid "Successful WebAuthn assertion"
-msgstr ""
+msgstr "Vellykket WebAuthn-påstand"
 
 #: warehouse/accounts/views.py:552 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
+"Gjenopprettingskode akseptert. Den medfølgende koden kan ikke brukes igjen."
 
 #: warehouse/accounts/views.py:644
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
+"Registrering av nye brukere er midlertidig deaktivert. Se https://pypi.org/"
+"help#admin-intervention for detaljer."
 
 #: warehouse/accounts/views.py:775
 msgid "Expired token: request a new password reset link"
@@ -221,14 +218,12 @@ msgid "Invalid token: no token supplied"
 msgstr "Ugyldig symbol: Inget symbol angitt"
 
 #: warehouse/accounts/views.py:783
-#, fuzzy
 msgid "Invalid token: not a password reset token"
-msgstr "Ugyldig symbol: Ikke et passordstilbakestillingssymbol"
+msgstr "Ugyldig symbol: Ikke et passord tilbakestillingssymbol"
 
 #: warehouse/accounts/views.py:788
-#, fuzzy
 msgid "Invalid token: user not found"
-msgstr "Ugyldig symbol: Fant ikke brukeren"
+msgstr "Ugyldig symbol: bruker ikke funnet"
 
 #: warehouse/accounts/views.py:810
 msgid "Invalid token: user has logged in since this token was requested"
