@@ -417,6 +417,8 @@ class TestGitHubPublisher:
         [
             ("repo:foo/bar", "repo:foo/bar:someotherstuff", True),
             ("repo:foo/bar", "repo:foo/bar:", True),
+            ("repo:fOo/BaR", "repo:foo/bar", True),
+            ("repo:foo/bar", "repo:fOo/BaR:", True),
             ("repo:foo/bar:someotherstuff", "repo:foo/bar", False),
             ("repo:foo/bar-baz", "repo:foo/bar", False),
             ("repo:foo/bar", "repo:foo/bar-baz", False),
