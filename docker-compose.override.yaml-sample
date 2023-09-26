@@ -1,0 +1,69 @@
+# Sample local override file
+# Overrides values in `docker-compose.yml`
+# Copy to `docker-compose.override.yaml` and customize to use.
+# It's `.gitignore`d by default.
+# See more at https://docs.docker.com/compose/multiple-compose-files/merge/
+
+# YAML Anchors, Aliases, and Overrides are awesome!
+# Anchors (&) are used to define a value.
+# Aliases (*) are used to reference a value.
+# Overrides (<<:) are used to merge values.
+#
+# We use them for `base_volumes` in the main compose file.
+# Depending on the level of placement, you get different behaviors.
+
+# If you ever want to see the resulting configuration, run:
+#     docker compose config
+# It will spit out a large valid compose yaml to stdout.
+
+# For custom keys outside the Compose schema, prepend an `x-` to the key.
+
+# Override the default command to exit immediately
+x-disable-service: &disable-service
+  command: ["/bin/true"]
+
+# Set some environment variables we want to share to multiple services
+x-environment-vars: &environment-vars
+  DD_TRACE_AGENT_URL: "http://notddtrace:8126"
+  DD_REMOTE_CONFIGURATION_ENABLED: "false"
+
+
+services:
+  # Disable services by adding an entry with the `*disable-service` alias
+  blog: *disable-service
+  dev-docs: *disable-service
+  user-docs: *disable-service
+
+  elasticsearch:
+    # You can also add selective environment variables
+    environment:
+      logger.level: WARN  # default INFO is pretty noisy
+
+  notdatadog:
+    environment:
+      # If you set an already-set environment variable, it will be overwritten
+      METRICS_OUTPUT: "true"
+
+  # You can even add new services that don't exist in the original compose file
+  notddtrace:
+    # Refs: https://github.com/DataDog/dd-apm-test-agent
+    image: ghcr.io/datadog/dd-apm-test-agent/ddapm-test-agent:v1.12.0
+    ports:
+      - "127.0.0.1:9126:8126"
+    environment:
+       LOG_LEVEL: "WARNING"  # default can get noisy
+
+  web:
+    # Similar to environment, you can selectively override other settings
+    command: ddtrace-run gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    environment:
+      # Using `<<:` overrides merges with the existing values, instead of overwriting it
+      <<: *environment-vars
+      # And we can even extend the existing values
+      PYRAMID_DEBUG_ALL: 1
+
+  worker:
+    command: ddtrace-run ddtrace-run hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    environment:
+      # Example of sharing the same environment variables
+      <<: *environment-vars

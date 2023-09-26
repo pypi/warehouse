@@ -458,6 +458,7 @@ Note that disabling services might cause things to fail in unexpected ways.
 This file is ignored in Warehouse's ``.gitignore`` file, so it's safe to keep
 in the root of your local repo.
 
+See the annotated file ``docker-compose.override.yaml-sample`` for ideas.
 
 Building Styles
 ---------------
