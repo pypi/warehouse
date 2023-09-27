@@ -18,6 +18,11 @@ updates:
   - dependency-name: "boto3-stubs"
   - dependency-name: "botocore"
   - dependency-name: "botocore-stubs"
+  groups:
+    psycopg:
+      # Keep both psycopg and psycopg-c together
+      patterns:
+        - "psycopg*"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
