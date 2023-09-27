@@ -1242,12 +1242,12 @@ protobuf==4.24.3 \
     #   googleapis-common-protos
     #   grpcio-status
     #   proto-plus
-psycopg[c]==3.1.10 \
-    --hash=sha256:15b25741494344c24066dc2479b0f383dd1b82fa5e75612fa4fa5bb30726e9b6 \
-    --hash=sha256:8bbeddae5075c7890b2fa3e3553440376d3c5e28418335dee3c3656b06fa2b52
+psycopg[c]==3.1.12 \
+    --hash=sha256:8ec5230d6a7eb654b4fb3cf2d3eda8871d68f24807b934790504467f1deee9f8 \
+    --hash=sha256:cec7ad2bc6a8510e56c45746c631cf9394148bdc8a9a11fd8cf8554ce129ae78
     # via -r requirements/main.in
-psycopg-c==3.1.10 \
-    --hash=sha256:0c923cfac7a8a3796c915c253f51b7c667358492924cbccecc18df9e79b103e9
+psycopg-c==3.1.12 \
+    --hash=sha256:81db07874c7c530482d07155d144b287b47260dd1782a0d2d3ca7ae2d4641686
     # via psycopg
 pyasn1==0.5.0 \
     --hash=sha256:87a2121042a1ac9358cabcaf1d07680ff97ee6404333bacca15f76aa8ad01a57 \
