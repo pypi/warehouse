@@ -25,6 +25,10 @@ from ...common.db.accounts import (
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
 )
+from ...common.db.packaging import (
+    ProjectFactory as DBProjectFactory,
+    RoleFactory as DBRoleFactory,
+)
 
 
 class TestUserFactory:
@@ -250,3 +254,14 @@ class TestUser:
             )
         db_session.flush()
         assert user.has_single_2fa == expected
+
+    def test_user_projects_is_ordered_by_name(self, db_session):
+        user = DBUserFactory.create()
+        project1 = DBProjectFactory.create(name="foo")
+        DBRoleFactory.create(project=project1, user=user)
+        project2 = DBProjectFactory.create(name="bar")
+        DBRoleFactory.create(project=project2, user=user)
+        project3 = DBProjectFactory.create(name="baz")
+        DBRoleFactory.create(project=project3, user=user)
+
+        assert user.projects == [project2, project3, project1]

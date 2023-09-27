@@ -190,7 +190,7 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         passive_deletes=True,
     )
     users: Mapped[list[User]] = orm.relationship(
-        secondary=Role.__table__, backref="projects", viewonly=True
+        secondary=Role.__table__, back_populates="projects", viewonly=True
     )
     releases: Mapped[list[Release]] = orm.relationship(
         backref="project",

@@ -43,6 +43,7 @@ from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
+    from warehouse.packaging.models import Project
 
 
 class UserFactory:
@@ -119,6 +120,15 @@ class User(SitemapMixin, HasEvents, db.Model):
         backref="added_by",
         cascade="all, delete-orphan",
         lazy=True,
+    )
+
+    projects: Mapped[list[Project]] = orm.relationship(
+        "Project",
+        secondary="roles",
+        back_populates="users",
+        lazy=True,
+        viewonly=True,
+        order_by="Project.normalized_name",
     )
 
     @property
