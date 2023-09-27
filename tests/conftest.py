@@ -580,11 +580,14 @@ class _MockRedis:
     def pipeline(self):
         return self
 
+    def register_script(self, script):
+        return script
+
     def scan_iter(self, search, count):
         del count  # unused
         return [key for key in self.cache.keys() if re.search(search, key)]
 
-    def set(self, key, value):
+    def set(self, key, value, *_args, **_kwargs):
         self.cache[key] = value
 
     def setex(self, key, value, _seconds):

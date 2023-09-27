@@ -12,12 +12,13 @@
 
 import os
 
-import celery
+import celery.exceptions
 import elasticsearch
 import packaging.version
 import pretend
 import pytest
 import redis
+import redis.lock
 
 from first import first
 
@@ -193,6 +194,12 @@ class NotLock:
     def __init__(*a, **kw):
         pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
     def acquire(self):
         return True
 
@@ -201,20 +208,11 @@ class NotLock:
 
 
 class TestSearchLock:
-    def test_success(self):
-        lock_stub = pretend.stub(acquire=pretend.call_recorder(lambda: True))
-        r = pretend.stub(lock=lambda *a, **kw: lock_stub)
-        test_lock = SearchLock(r)
-        test_lock.__enter__()
-        assert lock_stub.acquire.calls == [pretend.call()]
+    def test_is_subclass_of_redis_lock(self, mockredis):
+        search_lock = SearchLock(redis_client=mockredis)
 
-    def test_failure(self):
-        lock_stub = pretend.stub(acquire=pretend.call_recorder(lambda: False))
-        r = pretend.stub(lock=lambda *a, **kw: lock_stub)
-        test_lock = SearchLock(r)
-        with pytest.raises(redis.exceptions.LockError):
-            test_lock.__enter__()
-        assert lock_stub.acquire.calls == [pretend.call()]
+        assert isinstance(search_lock, redis.lock.Lock)
+        assert search_lock.name == "search-index"
 
 
 class TestReindex:
@@ -249,9 +247,7 @@ class TestReindex:
             assert index == "warehouse-cbcbcbcbcb"
             raise TestError
 
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -273,11 +269,7 @@ class TestReindex:
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             reindex(task, db_request)
@@ -307,9 +299,7 @@ class TestReindex:
             "Elasticsearch",
             lambda *a, **kw: es_client,
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -373,9 +363,7 @@ class TestReindex:
             "Elasticsearch",
             lambda *a, **kw: es_client,
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -438,9 +426,7 @@ class TestReindex:
         monkeypatch.setattr(
             warehouse.search.tasks.elasticsearch, "Elasticsearch", es_client_init
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -517,9 +503,7 @@ class TestPartialReindex:
             raise TestError
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         with pytest.raises(TestError):
             reindex_project(task, db_request, "foo")
@@ -536,9 +520,7 @@ class TestPartialReindex:
 
         es_client = FakeESClient()
         es_client.delete = pretend.raiser(TestError)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
@@ -556,9 +538,7 @@ class TestPartialReindex:
         es_client.delete = pretend.call_recorder(
             pretend.raiser(elasticsearch.exceptions.NotFoundError)
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
             {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
@@ -576,11 +556,7 @@ class TestPartialReindex:
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             unindex_project(task, db_request, "foo")
@@ -595,11 +571,7 @@ class TestPartialReindex:
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
         le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             reindex_project(task, db_request, "foo")
@@ -635,9 +607,7 @@ class TestPartialReindex:
             lambda client, iterable, index=None: [None]
         )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         reindex_project(task, db_request, "foo")
 

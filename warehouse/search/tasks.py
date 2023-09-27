@@ -22,6 +22,7 @@ import sentry_sdk
 
 from elasticsearch.helpers import parallel_bulk
 from elasticsearch_dsl import serializer
+from redis.lock import Lock
 from sqlalchemy import func, select, text
 from sqlalchemy.orm import aliased
 from urllib3.util import parse_url
@@ -100,20 +101,14 @@ def _project_docs(db, project_name=None):
         yield doc
 
 
-class SearchLock:
+class SearchLock(Lock):
     def __init__(self, redis_client, timeout=None, blocking_timeout=None):
-        self.lock = redis_client.lock(
-            "search-index", timeout=timeout, blocking_timeout=blocking_timeout
+        super().__init__(
+            redis_client,
+            name="search-index",
+            timeout=timeout,
+            blocking_timeout=blocking_timeout,
         )
-
-    def __enter__(self):
-        if self.lock.acquire():
-            return self
-        else:
-            raise redis.exceptions.LockError("Could not acquire lock!")
-
-    def __exit__(self, type, value, tb):
-        self.lock.release()
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
