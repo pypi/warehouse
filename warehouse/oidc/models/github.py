@@ -91,7 +91,12 @@ def _check_sub(ground_truth, signed_claim, _all_signed_claims):
     if len(components) < 2:
         return False
 
-    return f"{components[0]}:{components[1]}" == ground_truth
+    org, repo, *_ = components
+    if not org or not repo:
+        return False
+
+    # The sub claim is case-insensitive
+    return f"{org}:{repo}".lower() == ground_truth.lower()
 
 
 class GitHubPublisherMixin:
