@@ -32,6 +32,7 @@ from ...common.db.organizations import (
 )
 from ...common.db.packaging import (
     DependencyFactory as DBDependencyFactory,
+    FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
@@ -579,3 +580,28 @@ class TestFile:
         )
 
         assert results == (expected, expected + ".metadata")
+
+    def test_published_via_trusted_publisher(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={},
+        )
+
+        # Without the `publisher_url` key, not considered trusted published
+        assert not rfile.uploaded_via_trusted_publisher
+
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert rfile.uploaded_via_trusted_publisher

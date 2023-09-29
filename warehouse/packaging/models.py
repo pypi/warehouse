@@ -670,6 +670,16 @@ class File(HasEvents, db.Model):
         comment="If True, the object has been archived to our archival bucket.",
     )
 
+    @property
+    def uploaded_via_trusted_publisher(self) -> bool:
+        """Return True if the file was uploaded via a trusted publisher."""
+        return (
+            self.events.where(
+                self.Event.additional.has_key("publisher_url")  # type: ignore[attr-defined] # noqa E501
+            ).count()
+            > 0
+        )
+
     @hybrid_property
     def metadata_path(self):
         return self.path + ".metadata"
