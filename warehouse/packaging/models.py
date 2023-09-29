@@ -603,6 +603,17 @@ class Release(db.Model):
             ]
         )
 
+    @property
+    def trusted_published(self) -> bool:
+        """
+        A Release can be considered published via a trusted publisher if
+        **all** the Files in the release are published via a trusted publisher.
+        """
+        files = self.files.all()  # type: ignore[attr-defined]
+        if not files:
+            return False
+        return all(file.uploaded_via_trusted_publisher for file in files)
+
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
