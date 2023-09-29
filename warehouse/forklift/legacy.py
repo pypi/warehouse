@@ -13,6 +13,7 @@
 import email
 import hashlib
 import hmac
+import io
 import os.path
 import re
 import tarfile
@@ -1234,7 +1235,7 @@ def file_upload(request):
 
         # Buffer the entire file onto disk, checking the hash of the file as we
         # go along.
-        with open(temporary_filename, "wb") as fp:
+        with open(temporary_filename, "w+b") as fp:
             file_size = 0
             file_hashes = {
                 "md5": hashlib.md5(usedforsecurity=False),
@@ -1269,223 +1270,211 @@ def file_upload(request):
                 for hasher in file_hashes.values():
                     hasher.update(chunk)
 
-        # Take our hash functions and compute the final hashes for them now.
-        file_hashes = {k: h.hexdigest().lower() for k, h in file_hashes.items()}
+            # Take our hash functions and compute the final hashes for them now.
+            file_hashes = {k: h.hexdigest().lower() for k, h in file_hashes.items()}
 
-        # Actually verify the digests that we've gotten. We're going to use
-        # hmac.compare_digest even though we probably don't actually need to
-        # because it's better safe than sorry. In the case of multiple digests
-        # we expect them all to be given.
-        if not all(
-            [
-                hmac.compare_digest(
-                    getattr(form, f"{digest_name}_digest").data.lower(),
-                    digest_value,
+            # Actually verify the digests that we've gotten. We're going to use
+            # hmac.compare_digest even though we probably don't actually need to
+            # because it's better safe than sorry. In the case of multiple digests
+            # we expect them all to be given.
+            if not all(
+                [
+                    hmac.compare_digest(
+                        getattr(form, f"{digest_name}_digest").data.lower(),
+                        digest_value,
+                    )
+                    for digest_name, digest_value in file_hashes.items()
+                    if getattr(form, f"{digest_name}_digest").data
+                ]
+            ):
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    "The digest supplied does not match a digest calculated "
+                    "from the uploaded file.",
                 )
-                for digest_name, digest_value in file_hashes.items()
-                if getattr(form, f"{digest_name}_digest").data
-            ]
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "The digest supplied does not match a digest calculated "
-                "from the uploaded file.",
-            )
 
-        # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
-        if is_duplicate:
-            request.tm.doom()
-            return Response()
-        elif is_duplicate is not None:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypi/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
+            # Check to see if the file that was uploaded exists already or not.
+            is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+            if is_duplicate:
+                request.tm.doom()
+                return Response()
+            elif is_duplicate is not None:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    # Note: Changing this error message to something that doesn't
+                    # start with "File already exists" will break the
+                    # --skip-existing functionality in twine
+                    # ref: https://github.com/pypi/warehouse/issues/3482
+                    # ref: https://github.com/pypa/twine/issues/332
+                    "File already exists. See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
+                )
 
-        # Check to see if the file that was uploaded exists in our filename log
-        if request.db.query(
-            request.db.query(Filename).filter(Filename.filename == filename).exists()
-        ).scalar():
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
-                request.db.query(File)
-                .filter((File.release == release) & (File.packagetype == "sdist"))
+            # Check to see if the file that was uploaded exists in our filename log
+            if request.db.query(
+                request.db.query(Filename)
+                .filter(Filename.filename == filename)
                 .exists()
-            ).scalar()
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
-
-        # Check the file to make sure it is a valid distribution file.
-        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
-            raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
-        # Check that if it's a binary wheel, it's on a supported platform
-        if filename.endswith(".whl"):
-            try:
-                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
-            except packaging.utils.InvalidWheelFilename as e:
+            ).scalar():
                 raise _exc_with_message(
                     HTTPBadRequest,
-                    str(e),
-                )
-            except packaging.version.InvalidVersion as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Invalid filename: {e}",
+                    "This filename has already been used, use a "
+                    "different version. "
+                    "See "
+                    + request.help_url(_anchor="file-name-reuse")
+                    + " for more information.",
                 )
 
-            for tag in tags:
-                if not _valid_platform_tag(tag.platform):
+            # Check to see if uploading this file would create a duplicate sdist
+            # for the current release.
+            if (
+                form.filetype.data == "sdist"
+                and request.db.query(
+                    request.db.query(File)
+                    .filter((File.release == release) & (File.packagetype == "sdist"))
+                    .exists()
+                ).scalar()
+            ):
+                raise _exc_with_message(
+                    HTTPBadRequest, "Only one sdist may be uploaded per release."
+                )
+
+            # Check the file to make sure it is a valid distribution file.
+            if not _is_valid_dist_file(temporary_filename, form.filetype.data):
+                raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+
+            # Check that if it's a binary wheel, it's on a supported platform
+            if filename.endswith(".whl"):
+                try:
+                    _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+                except packaging.utils.InvalidWheelFilename as e:
                     raise _exc_with_message(
                         HTTPBadRequest,
-                        f"Binary wheel '{filename}' has an unsupported "
-                        f"platform tag '{tag.platform}'.",
+                        str(e),
+                    )
+                except packaging.version.InvalidVersion as e:
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        f"Invalid filename: {e}",
                     )
 
-            """
-            Extract METADATA file from a wheel and return it as a content.
-            The name of the .whl file is used to find the corresponding .dist-info dir.
-            See https://peps.python.org/pep-0491/#file-contents
-            """
-            filename = os.path.basename(temporary_filename)
-            # Get the name and version from the original filename. Eventually this
-            # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
-            # and version.
-            name, version, _ = filename.split("-", 2)
-            metadata_filename = f"{name}-{version}.dist-info/METADATA"
-            try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_metadata_contents = zfp.read(metadata_filename)
-            except KeyError:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Wheel '{filename}' does not contain the required "
-                    "METADATA file: {metadata_filename}".format(
-                        filename=filename, metadata_filename=metadata_filename
-                    ),
-                )
-            with open(temporary_filename + ".metadata", "wb") as fp:
-                fp.write(wheel_metadata_contents)
-            metadata_file_hashes = {
-                "sha256": hashlib.sha256(),
-                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
-            }
-            for hasher in metadata_file_hashes.values():
-                hasher.update(wheel_metadata_contents)
-            metadata_file_hashes = {
-                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
-            }
+                for tag in tags:
+                    if not _valid_platform_tag(tag.platform):
+                        raise _exc_with_message(
+                            HTTPBadRequest,
+                            f"Binary wheel '{filename}' has an unsupported "
+                            f"platform tag '{tag.platform}'.",
+                        )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
+                """
+                Extract METADATA file from a wheel and return it as a content.
+                The name of the .whl file is used to find the corresponding .dist-info
+                dir. See https://peps.python.org/pep-0491/#file-contents
+                """
+                filename = os.path.basename(temporary_filename)
+                # Get the name and version from the original filename. Eventually this
+                # should use packaging.utils.parse_wheel_filename(filename), but until
+                # then we can't use this as it adds additional normailzation to the
+                # project name and version.
+                name, version, _ = filename.split("-", 2)
+                metadata_filename = f"{name}-{version}.dist-info/METADATA"
+                try:
+                    with zipfile.ZipFile(temporary_filename) as zfp:
+                        wheel_metadata_contents = zfp.read(metadata_filename)
+                except KeyError:
+                    raise _exc_with_message(
+                        HTTPBadRequest,
+                        "Wheel '{filename}' does not contain the required "
+                        "METADATA file: {metadata_filename}".format(
+                            filename=filename, metadata_filename=metadata_filename
+                        ),
+                    )
+                metadata_file_hashes = {
+                    "sha256": hashlib.sha256(),
+                    "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+                }
+                for hasher in metadata_file_hashes.values():
+                    hasher.update(wheel_metadata_contents)
+                metadata_file_hashes = {
+                    k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
+                }
 
-        # Store the information about the file in the database.
-        file_ = File(
-            release=release,
-            filename=filename,
-            python_version=form.pyversion.data,
-            packagetype=form.filetype.data,
-            comment_text=form.comment.data,
-            size=file_size,
-            md5_digest=file_hashes["md5"],
-            sha256_digest=file_hashes["sha256"],
-            blake2_256_digest=file_hashes["blake2_256"],
-            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
-            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
-            # Figure out what our filepath is going to be, we're going to use a
-            # directory structure based on the hash of the file contents. This
-            # will ensure that the contents of the file cannot change without
-            # it also changing the path that the file is saved too.
-            path="/".join(
-                [
-                    file_hashes[PATH_HASHER][:2],
-                    file_hashes[PATH_HASHER][2:4],
-                    file_hashes[PATH_HASHER][4:],
-                    filename,
-                ]
-            ),
-            uploaded_via=request.user_agent,
-        )
-        file_data = file_
-        request.db.add(file_)
+            # TODO: This should be handled by some sort of database trigger or a
+            #       SQLAlchemy hook or the like instead of doing it inline in this
+            #       view.
+            request.db.add(Filename(filename=filename))
 
-        file_.record_event(
-            tag=EventTag.File.FileAdd,
-            request=request,
-            additional={
-                "filename": file_.filename,
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
-                "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
-                "project_id": str(project.id),
-            },
-        )
-
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
+            # Store the information about the file in the database.
+            file_ = File(
+                release=release,
+                filename=filename,
+                python_version=form.pyversion.data,
+                packagetype=form.filetype.data,
+                comment_text=form.comment.data,
+                size=file_size,
+                md5_digest=file_hashes["md5"],
+                sha256_digest=file_hashes["sha256"],
+                blake2_256_digest=file_hashes["blake2_256"],
+                metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
+                metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
+                # Figure out what our filepath is going to be, we're going to use a
+                # directory structure based on the hash of the file contents. This
+                # will ensure that the contents of the file cannot change without
+                # it also changing the path that the file is saved too.
+                path="/".join(
+                    [
+                        file_hashes[PATH_HASHER][:2],
+                        file_hashes[PATH_HASHER][2:4],
+                        file_hashes[PATH_HASHER][4:],
+                        filename,
+                    ]
                 ),
-                submitted_by=request.user if request.user else None,
+                uploaded_via=request.user_agent,
             )
-        )
+            file_data = file_
+            request.db.add(file_)
 
-        # TODO: We need a better answer about how to make this transactional so
-        #       this won't take affect until after a commit has happened, for
-        #       now we'll just ignore it and save it before the transaction is
-        #       committed.
-        storage = request.find_service(IFileStorage, name="archive")
-        storage.store(
-            file_.path,
-            os.path.join(tmpdir, filename),
-            meta={
-                "project": file_.release.project.normalized_name,
-                "version": file_.release.version,
-                "package-type": file_.packagetype,
-                "python-version": file_.python_version,
-            },
-        )
+            file_.record_event(
+                tag=EventTag.File.FileAdd,
+                request=request,
+                additional={
+                    "filename": file_.filename,
+                    "submitted_by": request.user.username
+                    if request.user
+                    else "OpenID created token",
+                    "canonical_version": release.canonical_version,
+                    "publisher_url": request.oidc_publisher.publisher_url(
+                        request.oidc_claims
+                    )
+                    if request.oidc_publisher
+                    else None,
+                    "project_id": str(project.id),
+                },
+            )
 
-        if metadata_file_hashes:
-            storage.store(
-                file_.metadata_path,
-                os.path.join(tmpdir, filename + ".metadata"),
+            # TODO: This should be handled by some sort of database trigger or a
+            #       SQLAlchemy hook or the like instead of doing it inline in this
+            #       view.
+            request.db.add(
+                JournalEntry(
+                    name=release.project.name,
+                    version=release.version,
+                    action="add {python_version} file {filename}".format(
+                        python_version=file_.python_version, filename=file_.filename
+                    ),
+                    submitted_by=request.user if request.user else None,
+                )
+            )
+
+            # TODO: We need a better answer about how to make this transactional so
+            #       this won't take affect until after a commit has happened, for
+            #       now we'll just ignore it and save it before the transaction is
+            #       committed.
+            storage = request.find_service(IFileStorage, name="archive")
+            storage.store_fileobj(
+                file_.path,
+                fp,
                 meta={
                     "project": file_.release.project.normalized_name,
                     "version": file_.release.version,
@@ -1493,6 +1482,19 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+            if metadata_file_hashes:
+                metadata_fileobj = io.BytesIO(wheel_metadata_contents)
+                storage.store_fileobj(
+                    file_.metadata_path,
+                    metadata_fileobj,
+                    meta={
+                        "project": file_.release.project.normalized_name,
+                        "version": file_.release.version,
+                        "package-type": file_.packagetype,
+                        "python-version": file_.python_version,
+                    },
+                )
 
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
