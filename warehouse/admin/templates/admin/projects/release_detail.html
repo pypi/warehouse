@@ -52,6 +52,18 @@
           <td><code>{{ release.uploaded_via }}</code></td>
         </tr>
         <tr>
+          <td>Trusted Published?</td>
+          <td>
+            {% if release.trusted_published %}
+              <i class="fa fa-fw fa-check text-green"></i>
+            {% else %}
+              <i class="fa fa-fw fa-times text-red"></i>
+              <span>
+                <i class="fa fa-info-circle" data-bs-toggle="tooltip" title="All Files of a Release must be TP for this to be True"></i>
+              </span>
+            {% endif %}
+        </tr>
+        <tr>
           <td>Yanked</td>
           <td>{{ release.yanked }}</td>
         </tr>
@@ -70,6 +82,7 @@
           <th>Package Type</th>
           <th>Python Version</th>
           <th>Uploaded via</th>
+          <th>Trusted Publisher?</th>
         </tr>
         </thead>
         <tbody>
@@ -79,6 +92,13 @@
           <td>{{ file.packagetype }}</td>
           <td>{{ file.python_version }}</td>
           <td><code>{{ file.uploaded_via }}</code></td>
+          <td>
+            {% if file.uploaded_via_trusted_publisher %}
+              <i class="fa fa-fw fa-check text-green"></i>
+            {% else %}
+              <i class="fa fa-fw fa-times text-red"></i>
+            {% endif %}
+          </td>
         </tr>
         {% endfor %}
         </tbody>
