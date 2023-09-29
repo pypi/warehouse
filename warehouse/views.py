@@ -22,6 +22,7 @@ from pyramid.httpexceptions import (
     HTTPException,
     HTTPMovedPermanently,
     HTTPNotFound,
+    HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
     exception_response,
@@ -312,6 +313,11 @@ def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     querystring = request.params.get("q", "").replace("'", '"')
+    # Bail early for really long queries before ES raises an error
+    if len(querystring) > 1000:
+        metrics.increment("warehouse.views.search.error", tags=["error:query_too_long"])
+        raise HTTPRequestEntityTooLarge("Query string too long.")
+
     order = request.params.get("o", "")
     classifiers = request.params.getall("c")
     query = get_es_query(request.es, querystring, order, classifiers)

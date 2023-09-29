@@ -20,6 +20,7 @@ import sqlalchemy
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound,
+    HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
 )
@@ -578,6 +579,17 @@ class TestSearch:
 
         assert page_cls.calls == []
         assert metrics.histogram.calls == []
+
+    def test_return_413_when_query_too_long(self, db_request, metrics):
+        params = MultiDict({"q": "a" * 1001})
+        db_request.params = params
+
+        with pytest.raises(HTTPRequestEntityTooLarge):
+            search(db_request)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.views.search.error", tags=["error:query_too_long"])
+        ]
 
     def test_returns_503_when_es_unavailable(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": 15})
