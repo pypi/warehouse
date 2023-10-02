@@ -84,6 +84,9 @@ def _event(
 
 @pytest.fixture
 def metrics():
+    """
+    A good-enough fake metrics fixture.
+    """
     return pretend.stub(
         event=pretend.call_recorder(lambda *args, **kwargs: _event(*args, **kwargs)),
         gauge=pretend.call_recorder(

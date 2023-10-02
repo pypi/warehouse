@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import datetime
 import uuid
 
@@ -1288,16 +1287,7 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         assert not svc.check_password("my password")
         assert raiser.calls
 
-    def test_metrics_increments(self):
-        class Metrics:
-            def __init__(self):
-                self.values = collections.Counter()
-
-            def increment(self, metric):
-                self.values[metric] += 1
-
-        metrics = Metrics()
-
+    def test_metrics_increments(self, metrics):
         svc = services.HaveIBeenPwnedPasswordBreachedService(
             session=pretend.stub(), metrics=metrics
         )
@@ -1306,7 +1296,11 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         svc._metrics_increment("another_thing")
         svc._metrics_increment("something")
 
-        assert metrics.values == {"something": 2, "another_thing": 1}
+        assert metrics.increment.calls == [
+            pretend.call("something"),
+            pretend.call("another_thing"),
+            pretend.call("something"),
+        ]
 
     def test_factory(self):
         context = pretend.stub()

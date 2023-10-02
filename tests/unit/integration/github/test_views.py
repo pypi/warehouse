@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import json
 
 import pretend
@@ -19,13 +18,11 @@ from warehouse.integrations.github import utils, views
 
 
 class TestGitHubDiscloseToken:
-    def test_github_disclose_token(self, pyramid_request, monkeypatch):
+    def test_github_disclose_token(self, pyramid_request, metrics, monkeypatch):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
         }
-        metrics = pretend.stub()
-
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
         pyramid_request.registry.settings = {
@@ -64,13 +61,13 @@ class TestGitHubDiscloseToken:
             )
         ]
 
-    def test_github_disclose_token_no_token(self, pyramid_request, monkeypatch):
+    def test_github_disclose_token_no_token(
+        self, pyramid_request, metrics, monkeypatch
+    ):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
         }
-        metrics = pretend.stub()
-
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.json_body = [1, 2, 3]
         pyramid_request.registry.settings = {
@@ -91,20 +88,19 @@ class TestGitHubDiscloseToken:
 
         assert response.status_code == 204
 
-    def test_github_disclose_token_verify_fail(self, monkeypatch, pyramid_request):
+    def test_github_disclose_token_verify_fail(
+        self, pyramid_request, metrics, monkeypatch
+    ):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
         }
-        metrics = pretend.stub()
-
         pyramid_request.body = "[1, 2, 3]"
         pyramid_request.find_service = lambda *a, **k: metrics
         pyramid_request.registry.settings = {
             "github.token": "token",
             "github.token_scanning_meta_api.url": "http://foo",
         }
-
         pyramid_request.http = pretend.stub()
 
         verify = pretend.call_recorder(lambda **k: False)
@@ -116,16 +112,11 @@ class TestGitHubDiscloseToken:
 
         assert response.status_int == 400
 
-    def test_github_disclose_token_verify_invalid_json(self, monkeypatch):
+    def test_github_disclose_token_verify_invalid_json(self, metrics, monkeypatch):
         verify = pretend.call_recorder(lambda **k: True)
         verifier = pretend.stub(verify=verify)
         verifier_cls = pretend.call_recorder(lambda **k: verifier)
         monkeypatch.setattr(utils, "GitHubTokenScanningPayloadVerifier", verifier_cls)
-
-        metrics = collections.Counter()
-
-        def metrics_increment(key):
-            metrics.update([key])
 
         # We need to raise on a property access, can't do that with a stub.
         class Request:
@@ -140,7 +131,7 @@ class TestGitHubDiscloseToken:
                 return json.loads(self.body)
 
             def find_service(self, *a, **k):
-                return pretend.stub(increment=metrics_increment)
+                return metrics
 
             response = pretend.stub(status_int=200)
             http = pretend.stub()
@@ -155,28 +146,24 @@ class TestGitHubDiscloseToken:
         response = views.github_disclose_token(request)
 
         assert response.status_int == 400
-        assert metrics == {"warehouse.token_leak.github.error.payload.json_error": 1}
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.token_leak.github.error.payload.json_error")
+        ]
 
-    def test_github_disclose_token_wrong_payload(self, pyramid_request, monkeypatch):
+    def test_github_disclose_token_wrong_payload(
+        self, pyramid_request, metrics, monkeypatch
+    ):
         pyramid_request.headers = {
             "GITHUB-PUBLIC-KEY-IDENTIFIER": "foo",
             "GITHUB-PUBLIC-KEY-SIGNATURE": "bar",
         }
-
-        metrics = collections.Counter()
-
-        def metrics_increment(key):
-            metrics.update([key])
-
-        metrics_service = pretend.stub(increment=metrics_increment)
-
         pyramid_request.body = "{}"
         pyramid_request.json_body = {}
         pyramid_request.registry.settings = {
             "github.token": "token",
             "github.token_scanning_meta_api.url": "http://foo",
         }
-        pyramid_request.find_service = lambda *a, **k: metrics_service
+        pyramid_request.find_service = lambda *a, **k: metrics
 
         pyramid_request.http = pretend.stub()
 
@@ -188,4 +175,6 @@ class TestGitHubDiscloseToken:
         response = views.github_disclose_token(pyramid_request)
 
         assert response.status_code == 400
-        assert metrics == {"warehouse.token_leak.github.error.format": 1}
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.token_leak.github.error.format")
+        ]
