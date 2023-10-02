@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:20.7.0-bookworm as static-deps
+FROM node:20.8.0-bookworm as static-deps
 
 WORKDIR /opt/warehouse/src/
 
