@@ -51,7 +51,6 @@ module = [
     "venusian.*",
     "webob.*", # https://github.com/python/typeshed/pull/9874
     "whitenoise.*",
-    "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
     "yara.*",
     "zxcvbn.*", # https://github.com/dwolfhub/zxcvbn-python/issues/56
     "zope.sqlalchemy.*",
