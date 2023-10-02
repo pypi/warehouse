@@ -3146,8 +3146,7 @@ class TestReAuthentication:
 
 
 class TestManageAccountPublishingViews:
-    def test_initializes(self):
-        metrics = pretend.stub()
+    def test_initializes(self, metrics):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
         )
@@ -3168,8 +3167,7 @@ class TestManageAccountPublishingViews:
             (True, False),
         ],
     )
-    def test_ratelimiting(self, ip_exceeded, user_exceeded):
-        metrics = pretend.stub()
+    def test_ratelimiting(self, metrics, ip_exceeded, user_exceeded):
         user_rate_limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None),
             test=pretend.call_recorder(lambda uid: not user_exceeded),
@@ -3221,8 +3219,7 @@ class TestManageAccountPublishingViews:
         else:
             view._check_ratelimits()
 
-    def test_manage_publishing(self, monkeypatch):
-        metrics = pretend.stub()
+    def test_manage_publishing(self, metrics, monkeypatch):
         request = pretend.stub(
             user=pretend.stub(),
             registry=pretend.stub(

@@ -5913,8 +5913,7 @@ class TestManageProjectHistory:
 
 
 class TestManageOIDCPublisherViews:
-    def test_initializes(self):
-        metrics = pretend.stub()
+    def test_initializes(self, metrics):
         project = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
@@ -5937,10 +5936,8 @@ class TestManageOIDCPublisherViews:
             (True, False),
         ],
     )
-    def test_ratelimiting(self, ip_exceeded, user_exceeded):
+    def test_ratelimiting(self, metrics, ip_exceeded, user_exceeded):
         project = pretend.stub()
-
-        metrics = pretend.stub()
         user_rate_limiter = pretend.stub(
             hit=pretend.call_recorder(lambda *a, **kw: None),
             test=pretend.call_recorder(lambda uid: not user_exceeded),
@@ -6071,7 +6068,7 @@ class TestManageOIDCPublisherViews:
             pretend.call(pyramid_request.POST, api_token="fake-api-token")
         ]
 
-    def test_add_github_oidc_publisher_preexisting(self, monkeypatch):
+    def test_add_github_oidc_publisher_preexisting(self, metrics, monkeypatch):
         publisher = pretend.stub(
             id="fakeid",
             publisher_name="GitHub",
@@ -6091,8 +6088,6 @@ class TestManageOIDCPublisherViews:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=[],
         )
-
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
 
         request = pretend.stub(
             user=pretend.stub(
@@ -6174,7 +6169,7 @@ class TestManageOIDCPublisherViews:
         assert view._check_ratelimits.calls == [pretend.call()]
         assert project.oidc_publishers == [publisher]
 
-    def test_add_github_oidc_publisher_created(self, monkeypatch):
+    def test_add_github_oidc_publisher_created(self, metrics, monkeypatch):
         fakeuser = pretend.stub()
         project = pretend.stub(
             name="fakeproject",
@@ -6182,8 +6177,6 @@ class TestManageOIDCPublisherViews:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
             users=[fakeuser],
         )
-
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
 
         request = pretend.stub(
             user=pretend.stub(
@@ -6355,10 +6348,8 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-    def test_add_github_oidc_publisher_ratelimited(self, monkeypatch):
+    def test_add_github_oidc_publisher_ratelimited(self, metrics, monkeypatch):
         project = pretend.stub()
-
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
 
         request = pretend.stub(
             user=pretend.stub(),
@@ -6422,9 +6413,8 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-    def test_add_github_oidc_publisher_invalid_form(self, monkeypatch):
+    def test_add_github_oidc_publisher_invalid_form(self, metrics, monkeypatch):
         project = pretend.stub()
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
@@ -6644,10 +6634,9 @@ class TestManageOIDCPublisherViews:
             )
         ]
 
-    def test_delete_oidc_publisher_invalid_form(self, monkeypatch):
+    def test_delete_oidc_publisher_invalid_form(self, metrics, monkeypatch):
         publisher = pretend.stub()
         project = pretend.stub(oidc_publishers=[publisher])
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
@@ -6686,7 +6675,9 @@ class TestManageOIDCPublisherViews:
     @pytest.mark.parametrize(
         "other_publisher", [None, pretend.stub(id="different-fakeid")]
     )
-    def test_delete_oidc_publisher_not_found(self, monkeypatch, other_publisher):
+    def test_delete_oidc_publisher_not_found(
+        self, metrics, monkeypatch, other_publisher
+    ):
         publisher = pretend.stub(
             publisher_name="fakepublisher",
             id="fakeid",
@@ -6699,7 +6690,6 @@ class TestManageOIDCPublisherViews:
             name="fakeproject",
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
         request = pretend.stub(
             user=pretend.stub(),
             find_service=lambda *a, **kw: metrics,
