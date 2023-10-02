@@ -49,7 +49,6 @@ module = [
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
     "whitenoise.*",
-    "yara.*",
     "zxcvbn.*", # https://github.com/dwolfhub/zxcvbn-python/issues/56
     "zope.sqlalchemy.*",
 ]
