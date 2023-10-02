@@ -877,7 +877,10 @@ class HaveIBeenPwnedEmailBreachedService:
             resp.raise_for_status()
         except requests.RequestException as exc:
             # 404 is expected if the email has **not** been breached
-            if exc.response.status_code == http.HTTPStatus.NOT_FOUND:
+            if (
+                exc.response is not None
+                and exc.response.status_code == http.HTTPStatus.NOT_FOUND
+            ):
                 return 0
             logger.warning("Error contacting HaveIBeenPwned: %r", exc)
             return -1
