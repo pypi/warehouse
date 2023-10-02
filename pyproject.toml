@@ -29,7 +29,6 @@ module = [
     "github_reserved_names.*",
     "google.cloud.*",
     "forcediphttpsadapter.*",
-    "IPython.*",
     "linehaul.*",
     "packaging_legacy.*",
     "paginate.*",
