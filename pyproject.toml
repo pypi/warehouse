@@ -25,14 +25,12 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
-    "disposable_email_domains.*",
     "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
     "github_reserved_names.*",
     "google.cloud.*",
     "forcediphttpsadapter.*",
-    "IPython.*",
+    "IPython.*",  # has types, but only installed in dev
     "linehaul.*",
-    "mistune.*",
     "packaging_legacy.*",
     "paginate.*",
     "paginate_sqlalchemy.*",
@@ -49,11 +47,7 @@ module = [
     "transaction.*",
     "ua_parser.*",  # https://github.com/ua-parser/uap-python/issues/110
     "venusian.*",
-    "webob.*", # https://github.com/python/typeshed/pull/9874
     "whitenoise.*",
-    "wtforms.*", # https://github.com/wtforms/wtforms/issues/618
-    "yara.*",
-    "zxcvbn.*", # https://github.com/dwolfhub/zxcvbn-python/issues/56
     "zope.sqlalchemy.*",
 ]
 ignore_missing_imports = true

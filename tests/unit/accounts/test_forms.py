@@ -950,8 +950,8 @@ class TestWebAuthnAuthenticationForm:
         origin = (pretend.stub(),)
         rp_id = (pretend.stub(),)
         form = forms.WebAuthnAuthenticationForm(
+            formdata=MultiDict({"credential": json.dumps({})}),
             request=request,
-            credential=json.dumps({}),
             user_id=pretend.stub(),
             user_service=pretend.stub(
                 verify_webauthn_assertion=pretend.call_recorder(
@@ -972,8 +972,8 @@ class TestWebAuthnAuthenticationForm:
     def test_credential_bad_payload(self, pyramid_config):
         request = pretend.stub()
         form = forms.WebAuthnAuthenticationForm(
+            formdata=MultiDict({"credential": "not valid json"}),
             request=request,
-            credential="not valid json",
             user_id=pretend.stub(),
             user_service=pretend.stub(),
             challenge=pretend.stub(),
@@ -998,8 +998,8 @@ class TestWebAuthnAuthenticationForm:
             ),
         )
         form = forms.WebAuthnAuthenticationForm(
+            formdata=MultiDict({"credential": json.dumps({})}),
             request=request,
-            credential=json.dumps({}),
             user_id=1,
             user_service=user_service,
             challenge=pretend.stub(),

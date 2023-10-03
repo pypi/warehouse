@@ -105,7 +105,7 @@ class TOTPValueMixin:
 
 
 class WebAuthnCredentialMixin:
-    credential = wtforms.StringField(wtforms.validators.InputRequired())
+    credential = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
 
 
 class RecoveryCodeValueMixin:
@@ -320,8 +320,14 @@ class UsernameSearchForm(UsernameMixin, forms.Form):
         return True
 
 
-class RegistrationForm(
-    NewUsernameMixin, NewEmailMixin, NewPasswordMixin, HoneypotMixin, forms.Form
+class RegistrationForm(  # type: ignore[misc]
+    # Both `NewEmailMixin` and `NewPasswordMixin` declare an `email` field,
+    # we ignore the difference in implementation.
+    NewUsernameMixin,
+    NewEmailMixin,
+    NewPasswordMixin,
+    HoneypotMixin,
+    forms.Form,
 ):
     full_name = wtforms.StringField(
         validators=[
