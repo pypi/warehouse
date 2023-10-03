@@ -90,27 +90,27 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:330 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:419
+#: warehouse/accounts/forms.py:425
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:436
+#: warehouse/accounts/forms.py:442
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:505
+#: warehouse/accounts/forms.py:511
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:514
+#: warehouse/accounts/forms.py:520
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:533
+#: warehouse/accounts/forms.py:539
 msgid "No user found with that username or email"
 msgstr ""
 
@@ -133,202 +133,202 @@ msgid ""
 " ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:315 warehouse/accounts/views.py:384
-#: warehouse/accounts/views.py:386 warehouse/accounts/views.py:413
-#: warehouse/accounts/views.py:415 warehouse/accounts/views.py:521
+#: warehouse/accounts/views.py:318 warehouse/accounts/views.py:387
+#: warehouse/accounts/views.py:389 warehouse/accounts/views.py:416
+#: warehouse/accounts/views.py:418 warehouse/accounts/views.py:524
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:378
+#: warehouse/accounts/views.py:381
 msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:456
+#: warehouse/accounts/views.py:459
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:552 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:555 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
-#: warehouse/accounts/views.py:644
+#: warehouse/accounts/views.py:647
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:775
+#: warehouse/accounts/views.py:778
 msgid "Expired token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:777
+#: warehouse/accounts/views.py:780
 msgid "Invalid token: request a new password reset link"
 msgstr ""
 
-#: warehouse/accounts/views.py:779 warehouse/accounts/views.py:892
-#: warehouse/accounts/views.py:996 warehouse/accounts/views.py:1165
+#: warehouse/accounts/views.py:782 warehouse/accounts/views.py:895
+#: warehouse/accounts/views.py:999 warehouse/accounts/views.py:1168
 msgid "Invalid token: no token supplied"
 msgstr ""
 
-#: warehouse/accounts/views.py:783
+#: warehouse/accounts/views.py:786
 msgid "Invalid token: not a password reset token"
 msgstr ""
 
-#: warehouse/accounts/views.py:788
+#: warehouse/accounts/views.py:791
 msgid "Invalid token: user not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:810
+#: warehouse/accounts/views.py:813
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:828
+#: warehouse/accounts/views.py:831
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 
-#: warehouse/accounts/views.py:860
+#: warehouse/accounts/views.py:863
 msgid "You have reset your password"
 msgstr ""
 
-#: warehouse/accounts/views.py:888
+#: warehouse/accounts/views.py:891
 msgid "Expired token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:890
+#: warehouse/accounts/views.py:893
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 
-#: warehouse/accounts/views.py:896
+#: warehouse/accounts/views.py:899
 msgid "Invalid token: not an email verification token"
 msgstr ""
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:908
 msgid "Email not found"
 msgstr ""
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:911
 msgid "Email already verified"
 msgstr ""
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:928
 msgid "You can now set this email as your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:932
 msgid "This is your primary address"
 msgstr ""
 
-#: warehouse/accounts/views.py:934
+#: warehouse/accounts/views.py:937
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 
-#: warehouse/accounts/views.py:992
+#: warehouse/accounts/views.py:995
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:994
+#: warehouse/accounts/views.py:997
 msgid "Invalid token: request a new organization invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1000
+#: warehouse/accounts/views.py:1003
 msgid "Invalid token: not an organization invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1004
+#: warehouse/accounts/views.py:1007
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1013
+#: warehouse/accounts/views.py:1016
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1064
+#: warehouse/accounts/views.py:1067
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1127
+#: warehouse/accounts/views.py:1130
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr ""
 
-#: warehouse/accounts/views.py:1161
+#: warehouse/accounts/views.py:1164
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1163
+#: warehouse/accounts/views.py:1166
 msgid "Invalid token: request a new project role invitation"
 msgstr ""
 
-#: warehouse/accounts/views.py:1169
+#: warehouse/accounts/views.py:1172
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1173
+#: warehouse/accounts/views.py:1176
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1188
+#: warehouse/accounts/views.py:1191
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1219
+#: warehouse/accounts/views.py:1222
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1285
+#: warehouse/accounts/views.py:1288
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1506 warehouse/accounts/views.py:1654
+#: warehouse/accounts/views.py:1509 warehouse/accounts/views.py:1657
 #: warehouse/manage/views/__init__.py:1237
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1523 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1526 warehouse/manage/views/__init__.py:1253
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1537
+#: warehouse/accounts/views.py:1540
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1550
+#: warehouse/accounts/views.py:1553
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1566 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1569 warehouse/manage/views/__init__.py:1272
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1580 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1583 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1599
+#: warehouse/accounts/views.py:1602
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634
+#: warehouse/accounts/views.py:1637
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1668 warehouse/accounts/views.py:1681
-#: warehouse/accounts/views.py:1688
+#: warehouse/accounts/views.py:1671 warehouse/accounts/views.py:1684
+#: warehouse/accounts/views.py:1691
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1694
+#: warehouse/accounts/views.py:1697
 msgid "Removed trusted publisher for project "
 msgstr ""
 

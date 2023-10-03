@@ -193,6 +193,9 @@ def accounts_search(request) -> dict[str, list[User]]:
         return {"users": []}
 
     user_service = request.find_service(IUserService, context=None)
+    # type guard, see:
+    # https://github.com/python/typeshed/pull/10557#issuecomment-1732358909
+    assert form.username.data is not None
     users = user_service.get_users_by_prefix(form.username.data.strip())
     search_limiter.hit(request.ip_address)
 
