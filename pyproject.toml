@@ -29,6 +29,7 @@ module = [
     "github_reserved_names.*",
     "google.cloud.*",
     "forcediphttpsadapter.*",
+    "IPython.*",  # has types, but only installed in dev
     "linehaul.*",
     "packaging_legacy.*",
     "paginate.*",
