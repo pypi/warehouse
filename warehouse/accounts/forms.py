@@ -105,7 +105,7 @@ class TOTPValueMixin:
 
 
 class WebAuthnCredentialMixin:
-    credential = wtforms.StringField(wtforms.validators.InputRequired())
+    credential = wtforms.StringField(validators=[wtforms.validators.InputRequired()])
 
 
 class RecoveryCodeValueMixin:
