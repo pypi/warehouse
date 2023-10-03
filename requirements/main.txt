@@ -1678,9 +1678,9 @@ wcwidth==0.2.6 \
     --hash=sha256:795b138f6875577cd91bba52baf9e445cd5118fd32723b460e30a0af30ea230e \
     --hash=sha256:a5220780a404dbe3353789870978e472cfe477761f06ee55077256e509b156d0
     # via prompt-toolkit
-webauthn==1.10.1 \
-    --hash=sha256:1d6b2c0753344df4c067a478f0e7f0e6cbb561f3d40342472f421657cdd16d41 \
-    --hash=sha256:94fc8265cccce88e1e43dc2008f3d8bb1f05fdd547246efa1be8ef684a6c3a7b
+webauthn==1.11.0 \
+    --hash=sha256:1e808de1e3625a4b361e249e1bbb254d2a3a5c6b206e6f7260c4febe51f45276 \
+    --hash=sha256:9c8a81f7e310aee022a038ae2c76711bcf0a94521a471225e05c36871f83eeda
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
