@@ -422,7 +422,7 @@ def webauthn_authentication_validate(request):
 
     user_service = request.find_service(IUserService, context=None)
     form = WebAuthnAuthenticationForm(
-        **request.POST,
+        request.POST,
         request=request,
         user_id=userid,
         user_service=user_service,
