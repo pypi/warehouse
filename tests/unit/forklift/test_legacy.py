@@ -3140,7 +3140,7 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
-            "macosx_14_2_arm64",
+            "macosx_15_2_arm64",
             "macosx_10_15_amd64",
         ],
     )
