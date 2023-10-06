@@ -482,6 +482,10 @@ def configure(settings=None):
     # Our translation strings are all in the "messages" domain
     config.add_settings({"jinja2.i18n.domain": "messages"})
 
+    # Trim the Jinja blocks from the output, it's extra whitespace.
+    config.add_settings({"jinja2.lstrip_blocks": True})
+    config.add_settings({"jinja2.trim_blocks": True})
+
     # We also want to use Jinja2 for .html templates as well, because we just
     # assume that all templates will be using Jinja.
     config.add_jinja2_renderer(".html")

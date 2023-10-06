@@ -1,9 +1,9 @@
 Sitemap: {{ request.route_url("index.sitemap.xml") }}
 
 User-agent: *
-{%- if request.registry.settings.get("warehouse.domain") != "pypi.org" %}
+{% if request.registry.settings.get("warehouse.domain") != "pypi.org" %}
 Disallow: /
-{%- else %}
+{% else %}
 Disallow: /simple/
 Disallow: /packages/
 Disallow: /_includes/
@@ -11,5 +11,4 @@ Disallow: /pypi/*/json
 Disallow: /pypi/*/*/json
 Disallow: /pypi*?
 Disallow: /search*
-{%- endif %}
-
+{% endif %}
