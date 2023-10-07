@@ -874,7 +874,8 @@ def file_upload(request):
     if (reason := _upload_disallowed(request)) is not None:
         raise _exc_with_message(HTTPForbidden, reason)
 
-    # Do some cleanup of the various form fields
+    # Do some cleanup of the various form fields, there's a lot of garbage that
+    # gets sent to this view, and this helps prevent issues later on.
     for key in list(request.POST):
         value = request.POST.get(key)
         if isinstance(value, str):
