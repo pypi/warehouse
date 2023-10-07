@@ -38,6 +38,7 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
@@ -617,6 +618,51 @@ class MetadataForm(forms.Form):
             )
 
 
+def _upload_disallowed(request: Request) -> str | None:
+    # If we're in read-only mode, let upload clients know
+    if request.flags.enabled(AdminFlagValue.READ_ONLY):
+        return "Read-only mode: Uploads are temporarily disabled."
+
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        return (
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for more information.".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            )
+        )
+
+    # If there isn't an authenticated identity with this request, then we can't
+    # upload anyways.
+    if request.identity is None:
+        return (
+            "Invalid or non-existent authentication information. "
+            "See {projecthelp} for more information.".format(
+                projecthelp=request.help_url(_anchor="invalid-auth")
+            )
+        )
+
+    # These checks only make sense when our authenticated identity is a user,
+    # not a project identity (like OIDC-minted tokens.)
+    if request.user:
+        # Ensure that user has a verified, primary email address. This should both
+        # reduce the ease of spam account creation and activity, as well as act as
+        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+        #       we might consider a different condition, possibly looking at
+        #       User.is_active instead.
+        if not (request.user.primary_email and request.user.primary_email.verified):
+            return (
+                "User {!r} does not have a verified primary email address. "
+                "Please add a verified primary email before attempting to "
+                "upload to PyPI. See {project_help} for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="verified-email"),
+            )
+
+    return None
+
+
 def _validate_filename(filename, filetype):
     # Our object storage does not tolerate some specific characters
     # ref: https://www.backblaze.com/b2/docs/files.html#file-names
@@ -790,60 +836,43 @@ def _is_duplicate_file(db_session, filename, hashes):
     has_translations=True,
 )
 def file_upload(request):
+    # Basic Process of the upload endpoint:
+    #
+    # 1. Do some basic checks to make sure that we're allowing uploads, either
+    #    generally or for this specific identity. We do this first, before doing
+    #    anything else so that we can bail out early.
+    #
+    # 2. Validate the metadata that comes from the form data, ignoring the
+    #    metadata inside the file for now, so that we can ensure that the
+    #    metadata is valid prior to consuming the actual file itself.
+    #
+    # 3. Ensure permissions for the project, creating the project if needed, so
+    #    that we don't bother consuming the file if the permissions are going to
+    #    fail anyways.
+    #
+    # 4. Consume the uploaded file, computing hashes for it and verify that the
+    #    hashes match what we're expecting.
+    #
+    # 5. Extract and validate the metadata within the file, making sure both
+    #    that it is valid *and* that it matches the metadata that was passed in
+    #    the form data.
+    #
+    # 6. Take the now fully uploaded and validated file, and perist them both in
+    #    the database and in our storage.
+
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings = []
-
-    # If we're in read-only mode, let upload clients know
-    if request.flags.enabled(AdminFlagValue.READ_ONLY):
-        raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
-        )
-
-    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-        raise _exc_with_message(
-            HTTPForbidden,
-            "New uploads are temporarily disabled. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="admin-intervention")
-            ),
-        )
 
     # Log an attempt to upload
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
 
-    # Before we do anything, if there isn't an authenticated identity with
-    # this request, then we'll go ahead and bomb out.
-    if request.identity is None:
-        raise _exc_with_message(
-            HTTPForbidden,
-            "Invalid or non-existent authentication information. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="invalid-auth")
-            ),
-        )
-
-    # These checks only make sense when our authenticated identity is a user,
-    # not a project identity (like OIDC-minted tokens.)
-    if request.user:
-        # Ensure that user has a verified, primary email address. This should both
-        # reduce the ease of spam account creation and activity, as well as act as
-        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
-        #       we might consider a different condition, possibly looking at
-        #       User.is_active instead.
-        if not (request.user.primary_email and request.user.primary_email.verified):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "User {!r} does not have a verified primary email address. "
-                    "Please add a verified primary email before attempting to "
-                    "upload to PyPI. See {project_help} for more information."
-                ).format(
-                    request.user.username,
-                    project_help=request.help_url(_anchor="verified-email"),
-                ),
-            ) from None
+    # Do some basic check to make sure that we're allowing uploads, either
+    # generally or for the current identity. Wo do this first, before doing
+    # anything else so that we can bail out early if there's no chance we're
+    # going to accept the upload anyways.
+    if (reason := _upload_disallowed(request)) is not None:
+        raise _exc_with_message(HTTPForbidden, reason)
 
     # Do some cleanup of the various form fields
     for key in list(request.POST):
