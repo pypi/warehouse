@@ -3088,7 +3088,8 @@ class TestFileUpload:
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid wheel filename (invalid version): foo-0.0.4test1-py3-none-any",
+                "400 Invalid wheel filename (invalid version): "
+                "foo-0.0.4test1-py3-none-any",
             ),
         ],
     )
