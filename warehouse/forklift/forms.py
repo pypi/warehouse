@@ -17,6 +17,7 @@ import wtforms.validators
 
 
 from warehouse import forms
+from warehouse.forklift.metadata.form import ProjectName
 
 
 _filetype_extension_mapping = {
@@ -26,6 +27,16 @@ _filetype_extension_mapping = {
 
 
 class UploadForm(forms.Form):
+    # This field is duplicated out of the general metadata handling, to be part
+    # of the upload form as well.
+    name = wtforms.StringField(
+        description="Name",
+        validators=[
+            wtforms.validators.InputRequired(),
+            ProjectName(),
+        ],
+    )
+
     pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
     filetype = wtforms.StringField(
         validators=[

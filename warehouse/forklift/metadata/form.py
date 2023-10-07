@@ -226,6 +226,28 @@ def _validate_classifiers(form, field):
             )
 
 
+# This validated is defined as proper validator rather than a private function
+# so that it is better setup for re-use between MetadataForm and UploadForm.
+class ProjectName:
+    message: str
+    _regex: re.Pattern
+
+    def __init__(self, message=None):
+        if not message:
+            message = (
+                "Start and end with a letter or numeral containing "
+                "only ASCII numeric and '.', '_' and '-'."
+            )
+        self.message = message
+        self._regex = re.compile(PROJECT_NAME_RE, re.IGNORECASE)
+
+    def __call__(self, form, field):
+        if m := self._regex.match(field.data or ""):
+            return m
+
+        raise wtforms.validators.ValidationError(self.message)
+
+
 class ListField(wtforms.Field):
     def process_formdata(self, valuelist):
         self.data = [v.strip() for v in valuelist if v.strip()]
@@ -255,14 +277,7 @@ class MetadataForm(forms.Form):
         description="Name",
         validators=[
             wtforms.validators.InputRequired(),
-            wtforms.validators.Regexp(
-                PROJECT_NAME_RE,
-                re.IGNORECASE,
-                message=(
-                    "Start and end with a letter or numeral containing "
-                    "only ASCII numeric and '.', '_' and '-'."
-                ),
-            ),
+            ProjectName(),
         ],
     )
     version = wtforms.StringField(

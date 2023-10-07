@@ -251,6 +251,56 @@ def _upload_disallowed(request: Request) -> str | None:
     return None
 
 
+def _get_or_create_project(request: Request, project_name: str) -> Project:
+    # Look up the project first before doing anything else, this is so we can
+    # automatically register it if we need to and can check permissions before
+    # going any further.
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+
+    if project is None:
+        # Another sanity check: we should be preventing non-user identities
+        # from creating projects in the first place with scoped tokens,
+        # but double-check anyways.
+        # This can happen if a user mismatches between the project name in
+        # their pending publisher (1) and the project name in their metadata (2):
+        # the pending publisher will create an empty project named (1) and will
+        # produce a valid API token, but the project lookup above uses (2)
+        # and will fail because (1) != (2).
+        if not request.user:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "Non-user identities cannot create new projects. "
+                    "This was probably caused by successfully using a pending "
+                    "publisher but specifying the project name incorrectly (either "
+                    "in the publisher or in your project's metadata). Please ensure "
+                    "that both match. "
+                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
+                ),
+            )
+
+        # We attempt to create the project.
+        try:
+            validate_project_name(project_name, request)
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
+
+        project_service = request.find_service(IProjectService)
+        try:
+            project = project_service.create_project(
+                project_name, request.user, request
+            )
+        except RateLimiterException:
+            msg = "Too many new projects created"
+            raise _exc_with_message(HTTPTooManyRequests, msg)
+
+    return project
+
+
 def _invalid_filename(filename: str) -> str | None:
     # Our object storage does not tolerate some specific characters
     # ref: https://www.backblaze.com/b2/docs/files.html#file-names
@@ -425,11 +475,6 @@ def file_upload(request):
     if (reason := _upload_disallowed(request)) is not None:
         raise _exc_with_message(HTTPForbidden, reason)
 
-    # We require protocol_version 1, it's the only supported version however
-    # passing a different version should raise an error.
-    if request.POST.get("protocol_version", "1") != "1":
-        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
-
     # Do some cleanup of the various form fields, there's a lot of garbage that
     # gets sent to this view, and this helps prevent issues later on.
     for key in list(request.POST):
@@ -445,6 +490,11 @@ def file_upload(request):
             # Escape NUL characters, which psycopg doesn't like
             if "\x00" in value:
                 request.POST[key] = value.replace("\x00", "\\x00")
+
+    # We require protocol_version 1, it's the only supported version however
+    # passing a different version should raise an error.
+    if request.POST.get("protocol_version", "1") != "1":
+        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
     # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
@@ -464,56 +514,16 @@ def file_upload(request):
     if not form.validate():
         raise _exc_with_message(HTTPBadRequest, "TODO: A Real Error Message")
 
-    # Fetch and validate the incoming metadata, ensuring that it is fully
-    # validated by the packaging.metdata.
-    try:
-        meta = metadata.load(form_data=request.POST)
-    except packaging.metadata.InvalidMetadata as exc:
-        raise  # TODO: Better error handling
-
-    # Look up the project first before doing anything else, this is so we can
-    # automatically register it if we need to and can check permissions before
-    # going any further.
-    project = (
-        request.db.query(Project)
-        .filter(Project.normalized_name == func.normalize_pep426_name(meta.name))
-        .first()
-    )
-
-    if project is None:
-        # Another sanity check: we should be preventing non-user identities
-        # from creating projects in the first place with scoped tokens,
-        # but double-check anyways.
-        # This can happen if a user mismatches between the project name in
-        # their pending publisher (1) and the project name in their metadata (2):
-        # the pending publisher will create an empty project named (1) and will
-        # produce a valid API token, but the project lookup above uses (2)
-        # and will fail because (1) != (2).
-        if not request.user:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "Non-user identities cannot create new projects. "
-                    "This was probably caused by successfully using a pending "
-                    "publisher but specifying the project name incorrectly (either "
-                    "in the publisher or in your project's metadata). Please ensure "
-                    "that both match. "
-                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
-                ),
-            )
-
-        # We attempt to create the project.
-        try:
-            validate_project_name(meta.name, request)
-        except HTTPException as exc:
-            raise _exc_with_message(exc.__class__, exc.detail) from None
-
-        project_service = request.find_service(IProjectService)
-        try:
-            project = project_service.create_project(meta.name, request.user, request)
-        except RateLimiterException:
-            msg = "Too many new projects created"
-            raise _exc_with_message(HTTPTooManyRequests, msg)
+    # At this point, we've validated that we have a file upload, and we know
+    # what project it is for, and we've validated that the project name is a
+    # valid project name.
+    #
+    # In order to continue on, we need to fetch the Project from the database,
+    # creating it if it doesn't exist, because we want to check permissions
+    # before continuing on and we also need to know things like what the upload
+    # limit is for this project before we can start consuming the file that is
+    # being uploaded.
+    project = _get_or_create_project(request, form.name.data)
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
@@ -521,32 +531,18 @@ def file_upload(request):
     allowed = request.has_permission("upload", project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
-        if request.user:
-            msg = (
-                (
-                    "The user '{}' isn't allowed to upload to project '{}'. "
-                    "See {} for more information."
-                ).format(
-                    request.user.username,
-                    project.name,
-                    request.help_url(_anchor="project-name"),
-                )
-                if reason is None
-                else allowed.msg
-            )
-        else:
-            msg = (
-                (
-                    "The given token isn't allowed to upload to project '{}'. "
-                    "See {} for more information."
-                ).format(
-                    project.name,
-                    request.help_url(_anchor="project-name"),
-                )
-                if reason is None
-                else allowed.msg
-            )
-        raise _exc_with_message(HTTPForbidden, msg)
+        identity = f"user {request.user.username!r}" if request.user else "token"
+        raise _exc_with_message(
+            HTTPForbidden,
+            (
+                "The {identity} isn't allowed to upload to the project {project!r}. "
+                "See {url} for more information."
+            ).format(
+                identity=identity,
+                project=project.name,
+                url=request.help_url("project-name"),
+            ),
+        )
 
     # Check if the user has 2FA and used basic auth
     # NOTE: We don't need to guard request.user here because basic auth
@@ -566,6 +562,13 @@ def file_upload(request):
                 "in place of password."
             ),
         )
+
+    # Fetch and validate the incoming metadata, ensuring that it is fully
+    # validated by the packaging.metdata.
+    try:
+        meta = metadata.load(form_data=request.POST)
+    except packaging.metadata.InvalidMetadata as exc:
+        raise  # TODO: Better error handling
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
