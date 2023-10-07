@@ -33,7 +33,7 @@ mistune
 msgpack
 natsort
 orjson
-packaging>=15.2
+packaging>=23.2
 packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
