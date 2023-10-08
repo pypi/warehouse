@@ -94,100 +94,6 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 COMPRESSION_RATIO_THRESHOLD = 50
 
 
-# Wheel platform checking
-
-# Note: defining new platform ABI compatibility tags that don't
-#       have a python.org binary release to anchor them is a
-#       complex task that needs more than just OS+architecture info.
-#       For Linux specifically, the platform ABI is defined by each
-#       individual distro version, so wheels built on one version may
-#       not even work on older versions of the same distro, let alone
-#       a completely different distro.
-#
-#       That means new entries should only be added given an
-#       accompanying ABI spec that explains how to build a
-#       compatible binary (see the manylinux specs as examples).
-
-# These platforms can be handled by a simple static list:
-_allowed_platforms = {
-    "any",
-    "win32",
-    "win_arm64",
-    "win_amd64",
-    "win_ia64",
-    "manylinux1_x86_64",
-    "manylinux1_i686",
-    "manylinux2010_x86_64",
-    "manylinux2010_i686",
-    "manylinux2014_x86_64",
-    "manylinux2014_i686",
-    "manylinux2014_aarch64",
-    "manylinux2014_armv7l",
-    "manylinux2014_ppc64",
-    "manylinux2014_ppc64le",
-    "manylinux2014_s390x",
-    "linux_armv6l",
-    "linux_armv7l",
-}
-# macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
-_macosx_arches = {
-    "ppc",
-    "ppc64",
-    "i386",
-    "x86_64",
-    "arm64",
-    "intel",
-    "fat",
-    "fat32",
-    "fat64",
-    "universal",
-    "universal2",
-}
-_macosx_major_versions = {
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-}
-
-# manylinux pep600 and musllinux pep656 are a little more complicated:
-_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_jointlinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64le",
-    "s390x",
-}
-_manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches
-
-
-# Actual checking code;
-def _valid_platform_tag(platform_tag):
-    if platform_tag in _allowed_platforms:
-        return True
-    m = _macosx_platform_re.match(platform_tag)
-    if (
-        m
-        and m.group("major") in _macosx_major_versions
-        and m.group("arch") in _macosx_arches
-    ):
-        return True
-    m = _linux_platform_re.match(platform_tag)
-    if m and m.group("libc") == "musl":
-        return m.group("arch") in _musllinux_arches
-    if m and m.group("libc") == "many":
-        return m.group("arch") in _manylinux_arches
-    return False
-
-
-_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
-
-
 def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
@@ -335,6 +241,7 @@ def _invalid_filename_for_metadata(
 
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class UploadedFile:
+    path: os.PathLike
     filename: str
     size: int
     digests: dict[str, str]
@@ -342,16 +249,19 @@ class UploadedFile:
 
 def _copy_uploaded_file(
     request: Request,
-    project_name: str,
+    tmpdir: os.PathLike,
+    project: Project,
     filename: str,
     src: io.RawIOBase,
-    dst: io.RawIOBase,
     *,
-    file_size_limit: int,
-    project_current_size: int,
-    project_size_limit: int,
     digests: dict[str, str],
 ) -> UploadedFile:
+    # The project may or may not have a file size specified on the project, if
+    # it does then it may or may not be smaller or larger than our global file
+    # size limits.
+    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+
     # We don't allow files of arbitrary size, so we wrap our file obj in a wrapper
     # that will ensure we respect our given limit.
     limited_file = LimitedFileWrapper(src, file_size_limit)
@@ -370,8 +280,10 @@ def _copy_uploaded_file(
     )
 
     # Actually copy the file to the destination.
+    path = os.path.join(tmpdir, filename)
     try:
-        shutil.copyfileobj(hashed_file, dst)
+        with open(path, "rb") as dst:
+            shutil.copyfileobj(hashed_file, dst)
     except FileLimitError:
         # If we've gotten a FileLimitError, then the size of the file is
         # too large and we need to bail out with a reasonable error message.
@@ -381,7 +293,7 @@ def _copy_uploaded_file(
                 "File too large. Limit for project {name!r} is {limit} MB. "
                 "See {url} for more information"
             ).format(
-                name=project_name,
+                name=project.name,
                 limit=file_size_limit // ONE_MB,
                 url=request.help_url(_anchor="file-size-limit"),
             ),
@@ -389,14 +301,14 @@ def _copy_uploaded_file(
 
     # If the uploaded file pushes the project past it's total size limitat,
     # then we'll need to raise an error.
-    if limited_file.amount_read + project_current_size > project_size_limit:
+    if limited_file.amount_read + project.total_size > project_size_limit:
         raise _exc_with_message(
             HTTPBadRequest,
             (
                 "Project size too large. Limit for project {name!r} total size is {limit} GB. "
                 "See {url} for more information"
             ).format(
-                name=project_name,
+                name=project.name,
                 limit=project_size_limit // ONE_GB,
                 url=request.help_url(_anchor="project-size-limit"),
             ),
@@ -424,6 +336,7 @@ def _copy_uploaded_file(
 
     # Return the captured metadata for the file
     return UploadedFile(
+        path=path,
         filename=filename,
         size=limited_file.amount_read,
         digests=hashed_file.digests(),
@@ -574,6 +487,11 @@ def file_upload(request):
     if (reason := _upload_disallowed(request)) is not None:
         raise _exc_with_message(HTTPForbidden, reason)
 
+    # We require protocol_version 1, it's the only supported version however
+    # passing a different version should raise an error.
+    if request.POST.get("protocol_version", "1") != "1":
+        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
+
     # Do some cleanup of the various form fields, there's a lot of garbage that
     # gets sent to this view, and this helps prevent issues later on.
     for key in list(request.POST):
@@ -590,11 +508,6 @@ def file_upload(request):
             if "\x00" in value:
                 request.POST[key] = value.replace("\x00", "\\x00")
 
-    # We require protocol_version 1, it's the only supported version however
-    # passing a different version should raise an error.
-    if request.POST.get("protocol_version", "1") != "1":
-        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
-
     # Check if any fields were supplied as a tuple and have become a
     # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
     # ref: https://github.com/pypi/warehouse/issues/2185
@@ -603,10 +516,6 @@ def file_upload(request):
         values = request.POST.getall(field)
         if any(isinstance(value, FieldStorage) for value in values):
             raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
-
-    # Ensure that we have file data in the request.
-    if "content" not in request.POST:
-        raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
 
     # Validate the non Metadata portions of the upload data
     form = UploadForm(request.POST)
@@ -662,6 +571,39 @@ def file_upload(request):
             ),
         )
 
+    # We're going to need a temporary, request scoped, location to buffer uploaded
+    # data to disk so that we don't have to buffer in memory, so we'll create a
+    # temporary directory and register a callback that will clean it up when the
+    # request has completed.
+    #
+    # NOTE: request.add_finished_callback callbacks are called unconditionally
+    #       whether the request is successful or not, thus this is similiar to
+    #       using this as a context manager, except scoped to the life of the
+    #       request.
+    tmpdir = tempfile.TemporaryDirectory()
+    request.add_finished_callback(lambda _: tmpdir.cleanup())
+
+    # Copy the uploaded file to a temporary location, allowing us to compute the
+    # hashes, check the upload size, extract the metadata, etc.
+    uploaded_file = _copy_uploaded_file(
+        request,
+        tmpdir,
+        project,
+        form.filename.data,
+        request.POST["content"].file,
+        digests={
+            # Get a dict with the user provided values for each of our
+            # supported digests, skipping any that the user didn't provide.
+            name: getattr(form, f"{name}_digest").data
+            for name in {"md5", "sha256", "blake2_256"}
+            if getattr(form, f"{name}_digest").data
+        },
+    )
+
+    # Check the file to make sure it is a valid distribution file.
+    if not _is_valid_dist_file(uploaded_file.path, form.filetype.data):
+        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+
     # Fetch and validate the incoming metadata, ensuring that it is fully
     # validated by the packaging.metdata.
     try:
@@ -673,6 +615,14 @@ def file_upload(request):
     # that we have parsed out of the metadata.
     if (reason := _invalid_filename_for_metadata(form.filename.data, meta)) is not None:
         raise _exc_with_message(HTTPBadRequest, reason)
+
+    # Validate the filename against our existing data, checking to see if it
+    # matches any already used filenames or not.
+    #
+    # In theory we could move this earlier in the process, prior to validating the
+    # metadata, however we want to delay doing these validations until we've
+    # validated that the filename is valid with respect to the metadata within
+    # the file, so this is the earliest we can do this at.
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -863,36 +813,7 @@ def file_upload(request):
     ):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # The project may or may not have a file size specified on the project, if
-    # it does then it may or may not be smaller or larger than our global file
-    # size limits.
-    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
-    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
-
     with tempfile.TemporaryDirectory() as tmpdir:
-        temporary_filename = os.path.join(tmpdir, form.filename.data)
-
-        # Buffer the entire file onto disk, checking the hash of the file and the
-        # size of the file as we go along.
-        with open(temporary_filename, "wb") as fp:
-            uploaded_file = _copy_uploaded_file(
-                request,
-                project.name,
-                form.filename.data,
-                request.POST["content"].file,
-                fp,
-                file_size_limit=file_size_limit,
-                project_current_size=project.total_size,
-                project_size_limit=project_size_limit,
-                digests={
-                    # Get a dict with the user provided values for each of our
-                    # supported digests, skipping any that the user didn't provide.
-                    name: getattr(form, f"{name}_digest").data
-                    for name in {"md5", "sha256", "blake2_256"}
-                    if getattr(form, f"{name}_digest").data
-                },
-            )
-
         # Check to see if the file that was uploaded exists already or not.
         is_duplicate = _is_duplicate_file(
             request.db, uploaded_file.filename, uploaded_file.digests
@@ -940,28 +861,8 @@ def file_upload(request):
                 HTTPBadRequest, "Only one sdist may be uploaded per release."
             )
 
-        # Check the file to make sure it is a valid distribution file.
-        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
-            raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
-            try:
-                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
-            except packaging.utils.InvalidWheelFilename as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    str(e),
-                )
-
-            for tag in tags:
-                if not _valid_platform_tag(tag.platform):
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        f"Binary wheel '{filename}' has an unsupported "
-                        f"platform tag '{tag.platform}'.",
-                    )
-
             """
             Extract METADATA file from a wheel and return it as a content.
             The name of the .whl file is used to find the corresponding .dist-info dir.
