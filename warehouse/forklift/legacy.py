@@ -714,7 +714,7 @@ def file_upload(request):
     # metadata, however we want to delay doing these validations until we've
     # validated that the filename is valid with respect to the metadata within
     # the file, so this is the earliest we can do this at.
-    if (result := _existing_filenames(request))[0] is not None:
+    if (result := _existing_filenames(request))[0]:
         _, reason, skip = result
         if reason:
             raise _exc_with_message(HTTPBadRequest, reason)
