@@ -480,17 +480,17 @@ def file_upload(request):
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
 
+    # We require protocol_version 1, it's the only supported version however
+    # passing a different version should raise an error.
+    if request.POST.get("protocol_version", "1") != "1":
+        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
+
     # Do some basic check to make sure that we're allowing uploads, either
     # generally or for the current identity. Wo do this first, before doing
     # anything else so that we can bail out early if there's no chance we're
     # going to accept the upload anyways.
     if (reason := _upload_disallowed(request)) is not None:
         raise _exc_with_message(HTTPForbidden, reason)
-
-    # We require protocol_version 1, it's the only supported version however
-    # passing a different version should raise an error.
-    if request.POST.get("protocol_version", "1") != "1":
-        raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Do some cleanup of the various form fields, there's a lot of garbage that
     # gets sent to this view, and this helps prevent issues later on.
