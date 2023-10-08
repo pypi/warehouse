@@ -301,6 +301,34 @@ def _get_or_create_project(request: Request, project_name: str) -> Project:
     return project
 
 
+def _invalid_filename_for_metadata(
+    filename: str, meta: packaging.metadata.Metadata
+) -> str | None:
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = (
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hyphens, so we can split on the last hyphen to get the project name.
+        else filename.rpartition("-")[0]
+    )
+
+    # Normalize the prefix in the filename. Eventually this should be unnecessary once
+    # we become more restrictive in what we permit
+    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
+
+    # Make sure that our filename matches the project that it is being uploaded to.
+    if (
+        prefix := packaging.utils.canonicalize_name(meta.name).replace("-", "_")
+    ) != filename_prefix:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Start filename for {meta.name!r} with {prefix!r}.",
+        )
+
+
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -540,6 +568,11 @@ def file_upload(request):
     except packaging.metadata.InvalidMetadata as exc:
         raise  # TODO: Better error handling
 
+    # We validate that the filename is valid given the project name and version
+    # that we have parsed out of the metadata.
+    if (reason := _invalid_filename_for_metadata(form.filename.data, meta)) is not None:
+        raise _exc_with_message(HTTPBadRequest, reason)
+
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
@@ -723,31 +756,6 @@ def file_upload(request):
     ):
         r._pypi_ordering = i
 
-    # Pull the filename out of our POST data.
-    filename = request.POST["content"].filename
-
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, we know that the version should not contain any
-        # hyphens, so we can split on the last hyphen to get the project name.
-        else filename.rpartition("-")[0]
-    )
-
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
-
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {project.name!r} with {prefix!r}.",
-        )
-
     # Check the content type of what is being uploaded
     if not request.POST["content"].type or request.POST["content"].type.startswith(
         "image/"
@@ -759,6 +767,9 @@ def file_upload(request):
     # size limits.
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
     project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+
+    # TODO: Remove this, or figure out a better location for it.
+    filename = form.filename.data
 
     file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
