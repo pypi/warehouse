@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import dataclasses
 import hashlib
 import hmac
 import os.path
 import re
+import io
+import shutil
 import tarfile
 import tempfile
 import zipfile
@@ -68,6 +71,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
+from warehouse.utils.files import HashedFileWrapper, LimitedFileWrapper, FileLimitError
 from warehouse.utils.project import validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
 
@@ -327,6 +331,103 @@ def _invalid_filename_for_metadata(
             HTTPBadRequest,
             f"Start filename for {meta.name!r} with {prefix!r}.",
         )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class UploadedFile:
+    filename: str
+    size: int
+    digests: dict[str, str]
+
+
+def _copy_uploaded_file(
+    request: Request,
+    project_name: str,
+    filename: str,
+    src: io.RawIOBase,
+    dst: io.RawIOBase,
+    *,
+    file_size_limit: int,
+    project_current_size: int,
+    project_size_limit: int,
+    digests: dict[str, str],
+) -> UploadedFile:
+    # We don't allow files of arbitrary size, so we wrap our file obj in a wrapper
+    # that will ensure we respect our given limit.
+    limited_file = LimitedFileWrapper(src, file_size_limit)
+
+    # As we're copying the file to a local temporary file, we want to take this
+    # opportunity to compute hashes for the uploaded file. To do this we'll wrap
+    # our file with a wrapper that will opportunitistically update hashes as the
+    # file is read.
+    hashed_file = HashedFileWrapper(
+        limited_file,
+        {
+            "md5": hashlib.md5(usedforsecurity=False),
+            "sha256": hashlib.sha256(),
+            "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+        },
+    )
+
+    # Actually copy the file to the destination.
+    try:
+        shutil.copyfileobj(hashed_file, dst)
+    except FileLimitError:
+        # If we've gotten a FileLimitError, then the size of the file is
+        # too large and we need to bail out with a reasonable error message.
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "File too large. Limit for project {name!r} is {limit} MB. "
+                "See {url} for more information"
+            ).format(
+                name=project_name,
+                limit=file_size_limit // ONE_MB,
+                url=request.help_url(_anchor="file-size-limit"),
+            ),
+        ) from None
+
+    # If the uploaded file pushes the project past it's total size limitat,
+    # then we'll need to raise an error.
+    if limited_file.amount_read + project_current_size > project_size_limit:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Project size too large. Limit for project {name!r} total size is {limit} GB. "
+                "See {url} for more information"
+            ).format(
+                name=project_name,
+                limit=project_size_limit // ONE_GB,
+                url=request.help_url(_anchor="project-size-limit"),
+            ),
+        )
+
+    # Actually verify the digests that we've gotten. We're going to use
+    # hmac.compare_digest even though we probably don't actually need to
+    # because it's better safe than sorry. In the case of multiple digests
+    # we expect them all to match.
+    #
+    # If the user didn't provide a value for a given hash algorith, then we
+    # won't attempt to validate it.
+    if not all(
+        [
+            hmac.compare_digest(digests[name].lower(), digest)
+            for name, digest in hashed_file.digests.items()
+            if name in digests
+        ]
+    ):
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "The digest supplied does not match a digest calculated "
+            "from the uploaded file.",
+        )
+
+    # Return the captured metadata for the file
+    return UploadedFile(
+        filename=filename,
+        size=limited_file.amount_read,
+        digests=hashed_file.digests(),
+    )
 
 
 def _is_valid_dist_file(filename, filetype):
@@ -768,75 +869,34 @@ def file_upload(request):
     file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
     project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
 
-    # TODO: Remove this, or figure out a better location for it.
-    filename = form.filename.data
-
-    file_data = None
     with tempfile.TemporaryDirectory() as tmpdir:
-        temporary_filename = os.path.join(tmpdir, filename)
+        temporary_filename = os.path.join(tmpdir, form.filename.data)
 
-        # Buffer the entire file onto disk, checking the hash of the file as we
-        # go along.
+        # Buffer the entire file onto disk, checking the hash of the file and the
+        # size of the file as we go along.
         with open(temporary_filename, "wb") as fp:
-            file_size = 0
-            file_hashes = {
-                "md5": hashlib.md5(usedforsecurity=False),
-                "sha256": hashlib.sha256(),
-                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
-            }
-            metadata_file_hashes = {}
-            for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
-                file_size += len(chunk)
-                if file_size > file_size_limit:
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        "File too large. "
-                        + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // ONE_MB
-                        )
-                        + "See "
-                        + request.help_url(_anchor="file-size-limit")
-                        + " for more information.",
-                    )
-                if file_size + project.total_size > project_size_limit:
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        "Project size too large. Limit for "
-                        + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB
-                        )
-                        + "See "
-                        + request.help_url(_anchor="project-size-limit"),
-                    )
-                fp.write(chunk)
-                for hasher in file_hashes.values():
-                    hasher.update(chunk)
-
-        # Take our hash functions and compute the final hashes for them now.
-        file_hashes = {k: h.hexdigest().lower() for k, h in file_hashes.items()}
-
-        # Actually verify the digests that we've gotten. We're going to use
-        # hmac.compare_digest even though we probably don't actually need to
-        # because it's better safe than sorry. In the case of multiple digests
-        # we expect them all to be given.
-        if not all(
-            [
-                hmac.compare_digest(
-                    getattr(form, f"{digest_name}_digest").data.lower(),
-                    digest_value,
-                )
-                for digest_name, digest_value in file_hashes.items()
-                if getattr(form, f"{digest_name}_digest").data
-            ]
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "The digest supplied does not match a digest calculated "
-                "from the uploaded file.",
+            uploaded_file = _copy_uploaded_file(
+                request,
+                project.name,
+                form.filename.data,
+                request.POST["content"].file,
+                fp,
+                file_size_limit=file_size_limit,
+                project_current_size=project.total_size,
+                project_size_limit=project_size_limit,
+                digests={
+                    # Get a dict with the user provided values for each of our
+                    # supported digests, skipping any that the user didn't provide.
+                    name: getattr(form, f"{name}_digest").data
+                    for name in {"md5", "sha256", "blake2_256"}
+                    if getattr(form, f"{name}_digest").data
+                },
             )
 
         # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
+        is_duplicate = _is_duplicate_file(
+            request.db, uploaded_file.filename, uploaded_file.digests
+        )
         if is_duplicate:
             request.tm.doom()
             return Response()
@@ -949,10 +1009,10 @@ def file_upload(request):
             python_version=form.pyversion.data,
             packagetype=form.filetype.data,
             comment_text=form.comment.data,
-            size=file_size,
-            md5_digest=file_hashes["md5"],
-            sha256_digest=file_hashes["sha256"],
-            blake2_256_digest=file_hashes["blake2_256"],
+            size=uploaded_file.size,
+            md5_digest=uploaded_file.digests["md5"],
+            sha256_digest=uploaded_file.digests["sha256"],
+            blake2_256_digest=uploaded_file.digests["blake2_256"],
             metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
             metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
             # Figure out what our filepath is going to be, we're going to use a
@@ -961,15 +1021,14 @@ def file_upload(request):
             # it also changing the path that the file is saved too.
             path="/".join(
                 [
-                    file_hashes[PATH_HASHER][:2],
-                    file_hashes[PATH_HASHER][2:4],
-                    file_hashes[PATH_HASHER][4:],
+                    uploaded_file.digests[PATH_HASHER][:2],
+                    uploaded_file.digests[PATH_HASHER][2:4],
+                    uploaded_file.digests[PATH_HASHER][4:],
                     filename,
                 ]
             ),
             uploaded_via=request.user_agent,
         )
-        file_data = file_
         request.db.add(file_)
 
         file_.record_event(
@@ -1072,18 +1131,18 @@ def file_upload(request):
         # "pyversion": form["pyversion"].data,
         # "filetype": form["filetype"].data,
         # "comment": form["comment"].data,
-        "filename": file_data.filename,
-        "python_version": file_data.python_version,
-        "packagetype": file_data.packagetype,
-        "comment_text": file_data.comment_text,
-        "size": file_data.size,
+        "filename": file_.filename,
+        "python_version": file_.python_version,
+        "packagetype": file_.packagetype,
+        "comment_text": file_.comment_text,
+        "size": file_.size,
         "has_signature": False,
-        "md5_digest": file_data.md5_digest,
-        "sha256_digest": file_data.sha256_digest,
-        "blake2_256_digest": file_data.blake2_256_digest,
-        "path": file_data.path,
-        "uploaded_via": file_data.uploaded_via,
-        "upload_time": file_data.upload_time,
+        "md5_digest": file_.md5_digest,
+        "sha256_digest": file_.sha256_digest,
+        "blake2_256_digest": file_.blake2_256_digest,
+        "path": file_.path,
+        "uploaded_via": file_.uploaded_via,
+        "upload_time": file_.upload_time,
     }
     if not request.registry.settings.get("warehouse.release_files_table") is None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
