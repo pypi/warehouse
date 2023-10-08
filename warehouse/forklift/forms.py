@@ -19,7 +19,7 @@ import wtforms.validators
 
 
 from warehouse import forms
-from warehouse.forklift.metadata.form import ProjectName
+from warehouse.utils.project import PROJECT_NAME_RE
 
 # Wheel platform checking
 
@@ -206,7 +206,14 @@ class UploadForm(forms.Form):
         description="Name",
         validators=[
             wtforms.validators.InputRequired(),
-            ProjectName(),
+            wtforms.validators.Regexp(
+                PROJECT_NAME_RE,
+                re.IGNORECASE,
+                message=(
+                    "Start and end with a letter or numeral containing "
+                    "only ASCII numeric and '.', '_' and '-'."
+                ),
+            ),
         ],
     )
 
