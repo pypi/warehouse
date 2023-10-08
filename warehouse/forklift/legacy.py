@@ -372,6 +372,45 @@ def _copy_uploaded_file(
     )
 
 
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class MetadataFile:
+    path: os.PathLike
+    filename: str
+    size: int
+    digests: dict[str, str]
+    content: bytes
+
+
+def _extract_and_copy_metadata(
+    tmpdir: os.PathLike, artifact: UploadedFile
+) -> MetadataFile | None:
+    # Attempt to extract the metadata from our artifact
+    if (metadata_contents := metadata.extract(artifact.path)) is not None:
+        filename = f"{artifact.filename}.metadata"
+        path = os.path.join(tmpdir, filename)
+
+        # Write out the metadata file to our temporary location
+        with open(path, "wb") as fp:
+            fp.write(metadata_contents)
+
+        return MetadataFile(
+            path=path,
+            filename=filename,
+            size=len(metadata_contents),
+            digests={
+                "sha256": hashlib.sha256(metadata_contents).hexdigest().lower(),
+                "blake2_256": (
+                    hashlib.blake2b(metadata_contents, digest_size=256 // 8)
+                    .hexdigest()
+                    .lower()
+                ),
+            },
+            content=metadata_contents,
+        )
+
+    return None
+
+
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -617,10 +656,21 @@ def file_upload(request):
     if not _is_valid_dist_file(uploaded_file.path, form.filetype.data):
         raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
-    # Fetch and validate the incoming metadata, ensuring that it is fully
-    # validated by the packaging.metdata.
+    # Extract the METADATA file out of the uploaded file.
     try:
-        meta = metadata.load(form_data=request.POST)
+        metadata_file = _extract_and_copy_metadata(tmpdir, uploaded_file)
+    except metadata.InvalidArtifact as exc:
+        raise _exc_with_message(HTTPBadRequest, exc.reason)
+
+    # Parse whatever metadata we have, preferring metadata extracted out of the
+    # artifact, but falling back to the metadata provided in the POST data
+    # otherwise.
+    #
+    # TODO: Probably at some point we want to require the use of metadata that
+    #       we can extract from a distribution and get rid of the fallback to
+    #       form based metadata.
+    try:
+        meta = metadata.parse(metadata_file.content, form_data=request.POST)
     except packaging.metadata.InvalidMetadata as exc:
         raise  # TODO: Better error handling
 
@@ -873,43 +923,6 @@ def file_upload(request):
             raise _exc_with_message(
                 HTTPBadRequest, "Only one sdist may be uploaded per release."
             )
-
-        # Check that if it's a binary wheel, it's on a supported platform
-        if filename.endswith(".whl"):
-            """
-            Extract METADATA file from a wheel and return it as a content.
-            The name of the .whl file is used to find the corresponding .dist-info dir.
-            See https://peps.python.org/pep-0491/#file-contents
-            """
-            filename = os.path.basename(temporary_filename)
-            # Get the name and version from the original filename. Eventually this
-            # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
-            # and version.
-            name, version, _ = filename.split("-", 2)
-            metadata_filename = f"{name}-{version}.dist-info/METADATA"
-            try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_metadata_contents = zfp.read(metadata_filename)
-            except KeyError:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Wheel '{filename}' does not contain the required "
-                    "METADATA file: {metadata_filename}".format(
-                        filename=filename, metadata_filename=metadata_filename
-                    ),
-                )
-            with open(temporary_filename + ".metadata", "wb") as fp:
-                fp.write(wheel_metadata_contents)
-            metadata_file_hashes = {
-                "sha256": hashlib.sha256(),
-                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
-            }
-            for hasher in metadata_file_hashes.values():
-                hasher.update(wheel_metadata_contents)
-            metadata_file_hashes = {
-                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
-            }
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
