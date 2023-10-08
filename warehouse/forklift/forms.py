@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import cgi
 import re
 
 import wtforms
@@ -20,10 +21,68 @@ from warehouse import forms
 from warehouse.forklift.metadata.form import ProjectName
 
 
+_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
+
 _filetype_extension_mapping = {
     "sdist": {".zip", ".tar.gz"},
     "bdist_wheel": {".whl"},
 }
+
+
+# We make a custom FileField, because WTForms doesn't really understand the
+# cgi.FieldStorage that Pyramid and our upload API ends up using.
+class FileField(wtforms.FileField):
+    def process_formdata(self, valuelist):
+        if valuelist:
+            value = valuelist[0]
+            if isinstance(value, cgi.FieldStorage):
+                # The FileField class doesn't attempt to handle the actual file data,
+                # it only validates that a file was uploaded, and gives you the
+                # filename that was used.
+                self.data = value.filename
+
+
+def _validate_filename(form, field):
+    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
+
+    # Our object storage does not tolerate some specific characters
+    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
+    #
+    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
+    # or completely by mistake.
+    disallowed = [*(chr(x) for x in range(32)), chr(127)]
+    if [char for char in field.data if char in disallowed]:
+        raise wtforms.validators.ValidationError(
+            "Cannot upload a file with "
+            "non-printable characters (ordinals 0-31) "
+            "or the DEL character (ordinal 127) "
+            "in the name."
+        )
+
+    # Make sure that the filename does not contain any path separators.
+    if "/" in field.data or "\\" in field.data:
+        raise wtforms.validators.ValidationError(
+            "Cannot upload a file with '/' or '\\' in the name."
+        )
+
+    # Make sure the filename ends with an allowed extension.
+    if not _dist_file_re.match(field.data):
+        raise wtforms.validators.ValidationError(
+            "Invalid file extension: Use .tar.gz, .whl or .zip "
+            "extension. See https://www.python.org/dev/peps/pep-0527 "
+            "and https://peps.python.org/pep-0715/ for more information",
+        )
+
+
+def _validate_filename_for_filetype(filename, filetype):
+    if m := _dist_file_re.match(filename):
+        extension = m.group("extension")
+        if extension not in _filetype_extension_mapping[filetype]:
+            raise wtforms.validators.ValidationError(
+                f"Invalid file extension: Extension {extension} is invalid for "
+                f"filetype {filetype}. See "
+                "https://www.python.org/dev/peps/pep-0527 for more information.",
+            )
 
 
 class UploadForm(forms.Form):
@@ -69,6 +128,19 @@ class UploadForm(forms.Form):
         ]
     )
 
+    # This is the actual uploaded file
+    filename = FileField(
+        # This name comes from legacy PyPI, and cannot easily be changed without
+        # breaking all of the existing upload clients.
+        name="content",
+        validators=[
+            # We purposely use DataRequired here, because we want to have this
+            # work on coerced field data, not on the input data.
+            wtforms.validators.DataRequired(),
+            _validate_filename,
+        ],
+    )
+
     def full_validate(self):
         # All non source releases *must* have a pyversion
         if (
@@ -98,3 +170,6 @@ class UploadForm(forms.Form):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
+
+        # Make sure that the filename extension is valid for the filetype
+        _validate_filename_for_filetype(self.filename.data, self.filetype.data)

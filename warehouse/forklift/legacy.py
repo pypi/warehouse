@@ -301,36 +301,6 @@ def _get_or_create_project(request: Request, project_name: str) -> Project:
     return project
 
 
-def _invalid_filename(filename: str) -> str | None:
-    # Our object storage does not tolerate some specific characters
-    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
-    #
-    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
-    # or completely by mistake.
-    disallowed = [*(chr(x) for x in range(32)), chr(127)]
-    if [char for char in filename if char in disallowed]:
-        return (
-            "Cannot upload a file with "
-            "non-printable characters (ordinals 0-31) "
-            "or the DEL character (ordinal 127) "
-            "in the name."
-        )
-
-    # Make sure that the filename does not contain any path separators.
-    if "/" in filename or "\\" in filename:
-        return "Cannot upload a file with '/' or '\\' in the name."
-
-    # Make sure the filename ends with an allowed extension.
-    if not _dist_file_re.match(filename):
-        return (
-            "Invalid file extension: Use .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "and https://peps.python.org/pep-0715/ for more information",
-        )
-
-    return None
-
-
 def _is_valid_dist_file(filename, filetype):
     """
     Perform some basic checks to see whether the indicated file could be
@@ -755,10 +725,6 @@ def file_upload(request):
 
     # Pull the filename out of our POST data.
     filename = request.POST["content"].filename
-
-    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
-    if (reason := _invalid_filename(filename)) is not None:
-        raise _exc_with_message(HTTPBadRequest, reason)
 
     # Extract the project name from the filename and normalize it.
     filename_prefix = (

@@ -230,7 +230,6 @@ def _validate_classifiers(form, field):
 # so that it is better setup for re-use between MetadataForm and UploadForm.
 class ProjectName:
     message: str
-    _regex: re.Pattern
 
     def __init__(self, message=None):
         if not message:
@@ -239,10 +238,9 @@ class ProjectName:
                 "only ASCII numeric and '.', '_' and '-'."
             )
         self.message = message
-        self._regex = re.compile(PROJECT_NAME_RE, re.IGNORECASE)
 
     def __call__(self, form, field):
-        if m := self._regex.match(field.data or ""):
+        if m := PROJECT_NAME_RE.match(field.data or ""):
             return m
 
         raise wtforms.validators.ValidationError(self.message)
