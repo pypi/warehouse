@@ -936,20 +936,23 @@ def file_upload(request):
     ):
         r._pypi_ordering = i
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
-                request.db.query(File)
-                .filter((File.release == release) & (File.packagetype == "sdist"))
-                .exists()
-            ).scalar()
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
+    # Check to see if uploading this file would create a duplicate sdist
+    # for the current release.
+    #
+    # TODO: Once we no longer support uploading .zip files for sdists then we
+    #       can get rid of this check and the standard duplicate file check will
+    #       cover it.
+    if (
+        form.filetype.data == "sdist"
+        and request.db.query(
+            request.db.query(File)
+            .filter((File.release == release) & (File.packagetype == "sdist"))
+            .exists()
+        ).scalar()
+    ):
+        raise _exc_with_message(
+            HTTPBadRequest, "Only one sdist may be uploaded per release."
+        )
 
     # TODO: This should be handled by some sort of database trigger or a
     #       SQLAlchemy hook or the like instead of doing it inline in this
