@@ -561,37 +561,6 @@ def _existing_filenames(
         )
 
 
-def _is_duplicate_file(db_session, filename, hashes):
-    """
-    Check to see if file already exists, and if it's content matches.
-    A file is considered to exist if its filename *or* blake2 digest are
-    present in a file row in the database.
-
-    Returns:
-    - True: This file is a duplicate and all further processing should halt.
-    - False: This file exists, but it is not a duplicate.
-    - None: This file does not exist.
-    """
-
-    file_ = (
-        db_session.query(File)
-        .filter(
-            (File.filename == filename)
-            | (File.blake2_256_digest == hashes["blake2_256"])
-        )
-        .first()
-    )
-
-    if file_ is not None:
-        return (
-            file_.filename == filename
-            and file_.sha256_digest == hashes["sha256"]
-            and file_.blake2_256_digest == hashes["blake2_256"]
-        )
-
-    return None
-
-
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
