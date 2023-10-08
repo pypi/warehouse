@@ -135,6 +135,14 @@ class FileField(wtforms.FileField):
                 self.data = value.filename
 
 
+def _validate_pep440_version(form, field):
+    # Check that this version is a valid PEP 440 version at all.
+    try:
+        packaging.version.parse(field.data)
+    except packaging.version.InvalidVersion:
+        raise wtforms.validators.ValidationError(f"Invalid version: {field.data}")
+
+
 def _validate_filename(form, field):
     # Our object storage does not tolerate some specific characters
     # ref: https://www.backblaze.com/b2/docs/files.html#file-names
@@ -194,6 +202,36 @@ def _validate_filename_for_filetype(filename, filetype):
             )
 
 
+def _validate_filename_for_name_version(filename: str, project_name: str, version: str):
+    # TODO: We should validate that the version number also matches what is in the
+    #       filename, but we currently don't do that (and in general our filename
+    #       validation isn't as strict as it should be) and expanding this to be
+    #       stricter can/should be done later.
+
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = (
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hyphens, so we can split on the last hyphen to get the project name.
+        else filename.rpartition("-")[0]
+    )
+
+    # Normalize the prefix in the filename. Eventually this should be unnecessary once
+    # we become more restrictive in what we permit
+    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
+
+    # Make sure that our filename matches the project that it is being uploaded to.
+    if (
+        prefix := packaging.utils.canonicalize_name(project_name).replace("-", "_")
+    ) != filename_prefix:
+        raise wtforms.validators.ValidationError(
+            f"Start filename for {project_name!r} with {prefix!r}.",
+        )
+
+
 # NOTE: This form validation runs prior to ensuring that the current identity
 #       is authorized to upload for the given project, so it should not validate
 #       against anything other than what the user themselves have provided.
@@ -202,8 +240,13 @@ def _validate_filename_for_filetype(filename, filetype):
 #       occur elsewhere so that they can happen after we've authorized the request
 #       to upload for the given project.
 class UploadForm(forms.Form):
-    # This field is duplicated out of the general metadata handling, to be part
-    # of the upload form as well.
+    # The name and version fields are duplicated out of the general metadata handling,
+    # to be part of the upload form as well so that we can use them prior to extracting
+    # the metadata from the uploaded artifact.
+    #
+    # NOTE: We don't need to fully validate these values here, as we will be validating
+    #       them fully when we validate the metadata and we will also be ensuring that
+    #       these values match the data in the metadata.
     name = wtforms.StringField(
         description="Name",
         validators=[
@@ -216,6 +259,17 @@ class UploadForm(forms.Form):
                     "only ASCII numeric and '.', '_' and '-'."
                 ),
             ),
+        ],
+    )
+    version = wtforms.StringField(
+        description="Version",
+        validators=[
+            wtforms.validators.InputRequired(),
+            wtforms.validators.Regexp(
+                r"^(?!\s).*(?<!\s)$",
+                message="Can't have leading or trailing whitespace.",
+            ),
+            _validate_pep440_version,
         ],
     )
 
@@ -296,3 +350,8 @@ class UploadForm(forms.Form):
 
         # Make sure that the filename extension is valid for the filetype
         _validate_filename_for_filetype(self.filename.data, self.filetype.data)
+
+        # Make sure that the filename correctly includes the project name and version
+        _validate_filename_for_name_version(
+            self.filename.data, self.name.data, self.version.data
+        )

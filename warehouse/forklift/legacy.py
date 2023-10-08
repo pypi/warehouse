@@ -473,34 +473,6 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
-def _invalid_filename_for_metadata(
-    filename: str, meta: packaging.metadata.Metadata
-) -> str | None:
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, we know that the version should not contain any
-        # hyphens, so we can split on the last hyphen to get the project name.
-        else filename.rpartition("-")[0]
-    )
-
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
-
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (
-        prefix := packaging.utils.canonicalize_name(meta.name).replace("-", "_")
-    ) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {meta.name!r} with {prefix!r}.",
-        )
-
-
 def _existing_filenames(
     request: Request, filename: str, digests: dict[str, str]
 ) -> tuple[bool, str | None, bool]:
@@ -700,11 +672,6 @@ def file_upload(request):
         meta = metadata.parse(metadata_file.content, form_data=request.POST)
     except packaging.metadata.InvalidMetadata as exc:
         raise  # FIXME: Better error handling
-
-    # We validate that the filename is valid given the project name and version
-    # that we have parsed out of the metadata.
-    if (reason := _invalid_filename_for_metadata(form.filename.data, meta)) is not None:
-        raise _exc_with_message(HTTPBadRequest, reason)
 
     # Validate the filename against our existing data, checking to see if it
     # matches any already used filenames or not.
