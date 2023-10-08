@@ -763,9 +763,7 @@ def file_upload(request):
     # we load a project description page.
     rendered = None
     if meta.description:
-        description_content_type = meta.description_content_type
-        if not description_content_type:
-            description_content_type = "text/x-rst"
+        description_content_type = meta.description_content_type or "text/x-rst"
 
         rendered = readme.render(
             meta.description, description_content_type, use_fallback=False
