@@ -951,80 +951,97 @@ def file_upload(request):
                 HTTPBadRequest, "Only one sdist may be uploaded per release."
             )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(Filename(filename=uploaded_file.filename))
 
-        # Store the information about the file in the database.
-        file_ = File(
-            release=release,
-            filename=filename,
-            python_version=form.pyversion.data,
-            packagetype=form.filetype.data,
-            comment_text=form.comment.data,
-            size=uploaded_file.size,
-            md5_digest=uploaded_file.digests["md5"],
-            sha256_digest=uploaded_file.digests["sha256"],
-            blake2_256_digest=uploaded_file.digests["blake2_256"],
-            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
-            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
-            # Figure out what our filepath is going to be, we're going to use a
-            # directory structure based on the hash of the file contents. This
-            # will ensure that the contents of the file cannot change without
-            # it also changing the path that the file is saved too.
-            path="/".join(
-                [
-                    uploaded_file.digests[PATH_HASHER][:2],
-                    uploaded_file.digests[PATH_HASHER][2:4],
-                    uploaded_file.digests[PATH_HASHER][4:],
-                    filename,
-                ]
+    # Store the information about the file in the database.
+    file_ = File(
+        release=release,
+        filename=uploaded_file.filename,
+        python_version=form.pyversion.data,
+        packagetype=form.filetype.data,
+        comment_text=form.comment.data,
+        size=uploaded_file.size,
+        md5_digest=uploaded_file.digests["md5"],
+        sha256_digest=uploaded_file.digests["sha256"],
+        blake2_256_digest=uploaded_file.digests["blake2_256"],
+        # Figure out what our filepath is going to be, we're going to use a
+        # directory structure based on the hash of the file contents. This
+        # will ensure that the contents of the file cannot change without
+        # it also changing the path that the file is saved too.
+        path="/".join(
+            [
+                uploaded_file.digests[PATH_HASHER][:2],
+                uploaded_file.digests[PATH_HASHER][2:4],
+                uploaded_file.digests[PATH_HASHER][4:],
+                uploaded_file.filename,
+            ]
+        ),
+        uploaded_via=request.user_agent,
+    )
+
+    # TODO: Once we are in a world where we *only* support artifacts that we can
+    #       extract the metadata from, then we can make this no longer conditional.
+    if metadata_file is not None:
+        file_.metadata_file_sha256_digest = metadata_file.digests["sha256"]
+        file_.metadata_file_blake2_256_digest = metadata_file.digests["blake2_256"]
+
+    request.db.add(file_)
+
+    file_.record_event(
+        tag=EventTag.File.FileAdd,
+        request=request,
+        additional={
+            "filename": file_.filename,
+            "submitted_by": request.user.username
+            if request.user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": request.oidc_publisher.publisher_url(request.oidc_claims)
+            if request.oidc_publisher
+            else None,
+            "project_id": str(project.id),
+        },
+    )
+
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="add {python_version} file {filename}".format(
+                python_version=file_.python_version, filename=file_.filename
             ),
-            uploaded_via=request.user_agent,
+            submitted_by=request.user if request.user else None,
         )
-        request.db.add(file_)
+    )
 
-        file_.record_event(
-            tag=EventTag.File.FileAdd,
-            request=request,
-            additional={
-                "filename": file_.filename,
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
-                "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
-                "project_id": str(project.id),
-            },
-        )
+    # TODO: We need a better answer about how to make this transactional so
+    #       this won't take affect until after a commit has happened, for
+    #       now we'll just ignore it and save it before the transaction is
+    #       committed.
+    storage = request.find_service(IFileStorage, name="archive")
+    storage.store(
+        file_.path,
+        uploaded_file.path,
+        meta={
+            "project": file_.release.project.normalized_name,
+            "version": file_.release.version,
+            "package-type": file_.packagetype,
+            "python-version": file_.python_version,
+        },
+    )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
-                ),
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
-        # TODO: We need a better answer about how to make this transactional so
-        #       this won't take affect until after a commit has happened, for
-        #       now we'll just ignore it and save it before the transaction is
-        #       committed.
-        storage = request.find_service(IFileStorage, name="archive")
+    # TODO: Once we are in a world where we *only* support artifacts that we can
+    #       extract the metadata from, then we can make this no longer conditional.
+    if metadata_file is not None:
         storage.store(
-            file_.path,
-            os.path.join(tmpdir, filename),
+            file_.metadata_path,
+            metadata_file.path,
             meta={
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
@@ -1032,18 +1049,6 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-
-        if metadata_file_hashes:
-            storage.store(
-                file_.metadata_path,
-                os.path.join(tmpdir, filename + ".metadata"),
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
 
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
