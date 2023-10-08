@@ -16,9 +16,20 @@ import os
 import os.path
 import zipfile
 
+from typing import cast
+
 import email_validator
 
-from packaging.metadata import Metadata, InvalidMetadata, _RAW_TO_EMAIL_MAPPING
+from packaging.metadata import (
+    Metadata,
+    RawMetadata,
+    InvalidMetadata,
+    _RAW_TO_EMAIL_MAPPING,
+    _STRING_FIELDS,
+    _LIST_FIELDS,
+    _parse_keywords,
+    _parse_project_urls,
+)
 from packaging.requirements import Requirement, InvalidRequirement
 from packaging.utils import (
     parse_wheel_filename,
@@ -28,7 +39,6 @@ from packaging.utils import (
 from trove_classifiers import classifiers, deprecated_classifiers
 from webob.multidict import MultiDict
 
-from warehouse.forklift.metadata.form import parse_form_metadata
 from warehouse.utils import http
 
 
@@ -352,3 +362,119 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
     # If we've collected any errors, then raise an ExceptionGroup containing them.
     if errors:
         raise ExceptionGroup("invalid metadata", errors)
+
+
+# Map Form fields to RawMetadata
+_FORM_TO_RAW_MAPPING = {
+    "author": "author",
+    "author_email": "author_email",
+    "classifiers": "classifiers",
+    "description": "description",
+    "description_content_type": "description_content_type",
+    "download_url": "download_url",
+    "home_page": "home_page",
+    "keywords": "keywords",
+    "license": "license",
+    "maintainer": "maintainer",
+    "maintainer_email": "maintainer_email",
+    "metadata_version": "metadata_version",
+    "name": "name",
+    "obsoletes": "obsoletes",
+    "obsoletes_dist": "obsoletes_dist",
+    "platform": "platforms",
+    "project_urls": "project_urls",
+    "provides": "provides",
+    "provides_dist": "provides_dist",
+    "requires": "requires",
+    "requires_dist": "requires_dist",
+    "requires_external": "requires_external",
+    "requires_python": "requires_python",
+    "summary": "summary",
+    "supported_platform": "supported_platforms",
+    "version": "version",
+}
+
+
+def parse_form_metadata(data: MultiDict) -> Metadata:
+    # We construct a RawMetdata using the form data, which we will later pass
+    # to Metadata to get a validated metadata.
+    #
+    # NOTE: Form data is very similiar to the email format where the only difference
+    #       between a list and a single value is whether or not the same key is used
+    #       multiple times. Thus we will handle things in a similiar way, always fetching
+    #       things as a list and then determining what to do based on the field type and
+    #       how many values we found.
+    #
+    #       In general, large parts of this have been taken directly from packaging.metadata
+    #       and adjusted to work with form data.
+    raw: dict[str, str | list[str] | dict[str, str]] = {}
+    unparsed: dict[str, list[str]] = {}
+
+    for name in frozenset(data.keys()):
+        # We have to be lenient in the face of "extra" data, because the data
+        # value here might contain unrelated form data, so we'll skip thing for
+        # fields that aren't in our list of values.
+        raw_name = _FORM_TO_RAW_MAPPING.get(name)
+        if raw_name is None:
+            continue
+
+        # We use getall() here, even for fields that aren't multiple use,
+        # because otherwise someone could have e.g. two Name fields, and we
+        # would just silently ignore it rather than doing something about it.
+        value = data.getall(name) or []
+
+        # If this is one of our string fields, then we'll check to see if our
+        # value is a list of a single item. If it is then we'll assume that
+        # it was emitted as a single string, and unwrap the str from inside
+        # the list.
+        #
+        # If it's any other kind of data, then we haven't the faintest clue
+        # what we should parse it as, and we have to just add it to our list
+        # of unparsed stuff.
+        if raw_name in _STRING_FIELDS and len(value) == 1:
+            raw[raw_name] = value[0]
+        # If this is one of our list of string fields, then we can just assign
+        # the value, since forms *only* have strings, and our getall() call
+        # above ensures that this is a list.
+        elif raw_name in _LIST_FIELDS:
+            raw[raw_name] = value
+        # Special Case: Keywords
+        # The keywords field is implemented in the metadata spec as a str,
+        # but it conceptually is a list of strings, and is serialized using
+        # ", ".join(keywords), so we'll do some light data massaging to turn
+        # this into what it logically is.
+        elif raw_name == "keywords" and len(value) == 1:
+            raw[raw_name] = _parse_keywords(value[0])
+        # Special Case: Project-URL
+        # The project urls is implemented in the metadata spec as a list of
+        # specially-formatted strings that represent a key and a value, which
+        # is fundamentally a mapping, however the email format doesn't support
+        # mappings in a sane way, so it was crammed into a list of strings
+        # instead.
+        #
+        # We will do a little light data massaging to turn this into a map as
+        # it logically should be.
+        elif raw_name == "project_urls":
+            try:
+                raw[raw_name] = _parse_project_urls(value)
+            except KeyError:
+                unparsed[name] = value
+        # Nothing that we've done has managed to parse this, so it'll just
+        # throw it in our unparseable data and move on.
+        else:
+            unparsed[name] = value
+
+    # We need to cast our `raw` to a metadata, because a TypedDict only support
+    # literal key names, but we're computing our key names on purpose, but the
+    # way this function is implemented, our `TypedDict` can only have valid key
+    # names.
+    raw = cast(RawMetadata, raw)
+
+    # If we have any unparsed data, then we treat that as an error
+    if unparsed:
+        raise ExceptionGroup(
+            "unparsed",
+            [InvalidMetadata(key, f"{key!r} has invalid data") for key in unparsed],
+        )
+
+    return Metadata.from_raw(raw)
