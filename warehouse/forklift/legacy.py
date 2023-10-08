@@ -502,6 +502,65 @@ def _invalid_filename_for_metadata(
         )
 
 
+def _existing_filenames(
+    request: Request, filename: str, digests: dict[str, str]
+) -> tuple[bool, str | None, bool]:
+    """
+    Checks filename against our existing filenames looking for things like
+    duplicate files, existing files, etc.
+
+    Returns a tuple that indicates 3 things (in order):
+        - Whether this check has found anything of note.
+        - Whether this check has failed, and if so with what reason.
+        - Whether this check has indicated that processing this file should
+          be skipped.
+    """
+    # Check to see if the file that was uploaded exists already or not.
+    if (
+        file_ := request.db.query(File)
+        .filter(
+            (File.filename == filename)
+            | (File.blake2_256_digest == digests["blake2_256"])
+        )
+        .first()
+    ) is not None:
+        # This is a duplicate of an already existing file, see if the filename
+        # and digests match, if they do then we can skip processing this file,
+        # otherwise this is a failure.
+        if (
+            file_.filename == filename
+            and file_.sha256_digest == digests["sha256"]
+            and file_.blake2_256_digest == digests["blake2_256"]
+        ):
+            return (True, None, True)
+        # NOTE: Changing this error message to something that doesn't start with
+        #       "File already exists" will break the --skip-existing functionality
+        #       in twine
+        #
+        #       ref: https://github.com/pypi/warehouse/issues/3482
+        #       ref: https://github.com/pypa/twine/issues/332
+        return (
+            True,
+            "File already exists. See {url} for more information.".format(
+                url=request.help_url(_anchor="file-name-reuse")
+            ),
+            None,
+        )
+
+    # Check to see if the file that was uploaded exists in our filename log
+    if request.db.query(
+        request.db.query(Filename).filter(Filename.filename == filename).exists()
+    ).scalar():
+        return (
+            True,
+            (
+                "This filename has already been used, use a different version. See {url} "
+                "for more information."
+            ).format(url=request.help_url(_anchor="file-name-reuse")),
+            None,
+        )
+
+
 def _is_duplicate_file(db_session, filename, hashes):
     """
     Check to see if file already exists, and if it's content matches.
@@ -686,6 +745,13 @@ def file_upload(request):
     # metadata, however we want to delay doing these validations until we've
     # validated that the filename is valid with respect to the metadata within
     # the file, so this is the earliest we can do this at.
+    if (result := _existing_filenames(request))[0] is not None:
+        _, reason, skip = result
+        if reason:
+            raise _exc_with_message(HTTPBadRequest, reason)
+        if skip:
+            request.tm.doom()
+            return Response()
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -871,39 +937,6 @@ def file_upload(request):
         r._pypi_ordering = i
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(
-            request.db, uploaded_file.filename, uploaded_file.digests
-        )
-        if is_duplicate:
-            request.tm.doom()
-            return Response()
-        elif is_duplicate is not None:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypi/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
-        # Check to see if the file that was uploaded exists in our filename log
-        if request.db.query(
-            request.db.query(Filename).filter(Filename.filename == filename).exists()
-        ).scalar():
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
         # Check to see if uploading this file would create a duplicate sdist
         # for the current release.
         if (
