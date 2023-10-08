@@ -116,6 +116,35 @@ def _construct_dependencies(
     return result
 
 
+def _sanitize_request(request: Request) -> str | None:
+    # Do some cleanup of the various form fields, there's a lot of garbage that
+    # gets sent to this view, and this helps prevent issues later on.
+    for key in list(request.POST):
+        value = request.POST.get(key)
+        if isinstance(value, str):
+            # distutils "helpfully" substitutes unknown, but "required" values
+            # with the string "UNKNOWN". This is basically never what anyone
+            # actually wants so we'll just go ahead and delete anything whose
+            # value is UNKNOWN.
+            if value.strip() == "UNKNOWN":
+                del request.POST[key]
+
+            # Escape NUL characters, which psycopg doesn't like
+            if "\x00" in value:
+                request.POST[key] = value.replace("\x00", "\\x00")
+
+    # Check if any fields were supplied as a tuple and have become a
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # ref: https://github.com/pypi/warehouse/issues/2185
+    # ref: https://github.com/pypi/warehouse/issues/2491
+    for field in set(request.POST) - {"content", "gpg_signature"}:
+        values = request.POST.getall(field)
+        if any(isinstance(value, FieldStorage) for value in values):
+            return f"{field}: Should not be a tuple."
+
+    return None
+
+
 def _upload_disallowed(request: Request) -> str | None:
     # If we're in read-only mode, let upload clients know
     if request.flags.enabled(AdminFlagValue.READ_ONLY):
@@ -485,37 +514,21 @@ def file_upload(request):
     if request.POST.get("protocol_version", "1") != "1":
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
+    # Sanitize the incoming request. There's a lot of garbage that gets sent to
+    # this view, which we'll sanitize to clean that up and/or fail early rather
+    # than getting failures deeper in the stack.
+    #
+    # NOTE: This method mutates the current request to do it's cleanup, but it
+    #       can also return an error message if it could not sanitize.
+    if (reason := _sanitize_request(request)) is not None:
+        raise _exc_with_message(HTTPForbidden, reason)
+
     # Do some basic check to make sure that we're allowing uploads, either
     # generally or for the current identity. Wo do this first, before doing
     # anything else so that we can bail out early if there's no chance we're
     # going to accept the upload anyways.
     if (reason := _upload_disallowed(request)) is not None:
         raise _exc_with_message(HTTPForbidden, reason)
-
-    # Do some cleanup of the various form fields, there's a lot of garbage that
-    # gets sent to this view, and this helps prevent issues later on.
-    for key in list(request.POST):
-        value = request.POST.get(key)
-        if isinstance(value, str):
-            # distutils "helpfully" substitutes unknown, but "required" values
-            # with the string "UNKNOWN". This is basically never what anyone
-            # actually wants so we'll just go ahead and delete anything whose
-            # value is UNKNOWN.
-            if value.strip() == "UNKNOWN":
-                del request.POST[key]
-
-            # Escape NUL characters, which psycopg doesn't like
-            if "\x00" in value:
-                request.POST[key] = value.replace("\x00", "\\x00")
-
-    # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
-    # ref: https://github.com/pypi/warehouse/issues/2185
-    # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content", "gpg_signature"}:
-        values = request.POST.getall(field)
-        if any(isinstance(value, FieldStorage) for value in values):
-            raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
 
     # Validate the non Metadata portions of the upload data
     form = UploadForm(request.POST)
