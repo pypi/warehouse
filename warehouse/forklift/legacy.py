@@ -14,7 +14,6 @@ import dataclasses
 import hashlib
 import hmac
 import os.path
-import re
 import io
 import shutil
 import tarfile
