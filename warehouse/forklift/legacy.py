@@ -870,12 +870,6 @@ def file_upload(request):
     ):
         r._pypi_ordering = i
 
-    # Check the content type of what is being uploaded
-    if not request.POST["content"].type or request.POST["content"].type.startswith(
-        "image/"
-    ):
-        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
     with tempfile.TemporaryDirectory() as tmpdir:
         # Check to see if the file that was uploaded exists already or not.
         is_duplicate = _is_duplicate_file(
