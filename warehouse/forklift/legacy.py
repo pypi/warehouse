@@ -600,7 +600,7 @@ def file_upload(request):
     # Validate the non Metadata portions of the upload data
     form = UploadForm(request.POST)
     if not form.validate():
-        raise _exc_with_message(HTTPBadRequest, "TODO: A Real Error Message")
+        raise _exc_with_message(HTTPBadRequest, "FIXME: A Real Error Message")
 
     # At this point, we've validated that we have a file upload, and we know
     # what project it is for, and we've validated that the project name is a
@@ -700,7 +700,7 @@ def file_upload(request):
     try:
         meta = metadata.parse(metadata_file.content, form_data=request.POST)
     except packaging.metadata.InvalidMetadata as exc:
-        raise  # TODO: Better error handling
+        raise  # FIXME: Better error handling
 
     # We validate that the filename is valid given the project name and version
     # that we have parsed out of the metadata.
@@ -812,7 +812,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            # TODO: Fixes
+            # FIXME:
             #  - keywords: Turn from string field into list field
             #  - platform: Rename to platforms, turn from string field into list field
             #  - Add supported_platforms
@@ -1045,7 +1045,7 @@ def file_upload(request):
         "license": meta.license,
         "keywords": meta.keywords,
         "classifiers": meta.classifiers,
-        "platform": meta.platforms[0],  # TODO: This is a multi-use field
+        "platform": meta.platforms[0],  # FIXME: This is a multi-use field
         "home_page": meta.home_page,
         "download_url": meta.download_url,
         "requires_python": meta.requires_python,
@@ -1056,9 +1056,9 @@ def file_upload(request):
         "provides_dist": meta.provides_dist,
         "obsoletes_dist": meta.obsoletes_dist,
         "requires_external": meta.requires_external,
-        "project_urls": meta.project_urls,  # TODO: Make sure this can handle mapping
+        "project_urls": meta.project_urls,  # FIXME: Make sure this can handle mapping
         # File Data
-        # TODO: Figure out which fields the BigQuery table even has
+        # FIXME: Figure out which fields the BigQuery table even has
         # "pyversion": form["pyversion"].data,
         # "filetype": form["filetype"].data,
         # "comment": form["comment"].data,
