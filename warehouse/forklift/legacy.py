@@ -802,14 +802,16 @@ def file_upload(request):
     except MultipleResultsFound:
         # There are multiple releases of this project which have the same
         # canonical version that were uploaded before we checked for
-        # canonical version equivalence, so return the exact match instead
-        # TODO: Handle?
-        release = (
-            request.db.query(Release)
-            .filter(
-                (Release.project == project) & (Release.version == form.version.data)
-            )
-            .one()
+        # canonical version equivalence.
+        #
+        # We've been doing this for so long now, that we're going to treat this
+        # as an error. Projects hitting this at this point should create a new
+        # release or delete an old release or something.
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Multiple distinct versions found for {canonical_version} of {project.name}. "
+            "These versions are in a bad state which is no longer possible. "
+            "Try releasing as a new version.",
         )
     except NoResultFound:
         # Get all the classifiers for this release
