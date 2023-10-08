@@ -21,6 +21,8 @@ import wtforms.validators
 from warehouse import forms
 from warehouse.utils.project import PROJECT_NAME_RE
 
+_SECURE_HASHES = {"sha256", "blake2_256"}
+
 # Wheel platform checking
 
 # Note: defining new platform ABI compatibility tags that don't
@@ -286,14 +288,8 @@ class UploadForm(forms.Form):
                     "Use 'source' as Python version for an sdist."
                 )
 
-        # We *must* have at least one digest to verify against.
-        if (
-            # TODO: Don't consider md5_digest as good enough of satisifying the
-            #       message digest requirement.
-            not self.md5_digest.data
-            and not self.sha256_digest.data
-            and not self.blake2_256_digest.data
-        ):
+        # We *must* have at least one secure digest to verify against.
+        if not any([getattr(self, f"{name}_digest").data for name in _SECURE_HASHES]):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
