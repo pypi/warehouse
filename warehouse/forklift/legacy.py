@@ -240,34 +240,6 @@ def _get_or_create_project(request: Request, project_name: str) -> Project:
     return project
 
 
-def _invalid_filename_for_metadata(
-    filename: str, meta: packaging.metadata.Metadata
-) -> str | None:
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, we know that the version should not contain any
-        # hyphens, so we can split on the last hyphen to get the project name.
-        else filename.rpartition("-")[0]
-    )
-
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
-
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (
-        prefix := packaging.utils.canonicalize_name(meta.name).replace("-", "_")
-    ) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {meta.name!r} with {prefix!r}.",
-        )
-
-
 @dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class UploadedFile:
     path: os.PathLike
@@ -500,6 +472,34 @@ def _is_valid_dist_file(filename, filetype):
     # If we haven't yet decided it's not valid, then we'll assume it is and
     # allow it.
     return True
+
+
+def _invalid_filename_for_metadata(
+    filename: str, meta: packaging.metadata.Metadata
+) -> str | None:
+    # Extract the project name from the filename and normalize it.
+    filename_prefix = (
+        # For wheels, the project name is normalized and won't contain hyphens, so
+        # we can split on the first hyphen.
+        filename.partition("-")[0]
+        if filename.endswith(".whl")
+        # For source releases, we know that the version should not contain any
+        # hyphens, so we can split on the last hyphen to get the project name.
+        else filename.rpartition("-")[0]
+    )
+
+    # Normalize the prefix in the filename. Eventually this should be unnecessary once
+    # we become more restrictive in what we permit
+    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
+
+    # Make sure that our filename matches the project that it is being uploaded to.
+    if (
+        prefix := packaging.utils.canonicalize_name(meta.name).replace("-", "_")
+    ) != filename_prefix:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Start filename for {meta.name!r} with {prefix!r}.",
+        )
 
 
 def _is_duplicate_file(db_session, filename, hashes):
