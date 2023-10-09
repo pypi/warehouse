@@ -94,23 +94,27 @@ msgstr ""
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:425
+#: warehouse/accounts/forms.py:428
+msgid "Invalid TOTP code. Your device time may be out of sync."
+msgstr ""
+
+#: warehouse/accounts/forms.py:437
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:442
+#: warehouse/accounts/forms.py:454
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:511
+#: warehouse/accounts/forms.py:523
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:520
+#: warehouse/accounts/forms.py:532
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:539
+#: warehouse/accounts/forms.py:551
 msgid "No user found with that username or email"
 msgstr ""
 
@@ -336,11 +340,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:408
+#: warehouse/manage/forms.py:414
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:416
+#: warehouse/manage/forms.py:422
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -348,73 +352,73 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:439
+#: warehouse/manage/forms.py:445
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:454
+#: warehouse/manage/forms.py:460
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:490
+#: warehouse/manage/forms.py:496
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/github.py:174
+#: warehouse/manage/forms.py:501 warehouse/oidc/forms/github.py:174
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:498
+#: warehouse/manage/forms.py:504
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:505
+#: warehouse/manage/forms.py:511
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:576
+#: warehouse/manage/forms.py:582
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:588
+#: warehouse/manage/forms.py:594
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:595
+#: warehouse/manage/forms.py:601
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:606
+#: warehouse/manage/forms.py:612
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:641
+#: warehouse/manage/forms.py:647
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:671
+#: warehouse/manage/forms.py:677
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:677
+#: warehouse/manage/forms.py:683
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:705
+#: warehouse/manage/forms.py:711
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
