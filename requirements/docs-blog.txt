@@ -298,9 +298,8 @@ mkdocs-rss-plugin==1.8.0 \
     --hash=sha256:0fa13c99730c1d3ad9ec05102ff3d148c9849396c40b30be789339d38722fa8f \
     --hash=sha256:475bf4ea05cbe786af38d519b55352b1b2eb87597ad680fcbc309056864ed5c4
     # via -r requirements/docs-blog.in
-packaging==23.2 \
-    --hash=sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5 \
-    --hash=sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7
+packaging @ https://github.com/dstufft/packaging/archive/refs/heads/warehouse-temporary.zip \
+    --hash=sha256:bd9c63b01eecceab4aef18f6e83976077d6b3a93fad49075fd3bd221a573d258
     # via mkdocs
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d

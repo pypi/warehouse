@@ -113,9 +113,8 @@ opentelemetry-api==1.20.0 \
     --hash=sha256:06abe351db7572f8afdd0fb889ce53f3c992dbf6f6262507b385cc1963e06983 \
     --hash=sha256:982b76036fec0fdaf490ae3dfd9f28c81442a33414f737abc687a32758cdcba5
     # via ddtrace
-packaging==23.2 \
-    --hash=sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5 \
-    --hash=sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7
+packaging @ https://github.com/dstufft/packaging/archive/refs/heads/warehouse-temporary.zip \
+    --hash=sha256:bd9c63b01eecceab4aef18f6e83976077d6b3a93fad49075fd3bd221a573d258
     # via gunicorn
 protobuf==4.24.3 \
     --hash=sha256:067f750169bc644da2e1ef18c785e85071b7c296f14ac53e0900e605da588719 \
