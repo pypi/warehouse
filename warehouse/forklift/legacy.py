@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import dataclasses
+import enum
 import hashlib
 import hmac
 import os.path
@@ -54,7 +55,7 @@ from warehouse.email import (
 from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
-from warehouse.forklift.forms import UploadForm
+from warehouse.forklift.forms import UploadForm, SECURE_HASHES
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
@@ -473,63 +474,55 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
-def _existing_filenames(
-    request: Request, filename: str, digests: dict[str, str]
-) -> tuple[bool, str | None, bool]:
-    """
-    Checks filename against our existing filenames looking for things like
-    duplicate files, existing files, etc.
+class ConflictResult(enum.Enum):
+    # The filename does not conflict with existing or previous file.
+    Ok = enum.auto()
+    # The filename is an exact duplicate of an existing file.
+    Duplicate = enum.auto()
+    # The filename conflicts with an existing file.
+    ConflictsExisting = enum.auto()
+    # The filename conflicts with a previously used file.
+    ConflictsPrevious = enum.auto()
 
-    Returns a tuple that indicates 3 things (in order):
-        - Whether this check has found anything of note.
-        - Whether this check has failed, and if so with what reason.
-        - Whether this check has indicated that processing this file should
-          be skipped.
-    """
-    # Check to see if the file that was uploaded exists already or not.
-    if (
-        file_ := request.db.query(File)
-        .filter(
-            (File.filename == filename)
-            | (File.blake2_256_digest == digests["blake2_256"])
-        )
-        .first()
-    ) is not None:
-        # This is a duplicate of an already existing file, see if the filename
-        # and digests match, if they do then we can skip processing this file,
-        # otherwise this is a failure.
-        if (
-            file_.filename == filename
-            and file_.sha256_digest == digests["sha256"]
-            and file_.blake2_256_digest == digests["blake2_256"]
-        ):
-            return (True, None, True)
-        # NOTE: Changing this error message to something that doesn't start with
-        #       "File already exists" will break the --skip-existing functionality
-        #       in twine
+
+def _check_filename_conflicts(db, filename, digests: dict[str, str]) -> ConflictResult:
+    # Check if the filename matches a filename for any existing "live" file.
+    if (file_ := db.query(File).filter(File.filename == filename).first()) is not None:
+        # The filename matches an existing file, so we want to check if the existing
+        # file and the new file are the same.
         #
-        #       ref: https://github.com/pypi/warehouse/issues/3482
-        #       ref: https://github.com/pypa/twine/issues/332
-        return (
-            True,
-            "File already exists. See {url} for more information.".format(
-                url=request.help_url(_anchor="file-name-reuse")
-            ),
-            None,
-        )
+        # To do this we require at least one secure hash to be passed in via digests,
+        # which should be guarenteed because of our form validation, but we'll double
+        # check. Then we'll take all of our digests for the incoming file, and check
+        # them against the digests of the existing file.
+        #
+        # Since we're running this prior to having computed our own digests, we're
+        # trusting the digests provided by the user. However this is safe, because
+        # we're either going to no-op or error, and the only thing the user can do
+        # by lying about the digest is either change a no-op to an error, or an error
+        # to a no-op.
+        if (digests.keys() & SECURE_HASHES) and all(
+            [
+                hmac.compare_digest(getattr(file_, f"{name}_digest"), value)
+                for name, value in digests.items()
+            ]
+        ):
+            return ConflictResult.Duplicate
+        # If we either didn't have a secure hash somehow, or all of the digests
+        # didn't match, then this is conflict.
+        else:
+            return ConflictResult.ConflictsExisting
 
-    # Check to see if the file that was uploaded exists in our filename log
-    if request.db.query(
-        request.db.query(Filename).filter(Filename.filename == filename).exists()
+    # Check if the filename was ever used by checking in our filename log, which
+    # never gets expunged even if a file gets deleted.
+    if db.query(
+        db.query(Filename).filter(Filename.filename == filename).exists()
     ).scalar():
-        return (
-            True,
-            (
-                "This filename has already been used, use a different version. See {url} "
-                "for more information."
-            ).format(url=request.help_url(_anchor="file-name-reuse")),
-            None,
-        )
+        # This is always a conflicts, because the file no longer exists
+        return ConflictResult.ConflictsPrevious
+
+    # We're OK, there's no conflict at all.
+    return ConflictResult.Ok
 
 
 @view_config(
@@ -622,6 +615,36 @@ def file_upload(request):
             ),
         )
 
+    # Validate the filename against our existing data, checking to see if it
+    # matches any already used filenames or not.
+    #
+    # We do this here, rather than earlier so that we don't leak any information
+    # about a project's files until we've verified that the user has permission
+    # to upload. In theory this shouldn't matter, since all of our files are
+    # public anyways, but better safe than sorry.
+    match _check_filename_conflicts(request.db, form.filename.data, form.digests):
+        case ConflictResult.Duplicate:
+            # It's very important that we doom the transaction here, we're trusting
+            # the digests provided by the user rather than generating them ourselves,
+            # so we want to be very sure that nothing that happens in this request
+            # will effect the database, because that will ensure that this case is
+            # only ever a no-op or an error.
+            request.tm.doom()
+            return Response()
+        case ConflictResult.ConflictsExisting:
+            help_url = request.help_url(_anchor="file-name-reuse")
+            reason = f"File already exists. See {help_url} for more information."
+            _exc_with_message(HTTPBadRequest, reason)
+        case ConflictResult.ConflictsPrevious:
+            help_url = request.help_url(_anchor="file-name-reuse")
+            reason = (
+                "This filename has already been used, use a different version. "
+                f"See {help_url} for more information."
+            )
+            _exc_with_message(HTTPBadRequest, reason)
+        case ConflictResult.Ok:
+            pass
+
     # We're going to need a temporary, request scoped, location to buffer uploaded
     # data to disk so that we don't have to buffer in memory, so we'll create a
     # temporary directory and register a callback that will clean it up when the
@@ -642,13 +665,7 @@ def file_upload(request):
         project,
         form.filename.data,
         request.POST["content"].file,
-        digests={
-            # Get a dict with the user provided values for each of our
-            # supported digests, skipping any that the user didn't provide.
-            name: getattr(form, f"{name}_digest").data
-            for name in {"md5", "sha256", "blake2_256"}
-            if getattr(form, f"{name}_digest").data
-        },
+        digests=form.digests,
     )
 
     # Check the file to make sure it is a valid distribution file.
@@ -672,21 +689,6 @@ def file_upload(request):
         meta = metadata.parse(metadata_file.content, form_data=request.POST)
     except packaging.metadata.InvalidMetadata as exc:
         raise  # FIXME: Better error handling
-
-    # Validate the filename against our existing data, checking to see if it
-    # matches any already used filenames or not.
-    #
-    # In theory we could move this earlier in the process, prior to validating the
-    # metadata, however we want to delay doing these validations until we've
-    # validated that the filename is valid with respect to the metadata within
-    # the file, so this is the earliest we can do this at.
-    if (result := _existing_filenames(request))[0]:
-        _, reason, skip = result
-        if reason:
-            raise _exc_with_message(HTTPBadRequest, reason)
-        if skip:
-            request.tm.doom()
-            return Response()
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we

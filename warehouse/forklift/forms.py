@@ -21,7 +21,10 @@ import wtforms.validators
 from warehouse import forms
 from warehouse.utils.project import PROJECT_NAME_RE
 
-_SECURE_HASHES = {"sha256", "blake2_256"}
+SUPPORTED_HASHES = {"md5", "sha256", "blake2_256"}
+
+SECURE_HASHES = {"sha256", "blake2_256"}
+
 
 # Wheel platform checking
 
@@ -322,6 +325,16 @@ class UploadForm(forms.Form):
         ],
     )
 
+    @property
+    def digests(self) -> dict[str, str]:
+        return {
+            # Get a dict with the user provided values for each of our
+            # supported digests, skipping any that the user didn't provide.
+            name: getattr(self, f"{name}_digest").data
+            for name in SUPPORTED_HASHES
+            if getattr(self, f"{name}_digest").data
+        }
+
     def full_validate(self):
         # All non source releases *must* have a pyversion
         if (
@@ -343,7 +356,7 @@ class UploadForm(forms.Form):
                 )
 
         # We *must* have at least one secure digest to verify against.
-        if not any([getattr(self, f"{name}_digest").data for name in _SECURE_HASHES]):
+        if not any([getattr(self, f"{name}_digest").data for name in SECURE_HASHES]):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
