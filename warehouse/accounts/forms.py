@@ -417,17 +417,7 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
 
         try:
             self.user_service.check_totp_value(self.user_id, totp_value)
-        except otp.OutOfSyncTOTPError:
-            user = self.user_service.get_user(self.user_id)
-            user.record_event(
-                tag=EventTag.Account.LoginFailure,
-                request=self.request,
-                additional={"reason": "out_of_sync_totp"},
-            )
-            raise wtforms.validators.ValidationError(
-                _("Invalid TOTP code. Your device time may be out of sync.")
-            )
-        except otp.InvalidTOTPError:
+        except (otp.InvalidTOTPError, otp.OutOfSyncTOTPError):
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,

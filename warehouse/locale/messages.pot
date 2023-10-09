@@ -94,27 +94,23 @@ msgstr ""
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:428
-msgid "Invalid TOTP code. Your device time may be out of sync."
-msgstr ""
-
-#: warehouse/accounts/forms.py:437
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:454
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:523
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:532
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:551
+#: warehouse/accounts/forms.py:541
 msgid "No user found with that username or email"
 msgstr ""
 

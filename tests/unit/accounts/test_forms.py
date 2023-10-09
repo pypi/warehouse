@@ -899,11 +899,7 @@ class TestTOTPAuthenticationForm:
         "exception, expected_error, reason",
         [
             (otp.InvalidTOTPError, "Invalid TOTP code.", "invalid_totp"),
-            (
-                otp.OutOfSyncTOTPError,
-                "Invalid TOTP code. Your device time may be out of sync.",
-                "out_of_sync_totp",
-            ),
+            (otp.OutOfSyncTOTPError, "Invalid TOTP code.", "invalid_totp"),
         ],
     )
     def test_totp_secret_raises(
