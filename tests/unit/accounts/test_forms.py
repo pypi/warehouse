@@ -19,6 +19,8 @@ import wtforms
 
 from webob.multidict import MultiDict
 
+import warehouse.utils.otp as otp
+
 from warehouse import recaptcha
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
@@ -846,54 +848,73 @@ class TestResetPasswordForm:
 
 
 class TestTOTPAuthenticationForm:
-    def test_validate(self):
-        user_id = pretend.stub()
-        user_service = pretend.stub()
-        form = forms.TOTPAuthenticationForm(
-            request=pretend.stub(), user_id=user_id, user_service=user_service
-        )
-
-        assert form.user_service is user_service
-        assert form.validate, str(form.errors)
-
-    def test_totp_secret_exists(self, pyramid_config):
+    @pytest.mark.parametrize(
+        "totp_value",
+        [
+            "123456",
+            "1 2 3 4  5 6",
+            "123 456",
+        ],
+    )
+    def test_validate(self, totp_value):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
         request = pretend.stub(remote_addr="1.2.3.4")
 
         form = forms.TOTPAuthenticationForm(
-            formdata=MultiDict({"totp_value": ""}),
+            formdata=MultiDict({"totp_value": totp_value}),
             request=request,
             user_id=pretend.stub(),
-            user_service=pretend.stub(get_user=get_user),
+            user_service=pretend.stub(
+                check_totp_value=lambda *a: True, get_user=get_user
+            ),
         )
-        assert not form.validate()
-        assert form.totp_value.errors.pop() == "This field is required."
+        assert form.validate()
+
+    @pytest.mark.parametrize(
+        "totp_value, expected_error",
+        [
+            ("", "This field is required."),
+            ("not_a_real_value", "TOTP code must be 6 digits."),
+            ("1 2 3 4 5 6 7", "TOTP code must be 6 digits."),
+        ],
+    )
+    def test_totp_secret_not_valid(self, pyramid_config, totp_value, expected_error):
+        user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
+        get_user = pretend.call_recorder(lambda userid: user)
+        request = pretend.stub(remote_addr="1.2.3.4")
 
         form = forms.TOTPAuthenticationForm(
+            formdata=MultiDict({"totp_value": totp_value}),
             request=request,
-            formdata=MultiDict({"totp_value": "not_a_real_value"}),
             user_id=pretend.stub(),
             user_service=pretend.stub(
                 check_totp_value=lambda *a: True, get_user=get_user
             ),
         )
         assert not form.validate()
-        assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
+        assert str(form.totp_value.errors.pop()) == expected_error
 
-        form = forms.TOTPAuthenticationForm(
-            request=request,
-            formdata=MultiDict({"totp_value": "1 2 3 4 5 6 7"}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True, get_user=get_user
+    @pytest.mark.parametrize(
+        "exception, expected_error, reason",
+        [
+            (otp.InvalidTOTPError, "Invalid TOTP code.", "invalid_totp"),
+            (
+                otp.OutOfSyncTOTPError,
+                "Invalid TOTP code. Your device time may be out of sync.",
+                "out_of_sync_totp",
             ),
-        )
-        assert not form.validate()
-        assert str(form.totp_value.errors.pop()) == "TOTP code must be 6 digits."
+        ],
+    )
+    def test_totp_secret_raises(
+        self, pyramid_config, exception, expected_error, reason
+    ):
+        user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
+        get_user = pretend.call_recorder(lambda userid: user)
+        request = pretend.stub(remote_addr="1.2.3.4")
 
         user_service = pretend.stub(
-            check_totp_value=lambda *a: False,
+            check_totp_value=pretend.raiser(exception),
             get_user=get_user,
         )
         form = forms.TOTPAuthenticationForm(
@@ -903,44 +924,14 @@ class TestTOTPAuthenticationForm:
             user_service=user_service,
         )
         assert not form.validate()
-        assert str(form.totp_value.errors.pop()) == "Invalid TOTP code."
+        assert str(form.totp_value.errors.pop()) == expected_error
         assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.LoginFailure,
                 request=request,
-                additional={"reason": "invalid_totp"},
+                additional={"reason": reason},
             )
         ]
-
-        form = forms.TOTPAuthenticationForm(
-            formdata=MultiDict({"totp_value": "123456"}),
-            request=request,
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True, get_user=get_user
-            ),
-        )
-        assert form.validate()
-
-        form = forms.TOTPAuthenticationForm(
-            request=request,
-            formdata=MultiDict({"totp_value": " 1 2 3 4  5 6 "}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True, get_user=get_user
-            ),
-        )
-        assert form.validate()
-
-        form = forms.TOTPAuthenticationForm(
-            request=request,
-            formdata=MultiDict({"totp_value": "123 456"}),
-            user_id=pretend.stub(),
-            user_service=pretend.stub(
-                check_totp_value=lambda *a: True, get_user=get_user
-            ),
-        )
-        assert form.validate()
 
 
 class TestWebAuthnAuthenticationForm:

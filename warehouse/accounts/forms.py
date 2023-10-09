@@ -21,6 +21,7 @@ import markupsafe
 import wtforms
 import wtforms.fields
 
+import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
 from warehouse import forms, recaptcha
@@ -38,7 +39,6 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.i18n import localize as _
-from warehouse.utils.otp import TOTP_LENGTH
 
 # Taken from passlib
 MAX_PASSWORD_SIZE = 4096
@@ -94,10 +94,10 @@ class TOTPValueMixin:
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
             wtforms.validators.Regexp(
-                rf"^ *([0-9] *){{{TOTP_LENGTH}}}$",
+                rf"^ *([0-9] *){{{otp.TOTP_LENGTH}}}$",
                 message=_(
                     "TOTP code must be ${totp_length} digits.",
-                    mapping={"totp_length": TOTP_LENGTH},
+                    mapping={"totp_length": otp.TOTP_LENGTH},
                 ),
             ),
         ]
@@ -415,7 +415,19 @@ class TOTPAuthenticationForm(TOTPValueMixin, _TwoFactorAuthenticationForm):
     def validate_totp_value(self, field):
         totp_value = field.data.replace(" ", "").encode("utf8")
 
-        if not self.user_service.check_totp_value(self.user_id, totp_value):
+        try:
+            self.user_service.check_totp_value(self.user_id, totp_value)
+        except otp.OutOfSyncTOTPError:
+            user = self.user_service.get_user(self.user_id)
+            user.record_event(
+                tag=EventTag.Account.LoginFailure,
+                request=self.request,
+                additional={"reason": "out_of_sync_totp"},
+            )
+            raise wtforms.validators.ValidationError(
+                _("Invalid TOTP code. Your device time may be out of sync.")
+            )
+        except otp.InvalidTOTPError:
             user = self.user_service.get_user(self.user_id)
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
