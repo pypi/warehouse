@@ -603,6 +603,17 @@ class Release(db.Model):
             ]
         )
 
+    @property
+    def trusted_published(self) -> bool:
+        """
+        A Release can be considered published via a trusted publisher if
+        **all** the Files in the release are published via a trusted publisher.
+        """
+        files = self.files.all()  # type: ignore[attr-defined]
+        if not files:
+            return False
+        return all(file.uploaded_via_trusted_publisher for file in files)
+
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
@@ -669,6 +680,16 @@ class File(HasEvents, db.Model):
     archived: Mapped[bool_false] = mapped_column(
         comment="If True, the object has been archived to our archival bucket.",
     )
+
+    @property
+    def uploaded_via_trusted_publisher(self) -> bool:
+        """Return True if the file was uploaded via a trusted publisher."""
+        return (
+            self.events.where(
+                self.Event.additional.has_key("publisher_url")  # type: ignore[attr-defined] # noqa E501
+            ).count()
+            > 0
+        )
 
     @hybrid_property
     def metadata_path(self):

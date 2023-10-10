@@ -32,6 +32,7 @@ from ...common.db.organizations import (
 )
 from ...common.db.packaging import (
     DependencyFactory as DBDependencyFactory,
+    FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
@@ -515,6 +516,60 @@ class TestRelease:
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_open_issue_info_url == expected
 
+    def test_trusted_published_none(self, db_session):
+        release = DBReleaseFactory.create()
+
+        assert not release.trusted_published
+
+    def test_trusted_published_all(self, db_session):
+        release = DBReleaseFactory.create()
+        release_file = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+            additional={},
+        )
+
+        # Without the `publisher_url` key, not considered trusted published
+        assert not release.trusted_published
+
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert release.trusted_published
+
+    def test_trusted_published_mixed(self, db_session):
+        release = DBReleaseFactory.create()
+        rfile_1 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        rfile_2 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.whl",
+            python_version="bdist_wheel",
+        )
+        DBFileEventFactory.create(
+            source=rfile_1,
+            tag="fake:event",
+            additional={},
+        )
+        DBFileEventFactory.create(
+            source=rfile_2,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert not release.trusted_published
+
 
 class TestFile:
     def test_requires_python(self, db_session):
@@ -579,3 +634,28 @@ class TestFile:
         )
 
         assert results == (expected, expected + ".metadata")
+
+    def test_published_via_trusted_publisher(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={},
+        )
+
+        # Without the `publisher_url` key, not considered trusted published
+        assert not rfile.uploaded_via_trusted_publisher
+
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert rfile.uploaded_via_trusted_publisher
