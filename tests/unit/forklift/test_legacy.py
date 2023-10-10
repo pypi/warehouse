@@ -3088,7 +3088,8 @@ class TestFileUpload:
             ),
             (
                 "foo-0.0.4test1-py3-none-any.whl",
-                "400 Invalid filename: Invalid version: '0.0.4test1'",
+                "400 Invalid wheel filename (invalid version): "
+                "foo-0.0.4test1-py3-none-any",
             ),
         ],
     )
@@ -3140,7 +3141,7 @@ class TestFileUpload:
             "linux_x86_64",
             "linux_x86_64.win32",
             "macosx_9_2_x86_64",
-            "macosx_14_2_arm64",
+            "macosx_15_2_arm64",
             "macosx_10_15_amd64",
         ],
     )

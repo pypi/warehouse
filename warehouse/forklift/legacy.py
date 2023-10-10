@@ -146,6 +146,7 @@ _macosx_major_versions = {
     "11",
     "12",
     "13",
+    "14",
 }
 
 # manylinux pep600 and musllinux pep656 are a little more complicated:
@@ -1349,11 +1350,6 @@ def file_upload(request):
                 raise _exc_with_message(
                     HTTPBadRequest,
                     str(e),
-                )
-            except packaging.version.InvalidVersion as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Invalid filename: {e}",
                 )
 
             for tag in tags:
