@@ -19,6 +19,11 @@ updates:
   - dependency-name: "botocore"
   - dependency-name: "botocore-stubs"
   groups:
+    celery:
+      # Keep both celery and kombu together
+      patterns:
+        - "celery"
+        - "kombu"
     psycopg:
       # Keep both psycopg and psycopg-c together
       patterns:
