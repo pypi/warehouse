@@ -414,17 +414,17 @@ class TestValidation:
             legacy._validate_dynamic(form, field)
 
     @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
-    def test_validate_extras_valid(self, db_request, data):
+    def test_validate_provides_extras_valid(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
             metadata_version=pretend.stub(data="2.3"),
         )
         field = pretend.stub(data=data)
 
-        legacy._validate_extras(form, field)
+        legacy._validate_provides_extras(form, field)
 
     @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
-    def test_validate_extras_invalid(self, db_request, data):
+    def test_validate_provides_extras_invalid(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
             metadata_version=pretend.stub(data="2.3"),
@@ -432,36 +432,27 @@ class TestValidation:
         field = pretend.stub(data=data)
 
         with pytest.raises(ValidationError):
-            legacy._validate_extras(form, field)
+            legacy._validate_provides_extras(form, field)
 
     @pytest.mark.parametrize("data", [["dev"], ["dev-test"]])
-    def test_validate_extras_valid_2_2(self, db_request, data):
+    def test_validate_provides_extras_valid_2_2(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
             metadata_version=pretend.stub(data="2.2"),
         )
         field = pretend.stub(data=data)
 
-        legacy._validate_extras(form, field)
-
-    def test_validate_extras_invalid_metadata_version(self, db_request):
-        form = pretend.stub(
-            metadata_version=pretend.stub(data="~invalid~"),
-        )
-        field = pretend.stub(data=[])
-
-        with pytest.raises(ValidationError):
-            legacy._validate_extras(form, field)
+        legacy._validate_provides_extras(form, field)
 
     @pytest.mark.parametrize("data", [["dev_test"], ["dev.lint", "dev--test"]])
-    def test_validate_extras_invalid_2_2(self, db_request, data):
+    def test_validate_provides_extras_invalid_2_2(self, db_request, data):
         form = pretend.stub(
             provides_extra=pretend.stub(data=data),
             metadata_version=pretend.stub(data="2.2"),
         )
         field = pretend.stub(data=data)
 
-        legacy._validate_extras(form, field)
+        legacy._validate_provides_extras(form, field)
 
 
 def test_construct_dependencies():
@@ -562,7 +553,7 @@ class TestMetadataForm:
                 "dynamic": "requires",
             },
             {
-                "metadata_version": "3.0",
+                "metadata_version": "1.2",
                 "sha256_digest": "dummy",
                 "dynamic": "requires",
             },

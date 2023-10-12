@@ -397,14 +397,19 @@ def _validate_classifiers(form, field):
 
 
 def _validate_dynamic(_form, field):
-    declared_dynamic_fields = set(map(str.title, field.data or []))
+    declared_dynamic_fields = {str.title(k) for k in field.data or []}
     disallowed_dynamic_fields = {"Name", "Version", "Metadata-Version"}
     if invalid := (declared_dynamic_fields & disallowed_dynamic_fields):
         raise wtforms.validators.ValidationError(
             f"The following metadata field(s) cannot be marked as dynamic: {invalid!r}",
         )
-    allowed_dynamic_field = set(DynamicFieldsEnum.enums)
-    if invalid := (declared_dynamic_fields - allowed_dynamic_field):
+    # "Supported-Platform" is missing in the metadata form since does not have any
+    # constraints
+    allowed_dynamic_fields = (
+        {field.description for field in MetadataForm() if field.description}
+        | {"Supported-Platform"}
+    ) - disallowed_dynamic_fields
+    if invalid := (declared_dynamic_fields - allowed_dynamic_fields):
         raise wtforms.validators.ValidationError(
             f"The following values are not valid for Dynamic: {invalid!r}"
         )
@@ -413,13 +418,8 @@ def _validate_dynamic(_form, field):
 _extra_name_re = re.compile("^([a-z0-9]|[a-z0-9]([a-z0-9-](?!--))*[a-z0-9])$")
 
 
-def _validate_extras(form, field):
-    try:
-        metadata_version = packaging.version.Version(form.metadata_version.data)
-    except packaging.version.InvalidVersion as e:
-        raise wtforms.validators.ValidationError(
-            f"The Metadata-Version is invalid: {e}"
-        )
+def _validate_provides_extras(form, field):
+    metadata_version = packaging.version.Version(form.metadata_version.data)
 
     if metadata_version >= packaging.version.Version("2.3"):
         if invalid := [
@@ -605,7 +605,7 @@ class MetadataForm(forms.Form):
     )
     provides_extra = ListField(
         description="Provides-Extra",
-        validators=[wtforms.validators.Optional(), _validate_extras],
+        validators=[wtforms.validators.Optional(), _validate_provides_extras],
     )
     provides_dist = ListField(
         description="Provides-Dist",
@@ -657,11 +657,13 @@ class MetadataForm(forms.Form):
             )
 
         # Dynamic is only allowed with metadata version 2.2+
-        if self.dynamic.data and self.metadata_version.data not in ["2.2", "2.3"]:
-            raise wtforms.validators.ValidationError(
-                "'Dynamic' is only allowed in metadata version 2.2 and higher, "
-                f"but you declared {self.metadata_version.data}"
-            )
+        if self.dynamic.data:
+            metadata_version = packaging.version.Version(self.metadata_version.data)
+            if metadata_version and metadata_version < packaging.version.Version("2.2"):
+                raise wtforms.validators.ValidationError(
+                    "'Dynamic' is only allowed in metadata version 2.2 and higher, "
+                    f"but you declared {self.metadata_version.data}"
+                )
 
 
 def _validate_filename(filename, filetype):
