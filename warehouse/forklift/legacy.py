@@ -59,7 +59,6 @@ from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
     Description,
-    DynamicFieldsEnum,
     File,
     Filename,
     JournalEntry,
