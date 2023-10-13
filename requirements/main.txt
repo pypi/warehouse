@@ -1777,9 +1777,9 @@ wrapt==1.15.0 \
     --hash=sha256:fbec11614dba0424ca72f4e8ba3c420dba07b4a7c206c8c8e4e73f2e98f4c559 \
     --hash=sha256:fd69666217b62fa5d7c6aa88e507493a34dec4fa20c5bd925e4bc12fce586639
     # via deprecated
-wtforms[email]==3.0.1 \
-    --hash=sha256:6b351bbb12dd58af57ffef05bc78425d08d1914e0fd68ee14143b7ade023c5bc \
-    --hash=sha256:837f2f0e0ca79481b92884962b914eba4e72b7a2daaf1f939c890ed0124b834b
+wtforms[email]==3.1.0 \
+    --hash=sha256:4edd15771630289a5fa343d58822f72749822ca5a39dd33f92ee917cf72b954b \
+    --hash=sha256:addd7899004fdf9318eb711d33aae9c1973fe80378257b7383e06de2eff7c559
     # via -r requirements/main.in
 zope-deprecation==5.0 \
     --hash=sha256:28c2ee983812efb4676d33c7a8c6ade0df191c1c6d652bbbfe6e2eeee067b2d4 \
