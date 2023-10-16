@@ -274,7 +274,11 @@ def send_password_reset_email(request, user_and_email):
         {
             "action": "password-reset",
             "user.id": str(user.id),
-            "user.last_login": str(user.last_login),
+            "user.last_login": str(
+                user.last_login
+                if user.last_login is not None
+                else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+            ),
             "user.password_date": str(
                 user.password_date
                 if user.password_date is not None
