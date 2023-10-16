@@ -442,9 +442,9 @@ cssselect==1.2.0 \
     --hash=sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc \
     --hash=sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e
     # via premailer
-cssutils==2.7.1 \
-    --hash=sha256:1e92e0d9dab2ec8af9f38d715393964ba533dc3beacab9b072511dfc241db775 \
-    --hash=sha256:340ecfd9835d21df8f98500f0dfcea0aee41cb4e19ecbc2cf94f0a6d36d7cb6c
+cssutils==2.9.0 \
+    --hash=sha256:89477b3d17d790e97b9fb4def708767061055795aae6f7c82ae32e967c9be4cd \
+    --hash=sha256:f8b013169e281c0c6083207366c5005f5dd4549055f7aba840384fb06a78745c
     # via premailer
 datadog==0.47.0 \
     --hash=sha256:47be3b2c3d709a7f5b709eb126ed4fe6cc7977d618fe5c158dd89c2a9f7d9916 \
