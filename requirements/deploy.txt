@@ -10,9 +10,9 @@ attrs==23.1.0 \
     # via
     #   cattrs
     #   ddtrace
-bytecode==0.15.0 \
-    --hash=sha256:0908a8348cabf366b5c1865daabcdc0d650cb0cbdeb1750cc90564852f81945c \
-    --hash=sha256:a66718dc1d246b4fec52b5850c15592344a56c8bdb28fd243c895ccf00f8371f
+bytecode==0.15.1 \
+    --hash=sha256:0a1dc340cac823cff605609b8b214f7f9bf80418c6b9e0fc8c6db1793c27137d \
+    --hash=sha256:7263239a8d3f70fc7c303862b20cd2c6788052e37ce0a26e67309d280e985984
     # via ddtrace
 cattrs==23.1.2 \
     --hash=sha256:b2bb14311ac17bed0d58785e5a60f022e5431aca3932e3fc5cc8ed8639de50a4 \
