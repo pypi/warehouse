@@ -2093,6 +2093,86 @@ class TestResetPassword:
             pretend.call(user.id),
         ]
 
+    def test_reset_password_with_no_last_login_succeeds(
+        self, monkeypatch, db_request, user_service, token_service
+    ):
+        user = UserFactory.create(last_login=None, password_date=None)
+        # unclear why factory doesn't accept the None above
+        user.last_login = user.password_date = None
+        assert user.last_login is None
+        assert user.password_date is None
+
+        db_request.method = "POST"
+        db_request.POST.update({"token": "RANDOM_KEY"})
+        form_obj = pretend.stub(
+            new_password=pretend.stub(data="password_value"),
+            validate=pretend.call_recorder(lambda *args: True),
+        )
+        form_class = pretend.call_recorder(lambda *args, **kwargs: form_obj)
+        breach_service = pretend.stub(check_password=lambda pw: False)
+        ratelimiter_service = pretend.stub(
+            clear=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        send_email = pretend.call_recorder(lambda *a: None)
+        monkeypatch.setattr(views, "send_password_change_email", send_email)
+        db_request.route_path = pretend.call_recorder(lambda name: "/account/login")
+        token_service.loads = pretend.call_recorder(
+            lambda token: {
+                "action": "password-reset",
+                "user.id": str(user.id),
+                "user.last_login": str(
+                    datetime.datetime.min.replace(tzinfo=datetime.UTC)
+                ),
+                "user.password_date": str(
+                    datetime.datetime.min.replace(tzinfo=datetime.UTC)
+                ),
+            }
+        )
+        user_service.update_user = pretend.call_recorder(lambda *a, **kw: None)
+        db_request.find_service = pretend.call_recorder(
+            lambda interface, **kwargs: {
+                IUserService: user_service,
+                ITokenService: token_service,
+                IPasswordBreachedService: breach_service,
+                IRateLimiter: ratelimiter_service,
+            }[interface]
+        )
+        db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
+
+        result = views.reset_password(db_request, _form_class=form_class)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/account/login"
+        assert form_obj.validate.calls == [pretend.call()]
+        assert form_class.calls == [
+            pretend.call(
+                db_request.POST,
+                username=user.username,
+                full_name=user.name,
+                email=user.email,
+                user_service=user_service,
+                breach_service=breach_service,
+            )
+        ]
+        assert db_request.route_path.calls == [pretend.call("accounts.login")]
+        assert token_service.loads.calls == [pretend.call("RANDOM_KEY")]
+        assert user_service.update_user.calls == [
+            pretend.call(user.id, password=form_obj.new_password.data)
+        ]
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert db_request.session.flash.calls == [
+            pretend.call("You have reset your password", queue="success")
+        ]
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None),
+            pretend.call(IPasswordBreachedService, context=None),
+            pretend.call(ITokenService, name="password"),
+            pretend.call(IRateLimiter, name="password.reset"),
+        ]
+        assert ratelimiter_service.clear.calls == [
+            pretend.call(user.id),
+        ]
+
     @pytest.mark.parametrize(
         ("exception", "message"),
         [
