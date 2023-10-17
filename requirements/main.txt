@@ -10,9 +10,9 @@ alembic==1.12.0 \
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
-alembic-postgresql-enum==0.2.0 \
-    --hash=sha256:6db8767479ff13a444495236fecda29308c7262a50224c11adc88ed60ccd9084 \
-    --hash=sha256:84976168158874f0b1f1a00ae13543a18b7852698fe27044bce4ac6497d34731
+alembic-postgresql-enum==0.2.1 \
+    --hash=sha256:27a0e8bf910832252ea23d1ba41d8a6a37b7bf9ff20f6cbf69c20a7d8556558e \
+    --hash=sha256:82bb0c5c73805215d1619e1364cedfffeb9760068478ec08fa6458d068efcb38
     # via -r requirements/main.in
 amqp==5.1.1 \
     --hash=sha256:2c1b13fecc0893e946c65cbd5f36427861cffa4ea2201d8f6fca22e2a373b5e2 \
@@ -442,9 +442,9 @@ cssselect==1.2.0 \
     --hash=sha256:666b19839cfaddb9ce9d36bfe4c969132c647b92fc9088c4e23f786b30f1b3dc \
     --hash=sha256:da1885f0c10b60c03ed5eccbb6b68d6eff248d91976fcde348f395d54c9fd35e
     # via premailer
-cssutils==2.7.1 \
-    --hash=sha256:1e92e0d9dab2ec8af9f38d715393964ba533dc3beacab9b072511dfc241db775 \
-    --hash=sha256:340ecfd9835d21df8f98500f0dfcea0aee41cb4e19ecbc2cf94f0a6d36d7cb6c
+cssutils==2.9.0 \
+    --hash=sha256:89477b3d17d790e97b9fb4def708767061055795aae6f7c82ae32e967c9be4cd \
+    --hash=sha256:f8b013169e281c0c6083207366c5005f5dd4549055f7aba840384fb06a78745c
     # via premailer
 datadog==0.47.0 \
     --hash=sha256:47be3b2c3d709a7f5b709eb126ed4fe6cc7977d618fe5c158dd89c2a9f7d9916 \
@@ -1595,9 +1595,9 @@ stdlib-list==0.9.0 \
     --hash=sha256:98eb66135976c96b4ee3f4c0ef0552ebb5a9977ce3028433db79f4738b02af26 \
     --hash=sha256:f79957d59e41930d44afcd81e465f740b9a7a9828707a40e24ab1092b12bd423
     # via -r requirements/main.in
-stripe==6.7.0 \
-    --hash=sha256:2794ccc4b4c97070d1cab4385e1d2aad65937b4437b75cc1faf7d67dda8199f4 \
-    --hash=sha256:a453d6daa633f656297a9323c736fdcb53164418d643fdc30499a6d32ad7933c
+stripe==7.0.0 \
+    --hash=sha256:15ebdcb8271b4fd54ff861d85101a78a6f01ce7c1ae236bb0e2b8f76bf7ffad8 \
+    --hash=sha256:9a35f404c04eb80bff0bb618950e0548943f1ef47c14e8e8f4bbc6f5e751ba99
     # via -r requirements/main.in
 structlog==23.2.0 \
     --hash=sha256:16a167e87b9fa7fae9a972d5d12805ef90e04857a93eba479d4be3801a6a1482 \
@@ -1841,9 +1841,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==23.2.1 \
-    --hash=sha256:7ccf472345f20d35bdc9d1841ff5f313260c2c33fe417f48c30ac46cccabf5be \
-    --hash=sha256:fb0bd5435b3200c602b5bf61d2d43c2f13c02e29c1707567ae7fbc514eb9faf2
+pip==23.3 \
+    --hash=sha256:bb7d4f69f488432e4e96394612f43ab43dd478d073ef7422604a570f7157561e \
+    --hash=sha256:bc38bb52bc286514f8f7cb3a1ba5ed100b76aaef29b521d48574329331c5ae7b
     # via pip-api
 setuptools==68.2.2 \
     --hash=sha256:4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87 \
