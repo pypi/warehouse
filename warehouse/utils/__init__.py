@@ -13,8 +13,8 @@
 import datetime
 
 
-def now():
-    return datetime.datetime.utcnow()
+def now() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc)
 
 
 def dotted_navigator(path):
