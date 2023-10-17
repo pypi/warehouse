@@ -796,7 +796,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
     # now it's localized to UTC
     if not last_login.tzinfo:
         last_login = pytz.UTC.localize(last_login)
-    if user.last_login > last_login:
+    if user.last_login and user.last_login > last_login:
         sentry_sdk.set_context(
             "user",
             {

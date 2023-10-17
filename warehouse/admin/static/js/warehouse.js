@@ -11,10 +11,19 @@
  * limitations under the License.
  */
 
-// Import the AdminLTE version of Bootstrap JS (4.x) to avoid namespace
-// conflicts with other bootstrap packages.
-// Related: https://github.com/ColorlibHQ/AdminLTE/commit/4f1546acb25dc73b034cb15a598171f4c2b3d835
-import "admin-lte/node_modules/bootstrap";
+import "admin-lte/plugins/jquery/jquery";
+import "admin-lte/plugins/bootstrap/js/bootstrap.bundle";
+
+// Import DataTables JS
+import "admin-lte/plugins/datatables/jquery.dataTables";
+import "admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4";
+import "admin-lte/plugins/datatables-responsive/js/dataTables.responsive";
+import "admin-lte/plugins/datatables-responsive/js/responsive.bootstrap4";
+import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
+import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
+import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
+import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
+
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
@@ -100,3 +109,17 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
     copy(element.dataset.copyText, element);
   });
 });
+
+// Activate Datatables https://datatables.net/
+// User Account Activity
+let table = $("#account-activity").DataTable({
+  responsive: true,
+  lengthChange: false,
+});
+// sort by time
+table.column(".time").order("desc").draw();
+// Hide some columns we don't need to see all the time
+table.columns([".ip_address", ".hashed_ip"]).visible(false);
+// add column visibility button
+new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
