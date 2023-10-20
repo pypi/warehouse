@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import enum
+import typing
 
 from collections import OrderedDict
 from uuid import UUID
@@ -58,12 +59,16 @@ from warehouse.organizations.models import (
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    Team,
     TeamProjectRole,
 )
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils import dotted_navigator
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
+
+if typing.TYPE_CHECKING:
+    from warehouse.oidc.models import OIDCPublisher
 
 
 class Role(db.Model):
@@ -175,6 +180,12 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         BigInteger, server_default=sql.text("0")
     )
 
+    oidc_publishers: Mapped[list[OIDCPublisher]] = orm.relationship(
+        secondary="oidc_publisher_project_association",
+        back_populates="projects",
+        passive_deletes=True,
+    )
+
     organization: Mapped[Organization] = orm.relationship(
         secondary=OrganizationProject.__table__,
         back_populates="projects",
@@ -185,6 +196,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         back_populates="project",
         passive_deletes=True,
     )
+    team: Mapped[Team] = orm.relationship(
+        secondary=TeamProjectRole.__table__,
+        back_populates="projects",
+        viewonly=True,
+    )
     team_project_roles: Mapped[list[TeamProjectRole]] = orm.relationship(
         back_populates="project",
         passive_deletes=True,
@@ -193,7 +209,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         secondary=Role.__table__, back_populates="projects", viewonly=True
     )
     releases: Mapped[list[Release]] = orm.relationship(
-        backref="project",
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
@@ -365,6 +380,7 @@ class Dependency(db.Model):
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    release: Mapped[Release] = orm.relationship(back_populates="dependencies")
     kind: Mapped[int | None]
     specifier: Mapped[str | None]
 
@@ -403,6 +419,7 @@ class ReleaseURL(db.Model):
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
+    release: Mapped[Release] = orm.relationship(back_populates="_project_urls")
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
@@ -428,6 +445,7 @@ class Release(db.Model):
     project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    project: Mapped[Project] = orm.relationship(back_populates="releases")
     version: Mapped[str] = mapped_column(Text)
     canonical_version: Mapped[str] = mapped_column()
     is_prerelease: Mapped[bool_false]
@@ -473,7 +491,6 @@ class Release(db.Model):
     classifiers = association_proxy("_classifiers", "classifier")
 
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
-        backref="release",
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
         order_by=lambda: ReleaseURL.name.asc(),
@@ -486,8 +503,6 @@ class Release(db.Model):
     )
 
     files: Mapped[list[File]] = orm.relationship(
-        "File",
-        backref="release",
         cascade="all, delete-orphan",
         lazy="dynamic",
         order_by=lambda: File.filename,
@@ -495,7 +510,6 @@ class Release(db.Model):
     )
 
     dependencies: Mapped[list[Dependency]] = orm.relationship(
-        backref="release",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -652,6 +666,7 @@ class File(HasEvents, db.Model):
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    release: Mapped[Release] = orm.relationship(back_populates="files")
     python_version: Mapped[str]
     requires_python: Mapped[str | None]
     packagetype: Mapped[PackageType] = mapped_column()
