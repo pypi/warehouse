@@ -467,23 +467,13 @@ class Release(db.Model):
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
-    description: Mapped[Description] = orm.relationship(
-        backref=orm.backref(
-            "release",
-            cascade="all, delete-orphan",
-            passive_deletes=True,
-            passive_updates=True,
-            single_parent=True,
-            uselist=False,
-        ),
-    )
+    description: Mapped[Description] = orm.relationship()
 
     yanked: Mapped[bool_false]
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
 
     _classifiers: Mapped[list[Classifier]] = orm.relationship(
-        backref="project_releases",
         secondary="release_classifiers",
         order_by=Classifier.ordering,
         passive_deletes=True,

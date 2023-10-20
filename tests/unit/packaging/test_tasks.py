@@ -389,13 +389,12 @@ def test_update_description_html(monkeypatch, db_request):
 
 
 def test_update_release_description(db_request):
-    release = ReleaseFactory.create()
     description = DescriptionFactory.create(
-        release=release,
         raw="rst\n===\n\nbody text",
         html="",
         rendered_by="0.0",
     )
+    release = ReleaseFactory.create(description=description)
 
     task = pretend.stub()
     update_release_description(task, db_request, release.id)
