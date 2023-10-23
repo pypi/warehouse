@@ -570,6 +570,16 @@ class TestRelease:
 
         assert not release.trusted_published
 
+    def test_description_relationship(self, db_request):
+        """When a Release is deleted, the Description is also deleted."""
+        release = DBReleaseFactory.create()  # also creates a Description
+        description = release.description
+
+        db_request.db.delete(release)
+
+        assert release in db_request.db.deleted
+        assert description in db_request.db.deleted
+
 
 class TestFile:
     def test_requires_python(self, db_session):

@@ -403,6 +403,8 @@ class Description(db.Model):
     html: Mapped[str]
     rendered_by: Mapped[str]
 
+    release: Mapped[Release] = orm.relationship(back_populates="description")
+
 
 class ReleaseURL(db.Model):
     __tablename__ = "release_urls"
@@ -467,7 +469,11 @@ class Release(db.Model):
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
-    description: Mapped[Description] = orm.relationship()
+    description: Mapped[Description] = orm.relationship(
+        back_populates="release",
+        cascade="all, delete-orphan",
+        single_parent=True,
+    )
 
     yanked: Mapped[bool_false]
 
