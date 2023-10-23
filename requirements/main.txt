@@ -476,9 +476,9 @@ elasticsearch-dsl==7.4.1 \
     --hash=sha256:07ee9c87dc28cc3cae2daa19401e1e18a172174ad9e5ca67938f752e3902a1d5 \
     --hash=sha256:97f79239a252be7c4cce554c29e64695d7ef6a4828372316a5e5ff815e7a7498
     # via -r requirements/main.in
-email-validator==2.0.0.post2 \
-    --hash=sha256:1ff6e86044200c56ae23595695c54e9614f4a9551e0e393614f764860b3d7900 \
-    --hash=sha256:2466ba57cda361fb7309fd3d5a225723c788ca4bbad32a0ebd5373b99730285c
+email-validator==2.1.0 \
+    --hash=sha256:4496ecc949b51e42d1c9e6159d57cd04ef017af57d2e366ed7fd998f1bf8af69 \
+    --hash=sha256:5f511cca8856bb03251d6292ba59e7f98978aae13fa5823ddd8bf885c56a6260
     # via wtforms
 first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
