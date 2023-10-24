@@ -63,3 +63,13 @@ rooms, and mailing lists is expected to follow the `PSF Code of Conduct`_.
 .. _`Libera`: https://web.libera.chat/#pypa,#pypa-dev
 .. _`PyPA Discord`: https://discord.gg/pypa
 .. _`Discourse`: https://discuss.python.org/c/packaging/14
+https://github.com/915030705/https-github.com-ethereum-solidity-releases-tag-v0.8.3
+user rejected certificate for github.com
+Interpreting last error as: No way to authenticate with github.com
+Cloning from https://github.com/915030705/https-github.com-ethereum-solidity-releases-tag-v0.8.3
+Doing password authentication for 915030705
+Doing password authentication for 915030705 (2. time)
+Doing password authentication for 915030705 (3. time)
+Doing password authentication for 915030705 (4. time)
+user rejected certificate for github.com
+Interpreting last error as: No way to authenticate with github.com
