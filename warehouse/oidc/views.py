@@ -89,7 +89,7 @@ def mint_token_from_oidc(request):
         )
 
     try:
-        payload = TokenPayload.parse_raw(request.body)
+        payload = TokenPayload.model_validate_json(request.body)
         unverified_jwt = payload.token
     except ValidationError as exc:
         return _invalid(errors=[{"code": "invalid-payload", "description": str(exc)}])
