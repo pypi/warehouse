@@ -101,9 +101,14 @@ from warehouse.manage.views.view_helpers import (
 )
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm
+from warehouse.oidc.forms.buildkite import BuildkitePublisherForm
 from warehouse.oidc.forms.github import GitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import (
+    BuildkitePublisher,
+    GitHubPublisher,
+    OIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,
@@ -1217,6 +1222,12 @@ class ManageOIDCPublisherViews:
             )
 
     @property
+    def buildkite_publisher_form(self):
+        return BuildkitePublisherForm(
+            self.request.POST,
+        )
+
+    @property
     def github_publisher_form(self):
         return GitHubPublisherForm(
             self.request.POST,
@@ -1227,6 +1238,8 @@ class ManageOIDCPublisherViews:
     def default_response(self):
         return {
             "project": self.project,
+            "default_publisher_name": "github",
+            "buildkite_publisher_form": self.buildkite_publisher_form,
             "github_publisher_form": self.github_publisher_form,
         }
 
@@ -1244,10 +1257,127 @@ class ManageOIDCPublisherViews:
         return self.default_response
 
     @view_config(
+        route_name="manage.project.settings.publishing.buildkite",
+        request_method="POST",
+        request_param=BuildkitePublisherForm.__params__,
+    )
+    def add_buildkite_oidc_publisher(self):
+        response = self.default_response
+        response["default_publisher_name"] = "buildkite"
+
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_BUILDKITE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Buildkite-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Buildkite"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:Buildkite"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        form = response["buildkite_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Buildkite OIDC publishers are unique on the tuple of
+        # (repository_name, repository_owner, workflow_filename, environment),
+        # so we check for an already registered one before creating.
+        publisher = (
+            self.request.db.query(BuildkitePublisher)
+            .filter(
+                BuildkitePublisher.organization_slug == form.organization_slug.data,
+                BuildkitePublisher.pipeline_slug == form.pipeline_slug.data,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = BuildkitePublisher(
+                organization_slug=form.organization_slug.data,
+                pipeline_slug=form.pipeline_slug.data,
+                build_branch=form.build_branch.data,
+                build_tag=form.build_tag.data,
+                step_key=form.step_key.data,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:Buildkite"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
         request_method="POST",
         request_param=GitHubPublisherForm.__params__,
     )
     def add_github_oidc_publisher(self):
+        response = self.default_response
+        response["default_publisher_name"] = "github"
+
         if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
@@ -1256,7 +1386,7 @@ class ManageOIDCPublisherViews:
                 ),
                 queue="error",
             )
-            return self.default_response
+            return response
 
         self.metrics.increment(
             "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitHub"]
@@ -1278,7 +1408,7 @@ class ManageOIDCPublisherViews:
 
         self._hit_ratelimits()
 
-        response = self.default_response
+        response = response
         form = response["github_publisher_form"]
 
         if not form.validate():

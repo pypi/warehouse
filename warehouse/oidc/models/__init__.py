@@ -11,14 +11,17 @@
 # limitations under the License.
 
 from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models.buildkite import BuildkitePublisher, PendingBuildkitePublisher
 from warehouse.oidc.models.github import GitHubPublisher, PendingGitHubPublisher
 from warehouse.oidc.models.google import GooglePublisher, PendingGooglePublisher
 
 __all__ = [
     "OIDCPublisher",
     "PendingOIDCPublisher",
+    "PendingBuildkitePublisher",
     "PendingGitHubPublisher",
     "PendingGooglePublisher",
+    "BuildkitePublisher",
     "GitHubPublisher",
     "GooglePublisher",
 ]
