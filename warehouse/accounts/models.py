@@ -43,6 +43,12 @@ from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
+    from warehouse.organizations.models import (
+        Organization,
+        OrganizationApplication,
+        OrganizationRole,
+        Team,
+    )
     from warehouse.packaging.models import Project
 
 
@@ -97,38 +103,62 @@ class User(SitemapMixin, HasEvents, db.Model):
     last_totp_value: Mapped[str | None]
 
     webauthn: Mapped[list[WebAuthn]] = orm.relationship(
-        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
+        back_populates="user", cascade="all, delete-orphan", lazy=True
     )
 
     recovery_codes: Mapped[list[RecoveryCode]] = orm.relationship(
-        "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy="dynamic"
+        back_populates="user", cascade="all, delete-orphan", lazy="dynamic"
     )
 
     emails: Mapped[list[Email]] = orm.relationship(
-        "Email", backref="user", cascade="all, delete-orphan", lazy=False
+        back_populates="user", cascade="all, delete-orphan", lazy=False
     )
 
     macaroons: Mapped[list[Macaroon]] = orm.relationship(
-        "Macaroon",
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
     )
 
+    organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
+        back_populates="submitted_by",
+    )
+
+    organizations: Mapped[list[Organization]] = orm.relationship(
+        secondary="organization_roles",
+        back_populates="users",
+        lazy=True,
+        order_by="Organization.name",
+        viewonly=True,
+    )
+
     pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = orm.relationship(
-        "PendingOIDCPublisher",
-        backref="added_by",
+        back_populates="added_by",
         cascade="all, delete-orphan",
         lazy=True,
     )
 
     projects: Mapped[list[Project]] = orm.relationship(
-        "Project",
         secondary="roles",
         back_populates="users",
         lazy=True,
         viewonly=True,
         order_by="Project.normalized_name",
+    )
+
+    organization_roles: Mapped[list[OrganizationRole]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        viewonly=True,
+    )
+
+    teams: Mapped[list[Team]] = orm.relationship(
+        secondary="team_roles",
+        back_populates="members",
+        lazy=True,
+        viewonly=True,
+        order_by="Team.name",
     )
 
     @property
@@ -243,6 +273,7 @@ class WebAuthn(db.Model):
         nullable=False,
         index=True,
     )
+    user: Mapped[User] = orm.relationship(back_populates="webauthn")
     label: Mapped[str]
     credential_id: Mapped[str] = mapped_column(unique=True)
     public_key: Mapped[str | None] = mapped_column(unique=True)
@@ -258,6 +289,7 @@ class RecoveryCode(db.Model):
         nullable=False,
         index=True,
     )
+    user: Mapped[User] = orm.relationship(back_populates="recovery_codes")
     code: Mapped[str] = mapped_column(String(length=128))
     generated: Mapped[datetime_now]
     burned: Mapped[datetime.datetime | None]
@@ -281,6 +313,7 @@ class Email(db.ModelBase):
         PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
     )
+    user: Mapped[User] = orm.relationship(back_populates="emails")
     email: Mapped[str] = mapped_column(String(length=254))
     primary: Mapped[bool]
     verified: Mapped[bool]

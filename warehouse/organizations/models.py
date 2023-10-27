@@ -82,8 +82,10 @@ class OrganizationRole(db.Model):
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
-    user: Mapped[User] = relationship(lazy=False)
-    organization: Mapped[Organization] = relationship(lazy=False)
+    user: Mapped[User] = relationship(back_populates="organization_roles", lazy=False)
+    organization: Mapped[Organization] = relationship(
+        back_populates="roles", lazy=False
+    )
 
 
 class OrganizationProject(db.Model):
@@ -270,10 +272,16 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         onupdate=func.now(),
         comment="Datetime the organization was approved by administrators.",
     )
+    application: Mapped[OrganizationApplication] = relationship(
+        back_populates="organization"
+    )
 
     users: Mapped[list[User]] = relationship(
-        secondary=OrganizationRole.__table__, backref="organizations", viewonly=True
+        secondary=OrganizationRole.__table__,
+        back_populates="organizations",
+        viewonly=True,
     )
+    roles: Mapped[list[OrganizationRole]] = relationship(back_populates="organization")
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
@@ -471,9 +479,11 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         comment="If the request was approved, ID of resulting Organization",
     )
 
-    submitted_by: Mapped[User] = relationship(backref="organization_applications")
+    submitted_by: Mapped[User] = relationship(
+        back_populates="organization_applications"
+    )
     organization: Mapped[Organization] = relationship(
-        backref="application", viewonly=True
+        back_populates="application", viewonly=True
     )
 
 
@@ -644,10 +654,10 @@ class Team(HasEvents, db.Model):
         lazy=False, back_populates="teams"
     )
     members: Mapped[list[User]] = relationship(
-        secondary=TeamRole.__table__, backref="teams", viewonly=True
+        secondary=TeamRole.__table__, back_populates="teams", viewonly=True
     )
     projects: Mapped[list[Project]] = relationship(
-        secondary=TeamProjectRole.__table__, backref="teams", viewonly=True
+        secondary=TeamProjectRole.__table__, back_populates="team", viewonly=True
     )
 
     def record_event(self, *, tag, request: Request = None, additional=None):
