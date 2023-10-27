@@ -13,19 +13,22 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import sentry_sdk
 
 from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
-from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.packaging.models import Project
+
+if TYPE_CHECKING:
+    from warehouse.accounts.models import User
+    from warehouse.macaroons.models import Macaroon
+    from warehouse.packaging.models import Project
 
 C = TypeVar("C")
 
@@ -241,12 +244,13 @@ class OIDCPublisherMixin:
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"
 
-    projects = orm.relationship(
-        Project,
+    projects: Mapped[list[Project]] = orm.relationship(
         secondary=OIDCPublisherProjectAssociation.__table__,
-        backref="oidc_publishers",
+        back_populates="oidc_publishers",
     )
-    macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)
+    macaroons: Mapped[list[Macaroon]] = orm.relationship(
+        cascade="all, delete-orphan", lazy=True
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_publishers",
@@ -266,6 +270,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     added_by_id = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
+    added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",
