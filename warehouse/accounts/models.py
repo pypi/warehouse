@@ -36,6 +36,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.events.models import HasEvents
+from warehouse.observations.models import HasObserversMixin
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -68,7 +69,7 @@ class DisableReason(enum.Enum):
     AccountFrozen = "account frozen"
 
 
-class User(SitemapMixin, HasEvents, db.Model):
+class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),

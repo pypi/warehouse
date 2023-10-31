@@ -54,6 +54,7 @@ from warehouse.accounts.models import User
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
+from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
     Organization,
     OrganizationProject,
@@ -158,7 +159,7 @@ class TwoFactorRequireable:
         return self.owners_require_2fa | self.pypi_mandates_2fa
 
 
-class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+class Project(SitemapMixin, TwoFactorRequireable, HasEvents, HasObservations, db.Model):
     __tablename__ = "projects"
     __repr__ = make_repr("name")
 
@@ -427,7 +428,7 @@ class ReleaseURL(db.Model):
     url: Mapped[str]
 
 
-class Release(db.Model):
+class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
     @declared_attr
