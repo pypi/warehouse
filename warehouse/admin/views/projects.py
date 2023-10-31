@@ -21,6 +21,7 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import User
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
@@ -124,6 +125,13 @@ def project_detail(project, request):
             .limit(30)
         )
     ]
+    observations = list(
+        request.db.query(project.Observation)
+        .options(joinedload(project.Observation.observer))
+        .filter(project.Observation.related == project)
+        .order_by(project.Observation.created.desc())
+        .limit(30)
+    )
 
     return {
         "project": project,
@@ -136,7 +144,98 @@ def project_detail(project, request):
         "ONE_GB": ONE_GB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
+        "observation_kinds": ObservationKind,
+        "observations": observations,
     }
+
+
+@view_config(
+    route_name="admin.project.observations",
+    renderer="admin/projects/observations_list.html",
+    permission="moderator",
+    request_method="GET",
+    uses_session=True,
+)
+def observations_list(project, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    observations_query = (
+        request.db.query(project.Observation)
+        .options(joinedload(project.Observation.observer))
+        .filter(project.Observation.related == project)
+        .order_by(project.Observation.created.desc())
+    )
+
+    # TODO: When implementing DataTables, consider removing server-side pagination.
+    #  DataTables can handle up to about 50,000 rows.
+    observations = SQLAlchemyORMPage(
+        observations_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"observations": observations, "project": project}
+
+
+@view_config(
+    route_name="admin.project.add_observation",
+    permission="moderator",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_observation(project, request):
+    kind = request.POST.get("kind")
+    if not kind:
+        request.session.flash("Provide a kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    kind_map = {kind.value[0]: kind for kind in ObservationKind}
+
+    try:
+        kind = kind_map[kind]
+    except KeyError as e:
+        request.session.flash("Invalid kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        ) from e
+
+    summary = request.POST.get("summary")
+    if not summary:
+        request.session.flash("Provide a summary", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    # We allow an empty payload from Admin.
+    payload = {}
+
+    project.record_observation(
+        request=request,
+        kind=kind,
+        observer=request.user,
+        summary=summary,
+        payload=payload,
+    )
+
+    request.session.flash(
+        f"Added '{kind}' observation on '{project.name}'", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
 
 
 @view_config(

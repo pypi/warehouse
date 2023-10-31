@@ -146,6 +146,20 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.observations",
+        "/admin/projects/{project_name}/observations/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.add_observation",
+        "/admin/projects/{project_name}/add_observation/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.journals",
         "/admin/projects/{project_name}/journals/",
         factory="warehouse.packaging.models:ProjectFactory",
