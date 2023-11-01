@@ -110,8 +110,8 @@
   username = __token__
   password = # {% trans %}a project token{% endtrans %} </pre>
     <p>
-      {% trans command='twine --repository PROJECT_NAME' %}
-        You can then use <code>{{ command }}</code> to switch to the correct token when uploading to PyPI.
+      {% trans command='twine upload --repository PROJECT_NAME' %}
+        You can then use <code>{{ command }}</code> to use the correct token when uploading to PyPI.
       {% endtrans %}
     </p>
     {% endif %}
