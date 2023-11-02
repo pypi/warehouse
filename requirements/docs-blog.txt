@@ -209,9 +209,9 @@ jinja2==3.1.2 \
     #   mkdocs
     #   mkdocs-blogging-plugin
     #   mkdocs-material
-markdown==3.5 \
-    --hash=sha256:4afb124395ce5fc34e6d9886dab977fd9ae987fc6e85689f08278cf0c69d4bf3 \
-    --hash=sha256:a807eb2e4778d9156c8f07876c6e4d50b5494c5665c4834f67b06459dfd877b3
+markdown==3.5.1 \
+    --hash=sha256:5874b47d4ee3f0b14d764324d2c94c03ea66bee56f2d929da9f2508d65e722dc \
+    --hash=sha256:b65d7beb248dc22f2e8a31fb706d93798093c308dc1aba295aedeb9d41a813bd
     # via
     #   mkdocs
     #   mkdocs-material
