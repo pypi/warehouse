@@ -560,7 +560,7 @@ class TestRelease:
         DBFileEventFactory.create(
             source=rfile_1,
             tag="fake:event",
-            additional={},
+            additional={"publisher_url": None},
         )
         DBFileEventFactory.create(
             source=rfile_2,
@@ -656,7 +656,7 @@ class TestFile:
         DBFileEventFactory.create(
             source=rfile,
             tag="fake:event",
-            additional={},
+            additional={"publisher_url": None},
         )
 
         # Without the `publisher_url` key, not considered trusted published
