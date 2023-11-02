@@ -40,6 +40,12 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Set up Python
+      if: matrix.language == 'python'
+      uses: actions/setup-python@v4
+      with:
+        python-version-file: '.python-version'
+
     - name: Install dependencies
       # Needed for pycurl
       run: |
@@ -76,3 +82,5 @@ jobs:
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{matrix.language}}"
