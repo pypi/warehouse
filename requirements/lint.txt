@@ -323,9 +323,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.19.7 \
-    --hash=sha256:230b06479eaf37488ce9d536b0c4a34a5b1525d0a0a09964f2c29617bee87da5 \
-    --hash=sha256:3a4a8a5829f0a4d806476bd94c4a7e231a561879fac4fe044705acc44b212a64
+types-awscrt==0.19.8 \
+    --hash=sha256:4eb4f3bd0c41a2710cacda13098374da9faa76c5a0fb901aa5659e0fd48ceda1 \
+    --hash=sha256:a2d534b7017c3476ee69a44bd8aeaf3b588c42baa8322473d100a45ee67510d7
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
@@ -369,9 +369,9 @@ types-pytz==2023.3.1.1 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-redis==4.6.0.8 \
-    --hash=sha256:1abb2859bbf9b171a22ef69d1ece0e35ef93e642fba97538497add884ad75b5e \
-    --hash=sha256:4839923b4cce77bbf987290ca83710f8218529eebe1d2c3a0f067416c86847f5
+types-redis==4.6.0.9 \
+    --hash=sha256:06ac31ed7b23aae2d230a62e4bf7d0037aee10ab9f68eee261ac8be8402daf92 \
+    --hash=sha256:12fb29ff019b62998b17bb086cff260e625477db1a17bfca6bae0f43ab3447a5
     # via -r requirements/lint.in
 types-requests==2.31.0.6 \
     --hash=sha256:a2db9cb228a81da8348b49ad6db3f5519452dd20a9c1e1a868c83c5fe88fd1a9 \
@@ -387,9 +387,9 @@ types-setuptools==68.2.0.0 \
     # via
     #   -r requirements/lint.in
     #   types-babel
-types-stripe==3.5.2.14 \
-    --hash=sha256:bcc020aa5ba9acd796b9f2ac21f044c8e377ce2c0f570057f0f64c4b4637bbe7 \
-    --hash=sha256:f5f1249f72a35ada1db95523edc7e8f7b543dc8434b2ff23eaa9ec2e251c2e59
+types-stripe==3.5.2.15 \
+    --hash=sha256:0448b5826bb2067e834ff837a58c44d20caca47ca9ddab3bd3856de15f268d8e \
+    --hash=sha256:5bfc691ed24fe16fab73433895584ace20a7c26d82b049e8ab7b11893b7b33a0
     # via -r requirements/lint.in
 types-urllib3==1.26.25.14 \
     --hash=sha256:229b7f577c951b8c1b92c1bc2b2fdb0b49847bd2af6d1cc2a2e3dd340f3bda8f \
