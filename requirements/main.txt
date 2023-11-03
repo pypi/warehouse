@@ -1779,9 +1779,9 @@ wrapt==1.15.0 \
     --hash=sha256:fbec11614dba0424ca72f4e8ba3c420dba07b4a7c206c8c8e4e73f2e98f4c559 \
     --hash=sha256:fd69666217b62fa5d7c6aa88e507493a34dec4fa20c5bd925e4bc12fce586639
     # via deprecated
-wtforms[email]==3.1.0 \
-    --hash=sha256:4edd15771630289a5fa343d58822f72749822ca5a39dd33f92ee917cf72b954b \
-    --hash=sha256:addd7899004fdf9318eb711d33aae9c1973fe80378257b7383e06de2eff7c559
+wtforms[email]==3.1.1 \
+    --hash=sha256:5e51df8af9a60f6beead75efa10975e97768825a82146a65c7cbf5b915990620 \
+    --hash=sha256:ae7c54b29806c70f7bce8eb9f24afceb10ca5c32af3d9f04f74d2f66ccc5c7e0
     # via
     #   -r requirements/main.in
     #   wtforms
