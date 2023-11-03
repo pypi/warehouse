@@ -34,7 +34,7 @@ __all__ = [
 ]
 
 
-def random_token():
+def random_token() -> str:
     token = base64.urlsafe_b64encode(os.urandom(32)).rstrip(b"=")
     return token.decode("utf8")
 

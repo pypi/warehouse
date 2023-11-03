@@ -128,6 +128,7 @@ class FileEventFactory(WarehouseFactory):
         model = File.Event
 
     source = factory.SubFactory(FileFactory)
+    additional = {"publisher_url": None}
 
 
 class RoleFactory(WarehouseFactory):

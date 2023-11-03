@@ -697,7 +697,7 @@ class File(HasEvents, db.Model):
         """Return True if the file was uploaded via a trusted publisher."""
         return (
             self.events.where(
-                self.Event.additional.has_key("publisher_url")  # type: ignore[attr-defined] # noqa E501
+                self.Event.additional.op("->>")("publisher_url").is_not(None)  # type: ignore[attr-defined] # noqa E501
             ).count()
             > 0
         )

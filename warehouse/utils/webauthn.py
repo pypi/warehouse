@@ -127,7 +127,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     # for the individual challenge.
     encoded_challenge = _webauthn_b64encode(challenge)
     try:
-        _credential = RegistrationCredential.parse_raw(response)
+        _credential = RegistrationCredential.model_validate_json(response)
         return pywebauthn.verify_registration_response(
             credential=_credential,
             expected_challenge=encoded_challenge,
@@ -160,7 +160,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
 
     for public_key, current_sign_count in webauthn_user_public_keys:
         try:
-            _credential = AuthenticationCredential.parse_raw(assertion)
+            _credential = AuthenticationCredential.model_validate_json(assertion)
             return pywebauthn.verify_authentication_response(
                 credential=_credential,
                 expected_challenge=encoded_challenge,
