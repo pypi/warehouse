@@ -14,7 +14,7 @@ import datetime
 
 
 def now() -> datetime.datetime:
-    return datetime.datetime.now(datetime.timezone.utc)
+    return datetime.datetime.now(datetime.UTC)
 
 
 def dotted_navigator(path):
