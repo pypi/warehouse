@@ -15,7 +15,7 @@ import dataclasses
 import json
 import typing
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, ClassVar, TypeVar
 
@@ -109,13 +109,7 @@ class _CaveatRegistry:
 _caveat_registry = _CaveatRegistry()
 
 
-# TODO: The return signature detected is `"Union[Type[Dataclass], DataclassProxy]"`,
-# but the expectation is `Type[Dataclass]`.
-# See https://github.com/pydantic/pydantic/issues/4498 but not exactly the same.
-# This might not be corrected in pydantic until 2.0.
-# Original signature with type hints:
-# def as_caveat(*, tag: int) -> Callable[[type[T]], type[T]]:
-def as_caveat(*, tag: int):
+def as_caveat(*, tag: int) -> Callable[[type[T]], type[T]]:
     def deco(cls: type[T]) -> type[T]:
         _caveat_registry.add(tag, typing.cast(type[Caveat], cls))
         return cls
