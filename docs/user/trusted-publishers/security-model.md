@@ -45,26 +45,26 @@ is not a panacea. In particular:
   parties. In particular, for trusted publishing with GitHub Actions, you
   **must**:
 
-   * Trust the correct username and repository: if you trust a repository
-     other than one you control and trust, that repository can upload to your
-     PyPI project.
+    * Trust the correct username and repository: if you trust a repository
+      other than one you control and trust, that repository can upload to your
+      PyPI project.
 
-   * Trust the correct workflow: you shouldn't trust every workflow
-     to upload to PyPI; instead, you should isolate responsibility to the
-     smallest (and least-privileged) possible separate workflow. We recommend
-     naming this workflow `release.yml`.
+    * Trust the correct workflow: you shouldn't trust every workflow
+      to upload to PyPI; instead, you should isolate responsibility to the
+      smallest (and least-privileged) possible separate workflow. We recommend
+      naming this workflow `release.yml`.
 
-   * Take care when merging third-party changes to your code: if you trust
-     `release.yml`, then you must make sure that third-party changes to that
-     workflow (or code that runs within that workflow) are not malicious.
+    * Take care when merging third-party changes to your code: if you trust
+      `release.yml`, then you must make sure that third-party changes to that
+      workflow (or code that runs within that workflow) are not malicious.
 
-   * Take care when adding repository contributors, members, and administrators:
-     by default, anybody who can unconditionally commit to your repository can
-     also modify your publishing workflow to make it trigger on events you
-     may not intend (e.g., a manual `workflow_dispatch` trigger).
+    * Take care when adding repository contributors, members, and administrators:
+      by default, anybody who can unconditionally commit to your repository can
+      also modify your publishing workflow to make it trigger on events you
+      may not intend (e.g., a manual `workflow_dispatch` trigger).
 
-     This particular risk can be mitigated by using a dedicated environment
-     with manual approvers, as described below.
+      This particular risk can be mitigated by using a dedicated environment
+      with manual approvers, as described below.
 
 * Trusted publishers are registered to projects, not to users. This means that
   removing a user from a PyPI project does **not** remove any trusted publishers
@@ -88,14 +88,14 @@ In addition to the requirements above, you can do the following to
   doesn't use any pre-configured secrets, but a dedicated `publish` or `deploy`
   environment is a general best practice.
 
-  Dedicated environments allow for additional protections like
-  [required reviewers], which can be used to require manual approval for a
-  workflow using the environment.
+    Dedicated environments allow for additional protections like
+    [required reviewers], which can be used to require manual approval for a
+    workflow using the environment.
 
-  For example, here is how `pypa/pip-audit`'s `release` environment
-  restricts reviews to members of the maintenance and admin teams:
+    For example, here is how `pypa/pip-audit`'s `release` environment
+    restricts reviews to members of the maintenance and admin teams:
 
-  ![](/assets/required-reviewers.png)
+    ![](/assets/required-reviewers.png)
 
 * **[Use tag protection rules]**: if you use a tag-based publishing workflow
   (e.g. triggering on tags pushed), then you can limit tag creation and
@@ -107,10 +107,10 @@ In addition to the requirements above, you can do the following to
 * **Limit the scope of your publishing job**: your publishing job should
   (ideally) have only two steps:
 
-   1. Retrieve the publishable distribution files from **a separate
-     build job**;
+    1. Retrieve the publishable distribution files from **a separate
+       build job**;
 
-   2. Publish the distributions using `pypa/gh-action-pypi-publish@release/v1`.
+    2. Publish the distributions using `pypa/gh-action-pypi-publish@release/v1`.
 
   By using a separate build job, you keep the number of steps that can
   access the OIDC token to a bare minimum. This prevents both accidental
