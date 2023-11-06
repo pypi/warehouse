@@ -31,6 +31,7 @@ def test_now():
     with pytest.raises(TypeError) as excinfo:
         _ = now() < datetime.datetime.now(datetime.UTC)
     assert "can't compare offset-naive and offset-aware datetimes" in str(excinfo.value)
+    assert now() <= datetime.datetime.now()
 
 
 def test_camo_url():
