@@ -14,7 +14,8 @@ import datetime
 
 
 def now() -> datetime.datetime:
-    return datetime.datetime.now(datetime.UTC)
+    """Return the current datetime in UTC without a timezone."""
+    return datetime.datetime.now(datetime.UTC).replace(tzinfo=None)
 
 
 def dotted_navigator(path):
