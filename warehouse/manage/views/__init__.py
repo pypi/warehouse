@@ -1368,7 +1368,12 @@ class ManageOIDCPublisherViews:
             "warehouse.oidc.add_publisher.ok", tags=["publisher:Buildkite"]
         )
 
-        return HTTPSeeOther(self.request.path)
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings.publishing",
+                project_name=self.project.name,
+            )
+        )
 
     @view_config(
         request_method="POST",
