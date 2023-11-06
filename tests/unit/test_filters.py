@@ -22,6 +22,15 @@ import pytest
 from urllib3.util import parse_url
 
 from warehouse import filters
+from warehouse.utils import now
+
+
+def test_now():
+    assert isinstance(now(), datetime.datetime)
+    assert now().tzinfo is None
+    with pytest.raises(TypeError) as excinfo:
+        _ = now() < datetime.datetime.now(datetime.UTC)
+    assert "can't compare offset-naive and offset-aware datetimes" in str(excinfo.value)
 
 
 def test_camo_url():
