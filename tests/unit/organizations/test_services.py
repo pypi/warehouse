@@ -136,10 +136,10 @@ class TestDatabaseOrganizationService:
 
         assert organization_service.get_organization_applications_by_name(
             organization_application.name
-        ) == [organization_application, competing_organization_application]
+        ) == sorted([organization_application, competing_organization_application])
         assert organization_service.get_organization_applications_by_name(
             organization_application.name, undecided=True
-        ) == [organization_application, competing_organization_application]
+        ) == sorted([organization_application, competing_organization_application])
 
         assert (
             organization_service.get_organization_by_name(organization_application.name)

@@ -486,6 +486,9 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         back_populates="application", viewonly=True
     )
 
+    def __lt__(self, other: OrganizationApplication) -> bool:
+        return self.name < other.name
+
 
 class OrganizationNameCatalog(db.Model):
     __tablename__ = "organization_name_catalog"
