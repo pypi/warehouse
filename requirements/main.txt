@@ -1665,9 +1665,9 @@ urllib3==1.26.18 \
     #   kombu
     #   requests
     #   sentry-sdk
-venusian==3.0.0 \
-    --hash=sha256:06e7385786ad3a15c70740b2af8d30dfb063a946a851dcb4159f9e2a2302578f \
-    --hash=sha256:f6842b7242b1039c0c28f6feef29016e7e7dd3caaeb476a193acf737db31ee38
+venusian==3.1.0 \
+    --hash=sha256:d1fb1e49927f42573f6c9b7c4fcf61c892af8fdcaa2314daa01d9a560b23488d \
+    --hash=sha256:eb72cdca6f3139a15dc80f9c95d3c10f8a54a0ba881eeef8e2ec5b42d3ee3a95
     # via
     #   pyramid
     #   pyramid-rpc
