@@ -315,7 +315,7 @@
       Add Observation
     </button>
     <div class="modal fade" id="addObservationModal" tabindex="-1" role="dialog">
-      <form method="POST" action="{{ request.route_path('admin.project.add_observation', project_name=project.name) }}">
+      <form method="POST" action="{{ request.route_path('admin.project.add_project_observation', project_name=project.name) }}">
         <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
         <div class="modal-dialog modal-lg" role="document">
           <div class="modal-content">

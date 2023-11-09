@@ -151,12 +151,12 @@ def project_detail(project, request):
 
 @view_config(
     route_name="admin.project.observations",
-    renderer="admin/projects/observations_list.html",
+    renderer="admin/projects/project_observations_list.html",
     permission="moderator",
     request_method="GET",
     uses_session=True,
 )
-def observations_list(project, request):
+def project_observations_list(project, request):
     try:
         page_num = int(request.params.get("page", 1))
     except ValueError:
@@ -182,13 +182,13 @@ def observations_list(project, request):
 
 
 @view_config(
-    route_name="admin.project.add_observation",
+    route_name="admin.project.add_project_observation",
     permission="moderator",
     request_method="POST",
     uses_session=True,
     require_methods=False,
 )
-def add_observation(project, request):
+def add_project_observation(project, request):
     kind = request.POST.get("kind")
     if not kind:
         request.session.flash("Provide a kind", queue="error")

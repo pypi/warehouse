@@ -149,8 +149,8 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
-            "admin.project.add_observation",
-            "/admin/projects/{project_name}/add_observation/",
+            "admin.project.add_project_observation",
+            "/admin/projects/{project_name}/add_project_observation/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{project_name}",
             domain=warehouse,

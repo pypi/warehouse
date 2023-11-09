@@ -363,7 +363,7 @@ class TestProjectObservationsList:
 
         db_request.matchdict["project_name"] = project.normalized_name
         db_request.GET["page"] = "2"
-        result = views.observations_list(project, db_request)
+        result = views.project_observations_list(project, db_request)
 
         assert result == {
             "observations": observations[25:],
@@ -376,7 +376,7 @@ class TestProjectObservationsList:
         db_request.GET["page"] = "not an integer"
 
         with pytest.raises(HTTPBadRequest):
-            views.observations_list(project, db_request)
+            views.project_observations_list(project, db_request)
 
 
 class TestProjectAddObservation:
@@ -392,7 +392,7 @@ class TestProjectAddObservation:
         db_request.POST["summary"] = "This is a summary"
         db_request.user = user
 
-        views.add_observation(project, db_request)
+        views.add_project_observation(project, db_request)
 
         assert len(project.observations) == 1
 
@@ -407,7 +407,7 @@ class TestProjectAddObservation:
         db_request.POST["summary"] = "This is a summary"
         db_request.user = user
 
-        views.add_observation(project, db_request)
+        views.add_project_observation(project, db_request)
 
         assert len(project.observations) == 1
 
@@ -420,7 +420,7 @@ class TestProjectAddObservation:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_observation(project, request)
+            views.add_project_observation(project, request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -437,7 +437,7 @@ class TestProjectAddObservation:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_observation(project, request)
+            views.add_project_observation(project, request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
@@ -454,7 +454,7 @@ class TestProjectAddObservation:
         )
 
         with pytest.raises(HTTPSeeOther) as exc:
-            views.add_observation(project, request)
+            views.add_project_observation(project, request)
         assert exc.value.status_code == 303
         assert exc.value.headers["Location"] == "/foo/bar/"
 
