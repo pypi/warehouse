@@ -32,6 +32,8 @@ ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
 UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
 
+KIND_MAP = {kind.value[0]: kind for kind in ObservationKind}
+
 
 @view_config(
     route_name="admin.project.list",
@@ -198,10 +200,8 @@ def add_project_observation(project, request):
             )
         )
 
-    kind_map = {kind.value[0]: kind for kind in ObservationKind}
-
     try:
-        kind = kind_map[kind]
+        kind = KIND_MAP[kind]
     except KeyError as e:
         request.session.flash("Invalid kind", queue="error")
         raise HTTPSeeOther(
@@ -304,7 +304,81 @@ def release_detail(release, request):
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
     )
-    return {"release": release, "journals": journals}
+
+    observations = list(
+        request.db.query(release.Observation)
+        .options(joinedload(release.Observation.observer))
+        .filter(release.Observation.related == release)
+        .order_by(release.Observation.created.desc())
+        .all()
+    )
+
+    return {
+        "release": release,
+        "journals": journals,
+        "observation_kinds": ObservationKind,
+        "observations": observations,
+    }
+
+
+@view_config(
+    route_name="admin.project.release.add_release_observation",
+    permission="moderator",
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_release_observation(release, request):
+    kind = request.POST.get("kind")
+    if not kind:
+        request.session.flash("Provide a kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        )
+
+    try:
+        kind = KIND_MAP[kind]
+    except KeyError as e:
+        request.session.flash("Invalid kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        ) from e
+
+    summary = request.POST.get("summary")
+    if not summary:
+        request.session.flash("Provide a summary", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        )
+
+    # We allow an empty payload from Admin.
+    payload = {}
+
+    release.record_observation(
+        request=request,
+        kind=kind,
+        observer=request.user,
+        summary=summary,
+        payload=payload,
+    )
+
+    request.session.flash(
+        f"Added '{kind}' observation on '{release.project.name} {release.version}'",
+        queue="success",
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
 
 
 @view_config(

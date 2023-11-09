@@ -566,7 +566,6 @@
             <thead>
               <tr>
                 <th scope="col" class="time">Time</th>
-                <th scope="col" class="model">Model</th>
                 <th scope="col" class="related">Related</th>
                 <th scope="col" class="kind">Kind</th>
                 <th scope="col" class="summary">Summary</th>
@@ -577,8 +576,7 @@
               {% for observation in user.observations %}
               <tr>
                 <td>{{ observation.created }}</td>
-                <td>{{ observation.related.__class__.__name__ }}</td>
-                <td>{{ observation.related.name }}</td>
+                <td>{{ observation.related }}</td>
                 <td>{{ observation.kind_display }}</td>
                 <td>{{ observation.summary }}</td>
                 <td>{{ observation.payload }}</td>

@@ -133,6 +133,8 @@ class TestReleaseDetail:
         assert views.release_detail(release, db_request) == {
             "release": release,
             "journals": journals,
+            "observation_kinds": ObservationKind,
+            "observations": [],
         }
 
     def test_release_render(self, db_request):
@@ -159,6 +161,80 @@ class TestReleaseDetail:
             pretend.call(
                 f"Task sent to re-render description for {release}", queue="success"
             )
+        ]
+
+
+class TestReleaseAddObservation:
+    def test_add_observation(self, db_request):
+        release = ReleaseFactory.create()
+        user = UserFactory.create()
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.matchdict["project_name"] = release.project.normalized_name
+        db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
+        db_request.POST["summary"] = "This is a summary"
+        db_request.user = user
+
+        views.add_release_observation(release, db_request)
+
+        assert len(release.observations) == 1
+
+    def test_no_kind_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a kind", queue="error")
+        ]
+
+    def test_invalid_kind_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={"kind": "not a valid kind"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid kind", queue="error")
+        ]
+
+    def test_no_summary_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={"kind": ObservationKind.IsSpam.value[0]},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a summary", queue="error")
         ]
 
 

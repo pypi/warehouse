@@ -209,6 +209,7 @@
             <th>Created</th>
             <th>Uploader</th>
             <th>Author email</th>
+            <th>Observations</th>
           </tr>
         </thead>
         <tbody>
@@ -222,6 +223,7 @@
               {% endif %}
             </td>
             <td>{{ release.author_email }}</td>
+            <td>{{ release.observations|length }}</td>
           </tr>
           {% endfor %}
         </tbody>
