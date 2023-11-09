@@ -30,6 +30,8 @@ from warehouse.utils.db.types import datetime_now
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
 
+    from warehouse.accounts.models import User
+
 
 class ObserverAssociation(db.Model):
     """Associate an Observer with a given parent."""
@@ -204,19 +206,19 @@ class HasObservations:
         *,
         request: Request,
         kind: ObservationKind,
-        observer,  # TODO: Rename and add type, "observer.observer" is confusing
+        actor: User,  # TODO: Expand type as we add more HasObserver models
         summary: str,
         payload: dict,
     ):
         """
         Record an observation on the related model.
         """
-        if observer.observer is None:
-            observer.observer = Observer()
+        if actor.observer is None:
+            actor.observer = Observer()
 
         observation = self.Observation(
             kind=kind.value[0],
-            observer=observer.observer,
+            observer=actor.observer,
             payload=payload,
             related=self,
             summary=summary,

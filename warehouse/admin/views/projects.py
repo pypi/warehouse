@@ -225,7 +225,7 @@ def add_project_observation(project, request):
     project.record_observation(
         request=request,
         kind=kind,
-        observer=request.user,
+        actor=request.user,
         summary=summary,
         payload=payload,
     )
@@ -363,7 +363,7 @@ def add_release_observation(release, request):
     release.record_observation(
         request=request,
         kind=kind,
-        observer=request.user,
+        actor=request.user,
         summary=summary,
         payload=payload,
     )

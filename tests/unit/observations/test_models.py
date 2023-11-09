@@ -46,7 +46,7 @@ def test_observer_observations_relationship(db_request):
         kind=ObservationKind.SomethingElse,
         summary="Project Observation",
         payload={},
-        observer=user,
+        actor=user,
     )
 
     assert len(project.observations) == 1
@@ -66,7 +66,7 @@ def test_observer_created_from_user_when_observation_made(db_request):
         kind=ObservationKind.SomethingElse,
         summary="Project Observation",
         payload={},
-        observer=user,
+        actor=user,
     )
 
     assert len(project.observations) == 1
@@ -86,14 +86,14 @@ def test_user_observations_relationship(db_request):
         kind=ObservationKind.SomethingElse,
         summary="Project Observation",
         payload={},
-        observer=user,
+        actor=user,
     )
     release.record_observation(
         request=db_request,
         kind=ObservationKind.SomethingElse,
         summary="Release Observation",
         payload={},
-        observer=user,
+        actor=user,
     )
 
     db_request.db.flush()  # so Observer is created
