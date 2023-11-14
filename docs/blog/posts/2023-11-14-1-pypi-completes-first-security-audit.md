@@ -30,7 +30,7 @@ Overall, the auditors determined the Warehouse codebase "was adequately tested a
 ## Results & Impact
 
 As a result of the audit, Trail of Bits detailed 29 different advisories discovered across both codebases.
-When evaluating severity level of each advisory, 14 were categorized as "informational, 6 as "low", 8 as "medium" and zero as "high".
+When evaluating severity level of each advisory, 14 were categorized as "informational", 6 as "low", 8 as "medium" and zero as "high".
 At the time of writing, the PyPI team has remediated all advisories that posed a significant risk in both codebases where possible, and has worked with third-party teams to unblock additional remediations where necessary.
 
 ## More details
