@@ -25,7 +25,7 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[sqs]<5.3.2  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[sqs]<5.3.4  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
