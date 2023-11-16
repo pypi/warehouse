@@ -12,21 +12,26 @@
 """
 Add Banner.dismissable
 
-Revision ID: 095b491ebbec
+Revision ID: b34fa465a67c
 Revises: 186f076eb60b
-Create Date: 2023-11-16 17:04:43.250282
+Create Date: 2023-11-16 21:12:13.737681
 """
 
 import sqlalchemy as sa
 
 from alembic import op
 
-revision = "095b491ebbec"
+revision = "b34fa465a67c"
 down_revision = "186f076eb60b"
 
 
 def upgrade():
-    op.add_column("banners", sa.Column("dismissable", sa.Boolean(), nullable=False))
+    op.add_column(
+        "banners",
+        sa.Column(
+            "dismissable", sa.Boolean(), server_default=sa.text("false"), nullable=False
+        ),
+    )
 
 
 def downgrade():
