@@ -112,8 +112,8 @@
 
   &__dismiss {
     @include dismiss-button;
-    @include link-focus-state($white);
-    color: $white;
+    @include link-focus-state(inherit);
+    color: inherit;
   }
 
   // Indicates that a notification is dismissable.

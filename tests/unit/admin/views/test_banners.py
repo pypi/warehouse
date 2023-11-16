@@ -224,6 +224,7 @@ class TestBannerForm:
         defaults = {
             "fa_icon": Banner.DEFAULT_FA_ICON,
             "active": False,
+            "dismissable": False,
             "link_label": Banner.DEFAULT_BTN_LABEL,
         }
 

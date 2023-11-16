@@ -31,6 +31,7 @@ class Banner(db.Model):
     link_url: Mapped[str]
     link_label: Mapped[str] = mapped_column(default=DEFAULT_BTN_LABEL)
     fa_icon: Mapped[str] = mapped_column(default=DEFAULT_FA_ICON)
+    dismissable: Mapped[bool] = mapped_column(default=True)
 
     # visibility control
     # TODO: Migrate to `warehouse.utils.db.types.bool_false` - triggers migration

@@ -77,6 +77,7 @@
             {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="See more") }}
 
             {{ render_field("Active", form.active, "banner-active", helper="<small>Only active banners are displayed.</small>") }}
+            {{ render_field("Dismissable", form.dismissable, "banner-dismissable", helper="<small>Only dismissable banners can be dismissed.</small>") }}
             {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD", helper="<small>UTC date to work as a safeguard to hide the banner if past this date.</small>")}}
 
 

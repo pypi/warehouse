@@ -179,4 +179,7 @@ class BannerForm(Form):
     active = wtforms.fields.BooleanField(
         validators=[wtforms.validators.Optional()], default=False
     )
+    dismissable = wtforms.fields.BooleanField(
+        validators=[wtforms.validators.Optional()], default=False
+    )
     end = wtforms.fields.DateField(validators=[wtforms.validators.InputRequired()])
