@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2023-07-20 17:08+0200\n"
-"PO-Revision-Date: 2023-10-05 21:04+0000\n"
+"PO-Revision-Date: 2023-11-07 21:00+0000\n"
 "Last-Translator: Milan Šalka <salka.milan@googlemail.com>\n"
 "Language-Team: Slovak <https://hosted.weblate.org/projects/pypa/warehouse/sk/"
 ">\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 
 #: warehouse/views.py:142
 msgid ""
@@ -3054,6 +3054,35 @@ msgstr "V opačnom prípade môžete tento e-mail pokojne ignorovať."
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "Platnosť tohto odkazu vyprší o %(n_hours)s hodín."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "Zavrieť toto upozornenie"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "Zavrieť"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Admin"
@@ -3089,33 +3118,6 @@ msgstr "Verejný profil"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "Error"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "Zavrieť toto upozornenie"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "Zavrieť"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -5112,8 +5114,8 @@ msgstr "token projektu"
 #: warehouse/templates/manage/account/token.html:113
 #, python-format
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 "Potom môžete použiť <code>%(command)s</code> na prepnutie na správny token "
 "pri nahrávaní do PyPI."

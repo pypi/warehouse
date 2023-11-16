@@ -48,13 +48,14 @@
 # lambdark <lambdark@outlook.com>, 2023.
 # 秋凌烟 <2562042362@qq.com>, 2023.
 # inworless <liu13672385755@outlook.com>, 2023.
+# Eric <zxmegaxqug@hldrive.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-10-03 13:29+0000\n"
-"Last-Translator: Eric <hamburger2048@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2023-11-02 00:02+0000\n"
+"Last-Translator: Eric <zxmegaxqug@hldrive.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -62,7 +63,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -2984,6 +2985,35 @@ msgstr "否则，你可以安全地忽略这封邮件。"
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "此链接将在 %(n_hours)s 个小时后过期。"
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "关闭此通知"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "关闭"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "管理员"
@@ -3019,33 +3049,6 @@ msgstr "公开个人资料"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "错误"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "关闭此通知"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "关闭"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -4957,10 +4960,9 @@ msgstr "项目令牌"
 #: warehouse/templates/manage/account/token.html:113
 #, python-format
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
-msgstr ""
-"然后，你可以使用<code>%(command)s</code>在上载到PyPI时切换到正确的令牌。"
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
+msgstr "然后，你可以使用<code>%(command)s</code>在上传到PyPI时使用正确的令牌。"
 
 #: warehouse/templates/manage/account/token.html:119
 #, python-format

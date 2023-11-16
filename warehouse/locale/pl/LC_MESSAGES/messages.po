@@ -19,7 +19,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-08-31 13:55+0000\n"
+"PO-Revision-Date: 2023-11-14 14:27+0000\n"
 "Last-Translator: Maciej Olko <maciej.olko@gmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/pypa/warehouse/pl/"
 ">\n"
@@ -29,7 +29,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0.1-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -434,16 +434,11 @@ msgstr ""
 "organizacji."
 
 #: warehouse/manage/forms.py:460
-#, fuzzy
-#| msgid ""
-#| "This organization account name has already been used. Choose a different "
-#| "organization account name."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Ta nazwa konta organizacji jest już używana. Wybierz inną nazwę konta "
-"organizacji."
+"Złożyłeś(łaś) już wniosek o tę nazwę. Wybierz inną nazwę konta organizacji."
 
 #: warehouse/manage/forms.py:496
 msgid "Select project"
@@ -496,7 +491,7 @@ msgstr ""
 
 #: warehouse/manage/forms.py:647
 msgid "You have already submitted the maximum number of "
-msgstr ""
+msgstr "Złożyłeś(łaś) już maksymalną liczbę "
 
 #: warehouse/manage/forms.py:677
 msgid "Choose a team name with 50 characters or less."
@@ -3202,6 +3197,35 @@ msgstr "Jeśli to nie ty wysłałeś zgłoszenie, możesz zignorować tę wiadom
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "Ten link wygaśnie w ciągu %(n_hours)s godziny."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "Ukryj to powiadomienie"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "Zamknij"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Administrator"
@@ -3237,33 +3261,6 @@ msgstr "Profil publiczny"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "Błąd"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "Ukryj to powiadomienie"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "Zamknij"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -5313,8 +5310,8 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:113
 #, python-format
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:119
