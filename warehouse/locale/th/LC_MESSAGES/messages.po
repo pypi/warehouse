@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-10-06 12:28+0000\n"
+"PO-Revision-Date: 2023-10-25 03:37+0000\n"
 "Last-Translator: Nattawatt Hongthong <nattawatt.ho30@outlook.co.th>\n"
 "Language-Team: Thai <https://hosted.weblate.org/projects/pypa/warehouse/th/"
 ">\n"
@@ -21,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.1.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -38,7 +38,7 @@ msgstr "กรุณาเปิดการยืนยันสองขั้
 
 #: warehouse/views.py:287
 msgid "Locale updated"
-msgstr ""
+msgstr "ตำเเหน่งอัปเดต"
 
 #: warehouse/accounts/forms.py:47
 msgid "The password is invalid. Try again."
@@ -56,7 +56,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "ไม่อนุญาตให้ไบท์เปล่า"
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -64,11 +64,11 @@ msgstr "ไม่ค้นพบผู้ใช้งานจากชื่อ
 
 #: warehouse/accounts/forms.py:98
 msgid "TOTP code must be ${totp_length} digits."
-msgstr "รหัส TOTP ต้องมีตัวเลข ${totp_length} ตำแหน่ง"
+msgstr "รหัส TOTP ต้องมีตัวเลข ${totp_length}"
 
 #: warehouse/accounts/forms.py:118
 msgid "Recovery Codes must be ${recovery_code_length} characters."
-msgstr "รหัสกู้คืนควร ${recovery_code_length} ตัวอักษร"
+msgstr "รหัสกู้คืนควรมี ${recovery_code_length} ตัวอักษร"
 
 #: warehouse/accounts/forms.py:133
 msgid "Choose a username with 50 characters or less."
@@ -89,7 +89,7 @@ msgstr "รหัสผ่านยาวเกินไป"
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time}"
+msgstr "มีความพยายามเข้าถึงระบบที่ไม่สำเร็จมากเกินไป กรุณาลองใหม่ใน ${time} นาที"
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -141,7 +141,7 @@ msgstr "รหัสกู้คืนถูกใช้ไปเเล้ว"
 
 #: warehouse/accounts/forms.py:541
 msgid "No user found with that username or email"
-msgstr "ไม่ค้นพบผู้ใช้งานจากชื่อผู้ใช้งานหรืออีเมล์ดังกล่าว"
+msgstr "ไม่พบผู้ใช้งานจากชื่อผู้ใช้งานหรืออีเมล์ดังกล่าว"
 
 #: warehouse/accounts/views.py:107
 msgid ""
@@ -171,7 +171,7 @@ msgstr ""
 #: warehouse/accounts/views.py:389 warehouse/accounts/views.py:416
 #: warehouse/accounts/views.py:418 warehouse/accounts/views.py:524
 msgid "Invalid or expired two factor login."
-msgstr "ระบบยืนยันตัวตนสองปัจจัยไม่ถูกต้องหรือหมดอายุไปแล้ว"
+msgstr "ระบบยืนยันตัวตนสองขั้นตอนไม่ถูกต้องหรือหมดอายุไปแล้ว"
 
 #: warehouse/accounts/views.py:381
 msgid "Already authenticated"
@@ -179,18 +179,18 @@ msgstr "คุณได้ทำการยืนยันตัวตนไป
 
 #: warehouse/accounts/views.py:459
 msgid "Successful WebAuthn assertion"
-msgstr "การตรวจสอบ WebAuthn ประสบความสำเร็จ"
+msgstr "การตรวจสอบ WebAuthn เสร็จสิ้น"
 
 #: warehouse/accounts/views.py:555 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
-msgstr "ยอมรับรหัสกู้คืนแล้ว ไม่สามารถใช้รหัสที่ให้มาได้อีก"
+msgstr "รหัสกู้คืนถูกต้อง ไม่สามารถใช้รหัสที่ให้มาได้อีกครั้ง"
 
 #: warehouse/accounts/views.py:647
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"การรับสมัครผู้ใช้งานใหม่ปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
+"การสมัครผู้ใช้งานใหม่ถูกปิดใช้งานชั่วคราว ดูข้อมูลเพิ่มเติมได้ที่ https://pypi.org/help#admin-"
 "intervention"
 
 #: warehouse/accounts/views.py:778
@@ -234,7 +234,7 @@ msgstr "โทเคนหมดอายุ: กรุณาร้องขอ�
 
 #: warehouse/accounts/views.py:893
 msgid "Invalid token: request a new email verification link"
-msgstr "โทเคนไม่ถูกต้อง: กรุณาร้องขอลิ้งค์การยืนยันที่อยู่อีเมล์ใหม่"
+msgstr "โทเคนไม่ถูกต้อง: กรุณายืนยันที่อยู่อีเมล์ใหม่"
 
 #: warehouse/accounts/views.py:899
 msgid "Invalid token: not an email verification token"
@@ -293,10 +293,8 @@ msgid "Expired token: request a new project role invitation"
 msgstr "โทเคนหมดอายุ: กรุณาขอลิ้งค์สำหรับโปรเจค"
 
 #: warehouse/accounts/views.py:1166
-#, fuzzy
-#| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
-msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการตั้งรหัสผ่านใหม่"
+msgstr "โทเคนไม่ถูกต้อง: กรุณาขอลิ้งค์ในการใช้งานใหม่"
 
 #: warehouse/accounts/views.py:1172
 #, fuzzy
@@ -306,11 +304,11 @@ msgstr "โทเคนหมดอายุ: ไม่ใช่โทเคน�
 
 #: warehouse/accounts/views.py:1176
 msgid "Role invitation is not valid."
-msgstr ""
+msgstr "ตำเเหน่งการเชิญไม่ถูกต้อง"
 
 #: warehouse/accounts/views.py:1191
 msgid "Role invitation no longer exists."
-msgstr ""
+msgstr "คำเชิญไม่ถูกต้อง"
 
 #: warehouse/accounts/views.py:1222
 msgid "Invitation for '${project_name}' is declined."
@@ -2774,6 +2772,35 @@ msgstr ""
 msgid "This link will expire in %(n_hours)s hours."
 msgstr ""
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr ""
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr ""
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr ""
@@ -2808,33 +2835,6 @@ msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
-msgstr ""
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr ""
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
 msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:48
@@ -4718,8 +4718,8 @@ msgstr "โทเคนโครงการ"
 #: warehouse/templates/manage/account/token.html:113
 #, python-format
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:119

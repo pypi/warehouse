@@ -23,13 +23,14 @@
 # Jean Abou Samra <jean@abou-samra.fr>, 2023.
 # Antoine Contes <admin@tatanesan.fr>, 2023.
 # Julien <github@mandark.fr>, 2023.
+# Michael <laurencehall1@outlook.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-07-26 14:18+0000\n"
-"Last-Translator: Julien <github@mandark.fr>\n"
+"PO-Revision-Date: 2023-10-27 12:36+0000\n"
+"Last-Translator: Michael <laurencehall1@outlook.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/pypa/warehouse/fr/"
 ">\n"
 "Language: fr\n"
@@ -37,7 +38,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -45,6 +46,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Vous devez vérifier votre adresse courriel **primary** avant de pouvoir "
+"effectuer cette action."
 
 #: warehouse/views.py:162
 msgid ""
@@ -74,7 +77,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Les octets nus ne sont pas autorisés."
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -535,7 +538,7 @@ msgstr ""
 
 #: warehouse/manage/forms.py:647
 msgid "You have already submitted the maximum number of "
-msgstr ""
+msgstr "Vous avez déjà soumis le nombre maximum de "
 
 #: warehouse/manage/forms.py:677
 msgid "Choose a team name with 50 characters or less."
@@ -585,7 +588,7 @@ msgstr "Vérifiez votre adresse e-mail ou ajoutez une nouvelle adresse."
 
 #: warehouse/manage/views/__init__.py:982
 msgid "API Token does not exist."
-msgstr ""
+msgstr "API Token n'existe pas."
 
 #: warehouse/manage/views/__init__.py:1014
 msgid "Invalid credentials. Try again"
@@ -646,7 +649,7 @@ msgstr "Impossible de trouver l'invitation."
 
 #: warehouse/manage/views/__init__.py:1925
 msgid "Could not delete file - "
-msgstr ""
+msgstr "Impossible de supprimer le fichier - "
 
 #: warehouse/manage/views/__init__.py:2075
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -730,7 +733,7 @@ msgstr "L'invitation au projet « ${project_name} » a été refusée."
 
 #: warehouse/oidc/forms/__init__.py:23
 msgid "Specify a publisher ID"
-msgstr ""
+msgstr "Spécifier un ID d'éditeur"
 
 #: warehouse/oidc/forms/__init__.py:24
 #, fuzzy
@@ -1934,8 +1937,8 @@ msgstr ""
 #, python-format
 msgid "Remember this device for %(remember_device_days)s day"
 msgid_plural "Remember this device for %(remember_device_days)s days"
-msgstr[0] ""
-msgstr[1] ""
+msgstr[0] "Rappelle-vous cet appareil pour %(remember_device_days)s days"
+msgstr[1] "Rappelez-vous cet appareil pour %(remember_device_days)s jours"
 
 #: warehouse/templates/accounts/two-factor.html:72
 #, python-format
@@ -2160,6 +2163,8 @@ msgstr ""
 #, python-format
 msgid "If using Trusted Publishers (preferred), see %(tp_url)s to get started."
 msgstr ""
+"Si vous utilisez Trusted Publishers (préféré), voir %(tp_url)s pour "
+"commencer."
 
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
@@ -2211,6 +2216,9 @@ msgid ""
 "will be discarded. It is recommended to no longer upload signatures to "
 "%(site)s."
 msgstr ""
+"Bien que les téléchargements continueront à fonctionner, toutes les "
+"signatures téléchargées sur %(site)s seront supprimées. Il est recommandé de "
+"ne plus envoyer de signatures à %(site)s."
 
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
@@ -2218,6 +2226,8 @@ msgid ""
 "Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
 "your account."
 msgstr ""
+"Bonjour, %(username)s. Un nouveau courriel '%(new_email_address)s' a été "
+"ajouté à votre compte."
 
 #: warehouse/templates/email/new-email-added/body.html:19
 #, fuzzy, python-format
@@ -3221,6 +3231,35 @@ msgstr "Sinon vous pouvez simplement ignorer cet e-mail."
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "Ce lien expirera dans %(n_hours)s heures."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "Masquer cette notification"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "Fermer"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Admin"
@@ -3256,33 +3295,6 @@ msgstr "Profil public"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "Erreur"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "Masquer cette notification"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "Fermer"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -5342,10 +5354,13 @@ msgid "a project token"
 msgstr "un jeton de projet"
 
 #: warehouse/templates/manage/account/token.html:113
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You can then use <code>%(command)s</code> to switch to the correct token "
+#| "when uploading to PyPI."
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 "Vous pouvez utiliser <code>%(command)s</code> pour sélectionner le jeton "
 "approprié lors de la publication sur PyPI."
