@@ -8,13 +8,15 @@
 # Felipe Nogueira <contato.fnog@gmail.com>, 2023.
 # Helio <heliob_8@hotmail.com>, 2023.
 # Diego Kluwe de Souza <dikluwe@gmail.com>, 2023.
+# FolkDigital - Soluções em Internet <contato@folkdigital.com.br>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-05-24 17:19+0000\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"PO-Revision-Date: 2023-11-07 21:00+0000\n"
+"Last-Translator: FolkDigital - Soluções em Internet <contato@folkdigital.com."
+"br>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -22,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.2-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -3101,6 +3103,35 @@ msgstr "Caso contrário, você pode ignorar este e-mail com segurança."
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "Este link vai expirar em %(n_hours)s horas."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "Descartar esta notificação"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "Fechar"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Admin"
@@ -3136,33 +3167,6 @@ msgstr "Perfil público"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "Erro"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "Descartar esta notificação"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "Fechar"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -4044,7 +4048,7 @@ msgstr "Tempo"
 #: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/team/history.html:110
 msgid "Additional Info"
-msgstr ""
+msgstr "Informações adicionais"
 
 #: warehouse/templates/manage/account.html:692
 msgid "Date / time"
@@ -4053,7 +4057,7 @@ msgstr "Data / hora"
 #: warehouse/templates/manage/account.html:696
 #: warehouse/templates/manage/organization/history.html:215
 msgid "Location Info"
-msgstr ""
+msgstr "Informações de localização"
 
 #: warehouse/templates/manage/account.html:698
 #: warehouse/templates/manage/organization/history.html:217
@@ -5227,10 +5231,13 @@ msgid "a project token"
 msgstr "um token de projeto"
 
 #: warehouse/templates/manage/account/token.html:113
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You can then use <code>%(command)s</code> to switch to the correct token "
+#| "when uploading to PyPI."
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 "Você pode usar <code>%(command)s</code> para trocar para o token correto ao "
 "enviar para PyPI."
@@ -6506,12 +6513,12 @@ msgstr "Desabilitado por:"
 
 #: warehouse/templates/manage/project/history.html:306
 msgid "Additional info"
-msgstr ""
+msgstr "Informações adicionais"
 
 #: warehouse/templates/manage/project/history.html:318
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
-msgstr ""
+msgstr "Informações de localização"
 
 #: warehouse/templates/manage/project/manage_project_base.html:20
 #, python-format

@@ -3175,6 +3175,35 @@ msgstr "إذا لم تقم بتقديم هذا الطلب، يمكنك تجاه�
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "هذا الرابط انتهت صلاحيته."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr ""
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr ""
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "الإدارة"
@@ -3210,33 +3239,6 @@ msgstr ""
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "خطأ"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr ""
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr ""
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -5177,8 +5179,8 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:113
 #, python-format
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/account/token.html:119

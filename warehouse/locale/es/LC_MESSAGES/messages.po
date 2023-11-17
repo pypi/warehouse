@@ -18,13 +18,14 @@
 # gallegonovato <fran-carro@hotmail.es>, 2023.
 # Nicolás Aguilera <nclsdlpl@gmail.com>, 2023.
 # Potato Man <crypticgalaxy66@gmail.com>, 2023.
+# wladimir perez <tropaguararia28@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-10-04 17:41+0000\n"
-"Last-Translator: Potato Man <crypticgalaxy66@gmail.com>\n"
+"PO-Revision-Date: 2023-10-19 15:41+0000\n"
+"Last-Translator: wladimir perez <tropaguararia28@gmail.com>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/pypa/warehouse/"
 "es/>\n"
 "Language: es\n"
@@ -32,15 +33,16 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.1\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
-#, fuzzy
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr "crypticgalaxy66@gmail.com"
+msgstr ""
+"Debes confirmar tu dirección de correo electrónico **principal** antes de "
+"poder realizar esta acción."
 
 #: warehouse/views.py:162
 msgid ""
@@ -171,15 +173,12 @@ msgid "No user found with that username or email"
 msgstr "No se encontró ninguna cuenta con ese nombre o esa dirección"
 
 #: warehouse/accounts/views.py:107
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Hubo demasiados intentos infructuosos de acceso. Inténtelo de nuevo más "
-"tarde."
+"Ha habido demasiados intentos fallidos de iniciar sesión. Has sido bloqueado "
+"durante {}. Por favor, inténtelo de nuevo más tarde."
 
 #: warehouse/accounts/views.py:124
 msgid ""
@@ -363,16 +362,12 @@ msgstr "Ahora es ${role} del proyecto «${project_name}»."
 
 #: warehouse/accounts/views.py:1509 warehouse/accounts/views.py:1657
 #: warehouse/manage/views/__init__.py:1237
-#, fuzzy
-#| msgid ""
-#| "Trusted publishers are temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Los editores de confianza están temporalmente desactivados. Consulte https://"
-"pypi.org/help#admin-intervention para obtener más información."
+"Las ediciones de confianza están temporalmente desactivadas. Consulte "
+"https://pypi.org/help#admin-intervention para obtener más información."
 
 #: warehouse/accounts/views.py:1526 warehouse/manage/views/__init__.py:1253
 msgid ""
@@ -774,10 +769,8 @@ msgid "Incomplete"
 msgstr "Incompleta"
 
 #: warehouse/subscriptions/models.py:40
-#, fuzzy
-#| msgid "Invite expired"
 msgid "Incomplete Expired"
-msgstr "Expiración incompleta"
+msgstr "Invitación expirada"
 
 #: warehouse/subscriptions/models.py:41
 msgid "Trialing"
@@ -1558,17 +1551,14 @@ msgid "Decline"
 msgstr "Declinar"
 
 #: warehouse/templates/accounts/invite-confirmation.html:45
-#, fuzzy, python-format
-#| msgid ""
-#| "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
-#| "on your account before accepting an invitation to join an organization."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join a project."
 msgstr ""
 "Primero debes activar la <a href=\"%(href)s\">autenticación con verificación "
 "en dos pasos</a> en tu cuenta antes de aceptar una invitación para unirte a "
-"una organización."
+"un proyecto."
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -2375,8 +2365,9 @@ msgstr ""
 "El %(site)s de la organización \"%(organization_name)s\" ha sido actualizado."
 
 #: warehouse/templates/email/organization-updated/body.html:36
+#, fuzzy
 msgid "Old display name:"
-msgstr ""
+msgstr "Antiguo nombre para mostrar:"
 
 #: warehouse/templates/email/organization-updated/body.html:39
 msgid "New display name:"
@@ -2691,11 +2682,8 @@ msgstr ""
 "\"%(organization_name)s\""
 
 #: warehouse/templates/email/removed-as-team-member/body.html:23
-#, fuzzy
-#| msgid "You are receiving this because you are an owner of this project."
 msgid "You are receiving this because you were a member of this team."
-msgstr ""
-"Ha recibido esto porque forma parte de los propietarios de este proyecto."
+msgstr "Ha recibido esto porque forma parte de los miembros de este equipo."
 
 #: warehouse/templates/email/role-changed-as-organization-member/body.html:20
 #, fuzzy, python-format
@@ -2710,15 +2698,12 @@ msgstr ""
 "\"%(organization_name)s\""
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "Your team's permissions for the %(project)s project have been changed by "
-#| "%(submitter)s."
+#, python-format
 msgid ""
 "Your team's role for the %(project)s project has been changed by "
 "%(submitter)s."
 msgstr ""
-"%(submitter)s cambió los permisos de su equipo para con el proyecto "
+"%(submitter)s cambió los puestos de su equipo para con el proyecto "
 "%(project)s."
 
 #: warehouse/templates/email/role-changed-as-team-collaborator/body.html:25
@@ -3229,6 +3214,35 @@ msgstr ""
 msgid "This link will expire in %(n_hours)s hours."
 msgstr "Este enlace caducará en %(n_hours)s hora."
 
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+msgid "Dismiss this notification"
+msgstr "Descartar esta notificación"
+
+#: warehouse/templates/includes/banner-messages.html:25
+#: warehouse/templates/includes/flash-messages.html:22
+#: warehouse/templates/includes/flash-messages.html:33
+#: warehouse/templates/includes/flash-messages.html:40
+#: warehouse/templates/includes/flash-messages.html:51
+#: warehouse/templates/includes/hash-modal.html:17
+#: warehouse/templates/includes/hash-modal.html:19
+#: warehouse/templates/includes/hash-modal.html:68
+#: warehouse/templates/includes/session-notifications.html:40
+#: warehouse/templates/manage/account.html:199
+#: warehouse/templates/manage/account.html:201
+#: warehouse/templates/manage/account.html:211
+#: warehouse/templates/manage/manage_base.html:329
+#: warehouse/templates/manage/manage_base.html:331
+#: warehouse/templates/manage/project/release.html:143
+#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/search/results.html:198
+msgid "Close"
+msgstr "Cerrar"
+
 #: warehouse/templates/includes/current-user-indicator.html:30
 msgid "Admin"
 msgstr "Administración"
@@ -3264,33 +3278,6 @@ msgstr "Perfil público"
 #: warehouse/templates/includes/flash-messages.html:19
 msgid "Error"
 msgstr "Error"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-msgid "Dismiss this notification"
-msgstr "Descartar esta notificación"
-
-#: warehouse/templates/includes/flash-messages.html:22
-#: warehouse/templates/includes/flash-messages.html:33
-#: warehouse/templates/includes/flash-messages.html:40
-#: warehouse/templates/includes/flash-messages.html:51
-#: warehouse/templates/includes/hash-modal.html:17
-#: warehouse/templates/includes/hash-modal.html:19
-#: warehouse/templates/includes/hash-modal.html:68
-#: warehouse/templates/includes/session-notifications.html:40
-#: warehouse/templates/manage/account.html:199
-#: warehouse/templates/manage/account.html:201
-#: warehouse/templates/manage/account.html:211
-#: warehouse/templates/manage/manage_base.html:329
-#: warehouse/templates/manage/manage_base.html:331
-#: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
-#: warehouse/templates/search/results.html:198
-msgid "Close"
-msgstr "Cerrar"
 
 #: warehouse/templates/includes/flash-messages.html:48
 msgid "Success"
@@ -5409,10 +5396,13 @@ msgid "a project token"
 msgstr "una ficha de proyecto"
 
 #: warehouse/templates/manage/account/token.html:113
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "You can then use <code>%(command)s</code> to switch to the correct token "
+#| "when uploading to PyPI."
 msgid ""
-"You can then use <code>%(command)s</code> to switch to the correct token "
-"when uploading to PyPI."
+"You can then use <code>%(command)s</code> to use the correct token when "
+"uploading to PyPI."
 msgstr ""
 "Ahora podrá utilizar <code>%(command)s</code> para cambiar a la ficha "
 "correcta al realizar cargas en PyPI."
