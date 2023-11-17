@@ -276,6 +276,8 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
         "gcloud.service_account_info": {},
+        "warehouse.forklift.legacy.MAX_FILESIZE_MB": 100,
+        "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GB": 10,
     }
     if environment == config.Environment.development:
         expected_settings.update(
