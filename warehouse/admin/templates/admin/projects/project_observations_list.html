@@ -1,0 +1,73 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Observations For {{ project.name }}{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></li>
+  <li class="breadcrumb-item active">Observations</li>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    {% if observations %}
+    {# TODO: Make this dataTables-enabled for sorting, filtering, etc. See Account Activity for an example. #}
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Created</th>
+            <th>Kind</th>
+            <th>Reporter</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for observation in observations %}
+          <tr>
+            <td>{{ observation.created }}</td>
+            {# TODO: There's no exact relationship back to the ObservationKind to get the human-string. Not exactly sure how to get that yet. #}
+            <td>{{ observation.kind }}</td>
+            <td>
+              {# TODO: This won't work yet for non-User Observers #}
+              <a href="{{ request.route_path('admin.user.detail', username=observation.observer.parent.username) }}">{{ observation.observer.parent.username }}</a>
+            </td>
+            <td>{{ observation.summary }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    No observations.
+    {% endif %}
+  </div>
+
+  <div class="card-footer row">
+    <div class="col-sm-5">
+        {{ pagination.summary(observations) }}
+    </div>
+    <div class="col-sm-7">
+      <div class="float-right">
+          {{ pagination.paginate(observations) }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

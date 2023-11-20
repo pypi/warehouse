@@ -132,6 +132,90 @@
   </div>
   <div class="card">
     <div class="card-header">
+      <h3>Observations</h3>
+    </div>
+    <div class="card-body">
+      {% if observations %}
+      {# TODO: Make this dataTables-enabled for sorting, filtering, etc. See Account Activity for an example. #}
+      <div class="table-responsive p-0">
+        <table class="table table-hover table-striped">
+          <thead>
+            <tr>
+              <th>Created</th>
+              <th>Kind</th>
+              <th>Reporter</th>
+              <th>Summary</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for observation in observations %}
+            <tr>
+              <td>{{ observation.created }}</td>
+              <td>{{ observation.kind_display }}</td>
+              <td>
+                {# TODO: This won't work yet for non-User Observers #}
+                <a href="{{ request.route_path('admin.user.detail', username=observation.observer.parent.username) }}">{{ observation.observer.parent.username }}</a>
+              </td>
+              <td>{{ observation.summary }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      No observations.
+      {% endif %}
+    </div>
+    <div class="card-footer">
+      <button type="button" class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#addObservationModal">
+        Add Observation
+      </button>
+      <div class="modal fade" id="addObservationModal" tabindex="-1" role="dialog">
+        <form method="POST" action="{{ request.route_path('admin.project.release.add_release_observation', project_name=release.project.normalized_name, version=release.version) }}">
+          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+          <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" id="exampleModalLabel">Add Observation for {{ release.project.normalized_name }}</h4>
+                <button type="button" class="close" data-dismiss="modal">
+                  <span>&times;</span>
+                </button>
+              </div>
+              <div class="modal-body">
+                <div class="row">
+                  <div class="col-auto">
+                    <div class="form-group">
+                      {% for observation_kind in observation_kinds %}
+                      <div class="form-check">
+                        <input class="form-check-input" type="radio" name="kind" id="{{ observation_kind.value[0] }}" value="{{ observation_kind.value[0] }}">
+                        <label class="form-check-label" for="{{ observation_kind.value[0] }}" >
+                          {{ observation_kind.value[1] }}
+                        </label>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <label class="form-check-label" for="projectObservationText">What do we need to know?</label>
+                      <textarea class="form-control" id="projectObservationText" name="summary" rows="3" placeholder="Enter ..."></textarea>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-info">Submit</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div> <!-- .modal #addObservationModal -->
+    </div> <!-- .card-footer -->
+  </div> <!-- .card #project_observations -->
+
+  <div class="card">
+    <div class="card-header">
       <h3>Metadata</h3>
     </div>
     <div class="card-body table-responsive">
