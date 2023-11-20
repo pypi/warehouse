@@ -210,7 +210,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
         )
-        request = pretend.stub(authenticated_userid=1, context=None)
+        request = pretend.stub(identity=1, context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -218,7 +218,7 @@ class TestForbiddenView:
     def test_logged_out_redirects_login(self):
         exc = pretend.stub()
         request = pretend.stub(
-            authenticated_userid=None,
+            identity=None,
             path_qs="/foo/bar/?b=s",
             route_url=pretend.call_recorder(
                 lambda route, _query: "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
@@ -236,7 +236,7 @@ class TestForbiddenView:
         result = WarehouseDenied("Some summary", reason=reason)
         exc = pretend.stub(result=result)
         request = pretend.stub(
-            authenticated_userid=1,
+            identity=1,
             session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
             path_qs="/foo/bar/?b=s",
             route_url=pretend.call_recorder(
@@ -268,7 +268,7 @@ class TestForbiddenView:
         result = WarehouseDenied("Some summary", reason="unverified_email")
         exc = pretend.stub(result=result)
         request = pretend.stub(
-            authenticated_userid=1,
+            identity=1,
             session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
             path_qs=requested_path,
             route_url=pretend.call_recorder(lambda route, _query: "/manage/account/"),
@@ -300,7 +300,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=result
         )
-        request = pretend.stub(authenticated_userid=1, context=None)
+        request = pretend.stub(identity=1, context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()

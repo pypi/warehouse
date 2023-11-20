@@ -145,12 +145,12 @@ class TestUserProfile:
 
 class TestAccountsSearch:
     def test_unauthenticated_raises_401(self):
-        pyramid_request = pretend.stub(authenticated_userid=None)
+        pyramid_request = pretend.stub(identity=None)
         with pytest.raises(HTTPUnauthorized):
             views.accounts_search(pyramid_request)
 
     def test_no_query_string_raises_400(self):
-        pyramid_request = pretend.stub(authenticated_userid=1, params=MultiDict({}))
+        pyramid_request = pretend.stub(identity=1, params=MultiDict({}))
         with pytest.raises(HTTPBadRequest):
             views.accounts_search(pyramid_request)
 
@@ -162,7 +162,7 @@ class TestAccountsSearch:
         ]
 
         request = pretend.stub(
-            authenticated_userid=1,
+            identity=1,
             find_service=lambda svc, **kw: {
                 IUserService: user_service,
                 IRateLimiter: pretend.stub(
@@ -190,7 +190,7 @@ class TestAccountsSearch:
             test=pretend.call_recorder(lambda ip_address: False),
         )
         request = pretend.stub(
-            authenticated_userid=1,
+            identity=1,
             find_service=lambda svc, **kw: {
                 IRateLimiter: search_limiter,
             }[svc],
@@ -405,7 +405,7 @@ class TestLogin:
         pyramid_request.session.record_password_timestamp = lambda timestamp: None
 
         security_policy = pretend.stub(
-            authenticated_userid=lambda r: None,
+            identity=lambda r: None,
             remember=lambda r, u, **kw: [],
             reset=pretend.call_recorder(lambda r: None),
         )
@@ -433,7 +433,7 @@ class TestLogin:
         assert security_policy.reset.calls == [pretend.call(pyramid_request)]
 
     def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request = pretend.stub(identity=1)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.login(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
@@ -824,7 +824,7 @@ class TestTwoFactor:
 
     def test_totp_auth_already_authed(self):
         request = pretend.stub(
-            authenticated_userid="not_none",
+            identity="not_none",
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
         )
         result = views.two_factor_and_totp_validate(request)
@@ -858,7 +858,7 @@ class TestTwoFactor:
             POST={},
             method="POST",
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
+            identity=None,
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
             find_service=lambda interface, **kwargs: {
                 ITokenService: token_service,
@@ -929,7 +929,7 @@ class TestTwoFactor:
 
 class TestWebAuthn:
     def test_webauthn_get_options_already_authenticated(self):
-        request = pretend.stub(authenticated_userid=pretend.stub(), _=lambda a: a)
+        request = pretend.stub(identity=pretend.stub(), _=lambda a: a)
 
         result = views.webauthn_authentication_options(request)
 
@@ -967,7 +967,7 @@ class TestWebAuthn:
             ),
             registry=pretend.stub(settings=pretend.stub(get=lambda *a: pretend.stub())),
             domain=pretend.stub(),
-            authenticated_userid=None,
+            identity=None,
             find_service=lambda interface, **kwargs: user_service,
         )
 
@@ -977,7 +977,7 @@ class TestWebAuthn:
         assert result == {"not": "real"}
 
     def test_webauthn_validate_already_authenticated(self):
-        request = pretend.stub(authenticated_userid=pretend.stub())
+        request = pretend.stub(identity=pretend.stub())
         result = views.webauthn_authentication_validate(request)
 
         assert result == {"fail": {"errors": ["Already authenticated"]}}
@@ -1004,7 +1004,7 @@ class TestWebAuthn:
         monkeypatch.setattr(views, "_get_two_factor_data", _get_two_factor_data)
 
         request = pretend.stub(
-            authenticated_userid=None,
+            identity=None,
             POST={},
             session=pretend.stub(
                 get_webauthn_challenge=pretend.call_recorder(lambda: "not_real"),
@@ -1188,7 +1188,7 @@ class TestRememberDevice:
 class TestRecoveryCode:
     def test_already_authenticated(self):
         request = pretend.stub(
-            authenticated_userid="not_none",
+            identity="not_none",
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
         )
         result = views.recovery_code(request)
@@ -1382,7 +1382,7 @@ class TestRecoveryCode:
             POST={},
             method="POST",
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            authenticated_userid=None,
+            identity=None,
             route_path=pretend.call_recorder(lambda p: "redirect_to"),
             find_service=lambda interface, **kwargs: {
                 ITokenService: token_service,
@@ -1510,7 +1510,7 @@ class TestRegister:
         assert result["form"] is form_inst
 
     def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request = pretend.stub(identity=1)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.register(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
@@ -1957,7 +1957,7 @@ class TestRequestPasswordReset:
         ]
 
     def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request = pretend.stub(identity=1)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.request_password_reset(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
@@ -2317,7 +2317,7 @@ class TestResetPassword:
         ]
 
     def test_redirect_authenticated_user(self):
-        pyramid_request = pretend.stub(authenticated_userid=1)
+        pyramid_request = pretend.stub(identity=1)
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
         result = views.reset_password(pyramid_request)
         assert isinstance(result, HTTPSeeOther)
