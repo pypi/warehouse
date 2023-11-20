@@ -123,3 +123,13 @@ table.columns([".ip_address", ".hashed_ip"]).visible(false);
 // add column visibility button
 new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
 table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+
+// Observations
+let obs_table = $("#observations").DataTable({
+  responsive: true,
+  lengthChange: false,
+});
+obs_table.column(".time").order("desc").draw();
+obs_table.columns([".payload"]).visible(false);
+new $.fn.dataTable.Buttons(obs_table, {buttons: ["copy", "csv", "colvis"]});
+obs_table.buttons().container().appendTo($(".col-md-6:eq(0)", obs_table.table().container()));
