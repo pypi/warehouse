@@ -35,10 +35,10 @@ from pyramid.httpexceptions import (
     HTTPException,
     HTTPForbidden,
     HTTPGone,
+    HTTPOk,
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
@@ -1278,7 +1278,7 @@ def file_upload(request):
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
             request.tm.doom()
-            return Response()
+            return HTTPOk()
         elif is_duplicate is not None:
             raise _exc_with_message(
                 HTTPBadRequest,
@@ -1532,7 +1532,7 @@ def file_upload(request):
     request.task(sync_file_to_cache).delay(file_.id)
 
     # Return any warnings that we've accumulated as the response body.
-    return Response("\n".join(warnings))
+    return HTTPOk(body="\n".join(warnings))
 
 
 @view_config(

@@ -12,7 +12,7 @@
 
 import json
 
-from pyramid.response import Response
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 from pyramid.view import view_config
 
 from warehouse.integrations.vulnerabilities import osv
@@ -46,7 +46,7 @@ def report_vulnerabilities(request):
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
-        return Response(status=400)
+        return HTTPBadRequest()
 
     # Body must be valid JSON
     try:
@@ -55,12 +55,12 @@ def report_vulnerabilities(request):
         metrics.increment(
             "warehouse.vulnerabilties.error.payload.json_error", tags=["origin:osv"]
         )
-        return Response(status=400, body="Invalid JSON")
+        return HTTPBadRequest(body="Invalid JSON")
 
     # Body must be a list
     if not isinstance(vulnerability_reports, list):
         metrics.increment("warehouse.vulnerabilities.error.format", tags=["origin:osv"])
-        return Response(status=400, body="Invalid format: payload is not a list")
+        return HTTPBadRequest(body="Invalid format: payload is not a list")
 
     # Create a task to analyze each report
     for vulnerability_report in vulnerability_reports:
@@ -70,4 +70,4 @@ def report_vulnerabilities(request):
         )
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.
-    return Response(status=204)
+    return HTTPNoContent()
