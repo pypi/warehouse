@@ -178,7 +178,7 @@ def accounts_search(request) -> dict[str, list[User]]:
     Used with autocomplete.
     User must be logged in.
     """
-    if request.identity is None:
+    if request.user is None:
         raise HTTPUnauthorized()
 
     form = UsernameSearchForm(request.params)
@@ -217,7 +217,7 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     # TODO: Logging in should reset request.user
     # TODO: Configure the login view as the default view for not having
     #       permission to view something.
-    if request.identity is not None:
+    if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     user_service = request.find_service(IUserService, context=None)
@@ -308,6 +308,8 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
     has_translations=True,
 )
 def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
+    # TODO: Using `request.user` here fails `test_totp_auth()` because
+    #  of how the test is constructed. We should fix that.
     if request.identity is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
@@ -377,7 +379,7 @@ def two_factor_and_totp_validate(request, _form_class=TOTPAuthenticationForm):
     has_translations=True,
 )
 def webauthn_authentication_options(request):
-    if request.identity is not None:
+    if request.user is not None:
         return {"fail": {"errors": [request._("Already authenticated")]}}
 
     try:
@@ -406,6 +408,8 @@ def webauthn_authentication_options(request):
     has_translations=True,
 )
 def webauthn_authentication_validate(request):
+    # TODO: Using `request.user` here fails `test_webauthn_validate()` because
+    #  of how the test is constructed. We should fix that.
     if request.identity is not None:
         return {"fail": {"errors": ["Already authenticated"]}}
 
@@ -514,7 +518,7 @@ def _remember_device(request, response, userid, two_factor_method) -> None:
     has_translations=True,
 )
 def recovery_code(request, _form_class=RecoveryCodeAuthenticationForm):
-    if request.identity is not None:
+    if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     try:
@@ -635,7 +639,7 @@ def logout(request, redirect_field_name=REDIRECT_FIELD_NAME):
     has_translations=True,
 )
 def register(request, _form_class=RegistrationForm):
-    if request.identity is not None:
+    if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
     # Check if the honeypot field has been filled
@@ -701,7 +705,7 @@ def register(request, _form_class=RegistrationForm):
     has_translations=True,
 )
 def request_password_reset(request, _form_class=RequestPasswordResetForm):
-    if request.identity is not None:
+    if request.user is not None:
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
@@ -760,7 +764,7 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     has_translations=True,
 )
 def reset_password(request, _form_class=ResetPasswordForm):
-    if request.identity is not None:
+    if request.user is not None:
         return HTTPSeeOther(request.route_path("index"))
 
     user_service = request.find_service(IUserService, context=None)
