@@ -18,13 +18,14 @@
 # erfan goodarzi <erfangoodarzi123@gmail.com>, 2022.
 # Hejar Shahabi <hejarshahabi@gmail.com>, 2023.
 # Rick Sanchez <sarab0033@student.vvc.edu>, 2023.
+# Moein <devmoein@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-07-26 14:18+0000\n"
-"Last-Translator: Rick Sanchez <sarab0033@student.vvc.edu>\n"
+"PO-Revision-Date: 2023-11-22 05:07+0000\n"
+"Last-Translator: Moein <devmoein@gmail.com>\n"
 "Language-Team: Persian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "fa/>\n"
 "Language: fa\n"
@@ -32,7 +33,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.2\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -40,6 +41,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"قبل از اینکه بتوانید این عمل را انجام دهید، باید آدرس ایمیل **اصلی** خود را "
+"تأیید کنید."
 
 #: warehouse/views.py:162
 msgid ""

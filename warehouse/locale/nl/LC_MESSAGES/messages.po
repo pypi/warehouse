@@ -7,21 +7,22 @@
 # PH-KDX <smtp.python.email.sender@gmail.com>, 2022.
 # Robert S. <admin@robert-s.dev>, 2022.
 # Mike Devilee <mike.devilee@gmail.com>, 2023.
+# Ranforingus <ranforingus@hotmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-03-14 22:55+0000\n"
-"Last-Translator: Mike Devilee <mike.devilee@gmail.com>\n"
-"Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/"
-">\n"
+"PO-Revision-Date: 2023-11-22 22:19+0000\n"
+"Last-Translator: Ranforingus <ranforingus@hotmail.com>\n"
+"Language-Team: Dutch <https://hosted.weblate.org/projects/pypa/warehouse/nl/>"
+"\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16.2-dev\n"
+"X-Generator: Weblate 5.2.1-rc\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -1485,30 +1486,17 @@ msgid "Forgot password?"
 msgstr "Wachtwoord vergeten?"
 
 #: warehouse/templates/re-auth.html:81
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "              <b>Tip:</b> you are about to perform a <a "
-#| "href=\"%(href)s\">sensitive action</a>.\n"
-#| "              If you are not on a personal computer, make sure to log out "
-#| "once you're done with your session.\n"
-#| "              We won't ask you to confirm your password again for the "
-#| "next hour.\n"
-#| "              "
+#, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
 "action</a>. If you are not on a personal computer, make sure to log out once "
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"\n"
-"              <b>Tip:</b> u staat op het punt een <a "
-"href=\"%(href)s\">gevoelige handeling uit te voeren</a>.\n"
-"              Als u geen persoonlijke computer gebruikt, moet u uitloggen "
-"zodra u klaar bent met uw sessie.\n"
-"              We vragen je het komende uur niet om je wachtwoord opnieuw te "
-"bevestigen.\n"
-"              "
+"<b>Tip:</b> u staat op het punt een <a href=\"%(href)s\">gevoelige handeling "
+"uit te voeren</a>. Als u geen persoonlijke computer gebruikt, moet u "
+"uitloggen zodra u klaar bent met uw sessie. We vragen je het komende uur "
+"niet om je wachtwoord opnieuw te bevestigen."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1539,22 +1527,13 @@ msgid "Confirm Invite"
 msgstr "Uitnodiging accepteren"
 
 #: warehouse/templates/accounts/invite-confirmation.html:34
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join '<a "
-#| "href=\"%(project_link)s\">%(project_name)s</a>' as a project "
-#| "%(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '<a "
 "href=\"%(project_link)s\">%(project_name)s</a>' as a project %(role_name)s?"
 msgstr ""
-"\n"
-"      Wilt u deze uitnodiging om mee te doen aan '<a "
-"href=\"%(project_link)s\">%(project_name)s</a>' als een project "
-"%(role_name)s accepteren?\n"
-"      "
+"Wilt u deze uitnodiging om mee te doen aan '<a href=\"%(project_link)s\""
+">%(project_name)s</a>' als een project %(role_name)s accepteren?"
 
 #: warehouse/templates/accounts/invite-confirmation.html:40
 #: warehouse/templates/accounts/organization-invite-confirmation.html:40
@@ -1625,20 +1604,13 @@ msgid "Confirm Organization Invite"
 msgstr "Uitnodiging voor organisatie bevestigen"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:34
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "      Would you like to accept this invitation to join "
-#| "'%(organization_name)s' as an organization %(role_name)s?\n"
-#| "      "
+#, python-format
 msgid ""
 "Would you like to accept this invitation to join '%(organization_name)s' as "
 "an organization %(role_name)s?"
 msgstr ""
-"\n"
-"      Wilt u deze uitnodiging om mee te doen aan '%(organization_name)s' als "
-"een organisatie accepteren %(role_name)s?\n"
-"      "
+"Wilt u deze uitnodiging om mee te doen aan '%(organization_name)s' als een "
+"organisatie accepteren %(role_name)s?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:45
 #, fuzzy, python-format
@@ -2520,38 +2492,24 @@ msgstr ""
 "<strong>%(username)s</strong> gewijzigd."
 
 #: warehouse/templates/email/password-compromised/body.html:20
-#, fuzzy
-#| msgid ""
-#| "PyPI administrators have determined that your password is compromised. "
-#| "To\n"
-#| "  protect you and other users, we have preemptively reset your password "
-#| "and you\n"
-#| "  will no longer be able to log in or upload to PyPI with your existing\n"
-#| "  password."
 msgid ""
 "PyPI administrators have determined that your password is compromised. To "
 "protect you and other users, we have preemptively reset your password and "
 "you will no longer be able to log in or upload to PyPI with your existing "
 "password."
 msgstr ""
-"PyPI-beheerders hebben vastgesteld dat uw wachtwoord is gehackt. Om\n"
-"  u en andere gebruikers te beschermen, hebben we preventief uw wachtwoord "
-"opnieuw ingesteld; u\n"
-"  kunt niet langer inloggen of uploaden naar PyPI met uw bestaande\n"
-"  wachtwoord."
+"PyPI-beheerders hebben vastgesteld dat uw wachtwoord is gehackt. Om u en "
+"andere gebruikers te beschermen, hebben we preventief uw wachtwoord opnieuw "
+"ingesteld; u kunt niet langer inloggen of uploaden naar PyPI met uw "
+"bestaande wachtwoord."
 
 #: warehouse/templates/email/password-compromised/body.html:26
-#, fuzzy
-#| msgid ""
-#| "PyPI itself has not suffered a breach. This is a protective measure to "
-#| "reduce the\n"
-#| "  risk for PyPI and its users."
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk for PyPI and its users."
 msgstr ""
-"PyPI zelf heeft geen datalek gehad. Dit is een beschermende maatregel om de\n"
-"  risico voor PyPI en PyPI-gebruikers te verminderen."
+"PyPI zelf heeft geen datalek gehad. Dit is een beschermende maatregel om de "
+"risico voor PyPI en PyPI-gebruikers te verminderen."
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -2567,29 +2525,15 @@ msgid "How can I contact you?"
 msgstr "Hoe kan ik contact met jullie opnemen?"
 
 #: warehouse/templates/email/password-compromised/body.html:41
-#, fuzzy, python-format
-#| msgid ""
-#| "For more information, you can email %(email_address)s to communicate "
-#| "with\n"
-#| "  the PyPI administrators."
+#, python-format
 msgid ""
 "For more information, you can email %(email_address)s to communicate with "
 "the PyPI administrators."
 msgstr ""
 "Voor meer informatie kunt u %(email_address)s e-mailen om met de PyPI-"
-"beheerders\n"
-"   te communiceren."
+"beheerders te communiceren."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:20
-#, fuzzy
-#| msgid ""
-#| "During your recent attempt to log in or upload to PyPI, we noticed your "
-#| "password appears\n"
-#| "  in public data breaches. To protect you and other users, we have "
-#| "preemptively reset your\n"
-#| "  password and you will no longer be able to log in or upload to PyPI "
-#| "with your existing\n"
-#| "  password."
 msgid ""
 "During your recent attempt to log in or upload to PyPI, we noticed your "
 "password appears in public data breaches. To protect you and other users, we "
@@ -2597,28 +2541,21 @@ msgid ""
 "in or upload to PyPI with your existing password."
 msgstr ""
 "Tijdens uw recente poging om in te loggen of te uploaden naar PyPI, hebben "
-"we gemerkt dat uw wachtwoord verschijnt\n"
-"  in openbare datalekken. Om u en andere gebruikers te beschermen, hebben we "
-"preventief uw\n"
-"  wachtwoord gereset en u kunt niet langer inloggen of uploaden naar PyPI "
-"met uw bestaande\n"
-"  wachtwoord."
+"we gemerkt dat uw wachtwoord verschijnt in openbare datalekken. Om u en "
+"andere gebruikers te beschermen, hebben we preventief uw wachtwoord gereset "
+"en u kunt niet langer inloggen of uploaden naar PyPI met uw bestaande "
+"wachtwoord."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "PyPI itself has not suffered a breach. This is a protective measure to "
-#| "reduce the\n"
-#| "  risk of <a href=\"%(href)s\">credential stuffing</a>\n"
-#| "  attacks against PyPI and its users."
+#, python-format
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk of <a href=\"%(href)s\">credential stuffing</a> attacks "
 "against PyPI and its users."
 msgstr ""
-"PyPI zelf heeft geen datalek gehad. Dit is een beschermende maatregel om de\n"
-"  risico op <a href=\"%(href)s\">credential stuffing</a>\n"
-"  aanvallen tegen PyPI en PyPI-gebruikers te verminderen."
+"PyPI zelf heeft geen datalek gehad. Dit is een beschermende maatregel om de "
+"risico op <a href=\"%(href)s\">credential stuffing</a> aanvallen tegen PyPI "
+"en PyPI-gebruikers te verminderen."
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:34
 #, python-format
@@ -3054,30 +2991,17 @@ msgstr ""
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
-#| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
-#| "manage.\n"
-#| "  OpenID Connect publishers act as trusted users and can create project "
-#| "releases\n"
-#| "  automatically.\n"
-#| "  "
+#, python-format
 msgid ""
 "PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
 "a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
 "publishers act as trusted users and can create project releases "
 "automatically."
 msgstr ""
-"\n"
-"  PyPI-gebruiker <strong>%(username)s</strong> heeft een nieuwe OpenID\n"
-"  Connect-uitgever toegevoegd aan een project (<strong>%(project_name)s</"
-"strong>)\n"
-"  dat u beheert. OpenID Connect-uitgevers fungeren als vertrouwde gebruikers "
-"en\n"
-"  kunnen automatisch projectreleases maken.\n"
-"  "
+"PyPI-gebruiker <strong>%(username)s</strong> heeft een nieuwe OpenID Connect-"
+"uitgever toegevoegd aan een project (<strong>%(project_name)s</strong>) dat "
+"u beheert. OpenID Connect-uitgevers fungeren als vertrouwde gebruikers en "
+"kunnen automatisch projectreleases maken."
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:28
 #: warehouse/templates/email/trusted-publisher-removed/body.html:26
