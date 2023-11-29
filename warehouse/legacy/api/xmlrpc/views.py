@@ -481,29 +481,12 @@ def changelog_since_serial(request, serial: StrictInt):
 
 @xmlrpc_method(method="changelog")
 def changelog(request, since: StrictInt, with_ids: StrictBool = False):
-    since_dt = datetime.datetime.utcfromtimestamp(since)
-    entries = (
-        request.db.query(JournalEntry)
-        .filter(JournalEntry.submitted_date > since_dt)
-        .order_by(JournalEntry.id)
-        .limit(50000)
-    )
-
-    results = (
-        (
-            e.name,
-            e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
-            e.action,
-            e.id,
+    raise XMLRPCWrappedError(
+        ValueError(
+            "The changelog method has been deprecated, use changelog_since_serial "
+            "instead."
         )
-        for e in entries
     )
-
-    if with_ids:
-        return list(results)
-    else:
-        return [r[:-1] for r in results]
 
 
 @xmlrpc_method(method="browse")
