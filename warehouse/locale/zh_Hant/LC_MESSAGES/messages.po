@@ -23,13 +23,14 @@
 # Python Lover <157396869@qq.com>, 2022.
 # 秋凌烟 <2562042362@qq.com>, 2023.
 # "Wdt@.+_-" <wdt.app.vip.v8@outlook.com>, 2023.
+# 123456789 <15183543555@163.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-06-06 23:49+0000\n"
-"Last-Translator: \"Wdt@.+_-\" <wdt.app.vip.v8@outlook.com>\n"
+"PO-Revision-Date: 2023-11-20 12:28+0000\n"
+"Last-Translator: 123456789 <15183543555@163.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -37,14 +38,14 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 4.18-dev\n"
+"X-Generator: Weblate 5.2\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr ""
+msgstr "你必須驗證你的**主**電子郵件地址方可執行此操作。"
 
 #: warehouse/views.py:162
 msgid ""
@@ -71,7 +72,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "不允許 Null 字節。"
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -97,19 +98,15 @@ msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者�
 
 #: warehouse/accounts/forms.py:164 warehouse/accounts/forms.py:213
 #: warehouse/accounts/forms.py:226
-#, fuzzy
-#| msgid "Password strength:"
 msgid "Password too long."
-msgstr "密碼強度:"
+msgstr "密碼過長。"
 
 #: warehouse/accounts/forms.py:200
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
-msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
+msgstr "登錄嘗試失敗的次數過多，請稍後再試。你被鎖在賬戶外面已經 ${time} "
+"了。請稍後再試。"
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -120,10 +117,8 @@ msgid "The email address isn't valid. Try again."
 msgstr "電子郵件地址無效。 請再試一次。"
 
 #: warehouse/accounts/forms.py:265
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "電子郵件地址無效。 請再試一次。"
+msgstr "電子郵件地址太長。 請再試一次。"
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
@@ -166,13 +161,11 @@ msgid "No user found with that username or email"
 msgstr "找不到使用該使用者名稱或電子郵件的使用者"
 
 #: warehouse/accounts/views.py:107
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
+msgstr "登錄嘗試失敗的次數過多，請稍後再試。你被鎖在賬戶外面的時間已達 "
+"{}。請稍後再試。"
 
 #: warehouse/accounts/views.py:124
 msgid ""
@@ -284,46 +277,32 @@ msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "電子郵件地址 ${email_address} 已驗證。${confirm_message}。"
 
 #: warehouse/accounts/views.py:995
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
-msgstr "過期密鑰：請求新專案角色邀請"
+msgstr "過期密鑰：請求新的組織邀請"
 
 #: warehouse/accounts/views.py:997
-#, fuzzy
-#| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
-msgstr "密鑰無效：請求新的項目角色邀請"
+msgstr "密鑰無效：請求新的組織邀請"
 
 #: warehouse/accounts/views.py:1003
-#, fuzzy
-#| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
-msgstr "密鑰無效：不是協作邀請密鑰"
+msgstr "密鑰無效：不是組織邀請密鑰"
 
 #: warehouse/accounts/views.py:1007
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "身份邀請已過期。"
+msgstr "組織邀請無效。"
 
 #: warehouse/accounts/views.py:1016
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
-msgstr "角色邀請不再存在。"
+msgstr "組織邀請已不存在。"
 
 #: warehouse/accounts/views.py:1067
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "邀請加入專案 ${project_name} 被拒絕."
+msgstr "'${organization_name}'的邀請被拒絕.。"
 
 #: warehouse/accounts/views.py:1130
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "你不是此專案的擁有者。"
+msgstr "你現在是 '${organization_name}' 組織的 ${role}。"
 
 #: warehouse/accounts/views.py:1164
 #, fuzzy
