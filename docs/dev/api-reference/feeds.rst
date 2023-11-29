@@ -48,33 +48,19 @@ then.
 
 Example usage::
 
+  >>> import time
   >>> import xmlrpc.client
-  >>> import arrow
-  >>> client = xmlrpc.client.ServerProxy('https://test.pypi.org/pypi')
-  >>> latefeb = arrow.get('2018-02-20 10:00:00')
-  >>> latefeb.timestamp
-  1519120800
-  >>> latefebstamp = latefeb.timestamp
-  >>> recentchanges = client.changelog(latefebstamp)
-  >>> len(recentchanges)
-  7322
+  >>> client = xmlrpc.client.ServerProxy("https://test.pypi.org/pypi")
+  >>> serial = client.changelog_last_serial()
+  >>> serial
+  4601224
+  >>> while serial == client.changelog_last_serial():
+  ...     time.sleep(5)
+  >>> recentchanges = client.changelog_since_serial(serial)
   >>> for entry in recentchanges:
-  ...     if entry[0] == 'twine':
-  ...         print(entry[1], " ", entry[3], " ", entry[2])
-  ...
-  ...
-  ...
-  None   add Owner brainwane   1519952529
-  1.10.0   add py2.py3 file twine-1.10.0-py2.py3-none-any.whl   1520023899
-  1.10.0   new release   1520023899
-  1.10.0rc1   add py2.py3 file twine-1.10.0rc1-py2.py3-none-any.whl   1520023900
-  1.10.0rc1   new release   1520023900
-  1.10.0rc1   add source file twine-1.10.0rc1.tar.gz   1520023902
-  1.10.0   add source file twine-1.10.0.tar.gz   1520023903
-  1.10.0   remove file twine-1.10.0.tar.gz   1520024758
-  1.10.0   remove file twine-1.10.0-py2.py3-none-any.whl   1520024797
-  1.10.0   remove   1520025270
-
+  ...     print(entry)
+  ['openllm', '0.4.33.dev3', 1701280908, 'new release', 4601225]
+  ['openllm', '0.4.33.dev3', 1701280908, 'add py3 file openllm-0.4.33.dev3-py3-none-any.whl', 4601226]
 
 You could also request ``GET /simple/``, and record the ``ETag``, and
 then periodically do a conditional HTTP GET to ``/simple/`` with that
