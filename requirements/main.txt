@@ -1180,9 +1180,9 @@ packaging==23.2 \
     #   linehaul
     #   packaging-legacy
     #   zope-sqlalchemy
-packaging-legacy==23.0 \
-    --hash=sha256:7013a4aec35163f76c1d7b55340b0602b2fbe6628b4bb0948ac71c607f454260 \
-    --hash=sha256:e1a20ece340845c11d384c27e456eaf76be05dbdb4073469019aabcbbd7b99de
+packaging-legacy==23.0.post0 \
+    --hash=sha256:6cd21cd283c09409349bccc10bb55bfd837b4aab86a7b0f87bfcb8dd9831a8a3 \
+    --hash=sha256:c974a42291a77112313f0198b87ad96e07a3c357295d572560a4b9c368f7d9db
     # via -r requirements/main.in
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d
