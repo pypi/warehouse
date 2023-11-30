@@ -865,9 +865,9 @@ kombu[sqs]==5.3.1 \
     #   -r requirements/main.in
     #   celery
     #   kombu
-limits==3.6.0 \
-    --hash=sha256:32fe29a398352c71bc43d53773117d47e22c5ea4200aef28d3f5fdee10334cd7 \
-    --hash=sha256:57a9c69fd37ad1e4fa3886dff8d035227e1f6af87f47e9118627e72cf1ced3bf
+limits==3.7.0 \
+    --hash=sha256:124c6a04d2f4b20990fb1de019eec9474d6c1346c70d8fd0561609b86998b64a \
+    --hash=sha256:c528817b7fc15f3e86ad091ba3e40231f6430a91b753db864767684cda8a7f2e
     # via -r requirements/main.in
 linehaul==1.0.1 \
     --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
