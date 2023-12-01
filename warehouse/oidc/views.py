@@ -241,7 +241,6 @@ def mint_token(
             ],
             request=request,
         )
-
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     # NOTE: For OIDC-minted API tokens, the Macaroon's description string
