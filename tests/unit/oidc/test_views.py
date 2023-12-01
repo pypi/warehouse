@@ -383,11 +383,11 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
+        workflow_filename="example.yml",
+        environment="fake",
         repository_name="bar",
         repository_owner="foo",
         repository_owner_id="123",
-        workflow_filename="example.yml",
-        environment="",
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
@@ -419,13 +419,13 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
 
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
-        project_name="does-not-exist",
+        project_name="DOES-NOT-EXIST",
         added_by=user,
+        workflow_filename="example.yml",
+        environment="fake",
         repository_name="bar",
         repository_owner="foo",
         repository_owner_id="123",
-        workflow_filename="example.yml",
-        environment="",
     )
 
     # Create some other pending publishers for the same nonexistent project,
@@ -500,8 +500,6 @@ def test_mint_token_no_pending_publisher_ok(
     publisher = GitHubPublisherFactory()
     monkeypatch.setattr(publisher.__class__, "projects", [project])
     publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
-    # NOTE: Can't set __str__ using pretend.stub()
-    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
     def _find_publisher(claims, pending=False):
         if pending:
@@ -546,7 +544,7 @@ def test_mint_token_no_pending_publisher_ok(
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: example.yml ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
                     oidc_publisher_id=str(publisher.id),

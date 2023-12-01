@@ -140,7 +140,6 @@ class OIDCPublisherMixin:
                 # We might not build a query if we know the claim set can't
                 # satisfy it. If that's the case, then we skip.
                 continue
-
             if publisher := query.with_session(session).one_or_none():
                 return publisher
         raise InvalidPublisherError("All lookup strategies exhausted")

@@ -269,7 +269,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
         Returns a `GitHubPublisher` for this `PendingGitHubPublisher`,
         deleting the `PendingGitHubPublisher` in the process.
         """
-
+        print("Github.reify")
         maybe_publisher = (
             session.query(GitHubPublisher)
             .filter(
@@ -280,6 +280,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             )
             .one_or_none()
         )
+        print(f"Github.reify: {maybe_publisher}")
 
         publisher = maybe_publisher or GitHubPublisher(
             repository_name=self.repository_name,
@@ -288,6 +289,8 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
             workflow_filename=self.workflow_filename,
             environment=self.environment,
         )
+        print(f"Github.reify: {publisher}")
 
         session.delete(self)
+        print("Github.reify: deleted successfully?")
         return publisher
