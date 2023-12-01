@@ -1197,9 +1197,9 @@ passlib==1.7.4 \
     --hash=sha256:aa6bca462b8d8bda89c70b382f0c298a20b5560af6cbfa2dce410c0a2fb669f1 \
     --hash=sha256:defd50f72b65c5402ab2c573830a6978e5f202ad0d984793c8dde2c4152ebe04
     # via -r requirements/main.in
-pastedeploy==3.0.1 \
-    --hash=sha256:5f4b4d5fddd39b8947ea727161e366bf55b90efc60a4d1dd7976b9031d0b4e5f \
-    --hash=sha256:6195c921b1c3ed9722e4e3e6aa29b70deebb2429b4ca3ff3d49185c8e80003bb
+pastedeploy==3.1.0 \
+    --hash=sha256:76388ad53a661448d436df28c798063108f70e994ddc749540d733cdbd1b38cf \
+    --hash=sha256:9ddbaf152f8095438a9fe81f82c78a6714b92ae8e066bed418b6a7ff6a095a95
     # via plaster-pastedeploy
 pip-api==0.0.30 \
     --hash=sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9 \
