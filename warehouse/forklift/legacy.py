@@ -1142,7 +1142,9 @@ def file_upload(request):
                 "provided signature has been discarded."
             )
             send_gpg_signature_uploaded_email(
-                request, request.user, project_name=project.name
+                request,
+                request.user if request.user else project.users,
+                project_name=project.name,
             )
 
         # TODO: This should be handled by some sort of database trigger or
