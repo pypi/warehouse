@@ -365,6 +365,7 @@ msgid "Select project"
 msgstr ""
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/oidc/forms/activestate.py:195
 msgid "Specify project name"
 msgstr ""
 
@@ -557,11 +558,11 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25
+#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/activestate.py:197
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:35
+#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/activestate.py:211
 msgid "This project name is already in use"
 msgstr ""
 
@@ -571,6 +572,47 @@ msgstr ""
 
 #: warehouse/oidc/forms/_core.py:45
 msgid "Publisher must be specified by ID"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:40
+msgid "Specify ActiveState Organization URL name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:44
+msgid "Invalid ActiveState Platform organization name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:52
+msgid "Specify ActiveState project name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:56
+msgid "Invalid ActiveState Platform project name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:92
+#: warehouse/oidc/forms/activestate.py:119
+#: warehouse/oidc/forms/activestate.py:148
+#: warehouse/oidc/forms/activestate.py:174
+msgid "Unexpected error from ActiveState. Try again"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:99
+#: warehouse/oidc/forms/activestate.py:155
+msgid "Unexpected connection error from ActiveState. Try again in a few minutes"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:109
+#: warehouse/oidc/forms/activestate.py:165
+msgid "Unexpected timeout from ActiveState. Try again in a few minutes"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:124
+msgid "ActiveState organization not found"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:180
+msgid "ActiveState actor not found"
 msgstr ""
 
 #: warehouse/oidc/forms/github.py:33
@@ -1254,6 +1296,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:294
 #: warehouse/templates/manage/account.html:354
 #: warehouse/templates/manage/account.html:386
+
 #: warehouse/templates/manage/account.html:411
 #: warehouse/templates/manage/account.html:438
 #: warehouse/templates/manage/account/publishing.html:40
@@ -1264,6 +1307,29 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:159
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/account/publishing.html:189
+
+#: warehouse/templates/manage/account.html:402
+
+#: warehouse/templates/manage/account/publishing.html:40
+#: warehouse/templates/manage/account/publishing.html:55
+#: warehouse/templates/manage/account/publishing.html:70
+#: warehouse/templates/manage/account/publishing.html:85
+#: warehouse/templates/manage/account/publishing.html:100
+#: warehouse/templates/manage/account/publishing.html:142
+#: warehouse/templates/manage/account/publishing.html:157
+#: warehouse/templates/manage/account/publishing.html:172
+
+#: warehouse/templates/manage/account/publishing.html:34
+#: warehouse/templates/manage/account/publishing.html:49
+#: warehouse/templates/manage/account/publishing.html:64
+#: warehouse/templates/manage/account/publishing.html:79
+#: warehouse/templates/manage/account/publishing.html:94
+#: warehouse/templates/manage/account/publishing.html:130
+#: warehouse/templates/manage/account/publishing.html:145
+#: warehouse/templates/manage/account/publishing.html:160
+#: warehouse/templates/manage/account/publishing.html:175
+
+
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -3695,7 +3761,11 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:80
 #: warehouse/templates/manage/manage_base.html:97
 #: warehouse/templates/manage/manage_base.html:100
+
 #: warehouse/templates/manage/manage_base.html:562
+
+#: warehouse/templates/manage/manage_base.html:565
+
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -3879,12 +3949,20 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
+
 #: warehouse/templates/manage/manage_base.html:546
 #: warehouse/templates/manage/manage_base.html:554
 msgid "Any"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:569
+
+#: warehouse/templates/manage/manage_base.html:553
+msgid "Any"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:572
+
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -3895,7 +3973,11 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
+
 #: warehouse/templates/manage/manage_base.html:571
+
+#: warehouse/templates/manage/manage_base.html:574
+
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -3906,14 +3988,23 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
+
 #: warehouse/templates/manage/manage_base.html:573
 msgid "Submitted by:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:576
+
+#: warehouse/templates/manage/manage_base.html:576
+msgid "Submitted by:"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:579
+
 #: warehouse/templates/manage/project/history.html:247
 msgid "Workflow:"
 msgstr ""
+
 
 #: warehouse/templates/manage/manage_base.html:578
 msgid "Specifier:"
@@ -3924,6 +4015,17 @@ msgid "Publisher:"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:583
+
+#: warehouse/templates/manage/manage_base.html:581
+msgid "Specifier:"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:584
+msgid "Publisher:"
+msgstr ""
+
+#: warehouse/templates/manage/manage_base.html:586
+
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -4189,6 +4291,7 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:27
 #: warehouse/templates/manage/project/publishing.html:25
 #, python-format
@@ -4208,7 +4311,25 @@ msgid "project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:45
+
 #: warehouse/templates/manage/account/publishing.html:164
+
+#: warehouse/templates/manage/account/publishing.html:147
+
+#: warehouse/templates/manage/account/publishing.html:32
+#: warehouse/templates/manage/account/publishing.html:128
+msgid "PyPI Project Name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:37
+#: warehouse/templates/manage/account/publishing.html:133
+msgid "project name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:39
+#: warehouse/templates/manage/account/publishing.html:135
+
+
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
@@ -4295,6 +4416,25 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/project/publishing.html:129
+
+
+#: warehouse/templates/manage/account/publishing.html:122
+#: warehouse/templates/manage/account/publishing.html:186
+
+#: warehouse/templates/manage/account/publishing.html:116
+#: warehouse/templates/manage/account/publishing.html:187
+
+#: warehouse/templates/manage/project/publishing.html:105
+#: warehouse/templates/manage/project/publishing.html:154
+#: warehouse/templates/manage/project/roles.html:320
+#: warehouse/templates/manage/team/roles.html:123
+msgid "Add"
+msgstr ""
+
+
+#: warehouse/templates/manage/account/publishing.html:129
+#: warehouse/templates/manage/project/publishing.html:112
+
 #, python-format
 msgid ""
 "Read more about Google's OpenID Connect support <a "
@@ -4332,7 +4472,58 @@ msgstr ""
 msgid "Project"
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:253
+
+
+#: warehouse/templates/manage/account/publishing.html:143
+#: warehouse/templates/organizations/profile.html:30
+msgid "Organization"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:148
+msgid "my-organization"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:150
+msgid "The ActiveState organization name that owns the project"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:158
+msgid "ActiveState Project name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:163
+msgid "my-project"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:165
+msgid "The ActiveState project that will build your Python artifact."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:173
+msgid "Actor Username"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:178
+msgid "my-username"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:180
+msgid "The ActiveState user that will trigger the build of your Python artifact."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:197
+msgid "Manage publishers"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:207
+msgid "Project"
+msgstr ""
+
+
+#: warehouse/templates/manage/account/publishing.html:229
+
 msgid ""
 "No publishers are currently configured. Publishers for existing projects "
 "can be added in the publishing configuration for each individual project."
@@ -4342,6 +4533,7 @@ msgstr ""
 msgid "Pending project name"
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:266
 #: warehouse/templates/manage/project/publishing.html:205
 msgid "Publisher"
@@ -4349,6 +4541,23 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:267
 #: warehouse/templates/manage/project/publishing.html:206
+
+#: warehouse/templates/manage/account/publishing.html:242
+
+#: warehouse/templates/manage/project/publishing.html:181
+
+#: warehouse/templates/manage/project/publishing.html:131
+
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:243
+
+#: warehouse/templates/manage/project/publishing.html:182
+
+#: warehouse/templates/manage/project/publishing.html:132
+
+
 msgid "Details"
 msgstr ""
 
@@ -4358,7 +4567,12 @@ msgid ""
 "that don't exist yet can be added below."
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:287
+
+
+#: warehouse/templates/manage/account/publishing.html:263
+
 msgid "Add a new pending publisher"
 msgstr ""
 
@@ -4366,7 +4580,22 @@ msgstr ""
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:296
+
+#: warehouse/templates/manage/account/publishing.html:272
+
+#: warehouse/templates/manage/account/publishing.html:261
+msgid "Add a new pending publisher"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:264
+msgid "You can use this page to register \"pending\" trusted publishers."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:270
+
+
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered "
@@ -4377,8 +4606,18 @@ msgid ""
 "trusted publishers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
+
 #: warehouse/templates/manage/account/publishing.html:334
 #: warehouse/templates/manage/project/publishing.html:252
+
+
+#: warehouse/templates/manage/account/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:228
+
+#: warehouse/templates/manage/account/publishing.html:302
+#: warehouse/templates/manage/project/publishing.html:168
+
+
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
@@ -6381,10 +6620,6 @@ msgstr ""
 #: warehouse/templates/organizations/profile.html:16
 #, python-format
 msgid "Profile of %(orgname)s"
-msgstr ""
-
-#: warehouse/templates/organizations/profile.html:30
-msgid "Organization"
 msgstr ""
 
 #: warehouse/templates/organizations/profile.html:73

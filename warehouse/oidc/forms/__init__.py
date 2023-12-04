@@ -13,6 +13,10 @@
 from warehouse.oidc.forms._core import DeletePublisherForm
 from warehouse.oidc.forms.github import GitHubPublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.forms.google import GooglePublisherForm, PendingGooglePublisherForm
+from warehouse.oidc.forms.activestate import (
+    ActiveStatePublisherForm,
+    PendingActiveStatePublisherForm,
+)
 
 __all__ = [
     "DeletePublisherForm",
@@ -20,4 +24,6 @@ __all__ = [
     "PendingGitHubPublisherForm",
     "GooglePublisherForm",
     "PendingGooglePublisherForm",
+    "ActiveStatePublisherForm",
+    "PendingActiveStatePublisherForm",
 ]

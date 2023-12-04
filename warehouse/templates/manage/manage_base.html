@@ -524,7 +524,10 @@
   <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
   <input name="publisher_id" type="hidden" value="{{ publisher.id }}">
 </form>
+{{ github_publisher_row(publisher) }}
+{%- endmacro %}
 
+{% macro github_publisher_row(publisher) -%}
 <tr>
   {% if publisher.project_name is defined %}
   <td scope="row">
@@ -553,6 +556,10 @@
       {% else %}
         <i>({% trans %}Any{% endtrans %})</i>
       {% endif %}
+    {% elif publisher.publisher_name == "ActiveState" %}
+      <b>Organization:</b> {{ publisher.organization }} <br>
+      <b>ActiveState Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project }}</a><br>
+      <b>Actor:</b> {{publisher.actor}} <br>
     {% else %}
       -
     {% endif %}
