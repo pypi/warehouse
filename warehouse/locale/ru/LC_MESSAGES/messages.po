@@ -34,7 +34,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-11-21 17:00+0000\n"
+"PO-Revision-Date: 2023-12-03 19:30+0000\n"
 "Last-Translator: gfbdrgng <hnaofegnp@hldrive.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -44,7 +44,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.2\n"
+"X-Generator: Weblate 5.3-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -119,8 +119,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Было совершено слишком много неудачных попыток входа в систему. Вы "
-"заблокированы на ${time}. Пожалуйста, повторите попытку позже."
+"Было слишком много неудачных попыток входа в систему. Вы заблокированы на "
+"${time}. Пожалуйста, повторите попытку позже."
 
 #: warehouse/accounts/forms.py:229
 msgid "Your passwords don't match. Try again."
@@ -132,7 +132,7 @@ msgstr "Некорректный адрес электронной почты. �
 
 #: warehouse/accounts/forms.py:265
 msgid "The email address is too long. Try again."
-msgstr "Слишком длинный адрес электронной почты. Попробуйте ещё раз."
+msgstr "Адрес электронной почты слишком длинный. Попробуйте ещё раз."
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
@@ -174,7 +174,7 @@ msgstr "Неверный код восстановления."
 
 #: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
-msgstr "Код восстановления уже использовался."
+msgstr "Коды восстановления были повторно сгенерированы."
 
 #: warehouse/accounts/forms.py:541
 msgid "No user found with that username or email"
@@ -185,8 +185,8 @@ msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Было совершено слишком много неудачных попыток входа. Вы заблокированы на "
-"{}. Пожалуйста, повторите попытку позже."
+"Вы сделали слишком много неверных попыток входа. Вы заблокированы на {}. "
+"Попробуйте войти позже."
 
 #: warehouse/accounts/views.py:124
 msgid ""
@@ -207,27 +207,27 @@ msgstr ""
 "завершения. Проверьте свой почтовый ящик и перейдите по ссылкам для "
 "подтверждения. (IP-адрес: ${ip})"
 
-#: warehouse/accounts/views.py:318 warehouse/accounts/views.py:387
-#: warehouse/accounts/views.py:389 warehouse/accounts/views.py:416
-#: warehouse/accounts/views.py:418 warehouse/accounts/views.py:524
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:389
+#: warehouse/accounts/views.py:391 warehouse/accounts/views.py:420
+#: warehouse/accounts/views.py:422 warehouse/accounts/views.py:528
 msgid "Invalid or expired two factor login."
 msgstr "Недействительный или истёкший двухфакторный логин."
 
-#: warehouse/accounts/views.py:381
+#: warehouse/accounts/views.py:383
 msgid "Already authenticated"
 msgstr "Уже подтверждён"
 
-#: warehouse/accounts/views.py:459
+#: warehouse/accounts/views.py:463
 msgid "Successful WebAuthn assertion"
 msgstr "Успешное утверждение WebAuthn"
 
-#: warehouse/accounts/views.py:555 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:559 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Код восстановления принят. Предоставленный код не может быть использован "
 "повторно."
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:651
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -235,210 +235,204 @@ msgstr ""
 "Регистрация новых пользователей временно отключена. Подробнее смотрите "
 "здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:778
+#: warehouse/accounts/views.py:782
 msgid "Expired token: request a new password reset link"
 msgstr "Время действия токена истекло: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:780
+#: warehouse/accounts/views.py:784
 msgid "Invalid token: request a new password reset link"
 msgstr "Недействительный токен: запросите новую ссылку сброса пароля"
 
-#: warehouse/accounts/views.py:782 warehouse/accounts/views.py:895
-#: warehouse/accounts/views.py:999 warehouse/accounts/views.py:1168
+#: warehouse/accounts/views.py:786 warehouse/accounts/views.py:899
+#: warehouse/accounts/views.py:1003 warehouse/accounts/views.py:1172
 msgid "Invalid token: no token supplied"
 msgstr "Недействительный токен: токен не указан"
 
-#: warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:790
 msgid "Invalid token: not a password reset token"
 msgstr "Недействительный токен: не является токеном для сброса пароля"
 
-#: warehouse/accounts/views.py:791
+#: warehouse/accounts/views.py:795
 msgid "Invalid token: user not found"
 msgstr "Недействительный токен: пользователь не найден"
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:817
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недействительный токен: пользователь осуществил вход в систему с момента "
 "запроса этого токена"
 
-#: warehouse/accounts/views.py:831
+#: warehouse/accounts/views.py:835
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Недействительный токен: пароль уже был изменен с момента запроса этого токена"
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:867
 msgid "You have reset your password"
 msgstr "Вы сбросили свой пароль"
 
-#: warehouse/accounts/views.py:891
+#: warehouse/accounts/views.py:895
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Токен с истёкшим сроком действия: запросите новую ссылку для верификации "
 "электронной почты"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:897
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "Недействительный токен: запросите новую ссылку для верификации электронной "
 "почты"
 
-#: warehouse/accounts/views.py:899
+#: warehouse/accounts/views.py:903
 msgid "Invalid token: not an email verification token"
 msgstr ""
 "Недействительный токен: не является токеном для верификации электронной почты"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:912
 msgid "Email not found"
 msgstr "Электронная почта не найдена"
 
-#: warehouse/accounts/views.py:911
+#: warehouse/accounts/views.py:915
 msgid "Email already verified"
 msgstr "Электронная почта уже подтверждена"
 
-#: warehouse/accounts/views.py:928
+#: warehouse/accounts/views.py:932
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Теперь вы можете установить этот адрес электронной почты в качестве "
 "основного адреса"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:936
 msgid "This is your primary address"
 msgstr "Это ваш основной адрес"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:941
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Электронная почта ${email_address} подтверждена. ${confirm_message}."
 
-#: warehouse/accounts/views.py:995
+#: warehouse/accounts/views.py:999
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:1001
 msgid "Invalid token: request a new organization invitation"
 msgstr "Недействительный токен: запросите новое приглашение в организацию"
 
-#: warehouse/accounts/views.py:1003
+#: warehouse/accounts/views.py:1007
 msgid "Invalid token: not an organization invitation token"
 msgstr "Недействительный токен: не является токеном приглашения организации"
 
-#: warehouse/accounts/views.py:1007
+#: warehouse/accounts/views.py:1011
 msgid "Organization invitation is not valid."
 msgstr "Приглашение в организацию недействительно."
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1020
 msgid "Organization invitation no longer exists."
 msgstr "Приглашение в организацию больше не существует."
 
-#: warehouse/accounts/views.py:1067
+#: warehouse/accounts/views.py:1071
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Приглашение для «${organization_name}» отклонено."
 
-#: warehouse/accounts/views.py:1130
+#: warehouse/accounts/views.py:1134
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Теперь у вас роль ${role} в организации «${organization_name}»."
 
-#: warehouse/accounts/views.py:1164
+#: warehouse/accounts/views.py:1168
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 "Время действия токена истекло: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1166
+#: warehouse/accounts/views.py:1170
 msgid "Invalid token: request a new project role invitation"
 msgstr "Недействительный токен: запросите новое приглашение на роль в проекте"
 
-#: warehouse/accounts/views.py:1172
+#: warehouse/accounts/views.py:1176
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 "Недействительный токен: не является токеном приглашения к сотрудничеству"
 
-#: warehouse/accounts/views.py:1176
+#: warehouse/accounts/views.py:1180
 msgid "Role invitation is not valid."
 msgstr "Приглашение на роль недействительно."
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation no longer exists."
 msgstr "Приглашение на роль больше не существует."
 
-#: warehouse/accounts/views.py:1222
+#: warehouse/accounts/views.py:1226
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Приглашение для «${project_name}» отклонено."
 
-#: warehouse/accounts/views.py:1288
+#: warehouse/accounts/views.py:1292
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Теперь у вас роль ${role} в проекте «${project_name}»."
 
-#: warehouse/accounts/views.py:1509 warehouse/accounts/views.py:1657
+#: warehouse/accounts/views.py:1513 warehouse/accounts/views.py:1661
 #: warehouse/manage/views/__init__.py:1237
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Авторитетная публикация временно отключена. Подробнее смотрите здесь: "
-"https://pypi.org/help#admin-intervention."
+"Трастовая публикация временно отключена. Подробнее смотрите здесь: https://"
+"pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1526 warehouse/manage/views/__init__.py:1253
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/accounts/views.py:1530 warehouse/manage/views/__init__.py:1253
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Авторитетная публикация на базе GitHub временно отключена. Подробнее "
+"Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1540
+#: warehouse/accounts/views.py:1544
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 "У вас должен быть подтвержденный адрес электронной почты, чтобы "
-"зарегистрировать ожидающего подключения доверенного поставщика. Перейдите на "
+"зарегистрировать ожидающего подключения трастового публикатора. Перейдите на "
 "https://pypi.org/help#openid-connect для получения подробной информации."
 
-#: warehouse/accounts/views.py:1553
+#: warehouse/accounts/views.py:1557
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
-"Вы не можете зарегистрировать более 3-х ожидающих подключения доверенных "
-"поставщиков одновременно."
+"Вы не можете зарегистрировать более 3-х ожидающих подключения трастовых "
+"публикаторов одновременно."
 
-#: warehouse/accounts/views.py:1569 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1573 warehouse/manage/views/__init__.py:1272
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
-"Было предпринято слишком много попыток регистрации доверенного издателя. "
+"Было предпринято слишком много попыток регистрации трастового публикатора. "
 "Попробуйте еще раз позже."
 
-#: warehouse/accounts/views.py:1583 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1587 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
-msgstr "Не удалось зарегистрировать доверенного издателя"
+msgstr "Трастовый публикатор не может быть зарегистрирован"
 
-#: warehouse/accounts/views.py:1602
-#, fuzzy
+#: warehouse/accounts/views.py:1606
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
-"Этот доверенный издатель был уже зарегистрирован. Пожалуйста, свяжитесь с "
-"администрацией PyPI если это не было умышленно."
+"Этот трастовый публикатор уже зарегистрирован. Свяжитесь с администраторами "
+"PyPI, если регистрация не была сделана намеренно."
 
-#: warehouse/accounts/views.py:1637
+#: warehouse/accounts/views.py:1641
 msgid "Registered a new pending publisher to create "
 msgstr "Зарегистрирован новый издатель, ожидающий подключения "
 
-#: warehouse/accounts/views.py:1671 warehouse/accounts/views.py:1684
-#: warehouse/accounts/views.py:1691
+#: warehouse/accounts/views.py:1675 warehouse/accounts/views.py:1688
+#: warehouse/accounts/views.py:1695
 msgid "Invalid publisher ID"
 msgstr "Неверный ID издателя"
 
-#: warehouse/accounts/views.py:1697
-#, fuzzy
+#: warehouse/accounts/views.py:1701
 msgid "Removed trusted publisher for project "
 msgstr "Доверенный издатель был удалён из проекта "
 
@@ -452,15 +446,16 @@ msgstr ""
 "Выберите название аккаунта организации, используя не более 50 символов."
 
 #: warehouse/manage/forms.py:422
+#, fuzzy
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"Название организации неверно. Названия организаций должны состоять из букв, "
-"цифр, точек, дефисов и подчеркиваний. И также должен начинаться и "
-"заканчиваться буквой или цифрой. Выберите другое название организации."
+"Неверное имя пользователя. Имена пользователей должны состоять из букв, "
+"цифр, точек, дефисов и подчёркиваний. Также они должны начинаться и "
+"заканчиваться буквой или цифрой. Выберите другое имя пользователя."
 
 #: warehouse/manage/forms.py:445
 msgid ""
@@ -471,16 +466,12 @@ msgstr ""
 "название учетной записи организации."
 
 #: warehouse/manage/forms.py:460
-#, fuzzy
-#| msgid ""
-#| "This organization account name has already been used. Choose a different "
-#| "organization account name."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Это имя учетной записи организации уже используется. Выберите другое "
-"название учетной записи организации."
+"Вы уже подали заявку на это имя. Выберите другое имя учетной записи "
+"организации."
 
 #: warehouse/manage/forms.py:496
 msgid "Select project"
@@ -495,53 +486,48 @@ msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
+"Начинается и заканчивается буквой или цифрой, содержащей только ASCII-цифры, "
+"а также '.', '_' и '-'."
 
 #: warehouse/manage/forms.py:511
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This project name has already been used. Choose a different project name."
 msgstr ""
-"Это имя пользователя уже используется другой учётной записью. Выберите "
-"другое имя."
+"Это название проекта я уже используется. Выберите другое название проекта."
 
 #: warehouse/manage/forms.py:582
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
-msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
+msgstr ""
+"Слишком длинное название организации. Выберите название, содержащее не более "
+"100 символов."
 
 #: warehouse/manage/forms.py:594
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
-msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
+msgstr ""
+"Слишком длинный URL-адрес организации. Укажите адрес, содержащий не более "
+"400 символов."
 
 #: warehouse/manage/forms.py:601
 msgid "The organization URL must start with http:// or https://"
 msgstr "URL организации должен начинаться с http:// или https://"
 
 #: warehouse/manage/forms.py:612
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
-msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
+msgstr ""
+"Слишком длинное описание организации. Напишите описание, содержащее не более "
+"400 символов."
 
 #: warehouse/manage/forms.py:647
 msgid "You have already submitted the maximum number of "
-msgstr "Вы уже подали максимальное количество "
+msgstr "Вы уже отправили максимальное количество "
 
 #: warehouse/manage/forms.py:677
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
 msgstr "Выберите имя пользователя, используя не более 50 символов."
 
@@ -555,20 +541,14 @@ msgstr ""
 "Выберите другое название команды."
 
 #: warehouse/manage/forms.py:711
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 "Это имя пользователя уже используется другой учётной записью. Выберите "
 "другое имя."
 
 #: warehouse/manage/views/__init__.py:192
-#, fuzzy
-#| msgid "Account details"
 msgid "Account details updated"
-msgstr "Информация об учётной записи"
+msgstr "Информация об учётной записи обновлена"
 
 #: warehouse/manage/views/__init__.py:221
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -587,53 +567,44 @@ msgstr ""
 "недействительными."
 
 #: warehouse/manage/views/__init__.py:882
-#, fuzzy
-#| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
-msgstr "Подтвердите свою электронную почту или добавьте новый адрес."
+msgstr "Подтвердите свой адрес электронной почты для создания API -токена."
 
 #: warehouse/manage/views/__init__.py:982
 msgid "API Token does not exist."
-msgstr ""
+msgstr "Ключ доступа к API не существует."
 
 #: warehouse/manage/views/__init__.py:1014
 msgid "Invalid credentials. Try again"
 msgstr "Недействительные учётные данные. Попробуйте ещё раз"
 
 #: warehouse/manage/views/__init__.py:1136
-#, fuzzy
-#| msgid "2FA disabled"
 msgid "2FA requirement cannot be disabled for critical projects"
-msgstr "Двухфакторная авторизация отключена"
+msgstr ""
+"Двухфакторная авторизация не может быть отключена для критичных проектов"
 
 #: warehouse/manage/views/__init__.py:1491
 #: warehouse/manage/views/__init__.py:1792
 #: warehouse/manage/views/__init__.py:1900
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Регистрация новых пользователей временно отключена. Подробнее смотрите "
-"здесь: https://pypi.org/help#admin-intervention."
+"Удаление проекта временно отключено. Подробнее смотрите здесь: https://pypi."
+"org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1623
 #: warehouse/manage/views/__init__.py:1708
 #: warehouse/manage/views/__init__.py:1809
 #: warehouse/manage/views/__init__.py:1909
-#, fuzzy
-#| msgid "Confirm Invite"
 msgid "Confirm the request"
-msgstr "Подтверждение приглашения"
+msgstr "Подтвердите запрос"
 
 #: warehouse/manage/views/__init__.py:1635
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
-msgstr "Восстановление выпуска"
+msgstr "Не удалось удалить релиз‐ "
 
 #: warehouse/manage/views/__init__.py:1720
 #, fuzzy
@@ -642,26 +613,20 @@ msgid "Could not un-yank release - "
 msgstr "Восстановление выпуска"
 
 #: warehouse/manage/views/__init__.py:1821
-#, fuzzy
-#| msgid "Delete release"
 msgid "Could not delete release - "
-msgstr "Удалить выпуск"
+msgstr "Не удалось удалить релиз‐ "
 
 #: warehouse/manage/views/__init__.py:1921
-#, fuzzy
-#| msgid "Could not find role invitation."
 msgid "Could not find file"
-msgstr "Не удалось найти приглашение на роль."
+msgstr "Не удалось найти файл"
 
 #: warehouse/manage/views/__init__.py:1925
 msgid "Could not delete file - "
 msgstr "Не удалось удалить файл - "
 
 #: warehouse/manage/views/__init__.py:2075
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "Пользователь «${username}» уже имеет в проекте роль ${role_name}"
+msgstr "Команда '${team_name}' уже имеет в проекте роль ${role_name}"
 
 #: warehouse/manage/views/__init__.py:2182
 msgid "User '${username}' already has ${role_name} role for project"
@@ -742,11 +707,11 @@ msgstr "Приглашение в организацию больше не су�
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
-msgstr "Приглашение для «${project_name}» отклонено."
+msgstr "Исключенное приглашение для \"${username}\" удалено."
 
 #: warehouse/oidc/forms/__init__.py:23
 msgid "Specify a publisher ID"
-msgstr ""
+msgstr "Указать идентификатор издателя"
 
 #: warehouse/oidc/forms/__init__.py:24
 msgid "Publisher must be specified by ID"
@@ -762,10 +727,8 @@ msgid "Specify repository name"
 msgstr "Укажите название репозитория"
 
 #: warehouse/oidc/forms/github.py:42
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid repository name"
-msgstr "Неверный код восстановления."
+msgstr "Неверное имя репозитория"
 
 #: warehouse/oidc/forms/github.py:49
 #, fuzzy
@@ -808,10 +771,8 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
 #: warehouse/oidc/forms/github.py:176
-#, fuzzy
-#| msgid "Invalid recovery code."
 msgid "Invalid project name"
-msgstr "Неверный код восстановления."
+msgstr "Неверное имя проекта"
 
 #: warehouse/oidc/forms/github.py:190
 #, fuzzy
@@ -1560,19 +1521,17 @@ msgid "Forgot password?"
 msgstr "Забыли пароль?"
 
 #: warehouse/templates/re-auth.html:81
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "<b>Tip:</b> you are about to perform a <a href=\"%(href)s\">sensitive "
 "action</a>. If you are not on a personal computer, make sure to log out once "
 "you're done with your session. We won't ask you to confirm your password "
 "again for the next hour."
 msgstr ""
-"<b>Совет:</b> вы собираетесь выполнить <a href=\"%(href)s\">чувствительное "
-"действие</a>.\n"
-"Если вы пользуетесь не своим личным компьютером, после завершения работы "
-"обязательно выйдите из PyPI.\n"
-"Мы не будем просить вас повторно подтвердить ваш пароль в течение следующего "
-"часа."
+"<b>Tip: </b> вы собираетесь выполнять <a href=\"%(href)s\">чувствительное "
+"действие </a>. Если вы не на персональном компьютере, обязательно "
+"зарегистрироваться, как только вы закончите свою сессию. Мы не будем просить "
+"вас подтвердить ваш пароль в течение следующего часа."
 
 #: warehouse/templates/upload.html:25
 msgid "This URL is an API endpoint for uploading files to PyPI."
@@ -1626,12 +1585,14 @@ msgid "Decline"
 msgstr "Отклонить"
 
 #: warehouse/templates/accounts/invite-confirmation.html:45
-#, fuzzy, python-format
-#| msgid "You have not enabled two factor authentication on your account."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join a project."
-msgstr "Вы не включили двухфакторную аутентификацию в своей учётной записи."
+msgstr ""
+"Перед тем как принять приглашение присоединиться к проекту, необходимо "
+"включить <a href=\"%(href)s\">двухфакторную аутентификацию</a> в своей "
+"учетной записи."
 
 #: warehouse/templates/accounts/login.html:30
 #, python-format
@@ -1688,12 +1649,14 @@ msgstr ""
 "'%(organization_name)s' как %(role_name)s?"
 
 #: warehouse/templates/accounts/organization-invite-confirmation.html:45
-#, fuzzy, python-format
-#| msgid "You have not enabled two factor authentication on your account."
+#, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
 "your account before accepting an invitation to join an organization."
-msgstr "Вы не включили двухфакторную аутентификацию в своей учётной записи."
+msgstr ""
+"Перед тем как принять приглашение вступить в организацию, необходимо "
+"включить <a href=\"%(href)s\">двухфакторную аутентификацию</a> в своей "
+"учетной записи."
 
 #: warehouse/templates/accounts/profile.html:16
 #, python-format
@@ -2055,42 +2018,33 @@ msgid "You are receiving this because you are a member of this organization."
 msgstr "Вы получили это, поскольку вы владелец этого проекта."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> to the %(site)s project "
-#| "%(project_name)s by %(initiator_username)s."
+#, python-format
 msgid ""
 "Your team has been added with <strong>%(role)s</strong> permissions to the "
 "%(site)s project %(project)s by %(submitter)s."
 msgstr ""
-"Пользователь %(initiator_username)s добавил вас в проект %(project_name)s "
-"сайта %(site)s с ролью <strong>%(role)s</strong> ."
+"Ваша команда была добавлена с <strong>%(role)s</strong> правами в %(site)s "
+"проект %(project)s от %(submitter)s."
 
 #: warehouse/templates/email/added-as-team-collaborator/body.html:26
-#, fuzzy, python-format
-#| msgid ""
-#| "You are receiving this because you have been added by "
-#| "%(initiator_username)s to a project on %(site)s."
+#, python-format
 msgid ""
 "You are receiving this because your team has been added by %(submitter)s to "
 "a project on %(site)s."
 msgstr ""
-"Вы получили это сообщение, потому что %(initiator_username)s добавил вас в "
-"проект на сайте %(site)s."
+"Вы получаете это сообщение, потому что ваша команда была добавлена "
+"%(submitter)s в проект на %(site)s."
 
 #: warehouse/templates/email/added-as-team-member/body.html:18
-#, fuzzy, python-format
-#| msgid ""
-#| "You have been added as <strong>%(role)s</strong> of the %(site)s "
-#| "organization %(organization_name)s by <a "
-#| "href=\"%(submitter_profile)s\">%(submitter)s</a>."
+#, python-format
 msgid ""
 "You have been added as a member of the \"%(team_name)s\" team in the "
 "\"%(organization_name)s\" organization by <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
-"<a href=\"%(submitter_profile)s\">%(submitter)s</a> добавил вас как "
-"<strong>%(role)s</strong> в %(site)s организации %(organization_name)s."
+"Вы были добавлены в качестве члена команды \"%(название_команды)s\" в "
+"организации \"%(название_организации)s\" от <a "
+"href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
 #: warehouse/templates/email/added-as-team-member/body.html:24
 #, fuzzy
@@ -2204,39 +2158,33 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/new-email-added/body.html:17
-#, fuzzy, python-format
-#| msgid ""
-#| "Hello, %(username)s. A new email '%(email_address)s' has been added to "
-#| "your account."
+#, python-format
 msgid ""
 "Hello, %(username)s. A new email '%(new_email_address)s' has been added to "
 "your account."
 msgstr ""
-"Здравствуйте, %(username)s. Новый адрес электронной почты "
-"'%(email_address)s' был добавлен к вашей учётной записи."
+"Здравствуйте, %(имя_пользователя)s. В ваш аккаунт добавлена новая "
+"электронная почта '%(новый_адрес_почты)s'."
 
 #: warehouse/templates/email/new-email-added/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "If you did not make this change, you can email <a "
-#| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#| "administrators."
+#, python-format
 msgid ""
 "If you did not make this change, you can email <a "
 "href=\"%(href)s\">%(new_email_address)s</a> to communicate with the PyPI "
 "administrators."
 msgstr ""
-"Если вы не делали этого изменения, вы можете написать письмо на <a "
-"href=\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами "
-"PyPI."
+"Если вы не внесли это изменение, вы можете написать по электронной почте <a "
+"href=\"%(href)s\">%(new_email_address)s</a>, чтобы связаться с "
+"администраторами PyPI."
 
 #: warehouse/templates/email/new-organization-approved/body.html:17
-#, fuzzy, python-format
-#| msgid "You'll receive an email with a password reset link."
+#, python-format
 msgid ""
 "Your new organization named '%(organization_name)s' has been approved and "
 "created."
-msgstr "Вы получите по электронной почте письмо со ссылкой на сброс пароля."
+msgstr ""
+"Ваша новая организация под названием '%(название_организации)s' была "
+"одобрена и создана."
 
 #: warehouse/templates/email/new-organization-approved/body.html:19
 msgid ""
@@ -2261,10 +2209,8 @@ msgstr ""
 #: warehouse/templates/email/new-organization-requested/body.html:19
 #: warehouse/templates/manage/organizations.html:78
 #: warehouse/templates/manage/organizations.html:158
-#, fuzzy
-#| msgid "You'll receive an email with a password reset link."
 msgid "You will receive an email when the organization has been approved"
-msgstr "Вы получите по электронной почте письмо со ссылкой на сброс пароля."
+msgstr "Вы получите электронное письмо, когда организация будет одобрена"
 
 #: warehouse/templates/email/organization-deleted/body.html:31
 #: warehouse/templates/email/organization-member-added/body.html:38
@@ -2325,10 +2271,8 @@ msgstr ""
 #: warehouse/templates/email/organization-member-added/body.html:33
 #: warehouse/templates/email/team-collaborator-added/body.html:32
 #: warehouse/templates/email/team-collaborator-role-changed/body.html:32
-#, fuzzy
-#| msgid "Added by:"
 msgid "Added by"
-msgstr "Добавлен:"
+msgstr "Добавлено"
 
 #: warehouse/templates/email/organization-member-added/body.html:44
 #: warehouse/templates/email/organization-member-invite-canceled/body.html:25
@@ -2383,15 +2327,13 @@ msgid ""
 "<a href=\"%(user_profile)s\">%(username)s</a> has been removed from the "
 "\"%(organization_name)s\" organization"
 msgstr ""
-"Пользователь <a href=\"%(user_profile)s\">%(username)s</a> был удалён из "
-"организации \"%(organization_nmae)s\""
+"<a href=\"%(профиль_пользователя)s\">%(имя_пользователя)s</a> был удален из "
+"организации \"%(название_организации)s\""
 
 #: warehouse/templates/email/organization-member-removed/body.html:32
 #: warehouse/templates/email/team-collaborator-removed/body.html:31
-#, fuzzy
-#| msgid "Removed by:"
 msgid "Removed by"
-msgstr "Удалён:"
+msgstr "Удалено"
 
 #: warehouse/templates/email/organization-member-role-changed/body.html:27
 #, python-format
@@ -5158,7 +5100,7 @@ msgstr "Управлять версией"
 #, fuzzy
 #| msgid "Project:"
 msgid "Project"
-msgstr "Проект:"
+msgstr "Проект"
 
 #: warehouse/templates/manage/account/publishing.html:158
 msgid ""
