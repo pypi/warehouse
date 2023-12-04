@@ -28,7 +28,7 @@ This list of FAQs pertain to organization accounts in PyPI.
 
 1. **Why does an admin approve the organization account request?**
 
-    The PyPI admin has to approve the orgnaization account request to ensure
+    The PyPI admin has to approve the organization account request to ensure
     everyone is billed fairly. We ensure commercial projects pay for the feature
     and community projects can access the account free of charge.
 
