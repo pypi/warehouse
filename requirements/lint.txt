@@ -395,9 +395,9 @@ types-urllib3==1.26.25.14 \
     --hash=sha256:229b7f577c951b8c1b92c1bc2b2fdb0b49847bd2af6d1cc2a2e3dd340f3bda8f \
     --hash=sha256:9683bbb7fb72e32bfe9d2be6e04875fbe1b3eeec3cbb4ea231435aa7fd6b4f0e
     # via types-requests
-types-webob==1.8.0.4 \
-    --hash=sha256:11a1d02e1c90129cf6260b2d05ddb2157888c93e5dd1da6c51023e6385876c36 \
-    --hash=sha256:9fa90de3d1d2d17f88ffa9f037f4e0a22bff3ad21a07f3d47a35d24ce4c8d872
+types-webob==1.8.0.5 \
+    --hash=sha256:8b8d0886ff3cecd82ccfb36809fd6a9ba31ff62e3fb3e8664e1c39ea6ff28213 \
+    --hash=sha256:fb732287a189c6bee647392873217a43743b1d5a9458a8f1662143afc38b2beb
     # via -r requirements/lint.in
 types-wtforms==3.1.0.2 \
     --hash=sha256:67eb38275d2080ad55fd919a1ba52b6957fe543b60778812dcfba1ec8b436409 \
