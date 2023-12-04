@@ -53,7 +53,7 @@ _(repeated for `tmdbapis`, `nagerapi`, `pmmutils`)_
 
 - 08:50:27 `meisnate12` account is deleted
 
-No further actions by `dvolk` are observed after this point.
+No further actions by `dvolk` were observed after this point.
 
 - 14:33, admin@pypi.org receives an email
   from the address associated with `meinstate12`'s account:
@@ -132,7 +132,7 @@ or an account is deleted, we email the address on file.
 We were informed of the incident by the impacted user,
 who still had access to the email account associated with their PyPI username.
 
-Here's a few things you can do to help protect your PyPI account: 
+Here are a few things you can do to help protect your PyPI account: 
 
 - **[Add 2FA now](https://pypi.org/help/#twofa)**.
 - Use a unique and sufficiently complex password for your PyPI account.
