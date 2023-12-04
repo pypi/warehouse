@@ -17,13 +17,14 @@
 # Mike Fiedler <miketheman@gmail.com>, 2022, 2023.
 # Eytan Goldshmidt <eitntt@gmail.com>, 2023.
 # Oriya Alperin <oriya2011@gmail.com>, 2023.
+# doronz88 <doron88@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-09-27 15:32+0000\n"
-"Last-Translator: Oriya Alperin <oriya2011@gmail.com>\n"
+"PO-Revision-Date: 2023-12-03 19:30+0000\n"
+"Last-Translator: doronz88 <doron88@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -32,7 +33,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.1-dev\n"
+"X-Generator: Weblate 5.3-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -67,7 +68,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "אין להשתמש בבתים המכילים NULL."
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"
@@ -190,25 +191,25 @@ msgstr ""
 "יותר מדי אי-מיילים נוספו לחשבון זה מבלי שאומתו. בדק/י את תיבת הדואר הנכנס "
 "שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:318 warehouse/accounts/views.py:387
-#: warehouse/accounts/views.py:389 warehouse/accounts/views.py:416
-#: warehouse/accounts/views.py:418 warehouse/accounts/views.py:524
+#: warehouse/accounts/views.py:320 warehouse/accounts/views.py:389
+#: warehouse/accounts/views.py:391 warehouse/accounts/views.py:420
+#: warehouse/accounts/views.py:422 warehouse/accounts/views.py:528
 msgid "Invalid or expired two factor login."
 msgstr "זיהוי דו-גורמי לא תקין או לא בתוקף."
 
-#: warehouse/accounts/views.py:381
+#: warehouse/accounts/views.py:383
 msgid "Already authenticated"
 msgstr "כבר מאומת"
 
-#: warehouse/accounts/views.py:459
+#: warehouse/accounts/views.py:463
 msgid "Successful WebAuthn assertion"
 msgstr "בדיקת WebAuthn מוצלחת"
 
-#: warehouse/accounts/views.py:555 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:559 warehouse/manage/views/__init__.py:824
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "קוד השחזור התקבל. לא יהיה ניתן להשתמש שוב בקוד שסופק."
 
-#: warehouse/accounts/views.py:647
+#: warehouse/accounts/views.py:651
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -216,142 +217,142 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:778
+#: warehouse/accounts/views.py:782
 msgid "Expired token: request a new password reset link"
 msgstr "אסימון פג תוקף: יש לבקש קישור איפוס סיסמא חדש"
 
-#: warehouse/accounts/views.py:780
+#: warehouse/accounts/views.py:784
 msgid "Invalid token: request a new password reset link"
 msgstr "אסימון לא תקין: יש לבקש קישור איפוס סיסמא חדש"
 
-#: warehouse/accounts/views.py:782 warehouse/accounts/views.py:895
-#: warehouse/accounts/views.py:999 warehouse/accounts/views.py:1168
+#: warehouse/accounts/views.py:786 warehouse/accounts/views.py:899
+#: warehouse/accounts/views.py:1003 warehouse/accounts/views.py:1172
 msgid "Invalid token: no token supplied"
 msgstr "אסימון לא תקין: לא סופק אסימון"
 
-#: warehouse/accounts/views.py:786
+#: warehouse/accounts/views.py:790
 msgid "Invalid token: not a password reset token"
 msgstr "אסימון לא תקין: אינו אסימון איפוס סיסמא"
 
-#: warehouse/accounts/views.py:791
+#: warehouse/accounts/views.py:795
 msgid "Invalid token: user not found"
 msgstr "אסימון לא תקין: משתמש לא נמצא"
 
-#: warehouse/accounts/views.py:813
+#: warehouse/accounts/views.py:817
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "אסימון לא תקין: משתמש התחבר מאז בקשת אסימון זה"
 
-#: warehouse/accounts/views.py:831
+#: warehouse/accounts/views.py:835
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "אסימון לא תקין: הסיסמא כבר שונתה מאז בקשת אסימון זה"
 
-#: warehouse/accounts/views.py:863
+#: warehouse/accounts/views.py:867
 msgid "You have reset your password"
 msgstr "איפסת את סיסמתך"
 
-#: warehouse/accounts/views.py:891
+#: warehouse/accounts/views.py:895
 msgid "Expired token: request a new email verification link"
 msgstr "אסימון פג תוקף: יש לבקש קישור אימות אי-מייל חדש"
 
-#: warehouse/accounts/views.py:893
+#: warehouse/accounts/views.py:897
 msgid "Invalid token: request a new email verification link"
 msgstr "אסימון לא תקין: יש לבקש אי-מייל אימות סיסמא חדש"
 
-#: warehouse/accounts/views.py:899
+#: warehouse/accounts/views.py:903
 msgid "Invalid token: not an email verification token"
 msgstr "אסימון לא תקין: אינו אסימון אימות אי-מייל"
 
-#: warehouse/accounts/views.py:908
+#: warehouse/accounts/views.py:912
 msgid "Email not found"
 msgstr "אי-מייל לא נמצא"
 
-#: warehouse/accounts/views.py:911
+#: warehouse/accounts/views.py:915
 msgid "Email already verified"
 msgstr "אי-מייל כבר מאומת"
 
-#: warehouse/accounts/views.py:928
+#: warehouse/accounts/views.py:932
 msgid "You can now set this email as your primary address"
 msgstr "כעת תוכל להגדיר דוא\"ל זה ככתובת הראשית שלך"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:936
 msgid "This is your primary address"
 msgstr "זו הכתובת העיקרית שלך"
 
-#: warehouse/accounts/views.py:937
+#: warehouse/accounts/views.py:941
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "כתובת האי-מייל ${email_address} אומתה. ${confirm_message}."
 
-#: warehouse/accounts/views.py:995
+#: warehouse/accounts/views.py:999
 msgid "Expired token: request a new organization invitation"
 msgstr "אסימון פג תוקף: בקשו הזמנה חדשה לארגון"
 
-#: warehouse/accounts/views.py:997
+#: warehouse/accounts/views.py:1001
 msgid "Invalid token: request a new organization invitation"
 msgstr "אסימון לא חוקי: בקשו הזמנה חדשה לארגון"
 
-#: warehouse/accounts/views.py:1003
+#: warehouse/accounts/views.py:1007
 msgid "Invalid token: not an organization invitation token"
 msgstr "אסימון לא חוקי: זהו לא אסימון עבור הזמנה לארגון"
 
-#: warehouse/accounts/views.py:1007
+#: warehouse/accounts/views.py:1011
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "הזמנה לארגון אינה חוקית."
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1020
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "הזמנת תפקיד כבר לא קיימת."
 
-#: warehouse/accounts/views.py:1067
+#: warehouse/accounts/views.py:1071
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "ההזמנה ל- '${project_name}' נדחתה."
 
-#: warehouse/accounts/views.py:1130
+#: warehouse/accounts/views.py:1134
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "כעת אתה $ {role} של פרויקט '$ {project_name}'."
 
-#: warehouse/accounts/views.py:1164
+#: warehouse/accounts/views.py:1168
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "האסימון שפג תוקפו: בקש הזמנה לתפקיד פרוייקט חדש"
 
-#: warehouse/accounts/views.py:1166
+#: warehouse/accounts/views.py:1170
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "אסימון לא חוקי: בקש הזמנה חדשה לתפקיד פרוייקט"
 
-#: warehouse/accounts/views.py:1172
+#: warehouse/accounts/views.py:1176
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "אסימון לא חוקי: לא אסימון הזמנה לשיתוף פעולה"
 
-#: warehouse/accounts/views.py:1176
+#: warehouse/accounts/views.py:1180
 msgid "Role invitation is not valid."
 msgstr "הזמנת התפקיד אינה חוקית."
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation no longer exists."
 msgstr "הזמנת תפקיד כבר לא קיימת."
 
-#: warehouse/accounts/views.py:1222
+#: warehouse/accounts/views.py:1226
 msgid "Invitation for '${project_name}' is declined."
 msgstr "ההזמנה ל- '${project_name}' נדחתה."
 
-#: warehouse/accounts/views.py:1288
+#: warehouse/accounts/views.py:1292
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "כעת אתה $ {role} של פרויקט '$ {project_name}'."
 
-#: warehouse/accounts/views.py:1509 warehouse/accounts/views.py:1657
+#: warehouse/accounts/views.py:1513 warehouse/accounts/views.py:1661
 #: warehouse/manage/views/__init__.py:1237
 #, fuzzy
 #| msgid ""
@@ -364,7 +365,7 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:1526 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1530 warehouse/manage/views/__init__.py:1253
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -376,17 +377,17 @@ msgstr ""
 "רישום משתמש חדש חסום באופן זמני. יש לפנות לכתובת https://pypi.org/help#admin-"
 "intervention לפרטים."
 
-#: warehouse/accounts/views.py:1540
+#: warehouse/accounts/views.py:1544
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1553
+#: warehouse/accounts/views.py:1557
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1569 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1573 warehouse/manage/views/__init__.py:1272
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -395,30 +396,30 @@ msgid ""
 "again later."
 msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
 
-#: warehouse/accounts/views.py:1583 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1587 warehouse/manage/views/__init__.py:1286
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1602
+#: warehouse/accounts/views.py:1606
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1637
+#: warehouse/accounts/views.py:1641
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "ניהול פרויקט זה"
 
-#: warehouse/accounts/views.py:1671 warehouse/accounts/views.py:1684
-#: warehouse/accounts/views.py:1691
+#: warehouse/accounts/views.py:1675 warehouse/accounts/views.py:1688
+#: warehouse/accounts/views.py:1695
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "ניהול גרסה"
 
-#: warehouse/accounts/views.py:1697
+#: warehouse/accounts/views.py:1701
 msgid "Removed trusted publisher for project "
 msgstr ""
 
