@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --generate-hashes --output-file=requirements/main.txt requirements/main.in
 #
-alembic==1.12.1 \
-    --hash=sha256:47d52e3dfb03666ed945becb723d6482e52190917fdb47071440cfdba05d92cb \
-    --hash=sha256:bca5877e9678b454706347bc10b97cb7d67f300320fa5c3a94423e8266e2823f
+alembic==1.13.0 \
+    --hash=sha256:a23974ea301c3ee52705db809c7413cecd165290c6679b9998dd6c74342ca23a \
+    --hash=sha256:ab4b3b94d2e1e5f81e34be8a9b7b7575fc9dd5398fccb0bef351ec9b14872623
     # via
     #   -r requirements/main.in
     #   alembic-postgresql-enum
