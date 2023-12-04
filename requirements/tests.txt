@@ -224,9 +224,9 @@ psutil==5.9.6 \
     --hash=sha256:fb8a697f11b0f5994550555fcfe3e69799e5b060c8ecf9e2f75c69302cc35c0d \
     --hash=sha256:ff18b8d1a784b810df0b0fff3bcb50ab941c3b8e2c8de5726f9c71c601c611aa
     # via mirakuru
-psycopg==3.1.13 \
-    --hash=sha256:1253010894cfb64e2da4556d4eff5f05e45cafee641f64e02453be849c8f7687 \
-    --hash=sha256:e6d047ce16950651d6e26c7c19ca57cc42e1d4841b58729f691244baeee46e30
+psycopg==3.1.14 \
+    --hash=sha256:7a63249f52e9c312d2d3978df5f170d21a0defd3a0c950d7859d226b7cfbfad5 \
+    --hash=sha256:f5bce37d357578b230ede15fb461e2c601122986f6dd590e94283aaca8958b14
     # via pytest-postgresql
 pytest==7.4.3 \
     --hash=sha256:0d009c083ea859a71b76adf7c1d502e4bc170b80a8ef002da5806527b9591fac \
