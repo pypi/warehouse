@@ -28,13 +28,14 @@
 # Александр Аникин <anika0231111@gmail.com>, 2023.
 # Syrodil Eventalious <giannis.yalanskyi@gmail.com>, 2023.
 # Tolik106 <beningtonchess@yandex.ru>, 2023.
+# gfbdrgng <hnaofegnp@hldrive.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-08-08 17:13+0000\n"
-"Last-Translator: Tolik106 <beningtonchess@yandex.ru>\n"
+"PO-Revision-Date: 2023-11-21 17:00+0000\n"
+"Last-Translator: gfbdrgng <hnaofegnp@hldrive.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -43,7 +44,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.2\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -55,12 +56,11 @@ msgstr ""
 "сможете выполнить это действие."
 
 #: warehouse/views.py:162
-#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
-"Для выполнения этого действия в настройках учетной записи должна быть "
+"Для выполнения этого действия в настройках вашей учетной записи должна быть "
 "включена двухфакторная авторизация."
 
 #: warehouse/views.py:287
@@ -83,7 +83,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:66
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Нуль байты не разрешены."
 
 #: warehouse/accounts/forms.py:87
 msgid "No user found with that username"

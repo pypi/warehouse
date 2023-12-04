@@ -49,13 +49,14 @@
 # 秋凌烟 <2562042362@qq.com>, 2023.
 # inworless <liu13672385755@outlook.com>, 2023.
 # Eric <zxmegaxqug@hldrive.com>, 2023.
+# 123456789 <15183543555@163.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2023-11-02 00:02+0000\n"
-"Last-Translator: Eric <zxmegaxqug@hldrive.com>\n"
+"PO-Revision-Date: 2023-11-25 02:13+0000\n"
+"Last-Translator: 123456789 <15183543555@163.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hans/>\n"
 "Language: zh_Hans\n"
@@ -63,7 +64,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.2-dev\n"
+"X-Generator: Weblate 5.2.1-rc\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -149,19 +150,19 @@ msgstr "电子邮件地址太长。请重新输入。"
 
 #: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
-msgstr "你不能使用来自该域名的电子邮件地址。请更换电子邮件。"
+msgstr "你不能使用来自该域名的电子邮件地址。请更换电子邮件地址。"
 
 #: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
-msgstr "此账户已使用此电子邮件地址。请使用一个不同的电子邮件。"
+msgstr "此账户已使用此电子邮件地址。请使用一个不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
-msgstr "此电子邮件地址已被另一个账户使用。使用一个不同的电子邮件。"
+msgstr "此电子邮件地址已被另一个账户使用。使用一个不同的电子邮件地址。"
 
 #: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."

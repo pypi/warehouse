@@ -413,41 +413,14 @@ def test_changelog_since_serial(db_request):
     assert xmlrpc.changelog_since_serial(db_request, serial) == expected
 
 
-@pytest.mark.parametrize("with_ids", [True, False, None])
-def test_changelog(db_request, with_ids):
-    projects = ProjectFactory.create_batch(10)
-    entries = []
-    for project in projects:
-        entries.extend(JournalEntryFactory.create_batch(10, name=project.name))
+def test_changelog(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.changelog(pyramid_request, 0)
 
-    entries = sorted(entries, key=lambda x: x.id)
-
-    since = int(
-        entries[int(len(entries) / 2)]
-        .submitted_date.replace(tzinfo=datetime.UTC)
-        .timestamp()
+    assert exc.value.faultString == (
+        "ValueError: The changelog method has been deprecated, use "
+        "changelog_since_serial instead."
     )
-
-    expected = [
-        (
-            e.name,
-            e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
-            e.action,
-            e.id,
-        )
-        for e in entries
-        if (e.submitted_date.replace(tzinfo=datetime.UTC).timestamp() > since)
-    ]
-
-    if not with_ids:
-        expected = [e[:-1] for e in expected]
-
-    extra_args = []
-    if with_ids is not None:
-        extra_args.append(with_ids)
-
-    assert xmlrpc.changelog(db_request, since, *extra_args) == expected
 
 
 def test_browse(db_request):

@@ -117,7 +117,7 @@ URLs can be constructed as follows, with wheel file names following
    def wheel_url(name, version, build_tag, python_tag, abi_tag, platform_tag):
        # https://www.python.org/dev/peps/pep-0491/#file-name-convention
        wheel_parts = {
-           tag: re.sub('[^\w\d.]+', '_', part, re.UNICODE)
+           tag: re.sub(r'[^\w\d.]+', '_', part, re.UNICODE)
            for tag, part in locals().items()
        }
        wheel_parts['optional_build_tag'] = f'-{wheel_parts["build_tag"]}' if build_tag else ''
