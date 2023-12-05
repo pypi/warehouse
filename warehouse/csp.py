@@ -166,6 +166,7 @@ def includeme(config):
                     "https://*.googletagmanager.com",
                     "*.fastly-insights.com",
                     "*.ethicalads.io",
+                    "ethicalads.blob.core.windows.net",
                 ],
                 "script-src": _script_src_settings(config),
                 "style-src": [

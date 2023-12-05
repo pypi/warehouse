@@ -240,6 +240,7 @@ def test_includeme():
                         "https://*.googletagmanager.com",
                         "*.fastly-insights.com",
                         "*.ethicalads.io",
+                        "ethicalads.blob.core.windows.net",
                     ],
                     "script-src": [
                         "'self'",
