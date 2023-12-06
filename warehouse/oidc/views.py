@@ -17,16 +17,13 @@ from datetime import datetime
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -126,7 +123,7 @@ def mint_token_from_oidc(request):
                 ]
             )
 
-        # Create the new project, and reify the pending publisher against it.
+        # Create the new project
         project_service = request.find_service(IProjectService)
         new_project = project_service.create_project(
             pending_publisher.project_name,
@@ -134,6 +131,10 @@ def mint_token_from_oidc(request):
             request,
             ratelimited=False,
         )
+
+        # Creating the project will remove all pending publishers, EXCEPT the
+        # pending publisher created by the uploader. If such a pending
+        # publisher exists, reify it against the newly created project.
         oidc_service.reify_pending_publisher(pending_publisher, new_project)
 
         # Successfully converting a pending publisher into a normal publisher
@@ -142,25 +143,6 @@ def mint_token_from_oidc(request):
         ratelimiters["user.oidc"].clear(pending_publisher.added_by.id)
         ratelimiters["ip.oidc"].clear(request.remote_addr)
 
-        # There might be other pending publishers for the same project name,
-        # which we've now invalidated by creating the project. These would
-        # be disposed of on use, but we explicitly dispose of them here while
-        # also sending emails to their owners.
-        stale_pending_publishers = (
-            request.db.query(PendingOIDCPublisher)
-            .filter(
-                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
-                == func.normalize_pep426_name(pending_publisher.project_name)
-            )
-            .all()
-        )
-        for stale_publisher in stale_pending_publishers:
-            send_pending_trusted_publisher_invalidated_email(
-                request,
-                stale_publisher.added_by,
-                project_name=stale_publisher.project_name,
-            )
-            request.db.delete(stale_publisher)
     except InvalidPublisherError:
         # If the claim set isn't valid for a pending publisher, it's OK, we
         # will try finding a regular publisher
