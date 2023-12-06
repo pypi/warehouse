@@ -26,12 +26,12 @@ and now the requirement extends that **all users** on TestPyPI.
 ## How does this affect me?
 
 If you only need to browse, download, and install packages from TestPyPI
-then a PyPI account isn't needed so this change does not affect you.
+then a TestPyPI account isn't needed so this change does not affect you.
 
-If you've already enabled 2FA on your PyPI account,
+If you've already enabled 2FA on your TestPyPI account,
 this change will not affect you.
 
-If you recently registered a new PyPI account,
+If you recently registered a new TestPyPI account,
 you are required to enable 2FA before you can perform any management actions.
 When attempting to perform a management action,
 you may see a red banner flash at the top of the page,
