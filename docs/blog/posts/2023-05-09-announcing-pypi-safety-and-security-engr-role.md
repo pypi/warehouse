@@ -16,6 +16,8 @@ investing $144,000 over one year
 to fund key enhancements to PyPI infrastructure and operations,
 including the creation of a new “PyPI Safety & Security Engineer” role. 
 
+<!-- more -->
+
 This role builds on our existing long term partnership with AWS
 as one of the top sponsors of the Python Software Foundation for the last five years,
 which has included in-kind donations of cloud computing infrastructure

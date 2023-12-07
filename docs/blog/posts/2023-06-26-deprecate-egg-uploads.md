@@ -15,6 +15,8 @@ We'll begin the process of implementing this today.
 
 Please note that this does **NOT** remove any existing uploaded eggs from PyPI.
 
+<!-- more -->
+
 The deprecation timeline is as follows:
 
 - Today, June 26, 2023: All maintainers of projects which have uploaded one or

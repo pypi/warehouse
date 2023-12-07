@@ -17,6 +17,8 @@ One of the most common refrains I hear from Python community members,
 irrespective of if they have been around for days or years,
 is _"I didn't realize that PyPI..."_. Followed by something along the lines of:
 
+<!-- more -->
+
 - Could **do** that
 - Is operated with **so** few resources[^1]
 - Only had **3** administrators[^2]

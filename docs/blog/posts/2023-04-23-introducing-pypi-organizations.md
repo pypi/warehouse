@@ -14,6 +14,8 @@ support and long-term sustainability of the Python Packaging Index (PyPI),
 while simultaneously giving our users one of our most requested features:
 organization accounts.
 
+<!-- more -->
+
 ### Introducing Organizations
 
 Organizations on PyPI are self-managed teams, with their own exclusive branded

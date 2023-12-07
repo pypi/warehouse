@@ -15,6 +15,8 @@ to upload, delete, or otherwise modify a project. That when you look at that
 project and see that it is owned by someone that you trust, that you can be
 assured that nobody else is making changes to that package on PyPI.
 
+<!-- more -->
+
 This promise is predicated on the security of each and every individual account
 on PyPI used to create and maintain a Python project. In the past we've taken
 steps to safeguard these accounts by

@@ -15,6 +15,8 @@ someone who is currently downloading PGP signatures, existing signatures
 The related API fields such as `has_sig` have all been hardcoded to always be
 `False`.
 
+<!-- more -->
+
 Historically, PyPI has supported uploading PGP signatures alongside the release
 artifacts in an attempt to provide some level of package signing. However, the
 approach used had long standing,

@@ -21,6 +21,8 @@ deploys [PyPI](https://pypi.org) and its supporting services such as
 [camo](https://github.com/pypi/camo),
 and [inspector](https://github.com/pypi/inspector).
 
+<!-- more -->
+
 Relative to the [warehouse codebase](https://github.com/pypi/warehouse) that
 *is* [PyPI](https://pypi.org), cabotage is not as widely known.
 The goals of cabotage are to provide a seamless and secure way of deploying

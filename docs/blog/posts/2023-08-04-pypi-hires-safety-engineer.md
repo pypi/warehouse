@@ -12,6 +12,8 @@ tags:
 I've been a Python Package Index ([PyPI](https://pypi.org/)) contributor since early 2021, and became a maintainer in 2022.
 Now I'm joining the [PSF](https://www.python.org/psf-landing/) to work on PyPI full-time as the first PyPI Safety & Security Engineer.
 
+<!-- more -->
+
 What is that, you ask?
 We had [posted about this opening in May](2023-05-09-announcing-pypi-safety-and-security-engr-role.md),
 and I'm happy to be joining the team to help improve the safety and security of PyPI.

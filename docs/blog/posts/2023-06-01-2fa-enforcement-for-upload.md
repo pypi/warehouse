@@ -15,6 +15,8 @@ will be required to use an [API Token](https://pypi.org/help/#apitoken)
 or [Trusted Publisher](https://docs.pypi.org/trusted-publishers/) configuration
 in place of their password.
 
+<!-- more -->
+
 This change has [been planned](https://github.com/pypi/warehouse/issues/7265)
 since 2FA was rolled out in 2019.
 In [February of 2022](https://github.com/pypi/warehouse/pull/10836)

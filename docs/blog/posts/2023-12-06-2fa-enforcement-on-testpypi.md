@@ -18,6 +18,8 @@ This change is in preparation for the
 [scheduled enforcement of 2FA on PyPI](2023-05-25-securing-pypi-with-2fa.md)
 at the end of 2023.
 
+<!-- more -->
+
 Previously the PyPI team has announced
 [2FA requirement for uploads](2023-06-01-2fa-enforcement-for-upload.md),
 [2FA requirement for new user registrations on PyPI](2023-08-08-2fa-enforcement-for-new-users.md),

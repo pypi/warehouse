@@ -16,6 +16,8 @@ All three subpoenas were issued by the United States Department of Justice.
 The PSF was not provided with context on the legal circumstances surrounding these subpoenas.
 In total, user data related to five (5) PyPI usernames were requested.
 
+<!-- more -->
+
 The data request was:
 
 1. "Names (including subscriber names, user names, and screen names);"

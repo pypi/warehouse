@@ -17,6 +17,8 @@ for the Warehouse - the main codebase for [PyPI.org](https://pypi.org).
 The audit report can be found [here](2023-11-14-1-pypi-completes-first-security-audit.md).
 I highly recommend reading that for the fullest context first.
 
+<!-- more -->
+
 ## Findings
 
 The audit report identified 18 findings for Warehouse,

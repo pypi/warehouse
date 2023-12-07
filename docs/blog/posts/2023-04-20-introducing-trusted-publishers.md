@@ -14,6 +14,8 @@ Starting today, PyPI package maintainers can adopt a new, more secure
 publishing method that does not require long-lived passwords or API tokens to
 be shared with external systems.
 
+<!-- more -->
+
 ### About trusted publishing
 
 "Trusted publishing" is our term for using the [OpenID Connect (OIDC)] standard

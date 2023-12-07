@@ -14,6 +14,8 @@ _This is part one in a three-part series. See [part two here](2023-11-14-2-secur
 We are proud to announce that PyPI has completed its first ever external security audit.
 This work was funded in partnership with the [Open Technology Fund](https://www.opentech.fund/) (OTF), [a previous supporter](https://www.opentech.fund/results/supported-projects/pypi-improvements/) of security-related improvements to PyPI.
 
+<!-- more -->
+
 The Open Technology Fund selected [Trail of Bits](https://www.trailofbits.com/), an industry-leading cybersecurity firm with significant open-source and Python experience, to perform the audit.
 Trail of Bits spent a total of 10 engineer-weeks of effort identifying issues, presenting those findings to the PyPI team, and assisting us as we remediated the findings.
 

@@ -18,6 +18,8 @@ a verified, _primary_ email address for the same set of management actions.
 
 As a reminder, PyPI has supported adding 2FA since 2019.
 
+<!-- more -->
+
 This change is continuing along the path of enforcing 2FA for all users.
 In May of this year we [announced](./2023-05-25-securing-pypi-with-2fa.md)
 that by the end of 2023 PyPI will require all users to enable Two-Factor Authentication (2FA).

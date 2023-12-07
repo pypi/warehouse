@@ -21,6 +21,8 @@ rather the user's account was not sufficiently protected against account takeove
 The attacker added themselves as a collaborator to these projects,
 and removed the original owner. None of the projects had any modifications made to them other than ownership changes.
 
+<!-- more -->
+
 After the attacker completed ownership changes, they deleted the user's account.
 
 PyPI Admins were informed by the user via email,

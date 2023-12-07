@@ -16,6 +16,8 @@ Hi there! I'm Mike, the newest member of the PyPI admin team. Nice to meet you!
 We've been working on reducing the amount of IP address data we store,
 and we're making progress.
 
+<!-- more -->
+
 ## What's this about?
 
 If you've read some of the other blogs here, you may have noticed that

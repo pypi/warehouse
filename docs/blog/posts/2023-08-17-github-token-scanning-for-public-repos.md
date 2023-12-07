@@ -15,6 +15,8 @@ Due to the complexity in nature, the completed integration launched in 2021,
 with the volunteer-led effort by Joachim Jablon ([@ewjoachim](https://github.com/ewjoachim))
 and the GitHub team.
 
+<!-- more -->
+
 PyPI didn't have a blog back then, but GitHub did!
 Here's [a link their post](https://github.blog/changelog/2021-03-22-the-python-package-index-is-now-a-github-secret-scanning-integrator/).
 
