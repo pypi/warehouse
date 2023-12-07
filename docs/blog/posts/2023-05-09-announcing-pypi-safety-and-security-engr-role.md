@@ -2,8 +2,7 @@
 title: Announcing the PyPI Safety & Security Engineer role
 description: PyPI is hiring, thanks to funding from Amazon Web Services!
 author: Ee Durbin
-publish_date: 2023-05-09
-date: "2023-05-09 00:00"
+date: 2023-05-09
 tags:
   - security
   - hiring

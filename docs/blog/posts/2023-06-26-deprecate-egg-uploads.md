@@ -2,8 +2,7 @@
 title: Deprecation of bdist_egg uploads to PyPI
 description: PyPI will stop accepting .egg uploads August 1, 2023.
 author: Ee Durbin
-publish_date: 2023-06-26
-date: "2023-06-26 00:00"
+date: 2023-06-26
 tags:
   - deprecation
 ---

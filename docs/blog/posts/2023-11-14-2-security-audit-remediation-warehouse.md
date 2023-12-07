@@ -2,8 +2,7 @@
 title: "Security Audit Remediation: Warehouse"
 description: A deeper dive into the remediation of the security audit findings for the Warehouse project.
 author: Mike Fiedler
-publish_date: 2023-11-14 00:01
-date: "2023-11-14 00:01"
+date: 2023-11-14 00:00:01+00:00
 tags:
   - security
   - transparency

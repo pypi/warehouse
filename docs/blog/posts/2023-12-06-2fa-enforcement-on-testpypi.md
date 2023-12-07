@@ -2,8 +2,7 @@
 title: 2FA Enforcement for TestPyPI
 description: PyPI requires 2FA for all management actions on TestPyPI.
 author: Mike Fiedler
-publish_date: 2023-12-06
-date: "2023-12-06 00:00"
+date: 2023-12-06
 tags:
   - 2fa
   - security

@@ -2,8 +2,7 @@
 title: 2FA Enforcement for New User Registrations
 description: PyPI requires new users to enable 2FA before performing management actions.
 author: Mike Fiedler
-publish_date: 2023-08-08
-date: "2023-08-08 00:00"
+date: 2023-08-08
 tags:
   - 2fa
   - security

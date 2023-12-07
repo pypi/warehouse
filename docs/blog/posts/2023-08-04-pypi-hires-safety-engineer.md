@@ -2,8 +2,7 @@
 title: PyPI hires a Safety & Security Engineer
 description: Mike Fiedler joins PSF as inaugural PyPI Safety & Security Engineer
 author: Mike Fiedler
-publish_date: 2023-08-04
-date: "2023-08-05 00:00"
+date: 2023-08-05
 tags:
   - hiring
 ---

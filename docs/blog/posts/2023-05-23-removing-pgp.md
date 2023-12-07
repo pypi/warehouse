@@ -2,8 +2,7 @@
 title: Removing PGP from PyPI
 description: PyPI has removed support for uploading PGP signatures with new releases.
 author: Donald Stufft
-publish_date: 2023-05-23
-date: "2023-05-23 00:00"
+date: 2023-05-23
 tags:
   - security
 ---
