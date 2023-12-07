@@ -21,6 +21,10 @@ theme:
       toggle:
         icon: material/weather-sunny
         name: Switch to Light mode
+  features:
+    - navigation.expand
+    - navigation.top
+    - navigation.footer
 markdown_extensions:
   - footnotes
   - pymdownx.superfences:
