@@ -42,7 +42,7 @@ jobs:
 
     - name: Set up Python
       if: matrix.language == 'python'
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version-file: '.python-version'
 
