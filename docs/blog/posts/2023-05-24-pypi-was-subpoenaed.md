@@ -2,7 +2,8 @@
 title: PyPI was subpoenaed
 description: The PSF received three subpoenas from the US Department of Justice
   for PyPI user data in March and April of 2023.
-author: Ee Durbin
+authors:
+  - ewdurbin
 date: 2023-05-24
 tags:
   - transparency

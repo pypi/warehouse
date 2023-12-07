@@ -1,7 +1,8 @@
 ---
 title: "Incident Report: User Account Takeover"
 description: A PyPI user had their account taken over
-author: Mike Fiedler
+authors:
+  - miketheman
 date: 2023-12-04
 tags:
   - 2fa

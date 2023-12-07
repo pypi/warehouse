@@ -1,7 +1,8 @@
 ---
 title: Securing PyPI accounts via Two-Factor Authentication
 description: PyPI will require all users who maintain projects or organizations to enable one or more forms of two-factor authentication (2FA) by the end of 2023.
-author: Donald Stufft
+authors:
+  - dstufft
 date: 2023-05-25
 tags:
   - security

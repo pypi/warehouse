@@ -2,7 +2,8 @@
 title: Enforcement of 2FA for upload.pypi.org begins today
 description: PyPI now requires all uploads from accounts with 2FA enabled
   to use an API token or Trusted Publisher configuration.
-author: Ee Durbin
+authors:
+  - ewdurbin
 date: 2023-06-01
 tags:
   - security

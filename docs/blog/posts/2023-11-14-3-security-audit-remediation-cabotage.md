@@ -1,7 +1,8 @@
 ---
 title: "Security Audit Remediation: cabotage"
 description: A deeper dive into the remediation of the security audit findings for the cabotage project.
-author: Ee Durbin
+authors:
+  - ewdurbin
 date: 2023-11-14 00:00:02+00:00
 tags:
   - security

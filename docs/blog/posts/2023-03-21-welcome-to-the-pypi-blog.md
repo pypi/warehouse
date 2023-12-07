@@ -1,7 +1,8 @@
 ---
 title: Welcome to the PyPI Blog
 description: Announcing the launch of blog.pypi.org
-author: Ee Durbin
+authors:
+  - ewdurbin
 date: 2023-03-21
 tags:
   - meta
