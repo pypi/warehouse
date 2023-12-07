@@ -11,7 +11,7 @@ theme:
   homepage: https://pypi.org
   custom_dir: blog/overrides
   palette:
-    - scheme: default
+    - scheme: pypi
       media: "(prefers-color-scheme: light)"
       toggle:
         icon: material/weather-night
