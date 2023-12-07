@@ -38,17 +38,15 @@ extra_css:
   - stylesheets/extra.css
 plugins:
   - social
-  - blogging:
-      dirs:
-        - posts
-      template: blog/overrides/pypi-blog.html
-      features:
-        tags:
-          index_page: tags.md
-          insert: top
-      locale: en         # The locale for time localizations, default: system's locale
-      time_format: '%Y-%m-%d' # The format used to display the time
-      meta_time_format: '%Y-%m-%d %H:%M' # The format used to parse the time from meta
+  # See https://squidfunk.github.io/mkdocs-material/plugins/blog/
+  - blog:
+      blog_dir: .
+      blog_toc: true
+      post_excerpt: required
+      # Preserve backwards compatibility with older URLs.
+      # If we ever want to change the format and thus break old URLs,
+      # consider https://github.com/mkdocs/mkdocs-redirects
+      post_url_format: "posts/{file}"
   - rss:
       abstract_chars_count: -1
       categories:
