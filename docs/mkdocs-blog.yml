@@ -59,6 +59,8 @@ plugins:
       image: https://blog.pypi.org/assets/logo.png
       length: 20
       match_path: "posts/.*"
+  - tags:
+      tags_file: tags.md
 extra:
   homepage: https://pypi.org
   social:
