@@ -96,4 +96,16 @@
       }
     }
   }
+
+  // Specific cases for input validation using `pattern` attribute
+
+  /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
+  input#totp_value:valid {
+    background-color: lighten($success-color, 40%);
+  }
+
+  /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
+  input#totp_value:invalid {
+    background-color: lighten($danger-color, 40%);
+  }
 }
