@@ -1,9 +1,9 @@
 ---
 title: "Incident Report: User Account Takeover"
 description: A PyPI user had their account taken over
-author: Mike Fiedler
-publish_date: 2023-12-04 00:00
-date: "2023-12-04 00:00"
+authors:
+  - miketheman
+date: 2023-12-04
 tags:
   - 2fa
   - security
@@ -20,6 +20,8 @@ rather the user's account was not sufficiently protected against account takeove
 
 The attacker added themselves as a collaborator to these projects,
 and removed the original owner. None of the projects had any modifications made to them other than ownership changes.
+
+<!-- more -->
 
 After the attacker completed ownership changes, they deleted the user's account.
 

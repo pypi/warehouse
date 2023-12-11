@@ -1,9 +1,9 @@
 ---
 title: 2FA Enforcement for New User Registrations
 description: PyPI requires new users to enable 2FA before performing management actions.
-author: Mike Fiedler
-publish_date: 2023-08-08
-date: "2023-08-08 00:00"
+authors:
+  - miketheman
+date: 2023-08-08
 tags:
   - 2fa
   - security
@@ -17,6 +17,8 @@ This change comes after we've also added a rule for accounts to have
 a verified, _primary_ email address for the same set of management actions.
 
 As a reminder, PyPI has supported adding 2FA since 2019.
+
+<!-- more -->
 
 This change is continuing along the path of enforcing 2FA for all users.
 In May of this year we [announced](./2023-05-25-securing-pypi-with-2fa.md)
