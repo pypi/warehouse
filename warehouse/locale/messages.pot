@@ -4655,7 +4655,9 @@ msgid "QR code for setting up an authentication application"
 msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:55
-msgid "<strong>No QR scanner?</strong> Manually enter the code instead:"
+msgid ""
+"<strong>No QR scanner?</strong> Enter this code in your TOTP application "
+"instead:"
 msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:67
@@ -4668,8 +4670,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:73
 msgid ""
-"To finalize the set up process, enter the authentication code provided by"
-" your application."
+"To finalize the set-up process, enter the 6-digit code provided by your "
+"TOTP application."
 msgstr ""
 
 #: warehouse/templates/manage/account/totp-provision.html:85
