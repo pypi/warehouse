@@ -3,7 +3,7 @@ title: "PyPI has completed its first security audit"
 description: We are proud to announce PyPI's first external security audit.
 authors:
   - di
-date: 2023-11-14 00:00:00+00:00
+date: 2023-11-14T00:00:00
 tags:
   - security
   - transparency
