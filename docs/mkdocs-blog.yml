@@ -75,11 +75,10 @@ extra:
       link: https://twitter.com/pypi
     - icon: material/rss
       link: https://blog.pypi.org/feed_rss_created.xml
-#   TODO: Get a property ID and uncomment the below block
-#  See https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-analytics/
-#  analytics:
-#    provider: google
-#    property: G-XXXXXXXXXX
+  # See https://squidfunk.github.io/mkdocs-material/setup/setting-up-site-analytics/
+  analytics:
+    provider: google
+    property: G-4L9L0H79CY
 
 site_url: https://blog.pypi.org/
 repo_url: https://github.com/pypi/warehouse
