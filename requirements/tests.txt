@@ -236,9 +236,9 @@ pytest==7.4.3 \
     #   pytest-icdiff
     #   pytest-postgresql
     #   pytest-socket
-pytest-icdiff==0.8 \
-    --hash=sha256:4f493ae5ee63c8e90e9f96d4b0b2968b19634dfed8a6e3c9848fcd0d6cadcf7b \
-    --hash=sha256:8fac8667d7042270c23019580b4b5dfd81e1c3e5a9bc9d5df6ac4a49788d42f2
+pytest-icdiff==0.9 \
+    --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
+    --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
     # via -r requirements/tests.in
 pytest-postgresql==5.0.0 \
     --hash=sha256:22edcbafab8995ee85b8d948ddfaad4f70c2c7462303d7477ecd2f77fc9d15bd \
