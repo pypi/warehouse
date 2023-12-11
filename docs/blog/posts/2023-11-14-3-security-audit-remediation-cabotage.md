@@ -3,7 +3,7 @@ title: "Security Audit Remediation: cabotage"
 description: A deeper dive into the remediation of the security audit findings for the cabotage project.
 authors:
   - ewdurbin
-date: 2023-11-14 00:00:02+00:00
+date: 2023-11-14T00:00:02
 tags:
   - security
   - transparency
