@@ -1,9 +1,9 @@
 ---
 title: GitHub now scans public issues for PyPI secrets
 description: GitHub will now scan public repositories' issues for PyPI API tokens, and will notify repository owners when they are found.
-author: Mike Fiedler
-publish_date: 2023-08-17
-date: "2023-08-17 00:00"
+authors:
+  - miketheman
+date: 2023-08-17
 tags:
   - integrations
   - security
@@ -14,6 +14,8 @@ to integrate with GitHub secret scanning.
 Due to the complexity in nature, the completed integration launched in 2021,
 with the volunteer-led effort by Joachim Jablon ([@ewjoachim](https://github.com/ewjoachim))
 and the GitHub team.
+
+<!-- more -->
 
 PyPI didn't have a blog back then, but GitHub did!
 Here's [a link their post](https://github.blog/changelog/2021-03-22-the-python-package-index-is-now-a-github-secret-scanning-integrator/).

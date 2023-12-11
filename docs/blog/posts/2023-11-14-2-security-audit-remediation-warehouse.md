@@ -1,9 +1,9 @@
 ---
 title: "Security Audit Remediation: Warehouse"
 description: A deeper dive into the remediation of the security audit findings for the Warehouse project.
-author: Mike Fiedler
-publish_date: 2023-11-14 00:01
-date: "2023-11-14 00:01"
+authors:
+  - miketheman
+date: 2023-11-14 00:00:01+00:00
 tags:
   - security
   - transparency
@@ -16,6 +16,8 @@ for the Warehouse - the main codebase for [PyPI.org](https://pypi.org).
 
 The audit report can be found [here](2023-11-14-1-pypi-completes-first-security-audit.md).
 I highly recommend reading that for the fullest context first.
+
+<!-- more -->
 
 ## Findings
 

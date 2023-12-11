@@ -1,9 +1,9 @@
 ---
 title: "Security Audit Remediation: cabotage"
 description: A deeper dive into the remediation of the security audit findings for the cabotage project.
-author: Ee Durbin
-publish_date: 2023-11-14 00:02
-date: "2023-11-14 00:02"
+authors:
+  - ewdurbin
+date: 2023-11-14 00:00:02+00:00
 tags:
   - security
   - transparency
@@ -20,6 +20,8 @@ deploys [PyPI](https://pypi.org) and its supporting services such as
 [conveyor](https://github.com/pypi/conveyor),
 [camo](https://github.com/pypi/camo),
 and [inspector](https://github.com/pypi/inspector).
+
+<!-- more -->
 
 Relative to the [warehouse codebase](https://github.com/pypi/warehouse) that
 *is* [PyPI](https://pypi.org), cabotage is not as widely known.
