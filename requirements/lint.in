@@ -3,7 +3,7 @@ flake8
 curlylint
 pep8-naming
 black==23.11.0
-isort>=5,<5.13  # Waiting for fix from https://github.com/PyCQA/isort/pull/2207
+isort>=5.13.1
 pyupgrade
 mypy
 celery-types
