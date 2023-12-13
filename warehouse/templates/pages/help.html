@@ -295,11 +295,11 @@
           <p>
             All PyPI user events are stored under security history in account settings.
             If there are any events that seem suspicious, take the following steps:
+          </p>
             <ul>
               <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
               <li>Contact the PyPI admins about the event at <a href="mailto:{{ admin_email }}">{{ admin_email }}</a></li>
             </ul>
-          </p>
         {% endtrans %}
 
         <h3 id="compromised-token">{{ compromised_token() }}</h3>
@@ -335,7 +335,6 @@
         {% endtrans %}
 
         <h3 id="totp">{{ totp() }}</h3>
-
         <p>{% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}PyPI users can set up two-factor authentication using any authentication application that supports the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.{% endtrans %}</p>
         <p>{% trans %}<abbr title="time-based one-time password">TOTP</abbr> authentication applications generate a regularly changing authentication code to use when logging into your account.{% endtrans %}</p>
         <p>{% trans %}Because <abbr title="time-based one-time password">TOTP</abbr> is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:{% endtrans %}</p>
@@ -595,7 +594,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>{% trans href='#project-name-claim', anchor_text=project_name_claim() %}If the owner is unresponsive, see <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</p>
 
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
-        <p>{% trans href='http://docutils.sourceforge.net/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
+        <p>{% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
         <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#description', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
