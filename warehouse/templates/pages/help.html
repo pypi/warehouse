@@ -77,7 +77,7 @@
 
 {% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
 {% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
-{% macro invalid_auth() %}{% trans %}Why am I getting a "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
+{% macro invalid_auth() %}{% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
 {% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
 {% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
 {% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
@@ -285,7 +285,7 @@
           </p>
           <p>
             If you have received this error while attempting to log in or upload to PyPI,
-            then your password has been reset and you cannot log in to PyPI until you
+            then your password has been reset, and you cannot log in to PyPI until you
             <a href="{{ reset_pwd_href }}">reset your password</a>.
           </p>
         {% endtrans %}
@@ -373,7 +373,7 @@
           <li>{% trans %}Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with authentication application"{% endtrans %}</li>
           <li>{% trans %}PyPI will generate a secret key, specific to your account. This is displayed as a QR code, and as a text code.{% endtrans %}</li>
           <li>{% trans %}Scan the QR code with your authentication application, or type it in manually. The method of input will depend on the application you have chosen.{% endtrans %}</li>
-          <li>{% trans %}Your application will generate an authentication code - use this to verify your set up on PyPI{% endtrans %}</li>
+          <li>{% trans %}Your application will generate an authentication code - use this to verify your set-up on PyPI{% endtrans %}</li>
         </ol>
 
         <p>{% trans %}The PyPI server and your application now share your PyPI secret key, allowing your application to generate valid authentication codes for your PyPI account.{% endtrans %}</p>
@@ -453,11 +453,11 @@
         <h3 id="recoverycodes">{{ recoverycodes() }}</h3>
 
         <p>
-          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to sign into PyPI.{% endtrans %}
+          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to log in to PyPI.{% endtrans %}
         </p>
         <p>
           {% trans %}
-            Recovery codes are <strong>one time use</strong>. They are not a substitute for a <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>
+            Recovery codes are <strong>one time use</strong>. They are not a substitute for an <a href="#totp">authentication application</a> or a <a href="#utfkey">security device</a>
             and should only be used for recovery. After using a recovery code to sign in, it becomes inactive.
           {% endtrans %}
         </p>
@@ -662,7 +662,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         </p>
 
         <h3 id="login-problem">{{ login_problem() }}</h3>
-        <p>{% trans %}If you've forgotten your PyPI password but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>
+        <p>{% trans %}If you've forgotten your PyPI password, but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>
         <ol>
           <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
           <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
@@ -893,7 +893,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% trans href='https://github.com/pypi/warehouse/milestones', title=gettext('External link') %}
             Issues are grouped into <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">milestones</a>;
             working on issues in the current milestone is a great way to help push the project forward.
-            If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.
+            If you're interested in working on a particular issue, leave a comment, and we can guide you through the contribution process.
           {% endtrans %}
         </p>
         <p>
