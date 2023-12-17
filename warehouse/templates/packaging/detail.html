@@ -282,6 +282,12 @@
 
         {# Tab: Project description #}
         <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+          {% if release.yanked and release.yanked_reason %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+              <p>{{ release.yanked_reason }}</p>
+            </div>
+          {% endif %}
           <h2 class="page-title">{% trans %}Project description{% endtrans %}</h2>
           {% if description %}
           <div class="project-description">
