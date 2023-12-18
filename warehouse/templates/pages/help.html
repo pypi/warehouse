@@ -96,6 +96,7 @@
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
 {% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
 {% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
+{% macro totp_trouble() %}{% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}{% endmacro %}
 
 {% macro maintainers() %}{% trans %}Who maintains PyPI?{% endtrans %}{% endmacro %}
 {% macro sponsors() %}{% trans %}What powers PyPI?{% endtrans %}{% endmacro %}
@@ -183,6 +184,7 @@
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
           <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
+          <li><a href="#totp_trouble">{{ totp_trouble() }}</a></li>
         </ul>
       </section>
 
@@ -819,6 +821,13 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         </p>
         <p>{% trans %}If you are having an issue is with a specific package installed from PyPI, you should reach out to the maintainers of that project directly instead.{% endtrans %}</p>
         {{ code_of_conduct() }}
+
+        <h3 id="totp_trouble">{{ totp_trouble() }}</h3>
+        <p>
+          {% trans %}
+          If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
+          {% endtrans %}
+        </p>
       </section>
 
       <section class="faq-group" id="about">
