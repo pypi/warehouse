@@ -394,6 +394,49 @@
               {% endtrans %}
             </h3>
 
+              <form>
+
+                <div class="form-group">
+                  <label for="bdist-filenames-filter">Filter <code>whl</code> filenames</label>
+                  <input type="text" class="form-control" id="bdist-filenames-filter"
+                         placeholder="e.g. 'py3', 'cp311', 'abi3', 'linux'">
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label for="bdist-tags-interpreters">
+                      <abbr title="Interpreter implementation and version">Interpreter</abbr>
+                    </label>
+                    <select id="bdist-tags-interpreters" class="form-control">
+                      <option selected>All interpreters</option>
+                      {% for interpreter in bdist_tags.interpreters %}
+                        <option value="{{ interpreter }}">{{ interpreter }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="bdist-tags-abis">
+                      <abbr title="Application binary interface">ABI</abbr>
+                    </label>
+                    <select id="bdist-tags-abis" class="form-control">
+                      <option selected>All ABIs</option>
+                      {% for abi in bdist_tags.abis %}
+                        <option value="{{ abi }}">{{ abi }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label for="bdist-tags-platforms">Platform</label>
+                    <select id="bdist-tags-platforms" class="form-control">
+                      <option selected>All platforms</option>
+                      {% for platform in bdist_tags.platforms %}
+                        <option value="{{ platform }}">{{ platform }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </div>
+              </form>
+
             {{ file_table(bdists) }}
             {% endif %}
           </div>

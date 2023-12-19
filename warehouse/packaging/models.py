@@ -715,6 +715,13 @@ class File(HasEvents, db.Model):
     def validates_requires_python(self, *args, **kwargs):
         raise RuntimeError("Cannot set File.requires_python")
 
+    @property
+    def bdist_tags(self):
+        if self.packagetype == "sdist" or not self.filename:
+            # Don't parse source package file names or missing file names.
+            return None
+        return bdist_filename_tags(self.filename)
+
 
 class Filename(db.ModelBase):
     __tablename__ = "file_registry"
@@ -786,3 +793,32 @@ class ProhibitedProjectName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+
+
+def bdist_filename_tags(filename: str):
+    """Parse a wheel file name to extract the tags."""
+
+    # see: https://packaging.python.org/en/latest/specifications/binary-distribution-format/#file-format
+    # see: https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
+    _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+    return tags
+
+
+def bdist_filenames_tags(available) -> dict[str, set]:
+    result = {
+        'interpreters': set(),
+        'abis': set(),
+        'platforms': set(),
+    }
+    for tags in available:
+        if not tags:
+            continue
+        for tag in tags:
+            result['interpreters'].add(tag.interpreter)
+            result['abis'].add(tag.abi)
+            result['platforms'].add(tag.platform)
+
+    result['interpreters'] = sorted(result['interpreters'])
+    result['abis'] = sorted(result['abis'])
+    result['platforms'] = sorted(result['platforms'])
+    return result
