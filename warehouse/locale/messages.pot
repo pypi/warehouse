@@ -753,12 +753,12 @@ msgstr ""
 #: warehouse/templates/pages/help.html:892
 #: warehouse/templates/pages/help.html:900
 #: warehouse/templates/pages/help.html:909
-#: warehouse/templates/pages/help.html:929
+#: warehouse/templates/pages/help.html:928
+#: warehouse/templates/pages/help.html:943
 #: warehouse/templates/pages/help.html:944
 #: warehouse/templates/pages/help.html:945
 #: warehouse/templates/pages/help.html:946
-#: warehouse/templates/pages/help.html:947
-#: warehouse/templates/pages/help.html:952
+#: warehouse/templates/pages/help.html:951
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -8157,28 +8157,26 @@ msgid ""
 "href=\"%(mailing_list_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">pypi-announce mailing list</a> and the <a "
 "href=\"%(blog_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">PSF blog</a> under the label \"pypi\". The PSF blog also"
-" has <a href=\"%(atom_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">Atom</a> and <a href=\"%(rss_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">RSS</a> feeds for "
-"the \"pypi\" label."
+"rel=\"noopener\">PyPI blog</a>. The PyPI blog also has an <a "
+"href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">RSS</a> feed."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:919
+#: warehouse/templates/pages/help.html:918
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP"
 " addresses here: <a href=\"%(href)s\">%(href)s</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:920
+#: warehouse/templates/pages/help.html:919
 #, python-format
 msgid ""
 "More information about this list can be found here: <a "
 "href=\"%(href)s\">%(href)s</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:924
+#: warehouse/templates/pages/help.html:923
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark"
 " them with a small \"beta feature\" symbol to tell you: this should "
@@ -8186,11 +8184,11 @@ msgid ""
 "functionality."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:925
+#: warehouse/templates/pages/help.html:924
 msgid "Currently, no features are in beta."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:929
+#: warehouse/templates/pages/help.html:928
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the"
@@ -8200,39 +8198,39 @@ msgid ""
 "implementation of the Python language."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:940
 msgid "Resources"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:942
+#: warehouse/templates/pages/help.html:941
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:944
+#: warehouse/templates/pages/help.html:943
 msgid "Python Packaging User Guide"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:945
+#: warehouse/templates/pages/help.html:944
 msgid "Python documentation"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:946
+#: warehouse/templates/pages/help.html:945
 msgid "(main Python website)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:947
+#: warehouse/templates/pages/help.html:946
 msgid "Python community page"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:947
+#: warehouse/templates/pages/help.html:946
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:950
+#: warehouse/templates/pages/help.html:949
 msgid "Contact"
 msgstr ""
 
-#: warehouse/templates/pages/help.html:952
+#: warehouse/templates/pages/help.html:951
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
