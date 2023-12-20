@@ -147,9 +147,9 @@ flake8==6.1.0 \
     # via
     #   -r requirements/lint.in
     #   pep8-naming
-isort==5.13.1 \
-    --hash=sha256:56a51732c25f94ca96f6721be206dd96a95f42950502eb26c1015d333bc6edb7 \
-    --hash=sha256:aaed790b463e8703fb1eddb831dfa8e8616bacde2c083bd557ef73c8189b7263
+isort==5.13.2 \
+    --hash=sha256:48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109 \
+    --hash=sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6
     # via -r requirements/lint.in
 markupsafe==2.1.3 \
     --hash=sha256:05fb21170423db021895e1ea1e1f3ab3adb85d1c2333cbc2310f2a26bc77272e \
@@ -323,9 +323,9 @@ toml==0.10.2 \
     --hash=sha256:806143ae5bfb6a3c6e736a764057db0e6a0e05e338b5630894a5f779cabb4f9b \
     --hash=sha256:b3bda1d108d5dd99f4a20d24d9c348e91c4db7ab1b749200bded2f839ccbe68f
     # via curlylint
-types-awscrt==0.19.19 \
-    --hash=sha256:850d5ad95d8f337b15fb154790f39af077faf5c08d43758fd750f379a87d5f73 \
-    --hash=sha256:a577c4d60a7fb7e21b436a73207a66f6ba50329d578b347934c5d99d4d612901
+types-awscrt==0.20.0 \
+    --hash=sha256:99778c952e1eae10cc7a53468413001177026c9434345bf00120bb2ea5b79109 \
+    --hash=sha256:e872b65d041687ec7fb49fb4dcb871ff10ade5efeca02722e037a03bff81db7e
     # via botocore-stubs
 types-babel==2.11.0.15 \
     --hash=sha256:282c184c8c9d81e8269212c1b8fa0d39ee88fb8bc43be47980412781c9c85f7e \
@@ -377,9 +377,9 @@ types-requests==2.31.0.6 \
     --hash=sha256:a2db9cb228a81da8348b49ad6db3f5519452dd20a9c1e1a868c83c5fe88fd1a9 \
     --hash=sha256:cd74ce3b53c461f1228a9b783929ac73a666658f223e28ed29753771477b3bd0
     # via -r requirements/lint.in
-types-s3transfer==0.8.2 \
-    --hash=sha256:2e41756fcf94775a9949afa856489ac4570308609b0493dfbd7b4d333eb423e6 \
-    --hash=sha256:5e084ebcf2704281c71b19d5da6e1544b50859367d034b50080d5316a76a9418
+types-s3transfer==0.9.0 \
+    --hash=sha256:0f78c95c2ee390faad71735df35b6b81fca5bce4b864ac6a7707da2a845a5e86 \
+    --hash=sha256:241e8b7b209c4064a451897bace1525ba64098a3ae955bdd0fb4b970cc69db73
     # via boto3-stubs
 types-setuptools==69.0.0.0 \
     --hash=sha256:8c86195bae2ad81e6dea900a570fe9d64a59dbce2b11cc63c046b03246ea77bf \
