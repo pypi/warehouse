@@ -95,7 +95,16 @@
 
 {%- macro file_table(files) -%}
   {% for file in files %}
-    <div class="file">
+    <div class="file"
+         {% if 'source' not in file.python_version %}
+         data-filter-list-target="item"
+         {% set interpreters, abis, platforms = file.bdist_tags_collected %}
+          data-filtered-target-filename="{{ file.filename }}"
+          data-filtered-target-interpreters="{{ interpreters | join('--;--') }}"
+          data-filtered-target-abis="{{ abis | join('--;--')}}"
+          data-filtered-target-platforms="{{ platforms | join('--;--') }}"
+         {% endif %}
+        >
       <div class="file__graphic">
         <i class="far fa-file" aria-hidden="true"></i>
       </div>
@@ -365,7 +374,7 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+          <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1" data-controller="filter-list">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
             <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
             <h3>
@@ -405,7 +414,8 @@
                 <div class="form-group">
                   <label for="bdist-filenames-filter">Filter <code>whl</code> filenames</label>
                   <input type="text" class="form-control" id="bdist-filenames-filter"
-                         placeholder="e.g. 'py3', 'cp311', 'abi3', 'linux'">
+                         placeholder="e.g. 'py3', 'cp311', 'abi3', 'linux'"
+                         data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="filename">
                 </div>
 
                 <div class="form-row">
@@ -413,8 +423,9 @@
                     <label for="bdist-tags-interpreters">
                       <abbr title="Interpreter implementation and version">Interpreter</abbr>
                     </label>
-                    <select id="bdist-tags-interpreters" class="form-control">
-                      <option selected>All interpreters</option>
+                    <select id="bdist-tags-interpreters" class="form-control"
+                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="interpreters">
+                      <option selected value="">All interpreters</option>
                       {% for interpreter in bdist_tags.interpreters %}
                         <option value="{{ interpreter }}">{{ interpreter }}</option>
                       {% endfor %}
@@ -424,8 +435,9 @@
                     <label for="bdist-tags-abis">
                       <abbr title="Application binary interface">ABI</abbr>
                     </label>
-                    <select id="bdist-tags-abis" class="form-control">
-                      <option selected>All ABIs</option>
+                    <select id="bdist-tags-abis" class="form-control"
+                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="abis">
+                      <option selected value="">All ABIs</option>
                       {% for abi in bdist_tags.abis %}
                         <option value="{{ abi }}">{{ abi }}</option>
                       {% endfor %}
@@ -433,8 +445,9 @@
                   </div>
                   <div class="form-group col-md-4">
                     <label for="bdist-tags-platforms">Platform</label>
-                    <select id="bdist-tags-platforms" class="form-control">
-                      <option selected>All platforms</option>
+                    <select id="bdist-tags-platforms" class="form-control"
+                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="platforms">
+                      <option selected value="">All platforms</option>
                       {% for platform in bdist_tags.platforms %}
                         <option value="{{ platform }}">{{ platform }}</option>
                       {% endfor %}
@@ -442,6 +455,13 @@
                   </div>
                 </div>
               </form>
+
+              <p>
+                Showing
+                <span data-filter-list-target="shown"></span>
+                of
+                <span data-filter-list-target="total"></span>.
+              </p>
 
             {{ file_table(bdists) }}
             {% endif %}

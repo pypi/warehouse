@@ -722,6 +722,17 @@ class File(HasEvents, db.Model):
             return None
         return bdist_filename_tags(self.filename)
 
+    @property
+    def bdist_tags_collected(self):
+        interpreters = set()
+        abis = set()
+        platforms = set()
+        for tag in self.bdist_tags or []:
+            interpreters.add(tag.interpreter)
+            abis.add(tag.abi)
+            platforms.add(tag.platform)
+        return sorted(interpreters), sorted(abis), sorted(platforms)
+
 
 class Filename(db.ModelBase):
     __tablename__ = "file_registry"
@@ -797,28 +808,25 @@ class ProhibitedProjectName(db.Model):
 
 def bdist_filename_tags(filename: str):
     """Parse a wheel file name to extract the tags."""
-
-    # see: https://packaging.python.org/en/latest/specifications/binary-distribution-format/#file-format
-    # see: https://packaging.python.org/en/latest/specifications/platform-compatibility-tags/
     _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
     return tags
 
 
 def bdist_filenames_tags(available) -> dict[str, set]:
     result = {
-        'interpreters': set(),
-        'abis': set(),
-        'platforms': set(),
+        "interpreters": set(),
+        "abis": set(),
+        "platforms": set(),
     }
     for tags in available:
         if not tags:
             continue
         for tag in tags:
-            result['interpreters'].add(tag.interpreter)
-            result['abis'].add(tag.abi)
-            result['platforms'].add(tag.platform)
+            result["interpreters"].add(tag.interpreter)
+            result["abis"].add(tag.abi)
+            result["platforms"].add(tag.platform)
 
-    result['interpreters'] = sorted(result['interpreters'])
-    result['abis'] = sorted(result['abis'])
-    result['platforms'] = sorted(result['platforms'])
+    result["interpreters"] = sorted(result["interpreters"])
+    result["abis"] = sorted(result["abis"])
+    result["platforms"] = sorted(result["platforms"])
     return result
