@@ -409,59 +409,81 @@
               {% endtrans %}
             </h3>
 
-              <form>
-
-                <div class="form-group">
-                  <label for="bdist-filenames-filter">Filter <code>whl</code> filenames</label>
-                  <input type="text" class="form-control" id="bdist-filenames-filter"
-                         placeholder="e.g. 'py3', 'cp311', 'abi3', 'linux'"
-                         data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="filename">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-4">
-                    <label for="bdist-tags-interpreters">
-                      <abbr title="Interpreter implementation and version">Interpreter</abbr>
-                    </label>
-                    <select id="bdist-tags-interpreters" class="form-control"
-                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="interpreters">
-                      <option selected value="">All interpreters</option>
-                      {% for interpreter in bdist_tags.interpreters %}
-                        <option value="{{ interpreter }}">{{ interpreter }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="bdist-tags-abis">
-                      <abbr title="Application binary interface">ABI</abbr>
-                    </label>
-                    <select id="bdist-tags-abis" class="form-control"
-                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="abis">
-                      <option selected value="">All ABIs</option>
-                      {% for abi in bdist_tags.abis %}
-                        <option value="{{ abi }}">{{ abi }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                  <div class="form-group col-md-4">
-                    <label for="bdist-tags-platforms">Platform</label>
-                    <select id="bdist-tags-platforms" class="form-control"
-                            data-action="filter-list#filter" data-filter-list-target="filter" data-filtered-source="platforms">
-                      <option selected value="">All platforms</option>
-                      {% for platform in bdist_tags.platforms %}
-                        <option value="{{ platform }}">{{ platform }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </div>
-              </form>
+              <p>
+                Filter files by name,
+                <abbr title="Interpreter implementation and version">interpreter</abbr>,
+                <abbr title="Application binary interface">ABI</abbr>,
+                and platform.
+              </p>
 
               <p>
                 Showing
                 <span data-filter-list-target="shown"></span>
                 of
-                <span data-filter-list-target="total"></span>.
+                <span data-filter-list-target="total"></span>
+                files.
               </p>
+
+              <div>
+
+                <div class="form-group">
+                  <label class="form-group__label sr-only" for="bdist-filenames-filter">
+                    File name
+                  </label>
+                  <input class="form-group__field" type="text"
+                         id="bdist-filenames-filter" name="bdist-filenames-filter"
+                         placeholder="File name"
+                         autocapitalize="none" autocomplete="" spellcheck="false"
+                         data-action="filter-list#filter" data-filter-list-target="filter"
+                         data-filtered-source="filename">
+                </div>
+
+                <div class="form-group col-third">
+                  <label class="form-group__label sr-only" for="bdist-tags-interpreters">
+                    Interpreter
+                  </label>
+                  <select class="form-group__field"
+                          id="bdist-tags-interpreters" name="bdist-tags-interpreters"
+                          data-action="filter-list#filter" data-filter-list-target="filter"
+                          data-filtered-source="interpreters">
+                    <option selected value="">Interpreter</option>
+                    {% for interpreter in bdist_tags.interpreters %}
+                      <option value="{{ interpreter }}">{{ interpreter }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="form-group col-third">
+                  <label class="form-group__label sr-only" for="bdist-tags-abis">
+                    ABI
+                  </label>
+                  <select class="form-group__field"
+                          id="bdist-tags-abis" name="bdist-tags-abis"
+                          data-action="filter-list#filter" data-filter-list-target="filter"
+                          data-filtered-source="abis">
+                    <option selected value="">ABI</option>
+                    {% for abi in bdist_tags.abis %}
+                      <option value="{{ abi }}">{{ abi }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+                <div class="form-group col-third">
+                  <label class="form-group__label sr-only" for="bdist-tags-platforms">
+                    Platform
+                  </label>
+                  <select class="form-group__field"
+                          id="bdist-tags-platforms" name="bdist-tags-platforms"
+                          data-action="filter-list#filter" data-filter-list-target="filter"
+                          data-filtered-source="platforms">
+                    <option selected value="">Platform</option>
+                    {% for platform in bdist_tags.platforms %}
+                      <option value="{{ platform }}">{{ platform }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+
+              </div>
 
             {{ file_table(bdists) }}
             {% endif %}

@@ -68,11 +68,11 @@ export default class extends Controller {
       const isShow = !compareResult.hasFilter || (compareResult.hasFilter && compareResult.isMatch);
       if (isShow) {
         // match: show item
-        item.style.display = "unset";
+        item.classList.remove("hidden");
         shown += 1;
       } else {
         // no match: hide item
-        item.style.display = "none";
+        item.classList.add("hidden");
       }
     });
 
