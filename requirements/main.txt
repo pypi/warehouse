@@ -1798,9 +1798,9 @@ pip==23.3.2 \
     --hash=sha256:5052d7889c1f9d05224cd41741acb7c5d6fa735ab34e339624a614eaaa7e7d76 \
     --hash=sha256:7fd9972f96db22c8077a1ee2691b172c8089b17a5652a44494a9ecb0d78f9149
     # via pip-api
-setuptools==69.0.2 \
-    --hash=sha256:1e8fdff6797d3865f37397be788a4e3cba233608e9b509382a2777d25ebde7f2 \
-    --hash=sha256:735896e78a4742605974de002ac60562d286fa8051a7e2299445e8e8fbb01aa6
+setuptools==69.0.3 \
+    --hash=sha256:385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05 \
+    --hash=sha256:be1af57fc409f93647f2e8e4573a142ed38724b8cdd389706a867bb4efcf1e78
     # via
     #   -r requirements/main.in
     #   b2sdk
