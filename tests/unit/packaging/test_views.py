@@ -190,6 +190,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -216,7 +228,7 @@ class TestReleaseDetail:
             "description": "<pre>plaintext description</pre>",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -237,6 +249,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -263,7 +287,7 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -282,6 +306,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -314,7 +350,7 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
