@@ -107,6 +107,16 @@
     font-weight: $bold-font-weight;
   }
 
+  &__version-date {
+    padding-bottom: 2px;
+  }
+
+  &__yanked-reason {
+    @include ellipsis;
+    font-size: 0.90rem;
+    color: $danger-color;
+  }
+
   &--current {
     background-color: darken($background-color, 1);
     border: 1px dotted #ccc;
