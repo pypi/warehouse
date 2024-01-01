@@ -69,6 +69,8 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
+    from packaging.tags import Tag
+
     from warehouse.oidc.models import OIDCPublisher
 
 
@@ -717,21 +719,12 @@ class File(HasEvents, db.Model):
 
     @property
     def bdist_tags(self):
-        if self.packagetype == "sdist" or not self.filename:
-            # Don't parse source package file names or missing file names.
-            return None
         return bdist_filename_tags(self.filename)
 
     @property
     def bdist_tags_collected(self):
-        interpreters = set()
-        abis = set()
-        platforms = set()
-        for tag in self.bdist_tags or []:
-            interpreters.add(tag.interpreter)
-            abis.add(tag.abi)
-            platforms.add(tag.platform)
-        return sorted(interpreters), sorted(abis), sorted(platforms)
+        result = bdist_collect_tags([self.bdist_tags or []])
+        return result.get("interpreters"), result.get("abis"), result.get("platforms")
 
 
 class Filename(db.ModelBase):
@@ -812,21 +805,19 @@ def bdist_filename_tags(filename: str):
     return tags
 
 
-def bdist_filenames_tags(available) -> dict[str, set]:
-    result = {
-        "interpreters": set(),
-        "abis": set(),
-        "platforms": set(),
-    }
-    for tags in available:
-        if not tags:
-            continue
-        for tag in tags:
-            result["interpreters"].add(tag.interpreter)
-            result["abis"].add(tag.abi)
-            result["platforms"].add(tag.platform)
+def bdist_collect_tags(available: typing.Iterable[frozenset[Tag]]) -> dict[str, list]:
+    interpreters = set()
+    abis = set()
+    platforms = set()
 
-    result["interpreters"] = sorted(result["interpreters"])
-    result["abis"] = sorted(result["abis"])
-    result["platforms"] = sorted(result["platforms"])
-    return result
+    for tags in available or []:
+        for tag in tags or []:
+            interpreters.add(tag.interpreter)
+            abis.add(tag.abi)
+            platforms.add(tag.platform)
+
+    return {
+        "interpreters": sorted(interpreters),
+        "abis": sorted(abis),
+        "platforms": sorted(platforms),
+    }

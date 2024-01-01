@@ -696,6 +696,7 @@ msgstr ""
 #: warehouse/templates/manage/project/releases.html:179
 #: warehouse/templates/packaging/detail.html:379
 #: warehouse/templates/packaging/detail.html:398
+#: warehouse/templates/packaging/detail.html:417
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -6604,6 +6605,51 @@ msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/packaging/detail.html:413
+msgid "Filter files by name, interpreter, ABI, and platform."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:417
+#, python-format
+msgid ""
+"If you're not sure about the file name format, learn more about <a "
+"href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">wheel file names</a>."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:422
+msgid "The dropdown lists show the available interpreters, ABIs, and platforms."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:426
+msgid "Enable javascript to be able to filter the list of wheel files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:431
+msgid ""
+"Showing <span data-filter-list-target=\"shown\"></span> of <span data-"
+"filter-list-target=\"total\"></span> files."
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:438
+#: warehouse/templates/packaging/detail.html:442
+msgid "File name"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:450
+#: warehouse/templates/packaging/detail.html:456
+msgid "Interpreter"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:465
+#: warehouse/templates/packaging/detail.html:471
+msgid "ABI"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:480
+msgid "Platform"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""

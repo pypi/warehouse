@@ -409,30 +409,37 @@
               {% endtrans %}
             </h3>
 
-              <p>
-                Filter files by name,
-                <abbr title="Interpreter implementation and version">interpreter</abbr>,
-                <abbr title="Application binary interface">ABI</abbr>,
-                and platform.
+              <p class="hidden initial-toggle-visibility">
+                {% trans %}Filter files by name, interpreter, ABI, and platform.{% endtrans %}
               </p>
 
               <p>
-                Showing
-                <span data-filter-list-target="shown"></span>
-                of
-                <span data-filter-list-target="total"></span>
-                files.
+                {% trans href='https://packaging.python.org/en/latest/specifications/binary-distribution-format/', title=gettext('External link') %}If you're not sure about the file name format, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">wheel file names</a>.{% endtrans %}
+              </p>
+
+              <noscript>
+              <p class="initial-toggle-visibility">
+                {% trans %}The dropdown lists show the available interpreters, ABIs, and platforms.{% endtrans %}
+              </p>
+
+              <p class="initial-toggle-visibility">
+                {% trans %}Enable javascript to be able to filter the list of wheel files.{% endtrans %}
+              </p>
+              </noscript>
+
+              <p class="hidden initial-toggle-visibility">
+                {% trans %}Showing <span data-filter-list-target="shown"></span> of <span data-filter-list-target="total"></span> files.{% endtrans %}
               </p>
 
               <div>
 
-                <div class="form-group">
+                <div class="form-group hidden initial-toggle-visibility">
                   <label class="form-group__label sr-only" for="bdist-filenames-filter">
-                    File name
+                    {% trans %}File name{% endtrans %}
                   </label>
                   <input class="form-group__field" type="text"
                          id="bdist-filenames-filter" name="bdist-filenames-filter"
-                         placeholder="File name"
+                         placeholder="{% trans %}File name{% endtrans %}"
                          autocapitalize="none" autocomplete="" spellcheck="false"
                          data-action="filter-list#filter" data-filter-list-target="filter"
                          data-filtered-source="filename">
@@ -440,13 +447,13 @@
 
                 <div class="form-group col-third">
                   <label class="form-group__label sr-only" for="bdist-tags-interpreters">
-                    Interpreter
+                    {% trans %}Interpreter{% endtrans %}
                   </label>
                   <select class="form-group__field"
                           id="bdist-tags-interpreters" name="bdist-tags-interpreters"
                           data-action="filter-list#filter" data-filter-list-target="filter"
                           data-filtered-source="interpreters">
-                    <option selected value="">Interpreter</option>
+                    <option selected value="">{% trans %}Interpreter{% endtrans %}</option>
                     {% for interpreter in bdist_tags.interpreters %}
                       <option value="{{ interpreter }}">{{ interpreter }}</option>
                     {% endfor %}
@@ -455,13 +462,13 @@
 
                 <div class="form-group col-third">
                   <label class="form-group__label sr-only" for="bdist-tags-abis">
-                    ABI
+                    {% trans %}ABI{% endtrans %}
                   </label>
                   <select class="form-group__field"
                           id="bdist-tags-abis" name="bdist-tags-abis"
                           data-action="filter-list#filter" data-filter-list-target="filter"
                           data-filtered-source="abis">
-                    <option selected value="">ABI</option>
+                    <option selected value="">{% trans %}ABI{% endtrans %}</option>
                     {% for abi in bdist_tags.abis %}
                       <option value="{{ abi }}">{{ abi }}</option>
                     {% endfor %}
@@ -470,7 +477,7 @@
 
                 <div class="form-group col-third">
                   <label class="form-group__label sr-only" for="bdist-tags-platforms">
-                    Platform
+                    {% trans %}Platform{% endtrans %}
                   </label>
                   <select class="form-group__field"
                           id="bdist-tags-platforms" name="bdist-tags-platforms"

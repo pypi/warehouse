@@ -17,13 +17,7 @@ from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import (
-    File,
-    Project,
-    Release,
-    Role,
-    bdist_filenames_tags,
-)
+from warehouse.packaging.models import File, Project, Release, Role, bdist_collect_tags
 from warehouse.utils import readme
 
 
@@ -145,7 +139,7 @@ def release_detail(release, request):
     )
 
     # Collect all the available bdist details to enable building filters.
-    bdist_tags = bdist_filenames_tags([bdist.bdist_tags for bdist in bdists])
+    bdist_tags = bdist_collect_tags([bdist.bdist_tags for bdist in bdists])
 
     return {
         "project": project,

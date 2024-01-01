@@ -34,11 +34,13 @@ export default class extends Controller {
     group: String,
   };
 
-  static _listSep = "--;--";
+  _listSep = "--;--";
+
+  mappingItemFilterData = {};
 
   connect() {
-
-    this.filterTimeout = null;
+    this._populateMappings();
+    this._initVisibility();
 
     this.filter();
   }
@@ -49,7 +51,6 @@ export default class extends Controller {
   filter() {
     // Stop here if there are no items.
     if (!this.hasItemTarget) {
-      console.debug("There are no built distribution wheel files to filter.");
       return;
     }
 
@@ -58,9 +59,9 @@ export default class extends Controller {
     let total = 0;
     let shown = 0;
 
-    this.itemTargets.forEach(item => {
+    this.itemTargets.forEach((item, index) => {
       total += 1;
-      const itemData = this._buildItemData(item, filterData);
+      const itemData = this.mappingItemFilterData[index];
       const compareResult = this._compare(itemData, filterData);
 
       // Should the item be displayed or not?
@@ -76,10 +77,60 @@ export default class extends Controller {
       }
     });
 
-    this.shownTarget.textContent = shown.toString();
-    this.totalTarget.textContent = total.toString();
+    // show the number of matches and the total number of items
+    if (this.hasShownTarget) {
+      this.shownTarget.textContent = shown.toString();
+    }
+    if (this.hasTotalTarget) {
+      this.totalTarget.textContent = total.toString();
+    }
+  }
 
-    console.debug(`Filtered built distribution wheel files. Now showing ${shown} of ${total}.`);
+  /**
+   * Set the visibility of elements.
+   * Use to show only relevant elements depending on whether js is enabled.
+   * @private
+   */
+  _initVisibility() {
+    document.querySelectorAll(".initial-toggle-visibility").forEach(item => {
+      if (item.classList.contains("hidden")) {
+        item.classList.remove("hidden");
+      } else {
+        item.classList.add("hidden");
+      }
+    });
+  }
+
+  /**
+   * Pre-populate the mapping from item, to filter keys, to the item's data used to filter.
+   * Performance improvement by avoiding re-calculating the item data.
+   * This assumes that the elements will not change after the page has loaded.
+   * @private
+   */
+  _populateMappings() {
+    const filterData = this._buildFilterData();
+
+    // reset the item filter mapping data
+    this.mappingItemFilterData = {};
+
+    if (!this.hasItemTarget) {
+      return;
+    }
+
+    this.itemTargets.forEach((item, index) => {
+      const dataAttrs = item.dataset;
+      this.mappingItemFilterData[index] = {};
+      for (const filterKey in filterData) {
+        const dataAttrsKey = `filteredTarget${filterKey.charAt(0).toUpperCase()}${filterKey.slice(1)}`;
+        const dataAttrValue = dataAttrs[dataAttrsKey];
+        if (!dataAttrValue) {
+          console.warn(`Item target at index ${index} does not have a value for data attribute '${dataAttrsKey}'.`);
+        }
+        const dataAttrValueSplit = dataAttrValue ? dataAttrValue.split(this._listSep) : [];
+        this.mappingItemFilterData[index][filterKey] = dataAttrValueSplit;
+      }
+    });
+
   }
 
   /**
@@ -103,22 +154,6 @@ export default class extends Controller {
   }
 
   /**
-   * Build a mapping of filteredTarget names to array of values.
-   * @param item The item element.
-   * @param filterData The filter mapping.
-   * @returns {{}}
-   * @private
-   */
-  _buildItemData(item, filterData) {
-    const dataAttrs = item.dataset;
-    const itemData = {};
-    for (const filterKey in filterData) {
-      itemData[filterKey] = dataAttrs[`filteredTarget${filterKey.charAt(0).toUpperCase()}${filterKey.slice(1)}`].split(this._listSep);
-    }
-    return itemData;
-  }
-
-  /**
    * Compare an item's tags to all filter values and find matches.
    * @param itemData The item mapping.
    * @param filterData The filter mapping.
@@ -131,7 +166,8 @@ export default class extends Controller {
     // at least one item value for the same key includes any filter value.
 
     const isMatch = [];
-    let matches = [];
+    const matches = [];
+    const misses = [];
     let hasFilter = false;
     for (const itemKey in itemData) {
       const itemValues = itemData[itemKey];
@@ -159,6 +195,9 @@ export default class extends Controller {
             isKeyMatch = true;
             matches.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
           }
+          if (filterItemValue && !itemValue.includes(filterItemValue)) {
+            misses.push({"key": itemKey, "filter": filterItemValue, "item": itemValue});
+          }
         }
       }
       isMatch.push(!hasKeyFilter || (isKeyMatch && hasKeyFilter));
@@ -168,6 +207,7 @@ export default class extends Controller {
       "isMatch": isMatch.every(value => value),
       "hasFilter": hasFilter,
       "matches": matches,
+      "misses": misses,
     };
   }
 }
