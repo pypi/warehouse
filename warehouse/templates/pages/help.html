@@ -479,12 +479,33 @@
 
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
-        {% trans %}
-          <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
-          <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
-          <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
-
-        {% endtrans %}
+        <p>
+          {% trans %}
+          API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          You can create a token for an entire PyPI account, in which case, the token will work
+          for all projects associated with that account. Alternatively, you can limit a token's
+          scope to a specific project.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          When using an API token from a CI provider, we recommend
+          scoping the token down to the minimum necessary projects.
+          {% endtrans %}
+        </p>
+        <p>
+          <strong>
+            {% trans href='#trusted-publishers' %}
+            If you are publishing to PyPI from a CI provider that supports
+            <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
+            using Trusted Publishing instead.
+            {% endtrans %}
+          </strong>
+        </p>
 
         <p>{% trans %}To make an API token:{% endtrans %}</p>
 
@@ -524,7 +545,7 @@
           {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
           PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to use API tokens or passwords.
+          the need to use API tokens.
           {% endtrans %}
         </p>
       </section>
@@ -683,24 +704,16 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {{ code_of_conduct() }}
 
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
-        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
-        <ol>
-          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
-          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
-        </ol>
-        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
         <ol>
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
           <li>{% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}</li>
         </ol>
-        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>{% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
         <p>
-          {% trans %}
-            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
-            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
-          {% endtrans %}
           {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
             This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
           {% endtrans %}
         </p>
