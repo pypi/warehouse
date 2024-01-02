@@ -704,24 +704,16 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {{ code_of_conduct() }}
 
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
-        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
-        <ol>
-          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
-          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
-        </ol>
-        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
         <ol>
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
           <li>{% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}</li>
         </ol>
-        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>{% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
         <p>
-          {% trans %}
-            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
-            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
-          {% endtrans %}
           {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
             This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
           {% endtrans %}
         </p>
