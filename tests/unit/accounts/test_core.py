@@ -17,7 +17,7 @@ import pretend
 import pytest
 
 from celery.schedules import crontab
-from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 
 from warehouse import accounts
 from warehouse.accounts import security_policy
@@ -325,11 +325,12 @@ class TestLogin:
         )
 
         pyramid_request.matched_route = pretend.stub(name="forklift.legacy.file_upload")
+        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
 
         now = datetime.datetime.utcnow()
 
-        with freezegun.freeze_time(now):
-            assert _basic_auth_check("myuser", "mypass", pyramid_request) is True
+        with freezegun.freeze_time(now), pytest.raises(HTTPForbidden):
+            _basic_auth_check("myuser", "mypass", pyramid_request)
 
         assert service.find_userid.calls == [pretend.call("myuser")]
         assert service.get_user.calls == [pretend.call(2)]
