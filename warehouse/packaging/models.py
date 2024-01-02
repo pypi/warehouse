@@ -148,18 +148,7 @@ class ProjectFactory:
             return True
 
 
-class TwoFactorRequireable:
-    # Project owner requires 2FA for this project
-    owners_require_2fa: Mapped[bool_false]
-    # PyPI requires 2FA for this project
-    pypi_mandates_2fa: Mapped[bool_false]
-
-    @hybrid_property
-    def two_factor_required(self):
-        return self.owners_require_2fa | self.pypi_mandates_2fa
-
-
-class Project(SitemapMixin, TwoFactorRequireable, HasEvents, HasObservations, db.Model):
+class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     __tablename__ = "projects"
     __repr__ = make_repr("name")
 

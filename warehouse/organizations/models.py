@@ -254,8 +254,7 @@ class OrganizationMixin:
     )
 
 
-# TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
-# class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+# TODO: Determine if this should also utilize SitemapMixin
 class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
 

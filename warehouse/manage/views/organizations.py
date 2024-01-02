@@ -693,9 +693,6 @@ class ManageOrganizationProjectsViews:
         projects_sole_owned = {
             project.name for project in all_user_projects["projects_sole_owned"]
         }
-        projects_requiring_2fa = {
-            project.name for project in all_user_projects["projects_requiring_2fa"]
-        }
         project_choices = {
             project.name
             for project in all_user_projects["projects_owned"]
@@ -708,7 +705,6 @@ class ManageOrganizationProjectsViews:
             "active_projects": active_projects,
             "projects_owned": projects_owned,
             "projects_sole_owned": projects_sole_owned,
-            "projects_requiring_2fa": projects_requiring_2fa,
             "add_organization_project_form": AddOrganizationProjectForm(
                 self.request.POST,
                 project_choices=project_choices,

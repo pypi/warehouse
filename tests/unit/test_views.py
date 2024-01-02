@@ -231,35 +231,6 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
-    @pytest.mark.parametrize("reason", ("owners_require_2fa", "pypi_mandates_2fa"))
-    def test_two_factor_required(self, reason):
-        result = WarehouseDenied("Some summary", reason=reason)
-        exc = pretend.stub(result=result)
-        request = pretend.stub(
-            user=pretend.stub(),
-            session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
-            path_qs="/foo/bar/?b=s",
-            route_url=pretend.call_recorder(
-                lambda route, _query: "/the/url/?next=/foo/bar/%3Fb%3Ds"
-            ),
-            _=lambda x: x,
-        )
-
-        resp = forbidden(exc, request)
-
-        assert resp.status_code == 303
-        assert resp.headers["Location"] == "/the/url/?next=/foo/bar/%3Fb%3Ds"
-        assert request.route_url.calls == [
-            pretend.call("manage.account.two-factor", _query={"next": "/foo/bar/?b=s"})
-        ]
-        assert request.session.flash.calls == [
-            pretend.call(
-                "Two-factor authentication must be enabled on your account to "
-                "perform this action.",
-                queue="error",
-            )
-        ]
-
     @pytest.mark.parametrize(
         "requested_path",
         ("/manage/projects/", "/manage/account/two-factor/", "/manage/organizations/"),
@@ -664,18 +635,8 @@ class TestSecurityKeyGiveaway:
     def test_default_response(self):
         assert SecurityKeyGiveaway(pretend.stub()).default_response == {}
 
-    def test_security_key_giveaway_not_found(self):
-        request = pretend.stub(registry=pretend.stub(settings={}))
-
-        with pytest.raises(HTTPNotFound):
-            SecurityKeyGiveaway(request).security_key_giveaway()
-
     def test_security_key_giveaway(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_mandate.available": True}
-            )
-        )
+        request = pretend.stub()
         view = SecurityKeyGiveaway(request)
 
         assert view.security_key_giveaway() == view.default_response
