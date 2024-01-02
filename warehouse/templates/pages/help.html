@@ -479,12 +479,33 @@
 
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
-        {% trans %}
-          <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
-          <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
-          <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
-
-        {% endtrans %}
+        <p>
+          {% trans %}
+          API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          You can create a token for an entire PyPI account, in which case, the token will work
+          for all projects associated with that account. Alternatively, you can limit a token's
+          scope to a specific project.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          When using an API token from a CI provider, we recommend
+          scoping the token down to the minimum necessary projects.
+          {% endtrans %}
+        </p>
+        <p>
+          <strong>
+            {% trans href='#trusted-publishers' %}
+            If you are publishing to PyPI from a CI provider that supports
+            <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
+            using Trusted Publishing instead.
+            {% endtrans %}
+          </strong>
+        </p>
 
         <p>{% trans %}To make an API token:{% endtrans %}</p>
 
@@ -524,7 +545,7 @@
           {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
           PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to use API tokens or passwords.
+          the need to use API tokens.
           {% endtrans %}
         </p>
       </section>
