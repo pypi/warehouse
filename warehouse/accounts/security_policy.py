@@ -17,7 +17,7 @@ from pyramid.authentication import (
     extract_http_basic_credentials,
 )
 from pyramid.authorization import ACLHelper
-from pyramid.httpexceptions import HTTPUnauthorized
+from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.interfaces import ISecurityPolicy
 from pyramid.security import Allowed
 from zope.interface import implementer
@@ -105,7 +105,14 @@ def _basic_auth_check(username, password, request):
                 request=request,
                 additional={"auth_method": "basic"},
             )
-            return True
+
+            raise _format_exc_status(
+                HTTPForbidden(),
+                "Username/Password authentication is no longer supported. "
+                "Migrate to API Tokens or Trusted Publishers instead. "
+                f"See {request.help_url(_anchor='apitoken')} "
+                f"and {request.help_url(_anchor='trusted-publishers')}",
+            )
         else:
             user.record_event(
                 tag=EventTag.Account.LoginFailure,
