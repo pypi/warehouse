@@ -62,6 +62,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.origin import origin_cache
+from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
     send_added_as_collaborator_email,
     send_added_as_organization_member_email,
@@ -658,7 +659,7 @@ def register(request, _form_class=RegistrationForm):
 
     user_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
-    recaptcha_service = request.find_service(name="recaptcha")
+    recaptcha_service = request.find_service(ICaptchaService, name="recaptcha")
     request.find_service(name="csp").merge(recaptcha_service.csp_policy)
 
     # the form contains an auto-generated field from recaptcha with

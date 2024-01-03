@@ -53,6 +53,7 @@ from warehouse.accounts.views import (
     two_factor_and_totp_validate,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
@@ -1570,7 +1571,7 @@ class TestRegister:
                 ),
                 IRateLimiter: pretend.stub(hit=lambda user_id: None),
                 "csp": pretend.stub(merge=lambda *a, **kw: {}),
-                "recaptcha": pretend.stub(
+                ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
                 ),
             }[key]

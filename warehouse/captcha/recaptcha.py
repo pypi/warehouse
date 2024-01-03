@@ -15,6 +15,10 @@ import http
 
 from urllib.parse import urlencode
 
+from zope.interface import implementer
+
+from .interfaces import ICaptchaService
+
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
@@ -54,9 +58,14 @@ ChallengeResponse = collections.namedtuple(
 )
 
 
+@implementer(ICaptchaService)
 class Service:
-    def __init__(self, request):
+    def __init__(self, *, request):
         self.request = request
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(request=request)
 
     @property
     def csp_policy(self):
