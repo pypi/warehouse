@@ -659,8 +659,8 @@ def register(request, _form_class=RegistrationForm):
 
     user_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
-    recaptcha_service = request.find_service(ICaptchaService, name="recaptcha")
-    request.find_service(name="csp").merge(recaptcha_service.csp_policy)
+    captcha_service = request.find_service(ICaptchaService, name="captcha")
+    request.find_service(name="csp").merge(captcha_service.csp_policy)
 
     # the form contains an auto-generated field from recaptcha with
     # hyphens in it. make it play nice with wtforms.
@@ -671,7 +671,7 @@ def register(request, _form_class=RegistrationForm):
     form = _form_class(
         formdata=post_body,
         user_service=user_service,
-        recaptcha_service=recaptcha_service,
+        captcha_service=captcha_service,
         breach_service=breach_service,
     )
 

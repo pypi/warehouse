@@ -343,18 +343,18 @@ class RegistrationForm(  # type: ignore[misc]
     )
     g_recaptcha_response = wtforms.StringField()
 
-    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
+    def __init__(self, *args, captcha_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.user_id = None
-        self.recaptcha_service = recaptcha_service
+        self.captcha_service = captcha_service
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
-        if self.recaptcha_service.enabled and not field.data:
+        if self.captcha_service.enabled and not field.data:
             raise wtforms.validators.ValidationError("Recaptcha error.")
         try:
-            self.recaptcha_service.verify_response(field.data)
+            self.captcha_service.verify_response(field.data)
         except recaptcha.RecaptchaError:
             # TODO: log error
             # don't want to provide the user with any detail

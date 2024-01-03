@@ -24,5 +24,5 @@ def includeme(config):
         ICaptchaService,
         # Service requires a name for lookup in Jinja2 template,
         # where the Interface object is not available.
-        name="recaptcha",
+        name="captcha",
     )

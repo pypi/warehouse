@@ -29,6 +29,6 @@ def test_includeme_defaults_to_recaptcha():
         pretend.call(
             recaptcha.Service.create_service,
             interfaces.ICaptchaService,
-            name="recaptcha",
+            name="captcha",
         ),
     ]
