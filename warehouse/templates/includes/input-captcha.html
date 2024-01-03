@@ -13,7 +13,7 @@
 -#}
 {% macro captcha_html(request, form) -%}
   {% if request.find_service(name="captcha").enabled %}
-  <div class="g-recaptcha" data-sitekey="{{ request.registry.settings['recaptcha.site_key'] }}"></div>
+  <div class="g-recaptcha" data-sitekey="{{ request.find_service(name="captcha").site_key }}"></div>
     {% if form.g_recaptcha_response.errors %}
     <ul class="form-errors">
       {% for error in form.g_recaptcha_response.errors %}
@@ -26,6 +26,6 @@
 
 {% macro captcha_src(request) -%}
   {% if request.find_service(name="captcha").enabled %}
-    <script src="//www.recaptcha.net/recaptcha/api.js" async defer></script>
+    <script src="{{ request.find_service(name="captcha").script_src_url }}" async defer></script>
   {% endif %}
 {%- endmacro %}

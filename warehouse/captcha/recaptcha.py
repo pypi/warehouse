@@ -60,12 +60,20 @@ ChallengeResponse = collections.namedtuple(
 
 @implementer(ICaptchaService)
 class Service:
-    def __init__(self, *, request):
+    def __init__(self, *, request, script_src_url, site_key, secret_key):
         self.request = request
+        self.script_src_url = script_src_url
+        self.site_key = site_key
+        self.secret_key = secret_key
 
     @classmethod
     def create_service(cls, context, request):
-        return cls(request=request)
+        return cls(
+            request=request,
+            script_src_url="//www.recaptcha.net/recaptcha/api.js",
+            site_key=request.registry.settings.get("recaptcha.site_key"),
+            secret_key=request.registry.settings.get("recaptcha.secret_key"),
+        )
 
     @property
     def csp_policy(self):
@@ -89,20 +97,15 @@ class Service:
 
     @property
     def enabled(self):
-        settings = self.request.registry.settings
-        return bool(
-            settings.get("recaptcha.site_key") and settings.get("recaptcha.secret_key")
-        )
+        return bool(self.site_key and self.secret_key)
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
             return
 
-        settings = self.request.registry.settings
-
         payload = {
-            "secret": settings["recaptcha.secret_key"],
+            "secret": self.secret_key,
             "response": response,
         }
         if remote_ip is not None:

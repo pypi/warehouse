@@ -42,8 +42,8 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             body="",
         )
-        serv = recaptcha.Service(
-            request=pretend.stub(registry=pretend.stub(settings={}))
+        serv = recaptcha.Service.create_service(
+            context=None, request=pretend.stub(registry=pretend.stub(settings={}))
         )
         assert serv.verify_response("") is None
         assert not responses.calls
@@ -55,7 +55,8 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             body="",
         )
-        serv = recaptcha.Service(
+        serv = recaptcha.Service.create_service(
+            context=None,
             request=pretend.stub(
                 registry=pretend.stub(
                     settings={
@@ -75,7 +76,7 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             json={"success": True},
         )
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         serv.verify_response("meaningless", remote_ip="ip")
 
         payload = dict(urllib.parse.parse_qsl(responses.calls[0].request.body))
@@ -88,7 +89,7 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             body="something awful",
         )
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -103,7 +104,7 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             json={"foo": "bar"},
         )
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -118,7 +119,7 @@ class TestVerifyResponse:
             recaptcha.VERIFY_URL,
             json={"success": False},
         )
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
 
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
@@ -140,7 +141,7 @@ class TestVerifyResponse:
                 },
             )
 
-            serv = recaptcha.Service(request=_REQUEST)
+            serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
             with pytest.raises(exc_tp):
                 serv.verify_response("meaningless")
 
@@ -159,7 +160,7 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         with pytest.raises(recaptcha.UnexpectedError) as err:
             serv.verify_response("meaningless")
         assert str(err.value) == "Unexpected error code: slartibartfast"
@@ -175,7 +176,7 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -193,7 +194,7 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -212,7 +213,7 @@ class TestVerifyResponse:
             },
         )
 
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         res = serv.verify_response("meaningless")
 
         assert isinstance(res, recaptcha.ChallengeResponse)
@@ -221,7 +222,7 @@ class TestVerifyResponse:
 
     @responses.activate
     def test_unexpected_error(self):
-        serv = recaptcha.Service(request=_REQUEST)
+        serv = recaptcha.Service.create_service(context=None, request=_REQUEST)
         serv.request.http.post = pretend.raiser(socket.error)
 
         with pytest.raises(recaptcha.UnexpectedError):
@@ -240,7 +241,7 @@ class TestCSPPolicy:
                 }
             ),
         )
-        serv = recaptcha.Service(request=request)
+        serv = recaptcha.Service.create_service(context=None, request=request)
         assert serv.csp_policy == {
             "script-src": [
                 "{request.scheme}://www.recaptcha.net/recaptcha/",
@@ -253,7 +254,6 @@ class TestCSPPolicy:
 
 
 def test_create_service():
-    request = pretend.stub()
-    svc = recaptcha.Service.create_service(None, request)
+    svc = recaptcha.Service.create_service(context=None, request=_REQUEST)
     assert isinstance(svc, recaptcha.Service)
-    assert svc.request is request
+    assert svc.request is _REQUEST
