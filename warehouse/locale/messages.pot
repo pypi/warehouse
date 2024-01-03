@@ -4,7 +4,13 @@ msgid ""
 "this action."
 msgstr ""
 
-#: warehouse/views.py:267
+#: warehouse/views.py:158
+msgid ""
+"Two-factor authentication must be enabled on your account to perform this"
+" action."
+msgstr ""
+
+#: warehouse/views.py:283
 msgid "Locale updated"
 msgstr ""
 
