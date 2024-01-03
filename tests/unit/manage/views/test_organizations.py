@@ -1591,9 +1591,7 @@ class TestManageOrganizationProjects:
         result = view.add_organization_project()
 
         # The project was created
-        project = (
-            db_request.db.query(Project).filter_by(name="fakepackage").one()
-        )
+        project = db_request.db.query(Project).filter_by(name="fakepackage").one()
 
         # Refresh the project in the DB session to ensure it is not stale
         db_request.db.refresh(project)
