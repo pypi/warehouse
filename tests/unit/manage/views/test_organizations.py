@@ -1590,11 +1590,16 @@ class TestManageOrganizationProjects:
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
-        # The project was created, and belongs to the organization.
+        # The project was created
         project = (
             db_request.db.query(Project).filter_by(name="fakepackage").one_or_none()
         )
         assert project is not None
+
+        # Refresh the project in the DB session to ensure it is not stale
+        db_request.db.refresh(project)
+
+        # The project belongs to the organization.
         assert project.organization == organization
 
         assert isinstance(result, HTTPSeeOther)
