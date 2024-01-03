@@ -10,7 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import collections
+
 from zope.interface import Interface
+
+ChallengeResponse = collections.namedtuple(
+    "ChallengeResponse", ("challenge_ts", "hostname")
+)
 
 
 class ICaptchaService(Interface):
@@ -25,12 +31,12 @@ class ICaptchaService(Interface):
         Return whether the Captcha service is enabled.
         """
 
-    def csp_policy() -> str:
+    def csp_policy() -> dict[str, list[str]]:
         """
         Return the CSP policy appropriate for the Captcha service.
         """
 
-    def verify_response(response) -> bool:
+    def verify_response(response) -> ChallengeResponse | None:
         """
         Verify the response from the Captcha service.
         """

@@ -10,14 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import http
 
 from urllib.parse import urlencode
 
 from zope.interface import implementer
 
-from .interfaces import ICaptchaService
+from .interfaces import ChallengeResponse, ICaptchaService
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -52,10 +51,6 @@ ERROR_CODE_MAP = {
     "missing-input-response": MissingInputResponseError,
     "invalid-input-response": InvalidInputResponseError,
 }
-
-ChallengeResponse = collections.namedtuple(
-    "ChallengeResponse", ("challenge_ts", "hostname")
-)
 
 
 @implementer(ICaptchaService)
