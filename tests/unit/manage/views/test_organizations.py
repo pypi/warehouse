@@ -1592,9 +1592,8 @@ class TestManageOrganizationProjects:
 
         # The project was created
         project = (
-            db_request.db.query(Project).filter_by(name="fakepackage").one_or_none()
+            db_request.db.query(Project).filter_by(name="fakepackage").one()
         )
-        assert project is not None
 
         # Refresh the project in the DB session to ensure it is not stale
         db_request.db.refresh(project)
