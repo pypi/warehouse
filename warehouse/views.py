@@ -151,6 +151,22 @@ def forbidden(exc, request):
             )
             return HTTPSeeOther(url)
 
+        # If the forbidden error is because the user doesn't have 2FA enabled, we'll
+        # redirect them to the 2FA page
+        if exc.result.reason == "manage_2fa_required":
+            request.session.flash(
+                request._(
+                    "Two-factor authentication must be enabled on your account to "
+                    "perform this action."
+                ),
+                queue="error",
+            )
+            url = request.route_url(
+                "manage.account.two-factor",
+                _query={REDIRECT_FIELD_NAME: request.path_qs},
+            )
+            return HTTPSeeOther(url)
+
     # If we've reached here, then the user is logged in and they are genuinely
     # not allowed to access this page.
     return httpexception_view(exc, request)
