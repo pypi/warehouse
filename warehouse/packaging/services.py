@@ -25,10 +25,13 @@ import google.api_core.exceptions
 import google.api_core.retry
 import sentry_sdk
 
+from sqlalchemy import func
 from zope.interface import implementer
 
+from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -457,6 +460,28 @@ class ProjectService:
                     "target_user": creator.username,
                 },
             )
+
+        # Remove all pending publishers not owned by the creator.
+        # There might be other pending publishers for the same project name,
+        # which we've now invalidated by creating the project. These would
+        # be disposed of on use, but we explicitly dispose of them here while
+        # also sending emails to their owners.
+        stale_pending_publishers = (
+            request.db.query(PendingOIDCPublisher)
+            .filter(
+                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                == func.normalize_pep426_name(project.name),
+                PendingOIDCPublisher.added_by != creator,
+            )
+            .all()
+        )
+        for stale_publisher in stale_pending_publishers:
+            send_pending_trusted_publisher_invalidated_email(
+                request,
+                stale_publisher.added_by,
+                project_name=stale_publisher.project_name,
+            )
+            request.db.delete(stale_publisher)
 
         if ratelimited:
             self._hit_ratelimits(request, creator)
