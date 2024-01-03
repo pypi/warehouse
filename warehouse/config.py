@@ -203,6 +203,7 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
@@ -713,8 +714,8 @@ def configure(settings=None):
     # Register Referrer-Policy service
     config.include(".referrer_policy")
 
-    # Register recaptcha service
-    config.include(".recaptcha")
+    # Register Captcha service
+    config.include(".captcha")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
