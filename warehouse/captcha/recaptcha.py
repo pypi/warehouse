@@ -143,14 +143,3 @@ class Service:
             data.get("challenge_ts"),
             data.get("hostname"),
         )
-
-
-def service_factory(handler, request):
-    return Service(request)
-
-
-def includeme(config):
-    # yeah yeah, binding to a concrete implementation rather than an
-    # interface. in a perfect world, this will never be offloaded to another
-    # service. however, if it is, then we'll deal with the refactor then
-    config.register_service_factory(service_factory, name="recaptcha")

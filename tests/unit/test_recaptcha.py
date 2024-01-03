@@ -18,7 +18,7 @@ import pytest
 import requests
 import responses
 
-from warehouse import recaptcha
+from warehouse.captcha import includeme, recaptcha, service_factory
 
 _SETTINGS = {
     "recaptcha.site_key": "site_key_value",
@@ -251,7 +251,7 @@ class TestCSPPolicy:
 
 
 def test_service_factory():
-    serv = recaptcha.service_factory(None, _REQUEST)
+    serv = service_factory(None, _REQUEST)
     assert serv.request is _REQUEST
 
 
@@ -259,8 +259,8 @@ def test_includeme():
     config = pretend.stub(
         register_service_factory=pretend.call_recorder(lambda fact, name: None),
     )
-    recaptcha.includeme(config)
+    includeme(config)
 
     assert config.register_service_factory.calls == [
-        pretend.call(recaptcha.service_factory, name="recaptcha"),
+        pretend.call(service_factory, name="recaptcha"),
     ]

@@ -713,8 +713,8 @@ def configure(settings=None):
     # Register Referrer-Policy service
     config.include(".referrer_policy")
 
-    # Register recaptcha service
-    config.include(".recaptcha")
+    # Register Captcha service
+    config.include(".captcha")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")

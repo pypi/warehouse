@@ -24,7 +24,7 @@ import wtforms.fields
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
-from warehouse import forms, recaptcha
+from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     InvalidRecoveryCode,
@@ -33,6 +33,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
+from warehouse.captcha import recaptcha
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,

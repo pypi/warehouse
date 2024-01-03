@@ -21,7 +21,6 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
-from warehouse import recaptcha
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -30,6 +29,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
