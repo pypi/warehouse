@@ -65,6 +65,7 @@ class Service:
         self.script_src_url = script_src_url
         self.site_key = site_key
         self.secret_key = secret_key
+        self.class_name = "g-recaptcha"
 
     @classmethod
     def create_service(cls, context, request):
