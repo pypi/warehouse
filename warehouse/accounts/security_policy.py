@@ -34,7 +34,6 @@ from warehouse.errors import (
     WarehouseDenied,
 )
 from warehouse.events.tags import EventTag
-from warehouse.packaging.models import TwoFactorRequireable
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
@@ -283,54 +282,8 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     # at this point, and we only a User in these policies.
     assert isinstance(request.identity, User)
 
-    # Check if the context is 2FA requireable, if 2FA is indeed required, and if
-    # the user has 2FA enabled.
-    if isinstance(context, TwoFactorRequireable):
-        # Check if we allow owners to require 2FA, and if so does our context owner
-        # require 2FA? And if so does our user have 2FA?
-        if (
-            request.registry.settings["warehouse.two_factor_requirement.enabled"]
-            and context.owners_require_2fa
-            and not request.identity.has_two_factor
-        ):
-            return WarehouseDenied(
-                "This project requires two factor authentication to be enabled "
-                "for all contributors.",
-                reason="owners_require_2fa",
-            )
-
-        # Check if PyPI is enforcing the 2FA mandate on "critical" projects, and if it
-        # is does our current context require it, and if it does, does our user have
-        # 2FA?
-        if (
-            request.registry.settings["warehouse.two_factor_mandate.enabled"]
-            and context.pypi_mandates_2fa
-            and not request.identity.has_two_factor
-        ):
-            return WarehouseDenied(
-                "PyPI requires two factor authentication to be enabled "
-                "for all contributors to this project.",
-                reason="pypi_mandates_2fa",
-            )
-
-        # Check if PyPI's 2FA mandate is available, but not enforcing, and if it is and
-        # the current context would require 2FA, and if our user doesn't have have 2FA
-        # then we'll flash a warning.
-        if (
-            request.registry.settings["warehouse.two_factor_mandate.available"]
-            and context.pypi_mandates_2fa
-            and not request.identity.has_two_factor
-        ):
-            request.session.flash(
-                "This project is included in PyPI's two-factor mandate "
-                "for critical projects. In the future, you will be unable to "
-                "perform this action without enabling 2FA for your account",
-                queue="warning",
-            )
-
-    # Regardless of TwoFactorRequireable, if we're in the manage namespace or file
-    # uploads, we'll check if the user has 2FA enabled, and if they don't we'll deny
-    # them.
+    # If we're in the manage namespace or file uploads, we'll check if the user
+    # has 2FA enabled, and if they don't we'll deny them.
 
     # Management routes that don't require 2FA, mostly to set up 2FA.
     _exempt_routes = [

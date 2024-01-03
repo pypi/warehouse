@@ -153,11 +153,7 @@ def forbidden(exc, request):
 
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
-        if exc.result.reason in {
-            "owners_require_2fa",
-            "pypi_mandates_2fa",
-            "manage_2fa_required",
-        }:
+        if exc.result.reason == "manage_2fa_required":
             request.session.flash(
                 request._(
                     "Two-factor authentication must be enabled on your account to "
@@ -473,11 +469,6 @@ class SecurityKeyGiveaway:
 
     @view_config(request_method="GET")
     def security_key_giveaway(self):
-        if not self.request.registry.settings.get(
-            "warehouse.two_factor_mandate.available"
-        ):
-            raise HTTPNotFound
-
         return self.default_response
 
 

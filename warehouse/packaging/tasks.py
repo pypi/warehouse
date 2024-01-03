@@ -17,17 +17,14 @@ import tempfile
 from collections import namedtuple
 from itertools import product
 
-import pip_api
-
 from google.cloud.bigquery import LoadJobConfig
-from packaging.utils import canonicalize_name
 from sqlalchemy.orm import joinedload
 
 from warehouse import tasks
 from warehouse.accounts.models import User, WebAuthn
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
-from warehouse.packaging.models import Description, File, Project, Release, Role
+from warehouse.packaging.models import Description, File, Project, Release
 from warehouse.utils import readme
 from warehouse.utils.row_counter import RowCount
 
@@ -212,128 +209,8 @@ def reconcile_file_storages(request):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def compute_2fa_mandate(request):
-    # Get our own production dependencies
-    our_dependencies = set(
-        pip_api.parse_requirements("./requirements/main.txt")
-        | pip_api.parse_requirements("./requirements/deploy.txt")
-    )
-
-    bq = request.find_service(name="gcloud.bigquery")
-
-    # Get the top N projects in the last 6 months
-    query = bq.query(
-        """ SELECT
-              COUNT(*) AS num_downloads,
-              file.project as project_name
-            FROM
-              {table}
-            WHERE
-              DATE(timestamp) BETWEEN DATE_TRUNC(
-                DATE_SUB(CURRENT_DATE(), INTERVAL 6 MONTH), MONTH
-              )
-              AND CURRENT_DATE()
-            GROUP BY
-              file.project
-            ORDER BY
-              num_downloads DESC
-            LIMIT
-              {cohort_size}
-        """.format(
-            table=request.registry.settings["warehouse.downloads_table"],
-            cohort_size=request.registry.settings[
-                "warehouse.two_factor_mandate.cohort_size"
-            ],
-        )
-    )
-    top_projects = {row.get("project_name") for row in query.result()}
-
-    project_names = {canonicalize_name(n) for n in our_dependencies | top_projects}
-
-    # Get the projects that were not previously in the mandate
-    new_projects = request.db.query(Project).filter(
-        Project.normalized_name.in_(project_names), Project.pypi_mandates_2fa.is_(False)
-    )
-
-    # Add them to the mandate
-    new_projects.update({Project.pypi_mandates_2fa: True})
-
-
-@tasks.task(ignore_result=True, acks_late=True)
 def compute_2fa_metrics(request):
     metrics = request.find_service(IMetricsService, context=None)
-
-    critical_projects = request.db.query(Project).where(
-        Project.pypi_mandates_2fa.is_(True)
-    )
-    critical_maintainers = (
-        request.db.query(User).join(Project.users).join(critical_projects.subquery())
-    )
-
-    # Number of projects marked critical
-    metrics.gauge(
-        "warehouse.2fa.total_critical_projects",
-        critical_projects.count(),
-    )
-
-    # Number of critical project maintainers
-    metrics.gauge(
-        "warehouse.2fa.total_critical_maintainers",
-        critical_maintainers.count(),
-    )
-
-    # Number of critical project maintainers with TOTP enabled
-    total_critical_project_maintainers_with_totp_enabled = (
-        request.db.query(User.id)
-        .distinct()
-        .join(Role, Role.user_id == User.id)
-        .join(Project, Project.id == Role.project_id)
-        .where(Project.pypi_mandates_2fa)
-        .where(User.totp_secret.is_not(None))
-        .count()
-    )
-    metrics.gauge(
-        "warehouse.2fa.total_critical_maintainers_with_totp_enabled",
-        total_critical_project_maintainers_with_totp_enabled,
-    )
-
-    # Number of critical project maintainers with WebAuthn enabled
-    metrics.gauge(
-        "warehouse.2fa.total_critical_maintainers_with_webauthn_enabled",
-        request.db.query(User.id)
-        .distinct()
-        .join(Role.user)
-        .join(Role.project)
-        .join(WebAuthn, WebAuthn.user_id == User.id)
-        .where(Project.pypi_mandates_2fa)
-        .count(),
-    )
-
-    # Number of critical project maintainers with 2FA enabled
-    metrics.gauge(
-        "warehouse.2fa.total_critical_maintainers_with_2fa_enabled",
-        total_critical_project_maintainers_with_totp_enabled
-        + request.db.query(User.id)
-        .distinct()
-        .join(Role.user)
-        .join(Role.project)
-        .join(WebAuthn, WebAuthn.user_id == User.id)
-        .where(Project.pypi_mandates_2fa)
-        .where(User.totp_secret.is_(None))
-        .count(),
-    )
-
-    # Number of projects manually requiring 2FA
-    metrics.gauge(
-        "warehouse.2fa.total_projects_with_2fa_opt_in",
-        request.db.query(Project).where(Project.owners_require_2fa).count(),
-    )
-
-    # Total number of projects requiring 2FA
-    metrics.gauge(
-        "warehouse.2fa.total_projects_with_two_factor_required",
-        request.db.query(Project).where(Project.two_factor_required).count(),
-    )
 
     # Total number of users with TOTP enabled
     total_users_with_totp_enabled = (

@@ -215,7 +215,6 @@ class TestManageTeamProjects:
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
-            "projects_requiring_2fa": set(),
         }
 
 

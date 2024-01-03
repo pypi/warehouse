@@ -1158,10 +1158,6 @@ pastedeploy==3.1.0 \
     --hash=sha256:76388ad53a661448d436df28c798063108f70e994ddc749540d733cdbd1b38cf \
     --hash=sha256:9ddbaf152f8095438a9fe81f82c78a6714b92ae8e066bed418b6a7ff6a095a95
     # via plaster-pastedeploy
-pip-api==0.0.30 \
-    --hash=sha256:2a0314bd31522eb9ffe8a99668b0d07fee34ebc537931e7b6483001dbedcbdc9 \
-    --hash=sha256:a05df2c7aa9b7157374bcf4273544201a0c7bae60a9c65bcf84f3959ef3896f3
-    # via -r requirements/main.in
 plaster==1.1.2 \
     --hash=sha256:42992ab1f4865f1278e2ad740e8ad145683bb4022e03534265528f0c23c0df2d \
     --hash=sha256:f8befc54bf8c1147c10ab40297ec84c2676fa2d4ea5d6f524d9436a80074ef98
@@ -1789,10 +1785,6 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-pip==23.3.2 \
-    --hash=sha256:5052d7889c1f9d05224cd41741acb7c5d6fa735ab34e339624a614eaaa7e7d76 \
-    --hash=sha256:7fd9972f96db22c8077a1ee2691b172c8089b17a5652a44494a9ecb0d78f9149
-    # via pip-api
 setuptools==69.0.3 \
     --hash=sha256:385eb4edd9c9d5c17540511303e39a147ce2fc04bc55289c322b9e5904fe2c05 \
     --hash=sha256:be1af57fc409f93647f2e8e4573a142ed38724b8cdd389706a867bb4efcf1e78

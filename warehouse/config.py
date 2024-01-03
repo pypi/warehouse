@@ -368,36 +368,6 @@ def configure(settings=None):
         default="40 per hour",
     )
 
-    # 2FA feature flags
-    maybe_set(
-        settings,
-        "warehouse.two_factor_requirement.enabled",
-        "TWOFACTORREQUIREMENT_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.available",
-        "TWOFACTORMANDATE_AVAILABLE",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.enabled",
-        "TWOFACTORMANDATE_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.cohort_size",
-        "TWOFACTORMANDATE_COHORTSIZE",
-        coercer=int,
-        default=0,
-    )
-
     # OIDC feature flags and settings
     maybe_set(settings, "warehouse.oidc.audience", "OIDC_AUDIENCE")
 

@@ -1359,7 +1359,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert len(add_organization_project_cls.calls) == 1
@@ -1544,7 +1543,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert len(add_organization_project_cls.calls) == 1
@@ -1656,7 +1654,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert add_organization_project_obj.new_project_name.errors == ["error-message"]
@@ -1704,7 +1701,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert add_organization_project_obj.new_project_name.errors == [

@@ -4,13 +4,13 @@ msgid ""
 "this action."
 msgstr ""
 
-#: warehouse/views.py:162
+#: warehouse/views.py:158
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this"
 " action."
 msgstr ""
 
-#: warehouse/views.py:287
+#: warehouse/views.py:283
 msgid "Locale updated"
 msgstr ""
 
@@ -147,7 +147,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:559 warehouse/manage/views/__init__.py:824
+#: warehouse/accounts/views.py:559 warehouse/manage/views/__init__.py:823
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -281,13 +281,13 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1513 warehouse/accounts/views.py:1661
-#: warehouse/manage/views/__init__.py:1237
+#: warehouse/manage/views/__init__.py:1183
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1530 warehouse/manage/views/__init__.py:1253
+#: warehouse/accounts/views.py:1530 warehouse/manage/views/__init__.py:1199
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
@@ -303,13 +303,13 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1573 warehouse/manage/views/__init__.py:1272
+#: warehouse/accounts/views.py:1573 warehouse/manage/views/__init__.py:1218
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1587 warehouse/manage/views/__init__.py:1286
+#: warehouse/accounts/views.py:1587 warehouse/manage/views/__init__.py:1232
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -336,11 +336,11 @@ msgstr ""
 msgid "Banner Preview"
 msgstr ""
 
-#: warehouse/manage/forms.py:414
+#: warehouse/manage/forms.py:408
 msgid "Choose an organization account name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:422
+#: warehouse/manage/forms.py:416
 msgid ""
 "The organization account name is invalid. Organization account names must"
 " be composed of letters, numbers, dots, hyphens and underscores. And must"
@@ -348,204 +348,200 @@ msgid ""
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:445
+#: warehouse/manage/forms.py:439
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:460
+#: warehouse/manage/forms.py:454
 msgid ""
 "You have already submitted an application for that name. Choose a "
 "different organization account name."
 msgstr ""
 
-#: warehouse/manage/forms.py:496
+#: warehouse/manage/forms.py:490
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:501 warehouse/oidc/forms/github.py:174
+#: warehouse/manage/forms.py:495 warehouse/oidc/forms/github.py:174
 msgid "Specify project name"
 msgstr ""
 
-#: warehouse/manage/forms.py:504
+#: warehouse/manage/forms.py:498
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
 
-#: warehouse/manage/forms.py:511
+#: warehouse/manage/forms.py:505
 msgid "This project name has already been used. Choose a different project name."
 msgstr ""
 
-#: warehouse/manage/forms.py:582
+#: warehouse/manage/forms.py:576
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:594
+#: warehouse/manage/forms.py:588
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:601
+#: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
 msgstr ""
 
-#: warehouse/manage/forms.py:612
+#: warehouse/manage/forms.py:606
 msgid ""
 "The organization description is too long. Choose a organization "
 "description with 400 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:647
+#: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
-#: warehouse/manage/forms.py:677
+#: warehouse/manage/forms.py:671
 msgid "Choose a team name with 50 characters or less."
 msgstr ""
 
-#: warehouse/manage/forms.py:683
+#: warehouse/manage/forms.py:677
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/forms.py:711
+#: warehouse/manage/forms.py:705
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:192
+#: warehouse/manage/views/__init__.py:191
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:221
+#: warehouse/manage/views/__init__.py:220
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:772
+#: warehouse/manage/views/__init__.py:771
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:773
+#: warehouse/manage/views/__init__.py:772
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:882
+#: warehouse/manage/views/__init__.py:881
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:982
+#: warehouse/manage/views/__init__.py:981
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1014
+#: warehouse/manage/views/__init__.py:1013
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1136
-msgid "2FA requirement cannot be disabled for critical projects"
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1491
-#: warehouse/manage/views/__init__.py:1792
-#: warehouse/manage/views/__init__.py:1900
+#: warehouse/manage/views/__init__.py:1437
+#: warehouse/manage/views/__init__.py:1738
+#: warehouse/manage/views/__init__.py:1846
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1623
-#: warehouse/manage/views/__init__.py:1708
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1909
+#: warehouse/manage/views/__init__.py:1569
+#: warehouse/manage/views/__init__.py:1654
+#: warehouse/manage/views/__init__.py:1755
+#: warehouse/manage/views/__init__.py:1855
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1635
+#: warehouse/manage/views/__init__.py:1581
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1720
+#: warehouse/manage/views/__init__.py:1666
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1767
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1921
+#: warehouse/manage/views/__init__.py:1867
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1925
+#: warehouse/manage/views/__init__.py:1871
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2075
+#: warehouse/manage/views/__init__.py:2021
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2182
+#: warehouse/manage/views/__init__.py:2128
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2249
+#: warehouse/manage/views/__init__.py:2195
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2281
+#: warehouse/manage/views/__init__.py:2227
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2294
-#: warehouse/manage/views/organizations.py:882
+#: warehouse/manage/views/__init__.py:2240
+#: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2359
-#: warehouse/manage/views/organizations.py:947
+#: warehouse/manage/views/__init__.py:2305
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2392
+#: warehouse/manage/views/__init__.py:2338
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2403
+#: warehouse/manage/views/__init__.py:2349
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2435
-#: warehouse/manage/views/organizations.py:1134
+#: warehouse/manage/views/__init__.py:2381
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:858
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:869
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1030
-#: warehouse/manage/views/organizations.py:1072
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1040
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1087
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -932,9 +928,9 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:256
 #: warehouse/templates/manage/project/documentation.html:27
 #: warehouse/templates/manage/project/release.html:188
-#: warehouse/templates/manage/project/settings.html:126
-#: warehouse/templates/manage/project/settings.html:175
-#: warehouse/templates/manage/project/settings.html:247
+#: warehouse/templates/manage/project/settings.html:84
+#: warehouse/templates/manage/project/settings.html:133
+#: warehouse/templates/manage/project/settings.html:205
 #: warehouse/templates/manage/team/settings.html:77
 msgid "Warning"
 msgstr ""
@@ -1258,8 +1254,8 @@ msgstr ""
 #: warehouse/templates/manage/account/token.html:150
 #: warehouse/templates/manage/account/totp-provision.html:69
 #: warehouse/templates/manage/account/webauthn-provision.html:44
-#: warehouse/templates/manage/organization/projects.html:179
-#: warehouse/templates/manage/organization/projects.html:197
+#: warehouse/templates/manage/organization/projects.html:128
+#: warehouse/templates/manage/organization/projects.html:146
 #: warehouse/templates/manage/organization/roles.html:270
 #: warehouse/templates/manage/organization/roles.html:283
 #: warehouse/templates/manage/organization/settings.html:50
@@ -1463,10 +1459,10 @@ msgid "No projects"
 msgstr ""
 
 #: warehouse/templates/accounts/profile.html:83
-#: warehouse/templates/manage/organization/projects.html:73
+#: warehouse/templates/manage/organization/projects.html:48
 #: warehouse/templates/manage/projects.html:37
-#: warehouse/templates/manage/projects.html:108
-#: warehouse/templates/manage/team/projects.html:73
+#: warehouse/templates/manage/projects.html:84
+#: warehouse/templates/manage/team/projects.html:48
 #: warehouse/templates/organizations/profile.html:66
 #, python-format
 msgid "Last released %(release_date)s"
@@ -2708,7 +2704,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:331
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/manage/project/settings.html:69
 #: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr ""
@@ -3644,17 +3640,17 @@ msgid "Delete your PyPI account"
 msgstr ""
 
 #: warehouse/templates/manage/manage_base.html:16
-#: warehouse/templates/manage/organization/projects.html:117
-#: warehouse/templates/manage/organization/projects.html:122
+#: warehouse/templates/manage/organization/projects.html:67
+#: warehouse/templates/manage/organization/projects.html:71
 #: warehouse/templates/manage/organization/teams.html:56
 #: warehouse/templates/manage/organizations.html:114
 #: warehouse/templates/manage/organizations.html:120
 #: warehouse/templates/manage/organizations.html:125
 #: warehouse/templates/manage/project/releases.html:88
-#: warehouse/templates/manage/projects.html:152
-#: warehouse/templates/manage/projects.html:157
-#: warehouse/templates/manage/team/projects.html:117
-#: warehouse/templates/manage/team/projects.html:122
+#: warehouse/templates/manage/projects.html:103
+#: warehouse/templates/manage/projects.html:107
+#: warehouse/templates/manage/team/projects.html:66
+#: warehouse/templates/manage/team/projects.html:70
 msgid "Manage"
 msgstr ""
 
@@ -3953,12 +3949,12 @@ msgstr ""
 msgid "Pending invitations"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:80
+#: warehouse/templates/manage/organization/projects.html:55
 #: warehouse/templates/manage/organizations.html:35
 #: warehouse/templates/manage/organizations.html:96
 #: warehouse/templates/manage/projects.html:44
-#: warehouse/templates/manage/projects.html:115
-#: warehouse/templates/manage/team/projects.html:80
+#: warehouse/templates/manage/projects.html:91
+#: warehouse/templates/manage/team/projects.html:55
 #, python-format
 msgid "Created %(creation_date)s"
 msgstr ""
@@ -4031,15 +4027,15 @@ msgstr ""
 msgid "View this organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:130
-#: warehouse/templates/manage/organization/projects.html:133
+#: warehouse/templates/manage/organization/projects.html:79
+#: warehouse/templates/manage/organization/projects.html:82
 #: warehouse/templates/manage/organization/teams.html:63
 #: warehouse/templates/manage/organizations.html:103
 #: warehouse/templates/manage/project/releases.html:94
-#: warehouse/templates/manage/projects.html:165
-#: warehouse/templates/manage/projects.html:168
-#: warehouse/templates/manage/team/projects.html:130
-#: warehouse/templates/manage/team/projects.html:133
+#: warehouse/templates/manage/projects.html:115
+#: warehouse/templates/manage/projects.html:118
+#: warehouse/templates/manage/team/projects.html:78
+#: warehouse/templates/manage/team/projects.html:81
 msgid "View"
 msgstr ""
 
@@ -4170,91 +4166,37 @@ msgstr ""
 msgid "."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:53
-#: warehouse/templates/manage/organization/projects.html:63
-#: warehouse/templates/manage/projects.html:81
-#: warehouse/templates/manage/projects.html:88
-#: warehouse/templates/manage/team/projects.html:53
-#: warehouse/templates/manage/team/projects.html:63
-msgid "This is a critical project for the Python ecosystem"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:54
-#: warehouse/templates/manage/organization/projects.html:64
-#: warehouse/templates/manage/projects.html:82
-#: warehouse/templates/manage/projects.html:89
-#: warehouse/templates/manage/team/projects.html:54
-#: warehouse/templates/manage/team/projects.html:64
-msgid "Critical Project"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:56
-#: warehouse/templates/manage/organization/projects.html:97
-#: warehouse/templates/manage/projects.html:91
-#: warehouse/templates/manage/projects.html:132
-#: warehouse/templates/manage/team/projects.html:56
-#: warehouse/templates/manage/team/projects.html:97
-msgid "PyPI requires 2FA to be enabled to manage this project"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:57
-#: warehouse/templates/manage/organization/projects.html:98
-#: warehouse/templates/manage/projects.html:92
-#: warehouse/templates/manage/projects.html:133
-#: warehouse/templates/manage/team/projects.html:57
-#: warehouse/templates/manage/team/projects.html:98
-msgid "2FA Mandated"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:46
-#: warehouse/templates/manage/organization/projects.html:109
-#: warehouse/templates/manage/projects.html:98
-#: warehouse/templates/manage/projects.html:144
-#: warehouse/templates/manage/team/projects.html:46
-#: warehouse/templates/manage/team/projects.html:109
-msgid "This project requires 2FA to be enabled to manage"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:47
-#: warehouse/templates/manage/organization/projects.html:110
-#: warehouse/templates/manage/projects.html:99
-#: warehouse/templates/manage/projects.html:145
-#: warehouse/templates/manage/team/projects.html:47
-#: warehouse/templates/manage/team/projects.html:110
-msgid "2FA Required"
-msgstr ""
-
-#: warehouse/templates/manage/organization/projects.html:68
-#: warehouse/templates/manage/projects.html:103
-#: warehouse/templates/manage/team/projects.html:68
+#: warehouse/templates/manage/organization/projects.html:43
+#: warehouse/templates/manage/projects.html:79
+#: warehouse/templates/manage/team/projects.html:43
 msgid "Sole owner"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:116
-#: warehouse/templates/manage/projects.html:151
-#: warehouse/templates/manage/team/projects.html:116
+#: warehouse/templates/manage/organization/projects.html:66
+#: warehouse/templates/manage/projects.html:102
+#: warehouse/templates/manage/team/projects.html:65
 msgid "Manage this project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:121
-#: warehouse/templates/manage/projects.html:156
-#: warehouse/templates/manage/team/projects.html:121
+#: warehouse/templates/manage/organization/projects.html:70
+#: warehouse/templates/manage/projects.html:106
+#: warehouse/templates/manage/team/projects.html:69
 msgid "You are not an owner of this project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:129
-#: warehouse/templates/manage/projects.html:164
-#: warehouse/templates/manage/team/projects.html:129
+#: warehouse/templates/manage/organization/projects.html:78
+#: warehouse/templates/manage/projects.html:114
+#: warehouse/templates/manage/team/projects.html:77
 msgid "View this project's public page"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:132
-#: warehouse/templates/manage/projects.html:167
-#: warehouse/templates/manage/team/projects.html:132
+#: warehouse/templates/manage/organization/projects.html:81
+#: warehouse/templates/manage/projects.html:117
+#: warehouse/templates/manage/team/projects.html:80
 msgid "This project has no releases"
 msgstr ""
 
-#: warehouse/templates/manage/projects.html:176
+#: warehouse/templates/manage/projects.html:126
 #, python-format
 msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
@@ -4969,11 +4911,11 @@ msgstr ""
 msgid "Manage '%(organization_name)s' projects"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:142
+#: warehouse/templates/manage/organization/projects.html:91
 msgid "There are no projects in your organization, yet."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:144
+#: warehouse/templates/manage/organization/projects.html:93
 #, python-format
 msgid ""
 "Get started by adding a project that you own using the form below. To "
@@ -4981,29 +4923,29 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:156
+#: warehouse/templates/manage/organization/projects.html:105
 msgid "Add project to organization"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:162
+#: warehouse/templates/manage/organization/projects.html:111
 msgid "️New or existing project?"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:172
+#: warehouse/templates/manage/organization/projects.html:121
 msgid ""
 "Transfer an existing project that you own, or create and add a new "
 "project to the organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:178
+#: warehouse/templates/manage/organization/projects.html:127
 msgid "️Name of existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:182
+#: warehouse/templates/manage/organization/projects.html:131
 msgid "You do not own any projects that you can add to this organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:187
+#: warehouse/templates/manage/organization/projects.html:136
 msgid ""
 "Owners or managers of this organization can transfer a project that they "
 "own to this organization if the project has not been added to another "
@@ -5011,21 +4953,21 @@ msgid ""
 "be transferred from the project settings page."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:192
+#: warehouse/templates/manage/organization/projects.html:141
 msgid "Transfer existing project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:196
+#: warehouse/templates/manage/organization/projects.html:145
 msgid "️Name of new project"
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:204
+#: warehouse/templates/manage/organization/projects.html:153
 msgid ""
 "Owners of this organization can create an empty project and add it to the"
 " organization."
 msgstr ""
 
-#: warehouse/templates/manage/organization/projects.html:209
+#: warehouse/templates/manage/organization/projects.html:158
 msgid "Create and add new project"
 msgstr ""
 
@@ -5749,7 +5691,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
-#: warehouse/templates/manage/project/settings.html:111
+#: warehouse/templates/manage/project/settings.html:69
 msgid "Dismiss"
 msgstr ""
 
@@ -6105,50 +6047,10 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:60
-msgid "<abbr title=\"two factor authentication\">2FA</abbr> requirement"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:61
-msgid ""
-"Requiring 2FA for this project will require all collaborators to have 2FA"
-" enabled for their individual account. Any collaborator who does not have"
-" 2FA enabled will not be able to manage the project until they enable "
-"2FA."
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:69
-msgid ""
-"This project is part of PyPI's two-factor authentication mandate for "
-"critical projects. As a result, this setting cannot be disabled for this "
-"project."
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:76
-msgid ""
-"This project will be part of PyPI's two-factor authentication mandate for"
-" critical projects. As a result, this setting cannot be disabled for this"
-" project."
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:84
-msgid "You must enable 2FA for your account before you can modify this setting."
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:94
-#, python-format
-msgid "Disable 2FA requirement for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:96
-#, python-format
-msgid "Enable 2FA requirement for %(project_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/settings.html:102
 msgid "Project description and sidebar"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:104
+#: warehouse/templates/manage/project/settings.html:62
 #, python-format
 msgid ""
 "To set the '%(project_name)s' description, author, links, classifiers, "
@@ -6164,145 +6066,145 @@ msgid ""
 "for more help."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:124
+#: warehouse/templates/manage/project/settings.html:82
 msgid "Remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:127
+#: warehouse/templates/manage/project/settings.html:85
 msgid "Removing this project from the organization will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:131
-#: warehouse/templates/manage/project/settings.html:181
+#: warehouse/templates/manage/project/settings.html:89
+#: warehouse/templates/manage/project/settings.html:139
 #, python-format
 msgid "Remove this project from the '%(organization_name)s' organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:134
-#: warehouse/templates/manage/project/settings.html:184
+#: warehouse/templates/manage/project/settings.html:92
+#: warehouse/templates/manage/project/settings.html:142
 #, python-format
 msgid ""
 "Revoke project permissions for teams in the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:138
-#: warehouse/templates/manage/project/settings.html:144
+#: warehouse/templates/manage/project/settings.html:96
+#: warehouse/templates/manage/project/settings.html:102
 msgid ""
 "Individual owners and maintainers of the project will retain their "
 "project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:143
+#: warehouse/templates/manage/project/settings.html:101
 #, python-format
 msgid ""
 "This will remove the project from the '%(organization_name)s' "
 "organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:147
+#: warehouse/templates/manage/project/settings.html:105
 msgid "Remove project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:147
-#: warehouse/templates/manage/project/settings.html:218
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:105
+#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:243
 msgid "Project Name"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:151
+#: warehouse/templates/manage/project/settings.html:109
 msgid "Cannot remove project from organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:153
+#: warehouse/templates/manage/project/settings.html:111
 msgid ""
 "Your organization is currently the <strong>sole owner</strong> of the "
 "project. You must add an individual owner to the project before you can "
 "remove the project from your organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:169
+#: warehouse/templates/manage/project/settings.html:127
 msgid "Transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:171
+#: warehouse/templates/manage/project/settings.html:129
 msgid "Transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:176
+#: warehouse/templates/manage/project/settings.html:134
 msgid "Transferring this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:188
+#: warehouse/templates/manage/project/settings.html:146
 msgid "Revoke your direct Owner role on the project."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:191
+#: warehouse/templates/manage/project/settings.html:149
 msgid ""
 "You will retain Owner permissions on the project through your "
 "organization role."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:196
+#: warehouse/templates/manage/project/settings.html:154
 msgid "Add the project to another organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:198
+#: warehouse/templates/manage/project/settings.html:156
 msgid "Add the project to an organization that you own."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:202
+#: warehouse/templates/manage/project/settings.html:160
 msgid "Grant full project permissions to owners of the organization."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:206
+#: warehouse/templates/manage/project/settings.html:164
 msgid ""
 "All other individual owners and maintainers of the project will retain "
 "their project permissions."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:218
+#: warehouse/templates/manage/project/settings.html:176
 msgid "Transfer project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:224
+#: warehouse/templates/manage/project/settings.html:182
 msgid "Cannot transfer project to another organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:226
+#: warehouse/templates/manage/project/settings.html:184
 msgid "Cannot transfer project to an organization"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:231
+#: warehouse/templates/manage/project/settings.html:189
 msgid ""
 "Organization owners can transfer the project to organizations that they "
 "own or manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:232
+#: warehouse/templates/manage/project/settings.html:190
 msgid "You are not an owner or manager of any other organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:234
+#: warehouse/templates/manage/project/settings.html:192
 msgid ""
 "Project owners can transfer the project to organizations that they own or"
 " manage."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:235
+#: warehouse/templates/manage/project/settings.html:193
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:245
-#: warehouse/templates/manage/project/settings.html:285
+#: warehouse/templates/manage/project/settings.html:203
+#: warehouse/templates/manage/project/settings.html:243
 msgid "Delete project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:248
+#: warehouse/templates/manage/project/settings.html:206
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:253
+#: warehouse/templates/manage/project/settings.html:211
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -6313,15 +6215,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:259
+#: warehouse/templates/manage/project/settings.html:217
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:263
+#: warehouse/templates/manage/project/settings.html:221
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:265
+#: warehouse/templates/manage/project/settings.html:223
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
@@ -6359,7 +6261,7 @@ msgstr ""
 msgid "Manage '%(team_name)s' projects"
 msgstr ""
 
-#: warehouse/templates/manage/team/projects.html:142
+#: warehouse/templates/manage/team/projects.html:90
 msgid ""
 "This team does not have admin or upload permissions for any projects, "
 "yet. Get started by configuring collaborators for a project in your "
