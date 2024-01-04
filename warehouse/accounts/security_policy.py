@@ -24,7 +24,6 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, User
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.http import add_vary_callback
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (

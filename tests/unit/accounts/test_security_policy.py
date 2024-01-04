@@ -21,7 +21,6 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import IUserService
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.utils.security_policy import AuthenticationMethod
 
 
@@ -601,7 +600,6 @@ class TestPermits:
 
         policy = policy_class()
         assert not policy.permits(request, context, "myperm")
-
 
     def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
