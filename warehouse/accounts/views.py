@@ -77,10 +77,17 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeletePublisherForm
-from warehouse.oidc.forms.github import PendingGitHubPublisherForm
+from warehouse.oidc.forms import (
+    DeletePublisherForm,
+    PendingGitHubPublisherForm,
+    PendingGooglePublisherForm,
+)
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    PendingGitHubPublisher,
+    PendingGooglePublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1467,6 +1474,10 @@ class ManageAccountPublishingViews:
             api_token=self.request.registry.settings.get("github.token"),
             project_factory=self.project_factory,
         )
+        self.pending_google_publisher_form = PendingGooglePublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory,
+        )
 
     @property
     def _ratelimiters(self):
@@ -1502,6 +1513,7 @@ class ManageAccountPublishingViews:
     def default_response(self):
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
+            "pending_google_publisher_form": self.pending_google_publisher_form,
         }
 
     @view_config(request_method="GET")
@@ -1639,6 +1651,29 @@ class ManageAccountPublishingViews:
         )
 
         return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingGooglePublisherForm.__params__,
+    )
+    def add_pending_google_oidc_publisher(self):
+        form = self.default_response["pending_google_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="Google",
+            publisher_class=PendingGooglePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGooglePublisher(
+                project_name=form.project_name.data,
+                added_by=request.user,
+                email=form.email.data,
+                sub=form.sub.data,
+            ),
+            make_existence_filters=lambda form: dict(
+                email=form.email.data,
+                sub=form.sub.data,
+            ),
+        )
 
     @view_config(
         request_method="POST",

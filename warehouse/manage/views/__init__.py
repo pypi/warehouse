@@ -99,10 +99,13 @@ from warehouse.manage.views.view_helpers import (
     user_projects,
 )
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeletePublisherForm
-from warehouse.oidc.forms.github import GitHubPublisherForm
+from warehouse.oidc.forms import (
+    DeletePublisherForm,
+    GitHubPublisherForm,
+    GooglePublisherForm,
+)
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, GooglePublisher, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,
@@ -1135,6 +1138,7 @@ class ManageOIDCPublisherViews:
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
         )
+        self.google_publisher_form = GooglePublisherForm(self.request.POST)
 
     @property
     def _ratelimiters(self):
@@ -1171,6 +1175,7 @@ class ManageOIDCPublisherViews:
         return {
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
+            "google_publisher_form": self.google_publisher_form,
         }
 
     @view_config(request_method="GET")
@@ -1278,6 +1283,114 @@ class ManageOIDCPublisherViews:
 
         self.project.record_event(
             tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=GooglePublisherForm.__params__,
+    )
+    def add_google_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GOOGLE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Google-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Google"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:Google"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["google_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Google OIDC publishers are unique on the tuple of (email, sub), so we
+        # check for an already registered one before creating.
+        publisher = (
+            self.request.db.query(GooglePublisher)
+            .filter(
+                GooglePublisher.email == form.email.data,
+                GooglePublisher.sub == form.sub.data,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = GooglePublisher(
+                email=form.email.data,
+                sub=form.sub.data,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "publisher": publisher.publisher_name,

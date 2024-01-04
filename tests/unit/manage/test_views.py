@@ -5837,6 +5837,7 @@ class TestManageOIDCPublisherViews:
         assert view.manage_project_oidc_publishers() == {
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
         }
 
         assert request.flags.disallow_oidc.calls == [pretend.call()]
@@ -5865,6 +5866,7 @@ class TestManageOIDCPublisherViews:
         assert view.manage_project_oidc_publishers() == {
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
@@ -5935,6 +5937,11 @@ class TestManageOIDCPublisherViews:
             lambda *a, **kw: github_publisher_form_obj
         )
         monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
+        google_publisher_form_obj = pretend.stub()
+        google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: google_publisher_form_obj
+        )
+        monkeypatch.setattr(views, "GooglePublisherForm", google_publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
@@ -6025,6 +6032,11 @@ class TestManageOIDCPublisherViews:
             lambda *a, **kw: github_publisher_form_obj
         )
         monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
+        google_publisher_form_obj = pretend.stub()
+        google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: google_publisher_form_obj
+        )
+        monkeypatch.setattr(views, "GooglePublisherForm", google_publisher_form_cls)
         monkeypatch.setattr(
             views,
             "send_trusted_publisher_added_email",
@@ -6129,6 +6141,12 @@ class TestManageOIDCPublisherViews:
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
         )
+        google_publisher_form_obj = pretend.stub()
+        google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: google_publisher_form_obj
+        )
+        monkeypatch.setattr(views, "GooglePublisherForm", google_publisher_form_cls)
+
         monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -6139,6 +6157,7 @@ class TestManageOIDCPublisherViews:
         assert view.add_github_oidc_publisher() == {
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "google_publisher_form": view.google_publisher_form,
         }
         assert view.metrics.increment.calls == [
             pretend.call(

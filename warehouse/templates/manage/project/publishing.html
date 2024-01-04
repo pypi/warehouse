@@ -107,6 +107,49 @@
     </form>
 {% endmacro %}
 
+{% macro google_form(request, google_publisher_form) %}
+  {{ form_error_anchor(google_publisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(google_publisher_form) }}
+    <div class="form-group">
+      <label for="email" class="form-group__label">
+        {% trans %}Email{% endtrans %}
+        {% if google_publisher_form.email.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ google_publisher_form.email(placeholder=gettext("email"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="email-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The email address of the account or service account used to publish.{% endtrans %}
+      </p>
+      <div id="email-errors">
+        {{ field_errors(google_publisher_form.email) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="subject" class="form-group__label">
+        {% trans %}Subject{% endtrans %}
+        {% if google_publisher_form.sub.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ google_publisher_form.sub(placeholder=gettext("subject"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"sub-errors"}) }}
+      <p class="form-group__help-text">
+      {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity which is used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
+      </p>
+      <div id="sub-errors">
+        {{ field_errors(google_publisher_form.sub) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+{% endmacro %}
+
 {% block main %}
 {% if testPyPI %}
 {% set title = "TestPyPI" %}
@@ -147,7 +190,11 @@
 
     {% if request.user.has_two_factor %}
 
-    {% set publishers = [("GitHub", github_form(request, github_publisher_form))] %}
+    {% set publishers = [
+         ("GitHub", github_form(request, github_publisher_form)),
+         ("Google", google_form(request, google_publisher_form)),
+       ]
+    %}
 
     <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
       <div class="horizontal-tabs__tabbar">
