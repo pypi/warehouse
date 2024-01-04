@@ -19,6 +19,14 @@ export default class extends Controller {
 
 
   initialize() {
+    // Select the tab with errors if there are any
+    this.tabPanelTargets.forEach((target, index) => {
+      const aElement = target.querySelector("div#errors");
+      if (aElement) {
+        this.index = index;
+      }
+    });
+
     this.showTab();
   }
 
