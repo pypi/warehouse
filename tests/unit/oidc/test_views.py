@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+
 from datetime import datetime
 
 import pretend
@@ -75,7 +76,7 @@ def test_mint_token_from_github_oidc_not_enabled():
         flags=pretend.stub(disallow_oidc=lambda *a: True),
     )
 
-    response = views.mint_token_from_oidc_github(request)
+    response = views.mint_token_from_oidc(request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -174,7 +175,7 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token_from_oidc_github(request)
+    response = views.mint_token_from_oidc(request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -276,7 +277,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
 
-    resp = views.mint_token_from_oidc_github(db_request)
+    resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 
@@ -353,7 +354,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     }
     monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
 
-    resp = views.mint_token_from_oidc_github(db_request)
+    resp = views.mint_token_from_oidc(db_request)
     assert resp["success"]
     assert resp["token"].startswith("pypi-")
 

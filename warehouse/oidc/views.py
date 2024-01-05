@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import time
+
 from datetime import datetime
 from typing import TypedDict
 
@@ -93,7 +94,14 @@ def oidc_audience(request: Request):
     require_csrf=False,
     has_translations=True,
 )
-def mint_token_from_oidc_github(request: Request):
+@view_config(
+    route_name="oidc.mint_token",
+    require_methods=["POST"],
+    renderer="json",
+    require_csrf=False,
+    has_translations=True,
+)
+def mint_token_from_oidc(request: Request):
     if request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
         return _invalid(
             errors=[
