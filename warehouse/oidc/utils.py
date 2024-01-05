@@ -16,6 +16,7 @@ from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
 
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
@@ -29,6 +30,16 @@ from warehouse.oidc.models._core import OIDCPublisherMixin
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
+
+OIDC_ISSUER_SERVICE_NAMES = {
+    GITHUB_OIDC_ISSUER_URL: "github",
+    GOOGLE_OIDC_ISSUER_URL: "google",
+}
+
+OIDC_ISSUER_ADMIN_FLAGS = {
+    GITHUB_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GITHUB_OIDC,
+    GOOGLE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+}
 
 OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL}
 

@@ -70,8 +70,9 @@ def test_oidc_audience():
     assert response == {"audience": "fakeaudience"}
 
 
-def test_mint_token_from_github_oidc_not_enabled():
+def test_mint_token_oidc_not_enabled(dummy_oidc_payload):
     request = pretend.stub(
+        body=dummy_oidc_payload,
         response=pretend.stub(status=None),
         flags=pretend.stub(disallow_oidc=lambda *a: True),
     )
@@ -83,9 +84,7 @@ def test_mint_token_from_github_oidc_not_enabled():
         "errors": [
             {
                 "code": "not-enabled",
-                "description": (
-                    "GitHub-based trusted publishing functionality not enabled"
-                ),
+                "description": ("Trusted publishing functionality not enabled"),
             }
         ],
     }
@@ -110,7 +109,7 @@ def test_mint_token_from_github_oidc_not_enabled():
         {"token": {}},
     ],
 )
-def test_mint_token_oidc_invalid_payload(body):
+def test_mint_token_from_oidc_invalid_payload(body):
     class Request:
         def __init__(self):
             self.response = pretend.stub(status=None)
@@ -121,8 +120,7 @@ def test_mint_token_oidc_invalid_payload(body):
             return json.dumps(body)
 
     req = Request()
-    oidc_service = pretend.stub()
-    resp = views.mint_token(oidc_service, req)
+    resp = views.mint_token_from_oidc(req)
 
     assert req.response.status == 422
     assert resp["message"] == "Token request failed"
@@ -133,18 +131,17 @@ def test_mint_token_oidc_invalid_payload(body):
         assert isinstance(err["description"], str)
 
 
-def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
+def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(dummy_oidc_jwt):
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: None),
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
-        body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token(oidc_service, request)
+    response = views.mint_token(oidc_service, dummy_oidc_jwt, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -156,10 +153,10 @@ def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails():
         ],
     }
 
-    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call(dummy_oidc_jwt)]
 
 
-def test_mint_token_from_trusted_publisher_lookup_fails():
+def test_mint_token_trusted_publisher_lookup_fails(dummy_oidc_jwt):
     claims = pretend.stub()
     message = "some message"
     oidc_service = pretend.stub(
@@ -170,12 +167,11 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
     )
     request = pretend.stub(
         response=pretend.stub(status=None),
-        body=json.dumps({"token": "faketoken"}),
         find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
         flags=pretend.stub(disallow_oidc=lambda *a: False),
     )
 
-    response = views.mint_token_from_oidc(request)
+    response = views.mint_token(oidc_service, dummy_oidc_jwt, request)
     assert request.response.status == 422
     assert response == {
         "message": "Token request failed",
@@ -189,24 +185,22 @@ def test_mint_token_from_trusted_publisher_lookup_fails():
         ],
     }
 
-    assert request.find_service.calls == [
-        pretend.call(IOIDCPublisherService, name="github"),
-    ]
-    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call(dummy_oidc_jwt)]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims, pending=True),
         pretend.call(claims, pending=False),
     ]
 
 
-def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_request):
+def test_mint_token_pending_publisher_project_already_exists(
+    db_request, dummy_oidc_jwt
+):
     project = ProjectFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name=project.name,
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps({"token": "faketoken"})
 
     claims = pretend.stub()
     oidc_service = pretend.stub(
@@ -217,7 +211,7 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
     )
     db_request.find_service = pretend.call_recorder(lambda *a, **kw: oidc_service)
 
-    resp = views.mint_token(oidc_service, db_request)
+    resp = views.mint_token(oidc_service, dummy_oidc_jwt, db_request)
     assert db_request.response.status_code == 422
     assert resp == {
         "message": "Token request failed",
@@ -229,13 +223,14 @@ def test_mint_token_from_oidc_pending_publisher_project_already_exists(db_reques
         ],
     }
 
-    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call(dummy_oidc_jwt)]
     assert oidc_service.find_publisher.calls == [pretend.call(claims, pending=True)]
 
 
 def test_mint_token_from_oidc_pending_publisher_ok(
     monkeypatch,
     db_request,
+    dummy_oidc_payload,
 ):
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
@@ -249,25 +244,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
-    db_request.body = json.dumps(
-        {
-            "token": (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
-                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
-                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
-                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
-                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
-                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
-                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
-                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
-                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
-                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
-                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
-                "0vbdNhK32c2oC-E"
-            )
-        }
-    )
+    db_request.body = dummy_oidc_payload
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -288,7 +265,7 @@ def test_mint_token_from_oidc_pending_publisher_ok(
 
 
 def test_mint_token_from_pending_trusted_publisher_invalidates_others(
-    monkeypatch, db_request
+    monkeypatch, db_request, dummy_oidc_payload
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -326,25 +303,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     )
 
     db_request.flags.oidc_enabled = lambda f: False
-    db_request.body = json.dumps(
-        {
-            "token": (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
-                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
-                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
-                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
-                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
-                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
-                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
-                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
-                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
-                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
-                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
-                "0vbdNhK32c2oC-E"
-            )
-        }
-    )
+    db_request.body = dummy_oidc_payload
     db_request.remote_addr = "0.0.0.0"
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -372,7 +331,9 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ]
 
 
-def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_request):
+def test_mint_token_from_oidc_only_pending_publisher_fail(
+    monkeypatch, db_request, dummy_oidc_jwt
+):
     pending_publisher = PendingGitHubPublisherFactory()
 
     def _find_publisher(claims, pending=False):
@@ -386,26 +347,6 @@ def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_reques
         reify_pending_publisher=pretend.call_recorder(
             lambda *a, **kw: pending_publisher
         ),
-    )
-
-    db_request.body = json.dumps(
-        {
-            "token": (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
-                "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJwe"
-                "XBpIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2Jhci"
-                "IsInJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTI"
-                "zIiwicnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQi"
-                "OiIxIiwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3Rvc"
-                "iI6ImZvbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2Vfcm"
-                "VmIjoiZmFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW5"
-                "2aXJvbm1lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1"
-                "Yi93b3JrZmxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uY"
-                "WN0aW9ucy5naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cC"
-                "I6MTY1MDY2NDE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et"
-                "0vbdNhK32c2oC-E"
-            )
-        }
     )
 
     ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
@@ -424,7 +365,7 @@ def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_reques
         send_pending_trusted_publisher_invalidated_email,
     )
 
-    response = views.mint_token(oidc_service, db_request)
+    response = views.mint_token(oidc_service, dummy_oidc_jwt, db_request)
 
     assert response == {
         "message": "Token request failed",
@@ -445,8 +386,8 @@ def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_reques
         ({"sha": "somesha"}, {"ref": None, "sha": "somesha"}),
     ],
 )
-def test_mint_token_from_oidc_no_pending_publisher_ok(
-    monkeypatch, db_request, claims_in_token, claims_input
+def test_mint_token_no_pending_publisher_ok(
+    monkeypatch, db_request, claims_in_token, claims_input, dummy_oidc_jwt
 ):
     time = pretend.stub(time=pretend.call_recorder(lambda: 0))
     monkeypatch.setattr(views, "time", time)
@@ -488,16 +429,15 @@ def test_mint_token_from_oidc_no_pending_publisher_ok(
         assert False, iface
 
     monkeypatch.setattr(db_request, "find_service", find_service)
-    monkeypatch.setattr(db_request, "body", json.dumps({"token": "faketoken"}))
     monkeypatch.setattr(db_request, "domain", "fakedomain")
 
-    response = views.mint_token(oidc_service, db_request)
+    response = views.mint_token(oidc_service, dummy_oidc_jwt, db_request)
     assert response == {
         "success": True,
         "token": "raw-macaroon",
     }
 
-    assert oidc_service.verify_jwt_signature.calls == [pretend.call("faketoken")]
+    assert oidc_service.verify_jwt_signature.calls == [pretend.call(dummy_oidc_jwt)]
     assert oidc_service.find_publisher.calls == [
         pretend.call(claims_in_token, pending=True),
         pretend.call(claims_in_token, pending=False),

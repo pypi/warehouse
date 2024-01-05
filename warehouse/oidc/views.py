@@ -15,12 +15,13 @@ import time
 from datetime import datetime
 from typing import TypedDict
 
+import jwt
+
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -29,6 +30,7 @@ from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
+from warehouse.oidc.utils import OIDC_ISSUER_ADMIN_FLAGS, OIDC_ISSUER_SERVICE_NAMES
 from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import ProjectFactory
 from warehouse.rate_limiting.interfaces import IRateLimiter
@@ -102,29 +104,6 @@ def oidc_audience(request: Request):
     has_translations=True,
 )
 def mint_token_from_oidc(request: Request):
-    if request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
-        return _invalid(
-            errors=[
-                {
-                    "code": "not-enabled",
-                    "description": "GitHub-based trusted publishing functionality not enabled",  # noqa
-                }
-            ],
-            request=request,
-        )
-
-    # For the time being, GitHub is our only OIDC publisher.
-    # In the future, this should locate the correct service based on an
-    # identifier in the request body.
-    oidc_service: OIDCPublisherService = request.find_service(
-        IOIDCPublisherService, name="github"
-    )
-
-    return mint_token(oidc_service, request)
-
-
-def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResponse:
-    unverified_jwt: str
     try:
         payload = TokenPayload.model_validate_json(request.body)
         unverified_jwt = payload.token
@@ -134,6 +113,55 @@ def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResp
             request=request,
         )
 
+    # We currently have an **unverified** JWT. To verify it, we need to
+    # know which OIDC service's keyring to check it against.
+    # To do this, we gingerly peek into the unverified claims and
+    # use the `iss` to key into the right `OIDCPublisherService`.
+    try:
+        unverified_claims = jwt.decode(
+            unverified_jwt, options=dict(verify_signature=False)
+        )
+        unverified_issuer: str = unverified_claims["iss"]
+    except Exception:
+        return _invalid(
+            errors=[{"code": "invalid-payload", "description": "malformed JWT"}],
+            request=request,
+        )
+
+    # Associate the given issuer claim with Warehouse's OIDCPublisherService.
+    service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
+    if not service_name:
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-payload",
+                    "description": "unknown trusted publishing issuer",
+                }
+            ],
+            request=request,
+        )
+
+    if request.flags.disallow_oidc(OIDC_ISSUER_ADMIN_FLAGS[unverified_issuer]):
+        return _invalid(
+            errors=[
+                {
+                    "code": "not-enabled",
+                    "description": "Trusted publishing functionality not enabled",  # noqa
+                }
+            ],
+            request=request,
+        )
+
+    oidc_service: OIDCPublisherService = request.find_service(
+        IOIDCPublisherService, name=service_name
+    )
+
+    return mint_token(oidc_service, unverified_jwt, request)
+
+
+def mint_token(
+    oidc_service: OIDCPublisherService, unverified_jwt: str, request: Request
+) -> JsonResponse:
     claims = oidc_service.verify_jwt_signature(unverified_jwt)
     if not claims:
         return _invalid(
