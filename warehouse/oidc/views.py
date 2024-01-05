@@ -219,6 +219,8 @@ def mint_token(
     # to actually do the macaroon minting with.
     try:
         publisher = oidc_service.find_publisher(claims, pending=False)
+        # NOTE: assert to persuade mypy of the correct type here.
+        assert isinstance(publisher, OIDCPublisher)
     except InvalidPublisherError as e:
         return _invalid(
             errors=[
@@ -230,19 +232,6 @@ def mint_token(
             request=request,
         )
 
-    if not isinstance(publisher, OIDCPublisher):
-        # This should be impossible, but we have to perform this type check to
-        # appease mypy otherwise we get type errors in the code after this
-        # point.
-        return _invalid(
-            errors=[
-                {
-                    "code": "invalid-publisher",
-                    "description": "valid token, but no corresponding publisher",
-                }
-            ],
-            request=request,
-        )
     # At this point, we've verified that the given JWT is valid for the given
     # project. All we need to do is mint a new token.
     # NOTE: For OIDC-minted API tokens, the Macaroon's description string

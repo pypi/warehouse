@@ -413,53 +413,6 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
     ]
 
 
-def test_mint_token_from_oidc_only_pending_publisher_fail(
-    monkeypatch, db_request, dummy_oidc_jwt
-):
-    pending_publisher = PendingGitHubPublisherFactory()
-
-    def _find_publisher(claims, pending=False):
-        return pending_publisher
-
-    oidc_service = pretend.stub(
-        verify_jwt_signature=pretend.call_recorder(
-            lambda token: {"ref": "someref", "sha": "somesha"}
-        ),
-        find_publisher=pretend.call_recorder(_find_publisher),
-        reify_pending_publisher=pretend.call_recorder(
-            lambda *a, **kw: pending_publisher
-        ),
-    )
-
-    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
-    ratelimiters = {
-        "user.oidc": ratelimiter,
-        "ip.oidc": ratelimiter,
-    }
-    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
-
-    send_pending_trusted_publisher_invalidated_email = pretend.call_recorder(
-        lambda *a, **kw: None
-    )
-    monkeypatch.setattr(
-        services,
-        "send_pending_trusted_publisher_invalidated_email",
-        send_pending_trusted_publisher_invalidated_email,
-    )
-
-    response = views.mint_token(oidc_service, dummy_oidc_jwt, db_request)
-
-    assert response == {
-        "message": "Token request failed",
-        "errors": [
-            {
-                "code": "invalid-publisher",
-                "description": ("valid token, but no corresponding publisher"),
-            }
-        ],
-    }
-
-
 @pytest.mark.parametrize(
     ("claims_in_token", "claims_input"),
     [
