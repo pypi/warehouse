@@ -35,7 +35,7 @@
     </p>
     <p>
       {% trans %}
-        We recommend that all PyPI users set up <em>at least two</em> supported two factor authentication methods
+        We recommend that all PyPI users set up <em>at least two</em> supported two-factor authentication methods
         and provision <a href="#recoverycodes">recovery codes</a>.
       {% endtrans %}
     </p>
@@ -59,11 +59,11 @@
 {% macro compromised_password() %}{% trans %}Why is PyPI telling me my password is compromised?{% endtrans %}{% endmacro %}
 {% macro suspicious_activity() %}{% trans %}What should I do if I notice suspicious activity on my account?{% endtrans %}{% endmacro %}
 {% macro compromised_token() %}{% trans %}Why is PyPI telling me my API token is compromised?{% endtrans %}{% endmacro %}
-{% macro twoFA() %}{% trans %}What is two factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
-{% macro totp() %}{% trans %}How does two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
-{% macro utfkey() %}{% trans %}How does two factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
+{% macro twoFA() %}{% trans %}What is two-factor authentication and how does it work on PyPI?{% endtrans %}{% endmacro %}
+{% macro totp() %}{% trans %}How does two-factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
+{% macro utfkey() %}{% trans %}How does two-factor authentication with a security device (e.g. USB key) work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro utfdevices() %}{% trans %}What devices (other than a USB key) can I use as a security device?{% endtrans %}{% endmacro %}
-{% macro recoverycodes() %}{% trans %}How does two factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
+{% macro recoverycodes() %}{% trans %}How does two-factor authentication with a recovery code work? How do I set it up on PyPI?{% endtrans %}{% endmacro %}
 {% macro apitoken() %}{% trans %}How can I use API tokens to authenticate with PyPI?{% endtrans %}{% endmacro %}
 {% macro sensitiveactions() %}{% trans %}Why do certain actions require me to confirm my password?{% endtrans %}{% endmacro %}
 {% macro username_change() %}{% trans %}How do I change my PyPI username?{% endtrans %}{% endmacro %}
@@ -77,7 +77,7 @@
 
 {% macro login_problem() %}{% trans %}I forgot my PyPI password. Can you help me?{% endtrans %}{% endmacro %}
 {% macro account_recovery() %}{% trans %}I've lost access to my PyPI account. Can you help me?{% endtrans %}{% endmacro %}
-{% macro invalid_auth() %}{% trans %}Why am I getting a "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
+{% macro invalid_auth() %}{% trans %}Why am I getting an "Invalid or non-existent authentication information." error when uploading files?{% endtrans %}{% endmacro %}
 {% macro tls_deprecation() %}{% trans %}Why am I getting "No matching distribution found" or "Could not fetch URL" errors during <code>pip install</code>?{% endtrans %}{% endmacro %}
 {% macro accessibility() %}{% trans %}I am having trouble using the PyPI website. Can you help me?{% endtrans %}{% endmacro %}
 {% macro uploading() %}{% trans %}Why can't I manually upload files to PyPI, through the browser interface?{% endtrans %}{% endmacro %}
@@ -96,6 +96,7 @@
 {% macro description_content_type() %}{% trans %}How can I upload a project description in a different format?{% endtrans %}{% endmacro %}
 {% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
 {% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
+{% macro totp_trouble() %}{% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}{% endmacro %}
 
 {% macro maintainers() %}{% trans %}Who maintains PyPI?{% endtrans %}{% endmacro %}
 {% macro sponsors() %}{% trans %}What powers PyPI?{% endtrans %}{% endmacro %}
@@ -183,6 +184,7 @@
           <li><a href="#file-name-reuse">{{ file_name_reuse() }}</a></li>
           <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
+          <li><a href="#totp_trouble">{{ totp_trouble() }}</a></li>
         </ul>
       </section>
 
@@ -283,7 +285,7 @@
           </p>
           <p>
             If you have received this error while attempting to log in or upload to PyPI,
-            then your password has been reset and you cannot log in to PyPI until you
+            then your password has been reset, and you cannot log in to PyPI until you
             <a href="{{ reset_pwd_href }}">reset your password</a>.
           </p>
         {% endtrans %}
@@ -293,11 +295,11 @@
           <p>
             All PyPI user events are stored under security history in account settings.
             If there are any events that seem suspicious, take the following steps:
+          </p>
             <ul>
               <li><a href="{{ reset_pwd_href }}">Reset your password</a></li>
               <li>Contact the PyPI admins about the event at <a href="mailto:{{ admin_email }}">{{ admin_email }}</a></li>
             </ul>
-          </p>
         {% endtrans %}
 
         <h3 id="compromised-token">{{ compromised_token() }}</h3>
@@ -313,7 +315,7 @@
         <h3 id="twofa">{{ twoFA() }}</h3>
         {% trans href='https://discuss.python.org/t/pypi-security-work-multifactor-auth-progress-help-needed/1042', title=gettext('External link') %}
           <p>
-            Two factor authentication (2FA) makes your account more secure by
+            Two-factor authentication (2FA) makes your account more secure by
             requiring two things in order to log in: <em>something you know</em>
             and <em>something you own</em>.
           </p>
@@ -324,20 +326,15 @@
             or a <a href="#utfkey">security device</a> (most commonly a USB key).
           </p>
           <p>
-            It is strongly recommended that you set up two factor authentication
-            on your PyPI account.
+            Two-factor authentication <strong>is required</strong> on your PyPI account.
           </p>
           <p>
-            Users who have chosen to set up two factor authentication will be
-            asked to provide their second method of identity verification during
-            the log in process. This only affects logging in via a web browser,
-            and not (yet) package uploads.
+            During the web login process, users will be asked to provide
+            their second method of identity verification.
           </p>
-          <p>You can follow the improvements to <abbr title="two factor authentication">2FA</abbr> on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">discuss.python.org</a>.</p>
         {% endtrans %}
 
         <h3 id="totp">{{ totp() }}</h3>
-
         <p>{% trans href='https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm', title=gettext('External link') %}PyPI users can set up two-factor authentication using any authentication application that supports the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="time-based one-time password">TOTP</abbr> standard</a>.{% endtrans %}</p>
         <p>{% trans %}<abbr title="time-based one-time password">TOTP</abbr> authentication applications generate a regularly changing authentication code to use when logging into your account.{% endtrans %}</p>
         <p>{% trans %}Because <abbr title="time-based one-time password">TOTP</abbr> is an open standard, there are many applications that are compatible with your PyPI account. Popular applications include:{% endtrans %}</p>
@@ -375,7 +372,7 @@
           <li>{% trans %}Log in to your PyPI account, go to your account settings, and choose "Add <abbr title="two factor authentication">2FA</abbr> with authentication application"{% endtrans %}</li>
           <li>{% trans %}PyPI will generate a secret key, specific to your account. This is displayed as a QR code, and as a text code.{% endtrans %}</li>
           <li>{% trans %}Scan the QR code with your authentication application, or type it in manually. The method of input will depend on the application you have chosen.{% endtrans %}</li>
-          <li>{% trans %}Your application will generate an authentication code - use this to verify your set up on PyPI{% endtrans %}</li>
+          <li>{% trans %}Your application will generate an authentication code - use this to verify your set-up on PyPI{% endtrans %}</li>
         </ol>
 
         <p>{% trans %}The PyPI server and your application now share your PyPI secret key, allowing your application to generate valid authentication codes for your PyPI account.{% endtrans %}</p>
@@ -392,7 +389,7 @@
         <h3 id="utfkey">{{ utfkey() }}</h3>
         <p>{% trans %}A security device is a USB key or <a href="#utfdevices">other device</a> that generates a one-time password and sends that password to the browser. This password is then used by PyPI to authenticate you as a user.{% endtrans %}</p>
 
-        <p><strong>{% trans %}To set up two factor authentication with a <em>USB key</em>, you'll need:{% endtrans %}</strong></p>
+        <p><strong>{% trans %}To set up two-factor authentication with a <em>USB key</em>, you'll need:{% endtrans %}</strong></p>
         <ul>
           <li>{% trans href='https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility', title=gettext('External link') %}To use a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">browser that supports <abbr title="web authentication">WebAuthn</abbr> and PublicKeyCredential</a>, as this is the standard implemented by PyPI.{% endtrans %}</li>
           <li>{% trans %}To be running JavaScript on your browser{% endtrans %}</li>
@@ -447,7 +444,7 @@
         </p>
         <p>
           {% trans href='https://www.w3.org/TR/webauthn/', title=gettext('External link') %}
-            As PyPI's two factor implementation follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="web authentication">WebAuthn</abbr> standard</a>,
+            As PyPI's two-factor implementation follows the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener"><abbr title="web authentication">WebAuthn</abbr> standard</a>,
             PyPI users will be able to take advantage of any future developments in this field.
           {% endtrans %}
         </p>
@@ -455,11 +452,11 @@
         <h3 id="recoverycodes">{{ recoverycodes() }}</h3>
 
         <p>
-          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to sign into PyPI.{% endtrans %}
+          {% trans %}If you lose access to your <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>, you can use these codes to log in to PyPI.{% endtrans %}
         </p>
         <p>
           {% trans %}
-            Recovery codes are <strong>one time use</strong>. They are not a substitute for a <a href="#totp">authentication application</a> or <a href="#utfkey">security device</a>
+            Recovery codes are <strong>one time use</strong>. They are not a substitute for an <a href="#totp">authentication application</a> or a <a href="#utfkey">security device</a>
             and should only be used for recovery. After using a recovery code to sign in, it becomes inactive.
           {% endtrans %}
         </p>
@@ -475,19 +472,40 @@
         <p><strong>{% trans %}To sign in with a recovery code:{% endtrans %}</strong></p>
         <ol>
           <li>{% trans %}Provide your username and password, as normal{% endtrans %}</li>
-          <li>{% trans %}When prompted for two factor authentication, select "Login using recovery codes"{% endtrans %}</li>
+          <li>{% trans %}When prompted for two-factor authentication, select "Login using recovery codes"{% endtrans %}</li>
           <li>{% trans %}As each code can be used only once, you might want to mark the code as used{% endtrans %}</li>
           <li>{% trans %}If you have few recovery codes remaining, you may also want to generate a new set using the "Regenerate recovery codes" button in your account settings.{% endtrans %}</li>
         </ol>
 
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
-        {% trans %}
-          <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
-          <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
-          <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
-
-        {% endtrans %}
+        <p>
+          {% trans %}
+          API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          You can create a token for an entire PyPI account, in which case, the token will work
+          for all projects associated with that account. Alternatively, you can limit a token's
+          scope to a specific project.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          When using an API token from a CI provider, we recommend
+          scoping the token down to the minimum necessary projects.
+          {% endtrans %}
+        </p>
+        <p>
+          <strong>
+            {% trans href='#trusted-publishers' %}
+            If you are publishing to PyPI from a CI provider that supports
+            <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
+            using Trusted Publishing instead.
+            {% endtrans %}
+          </strong>
+        </p>
 
         <p>{% trans %}To make an API token:{% endtrans %}</p>
 
@@ -527,7 +545,7 @@
           {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
           PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to use API tokens or passwords.
+          the need to use API tokens.
           {% endtrans %}
         </p>
       </section>
@@ -597,7 +615,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>{% trans href='#project-name-claim', anchor_text=project_name_claim() %}If the owner is unresponsive, see <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</p>
 
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
-        <p>{% trans href='http://docutils.sourceforge.net/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
+        <p>{% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
         <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#description', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
@@ -664,7 +682,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         </p>
 
         <h3 id="login-problem">{{ login_problem() }}</h3>
-        <p>{% trans %}If you've forgotten your PyPI password but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>
+        <p>{% trans %}If you've forgotten your PyPI password, but you remember your email address or username, follow these steps to reset your password:{% endtrans %}</p>
         <ol>
           <li>{% trans href=request.route_path('accounts.reset-password') %}Go to <a href="{{ href }}">reset your password</a>.{% endtrans %}</li>
           <li>{% trans %}Enter the email address or username you used for PyPI and submit the form.{% endtrans %}</li>
@@ -676,7 +694,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>{% trans %}If you've lost access to your PyPI account due to:{% endtrans %}</p>
         <ul>
           <li>{% trans %}Lost access to the email address associated with your account{% endtrans %}</li>
-          <li>{% trans %}Lost two factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
+          <li>{% trans %}Lost two-factor authentication <a href="#totp">application</a>, <a href="#utfkey">device</a>, and <a href="#recoverycodes">recovery codes</a>{% endtrans %}</li>
         </ul>
         <p>
           {% trans href='https://github.com/pypi/support/issues/new?assignees=&labels=account-recovery&template=account-recovery.yml&title=Account+recovery+request', title=gettext('External link') %}
@@ -686,24 +704,16 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {{ code_of_conduct() }}
 
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
-        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
-        <ol>
-          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
-          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
-        </ol>
-        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
         <ol>
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
           <li>{% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}</li>
         </ol>
-        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>{% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
         <p>
-          {% trans %}
-            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
-            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
-          {% endtrans %}
           {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
             This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
           {% endtrans %}
         </p>
@@ -819,6 +829,13 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         </p>
         <p>{% trans %}If you are having an issue is with a specific package installed from PyPI, you should reach out to the maintainers of that project directly instead.{% endtrans %}</p>
         {{ code_of_conduct() }}
+
+        <h3 id="totp_trouble">{{ totp_trouble() }}</h3>
+        <p>
+          {% trans %}
+          If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
+          {% endtrans %}
+        </p>
       </section>
 
       <section class="faq-group" id="about">
@@ -888,7 +905,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% trans href='https://github.com/pypi/warehouse/milestones', title=gettext('External link') %}
             Issues are grouped into <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">milestones</a>;
             working on issues in the current milestone is a great way to help push the project forward.
-            If you're interested in working on a particular issue, leave a comment and we can guide you through the contribution process.
+            If you're interested in working on a particular issue, leave a comment, and we can guide you through the contribution process.
           {% endtrans %}
         </p>
         <p>
@@ -902,12 +919,11 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
         <p>
-          {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://pyfound.blogspot.com/search/label/pypi', atom_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi', rss_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss', title=gettext('External link') %}
+          {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://blog.pypi.org', rss_href='https://blog.pypi.org/feed_rss_created.xml', title=gettext('External link') %}
           Changes to PyPI are generally announced on both the
           <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
-          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PSF blog</a> under the label "pypi".
-          The PSF blog also has <a href="{{ atom_href }}" title="{{ title }}" target="_blank" rel="noopener">Atom</a>
-          and <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
+          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI blog</a>.
+          The PyPI blog also has an <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feed.
           {% endtrans %}
         </p>
 

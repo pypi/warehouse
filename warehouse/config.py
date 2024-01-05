@@ -203,8 +203,11 @@ def configure(settings=None):
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
     maybe_set(settings, "ratelimit.url", "REDIS_URL")
+    maybe_set(settings, "captcha.backend", "CAPTCHA_BACKEND")
     maybe_set(settings, "recaptcha.site_key", "RECAPTCHA_SITE_KEY")
     maybe_set(settings, "recaptcha.secret_key", "RECAPTCHA_SECRET_KEY")
+    maybe_set(settings, "hcaptcha.site_key", "HCAPTCHA_SITE_KEY")
+    maybe_set(settings, "hcaptcha.secret_key", "HCAPTCHA_SECRET_KEY")
     maybe_set(settings, "sessions.secret", "SESSION_SECRET")
     maybe_set(settings, "camo.url", "CAMO_URL")
     maybe_set(settings, "camo.key", "CAMO_KEY")
@@ -366,36 +369,6 @@ def configure(settings=None):
         "warehouse.packaging.project_create_ip_ratelimit_string",
         "PROJECT_CREATE_IP_RATELIMIT_STRING",
         default="40 per hour",
-    )
-
-    # 2FA feature flags
-    maybe_set(
-        settings,
-        "warehouse.two_factor_requirement.enabled",
-        "TWOFACTORREQUIREMENT_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.available",
-        "TWOFACTORMANDATE_AVAILABLE",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.enabled",
-        "TWOFACTORMANDATE_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
-    maybe_set(
-        settings,
-        "warehouse.two_factor_mandate.cohort_size",
-        "TWOFACTORMANDATE_COHORTSIZE",
-        coercer=int,
-        default=0,
     )
 
     # OIDC feature flags and settings
@@ -743,8 +716,8 @@ def configure(settings=None):
     # Register Referrer-Policy service
     config.include(".referrer_policy")
 
-    # Register recaptcha service
-    config.include(".recaptcha")
+    # Register Captcha service
+    config.include(".captcha")
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")

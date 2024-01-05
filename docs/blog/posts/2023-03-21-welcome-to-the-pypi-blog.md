@@ -1,9 +1,9 @@
 ---
 title: Welcome to the PyPI Blog
 description: Announcing the launch of blog.pypi.org
-author: Ee Durbin
-publish_date: 2023-03-21
-date: "2023-03-21 00:00"
+authors:
+  - ewdurbin
+date: 2023-03-21
 tags:
   - meta
   - welcome
@@ -16,6 +16,8 @@ the official blog of the Python Package Index.
 One of the most common refrains I hear from Python community members,
 irrespective of if they have been around for days or years,
 is _"I didn't realize that PyPI..."_. Followed by something along the lines of:
+
+<!-- more -->
 
 - Could **do** that
 - Is operated with **so** few resources[^1]

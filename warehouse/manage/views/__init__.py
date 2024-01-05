@@ -86,7 +86,6 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
-    Toggle2FARequirementForm,
     TransferOrganizationProjectForm,
 )
 from warehouse.manage.views.organizations import (
@@ -1041,9 +1040,6 @@ def manage_projects(request):
     projects_sole_owned = {
         project.name for project in all_user_projects["projects_sole_owned"]
     }
-    projects_requiring_2fa = {
-        project.name for project in all_user_projects["projects_requiring_2fa"]
-    }
 
     for team in request.user.teams:
         projects |= set(team.projects)
@@ -1061,7 +1057,6 @@ def manage_projects(request):
         "projects": sorted(projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
-        "projects_requiring_2fa": projects_requiring_2fa,
         "project_invites": project_invites,
     }
 
@@ -1080,7 +1075,6 @@ class ManageProjectSettingsViews:
     def __init__(self, project, request):
         self.project = project
         self.request = request
-        self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
         self.transfer_organization_project_form_class = TransferOrganizationProjectForm
 
     @view_config(request_method="GET")
@@ -1112,60 +1106,12 @@ class ManageProjectSettingsViews:
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
             "transfer_organization_project_form": (
                 self.transfer_organization_project_form_class(
                     organization_choices=organization_choices,
                 )
             ),
         }
-
-    @view_config(
-        request_method="POST",
-        request_param=Toggle2FARequirementForm.__params__,
-        require_reauth=True,
-    )
-    def toggle_2fa_requirement(self):
-        if not self.request.registry.settings[
-            "warehouse.two_factor_requirement.enabled"
-        ]:
-            raise HTTPNotFound
-
-        if self.project.pypi_mandates_2fa:
-            self.request.session.flash(
-                self.request._(
-                    "2FA requirement cannot be disabled for critical projects"
-                ),
-                queue="error",
-            )
-        elif self.project.owners_require_2fa:
-            self.project.owners_require_2fa = False
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FADisabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement disabled for { self.project.name }"),
-                queue="success",
-            )
-        else:
-            self.project.owners_require_2fa = True
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FAEnabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement enabled for { self.project.name }"),
-                queue="success",
-            )
-
-        return HTTPSeeOther(
-            self.request.route_path(
-                "manage.project.settings", project_name=self.project.name
-            )
-        )
 
 
 @view_defaults(
@@ -1185,6 +1131,10 @@ class ManageOIDCPublisherViews:
         self.request = request
         self.project = project
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.github_publisher_form = GitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
 
     @property
     def _ratelimiters(self):
@@ -1215,13 +1165,6 @@ class ManageOIDCPublisherViews:
                     self.request.remote_addr
                 )
             )
-
-    @property
-    def github_publisher_form(self):
-        return GitHubPublisherForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-        )
 
     @property
     def default_response(self):

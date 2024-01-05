@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import time
-
 from datetime import datetime
 from typing import TypedDict
 
@@ -19,10 +18,8 @@ from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
-from sqlalchemy import func
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -176,26 +173,6 @@ def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResp
             ratelimiters = _ratelimiters(request)
             ratelimiters["user.oidc"].clear(pending_publisher.added_by.id)
             ratelimiters["ip.oidc"].clear(request.remote_addr)
-
-            # There might be other pending publishers for the same project name,
-            # which we've now invalidated by creating the project. These would
-            # be disposed of on use, but we explicitly dispose of them here while
-            # also sending emails to their owners.
-            stale_pending_publishers = (
-                request.db.query(PendingOIDCPublisher)
-                .filter(
-                    func.normalize_pep426_name(PendingOIDCPublisher.project_name)
-                    == func.normalize_pep426_name(pending_publisher.project_name)
-                )
-                .all()
-            )
-            for stale_publisher in stale_pending_publishers:
-                send_pending_trusted_publisher_invalidated_email(
-                    request,
-                    stale_publisher.added_by,
-                    project_name=stale_publisher.project_name,
-                )
-                request.db.delete(stale_publisher)
     except InvalidPublisherError:
         # If the claim set isn't valid for a pending publisher, it's OK, we
         # will try finding a regular publisher

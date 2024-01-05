@@ -268,12 +268,8 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
-        "warehouse.two_factor_requirement.enabled": False,
-        "warehouse.two_factor_mandate.available": False,
-        "warehouse.two_factor_mandate.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
-        "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
         "gcloud.service_account_info": {},
     }
@@ -383,7 +379,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
-            pretend.call(".recaptcha"),
+            pretend.call(".captcha"),
             pretend.call(".http"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]

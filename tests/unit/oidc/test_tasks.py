@@ -27,42 +27,30 @@ from ...common.db.packaging import (
 
 def test_compute_oidc_metrics(db_request, metrics):
     # Projects with OIDC
-    critical_project_oidc = ProjectFactory.create(
-        name="critical_project_oidc", pypi_mandates_2fa=True
-    )
-    non_critical_project_oidc = ProjectFactory.create(
-        name="non_critical_project_oidc",
-    )
-    non_released_critical_project_oidc = ProjectFactory.create(
-        name="non_released_critical_project_oidc", pypi_mandates_2fa=True
-    )
+    project_oidc_one = ProjectFactory.create(name="project_oidc_one")
+    project_oidc_two = ProjectFactory.create(name="project_oidc_two")
     non_released_project_oidc = ProjectFactory.create(
         name="non_released_project_oidc",
     )
 
     # Projects without OIDC
-    ProjectFactory.create(name="critical_project_no_oidc", pypi_mandates_2fa=True)
-    ProjectFactory.create(
-        name="non_critical_project_no_oidc",
-    )
+    ProjectFactory.create(name="project_no_oidc")
 
     # Create an OIDC publisher that's shared by multiple projects.
-    GitHubPublisherFactory.create(
-        projects=[critical_project_oidc, non_critical_project_oidc]
-    )
+    GitHubPublisherFactory.create(projects=[project_oidc_one])
+    GitHubPublisherFactory.create(projects=[project_oidc_two])
 
     # Create an OIDC publisher that is only used by one project.
-    GitHubPublisherFactory.create(projects=[critical_project_oidc])
+    GitHubPublisherFactory.create(projects=[project_oidc_one])
 
     # Create OIDC publishers for projects which have no releases.
-    GitHubPublisherFactory.create(projects=[non_released_critical_project_oidc])
     GitHubPublisherFactory.create(projects=[non_released_project_oidc])
 
     # Create some files which have/have not been published
     # using OIDC in different scenarios.
 
     # Scenario: Same release, difference between files.
-    release_1 = ReleaseFactory.create(project=critical_project_oidc)
+    release_1 = ReleaseFactory.create(project=project_oidc_one)
     file_1_1 = FileFactory.create(release=release_1)
     FileEventFactory.create(
         source=file_1_1,
@@ -71,7 +59,7 @@ def test_compute_oidc_metrics(db_request, metrics):
         additional={"publisher_url": "https://fake/url"},
     )
 
-    release_1 = ReleaseFactory.create(project=critical_project_oidc)
+    release_1 = ReleaseFactory.create(project=project_oidc_one)
     file_1_2 = FileFactory.create(release=release_1)
     FileEventFactory.create(
         source=file_1_2,
@@ -80,7 +68,7 @@ def test_compute_oidc_metrics(db_request, metrics):
     )
 
     # Scenario: Same project, differences between releases.
-    release_2 = ReleaseFactory.create(project=non_critical_project_oidc)
+    release_2 = ReleaseFactory.create(project=project_oidc_two)
     file_2 = FileFactory.create(release=release_2)
     FileEventFactory.create(
         source=file_2,
@@ -89,7 +77,7 @@ def test_compute_oidc_metrics(db_request, metrics):
         additional={"publisher_url": "https://fake/url"},
     )
 
-    release_3 = ReleaseFactory.create(project=non_critical_project_oidc)
+    release_3 = ReleaseFactory.create(project=project_oidc_two)
     file_3 = FileFactory.create(release=release_3)
     FileEventFactory.create(
         source=file_3,
@@ -100,14 +88,8 @@ def test_compute_oidc_metrics(db_request, metrics):
     compute_oidc_metrics(db_request)
 
     assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.total_projects_configured_oidc_publishers", 4),
-        pretend.call(
-            "warehouse.oidc.total_critical_projects_configured_oidc_publishers", 2
-        ),
+        pretend.call("warehouse.oidc.total_projects_configured_oidc_publishers", 3),
         pretend.call("warehouse.oidc.total_projects_published_with_oidc_publishers", 2),
-        pretend.call(
-            "warehouse.oidc.total_critical_projects_published_with_oidc_publishers", 1
-        ),
         pretend.call("warehouse.oidc.total_files_published_with_oidc_publishers", 2),
         pretend.call(
             "warehouse.oidc.publishers", 4, tags=["publisher:github_oidc_publishers"]

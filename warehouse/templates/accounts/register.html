@@ -18,7 +18,7 @@
   {% trans %}Create an account{% endtrans %}
 {% endblock %}
 
-{%- from "warehouse:templates/includes/input-recaptcha.html" import recaptcha_html, recaptcha_src %}
+{%- from "warehouse:templates/includes/input-captcha.html" import captcha_html, captcha_src %}
 
 {% block content %}
   {% if testPyPI %}
@@ -162,7 +162,7 @@
         </div>
 
         <div class="form-group">
-          {{ recaptcha_html(request, form) }}
+          {{ captcha_html(request, form) }}
         </div>
 
         <input type="submit" value="{% trans %}Create account{% endtrans %}" class="button button--primary" data-password-match-target="submit">
@@ -172,7 +172,7 @@
 {% endblock %}
 
 {% block extra_js %}
-  {{ recaptcha_src(request) }}
+  {{ captcha_src(request) }}
   <script async
   src="{{ request.static_path('warehouse:static/dist/js/vendor/zxcvbn.js') }}">
 </script>

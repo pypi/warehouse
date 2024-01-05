@@ -2467,18 +2467,6 @@ class TestManageProjects:
         newer_project_with_no_releases = ProjectFactory(
             releases=[], created=datetime.datetime(2018, 1, 1)
         )
-        project_where_owners_require_2fa = ProjectFactory(
-            releases=[], created=datetime.datetime(2022, 1, 1), owners_require_2fa=True
-        )
-        project_where_pypi_mandates_2fa = ProjectFactory(
-            releases=[], created=datetime.datetime(2022, 1, 2), pypi_mandates_2fa=True
-        )
-        another_project_where_owners_require_2fa = ProjectFactory(
-            releases=[], created=datetime.datetime(2022, 3, 1), owners_require_2fa=True
-        )
-        another_project_where_pypi_mandates_2fa = ProjectFactory(
-            releases=[], created=datetime.datetime(2022, 3, 2), pypi_mandates_2fa=True
-        )
         team_project = ProjectFactory(
             name="team-proj", releases=[], created=datetime.datetime(2022, 3, 3)
         )
@@ -2518,26 +2506,6 @@ class TestManageProjects:
             project=project_with_newer_release,
             role_name="Owner",
         )
-        RoleFactory.create(
-            user=db_request.user,
-            project=project_where_owners_require_2fa,
-            role_name="Owner",
-        )
-        RoleFactory.create(
-            user=db_request.user,
-            project=project_where_pypi_mandates_2fa,
-            role_name="Owner",
-        )
-        RoleFactory.create(
-            user=db_request.user,
-            project=another_project_where_owners_require_2fa,
-            role_name="Maintainer",
-        )
-        RoleFactory.create(
-            user=db_request.user,
-            project=another_project_where_pypi_mandates_2fa,
-            role_name="Maintainer",
-        )
         team = TeamFactory()
         TeamRoleFactory.create(team=team, user=db_request.user)
         TeamProjectRoleFactory(
@@ -2549,10 +2517,6 @@ class TestManageProjects:
         assert views.manage_projects(db_request) == {
             "projects": [
                 team_project,
-                another_project_where_pypi_mandates_2fa,
-                another_project_where_owners_require_2fa,
-                project_where_pypi_mandates_2fa,
-                project_where_owners_require_2fa,
                 newer_project_with_no_releases,
                 project_with_newer_release,
                 older_project_with_no_releases,
@@ -2561,19 +2525,9 @@ class TestManageProjects:
             "projects_owned": {
                 project_with_newer_release.name,
                 newer_project_with_no_releases.name,
-                project_where_owners_require_2fa.name,
-                project_where_pypi_mandates_2fa.name,
             },
             "projects_sole_owned": {
                 newer_project_with_no_releases.name,
-                project_where_owners_require_2fa.name,
-                project_where_pypi_mandates_2fa.name,
-            },
-            "projects_requiring_2fa": {
-                project_where_owners_require_2fa.name,
-                project_where_pypi_mandates_2fa.name,
-                another_project_where_owners_require_2fa.name,
-                another_project_where_pypi_mandates_2fa.name,
             },
             "project_invites": [],
         }
@@ -2586,7 +2540,6 @@ class TestManageProjectSettings:
         project = pretend.stub(organization=None)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
-        view.toggle_2fa_requirement_form_class = lambda *a, **kw: form
         view.transfer_organization_project_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
@@ -2602,7 +2555,6 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": form,
             "transfer_organization_project_form": form,
         }
 
@@ -2613,7 +2565,6 @@ class TestManageProjectSettings:
         project = pretend.stub(organization=organization_managed)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
-        view.toggle_2fa_requirement_form_class = lambda *a, **kw: form
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
@@ -2631,7 +2582,6 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": form,
             "transfer_organization_project_form": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
@@ -2645,7 +2595,6 @@ class TestManageProjectSettings:
         project = pretend.stub(organization=organization_owned)
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
-        view.toggle_2fa_requirement_form_class = lambda *a, **kw: form
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
@@ -2663,144 +2612,11 @@ class TestManageProjectSettings:
             "project": project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": form,
             "transfer_organization_project_form": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={"managed-org"})
         ]
-
-    @pytest.mark.parametrize("enabled", [False, None])
-    def test_toggle_2fa_requirement_feature_disabled(self, enabled):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_requirement.enabled": enabled}
-            ),
-        )
-
-        project = pretend.stub()
-        view = views.ManageProjectSettingsViews(project, request)
-        with pytest.raises(HTTPNotFound):
-            view.toggle_2fa_requirement()
-
-    @pytest.mark.parametrize(
-        "owners_require_2fa, expected, expected_flash_calls",
-        [
-            (
-                False,
-                False,
-                [
-                    pretend.call(
-                        "2FA requirement cannot be disabled for critical projects",
-                        queue="error",
-                    )
-                ],
-            ),
-            (
-                True,
-                True,
-                [
-                    pretend.call(
-                        "2FA requirement cannot be disabled for critical projects",
-                        queue="error",
-                    )
-                ],
-            ),
-        ],
-    )
-    def test_toggle_2fa_requirement_critical(
-        self,
-        owners_require_2fa,
-        expected,
-        expected_flash_calls,
-        db_request,
-    ):
-        db_request.registry = pretend.stub(
-            settings={"warehouse.two_factor_requirement.enabled": True}
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda message, queue: None)
-        )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
-        db_request.user = pretend.stub(username="foo")
-
-        project = ProjectFactory.create(
-            name="foo",
-            owners_require_2fa=owners_require_2fa,
-            pypi_mandates_2fa=True,
-        )
-        view = views.ManageProjectSettingsViews(project, db_request)
-
-        result = view.toggle_2fa_requirement()
-
-        assert project.owners_require_2fa == expected
-        assert project.pypi_mandates_2fa
-        assert db_request.session.flash.calls == expected_flash_calls
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-
-    @pytest.mark.parametrize(
-        "owners_require_2fa, expected, expected_flash_calls, tag",
-        [
-            (
-                False,
-                True,
-                [pretend.call("2FA requirement enabled for foo", queue="success")],
-                EventTag.Project.OwnersRequire2FAEnabled,
-            ),
-            (
-                True,
-                False,
-                [pretend.call("2FA requirement disabled for foo", queue="success")],
-                EventTag.Project.OwnersRequire2FADisabled,
-            ),
-        ],
-    )
-    def test_toggle_2fa_requirement_non_critical(
-        self,
-        owners_require_2fa,
-        expected,
-        expected_flash_calls,
-        tag,
-        db_request,
-    ):
-        db_request.registry = pretend.stub(
-            settings={"warehouse.two_factor_requirement.enabled": True}
-        )
-        db_request.session = pretend.stub(
-            flash=pretend.call_recorder(lambda message, queue: None)
-        )
-        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foo/bar/")
-        db_request.user = pretend.stub(username="foo")
-
-        project = ProjectFactory.create(
-            name="foo",
-            owners_require_2fa=owners_require_2fa,
-            pypi_mandates_2fa=False,
-        )
-        view = views.ManageProjectSettingsViews(project, db_request)
-
-        result = view.toggle_2fa_requirement()
-
-        assert project.owners_require_2fa == expected
-        assert not project.pypi_mandates_2fa
-        assert db_request.session.flash.calls == expected_flash_calls
-        assert db_request.route_path.calls == [
-            pretend.call("manage.project.settings", project_name="foo")
-        ]
-        assert isinstance(result, HTTPSeeOther)
-        assert result.status_code == 303
-        assert result.headers["Location"] == "/foo/bar/"
-
-        events = project.events.all()
-        assert len(events) == 1
-        event = events[0]
-        assert event.tag == tag
-        assert event.additional == {"modified_by": db_request.user.username}
 
     def test_remove_organization_project_no_confirm(self):
         user = pretend.stub()
@@ -5917,6 +5733,12 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            POST=MultiDict(),
         )
         view = views.ManageOIDCPublisherViews(project, request)
 
@@ -5962,6 +5784,12 @@ class TestManageOIDCPublisherViews:
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            POST=MultiDict(),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -6002,25 +5830,16 @@ class TestManageOIDCPublisherViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
-            POST=pretend.stub(),
+            POST=MultiDict(),
         )
-
-        github_publisher_form_obj = pretend.stub()
-        github_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
             "project": project,
-            "github_publisher_form": github_publisher_form_obj,
+            "github_publisher_form": view.github_publisher_form,
         }
 
         assert request.flags.disallow_oidc.calls == [pretend.call()]
-        assert github_publisher_form_cls.calls == [
-            pretend.call(request.POST, api_token="fake-api-token")
-        ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
         self, monkeypatch, pyramid_request
@@ -6039,19 +5858,13 @@ class TestManageOIDCPublisherViews:
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        pyramid_request.POST = pretend.stub()
+        pyramid_request.POST = MultiDict()
 
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
-        github_publisher_form_obj = pretend.stub()
-        github_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCPublisherViews(project, pyramid_request)
         assert view.manage_project_oidc_publishers() == {
             "project": project,
-            "github_publisher_form": github_publisher_form_obj,
+            "github_publisher_form": view.github_publisher_form,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
@@ -6063,9 +5876,6 @@ class TestManageOIDCPublisherViews:
                 ),
                 queue="error",
             )
-        ]
-        assert github_publisher_form_cls.calls == [
-            pretend.call(pyramid_request.POST, api_token="fake-api-token")
         ]
 
     def test_add_github_oidc_publisher_preexisting(self, metrics, monkeypatch):
@@ -6315,11 +6125,6 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, db_request)
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews,
-            "github_publisher_form",
-            view.github_publisher_form,
-        )
-        monkeypatch.setattr(
             views.GitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
@@ -6359,6 +6164,7 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
             _=lambda s: s,
+            POST=MultiDict(),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -6394,6 +6200,8 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -6423,6 +6231,8 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         github_publisher_form_obj = pretend.stub(
@@ -6643,7 +6453,8 @@ class TestManageOIDCPublisherViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
-            POST=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         delete_publisher_form_obj = pretend.stub(
@@ -6697,7 +6508,8 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
             db=pretend.stub(
                 get=pretend.call_recorder(lambda *a, **kw: other_publisher),
             ),
@@ -6746,6 +6558,8 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: True)
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)

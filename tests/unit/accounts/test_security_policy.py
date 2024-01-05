@@ -571,6 +571,7 @@ class TestPermits:
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda flag: False),
             identity=pretend.stub(
                 __principals__=lambda: principals,
                 has_primary_verified_email=True,
@@ -583,133 +584,6 @@ class TestPermits:
 
         policy = policy_class()
         assert bool(policy.permits(request, context, "myperm")) == expected
-
-    @pytest.mark.parametrize(
-        "mfa_required,has_mfa,expected",
-        [
-            (True, True, True),
-            (False, True, True),
-            (True, False, False),
-            (False, False, True),
-        ],
-    )
-    def test_2fa_owner_requires(
-        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
-    ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
-
-        request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=has_mfa,
-                date_joined=datetime(2022, 8, 1),
-            ),
-            matched_route=pretend.stub(name="random.route"),
-            registry=pretend.stub(
-                settings={
-                    "warehouse.two_factor_requirement.enabled": True,
-                    "warehouse.two_factor_mandate.enabled": False,
-                    "warehouse.two_factor_mandate.available": False,
-                }
-            ),
-        )
-        context = pretend.stub(
-            __acl__=[(Allow, "user:5", "myperm")], owners_require_2fa=mfa_required
-        )
-
-        policy = policy_class()
-        assert bool(policy.permits(request, context, "myperm")) == expected
-
-    @pytest.mark.parametrize(
-        "mfa_required,has_mfa,expected",
-        [
-            (True, True, True),
-            (False, True, True),
-            (True, False, False),
-            (False, False, True),
-        ],
-    )
-    def test_2fa_pypi_mandates_2fa(
-        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
-    ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
-
-        request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=has_mfa,
-                date_joined=datetime(2022, 8, 1),
-            ),
-            matched_route=pretend.stub(name="random.route"),
-            registry=pretend.stub(
-                settings={
-                    "warehouse.two_factor_requirement.enabled": False,
-                    "warehouse.two_factor_mandate.enabled": True,
-                    "warehouse.two_factor_mandate.available": False,
-                }
-            ),
-        )
-        context = pretend.stub(
-            __acl__=[(Allow, "user:5", "myperm")], pypi_mandates_2fa=mfa_required
-        )
-
-        policy = policy_class()
-        assert bool(policy.permits(request, context, "myperm")) == expected
-
-    @pytest.mark.parametrize(
-        "mfa_required,has_mfa,expected",
-        [
-            (True, True, True),
-            (False, True, True),
-            (True, False, False),
-            (False, False, True),
-        ],
-    )
-    def test_2fa_pypi_mandates_2fa_with_warning(
-        self, monkeypatch, policy_class, mfa_required, has_mfa, expected
-    ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-        monkeypatch.setattr(security_policy, "TwoFactorRequireable", pretend.stub)
-
-        request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=has_mfa,
-                date_joined=datetime(2022, 8, 1),
-            ),
-            matched_route=pretend.stub(name="random.route"),
-            registry=pretend.stub(
-                settings={
-                    "warehouse.two_factor_requirement.enabled": False,
-                    "warehouse.two_factor_mandate.enabled": False,
-                    "warehouse.two_factor_mandate.available": True,
-                }
-            ),
-            session=pretend.stub(flash=pretend.call_recorder(lambda msg, queue: None)),
-        )
-        context = pretend.stub(
-            __acl__=[(Allow, "user:5", "myperm")], pypi_mandates_2fa=mfa_required
-        )
-
-        policy = policy_class()
-        assert bool(policy.permits(request, context, "myperm"))
-
-        if not expected:
-            assert request.session.flash.calls == [
-                pretend.call(
-                    "This project is included in PyPI's two-factor mandate "
-                    "for critical projects. In the future, you will be unable to "
-                    "perform this action without enabling 2FA for your account",
-                    queue="warning",
-                )
-            ]
-        else:
-            assert request.session.flash.calls == []
 
     def test_permits_with_unverified_email(self, monkeypatch, policy_class):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
@@ -726,26 +600,6 @@ class TestPermits:
 
         policy = policy_class()
         assert not policy.permits(request, context, "myperm")
-
-    # TODO: remove this test when we remove the conditional
-    def test_permits_manage_projects_without_2fa_for_older_users(
-        self, monkeypatch, policy_class
-    ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
-        request = pretend.stub(
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=False,
-                date_joined=datetime(2019, 1, 1),
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert policy.permits(request, context, "myperm")
 
     def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
@@ -768,6 +622,7 @@ class TestPermits:
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda flag: False),
             identity=pretend.stub(
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
@@ -785,6 +640,7 @@ class TestPermits:
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
         request = pretend.stub(
+            flags=pretend.stub(enabled=lambda flag: False),
             identity=pretend.stub(
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,

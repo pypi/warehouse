@@ -210,7 +210,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=pretend.stub()
         )
-        request = pretend.stub(authenticated_userid=1, context=None)
+        request = pretend.stub(user=pretend.stub(), context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -218,7 +218,7 @@ class TestForbiddenView:
     def test_logged_out_redirects_login(self):
         exc = pretend.stub()
         request = pretend.stub(
-            authenticated_userid=None,
+            user=None,
             path_qs="/foo/bar/?b=s",
             route_url=pretend.call_recorder(
                 lambda route, _query: "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
@@ -231,12 +231,12 @@ class TestForbiddenView:
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
 
-    @pytest.mark.parametrize("reason", ("owners_require_2fa", "pypi_mandates_2fa"))
+    @pytest.mark.parametrize("reason", ("manage_2fa_required",))
     def test_two_factor_required(self, reason):
         result = WarehouseDenied("Some summary", reason=reason)
         exc = pretend.stub(result=result)
         request = pretend.stub(
-            authenticated_userid=1,
+            user=pretend.stub(),
             session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
             path_qs="/foo/bar/?b=s",
             route_url=pretend.call_recorder(
@@ -268,7 +268,7 @@ class TestForbiddenView:
         result = WarehouseDenied("Some summary", reason="unverified_email")
         exc = pretend.stub(result=result)
         request = pretend.stub(
-            authenticated_userid=1,
+            user=pretend.stub(),
             session=pretend.stub(flash=pretend.call_recorder(lambda x, queue: None)),
             path_qs=requested_path,
             route_url=pretend.call_recorder(lambda route, _query: "/manage/account/"),
@@ -300,7 +300,7 @@ class TestForbiddenView:
         exc = pretend.stub(
             status_code=403, status="403 Forbidden", headers={}, result=result
         )
-        request = pretend.stub(authenticated_userid=1, context=None)
+        request = pretend.stub(user=pretend.stub(), context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
         renderer.assert_()
@@ -664,18 +664,8 @@ class TestSecurityKeyGiveaway:
     def test_default_response(self):
         assert SecurityKeyGiveaway(pretend.stub()).default_response == {}
 
-    def test_security_key_giveaway_not_found(self):
-        request = pretend.stub(registry=pretend.stub(settings={}))
-
-        with pytest.raises(HTTPNotFound):
-            SecurityKeyGiveaway(request).security_key_giveaway()
-
     def test_security_key_giveaway(self):
-        request = pretend.stub(
-            registry=pretend.stub(
-                settings={"warehouse.two_factor_mandate.available": True}
-            )
-        )
+        request = pretend.stub()
         view = SecurityKeyGiveaway(request)
 
         assert view.security_key_giveaway() == view.default_response

@@ -10,10 +10,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import http
 
 from urllib.parse import urlencode
+
+from zope.interface import implementer
+
+from .interfaces import ChallengeResponse, ICaptchaService
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
@@ -49,14 +52,24 @@ ERROR_CODE_MAP = {
     "invalid-input-response": InvalidInputResponseError,
 }
 
-ChallengeResponse = collections.namedtuple(
-    "ChallengeResponse", ("challenge_ts", "hostname")
-)
 
-
+@implementer(ICaptchaService)
 class Service:
-    def __init__(self, request):
+    def __init__(self, *, request, script_src_url, site_key, secret_key):
         self.request = request
+        self.script_src_url = script_src_url
+        self.site_key = site_key
+        self.secret_key = secret_key
+        self.class_name = "g-recaptcha"
+
+    @classmethod
+    def create_service(cls, context, request):
+        return cls(
+            request=request,
+            script_src_url="//www.recaptcha.net/recaptcha/api.js",
+            site_key=request.registry.settings.get("recaptcha.site_key"),
+            secret_key=request.registry.settings.get("recaptcha.secret_key"),
+        )
 
     @property
     def csp_policy(self):
@@ -80,20 +93,15 @@ class Service:
 
     @property
     def enabled(self):
-        settings = self.request.registry.settings
-        return bool(
-            settings.get("recaptcha.site_key") and settings.get("recaptcha.secret_key")
-        )
+        return bool(self.site_key and self.secret_key)
 
     def verify_response(self, response, remote_ip=None):
         if not self.enabled:
             # TODO: debug logging
             return
 
-        settings = self.request.registry.settings
-
         payload = {
-            "secret": settings["recaptcha.secret_key"],
+            "secret": self.secret_key,
             "response": response,
         }
         if remote_ip is not None:
@@ -143,14 +151,3 @@ class Service:
             data.get("challenge_ts"),
             data.get("hostname"),
         )
-
-
-def service_factory(handler, request):
-    return Service(request)
-
-
-def includeme(config):
-    # yeah yeah, binding to a concrete implementation rather than an
-    # interface. in a perfect world, this will never be offloaded to another
-    # service. however, if it is, then we'll deal with the refactor then
-    config.register_service_factory(service_factory, name="recaptcha")

@@ -22,7 +22,7 @@
   {{ oidc_title() }}
 {% endblock %}
 
-{% macro github_form(request, pending_github_pubisher_form) %}
+{% macro github_form(request, pending_github_publisher_form) %}
   {{ form_error_anchor(pending_github_publisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -169,9 +169,7 @@
       <tr>
         <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
         <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-        <th scope="col">{% trans %}Repository{% endtrans %}</th>
-        <th scope="col">{% trans %}Workflow{% endtrans %}</th>
-        <th scope="col">{% trans %}Environment name{% endtrans %}</th>
+        <th scope="col">{% trans %}Details{% endtrans %}</th>
         <th></th>
       </tr>
     </thead>

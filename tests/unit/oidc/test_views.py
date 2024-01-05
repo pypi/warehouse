@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import json
-
 from datetime import datetime
 
 import pretend
@@ -25,6 +24,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.oidc import errors, views
 from warehouse.oidc.interfaces import IOIDCPublisherService
+from warehouse.packaging import services
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
 
@@ -319,7 +319,7 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
         lambda *a, **kw: None
     )
     monkeypatch.setattr(
-        views,
+        services,
         "send_pending_trusted_publisher_invalidated_email",
         send_pending_trusted_publisher_invalidated_email,
     )
@@ -418,7 +418,7 @@ def test_mint_token_from_oidc_only_pending_publisher_fail(monkeypatch, db_reques
         lambda *a, **kw: None
     )
     monkeypatch.setattr(
-        views,
+        services,
         "send_pending_trusted_publisher_invalidated_email",
         send_pending_trusted_publisher_invalidated_email,
     )

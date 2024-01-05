@@ -73,15 +73,6 @@ Mirroring Support
   pypi-announce_ mailing list to ensure they are aware of changes or
   deprecations related to these methods.
 
-``changelog(since, with_ids=False)``
-++++++++++++++++++++++++++++++++++++
-
-Retrieve a list of `[name, version, timestamp, action]`, or `[name,
-version, timestamp, action, id]` if `with_ids=True`, since the given
-`since`. All `since` timestamps are UTC values. The argument is a
-UTC integer seconds since the epoch (e.g., the ``timestamp`` method
-to a ``datetime.datetime`` object).
-
 ``changelog_last_serial()``
 +++++++++++++++++++++++++++
 
@@ -229,6 +220,11 @@ Deprecated Methods
 .. warning::
   The following methods are permanently deprecated and will return a
   `RuntimeError`
+
+``changelog(since, with_ids=False)``
+++++++++++++++++++++++++++++++++++++
+
+Deprecated in favor of ``changelog_since_serial``.
 
 ``package_data(package_name, version)``
 +++++++++++++++++++++++++++++++++++++++

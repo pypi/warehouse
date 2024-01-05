@@ -1,9 +1,9 @@
 ---
 title: Introducing PyPI Organizations
 description: Announcing the launch of a significant new collaboration feature for PyPI
-author: Ee Durbin
-publish_date: 2023-04-23
-date: "2023-4-23 00:00"
+authors:
+  - ewdurbin
+date: 2023-04-23
 tags:
   - organizations
   - sustainability
@@ -13,6 +13,8 @@ Today, we are rolling out the first step in our plan to build financial
 support and long-term sustainability of the Python Packaging Index (PyPI),
 while simultaneously giving our users one of our most requested features:
 organization accounts.
+
+<!-- more -->
 
 ### Introducing Organizations
 

@@ -1359,7 +1359,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": set(),
             "projects_sole_owned": set(),
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert len(add_organization_project_cls.calls) == 1
@@ -1544,7 +1543,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert len(add_organization_project_cls.calls) == 1
@@ -1592,11 +1590,13 @@ class TestManageOrganizationProjects:
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
 
-        # The project was created, and belongs to the organization.
-        project = (
-            db_request.db.query(Project).filter_by(name="fakepackage").one_or_none()
-        )
-        assert project is not None
+        # The project was created
+        project = db_request.db.query(Project).filter_by(name="fakepackage").one()
+
+        # Refresh the project in the DB session to ensure it is not stale
+        db_request.db.refresh(project)
+
+        # The project belongs to the organization.
         assert project.organization == organization
 
         assert isinstance(result, HTTPSeeOther)
@@ -1656,7 +1656,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert add_organization_project_obj.new_project_name.errors == ["error-message"]
@@ -1704,7 +1703,6 @@ class TestManageOrganizationProjects:
             "active_projects": view.active_projects,
             "projects_owned": {project.name, organization.projects[0].name},
             "projects_sole_owned": {project.name, organization.projects[0].name},
-            "projects_requiring_2fa": set(),
             "add_organization_project_form": add_organization_project_obj,
         }
         assert add_organization_project_obj.new_project_name.errors == [
