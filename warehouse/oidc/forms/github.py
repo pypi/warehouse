@@ -18,7 +18,7 @@ import wtforms
 
 from warehouse import forms
 from warehouse.i18n import localize as _
-from warehouse.utils.project import PROJECT_NAME_RE
+from warehouse.oidc.forms._core import PendingPublisherMixin
 
 _VALID_GITHUB_REPO = re.compile(r"^[a-zA-Z0-9-_.]+$")
 _VALID_GITHUB_OWNER = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-]*$")
@@ -166,29 +166,12 @@ class GitHubPublisherBase(forms.Form):
         )
 
 
-class PendingGitHubPublisherForm(GitHubPublisherBase):
+class PendingGitHubPublisherForm(GitHubPublisherBase, PendingPublisherMixin):
     __params__ = GitHubPublisherBase.__params__ + ["project_name"]
-
-    project_name = wtforms.StringField(
-        validators=[
-            wtforms.validators.InputRequired(message=_("Specify project name")),
-            wtforms.validators.Regexp(
-                PROJECT_NAME_RE, message=_("Invalid project name")
-            ),
-        ]
-    )
 
     def __init__(self, *args, project_factory, **kwargs):
         super().__init__(*args, **kwargs)
         self._project_factory = project_factory
-
-    def validate_project_name(self, field):
-        project_name = field.data
-
-        if project_name in self._project_factory:
-            raise wtforms.validators.ValidationError(
-                _("This project name is already in use")
-            )
 
 
 class GitHubPublisherForm(GitHubPublisherBase):
