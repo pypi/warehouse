@@ -19,20 +19,28 @@ from pyramid.authorization import Authenticated
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
+    BuildkitePublisher,
     GitHubPublisher,
     GooglePublisher,
     OIDCPublisher,
+    PendingBuildkitePublisher,
     PendingGitHubPublisher,
     PendingGooglePublisher,
 )
 from warehouse.oidc.models._core import OIDCPublisherMixin
 
+BUILDKITE_OIDC_ISSUER_URL = "https://agent.buildkite.com"
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
 GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
 
-OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL}
+OIDC_ISSUER_URLS = {
+    BUILDKITE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
+}
 
 OIDC_PUBLISHER_CLASSES: dict[str, dict[bool, type[OIDCPublisherMixin]]] = {
+    BUILDKITE_OIDC_ISSUER_URL: {False: BuildkitePublisher, True: PendingBuildkitePublisher},
     GITHUB_OIDC_ISSUER_URL: {False: GitHubPublisher, True: PendingGitHubPublisher},
     GOOGLE_OIDC_ISSUER_URL: {False: GooglePublisher, True: PendingGooglePublisher},
 }

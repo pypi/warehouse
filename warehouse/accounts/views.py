@@ -78,9 +78,14 @@ from warehouse.email import (
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import DeletePublisherForm
+from warehouse.oidc.forms.buildkite import PendingBuildkitePublisherForm
 from warehouse.oidc.forms.github import PendingGitHubPublisherForm
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubPublisher, PendingOIDCPublisher
+from warehouse.oidc.models import (
+    PendingBuildkitePublisher,
+    PendingGitHubPublisher,
+    PendingOIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
 from warehouse.packaging.models import (
@@ -1494,6 +1499,13 @@ class ManageAccountPublishingViews:
             )
 
     @property
+    def pending_buildkite_publisher_form(self):
+        return PendingBuildkitePublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory
+        )
+
+    @property
     def pending_github_publisher_form(self):
         return PendingGitHubPublisherForm(
             self.request.POST,
@@ -1504,6 +1516,8 @@ class ManageAccountPublishingViews:
     @property
     def default_response(self):
         return {
+            "default_publisher_name": "github",
+            "pending_buildkite_publisher_form": self.pending_buildkite_publisher_form,
             "pending_github_publisher_form": self.pending_github_publisher_form,
         }
 
@@ -1522,10 +1536,146 @@ class ManageAccountPublishingViews:
         return self.default_response
 
     @view_config(
+        route_name="manage.account.publishing.buildkite",
+        request_method="POST",
+        request_param=PendingBuildkitePublisherForm.__params__,
+    )
+    def add_pending_buildkite_oidc_publisher(self):
+        response = self.default_response
+        response["default_publisher_name"] = "buildkite"
+
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_BUILDKITE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Buildkite-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.attempt", tags=["publisher:Buildkite"]
+        )
+
+        if not self.request.user.has_primary_verified_email:
+            self.request.session.flash(
+                self.request._(
+                    "You must have a verified email in order to register a "
+                    "pending trusted publisher. "
+                    "See https://pypi.org/help#openid-connect for details."
+                ),
+                queue="error",
+            )
+            return response
+
+        # Separately from having permission to register pending OIDC publishers,
+        # we limit users to no more than 3 pending publishers at once.
+        if len(self.request.user.pending_oidc_publishers) >= 3:
+            self.request.session.flash(
+                self.request._(
+                    "You can't register more than 3 pending trusted "
+                    "publishers at once."
+                ),
+                queue="error",
+            )
+            return response
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_pending_publisher.ratelimited",
+                tags=["publisher:Buildkite"],
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = response
+        form = response["pending_buildkite_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        publisher_already_exists = (
+            self.request.db.query(PendingBuildkitePublisher)
+            .filter_by(
+                organization_slug=form.organization_slug.data,
+                pipeline_slug=form.pipeline_slug.data,
+            )
+            .first()
+            is not None
+        )
+
+        if publisher_already_exists:
+            self.request.session.flash(
+                self.request._(
+                    "This trusted publisher has already been registered. "
+                    "Please contact PyPI's admins if this wasn't intentional."
+                ),
+                queue="error",
+            )
+            return response
+
+        pending_publisher = PendingBuildkitePublisher(
+            project_name=form.project_name.data,
+            added_by=self.request.user,
+            organization_slug=form.organization_slug.data,
+            pipeline_slug=form.pipeline_slug.data,
+            build_branch=form.build_branch.data,
+            build_tag=form.build_tag.data,
+            step_key=form.step_key.data,
+        )
+
+        self.request.db.add(pending_publisher)
+        self.request.db.flush()  # To get the new ID
+
+        self.request.user.record_event(
+            tag=EventTag.Account.PendingOIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "project": pending_publisher.project_name,
+                "publisher": pending_publisher.publisher_name,
+                "id": str(pending_publisher.id),
+                "specifier": str(pending_publisher),
+                "url": pending_publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            self.request._(
+                "Registered a new pending publisher to create "
+                f"the project '{pending_publisher.project_name}'."
+            ),
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_pending_publisher.ok", tags=["publisher:Buildkite"]
+        )
+
+        return HTTPSeeOther(self.request.route_path("manage.account.publishing"))
+
+    @view_config(
         request_method="POST",
         request_param=PendingGitHubPublisherForm.__params__,
     )
     def add_pending_github_oidc_publisher(self):
+        response = self.default_response
+        response["default_publisher_name"] = "github"
+
         if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITHUB_OIDC):
             self.request.session.flash(
                 self.request._(
@@ -1534,7 +1684,7 @@ class ManageAccountPublishingViews:
                 ),
                 queue="error",
             )
-            return self.default_response
+            return response
 
         self.metrics.increment(
             "warehouse.oidc.add_pending_publisher.attempt", tags=["publisher:GitHub"]

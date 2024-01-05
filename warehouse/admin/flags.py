@@ -25,6 +25,7 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
     DISALLOW_OIDC = "disallow-oidc"
+    DISALLOW_BUILDKITE_OIDC = "disallow-buildkite-oidc"
     DISALLOW_GITHUB_OIDC = "disallow-github-oidc"
     DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
     READ_ONLY = "read-only"

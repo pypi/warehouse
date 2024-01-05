@@ -15,7 +15,11 @@ from celery.schedules import crontab
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
 from warehouse.oidc.tasks import compute_oidc_metrics
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL
+from warehouse.oidc.utils import (
+    BUILDKITE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
+)
 
 
 def includeme(config):
@@ -23,6 +27,15 @@ def includeme(config):
         config.registry.settings["oidc.backend"]
     )
 
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="buildkite",
+            issuer_url=BUILDKITE_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="buildkite",
+    )
     config.register_service_factory(
         OIDCPublisherServiceFactory(
             publisher="github",
@@ -47,6 +60,7 @@ def includeme(config):
     auth = config.get_settings().get("auth.domain")
 
     config.add_route("oidc.audience", "/_/oidc/audience", domain=auth)
+    config.add_route("oidc.buildkite.mint_token", "/_/oidc/buildkite/mint-token", domain=auth)
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
 
     # Compute OIDC metrics periodically

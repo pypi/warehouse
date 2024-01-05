@@ -207,6 +207,9 @@ def includeme(config):
         "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
     )
     config.add_route(
+        "manage.account.publishing.buildkite", "/manage/account/publishing/buildkite/", domain=warehouse
+    )
+    config.add_route(
         "manage.account.two-factor", "/manage/account/two-factor/", domain=warehouse
     )
     config.add_redirect("/2fa/", "/manage/account/two-factor/", domain=warehouse)
@@ -380,6 +383,13 @@ def includeme(config):
     config.add_route(
         "manage.project.settings.publishing",
         "/manage/project/{project_name}/settings/publishing/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "manage.project.settings.publishing.buildkite",
+        "/manage/project/{project_name}/settings/publishing/buildkite/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{project_name}",
         domain=warehouse,

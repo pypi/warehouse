@@ -22,7 +22,116 @@
   {{ oidc_title() }}
 {% endblock %}
 
-{% macro github_form(request, pending_github_pubisher_form) %}
+{% macro buildkite_form(request, pending_buildkite_publisher_form) %}
+  {{ form_error_anchor(pending_github_publisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.account.publishing.buildkite') }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(pending_buildkite_publisher_form) }}
+    <div class="form-group">
+      <label for="project_name" class="form-group__label">
+        {% trans %}PyPI Project Name{% endtrans %}
+        {% if pending_buildkite_publisher_form.project_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.project_name(placeholder=gettext("project name"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="project_name-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The project (on PyPI) that will be created when this publisher is used{% endtrans %}
+      </p>
+      <div id="project_name-errors">
+        {{ field_errors(pending_buildkite_publisher_form.project_name) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="organization_slug" class="form-group__label">
+        {% trans %}Organization{% endtrans %}
+        {% if pending_buildkite_publisher_form.organization_slug.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.organization_slug(placeholder=gettext("acme-inc"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="organization_slug-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The slug of the Buildkite organization that owns the pipeline{% endtrans %}
+      </p>
+      <div id="organization_slug-errors">
+        {{ field_errors(pending_buildkite_publisher_form.organization_slug) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="pipeline_slug" class="form-group__label">
+        {% trans %}Pipeline{% endtrans %}
+        {% if pending_buildkite_publisher_form.pipeline_slug.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.pipeline_slug(placeholder=gettext("widgets-client"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"pipeline_slug-errors"}) }}
+      <p class="form-group__help-text">
+      {% trans %}The slug of the Buildkite pipeline that contains the publishing steps{% endtrans %}
+      </p>
+      <div id="pipeline_slug-errors">
+        {{ field_errors(pending_buildkite_publisher_form.pipeline_slug) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="build_branch" class="form-group__label">
+        {% trans %}Branch name{% endtrans %}
+        {% if pending_buildkite_publisher_form.build_branch.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.build_branch(placeholder=gettext("main"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"build_branch-errors"}) }}
+      <p class="form-group__help-text">
+        {% trans %}Restrict publishing to a specific branch by supplying a branch name{% endtrans %}
+      </p>
+      <div id="build_branch-errors">
+        {{ field_errors(pending_buildkite_publisher_form.build_branch) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="build_tag" class="form-group__label">
+        {% trans %}Tag name{% endtrans %}
+        {% if pending_buildkite_publisher_form.build_tag.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.build_tag(placeholder=gettext("v1.x"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"build_tag-errors"}) }}
+      <p class="form-group__help-text">
+        {% trans %}Restrict publishing to a specific tag by supplying a tag name{% endtrans %}
+      </p>
+      <div id="build_tag-errors">
+        {{ field_errors(pending_buildkite_publisher_form.build_tag) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="step_key" class="form-group__label">
+        {% trans %}Step key{% endtrans %}
+        {% if pending_buildkite_publisher_form.step_key.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_buildkite_publisher_form.step_key(placeholder=gettext("publish-python-package"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"step_key-errors"}) }}
+      <p class="form-group__help-text">
+        {% trans href="https://buildkite.com/docs/pipelines/command-step#agents" %}
+        Restrict publishing to a specific step in your pipeline by supplying a <a href="{{ href }}">step key</a>
+        {% endtrans %}
+      </p>
+      <div id="step_key-errors">
+        {{ field_errors(pending_buildkite_publisher_form.step_key) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
+    </div>
+  </form>
+{% endmacro %}
+
+{% macro github_form(request, pending_github_publisher_form) %}
   {{ form_error_anchor(pending_github_publisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -209,12 +318,13 @@
   </p>
 
   {% if request.user.has_two_factor %}
-  {% set publishers = [("GitHub", github_form(request, pending_github_publisher_form))] %}
+  {% set publishers = [("GitHub", github_form(request, pending_github_publisher_form)), ("Buildkite", buildkite_form(request, pending_buildkite_publisher_form))] %}
+  {% set default_publisher_index = (publishers | map(attribute=0) | map("lower") | list).index(default_publisher_name) %}
 
-  <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+  <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="{{ default_publisher_index }}">
     <div class="horizontal-tabs__tabbar">
       {% for publisher_name, _ in publishers %}
-      <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+      <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.index0 == default_publisher_index else "" }}">
         {{ publisher_name }}
       </button>
       {% endfor %}
