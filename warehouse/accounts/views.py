@@ -1462,6 +1462,11 @@ class ManageAccountPublishingViews:
         self.request = request
         self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.pending_github_publisher_form = PendingGitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+            project_factory=self.project_factory,
+        )
 
     @property
     def _ratelimiters(self):
@@ -1492,14 +1497,6 @@ class ManageAccountPublishingViews:
                     self.request.remote_addr
                 )
             )
-
-    @property
-    def pending_github_publisher_form(self):
-        return PendingGitHubPublisherForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-            project_factory=self.project_factory,
-        )
 
     @property
     def default_response(self):
@@ -1610,17 +1607,9 @@ class ManageAccountPublishingViews:
                 ),
                 queue="error",
             )
-            return response
+            return self.default_response
 
-        pending_publisher = PendingGitHubPublisher(
-            project_name=form.project_name.data,
-            added_by=self.request.user,
-            repository_name=form.repository.data,
-            repository_owner=form.normalized_owner,
-            repository_owner_id=form.owner_id,
-            workflow_filename=form.workflow_filename.data,
-            environment=form.normalized_environment,
-        )
+        pending_publisher = make_pending_publisher(self.request, form)
 
         self.request.db.add(pending_publisher)
         self.request.db.flush()  # To get the new ID
