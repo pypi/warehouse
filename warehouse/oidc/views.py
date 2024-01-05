@@ -38,7 +38,7 @@ class Error(TypedDict):
     description: str
 
 
-class JsonRespone(TypedDict, total=False):
+class JsonResponse(TypedDict, total=False):
     message: str | None
     errors: list[Error] | None
     token: StrictStr | None
@@ -60,7 +60,7 @@ def _ratelimiters(request: Request) -> dict[str, IRateLimiter]:
     }
 
 
-def _invalid(errors: list[Error], request: Request) -> JsonRespone:
+def _invalid(errors: list[Error], request: Request) -> JsonResponse:
     request.response.status = 422
 
     return {
@@ -115,7 +115,7 @@ def mint_token_from_oidc_github(request: Request):
     return mint_token(oidc_service, request)
 
 
-def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonRespone:
+def mint_token(oidc_service: OIDCPublisherService, request: Request) -> JsonResponse:
     unverified_jwt: str
     try:
         payload = TokenPayload.model_validate_json(request.body)
