@@ -18,39 +18,66 @@ from zope.interface import implementer
 
 from .interfaces import ChallengeResponse, ICaptchaService
 
-VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
+VERIFY_URL = "https://api.hcaptcha.com/siteverify"
 
 
-class RecaptchaError(ValueError):
+class HCaptchaError(ValueError):
     pass
 
 
-class MissingInputSecretError(RecaptchaError):
+class MissingInputSecretError(HCaptchaError):
     pass
 
 
-class InvalidInputSecretError(RecaptchaError):
+class InvalidInputSecretError(HCaptchaError):
     pass
 
 
-class MissingInputResponseError(RecaptchaError):
+class MissingInputResponseError(HCaptchaError):
     pass
 
 
-class InvalidInputResponseError(RecaptchaError):
+class InvalidInputResponseError(HCaptchaError):
     pass
 
 
-class UnexpectedError(RecaptchaError):
+class BadRequestError(HCaptchaError):
     pass
 
 
+class InvalidOrAlreadySeenResponseError(HCaptchaError):
+    pass
+
+
+class NotUsingDummyPasscodeError(HCaptchaError):
+    pass
+
+
+class SitekeySecretMismatchError(HCaptchaError):
+    pass
+
+
+class UnexpectedError(HCaptchaError):
+    pass
+
+
+# https://docs.hcaptcha.com/#siteverify-error-codes-table
 ERROR_CODE_MAP = {
     "missing-input-secret": MissingInputSecretError,
     "invalid-input-secret": InvalidInputSecretError,
     "missing-input-response": MissingInputResponseError,
     "invalid-input-response": InvalidInputResponseError,
+    "invalid-or-already-seen-response": InvalidOrAlreadySeenResponseError,
+    "not-using-dummy-passcode": NotUsingDummyPasscodeError,
+    "sitekey-secret-mismatch": SitekeySecretMismatchError,
+    "bad-request": BadRequestError,
 }
+
+
+_CSP_ENTRIES = [
+    "https://hcaptcha.com",
+    "https://*.hcaptcha.com",
+]
 
 
 @implementer(ICaptchaService)
@@ -60,45 +87,34 @@ class Service:
         self.script_src_url = script_src_url
         self.site_key = site_key
         self.secret_key = secret_key
-        self.class_name = "g-recaptcha"
+        self.class_name = "h-captcha"
 
     @classmethod
-    def create_service(cls, context, request):
+    def create_service(cls, context, request) -> "Service":
         return cls(
             request=request,
-            script_src_url="//www.recaptcha.net/recaptcha/api.js",
-            site_key=request.registry.settings.get("recaptcha.site_key"),
-            secret_key=request.registry.settings.get("recaptcha.secret_key"),
+            script_src_url="https://js.hcaptcha.com/1/api.js",
+            site_key=request.registry.settings.get("hcaptcha.site_key"),
+            secret_key=request.registry.settings.get("hcaptcha.secret_key"),
         )
 
     @property
-    def csp_policy(self):
-        # the use of request.scheme should ever only be for dev. problem is
-        # that we use "//" in the script tags, so the request scheme is used.
-        # because the csp has to match the script src scheme, it also has to
-        # be dynamic.
+    def csp_policy(self) -> dict[str, list[str]]:
         return {
-            "script-src": [
-                "{request.scheme}://www.recaptcha.net/recaptcha/",
-                "{request.scheme}://www.gstatic.com/recaptcha/",
-                "{request.scheme}://www.gstatic.cn/recaptcha/",
-            ],
-            "frame-src": [
-                "{request.scheme}://www.recaptcha.net/recaptcha/",
-            ],
-            "style-src": [
-                "'unsafe-inline'",
-            ],
+            "script-src": _CSP_ENTRIES,
+            "frame-src": _CSP_ENTRIES,
+            "style-src": _CSP_ENTRIES,
+            "connect-src": _CSP_ENTRIES,
         }
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return bool(self.site_key and self.secret_key)
 
-    def verify_response(self, response, remote_ip=None):
+    def verify_response(self, response, remote_ip=None) -> ChallengeResponse | None:
         if not self.enabled:
             # TODO: debug logging
-            return
+            return None
 
         payload = {
             "secret": self.secret_key,
@@ -119,27 +135,31 @@ class Service:
                 timeout=10,
             )
         except Exception as err:
-            raise UnexpectedError(str(err))
+            raise UnexpectedError(str(err)) from err
 
         try:
             data = resp.json()
-        except ValueError:
+        except ValueError as e:
             raise UnexpectedError(
-                "Unexpected data in response body: %s" % str(resp.content, "utf-8")
-            )
+                f'Unexpected data in response body: {str(resp.content, "utf-8")}'
+            ) from e
 
         if "success" not in data:
-            raise UnexpectedError("Missing 'success' key in response: %s" % data)
+            raise UnexpectedError(f"Missing 'success' key in response: {data}")
 
         if resp.status_code != http.HTTPStatus.OK or not data["success"]:
             try:
                 error_codes = data["error_codes"]
-            except KeyError:
-                raise UnexpectedError("Response missing 'error-codes' key: %s" % data)
+            except KeyError as e:
+                raise UnexpectedError(
+                    f"Response missing 'error-codes' key: {data}"
+                ) from e
             try:
                 exc_tp = ERROR_CODE_MAP[error_codes[0]]
-            except KeyError:
-                raise UnexpectedError("Unexpected error code: %s" % error_codes[0])
+            except KeyError as exc:
+                raise UnexpectedError(
+                    f"Unexpected error code: {error_codes[0]}"
+                ) from exc
             raise exc_tp
 
         # challenge_ts = timestamp of the challenge load

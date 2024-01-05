@@ -24,7 +24,6 @@ from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IPasswordBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, User
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.cache.http import add_vary_callback
 from warehouse.email import send_password_compromised_email_hibp
 from warehouse.errors import (
@@ -293,33 +292,26 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         "manage.account.webauthn-provision",
     ]
 
-    # If flag is active, require 2FA for management and upload.
-    if request.flags.enabled(AdminFlagValue.TWOFA_REQUIRED_EVERYWHERE) or (
-        # Start enforcement from 2023-08-08, but we should remove this check
-        # at the end of 2023.
-        request.identity.date_joined
-        and request.identity.date_joined > datetime.datetime(2023, 8, 8)
+    if (
+        request.matched_route.name.startswith("manage")
+        and request.matched_route.name != "manage.account"
+        and not any(
+            request.matched_route.name.startswith(route) for route in _exempt_routes
+        )
+        and not request.identity.has_two_factor
     ):
-        if (
-            request.matched_route.name.startswith("manage")
-            and request.matched_route.name != "manage.account"
-            and not any(
-                request.matched_route.name.startswith(route) for route in _exempt_routes
-            )
-            and not request.identity.has_two_factor
-        ):
-            return WarehouseDenied(
-                "You must enable two factor authentication to manage other settings",
-                reason="manage_2fa_required",
-            )
+        return WarehouseDenied(
+            "You must enable two factor authentication to manage other settings",
+            reason="manage_2fa_required",
+        )
 
-        if (
-            request.matched_route.name == "forklift.legacy.file_upload"
-            and not request.identity.has_two_factor
-        ):
-            return WarehouseDenied(
-                "You must enable two factor authentication to upload",
-                reason="upload_2fa_required",
-            )
+    if (
+        request.matched_route.name == "forklift.legacy.file_upload"
+        and not request.identity.has_two_factor
+    ):
+        return WarehouseDenied(
+            "You must enable two factor authentication to upload",
+            reason="upload_2fa_required",
+        )
 
     return None

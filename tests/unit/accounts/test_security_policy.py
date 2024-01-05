@@ -21,7 +21,6 @@ from zope.interface.verify import verifyClass
 
 from warehouse.accounts import security_policy
 from warehouse.accounts.interfaces import IUserService
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.utils.security_policy import AuthenticationMethod
 
 
@@ -602,32 +601,10 @@ class TestPermits:
         policy = policy_class()
         assert not policy.permits(request, context, "myperm")
 
-    # TODO: remove this test when we remove the conditional
-    def test_permits_manage_projects_without_2fa_for_older_users(
-        self, monkeypatch, policy_class
-    ):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
-
-        request = pretend.stub(
-            flags=pretend.stub(enabled=lambda flag: False),
-            identity=pretend.stub(
-                __principals__=lambda: ["user:5"],
-                has_primary_verified_email=True,
-                has_two_factor=False,
-                date_joined=datetime(2019, 1, 1),
-            ),
-            matched_route=pretend.stub(name="manage.projects"),
-        )
-        context = pretend.stub(__acl__=[(Allow, "user:5", "myperm")])
-
-        policy = policy_class()
-        assert policy.permits(request, context, "myperm")
-
     def test_permits_manage_projects_with_2fa(self, monkeypatch, policy_class):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
         request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: True)),
             identity=pretend.stub(
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
@@ -640,9 +617,6 @@ class TestPermits:
 
         policy = policy_class()
         assert policy.permits(request, context, "myperm")
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.TWOFA_REQUIRED_EVERYWHERE)
-        ]
 
     def test_deny_manage_projects_without_2fa(self, monkeypatch, policy_class):
         monkeypatch.setattr(security_policy, "User", pretend.stub)
@@ -697,7 +671,6 @@ class TestPermits:
         monkeypatch.setattr(security_policy, "User", pretend.stub)
 
         request = pretend.stub(
-            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
             identity=pretend.stub(
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
@@ -711,6 +684,3 @@ class TestPermits:
 
         policy = policy_class()
         assert policy.permits(request, context, "myperm")
-        assert request.flags.enabled.calls == [
-            pretend.call(AdminFlagValue.TWOFA_REQUIRED_EVERYWHERE)
-        ]
