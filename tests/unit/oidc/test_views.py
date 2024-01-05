@@ -70,7 +70,7 @@ def test_oidc_audience():
     assert response == {"audience": "fakeaudience"}
 
 
-def test_mint_token_oidc_not_enabled(dummy_oidc_payload):
+def test_mint_token_from_oidc_not_enabled(dummy_oidc_payload):
     request = pretend.stub(
         body=dummy_oidc_payload,
         response=pretend.stub(status=None),
@@ -107,6 +107,15 @@ def test_mint_token_oidc_not_enabled(dummy_oidc_payload):
         {"token": [""]},
         {"token": []},
         {"token": {}},
+        {"token": "not-a-jwt"},
+        {
+            # Well-formed JWT, but no `iss` claim
+            "token": (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwib"
+                "mFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fw"
+                "pMeJf36POk6yJV_adQssw5c"
+            )
+        },
     ],
 )
 def test_mint_token_from_oidc_invalid_payload(body):
@@ -129,6 +138,79 @@ def test_mint_token_from_oidc_invalid_payload(body):
         assert isinstance(err, dict)
         assert err["code"] == "invalid-payload"
         assert isinstance(err["description"], str)
+
+
+def test_mint_token_from_oidc_unknown_issuer():
+    class Request:
+        def __init__(self):
+            self.response = pretend.stub(status=None)
+            self.flags = pretend.stub(disallow_oidc=lambda *a: False)
+
+        @property
+        def body(self):
+            return json.dumps(
+                {
+                    "token": (
+                        # iss: nonexistent-issuer
+                        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ"
+                        "ub25leGlzdGVudC1pc3N1ZXIifQ.TYGmZaQXhjS3KA8o3POV"
+                        "HeiD3FR5bz4X6UhRA4ykTFM"
+                    )
+                }
+            )
+
+    req = Request()
+    resp = views.mint_token_from_oidc(req)
+
+    assert req.response.status == 422
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert err["description"] == "unknown trusted publishing issuer"
+
+
+@pytest.mark.parametrize(
+    ("token", "service_name"),
+    [
+        (
+            (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL3Rva2Vu"
+                "LmFjdGlvbnMuZ2l0aHVidXNlcmNvbnRlbnQuY29tIn0.saN7OFQBav8qXzgMCfERf"
+                "ZWPGfHu-0EEQMlVyO5UVdQ"
+            ),
+            "github",
+        ),
+        (
+            (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FjY291b"
+                "nRzLmdvb2dsZS5jb20ifQ.2RJ6Y52Rap0LEj61yBGDokUg8r92SYQq6l3cflSWBVI"
+            ),
+            "google",
+        ),
+    ],
+)
+def test_mint_token_from_oidc_creates_expected_service(
+    monkeypatch, token, service_name
+):
+    mint_token = pretend.call_recorder(lambda *a: pretend.stub())
+    monkeypatch.setattr(views, "mint_token", mint_token)
+
+    oidc_service = pretend.stub()
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
+        body=json.dumps({"token": token}),
+    )
+
+    views.mint_token_from_oidc(request)
+
+    assert request.find_service.calls == [
+        pretend.call(IOIDCPublisherService, name=service_name)
+    ]
+    assert mint_token.calls == [pretend.call(oidc_service, token, request)]
 
 
 def test_mint_token_from_trusted_publisher_verify_jwt_signature_fails(dummy_oidc_jwt):
