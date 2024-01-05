@@ -12,8 +12,9 @@
  # limitations under the License.
 -#}
 {% macro captcha_html(request, form) -%}
-  {% if request.find_service(name="captcha").enabled %}
-  <div class="g-recaptcha" data-sitekey="{{ request.find_service(name="captcha").site_key }}"></div>
+  {% set captcha_svc = request.find_service(name="captcha") %}
+  {% if captcha_svc.enabled %}
+  <div class="{{ captcha_svc.class_name }}" data-sitekey="{{ captcha_svc.site_key }}"></div>
     {% if form.g_recaptcha_response.errors %}
     <ul class="form-errors">
       {% for error in form.g_recaptcha_response.errors %}

@@ -71,5 +71,13 @@ OIDC_AUDIENCE=pypi
 RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
 RECAPTCHA_SECRET_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
 
+# Testing hCaptcha keys from https://docs.hcaptcha.com/#integration-testing-test-keys
+HCAPTCHA_SITE_KEY=10000000-ffff-ffff-ffff-000000000001
+HCAPTCHA_SECRET_KEY=0x0000000000000000000000000000000000000000
+# Test Key Set: Enterprise Account (Safe End User)
+# HCAPTCHA_SITE_KEY=20000000-ffff-ffff-ffff-000000000002
+# Test Key Set: Enterprise Account (Bot Detected)
+# HCAPTCHA_SITE_KEY=30000000-ffff-ffff-ffff-000000000003
+
 # Example of Captcha backend configuration
-# CAPTCHA_BACKEND=warehouse.captcha.recaptcha.Service
+# CAPTCHA_BACKEND=warehouse.captcha.hcaptcha.Service
