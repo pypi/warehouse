@@ -20,48 +20,7 @@
   {{ oidc_title() }}
 {% endblock %}
 
-{% block main %}
-{% if testPyPI %}
-{% set title = "TestPyPI" %}
-{% else %}
-{% set title = "PyPI" %}
-{% endif %}
-
-<div class="horizontal-section">
-  <div class="site-container">
-    <h1 class="page-title">{{ oidc_title() }}</h1>
-
-    {{ oidc_desc() }}
-
-    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
-    {% if project.oidc_publishers %}
-    <table class="table table--publisher-list">
-      <caption class="sr-only">
-        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-          <th scope="col">{% trans %}Repository{% endtrans %}</th>
-          <th scope="col">{% trans %}Workflow{% endtrans %}</th>
-          <th scope="col">{% trans %}Environment name{% endtrans %}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for publisher in project.oidc_publishers %}
-        {{ oidc_publisher_row(publisher) }}
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
-    {% endif %}
-
-    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
-    {% if request.user.has_two_factor %}
-    <h3>GitHub</h3>
-
+{% macro github_form(request, github_publisher_form) %}
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
       Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -146,7 +105,64 @@
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
     </form>
+{% endmacro %}
 
+{% block main %}
+{% if testPyPI %}
+{% set title = "TestPyPI" %}
+{% else %}
+{% set title = "PyPI" %}
+{% endif %}
+
+<div class="horizontal-section">
+  <div class="site-container">
+    <h1 class="page-title">{{ oidc_title() }}</h1>
+
+    {{ oidc_desc() }}
+
+    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
+    {% if project.oidc_publishers %}
+    <table class="table table--publisher-list">
+      <caption class="sr-only">
+        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
+      </caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+          <th scope="col">{% trans %}Details{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for publisher in project.oidc_publishers %}
+        {{ oidc_publisher_row(publisher) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+    {% endif %}
+
+    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
+
+    {% if request.user.has_two_factor %}
+
+    {% set publishers = [("GitHub", github_form(request, github_publisher_form))] %}
+
+    <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+      <div class="horizontal-tabs__tabbar">
+        {% for publisher_name, _ in publishers %}
+        <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+          {{ publisher_name }}
+        </button>
+        {% endfor %}
+      </div>
+      {% for _, publisher_form in publishers %}
+      <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
+        {{ publisher_form }}
+      </div>
+      {% endfor %}
+    </div>
     {% else %}{# user has not enabled 2FA #}
     <div class="callout-block callout-block--warning">
       {% trans href=request.route_path('manage.account.two-factor') %}
