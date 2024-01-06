@@ -57,7 +57,7 @@ from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubPublisher
+from warehouse.oidc.models import PendingGitHubPublisher, PendingGooglePublisher
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -3431,6 +3431,11 @@ class TestManageAccountPublishingViews:
                 AdminFlagValue.DISALLOW_GITHUB_OIDC,
                 "GitHub",
             ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_admin_disabled(
@@ -3501,6 +3506,11 @@ class TestManageAccountPublishingViews:
                 "add_pending_github_oidc_publisher",
                 AdminFlagValue.DISALLOW_GITHUB_OIDC,
                 "GitHub",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
             ),
         ],
     )
@@ -3596,6 +3606,18 @@ class TestManageAccountPublishingViews:
                 ),
                 PendingGitHubPublisher,
             ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
+                lambda i, user_id: PendingGooglePublisher(
+                    project_name="some-project-name-" + str(i),
+                    email="some-email-" + str(i) + "@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
         ],
     )
     def test_add_pending_github_oidc_publisher_too_many_already(
@@ -3663,6 +3685,10 @@ class TestManageAccountPublishingViews:
                 "add_pending_github_oidc_publisher",
                 "GitHub",
             ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_ratelimited(
@@ -3724,6 +3750,10 @@ class TestManageAccountPublishingViews:
             (
                 "add_pending_github_oidc_publisher",
                 "GitHub",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
             ),
         ],
     )
@@ -3814,6 +3844,23 @@ class TestManageAccountPublishingViews:
                     }
                 ),
             ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_pending_oidc_publisher_already_exists(
@@ -3899,6 +3946,18 @@ class TestManageAccountPublishingViews:
                     }
                 ),
                 PendingGitHubPublisher,
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingGooglePublisher,
             ),
         ],
     )
@@ -4091,6 +4150,15 @@ class TestManageAccountPublishingViews:
                 ),
                 PendingGitHubPublisher,
             ),
+            (
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
         ],
     )
     def test_delete_pending_oidc_publisher_not_found(
@@ -4141,6 +4209,15 @@ class TestManageAccountPublishingViews:
                     added_by_id=user_id,
                 ),
                 PendingGitHubPublisher,
+            ),
+            (
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
             ),
         ],
     )
@@ -4196,6 +4273,16 @@ class TestManageAccountPublishingViews:
                     added_by_id=user_id,
                 ),
                 PendingGitHubPublisher,
+            ),
+            (
+                "Google",
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
             ),
         ],
     )
