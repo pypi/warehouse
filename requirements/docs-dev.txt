@@ -4,9 +4,9 @@
 #
 #    pip-compile --allow-unsafe --config=pyproject.toml --generate-hashes --output-file=requirements/docs-dev.txt requirements/docs-dev.in
 #
-alabaster==0.7.13 \
-    --hash=sha256:1ee19aca801bbabb5ba3f5f258e4422dfa86f82f3e9cefb0859b283cdd7f62a3 \
-    --hash=sha256:a27a4a084d5e690e16e01e03ad2b2e552c61a65469419b907243193de1a84ae2
+alabaster==0.7.15 \
+    --hash=sha256:0127f4b1db0afc914883f930e3d40763131aebac295522fc4a04d9e77c703705 \
+    --hash=sha256:d99c6fd0f7a86fca68ecc5231c9de45227991c10ee6facfb894cf6afb953b142
     # via sphinx
 babel==2.14.0 \
     --hash=sha256:6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363 \
