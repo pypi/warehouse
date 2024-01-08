@@ -9,18 +9,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import wtforms
 
-from warehouse import forms
-from warehouse.i18n import localize as _
+from warehouse.oidc.forms._core import DeletePublisherForm
+from warehouse.oidc.forms.github import GitHubPublisherForm, PendingGitHubPublisherForm
 
-
-class DeletePublisherForm(forms.Form):
-    __params__ = ["publisher_id"]
-
-    publisher_id = wtforms.StringField(
-        validators=[
-            wtforms.validators.InputRequired(message=_("Specify a publisher ID")),
-            wtforms.validators.UUID(message=_("Publisher must be specified by ID")),
-        ]
-    )
+__all__ = [
+    "DeletePublisherForm",
+    "GitHubPublisherForm",
+    "PendingGitHubPublisherForm",
+]

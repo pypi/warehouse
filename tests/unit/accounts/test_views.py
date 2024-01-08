@@ -3232,6 +3232,12 @@ class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            POST=MultiDict(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                }
+            ),
         )
         view = views.ManageAccountPublishingViews(request)
 
@@ -3275,6 +3281,12 @@ class TestManageAccountPublishingViews:
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                }
+            ),
         )
 
         view = views.ManageAccountPublishingViews(request)
@@ -3548,10 +3560,6 @@ class TestManageAccountPublishingViews:
                 "environment": "some-environment",
                 "project_name": "some-other-project-name",
             }
-        )
-        default_response = pretend.stub()
-        monkeypatch.setattr(
-            views.ManageAccountPublishingViews, "default_response", default_response
         )
 
         view = views.ManageAccountPublishingViews(db_request)

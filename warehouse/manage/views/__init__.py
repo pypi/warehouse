@@ -1131,6 +1131,10 @@ class ManageOIDCPublisherViews:
         self.request = request
         self.project = project
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.github_publisher_form = GitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
 
     @property
     def _ratelimiters(self):
@@ -1161,13 +1165,6 @@ class ManageOIDCPublisherViews:
                     self.request.remote_addr
                 )
             )
-
-    @property
-    def github_publisher_form(self):
-        return GitHubPublisherForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-        )
 
     @property
     def default_response(self):

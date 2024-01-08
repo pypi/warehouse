@@ -5733,6 +5733,12 @@ class TestManageOIDCPublisherViews:
         project = pretend.stub()
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            POST=MultiDict(),
         )
         view = views.ManageOIDCPublisherViews(project, request)
 
@@ -5778,6 +5784,12 @@ class TestManageOIDCPublisherViews:
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                },
+            ),
+            POST=MultiDict(),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -5818,25 +5830,16 @@ class TestManageOIDCPublisherViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
-            POST=pretend.stub(),
+            POST=MultiDict(),
         )
-
-        github_publisher_form_obj = pretend.stub()
-        github_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
             "project": project,
-            "github_publisher_form": github_publisher_form_obj,
+            "github_publisher_form": view.github_publisher_form,
         }
 
         assert request.flags.disallow_oidc.calls == [pretend.call()]
-        assert github_publisher_form_cls.calls == [
-            pretend.call(request.POST, api_token="fake-api-token")
-        ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
         self, monkeypatch, pyramid_request
@@ -5855,19 +5858,13 @@ class TestManageOIDCPublisherViews:
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        pyramid_request.POST = pretend.stub()
+        pyramid_request.POST = MultiDict()
 
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
-        github_publisher_form_obj = pretend.stub()
-        github_publisher_form_cls = pretend.call_recorder(
-            lambda *a, **kw: github_publisher_form_obj
-        )
-        monkeypatch.setattr(views, "GitHubPublisherForm", github_publisher_form_cls)
 
-        view = views.ManageOIDCPublisherViews(project, pyramid_request)
         assert view.manage_project_oidc_publishers() == {
             "project": project,
-            "github_publisher_form": github_publisher_form_obj,
+            "github_publisher_form": view.github_publisher_form,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
@@ -5879,9 +5876,6 @@ class TestManageOIDCPublisherViews:
                 ),
                 queue="error",
             )
-        ]
-        assert github_publisher_form_cls.calls == [
-            pretend.call(pyramid_request.POST, api_token="fake-api-token")
         ]
 
     def test_add_github_oidc_publisher_preexisting(self, metrics, monkeypatch):
@@ -6131,11 +6125,6 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, db_request)
         monkeypatch.setattr(
-            views.ManageOIDCPublisherViews,
-            "github_publisher_form",
-            view.github_publisher_form,
-        )
-        monkeypatch.setattr(
             views.GitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
@@ -6175,6 +6164,7 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
             _=lambda s: s,
+            POST=MultiDict(),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -6210,6 +6200,8 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
@@ -6239,6 +6231,8 @@ class TestManageOIDCPublisherViews:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             _=lambda s: s,
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         github_publisher_form_obj = pretend.stub(
@@ -6459,7 +6453,8 @@ class TestManageOIDCPublisherViews:
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
-            POST=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         delete_publisher_form_obj = pretend.stub(
@@ -6513,7 +6508,8 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            POST=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
             db=pretend.stub(
                 get=pretend.call_recorder(lambda *a, **kw: other_publisher),
             ),
@@ -6562,6 +6558,8 @@ class TestManageOIDCPublisherViews:
                 disallow_oidc=pretend.call_recorder(lambda f=None: True)
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            POST=MultiDict(),
+            registry=pretend.stub(settings={}),
         )
 
         view = views.ManageOIDCPublisherViews(project, request)
