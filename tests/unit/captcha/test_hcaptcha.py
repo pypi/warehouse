@@ -183,7 +183,7 @@ class TestVerifyResponse:
         responses.add(
             responses.POST,
             hcaptcha.VERIFY_URL,
-            json={"success": False, "error_codes": ["foo"]},
+            json={"success": False, "error-codes": ["foo"]},
         )
         serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
 
@@ -200,7 +200,7 @@ class TestVerifyResponse:
             hcaptcha.VERIFY_URL,
             json={
                 "success": False,
-                "error_codes": ["invalid-or-already-seen-response"],
+                "error-codes": ["invalid-or-already-seen-response"],
             },
         )
         serv = hcaptcha.Service.create_service(context=None, request=_REQUEST)
