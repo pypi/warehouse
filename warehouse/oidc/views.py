@@ -94,14 +94,12 @@ def oidc_audience(request: Request):
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
-    has_translations=True,
 )
 @view_config(
     route_name="oidc.mint_token",
     require_methods=["POST"],
     renderer="json",
     require_csrf=False,
-    has_translations=True,
 )
 def mint_token_from_oidc(request: Request):
     try:
@@ -146,7 +144,7 @@ def mint_token_from_oidc(request: Request):
             errors=[
                 {
                     "code": "not-enabled",
-                    "description": "Trusted publishing functionality not enabled",  # noqa
+                    "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
                 }
             ],
             request=request,

@@ -84,7 +84,7 @@ def test_mint_token_from_oidc_not_enabled(dummy_oidc_payload):
         "errors": [
             {
                 "code": "not-enabled",
-                "description": ("Trusted publishing functionality not enabled"),
+                "description": "github trusted publishing functionality not enabled",
             }
         ],
     }
