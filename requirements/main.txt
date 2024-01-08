@@ -1191,12 +1191,12 @@ protobuf==4.25.1 \
     # via
     #   google-api-core
     #   googleapis-common-protos
-psycopg[c]==3.1.16 \
-    --hash=sha256:0bfe9741f4fb1c8115cadd8fe832fa91ac277e81e0652ff7fa1400f0ef0f59ba \
-    --hash=sha256:a34d922fd7df3134595e71c3428ba6f1bd5f4968db74857fe95de12db2d6b763
+psycopg[c]==3.1.17 \
+    --hash=sha256:437e7d7925459f21de570383e2e10542aceb3b9cb972ce957fdd3826ca47edc6 \
+    --hash=sha256:96b7b13af6d5a514118b759a66b2799a8a4aa78675fa6bb0d3f7d52d67eff002
     # via -r requirements/main.in
-psycopg-c==3.1.16 \
-    --hash=sha256:24f9805e0c20742c72c7be1412e3a600de0980104ff1a264a49333996e6adba3
+psycopg-c==3.1.17 \
+    --hash=sha256:5cc4d544d552b8ab92a9e3a9dbe3b4f46ce0a86338654d26387fc076e0c97977
     # via psycopg
 pyasn1==0.5.1 \
     --hash=sha256:4439847c58d40b1d0a573d07e3856e95333f1976294494c325775aeca506eb58 \
