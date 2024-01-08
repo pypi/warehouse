@@ -149,7 +149,7 @@ class Service:
 
         if resp.status_code != http.HTTPStatus.OK or not data["success"]:
             try:
-                error_codes = data["error_codes"]
+                error_codes = data["error-codes"]
             except KeyError as e:
                 raise UnexpectedError(
                     f"Response missing 'error-codes' key: {data}"
