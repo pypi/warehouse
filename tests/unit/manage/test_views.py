@@ -47,7 +47,7 @@ from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, GooglePublisher, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -5905,6 +5905,21 @@ class TestManageOIDCPublisherViews:
                     normalized_environment=publisher.environment,
                 ),
             ),
+            (
+                "add_google_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="Google",
+                    publisher_url=lambda x=None: None,
+                    email="some-environment@example.com",
+                    sub="some-sub",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    email=pretend.stub(data=publisher.email),
+                    sub=pretend.stub(data=publisher.sub),
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_preexisting(
@@ -6013,6 +6028,15 @@ class TestManageOIDCPublisherViews:
                     owner_id="1234",
                 ),
                 pretend.stub(publisher_name="GitHub"),
+            ),
+            (
+                "add_google_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    email=pretend.stub(data="some-environment@example.com"),
+                    sub=pretend.stub(data="some-sub"),
+                ),
+                "Google",
             ),
         ],
     )
@@ -6143,6 +6167,20 @@ class TestManageOIDCPublisherViews:
                     }
                 ),
             ),
+            (
+                "add_google_oidc_publisher",
+                "Google",
+                GooglePublisher(
+                    email="some-email@example.com",
+                    sub="some-sub",
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_already_registered_with_project(
@@ -6209,6 +6247,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_google_oidc_publisher", "Google"),
         ],
     )
     def test_add_oidc_publisher_ratelimited(
@@ -6256,6 +6295,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_google_oidc_publisher", "Google"),
         ],
     )
     def test_add_oidc_publisher_admin_disabled(
@@ -6296,6 +6336,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_google_oidc_publisher", "Google"),
         ],
     )
     def test_add_oidc_publisher_invalid_form(
@@ -6356,6 +6397,10 @@ class TestManageOIDCPublisherViews:
                 repository_owner_id="666",
                 workflow_filename="some-workflow-filename.yml",
                 environment="some-environment",
+            ),
+            GooglePublisher(
+                email="some-email@example.com",
+                sub="some-sub",
             ),
         ],
     )
@@ -6454,6 +6499,10 @@ class TestManageOIDCPublisherViews:
                 repository_owner_id="666",
                 workflow_filename="some-workflow-filename.yml",
                 environment="some-environment",
+            ),
+            GooglePublisher(
+                email="some-email@example.com",
+                sub="some-sub",
             ),
         ],
     )
