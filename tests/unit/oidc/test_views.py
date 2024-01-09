@@ -107,15 +107,6 @@ def test_mint_token_from_oidc_not_enabled(dummy_oidc_payload):
         {"token": [""]},
         {"token": []},
         {"token": {}},
-        {"token": "not-a-jwt"},
-        {
-            # Well-formed JWT, but no `iss` claim
-            "token": (
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwib"
-                "mFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fw"
-                "pMeJf36POk6yJV_adQssw5c"
-            )
-        },
     ],
 )
 def test_mint_token_from_oidc_invalid_payload(body):
@@ -138,6 +129,80 @@ def test_mint_token_from_oidc_invalid_payload(body):
         assert isinstance(err, dict)
         assert err["code"] == "invalid-payload"
         assert isinstance(err["description"], str)
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {"token": "not-a-jwt"},
+        {
+            # Well-formed JWT, but no `iss` claim
+            "token": (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwib"
+                "mFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fw"
+                "pMeJf36POk6yJV_adQssw5c"
+            )
+        },
+    ],
+)
+def test_mint_token_from_oidc_invalid_payload_malformed_jwt(body):
+    class Request:
+        def __init__(self):
+            self.response = pretend.stub(status=None)
+            self.flags = pretend.stub(disallow_oidc=lambda *a: False)
+
+        @property
+        def body(self):
+            return json.dumps(body)
+
+        def find_service(self, *a, **kw):
+            return pretend.stub(increment=pretend.call_recorder(lambda s: None))
+
+    req = Request()
+    resp = views.mint_token_from_oidc(req)
+
+    assert req.response.status == 422
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert err["description"] == "malformed JWT"
+
+
+def test_mint_token_from_oidc_jwt_decode_leaky_exception(
+    monkeypatch, dummy_oidc_payload
+):
+    class Request:
+        def __init__(self):
+            self.response = pretend.stub(status=None)
+            self.flags = pretend.stub(disallow_oidc=lambda *a: False)
+
+        @property
+        def body(self):
+            return dummy_oidc_payload
+
+        def find_service(self, *a, **kw):
+            return pretend.stub(increment=pretend.call_recorder(lambda s: None))
+
+    capture_message = pretend.call_recorder(lambda s: None)
+    monkeypatch.setattr(views.sentry_sdk, "capture_message", capture_message)
+    monkeypatch.setattr(views.jwt, "decode", pretend.raiser(ValueError("oops")))
+
+    req = Request()
+    resp = views.mint_token_from_oidc(req)
+
+    assert capture_message.calls == [
+        pretend.call("jwt.decode raised generic error: oops")
+    ]
+
+    assert req.response.status == 422
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert err["description"] == "malformed JWT"
 
 
 def test_mint_token_from_oidc_unknown_issuer():

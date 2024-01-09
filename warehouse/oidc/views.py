@@ -16,6 +16,7 @@ from datetime import datetime
 from typing import TypedDict
 
 import jwt
+import sentry_sdk
 
 from pydantic import BaseModel, StrictStr, ValidationError
 from pyramid.request import Request
@@ -26,6 +27,7 @@ from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
+from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
@@ -120,7 +122,17 @@ def mint_token_from_oidc(request: Request):
             unverified_jwt, options=dict(verify_signature=False)
         )
         unverified_issuer: str = unverified_claims["iss"]
-    except Exception:
+    except Exception as e:
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment("warehouse.oidc.mint_token_from_oidc.malformed_jwt")
+
+        # We expect only PyJWTError and KeyError; anything else indicates
+        # an abstraction leak in jwt that we'll log for upstream reporting.
+        if not isinstance(e, (jwt.PyJWTError, KeyError)):
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = e
+                sentry_sdk.capture_message(f"jwt.decode raised generic error: {e}")
+
         return _invalid(
             errors=[{"code": "invalid-payload", "description": "malformed JWT"}],
             request=request,
