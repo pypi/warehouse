@@ -4,7 +4,7 @@ title: Publishing with a Trusted Publisher
 
 # Publishing with a Trusted Publisher
 
-## The easy way
+## GitHub Actions: the easy way
 
 Once you have a publisher configured, you can use the
 PyPA's [`pypi-publish`](https://github.com/marketplace/actions/pypi-publish)
@@ -78,7 +78,7 @@ publisher on them). For example, here's how you can use trusted publishing on
     repository-url: https://test.pypi.org/legacy/
 ```
 
-## The manual way
+## GitHub Actions: the manual way
 
 !!! warning
 
