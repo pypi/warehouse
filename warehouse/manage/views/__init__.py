@@ -1390,7 +1390,6 @@ class ManageOIDCPublisherViews:
 
         self.project.record_event(
             tag=EventTag.Project.OIDCPublisherAdded,
-            ip_address=self.request.remote_addr,
             request=self.request,
             additional={
                 "publisher": publisher.publisher_name,
