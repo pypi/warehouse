@@ -1401,12 +1401,14 @@ class ManageOIDCPublisherViews:
         )
 
         self.request.session.flash(
-            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            f"Added {publisher} "
+            + (f"in {publisher.publisher_url()}" if publisher.publisher_url() else "")
+            + f" to {self.project.name}",
             queue="success",
         )
 
         self.metrics.increment(
-            "warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:Google"]
         )
 
         return HTTPSeeOther(self.request.path)
