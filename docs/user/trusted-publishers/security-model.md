@@ -131,6 +131,18 @@ own security model and considerations.
       access the OIDC token to a bare minimum. This prevents both accidental
       and malicious disclosure.
 
+=== "Google Cloud"
+
+    TODO
+
+=== "ActiveState"
+
+    TODO
+
+=== "GitLab CI/CD"
+
+    TODO
+
 [fundamentally dangerous]: https://securitylab.github.com/research/github-actions-preventing-pwn-requests/
 
 [Use a dedicated environment]: https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
