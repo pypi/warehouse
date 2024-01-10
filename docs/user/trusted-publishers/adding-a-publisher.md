@@ -15,28 +15,34 @@ Then, click on "Publishing" in the project's sidebar:
 
 ![](/assets/project-publishing-link.png)
 
-That link will take you to the publisher configuration page for the project:
+That link will take you to the publisher configuration page for the project,
+which will allow you to configure trusted publishers for the different
+platforms supported by PyPI (such as GitHub Actions).
 
-![](/assets/project-publishing.png)
+To enable a publisher, you need to tell PyPI how to trust it. Each trusted
+publisher has its own configuration requirements; click the tabs below to see
+each.
 
-To enable a publisher, you need to tell PyPI how to trust it. For
-GitHub Actions (the only currently supported publisher), you do this by
-providing the repository owner's name, the repository's name, and the
-filename of the GitHub Actions workflow that's authorized to upload to
-PyPI.
+=== "GitHub Actions"
 
-For example, if you have a project at `https://github.com/octo-org/sampleproject`
-that uses a publishing workflow defined in `.github/workflows/release.yml`
-and a custom environment named `release`, then you'd do the following:
+    For GitHub Actions, you **must** provide the repository owner's name, the
+    repository's name, and the filename of the GitHub Actions workflow that's
+    authorized to upload to PyPI. In addition, you may **optionally**
+    provide the name of a [GitHub Actions environment](https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment).
 
-![](/assets/project-publishing-form.png)
+    For example, if you have a project at `https://github.com/octo-org/sampleproject`
+    that uses a publishing workflow defined in `.github/workflows/release.yml`
+    and a custom environment named `release`, then you'd do the following:
 
-!!! note
+    ![](/assets/project-publishing-form.png)
 
-    Configuring an environment is optional, but **strongly** recommended:
-    with a GitHub environment, you can apply additional restrictions to
-    your trusted workflow, such as requiring manual approval on each run
-    by a trusted subset of repository maintainers.
+    !!! note
+
+        Configuring an environment is optional, but **strongly** recommended:
+        with a GitHub environment, you can apply additional restrictions to
+        your trusted workflow, such as requiring manual approval on each run
+        by a trusted subset of repository maintainers.
+
 
 Once you click "Add", your publisher will be registered and will appear
 at the top of the page:

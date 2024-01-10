@@ -14,25 +14,31 @@ that will *create* the project when used for the first time. "Pending"
 publishers are converted into "normal" publishers on first use, meaning that
 no further configuration is required.
 
-The process for configuring a "pending" publisher are similar to those for
+The steps for configuring a "pending" publisher are similar to those for
 a normal publisher, except that the page is under your account sidebar
 instead of any project's sidebar (since the project doesn't exist yet):
 
 ![](/assets/publishing-link.png)
 
-Clicking on "publishing" will bring you to the following form:
+Clicking on "publishing" will bring you to a page with different potential
+trusted publishers. The forms on this page behave
+the same as with publishers for existing projects, except that you also need to
+provide the name of the PyPI project that will be created.
 
-![](/assets/pending-publisher-form.png)
+=== "GitHub Actions"
 
-This form behaves the same as with publishers for existing projects, except that you
-also need to provide the name of the PyPI project that will be created.
+    If you have a repository at
+    `https://github.com/octo-org/sampleproject` with a release workflow at
+    `release.yml` and an environment named `release` that you would like to publish
+    to PyPI as `sampleproject`, then you would do the following:
 
-For example, if you have a repository at
-`https://github.com/octo-org/sampleproject` with a release workflow at
-`release.yml` and an environment named `release` that you would like to publish
-to PyPI as `sampleproject`, then you would do the following:
+    ![](/assets/pending-publisher-form-filled.png)
 
-![](/assets/pending-publisher-form-filled.png)
+    !!! note
+
+        Like with "normal" trusted publishers, configuring a GitHub Actions
+        environment is **optional but strongly recommended**.
+
 
 Clicking "Add" will register the "pending" publisher, and show it to you:
 
