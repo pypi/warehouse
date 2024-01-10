@@ -142,7 +142,7 @@ below describe the setup process for each supported trusted publisher.
     back:
 
     ```bash
-    resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+    resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\": \"${oidc_token}\"}")
     api_token=$(jq '.token' <<< "${resp}")
 
     # tell GitHub Actions to mask the token in any console logs,
@@ -194,7 +194,7 @@ below describe the setup process for each supported trusted publisher.
               oidc_token=$(jq '.value' <<< "${resp}")
 
               # exchange the OIDC token for an API token
-              resp=$(curl -X POST https://pypi.org/_/oidc/github/mint-token -d "{\"token\": \"${oidc_token}\"}")
+              resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\": \"${oidc_token}\"}")
               api_token=$(jq '.token' <<< "${resp}")
 
               # mask the newly minted API token, so that we don't accidentally leak it
