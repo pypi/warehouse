@@ -43,6 +43,17 @@ each.
         your trusted workflow, such as requiring manual approval on each run
         by a trusted subset of repository maintainers.
 
+=== "Google Cloud"
+
+    TODO
+
+=== "ActiveState"
+
+    TODO
+
+=== "GitLab CI/CD"
+
+    TODO
 
 Once you click "Add", your publisher will be registered and will appear
 at the top of the page:
