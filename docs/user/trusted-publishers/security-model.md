@@ -27,7 +27,7 @@ be able to invoke your trusted publisher.
 ## Provider-specific considerations
 
 Each trusted publishing provider is its own OIDC identity provider, with its
-own configuration requirements.
+own security model and considerations.
 
 === "GitHub Actions"
 
