@@ -83,5 +83,4 @@ def upgrade():
 def downgrade():
     op.drop_table("pending_activestate_oidc_publishers")
     op.drop_table("activestate_oidc_publishers")
-    # ### end Alembic commands ###
     op.execute("DELETE FROM admin_flags WHERE id = 'disallow-activestate-oidc'")
