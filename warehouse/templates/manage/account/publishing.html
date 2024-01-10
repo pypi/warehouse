@@ -164,7 +164,7 @@
       </label>
       {{ pending_google_publisher_form.sub(placeholder=gettext("subject"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"sub-errors"}) }}
       <p class="form-group__help-text">
-      {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity which is used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
+      {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
       </p>
       <div id="sub-errors">
         {{ field_errors(pending_google_publisher_form.sub) }}
