@@ -37,7 +37,7 @@ ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oid
 OIDC_ISSUER_SERVICE_NAMES = {
     GITHUB_OIDC_ISSUER_URL: "github",
     GOOGLE_OIDC_ISSUER_URL: "google",
-    ACTIVESTATE_OIDC_ISSUER_URL: "google",
+    ACTIVESTATE_OIDC_ISSUER_URL: "activestate",
 }
 
 OIDC_ISSUER_ADMIN_FLAGS = {
@@ -80,6 +80,7 @@ def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=Fals
         # This indicates a logic error, since we shouldn't have verified
         # claims for an issuer that we don't recognize and support.
         raise InvalidPublisherError(f"Issuer {issuer_url!r} is unsupported")
+
     return publisher_cls.lookup_by_claims(session, signed_claims)
 
 

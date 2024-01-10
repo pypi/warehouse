@@ -383,11 +383,11 @@ def test_mint_token_from_oidc_pending_publisher_ok(
     pending_publisher = PendingGitHubPublisherFactory.create(
         project_name="does-not-exist",
         added_by=user,
-        workflow_filename="example.yml",
-        environment="fake",
         repository_name="bar",
         repository_owner="foo",
         repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="",
     )
 
     db_request.flags.disallow_oidc = lambda f=None: False
@@ -419,13 +419,13 @@ def test_mint_token_from_pending_trusted_publisher_invalidates_others(
 
     user = UserFactory.create()
     pending_publisher = PendingGitHubPublisherFactory.create(
-        project_name="DOES-NOT-EXIST",
+        project_name="does-not-exist",
         added_by=user,
-        workflow_filename="example.yml",
-        environment="fake",
         repository_name="bar",
         repository_owner="foo",
         repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="",
     )
 
     # Create some other pending publishers for the same nonexistent project,
