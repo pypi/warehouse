@@ -292,5 +292,4 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
         print(f"Github.reify: {publisher}")
 
         session.delete(self)
-        print("Github.reify: deleted successfully?")
         return publisher
