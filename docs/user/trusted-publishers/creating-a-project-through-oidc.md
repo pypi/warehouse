@@ -39,6 +39,18 @@ provide the name of the PyPI project that will be created.
         Like with "normal" trusted publishers, configuring a GitHub Actions
         environment is **optional but strongly recommended**.
 
+=== "Google Cloud"
+
+    TODO
+
+
+=== "ActiveState"
+
+    TODO
+
+=== "GitLab CI/CD"
+
+    TODO
 
 Clicking "Add" will register the "pending" publisher, and show it to you:
 
