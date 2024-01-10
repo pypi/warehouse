@@ -66,7 +66,6 @@ def upgrade():
             name="_pending_activestate_oidc_publisher_uc",
         ),
     )
-    # ### end Alembic commands ###
     # Disable the ActiveState OIDC provider by default
     op.execute(
         """
