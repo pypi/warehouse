@@ -28,9 +28,7 @@ class GooglePublisherBase(forms.Form):
     email = wtforms.fields.EmailField(
         validators=[
             wtforms.validators.InputRequired(),
-            wtforms.validators.Regexp(
-                r".+@.+\..+", message=_("The email address isn't valid. Try again.")
-            ),
+            wtforms.validators.Email(),
         ]
     )
 
