@@ -125,6 +125,12 @@
 {% endmacro %}
 
 {% macro google_form(request, pending_google_publisher_form) %}
+  <p>
+    {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
+    Read more about Google's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
+
   {{ form_error_anchor(pending_google_publisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
