@@ -14,7 +14,7 @@ that will *create* the project when used for the first time. "Pending"
 publishers are converted into "normal" publishers on first use, meaning that
 no further configuration is required.
 
-The process for configuring a "pending" publisher are similar to those for
+The steps for configuring a "pending" publisher are similar to those for
 a normal publisher, except that the page is under your account sidebar
 instead of any project's sidebar (since the project doesn't exist yet):
 
