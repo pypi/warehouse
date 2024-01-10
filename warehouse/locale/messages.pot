@@ -4335,13 +4335,11 @@ msgid "subject"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:167
-#: warehouse/templates/manage/project/publishing.html:141
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
 "request. While not required, providing the subject further restricts the "
-"identity which is used for publishing. <a href=\"%(href)s\">More details "
-"here.</a>"
+"identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:184
@@ -5623,6 +5621,15 @@ msgstr ""
 msgid ""
 "Read more about GitHub Actions's OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/project/publishing.html:141
+#, python-format
+msgid ""
+"The subject is the numeric ID that represents the principal making the "
+"request. While not required, providing the subject further restricts the "
+"identity which is used for publishing. <a href=\"%(href)s\">More details "
+"here.</a>"
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:166
