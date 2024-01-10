@@ -5835,12 +5835,17 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
+            "disabled": {"GitHub": False, "Google": False},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,
         }
 
-        assert request.flags.disallow_oidc.calls == [pretend.call()]
+        assert request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
         self, monkeypatch, pyramid_request
@@ -5864,12 +5869,17 @@ class TestManageOIDCPublisherViews:
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
 
         assert view.manage_project_oidc_publishers() == {
+            "disabled": {"GitHub": True, "Google": True},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -6225,6 +6235,7 @@ class TestManageOIDCPublisherViews:
         )
 
         assert getattr(view, view_name)() == {
+            "disabled": {"GitHub": False, "Google": False},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,

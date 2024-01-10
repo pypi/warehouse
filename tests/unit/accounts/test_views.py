@@ -3351,11 +3351,19 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(request)
 
         assert view.manage_publishing() == {
+            "disabled": {
+                "GitHub": False,
+                "Google": False,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
         }
 
-        assert request.flags.disallow_oidc.calls == [pretend.call()]
+        assert request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert project_factory_cls.calls == [pretend.call(request)]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
@@ -3401,11 +3409,19 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.manage_publishing() == {
+            "disabled": {
+                "GitHub": True,
+                "Google": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3476,11 +3492,21 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert getattr(view, view_name)() == {
+            "disabled": {
+                "GitHub": True,
+                "Google": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call(flag)]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3559,11 +3585,21 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert getattr(view, view_name)() == {
+            "disabled": {
+                "GitHub": False,
+                "Google": False,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call(flag)]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
@@ -3660,7 +3696,15 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(db_request)
 
         assert getattr(view, view_name)() == view.default_response
-        assert db_request.flags.disallow_oidc.calls == [pretend.call(flag)]
+        assert db_request.flags.disallow_oidc.calls == [
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
@@ -4083,11 +4127,19 @@ class TestManageAccountPublishingViews:
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.delete_pending_oidc_publisher() == {
+            "disabled": {
+                "GitHub": True,
+                "Google": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
