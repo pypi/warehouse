@@ -29,9 +29,7 @@ from warehouse.oidc.models._core import (
     PendingOIDCPublisher,
 )
 
-ACTIVESTATE_URL = "https://platform.activestate.com"
-
-ACTIVESTATE_OIDC_API_PATH = "api/v1/oauth/oidc"
+_ACTIVESTATE_URL = "https://platform.activestate.com"
 
 
 def _check_sub(
@@ -39,10 +37,6 @@ def _check_sub(
 ) -> bool:
     # We expect a string formatted as follows:
     #  org:<orgName>:project:<projectName>
-    # where :OPTIONAL-STUFF is a concatenation of other job context
-    # metadata. We currently lack the ground context to verify that
-    # additional metadata, so we limit our verification to just the ORG/REPO
-    # component.
 
     # Defensive: ActiveState should never give us an empty subject.
     if not signed_claim:
@@ -88,8 +82,6 @@ class ActiveStatePublisherMixin:
     }
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
-        # Should we check that the pypi projectname matches this ingredient
-        # name?
         "ingredient": oidccore.check_claim_binary(str.__eq__),
     }
 
@@ -130,12 +122,10 @@ class ActiveStatePublisherMixin:
     def project(self) -> str:
         return self.activestate_project_name
 
-    @property
-    def activestate_project_path(self) -> str:
-        return f"{self.organization}/{self.activestate_project_name}"
-
     def publisher_url(self, claims: SignedClaims | None = None) -> str:
-        return urllib.parse.urljoin(ACTIVESTATE_URL, self.activestate_project_path)
+        return urllib.parse.urljoin(
+            _ACTIVESTATE_URL, f"{self.organization}/{self.activestate_project_name}"
+        )
 
     def __str__(self) -> str:
         return self.publisher_url()
@@ -148,7 +138,9 @@ class ActiveStatePublisher(ActiveStatePublisherMixin, OIDCPublisher):
         UniqueConstraint(
             "organization",
             "activestate_project_name",
-            # This field is NOT populated from the form but from
+            # This field is NOT populated from the form but from an API call to
+            # ActiveState. We make the API call to confirm that the `actor`
+            # provided actually exists.
             "actor_id",
             name="_activestate_oidc_publisher_uc",
         ),
