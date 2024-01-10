@@ -282,7 +282,8 @@ class OIDCPublisherService:
 
     def find_publisher(
         self, signed_claims: SignedClaims, *, pending: bool = False
-    ) -> OIDCPublisher | PendingOIDCPublisher | None:
+    ) -> OIDCPublisher | PendingOIDCPublisher:
+        """Returns a publisher for the given claims, or raises an error."""
         metrics_tags = [f"publisher:{self.publisher}"]
         self.metrics.increment(
             "warehouse.oidc.find_publisher.attempt",
@@ -306,7 +307,7 @@ class OIDCPublisherService:
             )
             raise e
 
-    def reify_pending_publisher(self, pending_publisher, project):
+    def reify_pending_publisher(self, pending_publisher, project) -> OIDCPublisher:
         new_publisher = pending_publisher.reify(self.db)
         project.oidc_publishers.append(new_publisher)
         return new_publisher

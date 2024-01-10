@@ -115,3 +115,21 @@ def test_oidc_context_principals():
         Authenticated,
         "oidc:17",
     ]
+
+
+def test_oidc_maps_consistent():
+    # Our various mappings should have equivalent cardinalities.
+    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_ISSUER_SERVICE_NAMES)
+    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_ISSUER_ADMIN_FLAGS)
+    assert len(utils.OIDC_ISSUER_URLS) == len(utils.OIDC_PUBLISHER_CLASSES)
+
+    for iss in utils.OIDC_ISSUER_URLS:
+        # Each issuer should be present in each mapping.
+        assert iss in utils.OIDC_ISSUER_SERVICE_NAMES
+        assert iss in utils.OIDC_ISSUER_ADMIN_FLAGS
+        assert iss in utils.OIDC_PUBLISHER_CLASSES
+
+    for class_map in utils.OIDC_PUBLISHER_CLASSES.values():
+        # The class mapping for pending and non-pending publisher models
+        # should be distinct.
+        assert class_map[True] != class_map[False]

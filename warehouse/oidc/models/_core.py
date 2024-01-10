@@ -232,7 +232,9 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    def publisher_url(self, claims=None) -> str | None:  # pragma: no cover
+    def publisher_url(
+        self, claims: SignedClaims | None = None
+    ) -> str | None:  # pragma: no cover
         """
         NOTE: This is **NOT** a `@property` because we pass `claims` to it.
         When calling, make sure to use `publisher_url()`

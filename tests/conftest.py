@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import json
 import os
 import os.path
 import re
@@ -377,6 +378,57 @@ def oidc_service(db_session):
         pretend.stub(),
         pretend.stub(),
     )
+
+
+@pytest.fixture
+def dummy_oidc_jwt():
+    # {
+    #  "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #  "sub": "repo:foo/bar",
+    #  "aud": "pypi",
+    #  "ref": "fake",
+    #  "sha": "fake",
+    #  "repository": "foo/bar",
+    #  "repository_owner": "foo",
+    #  "repository_owner_id": "123",
+    #  "run_id": "fake",
+    #  "run_number": "fake",
+    #  "run_attempt": "1",
+    #  "repository_id": "fake",
+    #  "actor_id": "fake",
+    #  "actor": "foo",
+    #  "workflow": "fake",
+    #  "head_ref": "fake",
+    #  "base_ref": "fake",
+    #  "event_name": "fake",
+    #  "ref_type": "fake",
+    #  "environment": "fake",
+    #  "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
+    #  "iss": "https://token.actions.githubusercontent.com",
+    #  "nbf": 1650663265,
+    #  "exp": 1650664165,
+    #  "iat": 1650663865
+    # }
+    return (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZ"
+        "TUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXB"
+        "pIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2JhciIsI"
+        "nJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTIzIiw"
+        "icnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQiOiIxI"
+        "iwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3RvciI6ImZ"
+        "vbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2VfcmVmIjoiZ"
+        "mFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW52aXJvbm1"
+        "lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1Yi93b3JrZ"
+        "mxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uYWN0aW9ucy5"
+        "naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cCI6MTY1MDY2N"
+        "DE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et0vbdNhK32c2o"
+        "C-E"
+    )
+
+
+@pytest.fixture
+def dummy_oidc_payload(dummy_oidc_jwt):
+    return json.dumps({"token": dummy_oidc_jwt})
 
 
 @pytest.fixture
