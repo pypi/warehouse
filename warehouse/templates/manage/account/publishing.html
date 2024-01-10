@@ -280,15 +280,19 @@
   <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
     <div class="horizontal-tabs__tabbar">
       {% for publisher_name, _ in publishers %}
+      {% if not disabled[publisher_name] %}
       <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
         {{ publisher_name }}
       </button>
+      {% endif %}
       {% endfor %}
     </div>
-    {% for _, publisher_form in publishers %}
+    {% for publisher_name, publisher_form in publishers %}
+    {% if not disabled[publisher_name] %}
     <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
       {{ publisher_form }}
     </div>
+    {% endif %}
     {% endfor %}
   </div>
 

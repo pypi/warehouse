@@ -1176,6 +1176,14 @@ class ManageOIDCPublisherViews:
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
             "google_publisher_form": self.google_publisher_form,
+            "disabled": {
+                "GitHub": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "Google": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+            },
         }
 
     @view_config(request_method="GET")
