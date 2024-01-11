@@ -39,7 +39,10 @@ def test_includeme(forklift_domain, monkeypatch):
     assert config.include.calls == [pretend.call(".action_routing")]
     assert config.add_legacy_action_route.calls == [
         pretend.call(
-            "forklift.legacy.file_upload", "file_upload", domain=forklift_domain
+            "forklift.legacy.file_upload",
+            "file_upload",
+            domain=forklift_domain,
+            is_api=True,
         ),
         pretend.call("forklift.legacy.submit", "submit", domain=forklift_domain),
         pretend.call(

@@ -31,7 +31,10 @@ def includeme(config):
 
     # Add the routes that we'll be using in Forklift.
     config.add_legacy_action_route(
-        "forklift.legacy.file_upload", "file_upload", domain=forklift
+        "forklift.legacy.file_upload",
+        "file_upload",
+        domain=forklift,
+        is_api=True,
     )
     config.add_legacy_action_route("forklift.legacy.submit", "submit", domain=forklift)
     config.add_legacy_action_route(

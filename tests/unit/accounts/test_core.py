@@ -48,16 +48,6 @@ from ...common.db.oidc import GitHubPublisherFactory
 
 
 class TestLogin:
-    def test_invalid_route(self, pyramid_request, pyramid_services):
-        service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
-        pyramid_services.register_service(service, IUserService, None)
-        pyramid_services.register_service(
-            pretend.stub(), IPasswordBreachedService, None
-        )
-        pyramid_request.matched_route = pretend.stub(name="route_name")
-        assert _basic_auth_check("myuser", "mypass", pyramid_request) is False
-        assert service.find_userid.calls == []
-
     def test_with_no_user(self, pyramid_request, pyramid_services):
         service = pretend.stub(find_userid=pretend.call_recorder(lambda username: None))
         pyramid_services.register_service(service, IUserService, None)

@@ -59,6 +59,7 @@ class TestBasicAuthSecurityPolicy:
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr="1.2.3.4",
@@ -88,6 +89,7 @@ class TestBasicAuthSecurityPolicy:
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr="1.2.3.4",
@@ -99,33 +101,11 @@ class TestBasicAuthSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    @pytest.mark.parametrize(
-        "fake_request",
-        [
-            pretend.stub(
-                matched_route=None,
-                banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr="1.2.3.4",
-            ),
-            pretend.stub(
-                matched_route=pretend.stub(name="an.invalid.route"),
-                banned=pretend.stub(by_ip=lambda ip_address: False),
-                remote_addr="1.2.3.4",
-            ),
-        ],
-    )
-    def test_invalid_request_fail(self, monkeypatch, fake_request):
-        creds = (pretend.stub(), pretend.stub())
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
+    def test_not_api_request_fail(self):
+        request = pretend.stub(is_api=False)
         policy = security_policy.BasicAuthSecurityPolicy()
-        fake_request.add_response_callback = pretend.call_recorder(lambda cb: None)
 
-        assert policy.identity(fake_request) is None
+        assert policy.identity(request) is None
 
     def test_identity(self, monkeypatch):
         creds = (pretend.stub(), pretend.stub())
@@ -150,6 +130,7 @@ class TestBasicAuthSecurityPolicy:
             get_user_by_username=pretend.call_recorder(lambda u: user)
         )
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(lambda a, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: False),
@@ -189,6 +170,7 @@ class TestBasicAuthSecurityPolicy:
             get_user_by_username=pretend.call_recorder(lambda u: user)
         )
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(lambda a, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: True),
@@ -243,59 +225,11 @@ class TestSessionSecurityPolicy:
             pretend.call(request, userid, foo=None)
         ]
 
-    def test_identity_missing_route(self, monkeypatch):
-        session_helper_obj = pretend.stub()
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
-
+    def test_identity_api_route_fail(self):
         policy = security_policy.SessionSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=None,
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
-        )
+        request = pretend.stub(is_api=True)
 
         assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identity_invalid_route(self, monkeypatch):
-        session_helper_obj = pretend.stub()
-        session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
-        monkeypatch.setattr(
-            security_policy, "SessionAuthenticationHelper", session_helper_cls
-        )
-
-        policy = security_policy.SessionSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
-        )
-
-        assert policy.identity(request) is None
-        assert request.authentication_method == AuthenticationMethod.SESSION
-        assert session_helper_cls.calls == [pretend.call()]
-
-        assert add_vary_cb.calls == [pretend.call("Cookie")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
     def test_identity_no_userid(self, monkeypatch):
         session_helper_obj = pretend.stub(
@@ -313,6 +247,7 @@ class TestSessionSecurityPolicy:
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
         request = pretend.stub(
+            is_api=False,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             banned=pretend.stub(by_ip=lambda ip_address: False),
@@ -345,6 +280,7 @@ class TestSessionSecurityPolicy:
 
         user_service = pretend.stub(get_user=pretend.call_recorder(lambda uid: None))
         request = pretend.stub(
+            is_api=False,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
@@ -386,6 +322,7 @@ class TestSessionSecurityPolicy:
             is_disabled=lambda uid: (False, None),
         )
         request = pretend.stub(
+            is_api=False,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
@@ -491,6 +428,7 @@ class TestSessionSecurityPolicy:
             is_disabled=lambda uid: (False, None),
         )
         request = pretend.stub(
+            is_api=False,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
@@ -536,6 +474,7 @@ class TestSessionSecurityPolicy:
             get_password_timestamp=pretend.call_recorder(lambda uid: timestamp),
         )
         request = pretend.stub(
+            is_api=False,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),

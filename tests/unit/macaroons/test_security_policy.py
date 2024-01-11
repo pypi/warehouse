@@ -79,6 +79,12 @@ class TestMacaroonSecurityPolicy:
         assert policy.forget(pretend.stub()) == []
         assert policy.remember(pretend.stub(), pretend.stub()) == []
 
+    def test_identity_no_api_fail(self):
+        request = pretend.stub(is_api=False)
+        policy = security_policy.MacaroonSecurityPolicy()
+
+        assert policy.identity(request) is None
+
     def test_identity_no_http_macaroon(self, monkeypatch):
         policy = security_policy.MacaroonSecurityPolicy()
 
@@ -92,7 +98,8 @@ class TestMacaroonSecurityPolicy:
         )
 
         request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None)
+            is_api=True,
+            add_response_callback=pretend.call_recorder(lambda cb: None),
         )
 
         assert policy.identity(request) is None
@@ -119,6 +126,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(lambda iface, **kw: macaroon_service),
         )
@@ -204,6 +212,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(
                 lambda iface, **kw: {
@@ -250,6 +259,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         request = pretend.stub(
+            is_api=True,
             add_response_callback=pretend.call_recorder(lambda cb: None),
             find_service=pretend.call_recorder(lambda iface, **kw: macaroon_service),
         )

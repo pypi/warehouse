@@ -42,14 +42,6 @@ def _format_exc_status(exc, message):
 
 
 def _basic_auth_check(username, password, request):
-    # A route must be matched
-    if not request.matched_route:
-        return False
-
-    # Basic authentication can only be used for uploading
-    if request.matched_route.name != "forklift.legacy.file_upload":
-        return False
-
     login_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
 
@@ -136,6 +128,12 @@ class SessionSecurityPolicy:
         self._acl = ACLHelper()
 
     def identity(self, request):
+        # If our current request *is* any API request, then we will disallow
+        # authenticating with sessions, as an API request should only use API
+        # authentication methods.
+        if request.is_api:
+            return None
+
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Cookie header.
@@ -143,14 +141,6 @@ class SessionSecurityPolicy:
         request.authentication_method = AuthenticationMethod.SESSION
 
         if request.banned.by_ip(request.remote_addr):
-            return None
-
-        # A route must be matched
-        if not request.matched_route:
-            return None
-
-        # Session authentication cannot be used for uploading
-        if request.matched_route.name == "forklift.legacy.file_upload":
             return None
 
         userid = self._session_helper.authenticated_userid(request)
@@ -210,6 +200,15 @@ class BasicAuthSecurityPolicy:
         self._acl = ACLHelper()
 
     def identity(self, request):
+        # If our current request isn't an API request, then we'll just quickly skip
+        # trying to do anything since we only support basic auth on API routes.
+        # NOTE: Technically we only support it on upload, which is at the moment our
+        #       only API route. We'll end up removing this entirely once we go to 2FA
+        #       only for uploading, so a short term window if we add another API route
+        #       seems fine.
+        if not request.is_api:
+            return None
+
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.

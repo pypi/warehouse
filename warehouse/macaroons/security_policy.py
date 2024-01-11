@@ -86,6 +86,11 @@ class MacaroonSecurityPolicy:
         self._acl = ACLHelper()
 
     def identity(self, request):
+        # If our current request isn't an API request, then we'll just quickly skip
+        # trying to do anything since we only support basic auth on API routes.
+        if not request.is_api:
+            return None
+
         # If we're calling into this API on a request, then we want to register
         # a callback which will ensure that the response varies based on the
         # Authorization header.

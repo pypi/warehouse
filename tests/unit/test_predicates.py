@@ -19,8 +19,10 @@ from pyramid.httpexceptions import HTTPSeeOther
 from warehouse.organizations.models import OrganizationType
 from warehouse.predicates import (
     ActiveOrganizationPredicate,
+    APIPredicate,
     DomainPredicate,
     HeadersPredicate,
+    _is_api_route,
     includeme,
 )
 from warehouse.subscriptions.models import StripeSubscriptionStatus
@@ -54,6 +56,39 @@ class TestDomainPredicate:
     def test_invalid_value(self):
         predicate = DomainPredicate("upload.pyp.io", None)
         assert not predicate(None, pretend.stub(domain="pypi.io"))
+
+
+class TestAPIPredicate:
+    @pytest.mark.parametrize(
+        ("value", "expected"), [(True, "is_api = True"), (False, "is_api = False")]
+    )
+    def test_text(self, value, expected):
+        pred = APIPredicate(value, None)
+        assert pred.text() == expected
+        assert pred.phash() == expected
+
+    @pytest.mark.parametrize("value", [True, False, None])
+    def test_always_allows(self, value):
+        pred = APIPredicate(value, None)
+        assert pred(None, None)
+
+    def test_request_no_matched_route(self):
+        assert not _is_api_route(pretend.stub(matched_route=None))
+
+    def test_request_matched_route_no_pred(self):
+        request = pretend.stub(matched_route=pretend.stub(predicates=[]))
+        assert not _is_api_route(request)
+
+    def test_request_matched_route_no_api_pred(self):
+        request = pretend.stub(matched_route=pretend.stub(predicates=[pretend.stub()]))
+        assert not _is_api_route(request)
+
+    @pytest.mark.parametrize(("value", "expected"), [(True, True), (False, False)])
+    def test_request_matched_route_with_api_pred(self, value, expected):
+        request = pretend.stub(
+            matched_route=pretend.stub(predicates=[APIPredicate(value, None)])
+        )
+        assert _is_api_route(request) == expected
 
 
 class TestHeadersPredicate:
@@ -189,12 +224,20 @@ class TestActiveOrganizationPredicate:
 
 def test_includeme():
     config = pretend.stub(
+        add_request_method=pretend.call_recorder(lambda fn, name, reify: None),
         add_route_predicate=pretend.call_recorder(lambda name, pred: None),
         add_view_predicate=pretend.call_recorder(lambda name, pred: None),
     )
     includeme(config)
 
-    assert config.add_route_predicate.calls == [pretend.call("domain", DomainPredicate)]
+    assert config.add_request_method.calls == [
+        pretend.call(_is_api_route, name="is_api", reify=True)
+    ]
+
+    assert config.add_route_predicate.calls == [
+        pretend.call("domain", DomainPredicate),
+        pretend.call("is_api", APIPredicate),
+    ]
 
     assert config.add_view_predicate.calls == [
         pretend.call("require_headers", HeadersPredicate),
