@@ -31,7 +31,7 @@ own security model and considerations.
 
 === "GitHub Actions"
 
-    ## Security model
+    ### Security model
 
     GitHub Actions' own security model for OpenID Connect tokens is a little subtle:
 
@@ -55,7 +55,7 @@ own security model and considerations.
         **[fundamentally dangerous] by design** and should not be used without
         careful consideration.
 
-    ## Considerations
+    ### Considerations
 
     * In particular, for trusted publishing with GitHub Actions, you
       **must**:
