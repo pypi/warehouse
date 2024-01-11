@@ -58,7 +58,7 @@ each.
 Once you click "Add", your publisher will be registered and will appear
 at the top of the page:
 
-![](/assets/trusted-publishing/project-publisher-registered.png)
+![](/assets/trusted-publishing/github/project-publisher-registered.png)
 
 From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
 be able to generate short-lived API tokens from PyPI for the project you've registered

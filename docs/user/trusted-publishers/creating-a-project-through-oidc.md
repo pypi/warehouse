@@ -54,7 +54,7 @@ provide the name of the PyPI project that will be created.
 
 Clicking "Add" will register the "pending" publisher, and show it to you:
 
-![](/assets/trusted-publishing/pending-publisher-registered.png)
+![](/assets/trusted-publishing/github/pending-publisher-registered.png)
 
 From this point on, the "pending" publisher can be used exactly like a
 "normal" publisher, and after first use it will convert it into a "normal"
