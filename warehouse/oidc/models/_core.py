@@ -100,7 +100,7 @@ class OIDCPublisherMixin:
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Claims that have already been verified during the JWT signature
-    # verification phase.
+    # verification phase if present.
     __preverified_claims__ = {
         "iss",
         "iat",

@@ -50,10 +50,9 @@ class NullOIDCPublisherService:
                         verify_signature=False,
                         # We require all of these to be present, but for the
                         # null publisher we only actually verify the audience.
-                        require=["iss", "iat", "nbf", "exp", "aud"],
+                        require=["iss", "iat", "exp", "aud"],
                         verify_iss=False,
                         verify_iat=False,
-                        verify_nbf=False,
                         verify_exp=False,
                         verify_aud=True,
                         # We don't accept JWTs with multiple audiences; we
@@ -251,12 +250,13 @@ class OIDCPublisherService:
                     # "require" only checks for the presence of these claims, not
                     # their validity. Each has a corresponding "verify_" kwarg
                     # that enforces their actual validity.
-                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    require=["iss", "iat", "exp", "aud"],
                     verify_iss=True,
                     verify_iat=True,
-                    verify_nbf=True,
                     verify_exp=True,
                     verify_aud=True,
+                    # We don't require the nbf claim, but verify it if present
+                    verify_nbf=True,
                     # We don't accept JWTs with multiple audiences; we
                     # want to be the ONLY audience listed.
                     strict_aud=True,
