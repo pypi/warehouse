@@ -209,3 +209,15 @@ below describe the setup process for each supported trusted publisher.
             with:
               password: ${{ steps.mint-token.outputs.api-token }}
     ```
+
+=== "Google Cloud"
+
+    TODO
+
+=== "ActiveState"
+
+    TODO
+
+=== "GitLab CI/CD"
+
+    TODO
