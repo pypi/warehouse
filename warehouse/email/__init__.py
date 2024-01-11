@@ -334,15 +334,6 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 
 
 @_email(
-    "basic-auth-with-2fa",
-    allow_unverified=True,
-    repeat_window=datetime.timedelta(days=1),
-)
-def send_basic_auth_with_two_factor_email(request, user, *, project_name):
-    return {"project_name": project_name}
-
-
-@_email(
     "two-factor-not-yet-enabled",
     allow_unverified=True,
     repeat_window=datetime.timedelta(days=14),
