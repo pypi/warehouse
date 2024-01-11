@@ -144,10 +144,12 @@ class BasicAuthSecurityPolicy:
         )
 
     def forget(self, request, **kw):
-        raise NotImplementedError
+        # No-op.
+        return []
 
     def remember(self, request, userid, **kw):
-        raise NotImplementedError
+        # No-op.
+        return []
 
     def authenticated_userid(self, request):
         raise NotImplementedError

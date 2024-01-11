@@ -38,11 +38,11 @@ class TestBasicAuthSecurityPolicy:
         with pytest.raises(NotImplementedError):
             policy.authenticated_userid(pretend.stub())
         with pytest.raises(NotImplementedError):
-            policy.forget(pretend.stub())
-        with pytest.raises(NotImplementedError):
-            policy.remember(pretend.stub(), pretend.stub())
-        with pytest.raises(NotImplementedError):
             policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
+
+        # These are no-ops, but they don't raise, used in MultiSecurityPolicy
+        assert policy.forget(pretend.stub()) == []
+        assert policy.remember(pretend.stub(), pretend.stub()) == []
 
     def test_identity_no_credentials(self, monkeypatch):
         extract_http_basic_credentials = pretend.call_recorder(lambda request: None)
