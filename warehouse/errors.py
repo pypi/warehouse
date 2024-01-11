@@ -22,10 +22,6 @@ class BasicAuthBreachedPassword(HTTPUnauthorized):
     pass
 
 
-class BasicAuthAccountFrozen(HTTPUnauthorized):
-    pass
-
-
 class BasicAuthTwoFactorEnabled(HTTPUnauthorized):
     pass
 
