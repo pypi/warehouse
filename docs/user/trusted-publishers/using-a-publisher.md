@@ -212,7 +212,56 @@ below describe the setup process for each supported trusted publisher.
 
 === "Google Cloud"
 
-    TODO
+    You can use the <https://pypi.org/project/id/> tool to automatically detect
+    and produce OIDC credentials on Google Cloud services.
+
+    First, ensure that `id` and `twine` are installed in the environment you
+    plan to publish from:
+
+    ```
+    $ python -m pip install -U id twine
+    ```
+
+    If you're unsure what the email address is for the service account your
+    service is using, you can verify it with:
+
+    ```
+    $ python -m id pypi -d | jq 'select(.email) | .email'
+    ```
+
+    Generate an OIDC token from within the environment and store it. The
+    audience should be either `pypi` or `testpypi` depending on which index you are
+    publishing to:
+
+    ```
+    $ oidc_token=$(python -m id pypi)
+    ```
+
+    **NOTE**: `pypi` is only correct for PyPI. For TestPyPI, the correct
+    audience is `testpypi`. More generally, you can access any instance's expected
+    OIDC audience via the `{index}/_/oidc/audience` endpoint:
+
+    ```console
+    $ curl https://pypi.org/_/oidc/audience
+    {"audience":"pypi"}
+    ```
+
+    Finally, we can submit that token to PyPI and get a short-lived API token
+    back:
+
+    ```bash
+    resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\": \"${oidc_token}\"}")
+    api_token=$(jq '.token' <<< "${resp}")
+    ```
+
+    **NOTE**: This is the URL for PyPI. For TestPyPI, the correct
+    domain should be is `test.pypi.org`.
+
+    This API token can be fed into `twine` or any other uploading client:
+
+    ```bash
+    TWINE_USERNAME=__token__ TWINE_PASSWORD="${api_token}" twine upload dist/*
+    ```
 
 === "ActiveState"
 

@@ -41,8 +41,16 @@ provide the name of the PyPI project that will be created.
 
 === "Google Cloud"
 
-    TODO
+    If you have a service account named
+    `SERVICE_ACCOUNT_NAME@PROJECT_NAME.iam.gserviceaccount.com`, which is in use by
+    the environment where you would like to publish to PyPI from, then you would do
+    the following:
 
+    ![](/assets/trusted-publishing/google/pending-publisher-form-filled.png)
+
+    !!! note
+
+        Like with "normal" trusted publishers, configuring the subject is optional.
 
 === "ActiveState"
 

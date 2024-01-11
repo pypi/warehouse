@@ -45,7 +45,41 @@ each.
 
 === "Google Cloud"
 
-    TODO
+    For Google Cloud, you **must** provide the email address of the account or
+    service account used to publish. [You can learn more about Google Cloud
+    service accounts
+    here](https://cloud.google.com/iam/docs/service-account-overview).
+
+    For example, if you have created a service account named
+    "SERVICE_ACCOUNT_NAME" in the project "PROJECT_NAME" which is in use by
+    the environment where you would like to publish to PyPI from, your service
+    account email would take the form
+    `SERVICE_ACCOUNT_NAME@PROJECT_NAME.iam.gserviceaccount.com`, and you would do
+    the following:
+
+    ![](/assets/trusted-publishing/google/project-publishing-form.png)
+
+    !!! warning
+
+        Google Cloud also provides [default service
+        accounts](https://cloud.google.com/iam/docs/service-account-types#default)
+        for various products:
+
+          *  Compute Engine: `PROJECT_ID-compute@developer.gserviceaccount.com`
+          *  App Engine: `PROJECT_NAME@appspot.gserviceaccount.com`
+
+        However it is NOT recommended that these be used for publishing, as
+        they are provided by default to every service when they are created.
+
+    !!! note
+
+        Configuring the subject is optional. The subject is the numeric ID that
+        represents the principal making the request. While not required, providing the
+        subject further restricts the identity which is used for publishing, ensuring
+        that only a specific instance of a service account can publish, not any service
+        account with the configured email. See
+        <https://cloud.google.com/docs/authentication/token-types#id-contents>
+        for more details
 
 === "ActiveState"
 
