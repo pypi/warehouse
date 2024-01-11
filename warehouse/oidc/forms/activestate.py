@@ -43,11 +43,11 @@ class ActiveStatePublisherBase(forms.Form):
     organization = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(
-                message=_("Specify ActiveState Organization URL name"),
+                message=_("Specify ActiveState organization name"),
             ),
             wtforms.validators.Regexp(
                 _VALID_ORG_URL_NAME,
-                message=_("Invalid ActiveState Platform organization name"),
+                message=_("Invalid ActiveState organization name"),
             ),
         ]
     )
@@ -59,14 +59,16 @@ class ActiveStatePublisherBase(forms.Form):
             ),
             wtforms.validators.Regexp(
                 _VALID_PROJECT_NAME,
-                message=_("Invalid ActiveState Platform project name"),
+                message=_("Invalid ActiveState project name"),
             ),
         ]
     )
 
     actor = wtforms.StringField(
         validators=[
-            wtforms.validators.InputRequired(message=("Specify the Actor username")),
+            wtforms.validators.InputRequired(
+                message=("Specify the ActiveState actor username")
+            ),
             wtforms.validators.Regexp(
                 _VALID_ORG_URL_NAME,
                 message=("Invalid ActiveState username"),
@@ -92,14 +94,14 @@ class ActiveStatePublisherBase(forms.Form):
             response.raise_for_status()
         except requests.HTTPError:
             sentry_sdk.capture_message(
-                f"Unexpected error from ActiveState user lookup: {response.content=}"
+                f"Unexpected error from ActiveState organization lookup: {response.content!r}"  # noqa
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
             )
         except requests.ConnectionError:
             sentry_sdk.capture_message(
-                "Connection error from ActiveState user lookup API (possibly offline)"
+                "Connection error from ActiveState organization lookup API (possibly offline)"  # noqa
             )
             raise wtforms.validators.ValidationError(
                 _(
@@ -109,25 +111,35 @@ class ActiveStatePublisherBase(forms.Form):
             )
         except requests.Timeout:
             sentry_sdk.capture_message(
-                "Timeout from ActiveState user lookup API (possibly offline)"
+                "Timeout from ActiveState organization lookup API (possibly offline)"
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected timeout from ActiveState. Try again in a few minutes")
             )
         # Graphql reports it's errors within the body of the 200 response
-        response_json = response.json()
-        errors = response_json.get("errors")
-        if errors:
+        try:
+            response_json = response.json()
+            errors = response_json.get("errors")
+            if errors:
+                sentry_sdk.capture_message(
+                    f"Unexpected error from ActiveState organization lookup: {errors}"  # noqa
+                )
+                raise wtforms.validators.ValidationError(
+                    _("Unexpected error from ActiveState. Try again")
+                )
+
+            if response_json.get("data") and not response_json.get("data").get(
+                "organizations"
+            ):
+                raise wtforms.validators.ValidationError(
+                    _("ActiveState organization not found")
+                )
+        except requests.exceptions.JSONDecodeError:
             sentry_sdk.capture_message(
-                f"Unexpected error from ActiveState user lookup: {errors}"  # noqa
+                f"Unexpected error from ActiveState organization lookup: {response.content!r}"  # noqa
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
-            )
-
-        if response_json["data"] and not response_json["data"]["organizations"]:
-            raise wtforms.validators.ValidationError(
-                _("ActiveState organization not found")
             )
 
     def validate_organization(self, field):
@@ -148,14 +160,14 @@ class ActiveStatePublisherBase(forms.Form):
             response.raise_for_status()
         except requests.HTTPError:
             sentry_sdk.capture_message(
-                f"Unexpected error from ActiveState user lookup: {response.content=}"
+                f"Unexpected error from ActiveState actor lookup: {response.content!r}"
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
             )
         except requests.ConnectionError:
             sentry_sdk.capture_message(
-                "Connection error from ActiveState user lookup API (possibly offline)"
+                "Connection error from ActiveState actor lookup API (possibly offline)"
             )
             raise wtforms.validators.ValidationError(
                 _(
@@ -165,25 +177,36 @@ class ActiveStatePublisherBase(forms.Form):
             )
         except requests.Timeout:
             sentry_sdk.capture_message(
-                "Timeout from ActiveState user lookup API (possibly offline)"
+                "Timeout from ActiveState actor lookup API (possibly offline)"
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected timeout from ActiveState. Try again in a few minutes")
             )
         # Graphql reports it's errors within the body of the 200 response
-        errors = response.json().get("errors")
-        if errors:
+        try:
+            response_json = response.json()
+            errors = response_json.get("errors")
+            if errors:
+                sentry_sdk.capture_message(
+                    f"Unexpected error from ActiveState actor lookup: {errors}"  # noqa
+                )
+                raise wtforms.validators.ValidationError(
+                    _("Unexpected error from ActiveState. Try again")
+                )
+            data = response_json.get("data")
+            if data and data.get("users"):
+                return data["users"][0]
+            else:
+                raise wtforms.validators.ValidationError(
+                    _("ActiveState actor not found")
+                )
+        except requests.exceptions.JSONDecodeError:
             sentry_sdk.capture_message(
-                f"Unexpected error from ActiveState user lookup: {errors}"  # noqa
+                f"Unexpected error from ActiveState actor lookup: {response.content!r}"
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
             )
-        data = response.json().get("data")
-        if data and data.get("users"):
-            return data["users"][0]
-        else:
-            raise wtforms.validators.ValidationError(_("ActiveState actor not found"))
 
     def validate_actor(self, field):
         actor = field.data

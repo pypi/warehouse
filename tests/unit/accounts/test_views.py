@@ -20,7 +20,6 @@ import freezegun
 import pretend
 import pytest
 import pytz
-import wtforms
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -59,9 +58,9 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGooglePublisher,
-    PendingActiveStatePublisher,
 )
 from warehouse.organizations.models import (
     OrganizationInvitation,
@@ -4249,6 +4248,86 @@ class TestManageAccountPublishingViews:
                     "url": pending_publisher.publisher_url(),
                     "submitted_by": db_request.user.username,
                 },
+            )
+        ]
+
+    def test_delete_pending_oidc_publisher_admin_disabled(
+        self, monkeypatch, pyramid_request
+    ):
+        pyramid_request.user = pretend.stub()
+        pyramid_request.registry = pretend.stub(
+            settings={
+                "github.token": "fake-api-token",
+            }
+        )
+        pyramid_request.flags = pretend.stub(
+            disallow_oidc=pretend.call_recorder(lambda f=None: True)
+        )
+        pyramid_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        project_factory = pretend.stub()
+        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
+        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+
+        pending_github_publisher_form_obj = pretend.stub()
+        pending_github_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_github_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
+
+        view = views.ManageAccountPublishingViews(pyramid_request)
+
+        assert view.delete_pending_oidc_publisher() == {
+            "disabled": {
+                "GitHub": True,
+                "Google": True,
+                "ActiveState": True,
+            },
+            "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+        }
+
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        ]
+        assert pyramid_request.session.flash.calls == [
+            pretend.call(
+                (
+                    "Trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+        ]
+        assert pending_github_publisher_form_cls.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                api_token="fake-api-token",
+                project_factory=project_factory,
             )
         ]
 

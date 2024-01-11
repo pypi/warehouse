@@ -139,15 +139,15 @@ msgstr ""
 msgid "Invalid or expired two factor login."
 msgstr ""
 
-#: warehouse/accounts/views.py:391
+#: warehouse/accounts/views.py:393
 msgid "Already authenticated"
 msgstr ""
 
-#: warehouse/accounts/views.py:471
+#: warehouse/accounts/views.py:473
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:567 warehouse/manage/views/__init__.py:826
+#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:826
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -190,10 +190,6 @@ msgstr ""
 
 #: warehouse/accounts/views.py:875
 msgid "You have reset your password"
-msgstr ""
-
-#: warehouse/accounts/views.py:903
-msgid "Expired token: request a new email verification link"
 msgstr ""
 
 #: warehouse/accounts/views.py:905
@@ -301,7 +297,7 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1597 warehouse/manage/views/__init__.py:1228
+#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1228
 #: warehouse/manage/views/__init__.py:1341
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
@@ -323,8 +319,8 @@ msgstr ""
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1735 warehouse/accounts/views.py:1748
-#: warehouse/accounts/views.py:1755
+#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
+#: warehouse/accounts/views.py:1791
 msgid "Invalid publisher ID"
 msgstr ""
 
@@ -365,7 +361,7 @@ msgid "Select project"
 msgstr ""
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
-#: warehouse/oidc/forms/activestate.py:195
+#: warehouse/oidc/forms/activestate.py:224
 msgid "Specify project name"
 msgstr ""
 
@@ -558,11 +554,11 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/activestate.py:197
+#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/activestate.py:226
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/activestate.py:211
+#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/activestate.py:240
 msgid "This project name is already in use"
 msgstr ""
 
@@ -574,44 +570,46 @@ msgstr ""
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:40
-msgid "Specify ActiveState Organization URL name"
+#: warehouse/oidc/forms/activestate.py:46
+msgid "Specify ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:44
-msgid "Invalid ActiveState Platform organization name"
+#: warehouse/oidc/forms/activestate.py:50
+msgid "Invalid ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:52
+#: warehouse/oidc/forms/activestate.py:58
 msgid "Specify ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:56
-msgid "Invalid ActiveState Platform project name"
+#: warehouse/oidc/forms/activestate.py:62
+msgid "Invalid ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:92
-#: warehouse/oidc/forms/activestate.py:119
-#: warehouse/oidc/forms/activestate.py:148
-#: warehouse/oidc/forms/activestate.py:174
+#: warehouse/oidc/forms/activestate.py:100
+#: warehouse/oidc/forms/activestate.py:128
+#: warehouse/oidc/forms/activestate.py:142
+#: warehouse/oidc/forms/activestate.py:166
+#: warehouse/oidc/forms/activestate.py:194
+#: warehouse/oidc/forms/activestate.py:208
 msgid "Unexpected error from ActiveState. Try again"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:99
-#: warehouse/oidc/forms/activestate.py:155
+#: warehouse/oidc/forms/activestate.py:107
+#: warehouse/oidc/forms/activestate.py:173
 msgid "Unexpected connection error from ActiveState. Try again in a few minutes"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:109
-#: warehouse/oidc/forms/activestate.py:165
+#: warehouse/oidc/forms/activestate.py:117
+#: warehouse/oidc/forms/activestate.py:183
 msgid "Unexpected timeout from ActiveState. Try again in a few minutes"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:124
+#: warehouse/oidc/forms/activestate.py:135
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:180
+#: warehouse/oidc/forms/activestate.py:201
 msgid "ActiveState actor not found"
 msgstr ""
 
@@ -1309,7 +1307,6 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:189
 
 #: warehouse/templates/manage/account.html:402
-
 #: warehouse/templates/manage/account/publishing.html:40
 #: warehouse/templates/manage/account/publishing.html:55
 #: warehouse/templates/manage/account/publishing.html:70
@@ -3949,7 +3946,6 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-
 #: warehouse/templates/manage/manage_base.html:546
 #: warehouse/templates/manage/manage_base.html:554
 msgid "Any"
@@ -4010,7 +4006,7 @@ msgstr ""
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:581
+#: warehouse/templates/manage/manage_base.html:585
 msgid "Publisher:"
 msgstr ""
 
@@ -4291,7 +4287,6 @@ msgid ""
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
 
-
 #: warehouse/templates/manage/account/publishing.html:27
 #: warehouse/templates/manage/project/publishing.html:25
 #, python-format
@@ -4431,7 +4426,6 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-
 #: warehouse/templates/manage/account/publishing.html:129
 #: warehouse/templates/manage/project/publishing.html:112
 
@@ -4481,43 +4475,43 @@ msgstr ""
 msgid "Organization"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:148
+#: warehouse/templates/manage/account/publishing.html:218
 msgid "my-organization"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:150
+#: warehouse/templates/manage/account/publishing.html:220
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:158
+#: warehouse/templates/manage/account/publishing.html:228
 msgid "ActiveState Project name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:163
+#: warehouse/templates/manage/account/publishing.html:233
 msgid "my-project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:165
+#: warehouse/templates/manage/account/publishing.html:235
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:173
+#: warehouse/templates/manage/account/publishing.html:243
 msgid "Actor Username"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:178
+#: warehouse/templates/manage/account/publishing.html:248
 msgid "my-username"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:180
+#: warehouse/templates/manage/account/publishing.html:250
 msgid "The ActiveState user that will trigger the build of your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:197
+#: warehouse/templates/manage/account/publishing.html:268
 msgid "Manage publishers"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:207
+#: warehouse/templates/manage/account/publishing.html:278
 msgid "Project"
 msgstr ""
 

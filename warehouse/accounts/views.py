@@ -1520,7 +1520,7 @@ class ManageAccountPublishingViews:
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
-            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
@@ -1572,6 +1572,7 @@ class ManageAccountPublishingViews:
             "warehouse.oidc.add_pending_publisher.attempt",
             tags=[f"publisher:{publisher_name}"],
         )
+
         if not self.request.user.has_primary_verified_email:
             self.request.session.flash(
                 self.request._(
@@ -1582,6 +1583,7 @@ class ManageAccountPublishingViews:
                 queue="error",
             )
             return self.default_response
+
         # Separately from having permission to register pending OIDC publishers,
         # we limit users to no more than 3 pending publishers at once.
         if len(self.request.user.pending_oidc_publishers) >= 3:
