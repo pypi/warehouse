@@ -10,25 +10,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import email
+import dataclasses
+import enum
 import hashlib
 import hmac
 import os.path
-import re
+import io
+import shutil
 import tarfile
 import tempfile
 import zipfile
 
 from cgi import FieldStorage
 
+import packaging.metadata
 import packaging.requirements
 import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
 import sentry_sdk
-import wtforms
-import wtforms.validators
 
 from pyramid.httpexceptions import (
     HTTPBadRequest,
@@ -38,13 +39,12 @@ from pyramid.httpexceptions import (
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
+from pyramid.request import Request
 from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from trove_classifiers import classifiers, deprecated_classifiers
 
-from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
@@ -54,6 +54,8 @@ from warehouse.email import (
 )
 from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
+from warehouse.forklift import metadata
+from warehouse.forklift.forms import UploadForm, SECURE_HASHES
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
@@ -68,8 +70,9 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import http, readme
-from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
+from warehouse.utils import readme
+from warehouse.utils.files import HashedFileWrapper, LimitedFileWrapper, FileLimitError
+from warehouse.utils.project import validate_project_name
 from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
@@ -91,113 +94,6 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
 COMPRESSION_RATIO_THRESHOLD = 50
 
 
-# Wheel platform checking
-
-# Note: defining new platform ABI compatibility tags that don't
-#       have a python.org binary release to anchor them is a
-#       complex task that needs more than just OS+architecture info.
-#       For Linux specifically, the platform ABI is defined by each
-#       individual distro version, so wheels built on one version may
-#       not even work on older versions of the same distro, let alone
-#       a completely different distro.
-#
-#       That means new entries should only be added given an
-#       accompanying ABI spec that explains how to build a
-#       compatible binary (see the manylinux specs as examples).
-
-# These platforms can be handled by a simple static list:
-_allowed_platforms = {
-    "any",
-    "win32",
-    "win_arm64",
-    "win_amd64",
-    "win_ia64",
-    "manylinux1_x86_64",
-    "manylinux1_i686",
-    "manylinux2010_x86_64",
-    "manylinux2010_i686",
-    "manylinux2014_x86_64",
-    "manylinux2014_i686",
-    "manylinux2014_aarch64",
-    "manylinux2014_armv7l",
-    "manylinux2014_ppc64",
-    "manylinux2014_ppc64le",
-    "manylinux2014_s390x",
-    "linux_armv6l",
-    "linux_armv7l",
-}
-# macosx is a little more complicated:
-_macosx_platform_re = re.compile(r"macosx_(?P<major>\d+)_(\d+)_(?P<arch>.*)")
-_macosx_arches = {
-    "ppc",
-    "ppc64",
-    "i386",
-    "x86_64",
-    "arm64",
-    "intel",
-    "fat",
-    "fat32",
-    "fat64",
-    "universal",
-    "universal2",
-}
-_macosx_major_versions = {
-    "10",
-    "11",
-    "12",
-    "13",
-    "14",
-}
-
-# manylinux pep600 and musllinux pep656 are a little more complicated:
-_linux_platform_re = re.compile(r"(?P<libc>(many|musl))linux_(\d+)_(\d+)_(?P<arch>.*)")
-_jointlinux_arches = {
-    "x86_64",
-    "i686",
-    "aarch64",
-    "armv7l",
-    "ppc64le",
-    "s390x",
-}
-_manylinux_arches = _jointlinux_arches | {"ppc64"}
-_musllinux_arches = _jointlinux_arches
-
-
-# Actual checking code;
-def _valid_platform_tag(platform_tag):
-    if platform_tag in _allowed_platforms:
-        return True
-    m = _macosx_platform_re.match(platform_tag)
-    if (
-        m
-        and m.group("major") in _macosx_major_versions
-        and m.group("arch") in _macosx_arches
-    ):
-        return True
-    m = _linux_platform_re.match(platform_tag)
-    if m and m.group("libc") == "musl":
-        return m.group("arch") in _musllinux_arches
-    if m and m.group("libc") == "many":
-        return m.group("arch") in _manylinux_arches
-    return False
-
-
-_error_message_order = ["metadata_version", "name", "version"]
-
-_dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
-
-_legacy_specifier_re = re.compile(r"^(?P<name>\S+)(?: \((?P<specifier>\S+)\))?$")
-
-_valid_description_content_types = {"text/plain", "text/x-rst", "text/markdown"}
-
-_valid_markdown_variants = {"CommonMark", "GFM"}
-
-_filetype_extension_mapping = {
-    "sdist": {".zip", ".tar.gz"},
-    "bdist_wheel": {".whl"},
-}
-
-
 def _exc_with_message(exc, message, **kwargs):
     # The crappy old API that PyPI offered uses the status to pass down
     # messages to the client. So this function will make that easier to do.
@@ -210,454 +106,281 @@ def _exc_with_message(exc, message, **kwargs):
     return resp
 
 
-def _validate_pep440_version(form, field):
-    # Check that this version is a valid PEP 440 version at all.
-    try:
-        parsed = packaging.version.parse(field.data)
-    except packaging.version.InvalidVersion:
-        raise wtforms.validators.ValidationError(
-            "Start and end with a letter or numeral containing only "
-            "ASCII numeric and '.', '_' and '-'."
-        )
-
-    # Check that this version does not have a PEP 440 local segment attached
-    # to it.
-    if parsed.local is not None:
-        raise wtforms.validators.ValidationError("Can't use PEP 440 local versions.")
-
-
-def _parse_legacy_requirement(requirement):
-    parsed = _legacy_specifier_re.search(requirement)
-    if parsed is None:
-        raise ValueError("Invalid requirement.")
-    return parsed.groupdict()["name"], parsed.groupdict()["specifier"]
-
-
-def _validate_pep440_specifier(specifier):
-    try:
-        packaging.specifiers.SpecifierSet(specifier)
-    except packaging.specifiers.InvalidSpecifier:
-        raise wtforms.validators.ValidationError(
-            "Invalid specifier in requirement."
-        ) from None
-
-
-def _validate_pep440_specifier_field(form, field):
-    return _validate_pep440_specifier(field.data)
-
-
-def _validate_legacy_non_dist_req(requirement):
-    try:
-        req = packaging.requirements.Requirement(requirement.replace("_", ""))
-    except packaging.requirements.InvalidRequirement:
-        raise wtforms.validators.ValidationError(
-            f"Invalid requirement: {requirement!r}"
-        ) from None
-
-    if req.url is not None:
-        raise wtforms.validators.ValidationError(
-            f"Can't direct dependency: {requirement!r}"
-        )
-
-    if any(
-        not identifier.isalnum() or identifier[0].isdigit()
-        for identifier in req.name.split(".")
-    ):
-        raise wtforms.validators.ValidationError("Use a valid Python identifier.")
-
-
-def _validate_legacy_non_dist_req_list(form, field):
-    for datum in field.data:
-        _validate_legacy_non_dist_req(datum)
-
-
-def _validate_legacy_dist_req(requirement):
-    try:
-        req = packaging.requirements.Requirement(requirement)
-    except packaging.requirements.InvalidRequirement:
-        raise wtforms.validators.ValidationError(
-            f"Invalid requirement: {requirement!r}."
-        ) from None
-
-    if req.url is not None:
-        raise wtforms.validators.ValidationError(
-            f"Can't have direct dependency: {requirement!r}"
-        )
-
-
-def _validate_legacy_dist_req_list(form, field):
-    for datum in field.data:
-        _validate_legacy_dist_req(datum)
-
-
-def _validate_requires_external(requirement):
-    name, specifier = _parse_legacy_requirement(requirement)
-
-    # TODO: Is it really reasonable to parse the specifier using PEP 440?
-    if specifier is not None:
-        _validate_pep440_specifier(specifier)
-
-
-def _validate_requires_external_list(form, field):
-    for datum in field.data:
-        _validate_requires_external(datum)
-
-
-def _validate_project_url(value):
-    try:
-        label, url = (x.strip() for x in value.split(",", maxsplit=1))
-    except ValueError:
-        raise wtforms.validators.ValidationError(
-            "Use both a label and an URL."
-        ) from None
-
-    if not label:
-        raise wtforms.validators.ValidationError("Use a label.")
-
-    if len(label) > 32:
-        raise wtforms.validators.ValidationError("Use 32 characters or less.")
-
-    if not url:
-        raise wtforms.validators.ValidationError("Use an URL.")
-
-    if not http.is_valid_uri(url, require_authority=False):
-        raise wtforms.validators.ValidationError("Use valid URL.")
-
-
-def _validate_project_url_list(form, field):
-    for datum in field.data:
-        _validate_project_url(datum)
-
-
-def _validate_rfc822_email_field(form, field):
-    email_validator = wtforms.validators.Email(message="Use a valid email address")
-    addresses = email.utils.getaddresses([field.data])
-
-    for real_name, address in addresses:
-        email_validator(form, type("field", (), {"data": address}))
-
-
-def _validate_description_content_type(form, field):
-    def _raise(message):
-        raise wtforms.validators.ValidationError(
-            f"Invalid description content type: {message}"
-        )
-
-    msg = email.message.EmailMessage()
-    msg["content-type"] = field.data
-    content_type, parameters = msg.get_content_type(), msg["content-type"].params
-    if content_type not in _valid_description_content_types:
-        _raise("type/subtype is not valid")
-
-    charset = parameters.get("charset")
-    if charset and charset != "UTF-8":
-        _raise("Use a valid charset")
-
-    variant = parameters.get("variant")
-    if (
-        content_type == "text/markdown"
-        and variant
-        and variant not in _valid_markdown_variants
-    ):
-        _raise(
-            "Use a valid variant, expected one of {}".format(
-                ", ".join(_valid_markdown_variants)
-            )
-        )
-
-
-def _validate_no_deprecated_classifiers(form, field):
-    invalid_classifiers = set(field.data or []) & deprecated_classifiers.keys()
-    if invalid_classifiers:
-        first_invalid_classifier_name = sorted(invalid_classifiers)[0]
-        deprecated_by = deprecated_classifiers[first_invalid_classifier_name]
-
-        if deprecated_by:
-            raise wtforms.validators.ValidationError(
-                f"Classifier {first_invalid_classifier_name!r} has been "
-                "deprecated, use the following classifier(s) instead: "
-                f"{deprecated_by}"
-            )
-        else:
-            raise wtforms.validators.ValidationError(
-                f"Classifier {first_invalid_classifier_name!r} has been deprecated."
-            )
-
-
-def _validate_classifiers(form, field):
-    invalid = sorted(set(field.data or []) - classifiers)
-
-    if invalid:
-        if len(invalid) == 1:
-            raise wtforms.validators.ValidationError(
-                f"Classifier {invalid[0]!r} is not a valid classifier."
-            )
-        else:
-            raise wtforms.validators.ValidationError(
-                f"Classifiers {invalid!r} are not valid classifiers."
-            )
-
-
-def _construct_dependencies(form, types):
+def _construct_dependencies(
+    meta: packaging.metadata.Metadata, types: dict[str, DependencyKind]
+) -> list[Dependency]:
+    result = []
     for name, kind in types.items():
-        for item in getattr(form, name).data:
-            yield Dependency(kind=kind.value, specifier=item)
+        for item in getattr(meta, name):
+            yield Dependency(kind=kind.value, specifier=str(item))
+    return result
 
 
-class ListField(wtforms.Field):
-    def process_formdata(self, valuelist):
-        self.data = [v.strip() for v in valuelist if v.strip()]
+def _sanitize_request(request: Request) -> str | None:
+    # Do some cleanup of the various form fields, there's a lot of garbage that
+    # gets sent to this view, and this helps prevent issues later on.
+    for key in list(request.POST):
+        value = request.POST.get(key)
+        if isinstance(value, str):
+            # distutils "helpfully" substitutes unknown, but "required" values
+            # with the string "UNKNOWN". This is basically never what anyone
+            # actually wants so we'll just go ahead and delete anything whose
+            # value is UNKNOWN.
+            if value.strip() == "UNKNOWN":
+                del request.POST[key]
+
+            # Escape NUL characters, which psycopg doesn't like
+            if "\x00" in value:
+                request.POST[key] = value.replace("\x00", "\\x00")
+
+    # Check if any fields were supplied as a tuple and have become a
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # ref: https://github.com/pypi/warehouse/issues/2185
+    # ref: https://github.com/pypi/warehouse/issues/2491
+    for field in set(request.POST) - {"content", "gpg_signature"}:
+        values = request.POST.getall(field)
+        if any(isinstance(value, FieldStorage) for value in values):
+            return f"{field}: Should not be a tuple."
+
+    return None
 
 
-# TODO: Eventually this whole validation thing should move to the packaging
-#       library and we should just call that. However until PEP 426 is done
-#       that library won't have an API for this.
-class MetadataForm(forms.Form):
-    # Metadata version
-    metadata_version = wtforms.StringField(
-        description="Metadata-Version",
-        validators=[
-            wtforms.validators.InputRequired(),
-            wtforms.validators.AnyOf(
-                # Note: This isn't really Metadata 2.0, however bdist_wheel
-                #       claims it is producing a Metadata 2.0 metadata when in
-                #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0", "2.1"],
-                message="Use a known metadata version.",
-            ),
-        ],
+def _upload_disallowed(request: Request) -> str | None:
+    # If we're in read-only mode, let upload clients know
+    if request.flags.enabled(AdminFlagValue.READ_ONLY):
+        return "Read-only mode: Uploads are temporarily disabled."
+
+    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
+        return (
+            "New uploads are temporarily disabled. "
+            "See {projecthelp} for more information.".format(
+                projecthelp=request.help_url(_anchor="admin-intervention")
+            )
+        )
+
+    # If there isn't an authenticated identity with this request, then we can't
+    # upload anyways.
+    if request.identity is None:
+        return (
+            "Invalid or non-existent authentication information. "
+            "See {projecthelp} for more information.".format(
+                projecthelp=request.help_url(_anchor="invalid-auth")
+            )
+        )
+
+    # These checks only make sense when our authenticated identity is a user,
+    # not a project identity (like OIDC-minted tokens.)
+    if request.user:
+        # Ensure that user has a verified, primary email address. This should both
+        # reduce the ease of spam account creation and activity, as well as act as
+        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
+        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
+        #       we might consider a different condition, possibly looking at
+        #       User.is_active instead.
+        if not (request.user.primary_email and request.user.primary_email.verified):
+            return (
+                "User {!r} does not have a verified primary email address. "
+                "Please add a verified primary email before attempting to "
+                "upload to PyPI. See {project_help} for more information."
+            ).format(
+                request.user.username,
+                project_help=request.help_url(_anchor="verified-email"),
+            )
+
+    return None
+
+
+def _get_or_create_project(request: Request, project_name: str) -> Project:
+    # Look up the project first before doing anything else, this is so we can
+    # automatically register it if we need to and can check permissions before
+    # going any further.
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
     )
 
-    # Identity Project and Release
-    name = wtforms.StringField(
-        description="Name",
-        validators=[
-            wtforms.validators.InputRequired(),
-            wtforms.validators.Regexp(
-                PROJECT_NAME_RE,
-                re.IGNORECASE,
-                message=(
-                    "Start and end with a letter or numeral containing "
-                    "only ASCII numeric and '.', '_' and '-'."
+    if project is None:
+        # Another sanity check: we should be preventing non-user identities
+        # from creating projects in the first place with scoped tokens,
+        # but double-check anyways.
+        # This can happen if a user mismatches between the project name in
+        # their pending publisher (1) and the project name in their metadata (2):
+        # the pending publisher will create an empty project named (1) and will
+        # produce a valid API token, but the project lookup above uses (2)
+        # and will fail because (1) != (2).
+        if not request.user:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "Non-user identities cannot create new projects. "
+                    "This was probably caused by successfully using a pending "
+                    "publisher but specifying the project name incorrectly (either "
+                    "in the publisher or in your project's metadata). Please ensure "
+                    "that both match. "
+                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
                 ),
-            ),
-        ],
-    )
-    version = wtforms.StringField(
-        description="Version",
-        validators=[
-            wtforms.validators.InputRequired(),
-            wtforms.validators.Regexp(
-                r"^(?!\s).*(?<!\s)$",
-                message="Can't have leading or trailing whitespace.",
-            ),
-            _validate_pep440_version,
-        ],
-    )
-
-    # Additional Release metadata
-    summary = wtforms.StringField(
-        description="Summary",
-        validators=[
-            wtforms.validators.Optional(),
-            wtforms.validators.Length(max=512),
-            wtforms.validators.Regexp(
-                r"^.+$",  # Rely on the fact that . doesn't match a newline.
-                message="Use a single line only.",
-            ),
-        ],
-    )
-    description = wtforms.StringField(
-        description="Description", validators=[wtforms.validators.Optional()]
-    )
-    author = wtforms.StringField(
-        description="Author", validators=[wtforms.validators.Optional()]
-    )
-    description_content_type = wtforms.StringField(
-        description="Description-Content-Type",
-        validators=[wtforms.validators.Optional(), _validate_description_content_type],
-    )
-    author_email = wtforms.StringField(
-        description="Author-email",
-        validators=[wtforms.validators.Optional(), _validate_rfc822_email_field],
-    )
-    maintainer = wtforms.StringField(
-        description="Maintainer", validators=[wtforms.validators.Optional()]
-    )
-    maintainer_email = wtforms.StringField(
-        description="Maintainer-email",
-        validators=[wtforms.validators.Optional(), _validate_rfc822_email_field],
-    )
-    license = wtforms.StringField(
-        description="License", validators=[wtforms.validators.Optional()]
-    )
-    keywords = wtforms.StringField(
-        description="Keywords", validators=[wtforms.validators.Optional()]
-    )
-    classifiers = ListField(
-        description="Classifier",
-        validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
-    )
-    platform = wtforms.StringField(
-        description="Platform", validators=[wtforms.validators.Optional()]
-    )
-
-    # URLs
-    home_page = wtforms.StringField(
-        description="Home-Page",
-        validators=[wtforms.validators.Optional(), forms.URIValidator()],
-    )
-    download_url = wtforms.StringField(
-        description="Download-URL",
-        validators=[wtforms.validators.Optional(), forms.URIValidator()],
-    )
-
-    # Dependency Information
-    requires_python = wtforms.StringField(
-        description="Requires-Python",
-        validators=[wtforms.validators.Optional(), _validate_pep440_specifier_field],
-    )
-
-    # File information
-    pyversion = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    filetype = wtforms.StringField(
-        validators=[
-            wtforms.validators.InputRequired(),
-            wtforms.validators.AnyOf(
-                _filetype_extension_mapping.keys(), message="Use a known file type."
-            ),
-        ]
-    )
-    comment = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    md5_digest = wtforms.StringField(validators=[wtforms.validators.Optional()])
-    sha256_digest = wtforms.StringField(
-        validators=[
-            wtforms.validators.Optional(),
-            wtforms.validators.Regexp(
-                r"^[A-F0-9]{64}$",
-                re.IGNORECASE,
-                message="Use a valid, hex-encoded, SHA256 message digest.",
-            ),
-        ]
-    )
-    blake2_256_digest = wtforms.StringField(
-        validators=[
-            wtforms.validators.Optional(),
-            wtforms.validators.Regexp(
-                r"^[A-F0-9]{64}$",
-                re.IGNORECASE,
-                message="Use a valid, hex-encoded, BLAKE2 message digest.",
-            ),
-        ]
-    )
-
-    # Legacy dependency information
-    requires = ListField(
-        validators=[wtforms.validators.Optional(), _validate_legacy_non_dist_req_list]
-    )
-    provides = ListField(
-        validators=[wtforms.validators.Optional(), _validate_legacy_non_dist_req_list]
-    )
-    obsoletes = ListField(
-        validators=[wtforms.validators.Optional(), _validate_legacy_non_dist_req_list]
-    )
-
-    # Newer dependency information
-    requires_dist = ListField(
-        description="Requires-Dist",
-        validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
-    )
-    provides_dist = ListField(
-        description="Provides-Dist",
-        validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
-    )
-    obsoletes_dist = ListField(
-        description="Obsoletes-Dist",
-        validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
-    )
-    requires_external = ListField(
-        description="Requires-External",
-        validators=[wtforms.validators.Optional(), _validate_requires_external_list],
-    )
-
-    # Newer metadata information
-    project_urls = ListField(
-        description="Project-URL",
-        validators=[wtforms.validators.Optional(), _validate_project_url_list],
-    )
-
-    def full_validate(self):
-        # All non source releases *must* have a pyversion
-        if (
-            self.filetype.data
-            and self.filetype.data != "sdist"
-            and not self.pyversion.data
-        ):
-            raise wtforms.validators.ValidationError(
-                "Python version is required for binary distribution uploads."
             )
 
-        # All source releases *must* have a pyversion of "source"
-        if self.filetype.data == "sdist":
-            if not self.pyversion.data:
-                self.pyversion.data = "source"
-            elif self.pyversion.data != "source":
-                raise wtforms.validators.ValidationError(
-                    "Use 'source' as Python version for an sdist."
-                )
+        # We attempt to create the project.
+        try:
+            validate_project_name(project_name, request)
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
 
-        # We *must* have at least one digest to verify against.
-        if (
-            not self.md5_digest.data
-            and not self.sha256_digest.data
-            and not self.blake2_256_digest.data
-        ):
-            raise wtforms.validators.ValidationError(
-                "Include at least one message digest."
+        project_service = request.find_service(IProjectService)
+        try:
+            project = project_service.create_project(
+                project_name, request.user, request
             )
+        except RateLimiterException:
+            msg = "Too many new projects created"
+            raise _exc_with_message(HTTPTooManyRequests, msg)
+
+    return project
 
 
-def _validate_filename(filename, filetype):
-    # Our object storage does not tolerate some specific characters
-    # ref: https://www.backblaze.com/b2/docs/files.html#file-names
-    #
-    # Also, its hard to imagine a usecase for them that isn't ✨malicious✨
-    # or completely by mistake.
-    disallowed = [*(chr(x) for x in range(32)), chr(127)]
-    if [char for char in filename if char in disallowed]:
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class UploadedFile:
+    path: os.PathLike
+    filename: str
+    size: int
+    digests: dict[str, str]
+
+
+def _copy_uploaded_file(
+    request: Request,
+    tmpdir: os.PathLike,
+    project: Project,
+    filename: str,
+    src: io.RawIOBase,
+    *,
+    digests: dict[str, str],
+) -> UploadedFile:
+    # The project may or may not have a file size specified on the project, if
+    # it does then it may or may not be smaller or larger than our global file
+    # size limits.
+    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
+    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
+
+    # We don't allow files of arbitrary size, so we wrap our file obj in a wrapper
+    # that will ensure we respect our given limit.
+    limited_file = LimitedFileWrapper(src, file_size_limit)
+
+    # As we're copying the file to a local temporary file, we want to take this
+    # opportunity to compute hashes for the uploaded file. To do this we'll wrap
+    # our file with a wrapper that will opportunitistically update hashes as the
+    # file is read.
+    hashed_file = HashedFileWrapper(
+        limited_file,
+        {
+            "md5": hashlib.md5(usedforsecurity=False),
+            "sha256": hashlib.sha256(),
+            "blake2_256": hashlib.blake2b(digest_size=256 // 8),
+        },
+    )
+
+    # Actually copy the file to the destination.
+    path = os.path.join(tmpdir, filename)
+    try:
+        with open(path, "rb") as dst:
+            shutil.copyfileobj(hashed_file, dst)
+    except FileLimitError:
+        # If we've gotten a FileLimitError, then the size of the file is
+        # too large and we need to bail out with a reasonable error message.
         raise _exc_with_message(
             HTTPBadRequest,
             (
-                "Cannot upload a file with "
-                "non-printable characters (ordinals 0-31) "
-                "or the DEL character (ordinal 127) "
-                "in the name."
+                "File too large. Limit for project {name!r} is {limit} MB. "
+                "See {url} for more information"
+            ).format(
+                name=project.name,
+                limit=file_size_limit // ONE_MB,
+                url=request.help_url(_anchor="file-size-limit"),
+            ),
+        ) from None
+
+    # If the uploaded file pushes the project past it's total size limitat,
+    # then we'll need to raise an error.
+    if limited_file.amount_read + project.total_size > project_size_limit:
+        raise _exc_with_message(
+            HTTPBadRequest,
+            (
+                "Project size too large. Limit for project {name!r} total size is {limit} GB. "
+                "See {url} for more information"
+            ).format(
+                name=project.name,
+                limit=project_size_limit // ONE_GB,
+                url=request.help_url(_anchor="project-size-limit"),
             ),
         )
 
-    # Make sure that the filename does not contain any path separators.
-    if "/" in filename or "\\" in filename:
-        raise _exc_with_message(
-            HTTPBadRequest, "Cannot upload a file with '/' or '\\' in the name."
-        )
-
-    # Make sure the filename ends with an allowed extension.
-    if m := _dist_file_re.match(filename):
-        extension = m.group("extension")
-        if extension not in _filetype_extension_mapping[filetype]:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Invalid file extension: Extension {extension} is invalid for "
-                f"filetype {filetype}. See https://www.python.org/dev/peps/pep-0527 "
-                "for more information.",
-            )
-    else:
+    # Actually verify the digests that we've gotten. We're going to use
+    # hmac.compare_digest even though we probably don't actually need to
+    # because it's better safe than sorry. In the case of multiple digests
+    # we expect them all to match.
+    #
+    # If the user didn't provide a value for a given hash algorith, then we
+    # won't attempt to validate it.
+    if not all(
+        [
+            hmac.compare_digest(digests[name].lower(), digest)
+            for name, digest in hashed_file.digests.items()
+            if name in digests
+        ]
+    ):
         raise _exc_with_message(
             HTTPBadRequest,
-            "Invalid file extension: Use .tar.gz, .whl or .zip "
-            "extension. See https://www.python.org/dev/peps/pep-0527 "
-            "and https://peps.python.org/pep-0715/ for more information",
+            "The digest supplied does not match a digest calculated "
+            "from the uploaded file.",
         )
+
+    # Return the captured metadata for the file
+    return UploadedFile(
+        path=path,
+        filename=filename,
+        size=limited_file.amount_read,
+        digests=hashed_file.digests(),
+    )
+
+
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
+class MetadataFile:
+    path: os.PathLike
+    filename: str
+    size: int
+    digests: dict[str, str]
+    content: bytes
+
+
+def _extract_and_copy_metadata(
+    tmpdir: os.PathLike, artifact: UploadedFile
+) -> MetadataFile | None:
+    # Attempt to extract the metadata from our artifact
+    if (metadata_contents := metadata.extract(artifact.path)) is not None:
+        filename = f"{artifact.filename}.metadata"
+        path = os.path.join(tmpdir, filename)
+
+        # Write out the metadata file to our temporary location
+        with open(path, "wb") as fp:
+            fp.write(metadata_contents)
+
+        return MetadataFile(
+            path=path,
+            filename=filename,
+            size=len(metadata_contents),
+            digests={
+                "sha256": hashlib.sha256(metadata_contents).hexdigest().lower(),
+                "blake2_256": (
+                    hashlib.blake2b(metadata_contents, digest_size=256 // 8)
+                    .hexdigest()
+                    .lower()
+                ),
+            },
+            content=metadata_contents,
+        )
+
+    return None
 
 
 def _is_valid_dist_file(filename, filetype):
@@ -751,35 +474,55 @@ def _is_valid_dist_file(filename, filetype):
     return True
 
 
-def _is_duplicate_file(db_session, filename, hashes):
-    """
-    Check to see if file already exists, and if it's content matches.
-    A file is considered to exist if its filename *or* blake2 digest are
-    present in a file row in the database.
+class ConflictResult(enum.Enum):
+    # The filename does not conflict with existing or previous file.
+    Ok = enum.auto()
+    # The filename is an exact duplicate of an existing file.
+    Duplicate = enum.auto()
+    # The filename conflicts with an existing file.
+    ConflictsExisting = enum.auto()
+    # The filename conflicts with a previously used file.
+    ConflictsPrevious = enum.auto()
 
-    Returns:
-    - True: This file is a duplicate and all further processing should halt.
-    - False: This file exists, but it is not a duplicate.
-    - None: This file does not exist.
-    """
 
-    file_ = (
-        db_session.query(File)
-        .filter(
-            (File.filename == filename)
-            | (File.blake2_256_digest == hashes["blake2_256"])
-        )
-        .first()
-    )
+def _check_filename_conflicts(db, filename, digests: dict[str, str]) -> ConflictResult:
+    # Check if the filename matches a filename for any existing "live" file.
+    if (file_ := db.query(File).filter(File.filename == filename).first()) is not None:
+        # The filename matches an existing file, so we want to check if the existing
+        # file and the new file are the same.
+        #
+        # To do this we require at least one secure hash to be passed in via digests,
+        # which should be guarenteed because of our form validation, but we'll double
+        # check. Then we'll take all of our digests for the incoming file, and check
+        # them against the digests of the existing file.
+        #
+        # Since we're running this prior to having computed our own digests, we're
+        # trusting the digests provided by the user. However this is safe, because
+        # we're either going to no-op or error, and the only thing the user can do
+        # by lying about the digest is either change a no-op to an error, or an error
+        # to a no-op.
+        if (digests.keys() & SECURE_HASHES) and all(
+            [
+                hmac.compare_digest(getattr(file_, f"{name}_digest"), value)
+                for name, value in digests.items()
+            ]
+        ):
+            return ConflictResult.Duplicate
+        # If we either didn't have a secure hash somehow, or all of the digests
+        # didn't match, then this is conflict.
+        else:
+            return ConflictResult.ConflictsExisting
 
-    if file_ is not None:
-        return (
-            file_.filename == filename
-            and file_.sha256_digest == hashes["sha256"]
-            and file_.blake2_256_digest == hashes["blake2_256"]
-        )
+    # Check if the filename was ever used by checking in our filename log, which
+    # never gets expunged even if a file gets deleted.
+    if db.query(
+        db.query(Filename).filter(Filename.filename == filename).exists()
+    ).scalar():
+        # This is always a conflicts, because the file no longer exists
+        return ConflictResult.ConflictsPrevious
 
-    return None
+    # We're OK, there's no conflict at all.
+    return ConflictResult.Ok
 
 
 @view_config(
@@ -793,172 +536,46 @@ def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings = []
 
-    # If we're in read-only mode, let upload clients know
-    if request.flags.enabled(AdminFlagValue.READ_ONLY):
-        raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
-        )
-
-    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-        raise _exc_with_message(
-            HTTPForbidden,
-            "New uploads are temporarily disabled. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="admin-intervention")
-            ),
-        )
-
     # Log an attempt to upload
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
-
-    # Before we do anything, if there isn't an authenticated identity with
-    # this request, then we'll go ahead and bomb out.
-    if request.identity is None:
-        raise _exc_with_message(
-            HTTPForbidden,
-            "Invalid or non-existent authentication information. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="invalid-auth")
-            ),
-        )
-
-    # These checks only make sense when our authenticated identity is a user,
-    # not a project identity (like OIDC-minted tokens.)
-    if request.user:
-        # Ensure that user has a verified, primary email address. This should both
-        # reduce the ease of spam account creation and activity, as well as act as
-        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
-        #       we might consider a different condition, possibly looking at
-        #       User.is_active instead.
-        if not (request.user.primary_email and request.user.primary_email.verified):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "User {!r} does not have a verified primary email address. "
-                    "Please add a verified primary email before attempting to "
-                    "upload to PyPI. See {project_help} for more information."
-                ).format(
-                    request.user.username,
-                    project_help=request.help_url(_anchor="verified-email"),
-                ),
-            ) from None
-
-    # Do some cleanup of the various form fields
-    for key in list(request.POST):
-        value = request.POST.get(key)
-        if isinstance(value, str):
-            # distutils "helpfully" substitutes unknown, but "required" values
-            # with the string "UNKNOWN". This is basically never what anyone
-            # actually wants so we'll just go ahead and delete anything whose
-            # value is UNKNOWN.
-            if value.strip() == "UNKNOWN":
-                del request.POST[key]
-
-            # Escape NUL characters, which psycopg doesn't like
-            if "\x00" in value:
-                request.POST[key] = value.replace("\x00", "\\x00")
 
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
     if request.POST.get("protocol_version", "1") != "1":
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
-    # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
-    # ref: https://github.com/pypi/warehouse/issues/2185
-    # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content", "gpg_signature"}:
-        values = request.POST.getall(field)
-        if any(isinstance(value, FieldStorage) for value in values):
-            raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
+    # Sanitize the incoming request. There's a lot of garbage that gets sent to
+    # this view, which we'll sanitize to clean that up and/or fail early rather
+    # than getting failures deeper in the stack.
+    #
+    # NOTE: This method mutates the current request to do it's cleanup, but it
+    #       can also return an error message if it could not sanitize.
+    if (reason := _sanitize_request(request)) is not None:
+        raise _exc_with_message(HTTPForbidden, reason)
 
-    # Validate and process the incoming metadata.
-    form = MetadataForm(request.POST)
+    # Do some basic check to make sure that we're allowing uploads, either
+    # generally or for the current identity. Wo do this first, before doing
+    # anything else so that we can bail out early if there's no chance we're
+    # going to accept the upload anyways.
+    if (reason := _upload_disallowed(request)) is not None:
+        raise _exc_with_message(HTTPForbidden, reason)
 
+    # Validate the non Metadata portions of the upload data
+    form = UploadForm(request.POST)
     if not form.validate():
-        for field_name in _error_message_order:
-            if field_name in form.errors:
-                break
-        else:
-            field_name = sorted(form.errors.keys())[0]
+        raise _exc_with_message(HTTPBadRequest, "FIXME: A Real Error Message")
 
-        if field_name in form:
-            field = form[field_name]
-            if field.description and isinstance(field, wtforms.StringField):
-                error_message = (
-                    "{value!r} is an invalid value for {field}. ".format(
-                        value=(
-                            field.data[:30] + "..." + field.data[-30:]
-                            if field.data and len(field.data) > 60
-                            else field.data or ""
-                        ),
-                        field=field.description,
-                    )
-                    + f"Error: {form.errors[field_name][0]} "
-                    + "See "
-                    "https://packaging.python.org/specifications/core-metadata"
-                    + " for more information."
-                )
-            else:
-                error_message = "Invalid value for {field}. Error: {msgs[0]}".format(
-                    field=field_name, msgs=form.errors[field_name]
-                )
-        else:
-            error_message = f"Error: {form.errors[field_name][0]}"
-
-        raise _exc_with_message(HTTPBadRequest, error_message)
-
-    # Ensure that we have file data in the request.
-    if "content" not in request.POST:
-        raise _exc_with_message(HTTPBadRequest, "Upload payload does not have a file.")
-
-    # Look up the project first before doing anything else, this is so we can
-    # automatically register it if we need to and can check permissions before
-    # going any further.
-    project = (
-        request.db.query(Project)
-        .filter(Project.normalized_name == func.normalize_pep426_name(form.name.data))
-        .first()
-    )
-
-    if project is None:
-        # Another sanity check: we should be preventing non-user identities
-        # from creating projects in the first place with scoped tokens,
-        # but double-check anyways.
-        # This can happen if a user mismatches between the project name in
-        # their pending publisher (1) and the project name in their metadata (2):
-        # the pending publisher will create an empty project named (1) and will
-        # produce a valid API token, but the project lookup above uses (2)
-        # and will fail because (1) != (2).
-        if not request.user:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "Non-user identities cannot create new projects. "
-                    "This was probably caused by successfully using a pending "
-                    "publisher but specifying the project name incorrectly (either "
-                    "in the publisher or in your project's metadata). Please ensure "
-                    "that both match. "
-                    "See: https://docs.pypi.org/trusted-publishers/troubleshooting/"
-                ),
-            )
-
-        # We attempt to create the project.
-        try:
-            validate_project_name(form.name.data, request)
-        except HTTPException as exc:
-            raise _exc_with_message(exc.__class__, exc.detail) from None
-
-        project_service = request.find_service(IProjectService)
-        try:
-            project = project_service.create_project(
-                form.name.data, request.user, request
-            )
-        except RateLimiterException:
-            msg = "Too many new projects created"
-            raise _exc_with_message(HTTPTooManyRequests, msg)
+    # At this point, we've validated that we have a file upload, and we know
+    # what project it is for, and we've validated that the project name is a
+    # valid project name.
+    #
+    # In order to continue on, we need to fetch the Project from the database,
+    # creating it if it doesn't exist, because we want to check permissions
+    # before continuing on and we also need to know things like what the upload
+    # limit is for this project before we can start consuming the file that is
+    # being uploaded.
+    project = _get_or_create_project(request, form.name.data)
 
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
@@ -966,32 +583,18 @@ def file_upload(request):
     allowed = request.has_permission("upload", project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
-        if request.user:
-            msg = (
-                (
-                    "The user '{}' isn't allowed to upload to project '{}'. "
-                    "See {} for more information."
-                ).format(
-                    request.user.username,
-                    project.name,
-                    request.help_url(_anchor="project-name"),
-                )
-                if reason is None
-                else allowed.msg
-            )
-        else:
-            msg = (
-                (
-                    "The given token isn't allowed to upload to project '{}'. "
-                    "See {} for more information."
-                ).format(
-                    project.name,
-                    request.help_url(_anchor="project-name"),
-                )
-                if reason is None
-                else allowed.msg
-            )
-        raise _exc_with_message(HTTPForbidden, msg)
+        identity = f"user {request.user.username!r}" if request.user else "token"
+        raise _exc_with_message(
+            HTTPForbidden,
+            (
+                "The {identity} isn't allowed to upload to the project {project!r}. "
+                "See {url} for more information."
+            ).format(
+                identity=identity,
+                project=project.name,
+                url=request.help_url("project-name"),
+            ),
+        )
 
     # Check if the user has 2FA and used basic auth
     # NOTE: We don't need to guard request.user here because basic auth
@@ -1012,27 +615,100 @@ def file_upload(request):
             ),
         )
 
+    # Validate the filename against our existing data, checking to see if it
+    # matches any already used filenames or not.
+    #
+    # We do this here, rather than earlier so that we don't leak any information
+    # about a project's files until we've verified that the user has permission
+    # to upload. In theory this shouldn't matter, since all of our files are
+    # public anyways, but better safe than sorry.
+    match _check_filename_conflicts(request.db, form.filename.data, form.digests):
+        case ConflictResult.Duplicate:
+            # It's very important that we doom the transaction here, we're trusting
+            # the digests provided by the user rather than generating them ourselves,
+            # so we want to be very sure that nothing that happens in this request
+            # will effect the database, because that will ensure that this case is
+            # only ever a no-op or an error.
+            request.tm.doom()
+            return Response()
+        case ConflictResult.ConflictsExisting:
+            help_url = request.help_url(_anchor="file-name-reuse")
+            reason = f"File already exists. See {help_url} for more information."
+            _exc_with_message(HTTPBadRequest, reason)
+        case ConflictResult.ConflictsPrevious:
+            help_url = request.help_url(_anchor="file-name-reuse")
+            reason = (
+                "This filename has already been used, use a different version. "
+                f"See {help_url} for more information."
+            )
+            _exc_with_message(HTTPBadRequest, reason)
+        case ConflictResult.Ok:
+            pass
+
+    # We're going to need a temporary, request scoped, location to buffer uploaded
+    # data to disk so that we don't have to buffer in memory, so we'll create a
+    # temporary directory and register a callback that will clean it up when the
+    # request has completed.
+    #
+    # NOTE: request.add_finished_callback callbacks are called unconditionally
+    #       whether the request is successful or not, thus this is similiar to
+    #       using this as a context manager, except scoped to the life of the
+    #       request.
+    tmpdir = tempfile.TemporaryDirectory()
+    request.add_finished_callback(lambda _: tmpdir.cleanup())
+
+    # Copy the uploaded file to a temporary location, allowing us to compute the
+    # hashes, check the upload size, extract the metadata, etc.
+    uploaded_file = _copy_uploaded_file(
+        request,
+        tmpdir,
+        project,
+        form.filename.data,
+        request.POST["content"].file,
+        digests=form.digests,
+    )
+
+    # Check the file to make sure it is a valid distribution file.
+    if not _is_valid_dist_file(uploaded_file.path, form.filetype.data):
+        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+
+    # Extract the METADATA file out of the uploaded file.
+    try:
+        metadata_file = _extract_and_copy_metadata(tmpdir, uploaded_file)
+    except metadata.InvalidArtifact as exc:
+        raise _exc_with_message(HTTPBadRequest, exc.reason)
+
+    # Parse whatever metadata we have, preferring metadata extracted out of the
+    # artifact, but falling back to the metadata provided in the POST data
+    # otherwise.
+    #
+    # TODO: Probably at some point we want to require the use of metadata that
+    #       we can extract from a distribution and get rid of the fallback to
+    #       form based metadata.
+    try:
+        meta = metadata.parse(metadata_file.content, form_data=request.POST)
+    except packaging.metadata.InvalidMetadata as exc:
+        raise  # FIXME: Better error handling
+
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
-    if project.name != form.name.data:
-        project.name = form.name.data
+    if project.name != meta.name:
+        project.name = meta.name
 
     # Render our description so we can save from having to render this data every time
     # we load a project description page.
     rendered = None
-    if form.description.data:
-        description_content_type = form.description_content_type.data
-        if not description_content_type:
-            description_content_type = "text/x-rst"
+    if meta.description:
+        description_content_type = meta.description_content_type or "text/x-rst"
 
         rendered = readme.render(
-            form.description.data, description_content_type, use_fallback=False
+            meta.description, description_content_type, use_fallback=False
         )
 
         # Uploading should prevent broken rendered descriptions.
         if rendered is None:
-            if form.description_content_type.data:
+            if meta.description_content_type:
                 message = (
                     "The description failed to render "
                     "for '{description_content_type}'."
@@ -1051,7 +727,7 @@ def file_upload(request):
             ) from None
 
     try:
-        canonical_version = packaging.utils.canonicalize_version(form.version.data)
+        canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
             .filter(
@@ -1063,72 +739,80 @@ def file_upload(request):
     except MultipleResultsFound:
         # There are multiple releases of this project which have the same
         # canonical version that were uploaded before we checked for
-        # canonical version equivalence, so return the exact match instead
-        release = (
-            request.db.query(Release)
-            .filter(
-                (Release.project == project) & (Release.version == form.version.data)
-            )
-            .one()
+        # canonical version equivalence.
+        #
+        # We've been doing this for so long now, that we're going to treat this
+        # as an error. Projects hitting this at this point should create a new
+        # release or delete an old release or something.
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Multiple distinct versions found for {canonical_version} of {project.name}. "
+            "These versions are in a bad state which is no longer possible. "
+            "Try releasing as a new version.",
         )
     except NoResultFound:
         # Get all the classifiers for this release
         release_classifiers = (
             request.db.query(Classifier)
-            .filter(Classifier.classifier.in_(form.classifiers.data))
+            .filter(Classifier.classifier.in_(meta.classifiers))
             .all()
         )
-
-        # Parse the Project URLs structure into a key/value dict
-        project_urls = {
-            name.strip(): url.strip()
-            for name, _, url in (us.partition(",") for us in form.project_urls.data)
-        }
 
         release = Release(
             project=project,
             _classifiers=release_classifiers,
-            dependencies=list(
-                _construct_dependencies(
-                    form,
-                    {
-                        "requires": DependencyKind.requires,
-                        "provides": DependencyKind.provides,
-                        "obsoletes": DependencyKind.obsoletes,
-                        "requires_dist": DependencyKind.requires_dist,
-                        "provides_dist": DependencyKind.provides_dist,
-                        "obsoletes_dist": DependencyKind.obsoletes_dist,
-                        "requires_external": DependencyKind.requires_external,
-                    },
-                )
+            dependencies=_construct_dependencies(
+                meta,
+                {
+                    "requires": DependencyKind.requires,
+                    "provides": DependencyKind.provides,
+                    "obsoletes": DependencyKind.obsoletes,
+                    "requires_dist": DependencyKind.requires_dist,
+                    "provides_dist": DependencyKind.provides_dist,
+                    "obsoletes_dist": DependencyKind.obsoletes_dist,
+                    "requires_external": DependencyKind.requires_external,
+                },
             ),
-            # This has the effect of removing any preceding v character
-            # https://www.python.org/dev/peps/pep-0440/#preceding-v-character
-            version=str(packaging.version.parse(form.version.data)),
             canonical_version=canonical_version,
             description=Description(
-                content_type=form.description_content_type.data,
-                raw=form.description.data or "",
+                content_type=meta.description_content_type,
+                raw=meta.description or "",
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=project_urls,
+            # FIXME:
+            #  - keywords: Turn from string field into list field
+            #  - platform: Rename to platforms, turn from string field into list field
+            #  - Add supported_platforms
+            #  - Add metadata_version
+            #  - Add provides_extra
+            #  - Validate metadata_version
             **{
-                k: getattr(form, k).data
+                k: str(getattr(meta, k))
                 for k in {
-                    # This is a list of all the fields in the form that we
-                    # should pull off and insert into our new release.
-                    "summary",
-                    "license",
+                    # This is a list of all the fields in the metadata that we
+                    # should pull off and insert into our new release, that didn't
+                    # require special handling up above.
+                    # Metadata 1.0 - PEP 241
+                    "metadata_version",
                     "author",
                     "author_email",
+                    "home_page",
+                    "keywords",
+                    "license",
+                    "platforms",
+                    "summary",
+                    "version",
+                    # Metadata 1.1 - PEP 314
+                    "download_url",
+                    "supported_platforms",
+                    # Metadata 1.2 - PEP 345
                     "maintainer",
                     "maintainer_email",
-                    "keywords",
-                    "platform",
-                    "home_page",
-                    "download_url",
+                    "project_urls",
                     "requires_python",
+                    # Metadata 2.1 - PEP 566
+                    "provides_extra",
                 }
             },
             uploader=request.user if request.user else None,
@@ -1191,287 +875,115 @@ def file_upload(request):
     ):
         r._pypi_ordering = i
 
-    # Pull the filename out of our POST data.
-    filename = request.POST["content"].filename
+    # Check to see if uploading this file would create a duplicate sdist
+    # for the current release.
+    #
+    # TODO: Once we no longer support uploading .zip files for sdists then we
+    #       can get rid of this check and the standard duplicate file check will
+    #       cover it.
+    if (
+        form.filetype.data == "sdist"
+        and request.db.query(
+            request.db.query(File)
+            .filter((File.release == release) & (File.packagetype == "sdist"))
+            .exists()
+        ).scalar()
+    ):
+        raise _exc_with_message(
+            HTTPBadRequest, "Only one sdist may be uploaded per release."
+        )
 
-    # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
-    _validate_filename(filename, filetype=form.filetype.data)
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(Filename(filename=uploaded_file.filename))
 
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, we know that the version should not contain any
-        # hyphens, so we can split on the last hyphen to get the project name.
-        else filename.rpartition("-")[0]
+    # Store the information about the file in the database.
+    file_ = File(
+        release=release,
+        filename=uploaded_file.filename,
+        python_version=form.pyversion.data,
+        packagetype=form.filetype.data,
+        comment_text=form.comment.data,
+        size=uploaded_file.size,
+        md5_digest=uploaded_file.digests["md5"],
+        sha256_digest=uploaded_file.digests["sha256"],
+        blake2_256_digest=uploaded_file.digests["blake2_256"],
+        # Figure out what our filepath is going to be, we're going to use a
+        # directory structure based on the hash of the file contents. This
+        # will ensure that the contents of the file cannot change without
+        # it also changing the path that the file is saved too.
+        path="/".join(
+            [
+                uploaded_file.digests[PATH_HASHER][:2],
+                uploaded_file.digests[PATH_HASHER][2:4],
+                uploaded_file.digests[PATH_HASHER][4:],
+                uploaded_file.filename,
+            ]
+        ),
+        uploaded_via=request.user_agent,
     )
 
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
+    # TODO: Once we are in a world where we *only* support artifacts that we can
+    #       extract the metadata from, then we can make this no longer conditional.
+    if metadata_file is not None:
+        file_.metadata_file_sha256_digest = metadata_file.digests["sha256"]
+        file_.metadata_file_blake2_256_digest = metadata_file.digests["blake2_256"]
 
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {project.name!r} with {prefix!r}.",
-        )
+    request.db.add(file_)
 
-    # Check the content type of what is being uploaded
-    if not request.POST["content"].type or request.POST["content"].type.startswith(
-        "image/"
-    ):
-        raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
+    file_.record_event(
+        tag=EventTag.File.FileAdd,
+        request=request,
+        additional={
+            "filename": file_.filename,
+            "submitted_by": request.user.username
+            if request.user
+            else "OpenID created token",
+            "canonical_version": release.canonical_version,
+            "publisher_url": request.oidc_publisher.publisher_url(request.oidc_claims)
+            if request.oidc_publisher
+            else None,
+            "project_id": str(project.id),
+        },
+    )
 
-    # The project may or may not have a file size specified on the project, if
-    # it does then it may or may not be smaller or larger than our global file
-    # size limits.
-    file_size_limit = max(filter(None, [MAX_FILESIZE, project.upload_limit]))
-    project_size_limit = max(filter(None, [MAX_PROJECT_SIZE, project.total_size_limit]))
-
-    file_data = None
-    with tempfile.TemporaryDirectory() as tmpdir:
-        temporary_filename = os.path.join(tmpdir, filename)
-
-        # Buffer the entire file onto disk, checking the hash of the file as we
-        # go along.
-        with open(temporary_filename, "wb") as fp:
-            file_size = 0
-            file_hashes = {
-                "md5": hashlib.md5(usedforsecurity=False),
-                "sha256": hashlib.sha256(),
-                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
-            }
-            metadata_file_hashes = {}
-            for chunk in iter(lambda: request.POST["content"].file.read(8096), b""):
-                file_size += len(chunk)
-                if file_size > file_size_limit:
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        "File too large. "
-                        + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // ONE_MB
-                        )
-                        + "See "
-                        + request.help_url(_anchor="file-size-limit")
-                        + " for more information.",
-                    )
-                if file_size + project.total_size > project_size_limit:
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        "Project size too large. Limit for "
-                        + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB
-                        )
-                        + "See "
-                        + request.help_url(_anchor="project-size-limit"),
-                    )
-                fp.write(chunk)
-                for hasher in file_hashes.values():
-                    hasher.update(chunk)
-
-        # Take our hash functions and compute the final hashes for them now.
-        file_hashes = {k: h.hexdigest().lower() for k, h in file_hashes.items()}
-
-        # Actually verify the digests that we've gotten. We're going to use
-        # hmac.compare_digest even though we probably don't actually need to
-        # because it's better safe than sorry. In the case of multiple digests
-        # we expect them all to be given.
-        if not all(
-            [
-                hmac.compare_digest(
-                    getattr(form, f"{digest_name}_digest").data.lower(),
-                    digest_value,
-                )
-                for digest_name, digest_value in file_hashes.items()
-                if getattr(form, f"{digest_name}_digest").data
-            ]
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "The digest supplied does not match a digest calculated "
-                "from the uploaded file.",
-            )
-
-        # Check to see if the file that was uploaded exists already or not.
-        is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
-        if is_duplicate:
-            request.tm.doom()
-            return Response()
-        elif is_duplicate is not None:
-            raise _exc_with_message(
-                HTTPBadRequest,
-                # Note: Changing this error message to something that doesn't
-                # start with "File already exists" will break the
-                # --skip-existing functionality in twine
-                # ref: https://github.com/pypi/warehouse/issues/3482
-                # ref: https://github.com/pypa/twine/issues/332
-                "File already exists. See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
-        # Check to see if the file that was uploaded exists in our filename log
-        if request.db.query(
-            request.db.query(Filename).filter(Filename.filename == filename).exists()
-        ).scalar():
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "This filename has already been used, use a "
-                "different version. "
-                "See "
-                + request.help_url(_anchor="file-name-reuse")
-                + " for more information.",
-            )
-
-        # Check to see if uploading this file would create a duplicate sdist
-        # for the current release.
-        if (
-            form.filetype.data == "sdist"
-            and request.db.query(
-                request.db.query(File)
-                .filter((File.release == release) & (File.packagetype == "sdist"))
-                .exists()
-            ).scalar()
-        ):
-            raise _exc_with_message(
-                HTTPBadRequest, "Only one sdist may be uploaded per release."
-            )
-
-        # Check the file to make sure it is a valid distribution file.
-        if not _is_valid_dist_file(temporary_filename, form.filetype.data):
-            raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
-
-        # Check that if it's a binary wheel, it's on a supported platform
-        if filename.endswith(".whl"):
-            try:
-                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
-            except packaging.utils.InvalidWheelFilename as e:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    str(e),
-                )
-
-            for tag in tags:
-                if not _valid_platform_tag(tag.platform):
-                    raise _exc_with_message(
-                        HTTPBadRequest,
-                        f"Binary wheel '{filename}' has an unsupported "
-                        f"platform tag '{tag.platform}'.",
-                    )
-
-            """
-            Extract METADATA file from a wheel and return it as a content.
-            The name of the .whl file is used to find the corresponding .dist-info dir.
-            See https://peps.python.org/pep-0491/#file-contents
-            """
-            filename = os.path.basename(temporary_filename)
-            # Get the name and version from the original filename. Eventually this
-            # should use packaging.utils.parse_wheel_filename(filename), but until then
-            # we can't use this as it adds additional normailzation to the project name
-            # and version.
-            name, version, _ = filename.split("-", 2)
-            metadata_filename = f"{name}-{version}.dist-info/METADATA"
-            try:
-                with zipfile.ZipFile(temporary_filename) as zfp:
-                    wheel_metadata_contents = zfp.read(metadata_filename)
-            except KeyError:
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    "Wheel '{filename}' does not contain the required "
-                    "METADATA file: {metadata_filename}".format(
-                        filename=filename, metadata_filename=metadata_filename
-                    ),
-                )
-            with open(temporary_filename + ".metadata", "wb") as fp:
-                fp.write(wheel_metadata_contents)
-            metadata_file_hashes = {
-                "sha256": hashlib.sha256(),
-                "blake2_256": hashlib.blake2b(digest_size=256 // 8),
-            }
-            for hasher in metadata_file_hashes.values():
-                hasher.update(wheel_metadata_contents)
-            metadata_file_hashes = {
-                k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
-            }
-
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(Filename(filename=filename))
-
-        # Store the information about the file in the database.
-        file_ = File(
-            release=release,
-            filename=filename,
-            python_version=form.pyversion.data,
-            packagetype=form.filetype.data,
-            comment_text=form.comment.data,
-            size=file_size,
-            md5_digest=file_hashes["md5"],
-            sha256_digest=file_hashes["sha256"],
-            blake2_256_digest=file_hashes["blake2_256"],
-            metadata_file_sha256_digest=metadata_file_hashes.get("sha256"),
-            metadata_file_blake2_256_digest=metadata_file_hashes.get("blake2_256"),
-            # Figure out what our filepath is going to be, we're going to use a
-            # directory structure based on the hash of the file contents. This
-            # will ensure that the contents of the file cannot change without
-            # it also changing the path that the file is saved too.
-            path="/".join(
-                [
-                    file_hashes[PATH_HASHER][:2],
-                    file_hashes[PATH_HASHER][2:4],
-                    file_hashes[PATH_HASHER][4:],
-                    filename,
-                ]
+    # TODO: This should be handled by some sort of database trigger or a
+    #       SQLAlchemy hook or the like instead of doing it inline in this
+    #       view.
+    request.db.add(
+        JournalEntry(
+            name=release.project.name,
+            version=release.version,
+            action="add {python_version} file {filename}".format(
+                python_version=file_.python_version, filename=file_.filename
             ),
-            uploaded_via=request.user_agent,
+            submitted_by=request.user if request.user else None,
         )
-        file_data = file_
-        request.db.add(file_)
+    )
 
-        file_.record_event(
-            tag=EventTag.File.FileAdd,
-            request=request,
-            additional={
-                "filename": file_.filename,
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
-                "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
-                "project_id": str(project.id),
-            },
-        )
+    # TODO: We need a better answer about how to make this transactional so
+    #       this won't take affect until after a commit has happened, for
+    #       now we'll just ignore it and save it before the transaction is
+    #       committed.
+    storage = request.find_service(IFileStorage, name="archive")
+    storage.store(
+        file_.path,
+        uploaded_file.path,
+        meta={
+            "project": file_.release.project.normalized_name,
+            "version": file_.release.version,
+            "package-type": file_.packagetype,
+            "python-version": file_.python_version,
+        },
+    )
 
-        # TODO: This should be handled by some sort of database trigger or a
-        #       SQLAlchemy hook or the like instead of doing it inline in this
-        #       view.
-        request.db.add(
-            JournalEntry(
-                name=release.project.name,
-                version=release.version,
-                action="add {python_version} file {filename}".format(
-                    python_version=file_.python_version, filename=file_.filename
-                ),
-                submitted_by=request.user if request.user else None,
-            )
-        )
-
-        # TODO: We need a better answer about how to make this transactional so
-        #       this won't take affect until after a commit has happened, for
-        #       now we'll just ignore it and save it before the transaction is
-        #       committed.
-        storage = request.find_service(IFileStorage, name="archive")
+    # TODO: Once we are in a world where we *only* support artifacts that we can
+    #       extract the metadata from, then we can make this no longer conditional.
+    if metadata_file is not None:
         storage.store(
-            file_.path,
-            os.path.join(tmpdir, filename),
+            file_.metadata_path,
+            metadata_file.path,
             meta={
                 "project": file_.release.project.normalized_name,
                 "version": file_.release.version,
@@ -1479,18 +991,6 @@ def file_upload(request):
                 "python-version": file_.python_version,
             },
         )
-
-        if metadata_file_hashes:
-            storage.store(
-                file_.metadata_path,
-                os.path.join(tmpdir, filename + ".metadata"),
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
 
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
@@ -1501,46 +1001,49 @@ def file_upload(request):
 
     # Push updates to BigQuery
     dist_metadata = {
-        "metadata_version": form["metadata_version"].data,
-        "name": form["name"].data,
-        "version": form["version"].data,
-        "summary": form["summary"].data,
-        "description": form["description"].data,
-        "author": form["author"].data,
-        "description_content_type": form["description_content_type"].data,
-        "author_email": form["author_email"].data,
-        "maintainer": form["maintainer"].data,
-        "maintainer_email": form["maintainer_email"].data,
-        "license": form["license"].data,
-        "keywords": form["keywords"].data,
-        "classifiers": form["classifiers"].data,
-        "platform": form["platform"].data,
-        "home_page": form["home_page"].data,
-        "download_url": form["download_url"].data,
-        "requires_python": form["requires_python"].data,
-        "pyversion": form["pyversion"].data,
-        "filetype": form["filetype"].data,
-        "comment": form["comment"].data,
-        "requires": form["requires"].data,
-        "provides": form["provides"].data,
-        "obsoletes": form["obsoletes"].data,
-        "requires_dist": form["requires_dist"].data,
-        "provides_dist": form["provides_dist"].data,
-        "obsoletes_dist": form["obsoletes_dist"].data,
-        "requires_external": form["requires_external"].data,
-        "project_urls": form["project_urls"].data,
-        "filename": file_data.filename,
-        "python_version": file_data.python_version,
-        "packagetype": file_data.packagetype,
-        "comment_text": file_data.comment_text,
-        "size": file_data.size,
+        # Metadata
+        "metadata_version": meta.metadata_version,
+        "name": meta.name,
+        "version": str(meta.version),
+        "summary": meta.summary,
+        "description": meta.description,
+        "author": meta.author,
+        "description_content_type": meta.description_content_type,
+        "author_email": meta.author_email,
+        "maintainer": meta.maintainer,
+        "maintainer_email": meta.maintainer_email,
+        "license": meta.license,
+        "keywords": meta.keywords,
+        "classifiers": meta.classifiers,
+        "platform": meta.platforms[0],  # FIXME: This is a multi-use field
+        "home_page": meta.home_page,
+        "download_url": meta.download_url,
+        "requires_python": meta.requires_python,
+        "requires": meta.requires,
+        "provides": meta.provides,
+        "obsoletes": meta.obsoletes,
+        "requires_dist": [str(r) for r in meta.requires_dist],
+        "provides_dist": meta.provides_dist,
+        "obsoletes_dist": meta.obsoletes_dist,
+        "requires_external": meta.requires_external,
+        "project_urls": meta.project_urls,  # FIXME: Make sure this can handle mapping
+        # File Data
+        # FIXME: Figure out which fields the BigQuery table even has
+        # "pyversion": form["pyversion"].data,
+        # "filetype": form["filetype"].data,
+        # "comment": form["comment"].data,
+        "filename": file_.filename,
+        "python_version": file_.python_version,
+        "packagetype": file_.packagetype,
+        "comment_text": file_.comment_text,
+        "size": file_.size,
         "has_signature": False,
-        "md5_digest": file_data.md5_digest,
-        "sha256_digest": file_data.sha256_digest,
-        "blake2_256_digest": file_data.blake2_256_digest,
-        "path": file_data.path,
-        "uploaded_via": file_data.uploaded_via,
-        "upload_time": file_data.upload_time,
+        "md5_digest": file_.md5_digest,
+        "sha256_digest": file_.sha256_digest,
+        "blake2_256_digest": file_.blake2_256_digest,
+        "path": file_.path,
+        "uploaded_via": file_.uploaded_via,
+        "upload_time": file_.upload_time,
     }
     if not request.registry.settings.get("warehouse.release_files_table") is None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
