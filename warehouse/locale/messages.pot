@@ -4357,49 +4357,49 @@ msgid ""
 "identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:196
+#: warehouse/templates/manage/account/publishing.html:197
 msgid "Manage publishers"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:206
+#: warehouse/templates/manage/account/publishing.html:207
 msgid "Project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:228
+#: warehouse/templates/manage/account/publishing.html:229
 msgid ""
 "No publishers are currently configured. Publishers for existing projects "
 "can be added in the publishing configuration for each individual project."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:240
-msgid "Pending project name"
-msgstr ""
-
 #: warehouse/templates/manage/account/publishing.html:241
-#: warehouse/templates/manage/project/publishing.html:180
-msgid "Publisher"
+msgid "Pending project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:242
 #: warehouse/templates/manage/project/publishing.html:181
+msgid "Publisher"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:243
+#: warehouse/templates/manage/project/publishing.html:182
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:254
+#: warehouse/templates/manage/account/publishing.html:255
 msgid ""
 "No pending publishers are currently configured. Publishers for projects "
 "that don't exist yet can be added below."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:260
+#: warehouse/templates/manage/account/publishing.html:263
 msgid "Add a new pending publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:263
+#: warehouse/templates/manage/account/publishing.html:266
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:269
+#: warehouse/templates/manage/account/publishing.html:272
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered "
@@ -4410,8 +4410,8 @@ msgid ""
 "trusted publishers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:307
-#: warehouse/templates/manage/project/publishing.html:225
+#: warehouse/templates/manage/account/publishing.html:310
+#: warehouse/templates/manage/project/publishing.html:228
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
@@ -5640,20 +5640,20 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:172
+#: warehouse/templates/manage/project/publishing.html:173
 msgid "Manage current publishers"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:176
+#: warehouse/templates/manage/project/publishing.html:177
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:192
+#: warehouse/templates/manage/project/publishing.html:193
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:195
+#: warehouse/templates/manage/project/publishing.html:198
 msgid "Add a new publisher"
 msgstr ""
 
