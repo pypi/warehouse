@@ -269,6 +269,7 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
         Returns a `GitHubPublisher` for this `PendingGitHubPublisher`,
         deleting the `PendingGitHubPublisher` in the process.
         """
+
         maybe_publisher = (
             session.query(GitHubPublisher)
             .filter(

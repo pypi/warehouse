@@ -500,6 +500,8 @@ def test_mint_token_no_pending_publisher_ok(
     publisher = GitHubPublisherFactory()
     monkeypatch.setattr(publisher.__class__, "projects", [project])
     publisher.publisher_url = pretend.call_recorder(lambda **kw: "https://fake/url")
+    # NOTE: Can't set __str__ using pretend.stub()
+    monkeypatch.setattr(publisher.__class__, "__str__", lambda s: "fakespecifier")
 
     def _find_publisher(claims, pending=False):
         if pending:
@@ -544,7 +546,7 @@ def test_mint_token_no_pending_publisher_ok(
     assert macaroon_service.create_macaroon.calls == [
         pretend.call(
             "fakedomain",
-            f"OpenID token: example.yml ({datetime.fromtimestamp(0).isoformat()})",
+            f"OpenID token: fakespecifier ({datetime.fromtimestamp(0).isoformat()})",
             [
                 caveats.OIDCPublisher(
                     oidc_publisher_id=str(publisher.id),
