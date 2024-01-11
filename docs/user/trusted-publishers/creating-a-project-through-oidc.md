@@ -18,7 +18,7 @@ The steps for configuring a "pending" publisher are similar to those for
 a normal publisher, except that the page is under your account sidebar
 instead of any project's sidebar (since the project doesn't exist yet):
 
-![](/assets/publishing-link.png)
+![](/assets/trusted-publishing/publishing-link.png)
 
 Clicking on "publishing" will bring you to a page with different potential
 trusted publishers. The forms on this page behave
@@ -32,7 +32,7 @@ provide the name of the PyPI project that will be created.
     `release.yml` and an environment named `release` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
-    ![](/assets/pending-publisher-form-filled.png)
+    ![](/assets/trusted-publishing/github/pending-publisher-form-filled.png)
 
     !!! note
 
@@ -54,7 +54,7 @@ provide the name of the PyPI project that will be created.
 
 Clicking "Add" will register the "pending" publisher, and show it to you:
 
-![](/assets/pending-publisher-registered.png)
+![](/assets/trusted-publishing/pending-publisher-registered.png)
 
 From this point on, the "pending" publisher can be used exactly like a
 "normal" publisher, and after first use it will convert it into a "normal"

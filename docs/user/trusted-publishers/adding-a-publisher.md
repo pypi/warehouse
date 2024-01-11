@@ -9,11 +9,11 @@ Adding a trusted publisher to a PyPI project only requires a single setup step.
 On the ["Your projects" page](https://pypi.org/manage/projects/), click "Manage" on any project you'd like to
 configure:
 
-![](/assets/manage-link.png)
+![](/assets/trusted-publishing/manage-link.png)
 
 Then, click on "Publishing" in the project's sidebar:
 
-![](/assets/project-publishing-link.png)
+![](/assets/trusted-publishing/project-publishing-link.png)
 
 That link will take you to the publisher configuration page for the project,
 which will allow you to configure trusted publishers for the different
@@ -34,7 +34,7 @@ each.
     that uses a publishing workflow defined in `.github/workflows/release.yml`
     and a custom environment named `release`, then you'd do the following:
 
-    ![](/assets/project-publishing-form.png)
+    ![](/assets/trusted-publishing/github/project-publishing-form.png)
 
     !!! note
 
@@ -58,7 +58,7 @@ each.
 Once you click "Add", your publisher will be registered and will appear
 at the top of the page:
 
-![](/assets/project-publisher-registered.png)
+![](/assets/trusted-publishing/project-publisher-registered.png)
 
 From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
 be able to generate short-lived API tokens from PyPI for the project you've registered
