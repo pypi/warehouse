@@ -13,7 +13,7 @@
 Add ActiveState OIDC publisher
 
 Revision ID: 9a0ed2044b53
-Revises: 4297620f7b41
+Revises: e6a1cca38664
 Create Date: 2023-11-30 00:05:52.057223
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "9a0ed2044b53"
-down_revision = "4297620f7b41"
+down_revision = "e6a1cca38664"
 
 
 def upgrade():
