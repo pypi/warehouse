@@ -189,125 +189,129 @@
 {% endmacro %}
 
 {% block main %}
-  <h1 class="page-title">{{ oidc_title() }}</h1>
+  <section>
+    <h1 class="page-title">{{ oidc_title() }}</h1>
 
-  {{ oidc_desc() }}
+    {{ oidc_desc() }}
 
-  <h2 class="no-bottom-padding">{% trans %}Manage publishers{% endtrans %}</h2>
+    <h2 class="no-bottom-padding">{% trans %}Manage publishers{% endtrans %}</h2>
 
-  <h3>Projects with active publishers</h3>
+    <h3>Projects with active publishers</h3>
 
-  {% set projects = user.projects | selectattr('oidc_publishers') | list %}
+    {% set projects = user.projects | selectattr('oidc_publishers') | list %}
 
-  {% if projects %}
-  <table class="table">
-    <thead>
-      <tr scope="col">
-        <th scope="col">{% trans %}Project{% endtrans %}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for project in user.projects %}
-      {% if project.oidc_publishers %}
-      <tr>
-        <td scope="row">{{ project.name }}</td>
-        <td scope="row">
-          <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
-            class="button button--primary">
-            Manage
-          </a>
-        </td>
-      </tr>
-      {% endif %}
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="no-bottom-padding">
-    {% trans %}
-    No publishers are currently configured. Publishers for existing projects can be added in the publishing configuration for each individual project.
-    {% endtrans %}
-  </p>
-  {% endif %}
+    {% if projects %}
+    <table class="table">
+      <thead>
+        <tr scope="col">
+          <th scope="col">{% trans %}Project{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in user.projects %}
+        {% if project.oidc_publishers %}
+        <tr>
+          <td scope="row">{{ project.name }}</td>
+          <td scope="row">
+            <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
+              class="button button--primary">
+              Manage
+            </a>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">
+      {% trans %}
+      No publishers are currently configured. Publishers for existing projects can be added in the publishing configuration for each individual project.
+      {% endtrans %}
+    </p>
+    {% endif %}
 
-  <h3>Pending publishers</h3>
+    <h3>Pending publishers</h3>
 
-  {% if user.pending_oidc_publishers %}
-  <table class="table table--publisher-list">
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
-        <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-        <th scope="col">{% trans %}Details{% endtrans %}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for publisher in user.pending_oidc_publishers %}
-      {{ oidc_publisher_row(publisher) }}
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="no-bottom-padding">
-    {% trans %}
-    No pending publishers are currently configured. Publishers for projects that don't exist yet can be added below.
-    {% endtrans %}
-  </p>
-  {% endif %}
+    {% if user.pending_oidc_publishers %}
+    <table class="table table--publisher-list">
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+          <th scope="col">{% trans %}Details{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for publisher in user.pending_oidc_publishers %}
+        {{ oidc_publisher_row(publisher) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">
+      {% trans %}
+      No pending publishers are currently configured. Publishers for projects that don't exist yet can be added below.
+      {% endtrans %}
+    </p>
+    {% endif %}
+  </section>
 
-  <h2>{% trans %}Add a new pending publisher{% endtrans %}</h2>
+  <section>
+    <h2>{% trans %}Add a new pending publisher{% endtrans %}</h2>
 
-  <p>
-    {% trans %}
-    You can use this page to register "pending" trusted publishers.
-    {% endtrans %}
-  </p>
+    <p>
+      {% trans %}
+      You can use this page to register "pending" trusted publishers.
+      {% endtrans %}
+    </p>
 
-  <p class="no-bottom-padding">
-    {% trans href="https://docs.pypi.org/trusted-publishers/" %}
-    These publishers behave similarly to trusted publishers registered
-    against specific projects, except that they allow users to <strong>create</strong>
-    the project if it doesn't already exist. Once the project is created,
-    the "pending" publisher becomes an ordinary trusted publisher.
-    You can read more about "pending" and ordinary trusted publishers
-    <a href="{{ href }}">here</a>.
-    {% endtrans %}
-  </p>
+    <p class="no-bottom-padding">
+      {% trans href="https://docs.pypi.org/trusted-publishers/" %}
+      These publishers behave similarly to trusted publishers registered
+      against specific projects, except that they allow users to <strong>create</strong>
+      the project if it doesn't already exist. Once the project is created,
+      the "pending" publisher becomes an ordinary trusted publisher.
+      You can read more about "pending" and ordinary trusted publishers
+      <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
 
-  {% if request.user.has_two_factor %}
-  {% set publishers = [
-       ("GitHub", github_form(request, pending_github_publisher_form)),
-       ("Google", google_form(request, pending_google_publisher_form)),
-     ]
-  %}
+    {% if request.user.has_two_factor %}
+    {% set publishers = [
+         ("GitHub", github_form(request, pending_github_publisher_form)),
+         ("Google", google_form(request, pending_google_publisher_form)),
+       ]
+    %}
 
-  <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
-    <div class="horizontal-tabs__tabbar">
-      {% for publisher_name, _ in publishers %}
+    <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+      <div class="horizontal-tabs__tabbar">
+        {% for publisher_name, _ in publishers %}
+        {% if not disabled[publisher_name] %}
+        <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+          {{ publisher_name }}
+        </button>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% for publisher_name, publisher_form in publishers %}
       {% if not disabled[publisher_name] %}
-      <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
-        {{ publisher_name }}
-      </button>
+      <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
+        {{ publisher_form }}
+      </div>
       {% endif %}
       {% endfor %}
     </div>
-    {% for publisher_name, publisher_form in publishers %}
-    {% if not disabled[publisher_name] %}
-    <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
-      {{ publisher_form }}
+
+    {% else %}{# user has not enabled 2FA #}
+    <div class="callout-block callout-block--warning">
+      {% trans href=request.route_path('manage.account.two-factor') %}
+      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+      {% endtrans %}
     </div>
     {% endif %}
-    {% endfor %}
-  </div>
-
-  {% else %}{# user has not enabled 2FA #}
-  <div class="callout-block callout-block--warning">
-    {% trans href=request.route_path('manage.account.two-factor') %}
-    You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
-    {% endtrans %}
-  </div>
-  {% endif %}
+  </section>
 
 {% endblock %}
