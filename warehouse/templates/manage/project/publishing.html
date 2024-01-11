@@ -165,68 +165,72 @@
 
 <div class="horizontal-section">
   <div class="site-container">
-    <h1 class="page-title">{{ oidc_title() }}</h1>
+    <section>
+      <h1 class="page-title">{{ oidc_title() }}</h1>
 
-    {{ oidc_desc() }}
+      {{ oidc_desc() }}
 
-    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
-    {% if project.oidc_publishers %}
-    <table class="table table--publisher-list">
-      <caption class="sr-only">
-        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-          <th scope="col">{% trans %}Details{% endtrans %}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for publisher in project.oidc_publishers %}
-        {{ oidc_publisher_row(publisher) }}
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
-    {% endif %}
+      <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
+      {% if project.oidc_publishers %}
+      <table class="table table--publisher-list">
+        <caption class="sr-only">
+          {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+            <th scope="col">{% trans %}Details{% endtrans %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for publisher in project.oidc_publishers %}
+          {{ oidc_publisher_row(publisher) }}
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+      {% endif %}
+    </section>
 
-    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
+    <section>
+      <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
 
-    {% if request.user.has_two_factor %}
+      {% if request.user.has_two_factor %}
 
-    {% set publishers = [
-         ("GitHub", github_form(request, github_publisher_form)),
-         ("Google", google_form(request, google_publisher_form)),
-       ]
-    %}
+      {% set publishers = [
+           ("GitHub", github_form(request, github_publisher_form)),
+           ("Google", google_form(request, google_publisher_form)),
+         ]
+      %}
 
-    <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
-      <div class="horizontal-tabs__tabbar">
-        {% for publisher_name, _ in publishers %}
+      <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+        <div class="horizontal-tabs__tabbar">
+          {% for publisher_name, _ in publishers %}
+          {% if not disabled[publisher_name] %}
+          <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+            {{ publisher_name }}
+          </button>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% for publisher_name, publisher_form in publishers %}
         {% if not disabled[publisher_name] %}
-        <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
-          {{ publisher_name }}
-        </button>
+        <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
+          {{ publisher_form }}
+        </div>
         {% endif %}
         {% endfor %}
       </div>
-      {% for publisher_name, publisher_form in publishers %}
-      {% if not disabled[publisher_name] %}
-      <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
-        {{ publisher_form }}
+      {% else %}{# user has not enabled 2FA #}
+      <div class="callout-block callout-block--warning">
+        {% trans href=request.route_path('manage.account.two-factor') %}
+        You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+        {% endtrans %}
       </div>
       {% endif %}
-      {% endfor %}
-    </div>
-    {% else %}{# user has not enabled 2FA #}
-    <div class="callout-block callout-block--warning">
-      {% trans href=request.route_path('manage.account.two-factor') %}
-      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
-      {% endtrans %}
-    </div>
-    {% endif %}
+    </section>
   </div>
 </div>
 
