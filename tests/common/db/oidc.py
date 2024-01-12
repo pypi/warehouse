@@ -13,8 +13,10 @@
 import factory
 
 from warehouse.oidc.models import (
+    ActiveStatePublisher,
     GitHubPublisher,
     GooglePublisher,
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGooglePublisher,
 )
@@ -67,3 +69,29 @@ class PendingGooglePublisherFactory(WarehouseFactory):
     email = factory.Faker("safe_email")
     sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
+
+
+class ActiveStatePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = ActiveStatePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.Faker("pystr", max_chars=12)
+    activestate_project_name = factory.Faker("pystr", max_chars=12)
+    actor = factory.Faker("pystr", max_chars=12)
+    actor_id = factory.Faker("uuid4")
+    ingredient = factory.Faker("pystr", max_chars=12)
+
+
+class PendingActiveStatePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingActiveStatePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = factory.Faker("pystr", max_chars=12)
+    organization = factory.Faker("pystr", max_chars=12)
+    activestate_project_name = factory.Faker("pystr", max_chars=12)
+    actor = factory.Faker("pystr", max_chars=12)
+    actor_id = factory.Faker("uuid4")
+    added_by = factory.SubFactory(UserFactory)
+    ingredient = factory.Faker("pystr", max_chars=12)
