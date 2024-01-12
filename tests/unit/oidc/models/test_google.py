@@ -159,7 +159,7 @@ class TestGooglePublisher:
             ("fakesubject", "fakesubject", True),
             ("fakesubject", "wrongsubject", False),
             # Publisher configured without subject: any subject is acceptable.
-            (None, "anysubject", True),
+            ("", "anysubject", True),
             # Publisher configured with subject, none provided: must fail.
             ("fakesubject", None, False),
         ],
