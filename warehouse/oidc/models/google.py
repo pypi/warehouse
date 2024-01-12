@@ -31,7 +31,7 @@ def _check_sub(
 ) -> bool:
     # If we haven't set a subject for the publisher, we don't need to check
     # this claim.
-    if ground_truth is None:
+    if ground_truth is "":
         return True
 
     # Defensive: Google should never send us an empty or null subject, but
