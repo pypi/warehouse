@@ -89,7 +89,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
     GooglePublisherFactory(
         id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
         email="fake@example.com",
-        sub=None,  # No subject
+        sub="",  # No subject
     )
     GooglePublisherFactory(
         id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",

@@ -70,7 +70,7 @@ class GooglePublisherMixin:
 
     @staticmethod
     def __lookup_no_sub__(klass, signed_claims: SignedClaims) -> Query | None:
-        return Query(klass).filter_by(email=signed_claims["email"], sub=None)
+        return Query(klass).filter_by(email=signed_claims["email"], sub="")
 
     __lookup_strategies__ = [
         __lookup_all__,
