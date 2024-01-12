@@ -23,6 +23,12 @@
 {% endblock %}
 
 {% macro github_form(request, pending_github_publisher_form) %}
+  <p>
+    {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
+    Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
+
   {{ form_error_anchor(pending_github_publisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -118,118 +124,194 @@
   </form>
 {% endmacro %}
 
+{% macro google_form(request, pending_google_publisher_form) %}
+  <p>
+    {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
+    Read more about Google's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
+
+  {{ form_error_anchor(pending_google_publisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(pending_google_publisher_form) }}
+    <div class="form-group">
+      <label for="project_name" class="form-group__label">
+        {% trans %}PyPI Project Name{% endtrans %}
+        {% if pending_google_publisher_form.project_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_google_publisher_form.project_name(placeholder=gettext("project name"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="project_name-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The project (on PyPI) that will be created when this publisher is used{% endtrans %}
+      </p>
+      <div id="project_name-errors">
+        {{ field_errors(pending_google_publisher_form.project_name) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="email" class="form-group__label">
+        {% trans %}Email{% endtrans %}
+        {% if pending_google_publisher_form.email.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_google_publisher_form.email(placeholder=gettext("email"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="email-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The email address of the account or service account used to publish.{% endtrans %}
+      </p>
+      <div id="email-errors">
+        {{ field_errors(pending_google_publisher_form.email) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="subject" class="form-group__label">
+        {% trans %}Subject{% endtrans %}
+        {% if pending_google_publisher_form.sub.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_google_publisher_form.sub(placeholder=gettext("subject"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"sub-errors"}) }}
+      <p class="form-group__help-text">
+      {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
+      </p>
+      <div id="sub-errors">
+        {{ field_errors(pending_google_publisher_form.sub) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
+    </div>
+  </form>
+{% endmacro %}
+
 {% block main %}
-  <h1 class="page-title">{{ oidc_title() }}</h1>
+  <section>
+    <h1 class="page-title">{{ oidc_title() }}</h1>
 
-  {{ oidc_desc() }}
+    {{ oidc_desc() }}
 
-  <h2 class="no-bottom-padding">{% trans %}Manage publishers{% endtrans %}</h2>
+    <h2 class="no-bottom-padding">{% trans %}Manage publishers{% endtrans %}</h2>
 
-  <h3>Projects with active publishers</h3>
+    <h3>Projects with active publishers</h3>
 
-  {% set projects = user.projects | selectattr('oidc_publishers') | list %}
+    {% set projects = user.projects | selectattr('oidc_publishers') | list %}
 
-  {% if projects %}
-  <table class="table">
-    <thead>
-      <tr scope="col">
-        <th scope="col">{% trans %}Project{% endtrans %}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for project in user.projects %}
-      {% if project.oidc_publishers %}
-      <tr>
-        <td scope="row">{{ project.name }}</td>
-        <td scope="row">
-          <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
-            class="button button--primary">
-            Manage
-          </a>
-        </td>
-      </tr>
+    {% if projects %}
+    <table class="table">
+      <thead>
+        <tr scope="col">
+          <th scope="col">{% trans %}Project{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for project in user.projects %}
+        {% if project.oidc_publishers %}
+        <tr>
+          <td scope="row">{{ project.name }}</td>
+          <td scope="row">
+            <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}"
+              class="button button--primary">
+              Manage
+            </a>
+          </td>
+        </tr>
+        {% endif %}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">
+      {% trans %}
+      No publishers are currently configured. Publishers for existing projects can be added in the publishing configuration for each individual project.
+      {% endtrans %}
+    </p>
+    {% endif %}
+
+    <h3>Pending publishers</h3>
+
+    {% if user.pending_oidc_publishers %}
+    <table class="table table--publisher-list">
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
+          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+          <th scope="col">{% trans %}Details{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for publisher in user.pending_oidc_publishers %}
+        {{ oidc_publisher_row(publisher) }}
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <p class="no-bottom-padding">
+      {% trans %}
+      No pending publishers are currently configured. Publishers for projects that don't exist yet can be added below.
+      {% endtrans %}
+    </p>
+    {% endif %}
+  </section>
+
+  <section>
+    <h2>{% trans %}Add a new pending publisher{% endtrans %}</h2>
+
+    <p>
+      {% trans %}
+      You can use this page to register "pending" trusted publishers.
+      {% endtrans %}
+    </p>
+
+    <p class="no-bottom-padding">
+      {% trans href="https://docs.pypi.org/trusted-publishers/" %}
+      These publishers behave similarly to trusted publishers registered
+      against specific projects, except that they allow users to <strong>create</strong>
+      the project if it doesn't already exist. Once the project is created,
+      the "pending" publisher becomes an ordinary trusted publisher.
+      You can read more about "pending" and ordinary trusted publishers
+      <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
+
+    {% if request.user.has_two_factor %}
+    {% set publishers = [
+         ("GitHub", github_form(request, pending_github_publisher_form)),
+         ("Google", google_form(request, pending_google_publisher_form)),
+       ]
+    %}
+
+    <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+      <div class="horizontal-tabs__tabbar">
+        {% for publisher_name, _ in publishers %}
+        {% if not disabled[publisher_name] %}
+        <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+          {{ publisher_name }}
+        </button>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% for publisher_name, publisher_form in publishers %}
+      {% if not disabled[publisher_name] %}
+      <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
+        {{ publisher_form }}
+      </div>
       {% endif %}
       {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="no-bottom-padding">
-    {% trans %}
-    No publishers are currently configured. Publishers for existing projects can be added in the publishing configuration for each individual project.
-    {% endtrans %}
-  </p>
-  {% endif %}
-
-  <h3>Pending publishers</h3>
-
-  {% if user.pending_oidc_publishers %}
-  <table class="table table--publisher-list">
-    <thead>
-      <tr>
-        <th scope="col">{% trans %}Pending project name{% endtrans %}</th>
-        <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-        <th scope="col">{% trans %}Details{% endtrans %}</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for publisher in user.pending_oidc_publishers %}
-      {{ oidc_publisher_row(publisher) }}
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p class="no-bottom-padding">
-    {% trans %}
-    No pending publishers are currently configured. Publishers for projects that don't exist yet can be added below.
-    {% endtrans %}
-  </p>
-  {% endif %}
-
-  <h2>{% trans %}Add a new pending publisher{% endtrans %}</h2>
-
-  <p>
-    {% trans %}
-    You can use this page to register "pending" trusted publishers.
-    {% endtrans %}
-  </p>
-
-  <p class="no-bottom-padding">
-    {% trans href="https://docs.pypi.org/trusted-publishers/" %}
-    These publishers behave similarly to trusted publishers registered
-    against specific projects, except that they allow users to <strong>create</strong>
-    the project if it doesn't already exist. Once the project is created,
-    the "pending" publisher becomes an ordinary trusted publisher.
-    You can read more about "pending" and ordinary trusted publishers
-    <a href="{{ href }}">here</a>.
-    {% endtrans %}
-  </p>
-
-  {% if request.user.has_two_factor %}
-  {% set publishers = [("GitHub", github_form(request, pending_github_publisher_form))] %}
-
-  <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
-    <div class="horizontal-tabs__tabbar">
-      {% for publisher_name, _ in publishers %}
-      <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
-        {{ publisher_name }}
-      </button>
-      {% endfor %}
     </div>
-    {% for _, publisher_form in publishers %}
-    <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
-      {{ publisher_form }}
-    </div>
-    {% endfor %}
-  </div>
 
-  {% else %}{# user has not enabled 2FA #}
-  <div class="callout-block callout-block--warning">
-    {% trans href=request.route_path('manage.account.two-factor') %}
-    You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
-    {% endtrans %}
-  </div>
-  {% endif %}
+    {% else %}{# user has not enabled 2FA #}
+    <div class="callout-block callout-block--warning">
+      {% trans href=request.route_path('manage.account.two-factor') %}
+      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+      {% endtrans %}
+    </div>
+    {% endif %}
+  </section>
 
 {% endblock %}

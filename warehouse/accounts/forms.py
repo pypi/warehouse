@@ -259,9 +259,7 @@ class NewEmailMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
-            wtforms.validators.Regexp(
-                r".+@.+\..+", message=_("The email address isn't valid. Try again.")
-            ),
+            wtforms.validators.Email(),
             wtforms.validators.Length(
                 max=254, message=_("The email address is too long. Try again.")
             ),

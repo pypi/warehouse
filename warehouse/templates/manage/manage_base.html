@@ -545,6 +545,14 @@
       {% else %}
         <i>({% trans %}Any{% endtrans %})</i>
       {% endif %}
+    {% elif publisher.publisher_name == "Google" %}
+      <b>Email:</b> {{ publisher.email }}<br>
+      <b>Subject:</b>
+      {% if publisher.sub %}
+        {{ publisher.sub }}
+      {% else %}
+        <i>({% trans %}Any{% endtrans %})</i>
+      {% endif %}
     {% else %}
       -
     {% endif %}
