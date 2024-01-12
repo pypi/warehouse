@@ -122,14 +122,16 @@ below describe the setup process for each supported trusted publisher.
         "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
     ```
 
-    **NOTE**: `audience=pypi` is only correct for PyPI. For TestPyPI, the correct
-    audience is `testpypi`. More generally, you can access any instance's expected
-    OIDC audience via the `{index}/_/oidc/audience` endpoint:
+    !!! note
 
-    ```console
-    $ curl https://pypi.org/_/oidc/audience
-    {"audience":"pypi"}
-    ```
+        Using `audience=pypi` is only correct for PyPI. For TestPyPI, the correct
+        audience is `testpypi`. More generally, you can access any instance's expected
+        OIDC audience via the `{index}/_/oidc/audience` endpoint:
+
+        ```console
+        $ curl https://pypi.org/_/oidc/audience
+        {"audience":"pypi"}
+        ```
 
     The response to this will be a JSON blob, which contains the OIDC token.
     We can pull it out using `jq`:
