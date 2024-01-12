@@ -33,7 +33,6 @@ from wtforms.validators import ValidationError
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
@@ -50,7 +49,6 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
-from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -2590,58 +2588,6 @@ class TestFileUpload:
             "403 The given token isn't allowed to upload to project '{}'. "
             "See /the/help/url/ for more information."
         ).format(project.name)
-
-    def test_basic_auth_upload_fails_with_2fa_enabled(
-        self, pyramid_config, db_request, metrics, monkeypatch
-    ):
-        user = UserFactory.create(totp_secret=b"secret")
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.authentication_method = AuthenticationMethod.BASIC_AUTH
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_basic_auth_with_two_factor_email", send_email)
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        with pytest.raises(BasicAuthTwoFactorEnabled) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 401
-        assert resp.status == (
-            f"401 User { user.username } has two factor auth enabled, "
-            "an API Token or Trusted Publisher must be used to upload "
-            "in place of password."
-        )
-        assert send_email.calls == [
-            pretend.call(db_request, user, project_name=project.name)
-        ]
 
     @pytest.mark.parametrize(
         "plat",

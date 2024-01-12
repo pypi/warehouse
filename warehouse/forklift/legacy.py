@@ -48,11 +48,9 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
-    send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
-from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -70,7 +68,6 @@ from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_releas
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
 from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
-from warehouse.utils.security_policy import AuthenticationMethod
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
@@ -992,25 +989,6 @@ def file_upload(request):
                 else allowed.msg
             )
         raise _exc_with_message(HTTPForbidden, msg)
-
-    # Check if the user has 2FA and used basic auth
-    # NOTE: We don't need to guard request.user here because basic auth
-    # can only be used with user identities.
-    if (
-        request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        and request.user.has_two_factor
-    ):
-        send_basic_auth_with_two_factor_email(
-            request, request.user, project_name=project.name
-        )
-        raise _exc_with_message(
-            BasicAuthTwoFactorEnabled,
-            (
-                f"User { request.user.username } has two factor auth enabled, "
-                "an API Token or Trusted Publisher must be used to upload "
-                "in place of password."
-            ),
-        )
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we

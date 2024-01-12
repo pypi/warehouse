@@ -1801,51 +1801,6 @@ msgid ""
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:17
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr ""
-
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:19
-#, python-format
-msgid ""
-"During your recent upload or upload attempt of %(project_name)s to "
-"%(site)s, we noticed you attempted to use basic authentication (username "
-"&amp; password). However, your account has two-factor authentication "
-"(2FA) enabled."
-msgstr ""
-
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:22
-#, python-format
-msgid ""
-"%(site)s now prohibits uploads using basic authentication for accounts "
-"with two-factor authentication enabled. Instead, we require API tokens or"
-" Trusted Publishers to be used instead."
-msgstr ""
-
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:25
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr ""
-
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:27
-#, python-format
-msgid ""
-"If using API tokens, generate an API token for your account or project at"
-" %(new_token_url)s. Then, use this token when publishing instead of your "
-"username and password. See %(token_help_url)s for help using API tokens "
-"to publish."
-msgstr ""
-
-#: warehouse/templates/email/basic-auth-with-2fa/body.html:30
-#, python-format
-msgid "If using Trusted Publishers (preferred), see %(tp_url)s to get started."
-msgstr ""
-
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
 msgid ""
@@ -1866,12 +1821,24 @@ msgid ""
 "organization"
 msgstr ""
 
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr ""
+
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:19
 #, python-format
 msgid ""
 "During your recent upload of %(project_name)s to %(site)s, we noticed you"
 " uploaded a GPG signature. However, support for GPG signatures has been "
 "removed from %(site)s."
+msgstr ""
+
+#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
 msgstr ""
 
 #: warehouse/templates/email/gpg-signature-uploaded/body.html:24
