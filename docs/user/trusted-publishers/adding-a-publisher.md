@@ -68,7 +68,7 @@ each.
           *  Compute Engine: `PROJECT_ID-compute@developer.gserviceaccount.com`
           *  App Engine: `PROJECT_NAME@appspot.gserviceaccount.com`
 
-        However it is NOT recommended that these be used for publishing, as
+        However it is **not** recommended that these be used for publishing, as
         they are provided by default to every service when they are created.
 
     !!! note

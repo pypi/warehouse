@@ -237,14 +237,15 @@ below describe the setup process for each supported trusted publisher.
     $ oidc_token=$(python -m id pypi)
     ```
 
-    **NOTE**: `pypi` is only correct for PyPI. For TestPyPI, the correct
-    audience is `testpypi`. More generally, you can access any instance's expected
-    OIDC audience via the `{index}/_/oidc/audience` endpoint:
+    !!! note
+        `pypi` is only correct for PyPI. For TestPyPI, the correct
+        audience is `testpypi`. More generally, you can access any instance's expected
+        OIDC audience via the `{index}/_/oidc/audience` endpoint:
 
-    ```console
-    $ curl https://pypi.org/_/oidc/audience
-    {"audience":"pypi"}
-    ```
+        ```console
+        $ curl https://pypi.org/_/oidc/audience
+        {"audience":"pypi"}
+        ```
 
     Finally, we can submit that token to PyPI and get a short-lived API token
     back:
@@ -254,8 +255,10 @@ below describe the setup process for each supported trusted publisher.
     api_token=$(jq '.token' <<< "${resp}")
     ```
 
-    **NOTE**: This is the URL for PyPI. For TestPyPI, the correct
-    domain should be is `test.pypi.org`.
+    !!! note
+    
+        This is the URL for PyPI. For TestPyPI, the correct
+        domain should be is `test.pypi.org`.
 
     This API token can be fed into `twine` or any other uploading client:
 
