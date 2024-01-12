@@ -140,7 +140,7 @@ own security model and considerations.
     from Google's identity provider on behalf of that identity. That token can be
     exchanged for a PyPI API token with the ability to publish to the PyPI project.
     The identity used for publishing can be optionally constrained further by
-    by specifying the subject, an ID that represents the principal making the request.
+    specifying the subject, an ID that represents the principal making the request.
 
     ### Considerations
 
