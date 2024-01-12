@@ -42,6 +42,16 @@ def includeme(config):
         name="google",
     )
 
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="activestate",
+            issuer_url=GOOGLE_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="activestate",
+    )
+
     # During deployments, we separate auth routes into their own subdomain
     # to simplify caching exclusion.
     auth = config.get_settings().get("auth.domain")

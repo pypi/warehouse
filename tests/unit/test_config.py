@@ -21,11 +21,9 @@ import pytest
 
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -76,24 +74,6 @@ class TestRequireHTTPSTween:
 def test_activate_hook(path, expected):
     request = pretend.stub(path=path)
     assert config.activate_hook(request) == expected
-
-
-@pytest.mark.parametrize(
-    ("exc_info", "expected"),
-    [
-        (None, False),
-        ((ValueError, ValueError(), None), True),
-        ((HTTPForbidden, HTTPForbidden(), None), True),
-        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
-        ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
-        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
-    ],
-)
-def test_commit_veto(exc_info, expected):
-    request = pretend.stub(exc_info=exc_info)
-    response = pretend.stub()
-
-    assert bool(config.commit_veto(request, response)) == expected
 
 
 @pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
@@ -405,7 +385,6 @@ def test_configure(monkeypatch, settings, environment):
             {
                 "tm.manager_hook": mock.ANY,
                 "tm.activate_hook": config.activate_hook,
-                "tm.commit_veto": config.commit_veto,
                 "tm.annotate_user": False,
             }
         ),

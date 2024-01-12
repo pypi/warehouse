@@ -10,24 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.security import Denied
-
-
-class BasicAuthFailedPassword(HTTPForbidden):
-    pass
-
-
-class BasicAuthBreachedPassword(HTTPUnauthorized):
-    pass
-
-
-class BasicAuthAccountFrozen(HTTPUnauthorized):
-    pass
-
-
-class BasicAuthTwoFactorEnabled(HTTPUnauthorized):
-    pass
 
 
 class WarehouseDenied(Denied):
