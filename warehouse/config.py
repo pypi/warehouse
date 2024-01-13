@@ -29,6 +29,7 @@ from pyramid.response import Response
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
+from warehouse.authnz import Permissions
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -60,12 +61,41 @@ class RootFactory:
     __name__ = None
 
     __acl__ = [
+        # TODO: Once all other Permissions are represented in the ACE, remove these.
         (Allow, "group:admins", "admin"),
         (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
         (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
         (Allow, "group:psf_staff", "admin_dashboard_access"),
+        # New-style Permissions
+        (
+            Allow,
+            "group:admins",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminSponsorsRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:moderators",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminSponsorsRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:psf_staff",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminSponsorsWrite,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -495,6 +525,7 @@ def configure(settings=None):
     # And some enums to reuse in the templates
     jglobals.setdefault("AdminFlagValue", "warehouse.admin.flags:AdminFlagValue")
     jglobals.setdefault("EventTag", "warehouse.events.tags:EventTag")
+    jglobals.setdefault("Permissions", "warehouse.authnz:Permissions")
     jglobals.setdefault(
         "OrganizationInvitationStatus",
         "warehouse.organizations.models:OrganizationInvitationStatus",

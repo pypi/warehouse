@@ -24,6 +24,7 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
+from warehouse.authnz import Permissions
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -459,5 +460,32 @@ def test_root_factory_access_control_list():
         (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
         (Allow, "group:psf_staff", "admin_dashboard_access"),
+        (
+            Allow,
+            "group:admins",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminSponsorsRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:moderators",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminSponsorsRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:psf_staff",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminSponsorsWrite,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]
