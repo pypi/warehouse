@@ -133,7 +133,23 @@ own security model and considerations.
 
 === "Google Cloud"
 
-    TODO
+    ### Security Model
+
+    If a trusted publisher is configured for a given PyPI project, any service
+    that uses the configured service account can request an OpenID Connect token
+    from Google's identity provider on behalf of that identity. That token can be
+    exchanged for a PyPI API token with the ability to publish to the PyPI project.
+    The identity used for publishing can be optionally constrained further by
+    specifying the subject, an ID that represents the principal making the request.
+
+    ### Considerations
+
+    When using trusted publishing with Google Cloud, you must trust the service account
+    and _any service which uses it as the default ephemeral identity_.
+
+    Specifically, it is not recommened to configure the [default service
+    accounts](https://cloud.google.com/iam/docs/service-account-types#default), as
+    they are provided by default to every service when they are created.
 
 === "ActiveState"
 
