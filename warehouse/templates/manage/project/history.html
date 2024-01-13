@@ -222,10 +222,10 @@
     <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
     {% if event.additional.expires %}
     <small>
-      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
+      {% trans %}Expiration:{% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
     </small>
     <small>
-      {% trans %} Expiration Status: {% endtrans %}
+      {% trans %}Expiration status:{% endtrans %} {{ ' ' }}
       {% if (event.additional.expires | ctime) > now() %}
         {% trans %}Active{% endtrans %}
       {% else %}
