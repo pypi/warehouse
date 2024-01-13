@@ -43,6 +43,15 @@ each.
         your trusted workflow, such as requiring manual approval on each run
         by a trusted subset of repository maintainers.
 
+    Once you click "Add", your publisher will be registered and will appear
+    at the top of the page:
+
+    ![](/assets/trusted-publishing/github/project-publisher-registered.png)
+
+    From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
+    be able to generate short-lived API tokens from PyPI for the project you've registered
+    it against.
+
 === "Google Cloud"
 
     For Google Cloud, you **must** provide the email address of the account or
@@ -81,6 +90,11 @@ each.
         <https://cloud.google.com/docs/authentication/token-types#id-contents>
         for more details
 
+    Once you click "Add", your publisher will be registered and will appear
+    at the top of the page:
+
+    ![](/assets/trusted-publishing/google/project-publisher-registered.png)
+
 === "ActiveState"
 
     TODO
@@ -88,15 +102,6 @@ each.
 === "GitLab CI/CD"
 
     TODO
-
-Once you click "Add", your publisher will be registered and will appear
-at the top of the page:
-
-![](/assets/trusted-publishing/github/project-publisher-registered.png)
-
-From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
-be able to generate short-lived API tokens from PyPI for the project you've registered
-it against.
 
 A publisher can be registered against multiple PyPI projects (e.g. for a
 multi-project repository), and a single PyPI project can have multiple
