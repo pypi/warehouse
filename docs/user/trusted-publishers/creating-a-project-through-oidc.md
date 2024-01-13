@@ -39,6 +39,10 @@ provide the name of the PyPI project that will be created.
         Like with "normal" trusted publishers, configuring a GitHub Actions
         environment is **optional but strongly recommended**.
 
+    Clicking "Add" will register the "pending" publisher, and show it to you:
+
+    ![](/assets/trusted-publishing/github/pending-publisher-registered.png)
+
 === "Google Cloud"
 
     If you have a service account named
@@ -52,6 +56,10 @@ provide the name of the PyPI project that will be created.
 
         Like with "normal" trusted publishers, configuring the subject is optional.
 
+    Clicking "Add" will register the "pending" publisher, and show it to you:
+
+    ![](/assets/trusted-publishing/google/pending-publisher-registered.png)
+
 === "ActiveState"
 
     TODO
@@ -60,9 +68,7 @@ provide the name of the PyPI project that will be created.
 
     TODO
 
-Clicking "Add" will register the "pending" publisher, and show it to you:
 
-![](/assets/trusted-publishing/github/pending-publisher-registered.png)
 
 From this point on, the "pending" publisher can be used exactly like a
 "normal" publisher, and after first use it will convert it into a "normal"
