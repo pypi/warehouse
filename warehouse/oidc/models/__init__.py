@@ -10,7 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
+from warehouse.oidc.models._core import (
+    OIDCPublisher,
+    OIDCPublisherMixin,
+    PendingOIDCPublisher,
+)
 from warehouse.oidc.models.activestate import (
     ActiveStatePublisher,
     PendingActiveStatePublisher,
@@ -27,4 +31,5 @@ __all__ = [
     "GitHubPublisher",
     "GooglePublisher",
     "ActiveStatePublisher",
+    "OIDCPublisherMixin",
 ]

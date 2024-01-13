@@ -15,7 +15,11 @@ from celery.schedules import crontab
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
 from warehouse.oidc.tasks import compute_oidc_metrics
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL
+from warehouse.oidc.utils import (
+    ACTIVESTATE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
+)
 
 
 def includeme(config):
@@ -45,7 +49,7 @@ def includeme(config):
     config.register_service_factory(
         OIDCPublisherServiceFactory(
             publisher="activestate",
-            issuer_url=GOOGLE_OIDC_ISSUER_URL,
+            issuer_url=ACTIVESTATE_OIDC_ISSUER_URL,
             service_class=oidc_publisher_service_class,
         ),
         IOIDCPublisherService,
@@ -61,6 +65,9 @@ def includeme(config):
     # NOTE: This is a legacy route for the above. Pyramid requires route
     # names to be unique, so we can't deduplicate it.
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
+    config.add_route(
+        "oidc.activestate.mint_token", "/_/oidc/activestate/mint-token", domain=auth
+    )
 
     # Compute OIDC metrics periodically
     config.add_periodic_task(crontab(minute=0, hour="*"), compute_oidc_metrics)

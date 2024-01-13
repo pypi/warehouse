@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import os
 import os.path
 import re
@@ -51,7 +50,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import services as oidc_services
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
+from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER_URL
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
@@ -169,7 +168,8 @@ def pyramid_services(
     token_service,
     user_service,
     project_service,
-    oidc_service,
+    github_oidc_service,
+    activestate_oidc_service,
     macaroon_service,
 ):
     services = _Services()
@@ -184,7 +184,12 @@ def pyramid_services(
     services.register_service(token_service, ITokenService, None, name="email")
     services.register_service(user_service, IUserService, None, name="")
     services.register_service(project_service, IProjectService, None, name="")
-    services.register_service(oidc_service, IOIDCPublisherService, None, name="github")
+    services.register_service(
+        github_oidc_service, IOIDCPublisherService, None, name="github"
+    )
+    services.register_service(
+        activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
+    )
     services.register_service(macaroon_service, IMacaroonService, None, name="")
 
     return services
@@ -368,7 +373,7 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def oidc_service(db_session):
+def github_oidc_service(db_session):
     # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
     return oidc_services.NullOIDCPublisherService(
         db_session,
@@ -381,7 +386,7 @@ def oidc_service(db_session):
 
 
 @pytest.fixture
-def dummy_oidc_jwt():
+def dummy_github_oidc_jwt():
     # {
     #  "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
     #  "sub": "repo:foo/bar",
@@ -427,8 +432,55 @@ def dummy_oidc_jwt():
 
 
 @pytest.fixture
-def dummy_oidc_payload(dummy_oidc_jwt):
-    return json.dumps({"token": dummy_oidc_jwt})
+def dummy_activestate_oidc_jwt():
+    # {
+    #   "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "sub": "org:fakeorg:project:fakeproject",
+    #   "aud": "pypi",
+    #   "actor_id": "fake",
+    #   "actor": "foo",
+    #   "oraganization_id": "7e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "organization": "fakeorg",
+    #   "project_visibility": "private",
+    #   "project_id": "8e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "project_path": "fakeorg/fakeproject",
+    #   "project": "fakeproject",
+    #   "builder": "pypi_builder",
+    #   "ingredient_name": "fakeingredient",
+    #   "artifact_id": "9e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "iss":"https://platform.activestate.com/api/v1/oauth/oidc",
+    #   "nbf": 1650663265,
+    #   "exp": 1650664165,
+    #   "iat": 1650663865
+    # }
+    return (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJvcmc6ZmFrZW9yZzpwcm9qZWN0OmZha"
+        "2Vwcm9qZWN0IiwiYXVkIjoicHlwaSIsImFjdG9yX2lkIjoiZmFrZSIsImFjdG9yIjoiZm"
+        "9vIiwib3JhZ2FuaXphdGlvbl9pZCI6IjdlNjdiMWNiLTJiOGQtNGJlNS05MWNiLTc1N2V"
+        "kYjJlYzk3MCIsIm9yZ2FuaXphdGlvbiI6ImZha2VvcmciLCJwcm9qZWN0X3Zpc2liaWxp"
+        "dHkiOiJwcml2YXRlIiwicHJvamVjdF9pZCI6IjhlNjdiMWNiLTJiOGQtNGJlNS05MWNiL"
+        "Tc1N2VkYjJlYzk3MCIsInByb2plY3RfcGF0aCI6ImZha2VvcmcvZmFrZXByb2plY3QiLC"
+        "Jwcm9qZWN0IjoiZmFrZXByb2plY3QiLCJidWlsZGVyIjoicHlwaV9idWlsZGVyIiwiaW5"
+        "ncmVkaWVudF9uYW1lIjoiZmFrZWluZ3JlZGllbnQiLCJhcnRpZmFjdF9pZCI6IjllNjdi"
+        "MWNiLTJiOGQtNGJlNS05MWNiLTc1N2VkYjJlYzk3MCIsImlzcyI6Imh0dHBzOi8vcGxhd"
+        "GZvcm0uYWN0aXZlc3RhdGUuY29tL2FwaS92MS9vYXV0aC9vaWRjIiwibmJmIjoxNjUwNj"
+        "YzMjY1LCJleHAiOjE2NTA2NjQxNjUsImlhdCI6MTY1MDY2Mzg2NX0.R4q-vWAFXHrBSBK"
+        "AZuHHIsGOkqlirPxEtLfjLIDiLr0"
+    )
+
+
+@pytest.fixture
+def activestate_oidc_service(db_session):
+    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+    return oidc_services.NullOIDCPublisherService(
+        db_session,
+        pretend.stub(),
+        ACTIVESTATE_OIDC_ISSUER_URL,
+        pretend.stub(),
+        pretend.stub(),
+        pretend.stub(),
+    )
 
 
 @pytest.fixture

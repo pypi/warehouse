@@ -104,6 +104,7 @@ def oidc_audience(request: Request):
     require_csrf=False,
 )
 def mint_token_from_oidc(request: Request):
+    print("mint_token_from_oidc")
     try:
         payload = TokenPayload.model_validate_json(request.body)
         unverified_jwt = payload.token
@@ -139,7 +140,9 @@ def mint_token_from_oidc(request: Request):
         )
 
     # Associate the given issuer claim with Warehouse's OIDCPublisherService.
+    print("unverified_issuer", unverified_issuer)
     service_name = OIDC_ISSUER_SERVICE_NAMES.get(unverified_issuer)
+    print("service_name", service_name)
     if not service_name:
         return _invalid(
             errors=[
