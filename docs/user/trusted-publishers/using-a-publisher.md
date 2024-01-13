@@ -252,7 +252,7 @@ below describe the setup process for each supported trusted publisher.
 
     ```bash
     resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\": \"${oidc_token}\"}")
-    api_token=$(jq '.token' <<< "${resp}")
+    api_token=$(jq -r '.token' <<< "${resp}")
     ```
 
     !!! note
@@ -263,7 +263,7 @@ below describe the setup process for each supported trusted publisher.
     This API token can be fed into `twine` or any other uploading client:
 
     ```bash
-    TWINE_USERNAME=__token__ TWINE_PASSWORD="${api_token}" twine upload dist/*
+    TWINE_USERNAME=__token__ TWINE_PASSWORD=${api_token} twine upload dist/*
     ```
 
 === "ActiveState"
