@@ -32,6 +32,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    or_,
     orm,
     sql,
 )
@@ -687,7 +688,10 @@ class File(HasEvents, db.Model):
         """Return True if the file was uploaded via a trusted publisher."""
         return (
             self.events.where(
-                self.Event.additional.op("->>")("publisher_url").is_not(None)  # type: ignore[attr-defined] # noqa E501
+                or_(
+                    self.Event.additional.op("->>")("uploaded_via_trusted_publisher") == "True",  # type: ignore[attr-defined] # noqa E501
+                    self.Event.additional.op("->>")("publisher_url").is_not(None),  # type: ignore[attr-defined] # noqa E501
+                )
             ).count()
             > 0
         )
