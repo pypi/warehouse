@@ -96,6 +96,13 @@ class TestActiveStatePublisher:
             == f"https://platform.activestate.com/{org_name}/{project_name}"
         )
 
+    def test_stored_claims(self):
+        publisher = ActiveStatePublisher(
+            organization="fake", activestate_project_name="fake"
+        )
+
+        assert publisher.stored_claims() == {}
+
     def test_stringifies_as_project_url(self):
         org_name = "fakeorg"
         project_name = "fakeproject"
