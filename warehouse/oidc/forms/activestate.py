@@ -22,8 +22,9 @@ from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.utils.project import PROJECT_NAME_RE
 
-_VALID_ORG_URL_NAME = re.compile(r"^[a-zA-Z0-9-]{3,40}$")
+_VALID_ORG_URL_NAME_AND_ACTOR_NAME = re.compile(r"^[a-zA-Z0-9-]{3,40}$")
 _VALID_PROJECT_NAME = re.compile(r"^[.a-zA-Z0-9-]{3,40}$")
+_DOUBLE_DADHES = re.compile(r"--+")
 
 ACTIVESTATE_GRAPHQL_API_URL = "https://platform.activestate.com/graphql/v1/graphql"
 GRAPHQL_GET_ORGANIZATION = "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}"  # noqa
@@ -37,6 +38,20 @@ class UserResponse(TypedDict):
     user_id: str
 
 
+def _no_double_dashes(form, field):
+    if _DOUBLE_DADHES.search(field.data):
+        raise wtforms.validators.ValidationError(
+            _("Double dashes are not allowed in the name")
+        )
+
+
+def _no_leading_or_trailing_dashes(form, field):
+    if field.data.startswith("-") or field.data.endswith("-"):
+        raise wtforms.validators.ValidationError(
+            _("Leading or trailing dashes are not allowed in the name")
+        )
+
+
 class ActiveStatePublisherBase(forms.Form):
     __params__ = ["organization", "project", "actor"]
 
@@ -46,9 +61,11 @@ class ActiveStatePublisherBase(forms.Form):
                 message=_("Specify ActiveState organization name"),
             ),
             wtforms.validators.Regexp(
-                _VALID_ORG_URL_NAME,
+                _VALID_ORG_URL_NAME_AND_ACTOR_NAME,
                 message=_("Invalid ActiveState organization name"),
             ),
+            _no_double_dashes,
+            _no_leading_or_trailing_dashes,
         ]
     )
 
@@ -61,6 +78,12 @@ class ActiveStatePublisherBase(forms.Form):
                 _VALID_PROJECT_NAME,
                 message=_("Invalid ActiveState project name"),
             ),
+            wtforms.validators.Regexp(
+                _VALID_PROJECT_NAME,
+                message=_("Invalid ActiveState project name"),
+            ),
+            _no_double_dashes,
+            _no_leading_or_trailing_dashes,
         ]
     )
 
@@ -70,9 +93,11 @@ class ActiveStatePublisherBase(forms.Form):
                 message=("Specify the ActiveState actor username")
             ),
             wtforms.validators.Regexp(
-                _VALID_ORG_URL_NAME,
+                _VALID_ORG_URL_NAME_AND_ACTOR_NAME,
                 message=("Invalid ActiveState username"),
             ),
+            _no_double_dashes,
+            _no_leading_or_trailing_dashes,
         ]
     )
 

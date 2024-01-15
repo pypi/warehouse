@@ -544,29 +544,68 @@ class TestActiveStatePublisherForm:
     @pytest.mark.parametrize(
         "data",
         [
-            {"organization": None, "project": "good", "actor": "good"},
-            {"organization": "", "project": "good", "actor": "good"},
+            # Too short
+            # Too long
+            # Invalid characters
+            # No leading or ending -
+            # No double --
+            # Missing
+            # Empty
+            #
+            # organization
+            {"organization": "AB", "project": "good", "actor": "good"},
+            {
+                "organization": "abcdefghojklmnopqrstuvwxyz123456789012345",
+                "project": "good",
+                "actor": "good",
+            },
             {
                 "organization": "invalid_characters@",
                 "project": "good",
                 "actor": "good",
             },
-            {"project": None, "organization": "good", "actor": "good"},
-            {"project": "", "organization": "good", "actor": "good"},
+            {"organization": "-foo-", "project": "good", "actor": "good"},
+            {"organization": "---", "project": "good", "actor": "good"},
+            {"organization": "", "project": "good", "actor": "good"},
+            {"organization": None, "project": "good", "actor": "good"},
+            # actor
+            {"actor": "AB", "project": "good", "organization": "good"},
             {
-                "project": "$invalid#characters",
+                "actor": "abcdefghojklmnopqrstuvwxyz123456789012345",
+                "project": "good",
                 "organization": "good",
-                "actor": "good",
             },
-            {"actor": None, "project": "good", "organization": "good"},
+            {
+                "actor": "invalid_characters@",
+                "project": "good",
+                "organization": "good",
+            },
+            {"actor": "-foo-", "project": "good", "organization": "good"},
+            {"actor": "---", "project": "good", "organization": "good"},
             {"actor": "", "project": "good", "organization": "good"},
-            {"actor": "$invalid#characters", "project": "good", "organization": "good"},
+            {"actor": None, "project": "good", "organization": "good"},
+            # project
+            {"project": "AB", "actor": "good", "organization": "good"},
+            {
+                "project": "abcdefghojklmnopqrstuvwxyz123456789012345",
+                "actor": "good",
+                "organization": "good",
+            },
+            {
+                "project": "invalid_characters@",
+                "actor": "good",
+                "organization": "good",
+            },
+            {"project": "-foo-", "actor": "good", "organization": "good"},
+            {"project": "---", "actor": "good", "organization": "good"},
+            {"project": "", "actor": "good", "organization": "good"},
+            {"project": None, "actor": "good", "organization": "good"},
         ],
     )
     def test_validate_basic_invalid_fields(self, monkeypatch, data):
+        print(data)
         form = activestate.ActiveStatePublisherForm(MultiDict(data))
 
-        # We're testing only the basic validation here.
         monkeypatch.setattr(form, "_lookup_actor", lambda o: fake_user_info)
         monkeypatch.setattr(form, "_lookup_organization", lambda o: None)
 
