@@ -63,11 +63,8 @@ class RootFactory:
     __acl__ = [
         # TODO: Once all other Permissions are represented in the ACE, remove these.
         (Allow, "group:admins", "admin"),
-        (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
-        (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:psf_staff", "admin_dashboard_access"),
         # New-style Permissions
         (
             Allow,
@@ -75,6 +72,7 @@ class RootFactory:
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
                 Permissions.AdminEmailsRead,
                 Permissions.AdminEmailsWrite,
@@ -103,6 +101,7 @@ class RootFactory:
             "group:moderators",
             (
                 Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
                 Permissions.AdminEmailsRead,
                 Permissions.AdminFlagsRead,
@@ -123,6 +122,7 @@ class RootFactory:
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminSponsorsWrite,
             ),

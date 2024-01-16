@@ -455,17 +455,15 @@ def test_root_factory_access_control_list():
 
     assert acl == [
         (Allow, "group:admins", "admin"),
-        (Allow, "group:admins", "admin_dashboard_access"),
         (Allow, "group:moderators", "moderator"),
-        (Allow, "group:moderators", "admin_dashboard_access"),
         (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:psf_staff", "admin_dashboard_access"),
         (
             Allow,
             "group:admins",
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
                 Permissions.AdminEmailsRead,
                 Permissions.AdminEmailsWrite,
@@ -494,6 +492,7 @@ def test_root_factory_access_control_list():
             "group:moderators",
             (
                 Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminDashboardSidebarRead,
                 Permissions.AdminEmailsRead,
                 Permissions.AdminFlagsRead,
@@ -514,6 +513,7 @@ def test_root_factory_access_control_list():
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
                 Permissions.AdminSponsorsRead,
                 Permissions.AdminSponsorsWrite,
             ),
