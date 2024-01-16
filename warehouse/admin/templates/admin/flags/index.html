@@ -46,10 +46,10 @@
           <input name="csrf_token" type="hidden" value="{{ csrf_token }}">
           <input name="id" type="hidden" value="{{ flag.id }}">
           <td><code>{{ flag.id }}</code></td>
-          <td><input name="description" size="50" value="{{ flag.description }}" {{ "disabled" if not request.has_permission('admin') }}></td>
+          <td><input name="description" size="50" value="{{ flag.description }}" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }}></td>
           <td>{{ flag.notify }}</td>
-          <td><input name="enabled" type="checkbox" {{ "disabled" if not request.has_permission('admin') }} {{ 'checked' if flag.enabled else '' }}></td>
-          <td><input type="submit" title="{{ 'Flag changes require superuser privileges' if not request.has_permission('admin') }}" value="Save" {{ "disabled" if not request.has_permission('admin') }}></td>
+          <td><input name="enabled" type="checkbox" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }} {{ 'checked' if flag.enabled else '' }}></td>
+          <td><input type="submit" title="{{ 'Flag changes require superuser privileges' if not request.has_permission(Permissions.AdminFlagsWrite) }}" value="Save" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }}></td>
         </form>
       </tr>
       {% endfor %}

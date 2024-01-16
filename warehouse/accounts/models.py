@@ -35,6 +35,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.observations.models import HasObserversMixin
 from warehouse.sitemap.models import SitemapMixin
@@ -253,9 +254,25 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         return principals
 
     def __acl__(self):
+        # TODO: This ACL is duplicating permissions set in RootFactory.__acl__
+        #   If nothing else, setting the ACL on the model is more restrictive
+        #   than RootFactory.__acl__, which is why we duplicate
+        #   AdminDashboardSidebarRead here, otherwise the sidebar is not displayed.
         return [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     def __lt__(self, other):

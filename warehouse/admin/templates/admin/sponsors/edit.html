@@ -96,11 +96,11 @@
             {{ render_field("Sidebar", form.sidebar, "sponsor-sidebar") }}
 
             <div class="form-group">
-              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
+              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminSponsorsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminSponsorsWrite) }}>Submit</button>
 
               {% if sponsor %}
               <div class="float-right">
-                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteSponsor" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
+                <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteSponsor" {{ "disabled" if not request.has_permission(Permissions.AdminSponsorsWrite) }} value=>
                   <i class="icon fa fa-trash"></i> Delete sponsor
                 </button>
               </div>

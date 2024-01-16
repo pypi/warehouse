@@ -22,6 +22,7 @@ from slugify import slugify
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
+from warehouse.authnz import Permissions
 from warehouse.forms import Form, URIValidator
 from warehouse.sponsors.models import Sponsor
 
@@ -83,7 +84,7 @@ class SponsorForm(Form):
 @view_config(
     route_name="admin.sponsor.list",
     renderer="admin/sponsors/list.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -121,7 +122,7 @@ def _upload_image(image_name, request, form):
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -130,7 +131,7 @@ def _upload_image(image_name, request, form):
 @view_config(
     route_name="admin.sponsor.edit",
     renderer="admin/sponsors/edit.html",
-    permission="psf_staff",
+    permission=Permissions.AdminSponsorsWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -161,7 +162,7 @@ def edit_sponsor(request):
 @view_config(
     route_name="admin.sponsor.create",
     renderer="admin/sponsors/edit.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminSponsorsRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -170,7 +171,7 @@ def edit_sponsor(request):
 @view_config(
     route_name="admin.sponsor.create",
     renderer="admin/sponsors/edit.html",
-    permission="psf_staff",
+    permission=Permissions.AdminSponsorsWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -200,7 +201,7 @@ def create_sponsor(request):
 @view_config(
     route_name="admin.sponsor.delete",
     require_methods=["POST"],
-    permission="psf_staff",
+    permission=Permissions.AdminSponsorsWrite,
     uses_session=True,
     require_csrf=True,
 )

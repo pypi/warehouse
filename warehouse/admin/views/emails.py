@@ -21,6 +21,7 @@ from sqlalchemy import String, cast, or_
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.email import send_email
 from warehouse.email.ses.models import EmailMessage
 from warehouse.events.tags import EventTag
@@ -30,7 +31,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.emails.list",
     renderer="admin/emails/list.html",
-    permission="moderator",
+    permission=Permissions.AdminEmailsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -79,7 +80,7 @@ def email_list(request):
 
 @view_config(
     route_name="admin.emails.mass",
-    permission="admin",
+    permission=Permissions.AdminEmailsWrite,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -121,7 +122,7 @@ def email_mass(request):
 @view_config(
     route_name="admin.emails.detail",
     renderer="admin/emails/detail.html",
-    permission="moderator",
+    permission=Permissions.AdminEmailsRead,
     request_method="GET",
     uses_session=True,
 )
