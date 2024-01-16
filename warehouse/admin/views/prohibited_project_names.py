@@ -22,6 +22,7 @@ from sqlalchemy import func, literal, or_
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.packaging.models import (
     File,
     ProhibitedProjectName,
@@ -37,7 +38,7 @@ from warehouse.utils.project import remove_project
 @view_config(
     route_name="admin.prohibited_project_names.list",
     renderer="admin/prohibited_project_names/list.html",
-    permission="moderator",
+    permission=Permissions.AdminProhibitedProjectsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -80,7 +81,7 @@ def prohibited_project_names(request):
 @view_config(
     route_name="admin.prohibited_project_names.add",
     renderer="admin/prohibited_project_names/confirm.html",
-    permission="moderator",
+    permission=Permissions.AdminProhibitedProjectsWrite,
     request_method="GET",
     uses_session=True,
 )
@@ -145,7 +146,7 @@ def confirm_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.release",
-    permission="admin",
+    permission=Permissions.AdminProhibitedProjectsWrite,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -208,7 +209,7 @@ def release_prohibited_project_name(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.add",
-    permission="admin",
+    permission=Permissions.AdminProhibitedProjectsWrite,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -274,7 +275,7 @@ def add_prohibited_project_names(request):
 
 @view_config(
     route_name="admin.prohibited_project_names.remove",
-    permission="admin",
+    permission=Permissions.AdminProhibitedProjectsWrite,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -311,7 +312,7 @@ def remove_prohibited_project_names(request):
 @view_config(
     route_name="admin.prohibited_project_names.bulk_add",
     renderer="admin/prohibited_project_names/bulk.html",
-    permission="admin",
+    permission=Permissions.AdminProhibitedProjectsWrite,
     uses_session=True,
     require_methods=False,
 )
