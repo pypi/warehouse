@@ -61,11 +61,6 @@ class RootFactory:
     __name__ = None
 
     __acl__ = [
-        # TODO: Once all other Permissions are represented in the ACE, remove these.
-        (Allow, "group:admins", "admin"),
-        (Allow, "group:moderators", "moderator"),
-        (Allow, "group:psf_staff", "psf_staff"),
-        # New-style Permissions
         (
             Allow,
             "group:admins",

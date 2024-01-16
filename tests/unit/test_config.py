@@ -454,9 +454,6 @@ def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
     assert acl == [
-        (Allow, "group:admins", "admin"),
-        (Allow, "group:moderators", "moderator"),
-        (Allow, "group:psf_staff", "psf_staff"),
         (
             Allow,
             "group:admins",
