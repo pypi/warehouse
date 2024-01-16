@@ -361,7 +361,6 @@ msgid "Select project"
 msgstr ""
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
-#: warehouse/oidc/forms/activestate.py:224
 msgid "Specify project name"
 msgstr ""
 
@@ -554,11 +553,11 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/activestate.py:226
+#: warehouse/oidc/forms/_core.py:25
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:35 warehouse/oidc/forms/activestate.py:240
+#: warehouse/oidc/forms/_core.py:35
 msgid "This project name is already in use"
 msgstr ""
 
@@ -570,46 +569,43 @@ msgstr ""
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:46
-msgid "Specify ActiveState organization name"
-msgstr ""
-
 #: warehouse/oidc/forms/activestate.py:50
-msgid "Invalid ActiveState organization name"
+msgid "Double dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:58
-msgid "Specify ActiveState project name"
+#: warehouse/oidc/forms/activestate.py:57
+msgid "Leading or trailing dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:62
-msgid "Invalid ActiveState project name"
-msgstr ""
-
-#: warehouse/oidc/forms/activestate.py:100
-#: warehouse/oidc/forms/activestate.py:128
-#: warehouse/oidc/forms/activestate.py:142
-#: warehouse/oidc/forms/activestate.py:166
-#: warehouse/oidc/forms/activestate.py:194
-#: warehouse/oidc/forms/activestate.py:208
+#: warehouse/oidc/forms/activestate.py:80
+#: warehouse/oidc/forms/activestate.py:85
+#: warehouse/oidc/forms/activestate.py:96
+#: warehouse/oidc/forms/activestate.py:105
 msgid "Unexpected error from ActiveState. Try again"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:107
-#: warehouse/oidc/forms/activestate.py:173
-msgid "Unexpected connection error from ActiveState. Try again in a few minutes"
+#: warehouse/oidc/forms/activestate.py:115
+msgid "Specify ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:117
-#: warehouse/oidc/forms/activestate.py:183
-msgid "Unexpected timeout from ActiveState. Try again in a few minutes"
+#: warehouse/oidc/forms/activestate.py:119
+msgid "Invalid ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:135
+#: warehouse/oidc/forms/activestate.py:129
+msgid "Specify ActiveState project name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:133
+#: warehouse/oidc/forms/activestate.py:137
+msgid "Invalid ActiveState project name"
+msgstr ""
+
+#: warehouse/oidc/forms/activestate.py:169
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:201
+#: warehouse/oidc/forms/activestate.py:189
 msgid "ActiveState actor not found"
 msgstr ""
 

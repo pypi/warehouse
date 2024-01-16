@@ -91,7 +91,11 @@ class TestActiveStatePublisherForm:
             content=b"fake-content",
         )
         requests = pretend.stub(
-            post=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
+            post=pretend.call_recorder(lambda o, **kw: response),
+            expception=_requests.exceptions,
+            Timeout=Timeout,
+            HTTPError=HTTPError,
+            ConnectionError=ConnectionError,
         )
 
         monkeypatch.setattr(activestate, "requests", requests)
@@ -120,7 +124,10 @@ class TestActiveStatePublisherForm:
         )
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
+            expception=_requests.exceptions,
+            Timeout=Timeout,
             HTTPError=HTTPError,
+            ConnectionError=ConnectionError,
         )
         monkeypatch.setattr(activestate, "requests", requests)
 
@@ -143,9 +150,7 @@ class TestActiveStatePublisherForm:
         ]
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from ActiveState actor lookup: " "b'fake-content'"
-            )
+            pretend.call("Unexpected 422 error from ActiveState API: b'fake-content'")
         ]
 
     def test_lookup_actor_http_timeout(self, monkeypatch):
@@ -165,7 +170,7 @@ class TestActiveStatePublisherForm:
             form._lookup_actor(fake_username)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call("Timeout from ActiveState actor lookup API (possibly offline)")
+            pretend.call("Connection error from ActiveState API")
         ]
 
     def test_lookup_actor_connection_error(self, monkeypatch):
@@ -185,9 +190,7 @@ class TestActiveStatePublisherForm:
             form._lookup_actor(fake_username)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Connection error from ActiveState actor lookup API (possibly offline)"
-            )
+            pretend.call("Connection error from ActiveState API")
         ]
 
     def test_lookup_actor_non_json(self, monkeypatch):
@@ -213,7 +216,7 @@ class TestActiveStatePublisherForm:
             form._lookup_actor(fake_username)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call("Unexpected error from ActiveState actor lookup: b''")  # noqa
+            pretend.call("Unexpected error from ActiveState API: b''")
         ]
 
     def test_lookup_actor_gql_error(self, monkeypatch):
@@ -248,9 +251,7 @@ class TestActiveStatePublisherForm:
             )
         ]
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from ActiveState actor lookup: ['some error']"
-            )
+            pretend.call("Unexpected error from ActiveState API: ['some error']")
         ]
 
     def test_lookup_actor_gql_no_data(self, monkeypatch):
@@ -288,7 +289,11 @@ class TestActiveStatePublisherForm:
             json=lambda: fake_gql_user_response,
         )
         requests = pretend.stub(
-            post=pretend.call_recorder(lambda o, **kw: response), HTTPError=HTTPError
+            post=pretend.call_recorder(lambda o, **kw: response),
+            HTTPError=HTTPError,
+            requests=_requests.exceptions,
+            Timeout=_requests.Timeout,
+            ConnectionError=_requests.ConnectionError,
         )
         monkeypatch.setattr(activestate, "requests", requests)
 
@@ -305,7 +310,6 @@ class TestActiveStatePublisherForm:
                 timeout=5,
             )
         ]
-        assert response.raise_for_status.calls == [pretend.call()]
         assert info == fake_user_info
 
     # _lookup_organization
@@ -319,6 +323,8 @@ class TestActiveStatePublisherForm:
             post=pretend.call_recorder(lambda o, **kw: response),
             HTTPError=HTTPError,
             exceptions=_requests.exceptions,
+            Timeout=_requests.Timeout,
+            ConnectionError=_requests.ConnectionError,
         )
 
         monkeypatch.setattr(activestate, "requests", requests)
@@ -348,6 +354,9 @@ class TestActiveStatePublisherForm:
         requests = pretend.stub(
             post=pretend.call_recorder(lambda o, **kw: response),
             HTTPError=HTTPError,
+            exceptions=_requests.exceptions,
+            Timeout=_requests.Timeout,
+            ConnectionError=_requests.ConnectionError,
         )
         monkeypatch.setattr(activestate, "requests", requests)
 
@@ -370,10 +379,7 @@ class TestActiveStatePublisherForm:
         ]
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from ActiveState organization lookup: "
-                "b'fake-content'"
-            )
+            pretend.call("Unexpected 422 error from ActiveState API: b'fake-content'")
         ]
 
     def test_lookup_organization_http_timeout(self, monkeypatch):
@@ -393,9 +399,7 @@ class TestActiveStatePublisherForm:
             form._lookup_organization(fake_org_name)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Timeout from ActiveState organization lookup API (possibly offline)"
-            )
+            pretend.call("Connection error from ActiveState API")
         ]
 
     def test_lookup_organization_connection_error(self, monkeypatch):
@@ -415,9 +419,7 @@ class TestActiveStatePublisherForm:
             form._lookup_organization(fake_org_name)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Connection error from ActiveState organization lookup API (possibly offline)"  # noqa
-            )
+            pretend.call("Connection error from ActiveState API")
         ]
 
     def test_lookup_organization_non_json(self, monkeypatch):
@@ -443,9 +445,7 @@ class TestActiveStatePublisherForm:
             form._lookup_organization(fake_org_name)
 
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from ActiveState organization lookup: b''"  # noqa
-            )
+            pretend.call("Unexpected error from ActiveState API: b''")
         ]
 
     def test_lookup_organization_gql_error(self, monkeypatch):
@@ -481,9 +481,7 @@ class TestActiveStatePublisherForm:
             )
         ]
         assert sentry_sdk.capture_message.calls == [
-            pretend.call(
-                "Unexpected error from ActiveState organization lookup: ['some error']"
-            )
+            pretend.call("Unexpected error from ActiveState API: ['some error']")
         ]
 
     def test_lookup_organization_gql_no_data(self, monkeypatch):
@@ -518,7 +516,6 @@ class TestActiveStatePublisherForm:
     def test_lookup_organization_succeeds(self, monkeypatch):
         response = pretend.stub(
             status_code=200,
-            raise_for_status=pretend.call_recorder(lambda: None),
             json=lambda: fake_gql_org_response,
         )
         requests = pretend.stub(
@@ -539,7 +536,6 @@ class TestActiveStatePublisherForm:
                 timeout=5,
             )
         ]
-        assert response.raise_for_status.calls == [pretend.call()]
 
     @pytest.mark.parametrize(
         "data",
