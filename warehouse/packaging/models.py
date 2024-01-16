@@ -689,7 +689,9 @@ class File(HasEvents, db.Model):
         return (
             self.events.where(
                 or_(
-                    self.Event.additional.op("->>")("uploaded_via_trusted_publisher") == "True",  # type: ignore[attr-defined] # noqa E501
+                    self.Event.additional[  # type: ignore[attr-defined]
+                        "uploaded_via_trusted_publisher"
+                    ].as_boolean(),  # noqa E501
                     self.Event.additional.op("->>")("publisher_url").is_not(None),  # type: ignore[attr-defined] # noqa E501
                 )
             ).count()

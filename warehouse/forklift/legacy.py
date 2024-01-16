@@ -1150,7 +1150,7 @@ def file_upload(request):
                 )
                 if request.oidc_publisher
                 else None,
-                "uploaded_via_trusted_publisher": str(bool(request.oidc_publisher)),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
@@ -1426,7 +1426,7 @@ def file_upload(request):
                 if request.oidc_publisher
                 else None,
                 "project_id": str(project.id),
-                "uploaded_via_trusted_publisher": str(bool(request.oidc_publisher)),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
