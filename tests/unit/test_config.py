@@ -466,6 +466,8 @@ def test_root_factory_access_control_list():
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminEmailsWrite,
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminSponsorsRead,
@@ -476,6 +478,7 @@ def test_root_factory_access_control_list():
             "group:moderators",
             (
                 Permissions.AdminBannerRead,
+                Permissions.AdminEmailsRead,
                 Permissions.AdminFlagsRead,
                 Permissions.AdminSponsorsRead,
             ),

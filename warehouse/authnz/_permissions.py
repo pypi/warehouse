@@ -36,6 +36,9 @@ class Permissions(StrEnum):
     AdminBannerRead = "admin:banner:read"
     AdminBannerWrite = "admin:banner:write"
 
+    AdminEmailsRead = "admin:emails:read"
+    AdminEmailsWrite = "admin:emails:write"
+
     AdminFlagsRead = "admin:flags:read"
     AdminFlagsWrite = "admin:flags:write"
 

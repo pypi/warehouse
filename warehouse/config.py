@@ -75,6 +75,8 @@ class RootFactory:
             (
                 Permissions.AdminBannerRead,
                 Permissions.AdminBannerWrite,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminEmailsWrite,
                 Permissions.AdminFlagsRead,
                 Permissions.AdminFlagsWrite,
                 Permissions.AdminSponsorsRead,
@@ -85,6 +87,7 @@ class RootFactory:
             "group:moderators",
             (
                 Permissions.AdminBannerRead,
+                Permissions.AdminEmailsRead,
                 Permissions.AdminFlagsRead,
                 Permissions.AdminSponsorsRead,
             ),
