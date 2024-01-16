@@ -167,7 +167,9 @@ class TestUser:
         assert user.__acl__() == [
             ("Allow", "group:admins", Permissions.AdminUsersRead),
             ("Allow", "group:admins", Permissions.AdminUsersWrite),
+            ("Allow", "group:admins", Permissions.AdminDashboardSidebarRead),
             ("Allow", "group:moderators", Permissions.AdminUsersRead),
+            ("Allow", "group:moderators", Permissions.AdminDashboardSidebarRead),
         ]
 
     @pytest.mark.parametrize(

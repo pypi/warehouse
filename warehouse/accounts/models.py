@@ -254,11 +254,16 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         return principals
 
     def __acl__(self):
-        # TODO: Is this ACL duplicating permissions set in RootFactory.__acl__?
+        # TODO: This ACL is duplicating permissions set in RootFactory.__acl__
+        #   If nothing else, setting the ACL on the model is more restrictive
+        #   than RootFactory.__acl__, which is why we duplicate
+        #   AdminDashboardSidebarRead here, otherwise the sidebar is not displayed.
         return [
             (Allow, "group:admins", Permissions.AdminUsersRead),
             (Allow, "group:admins", Permissions.AdminUsersWrite),
+            (Allow, "group:admins", Permissions.AdminDashboardSidebarRead),
             (Allow, "group:moderators", Permissions.AdminUsersRead),
+            (Allow, "group:moderators", Permissions.AdminDashboardSidebarRead),
         ]
 
     def __lt__(self, other):

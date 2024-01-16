@@ -36,6 +36,10 @@ class Permissions(StrEnum):
     AdminBannerRead = "admin:banner:read"
     AdminBannerWrite = "admin:banner:write"
 
+    # TODO: This is broad, and could be replaced in the base template with more
+    #       specific permissions per section. Other `__acl__`s need to be updated.
+    AdminDashboardSidebarRead = "admin:dashboard-sidebar:read"
+
     AdminEmailsRead = "admin:emails:read"
     AdminEmailsWrite = "admin:emails:write"
 
