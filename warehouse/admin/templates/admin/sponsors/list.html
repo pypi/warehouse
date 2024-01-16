@@ -22,7 +22,7 @@
 {% block content %}
 
 <div class="card card-primary card-outline">
-  {% if request.has_permission('psf_staff') %}
+  {% if request.has_permission(Permissions.AdminSponsorsWrite) %}
   <div class="card-header">
     <a class="btn btn-primary" href="{{ request.route_path('admin.sponsor.create') }}"><i class="fa fa-plus"></i> Create Sponsor</a>
   </div>

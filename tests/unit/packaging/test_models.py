@@ -18,6 +18,7 @@ import pytest
 from pyramid.authorization import Allow
 from pyramid.location import lineage
 
+from warehouse.authnz import Permissions
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
@@ -158,8 +159,33 @@ class TestProject:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
@@ -415,8 +441,33 @@ class TestRelease:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
         ] + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
