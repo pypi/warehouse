@@ -24,6 +24,7 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
+from warehouse.authnz import Permissions
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -453,11 +454,69 @@ def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
     assert acl == [
-        (Allow, "group:admins", "admin"),
-        (Allow, "group:admins", "admin_dashboard_access"),
-        (Allow, "group:moderators", "moderator"),
-        (Allow, "group:moderators", "admin_dashboard_access"),
-        (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:psf_staff", "admin_dashboard_access"),
+        (
+            Allow,
+            "group:admins",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminEmailsWrite,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminFlagsWrite,
+                Permissions.AdminIpAddressesRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsRead,
+                Permissions.AdminMacaroonsWrite,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProjectsDelete,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsWrite,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:moderators",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:psf_staff",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminSponsorsWrite,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]

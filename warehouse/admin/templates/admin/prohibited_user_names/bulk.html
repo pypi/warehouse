@@ -31,13 +31,13 @@
     <div class="card-body">
       <div class="form-group">
         <label for="prohibitedUserName">User name(s)</label>
-        <textarea name="users" class="form-control" id="prohibitedUserName" rows="20" placeholder="Enter user name(s) to prohibit " {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        <textarea name="users" class="form-control" id="prohibitedUserName" rows="20" placeholder="Enter user name(s) to prohibit " {{ "disabled" if not request.has_permission(Permissions.AdminUsersWrite) }} autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
       </div>
     </div>
 
     <div class="card-footer">
       <div class="float-right">
-        <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+        <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminUsersWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminUsersWrite) }}>Submit</button>
       </div>
     </div>
   </form>
