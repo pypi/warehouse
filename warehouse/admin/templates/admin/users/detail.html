@@ -15,12 +15,14 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
+{% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
+
 {% macro render_field(label, field, input_id, placeholder=None, class=None) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
   <label for="{{ input_id }}" class="col-sm-2 col-form-label">{{ label }}</label>
 
   <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
+    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not perms_admin_users_write))}}
 
     {% if field.errors %}
     <div class="help-block">
@@ -35,7 +37,7 @@
 
 {% macro render_checkbox(label, field, input_id, class=None) %}
 <div class="form-check">
-  {{ field(id=input_id, class=class, disabled=(not request.has_permission('admin')))}}
+  {{ field(id=input_id, class=class, disabled=(not perms_admin_users_write))}}
   <label for="{{ input_id }}" class="form-check-label">{{ label }}</label>
 </div>
 {% endmacro %}
@@ -101,13 +103,13 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
             <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
@@ -309,7 +311,7 @@
             <div class="card-footer">
               <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">
-                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
                 </div>
               </div>
             </div>
@@ -350,7 +352,7 @@
           <div class="card-footer">
             <div class="form-group">
               <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
               </div>
             </div>
           </div>

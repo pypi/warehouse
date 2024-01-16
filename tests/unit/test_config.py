@@ -477,6 +477,8 @@ def test_root_factory_access_control_list():
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersWrite,
             ),
         ),
         (
@@ -489,6 +491,7 @@ def test_root_factory_access_control_list():
                 Permissions.AdminJournalRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
             ),
         ),
         (

@@ -53,3 +53,6 @@ class Permissions(StrEnum):
 
     AdminSponsorsRead = "admin:sponsors:read"
     AdminSponsorsWrite = "admin:sponsors:write"
+
+    AdminUsersRead = "admin:users:read"
+    AdminUsersWrite = "admin:users:write"

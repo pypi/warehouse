@@ -35,6 +35,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.observations.models import HasObserversMixin
 from warehouse.sitemap.models import SitemapMixin
@@ -253,9 +254,11 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         return principals
 
     def __acl__(self):
+        # TODO: Is this ACL duplicating permissions set in RootFactory.__acl__?
         return [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (Allow, "group:admins", Permissions.AdminUsersRead),
+            (Allow, "group:admins", Permissions.AdminUsersWrite),
+            (Allow, "group:moderators", Permissions.AdminUsersRead),
         ]
 
     def __lt__(self, other):

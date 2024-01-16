@@ -86,6 +86,8 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersWrite,
             ),
         ),
         (
@@ -98,6 +100,7 @@ class RootFactory:
                 Permissions.AdminJournalRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
             ),
         ),
         (

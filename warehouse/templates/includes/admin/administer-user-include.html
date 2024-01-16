@@ -12,7 +12,7 @@
  # limitations under the License.
 -#}
 
-{% if request.has_permission("moderator") %}
+{% if request.has_permission(Permissions.AdminUsersRead) %}
 <div class="admin-include split-layout split-layout--middle">
   <span><b>Admin tools</b></span>
   <div>
