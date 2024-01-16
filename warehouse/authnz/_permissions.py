@@ -42,6 +42,8 @@ class Permissions(StrEnum):
     AdminFlagsRead = "admin:flags:read"
     AdminFlagsWrite = "admin:flags:write"
 
+    AdminJournalRead = "admin:journal:read"
+
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
 
