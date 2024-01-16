@@ -165,11 +165,20 @@ class TestUser:
     def test_acl(self, db_session):
         user = DBUserFactory.create()
         assert user.__acl__() == [
-            ("Allow", "group:admins", Permissions.AdminUsersRead),
-            ("Allow", "group:admins", Permissions.AdminUsersWrite),
-            ("Allow", "group:admins", Permissions.AdminDashboardSidebarRead),
-            ("Allow", "group:moderators", Permissions.AdminUsersRead),
-            ("Allow", "group:moderators", Permissions.AdminDashboardSidebarRead),
+            (
+                "Allow",
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     @pytest.mark.parametrize(

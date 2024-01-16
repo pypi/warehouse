@@ -259,11 +259,20 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         #   than RootFactory.__acl__, which is why we duplicate
         #   AdminDashboardSidebarRead here, otherwise the sidebar is not displayed.
         return [
-            (Allow, "group:admins", Permissions.AdminUsersRead),
-            (Allow, "group:admins", Permissions.AdminUsersWrite),
-            (Allow, "group:admins", Permissions.AdminDashboardSidebarRead),
-            (Allow, "group:moderators", Permissions.AdminUsersRead),
-            (Allow, "group:moderators", Permissions.AdminDashboardSidebarRead),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     def __lt__(self, other):
