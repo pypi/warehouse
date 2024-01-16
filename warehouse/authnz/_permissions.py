@@ -56,6 +56,9 @@ class Permissions(StrEnum):
     AdminObservationsRead = "admin:observations:read"
     AdminObservationsWrite = "admin:observations:write"
 
+    AdminOrganizationsRead = "admin:organizations:read"
+    AdminOrganizationsWrite = "admin:organizations:write"
+
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
 
