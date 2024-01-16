@@ -18,6 +18,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_
 from sqlalchemy.orm import joinedload
 
+from warehouse.authnz import Permissions
 from warehouse.packaging.models import JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -25,7 +26,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.journals.list",
     renderer="admin/journals/list.html",
-    permission="moderator",
+    permission=Permissions.AdminJournalRead,
     uses_session=True,
 )
 def journals_list(request):

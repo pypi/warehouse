@@ -40,6 +40,7 @@ from sqlalchemy.orm import (
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
@@ -334,8 +335,15 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         session = orm.object_session(self)
 
         acls = [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminOrganizationsRead,
+                    Permissions.AdminOrganizationsWrite,
+                ),
+            ),
+            (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
         ]
 
         # Get all of the users for this organization.
