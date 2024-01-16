@@ -52,8 +52,18 @@ class Permissions(StrEnum):
     AdminMacaroonsRead = "admin:macaroons:read"
     AdminMacaroonsWrite = "admin:macaroons:write"
 
+    AdminObservationsRead = "admin:observations:read"
+    AdminObservationsWrite = "admin:observations:write"
+
     AdminProhibitedProjectsRead = "admin:prohibited-projects:read"
     AdminProhibitedProjectsWrite = "admin:prohibited-projects:write"
+
+    AdminProjectsDelete = "admin:projects:delete"
+    AdminProjectsRead = "admin:projects:read"
+    AdminProjectsWrite = "admin:projects:write"
+
+    AdminRoleAdd = "admin:role:add"
+    AdminRoleDelete = "admin:role:delete"
 
     AdminSponsorsRead = "admin:sponsors:read"
     AdminSponsorsWrite = "admin:sponsors:write"

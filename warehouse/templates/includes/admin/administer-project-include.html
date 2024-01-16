@@ -12,7 +12,7 @@
  # limitations under the License.
 -#}
 
-{% if request.has_permission("moderator") %}
+{% if request.has_permission(Permissions.AdminProjectsRead) %}
 <div class="admin-include split-layout split-layout--middle">
   <span><b>Admin tools for project: <code>{{ project_name }}</code></b></span>
   <div>

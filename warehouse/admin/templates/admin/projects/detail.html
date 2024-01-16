@@ -133,7 +133,7 @@
             <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
             <td>{{ role.role_name }}</td>
             <td>
-              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission(Permissions.AdminRoleDelete) }}>
               <i class="fa fa-trash"></i>
               </button>
               <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
@@ -173,10 +173,10 @@
             <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <td>
-                <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('moderator') }}>
+                <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
               </td>
               <td>
-                <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('moderator') }}>
+                <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
                 <option disabled selected>Select a role</option>
                 {% for role_name in ['Maintainer', 'Owner'] %}
                 <option value="{{ role_name }}">
@@ -186,7 +186,7 @@
                 </select>
               </td>
               <td>
-                <button type="submit" class="btn btn-primary" {{ "disabled" if not request.has_permission('moderator') }}>
+                <button type="submit" class="btn btn-primary" {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
                 <i class="fa fa-plus"></i>
                 </button>
               </td>
@@ -474,13 +474,13 @@
     <div class="card-body">
       <div class="form-group col-sm-12">
         <label for="prohibitedComment">Comment</label>
-        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}></textarea>
       </div>
     </div>
 
     <div class="card-footer">
       <div class="float-right">
-        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}>Submit</button>
       </div>
     </div>
   </div>
