@@ -298,7 +298,6 @@ sphinx==7.2.6 \
     #   sphinxcontrib-htmlhelp
     #   sphinxcontrib-httpdomain
     #   sphinxcontrib-qthelp
-    #   sphinxcontrib-serializinghtml
 sphinx-autobuild==2021.3.14 \
     --hash=sha256:8fe8cbfdb75db04475232f05187c776f46f6e9e04cacf1e49ce81bdac649ccac \
     --hash=sha256:de1ca3b66e271d2b5b5140c35034c89e47f263f2cd5db302c9217065f7443f05
@@ -335,9 +334,9 @@ sphinxcontrib-qthelp==1.0.6 \
     --hash=sha256:62b9d1a186ab7f5ee3356d906f648cacb7a6bdb94d201ee7adf26db55092982d \
     --hash=sha256:bf76886ee7470b934e363da7a954ea2825650013d367728588732c7350f49ea4
     # via sphinx
-sphinxcontrib-serializinghtml==1.1.9 \
-    --hash=sha256:0c64ff898339e1fac29abd2bf5f11078f3ec413cfe9c046d3120d7ca65530b54 \
-    --hash=sha256:9b36e503703ff04f20e9675771df105e58aa029cfcbc23b8ed716019b7416ae1
+sphinxcontrib-serializinghtml==1.1.10 \
+    --hash=sha256:326369b8df80a7d2d8d7f99aa5ac577f51ea51556ed974e7716cfd4fca3f6cb7 \
+    --hash=sha256:93f3f5dc458b91b192fe10c397e324f262cf163d79f3282c158e8436a2c4511f
     # via sphinx
 tornado==6.4 \
     --hash=sha256:02ccefc7d8211e5a7f9e8bc3f9e5b0ad6262ba2fbb683a6443ecc804e5224ce0 \
