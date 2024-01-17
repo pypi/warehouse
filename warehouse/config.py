@@ -125,6 +125,14 @@ class RootFactory:
                 Permissions.AdminSponsorsWrite,
             ),
         ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]
 
