@@ -32,7 +32,6 @@ _GRAPHQL_GET_ORGANIZATION = "query($orgname: String) {organizations(where: {disp
 _GRAPHQL_GET_ACTOR = (
     "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}"
 )
-_TIMEOUT = 5
 
 
 class UserResponse(TypedDict):
@@ -70,7 +69,7 @@ def _activestate_gql_api_call(
                 "query": query,
                 "variables": variables,
             },
-            timeout=_TIMEOUT,
+            timeout=5,
         )
         if response.status_code >= 400:
             sentry_sdk.capture_message(

@@ -147,7 +147,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:826
+#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -297,8 +297,9 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1228
-#: warehouse/manage/views/__init__.py:1341
+#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
+#: warehouse/manage/views/__init__.py:1352
+#: warehouse/manage/views/__init__.py:1462
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -414,118 +415,124 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:194
+#: warehouse/manage/views/__init__.py:200
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:223
+#: warehouse/manage/views/__init__.py:229
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:774
+#: warehouse/manage/views/__init__.py:780
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:775
+#: warehouse/manage/views/__init__.py:781
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:884
+#: warehouse/manage/views/__init__.py:890
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:984
+#: warehouse/manage/views/__init__.py:990
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1016
+#: warehouse/manage/views/__init__.py:1022
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1209
+#: warehouse/manage/views/__init__.py:1220
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1322
+#: warehouse/manage/views/__init__.py:1333
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1556
-#: warehouse/manage/views/__init__.py:1857
-#: warehouse/manage/views/__init__.py:1965
+#: warehouse/manage/views/__init__.py:1442
+msgid ""
+"ActiveState-based trusted publishing is temporarily disabled. See "
+"https://pypi.org/help#admin-intervention for details."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1679
+#: warehouse/manage/views/__init__.py:1980
+#: warehouse/manage/views/__init__.py:2088
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1688
-#: warehouse/manage/views/__init__.py:1773
-#: warehouse/manage/views/__init__.py:1874
-#: warehouse/manage/views/__init__.py:1974
+#: warehouse/manage/views/__init__.py:1811
+#: warehouse/manage/views/__init__.py:1896
+#: warehouse/manage/views/__init__.py:1997
+#: warehouse/manage/views/__init__.py:2097
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1700
+#: warehouse/manage/views/__init__.py:1823
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1785
+#: warehouse/manage/views/__init__.py:1908
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1886
+#: warehouse/manage/views/__init__.py:2009
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1986
+#: warehouse/manage/views/__init__.py:2109
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1990
+#: warehouse/manage/views/__init__.py:2113
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2140
+#: warehouse/manage/views/__init__.py:2263
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2247
+#: warehouse/manage/views/__init__.py:2370
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2314
+#: warehouse/manage/views/__init__.py:2437
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2346
+#: warehouse/manage/views/__init__.py:2469
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2359
+#: warehouse/manage/views/__init__.py:2482
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2424
+#: warehouse/manage/views/__init__.py:2547
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2457
+#: warehouse/manage/views/__init__.py:2580
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2468
+#: warehouse/manage/views/__init__.py:2591
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2500
+#: warehouse/manage/views/__init__.py:2623
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -4417,6 +4424,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:105
 #: warehouse/templates/manage/project/publishing.html:154
+#: warehouse/templates/manage/project/publishing.html:210
 #: warehouse/templates/manage/project/roles.html:320
 #: warehouse/templates/manage/team/roles.html:123
 msgid "Add"
@@ -4472,34 +4480,42 @@ msgid "Organization"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:218
+#: warehouse/templates/manage/project/publishing.html:171
 msgid "my-organization"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:220
+#: warehouse/templates/manage/project/publishing.html:173
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:228
+#: warehouse/templates/manage/project/publishing.html:181
 msgid "ActiveState Project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:233
+#: warehouse/templates/manage/project/publishing.html:186
 msgid "my-project"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:235
+#: warehouse/templates/manage/project/publishing.html:188
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:243
+#: warehouse/templates/manage/project/publishing.html:196
 msgid "Actor Username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248
+#: warehouse/templates/manage/project/publishing.html:201
 msgid "my-username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:250
+#: warehouse/templates/manage/project/publishing.html:203
 msgid "The ActiveState user that will trigger the build of your Python artifact."
 msgstr ""
 

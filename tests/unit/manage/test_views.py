@@ -47,7 +47,12 @@ from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, GooglePublisher, OIDCPublisher
+from warehouse.oidc.models import (
+    ActiveStatePublisher,
+    GitHubPublisher,
+    GooglePublisher,
+    OIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationRoleType,
@@ -5835,16 +5840,18 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
-            "disabled": {"GitHub": False, "Google": False},
+            "disabled": {"GitHub": False, "Google": False, "ActiveState": False},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
         }
 
         assert request.flags.disallow_oidc.calls == [
             pretend.call(),
             pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
 
     def test_manage_project_oidc_publishers_admin_disabled(
@@ -5869,16 +5876,18 @@ class TestManageOIDCPublisherViews:
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
 
         assert view.manage_project_oidc_publishers() == {
-            "disabled": {"GitHub": True, "Google": True},
+            "disabled": {"GitHub": True, "Google": True, "ActiveState": True},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
             pretend.call(),
             pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
@@ -5930,6 +5939,25 @@ class TestManageOIDCPublisherViews:
                     sub=pretend.stub(data=publisher.sub),
                 ),
             ),
+            (
+                "add_activestate_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="ActiveState",
+                    publisher_url=lambda x=None: None,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    organization=pretend.stub(data=publisher.organization),
+                    project=pretend.stub(data=publisher.activestate_project_name),
+                    actor=pretend.stub(data=publisher.actor),
+                    actor_id="some-user-id",
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_preexisting(
@@ -5973,6 +6001,7 @@ class TestManageOIDCPublisherViews:
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         monkeypatch.setattr(
@@ -6048,6 +6077,20 @@ class TestManageOIDCPublisherViews:
                 ),
                 "Google",
             ),
+            (
+                "add_activestate_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    id="fakeid",
+                    publisher_name="ActiveState",
+                    publisher_url=lambda x=None: None,
+                    organization=pretend.stub(data="fake-org"),
+                    project=pretend.stub(data="fake-project"),
+                    actor=pretend.stub(data="fake-actor"),
+                    actor_id="some-user-id",
+                ),
+                "ActiveState",
+            ),
         ],
     )
     def test_add_oidc_publisher_created(
@@ -6088,6 +6131,7 @@ class TestManageOIDCPublisherViews:
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
         monkeypatch.setattr(
             views,
             "send_trusted_publisher_added_email",
@@ -6191,6 +6235,23 @@ class TestManageOIDCPublisherViews:
                     }
                 ),
             ),
+            (
+                "add_activestate_oidc_publisher",
+                "ActiveState",
+                ActiveStatePublisher(
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                    }
+                ),
+            ),
         ],
     )
     def test_add_oidc_publisher_already_registered_with_project(
@@ -6228,6 +6289,18 @@ class TestManageOIDCPublisherViews:
         )
 
         monkeypatch.setattr(
+            views.ActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+
+        monkeypatch.setattr(
+            views.ActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
+        )
+
+        monkeypatch.setattr(
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
         monkeypatch.setattr(
@@ -6235,10 +6308,11 @@ class TestManageOIDCPublisherViews:
         )
 
         assert getattr(view, view_name)() == {
-            "disabled": {"GitHub": False, "Google": False},
+            "disabled": {"GitHub": False, "Google": False, "ActiveState": False},
             "project": project,
             "github_publisher_form": view.github_publisher_form,
             "google_publisher_form": view.google_publisher_form,
+            "activestate_publisher_form": view.activestate_publisher_form,
         }
         assert view.metrics.increment.calls == [
             pretend.call(
@@ -6259,6 +6333,7 @@ class TestManageOIDCPublisherViews:
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_google_oidc_publisher", "Google"),
+            ("add_activestate_oidc_publisher", "ActiveState"),
         ],
     )
     def test_add_oidc_publisher_ratelimited(
@@ -6307,6 +6382,7 @@ class TestManageOIDCPublisherViews:
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_google_oidc_publisher", "Google"),
+            ("add_activestate_oidc_publisher", "ActiveState"),
         ],
     )
     def test_add_oidc_publisher_admin_disabled(
@@ -6348,6 +6424,7 @@ class TestManageOIDCPublisherViews:
         [
             ("add_github_oidc_publisher", "GitHub"),
             ("add_google_oidc_publisher", "Google"),
+            ("add_activestate_oidc_publisher", "ActiveState"),
         ],
     )
     def test_add_oidc_publisher_invalid_form(
@@ -6372,11 +6449,13 @@ class TestManageOIDCPublisherViews:
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         default_response = {
             "github_publisher_form": publisher_form_obj,
             "google_publisher_form": publisher_form_obj,
+            "activestate_publisher_form": publisher_form_obj,
         }
         monkeypatch.setattr(
             views.ManageOIDCPublisherViews, "default_response", default_response
@@ -6412,6 +6491,12 @@ class TestManageOIDCPublisherViews:
             GooglePublisher(
                 email="some-email@example.com",
                 sub="some-sub",
+            ),
+            ActiveStatePublisher(
+                organization="some-org",
+                activestate_project_name="some-project",
+                actor="some-user",
+                actor_id="some-user-id",
             ),
         ],
     )
@@ -6514,6 +6599,12 @@ class TestManageOIDCPublisherViews:
             GooglePublisher(
                 email="some-email@example.com",
                 sub="some-sub",
+            ),
+            ActiveStatePublisher(
+                organization="some-org",
+                activestate_project_name="some-project",
+                actor="some-user",
+                actor_id="some-user-id",
             ),
         ],
     )
