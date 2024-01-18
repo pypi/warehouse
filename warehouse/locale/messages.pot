@@ -461,78 +461,78 @@ msgid ""
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1679
-#: warehouse/manage/views/__init__.py:1980
-#: warehouse/manage/views/__init__.py:2088
+#: warehouse/manage/views/__init__.py:1677
+#: warehouse/manage/views/__init__.py:1978
+#: warehouse/manage/views/__init__.py:2086
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1811
-#: warehouse/manage/views/__init__.py:1896
-#: warehouse/manage/views/__init__.py:1997
-#: warehouse/manage/views/__init__.py:2097
+#: warehouse/manage/views/__init__.py:1809
+#: warehouse/manage/views/__init__.py:1894
+#: warehouse/manage/views/__init__.py:1995
+#: warehouse/manage/views/__init__.py:2095
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1823
+#: warehouse/manage/views/__init__.py:1821
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1908
+#: warehouse/manage/views/__init__.py:1906
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2009
+#: warehouse/manage/views/__init__.py:2007
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2109
+#: warehouse/manage/views/__init__.py:2107
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2113
+#: warehouse/manage/views/__init__.py:2111
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2263
+#: warehouse/manage/views/__init__.py:2261
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2370
+#: warehouse/manage/views/__init__.py:2368
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2437
+#: warehouse/manage/views/__init__.py:2435
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2469
+#: warehouse/manage/views/__init__.py:2467
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2482
+#: warehouse/manage/views/__init__.py:2480
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2547
+#: warehouse/manage/views/__init__.py:2545
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2580
+#: warehouse/manage/views/__init__.py:2578
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2591
+#: warehouse/manage/views/__init__.py:2589
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2623
+#: warehouse/manage/views/__init__.py:2621
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -576,43 +576,43 @@ msgstr ""
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:50
+#: warehouse/oidc/forms/activestate.py:49
 msgid "Double dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:57
+#: warehouse/oidc/forms/activestate.py:56
 msgid "Leading or trailing dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:80
-#: warehouse/oidc/forms/activestate.py:85
-#: warehouse/oidc/forms/activestate.py:96
-#: warehouse/oidc/forms/activestate.py:105
+#: warehouse/oidc/forms/activestate.py:79
+#: warehouse/oidc/forms/activestate.py:84
+#: warehouse/oidc/forms/activestate.py:95
+#: warehouse/oidc/forms/activestate.py:104
 msgid "Unexpected error from ActiveState. Try again"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:115
+#: warehouse/oidc/forms/activestate.py:114
 msgid "Specify ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:119
+#: warehouse/oidc/forms/activestate.py:118
 msgid "Invalid ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:129
+#: warehouse/oidc/forms/activestate.py:128
 msgid "Specify ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:133
-#: warehouse/oidc/forms/activestate.py:137
+#: warehouse/oidc/forms/activestate.py:132
+#: warehouse/oidc/forms/activestate.py:136
 msgid "Invalid ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:169
+#: warehouse/oidc/forms/activestate.py:168
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:189
+#: warehouse/oidc/forms/activestate.py:188
 msgid "ActiveState actor not found"
 msgstr ""
 

@@ -5944,7 +5944,9 @@ class TestManageOIDCPublisherViews:
                 pretend.stub(
                     id="fakeid",
                     publisher_name="ActiveState",
-                    publisher_url=lambda x=None: None,
+                    publisher_url=(
+                        lambda x=None: "https://platform.activestate.com/some-org/some-project"  # noqa
+                    ),
                     organization="some-org",
                     activestate_project_name="some-project",
                     actor="some-user",
