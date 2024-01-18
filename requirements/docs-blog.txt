@@ -204,9 +204,9 @@ jinja2==3.1.3 \
     # via
     #   mkdocs
     #   mkdocs-material
-markdown==3.5.1 \
-    --hash=sha256:5874b47d4ee3f0b14d764324d2c94c03ea66bee56f2d929da9f2508d65e722dc \
-    --hash=sha256:b65d7beb248dc22f2e8a31fb706d93798093c308dc1aba295aedeb9d41a813bd
+markdown==3.5.2 \
+    --hash=sha256:d43323865d89fc0cb9b20c75fc8ad313af307cc087e84b657d9eec768eddeadd \
+    --hash=sha256:e1ac7b3dc550ee80e602e71c1d168002f062e49f1b11e26a36264dafd4df2ef8
     # via
     #   mkdocs
     #   mkdocs-material
