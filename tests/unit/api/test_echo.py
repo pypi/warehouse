@@ -10,9 +10,102 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.api.echo import api_echo
+import pytest
+
+from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest
+
+from tests.common.db.packaging import ProjectFactory
+from warehouse.api.echo import api_echo, api_projects_observations
 
 
 class TestAPI:
     def test_echo(self, pyramid_request, pyramid_user):
         assert api_echo(pyramid_request) == {"username": pyramid_user.username}
+
+
+class TestAPIProjectObservations:
+    def test_missing_fields(self, pyramid_request):
+        project = ProjectFactory.create()
+        pyramid_request.json_body = {}
+
+        with pytest.raises(HTTPBadRequest) as exc:
+            api_projects_observations(project, pyramid_request)
+
+        assert exc.value.json == {
+            "error": "missing required fields",
+            "missing": ["kind", "summary"],
+        }
+
+    def test_invalid_kind(self, pyramid_request):
+        project = ProjectFactory.create()
+        pyramid_request.json_body = {"kind": "invalid", "summary": "test"}
+
+        with pytest.raises(HTTPBadRequest) as exc:
+            api_projects_observations(project, pyramid_request)
+
+        assert exc.value.json == {
+            "error": "invalid kind",
+            "kind": "invalid",
+            "project": project.name,
+        }
+
+    def test_malware_missing_inspector_url(self, pyramid_request):
+        project = ProjectFactory.create()
+        pyramid_request.json_body = {"kind": "is_malware", "summary": "test"}
+
+        with pytest.raises(HTTPBadRequest) as exc:
+            api_projects_observations(project, pyramid_request)
+
+        assert exc.value.json == {
+            "error": "missing required fields",
+            "missing": ["inspector_url"],
+            "project": project.name,
+        }
+
+    def test_malware_invalid_inspector_url(self, pyramid_request):
+        project = ProjectFactory.create()
+        pyramid_request.json_body = {
+            "kind": "is_malware",
+            "summary": "test",
+            "inspector_url": "invalid",
+        }
+
+        with pytest.raises(HTTPBadRequest) as exc:
+            api_projects_observations(project, pyramid_request)
+
+        assert exc.value.json == {
+            "error": "invalid inspector_url",
+            "inspector_url": "invalid",
+            "project": project.name,
+        }
+
+    def test_valid_malware_observation(self, db_request, pyramid_user):
+        project = ProjectFactory.create()
+        db_request.json_body = {
+            "kind": "is_malware",
+            "summary": "test",
+            "inspector_url": "https://inspector.pypi.io/...",
+        }
+
+        response = api_projects_observations(project, db_request)
+
+        assert isinstance(response, HTTPAccepted)
+        assert response.json_body == {
+            "project": project.name,
+            "thanks": "for the observation",
+        }
+
+    def test_valid_spam_observation(self, db_request, pyramid_user):
+        project = ProjectFactory.create()
+        db_request.json_body = {
+            "kind": "is_spam",
+            "summary": "test",
+        }
+
+        response = api_projects_observations(project, db_request)
+
+        assert isinstance(response, HTTPAccepted)
+        assert response.json_body == {
+            "project": project.name,
+            "thanks": "for the observation",
+        }

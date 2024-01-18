@@ -13,12 +13,16 @@ from __future__ import annotations
 
 import typing
 
+from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest
 from pyramid.view import view_config
 
 from warehouse.authnz import Permissions
+from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 
 if typing.TYPE_CHECKING:
     from pyramid.request import Request
+
+    from warehouse.packaging.models import Project
 
 
 # TODO: Move this to a more general-purpose API view helper module
@@ -61,3 +65,73 @@ def api_echo(request: Request):
     return {
         "username": request.user.username,
     }
+
+
+@api_v1_view_config(
+    route_name="api.projects.observations",
+    permission=Permissions.APIObservationsAdd,
+    require_methods=["POST"],
+)
+def api_projects_observations(
+    project: Project, request: Request
+) -> HTTPAccepted | HTTPBadRequest:
+    data = request.json_body
+
+    # TODO: Are there better mechanisms for validating the payload?
+    #  Maybe adopt https://github.com/Pylons/pyramid_openapi3 - too big?
+    required_fields = {"kind", "summary"}
+    if not required_fields.issubset(data.keys()):
+        raise HTTPBadRequest(
+            json={
+                "error": "missing required fields",
+                "missing": sorted(list(required_fields - data.keys())),
+            },
+        )
+    try:
+        # get the correct mapping for the `kind` field
+        kind = OBSERVATION_KIND_MAP[data["kind"]]
+    except KeyError:
+        raise HTTPBadRequest(
+            json={
+                "error": "invalid kind",
+                "kind": data["kind"],
+                "project": project.name,
+            }
+        )
+
+    # TODO: Another case of needing more complex validation
+    if kind == ObservationKind.IsMalware:
+        if "inspector_url" not in data:
+            raise HTTPBadRequest(
+                json={
+                    "error": "missing required fields",
+                    "missing": ["inspector_url"],
+                    "project": project.name,
+                },
+            )
+        if "inspector_url" in data and not data["inspector_url"].startswith(
+            "https://inspector.pypi.io/"
+        ):
+            raise HTTPBadRequest(
+                json={
+                    "error": "invalid inspector_url",
+                    "inspector_url": data["inspector_url"],
+                    "project": project.name,
+                },
+            )
+
+    project.record_observation(
+        request=request,
+        kind=kind,
+        actor=request.user,
+        summary=data["summary"],
+        payload=data,
+    )
+
+    return HTTPAccepted(
+        json={
+            # TODO: What should we return to the caller?
+            "project": project.name,
+            "thanks": "for the observation",
+        },
+    )

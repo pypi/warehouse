@@ -544,6 +544,13 @@ def includeme(config):
         "/api/echo",
         domain=warehouse,
     )
+    config.add_route(
+        "api.projects.observations",
+        "/api/projects/{name}/observations",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
 
     # Mock URLs
     config.add_route(

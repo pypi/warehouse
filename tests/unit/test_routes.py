@@ -539,6 +539,13 @@ def test_routes(warehouse):
             "/api/echo",
             domain=warehouse,
         ),
+        pretend.call(
+            "api.projects.observations",
+            "/api/projects/{name}/observations",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
         # Mock URLs
         pretend.call(
             "mock.billing.checkout-session",
