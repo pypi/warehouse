@@ -721,8 +721,10 @@ class File(HasEvents, db.Model):
                 or_(
                     self.Event.additional[  # type: ignore[attr-defined]
                         "uploaded_via_trusted_publisher"
-                    ].as_boolean(),  # noqa E501
-                    self.Event.additional["publisher_url"].as_string().is_not(None),  # type: ignore[attr-defined] # noqa E501
+                    ].as_boolean(),
+                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
+                    .as_string()
+                    .is_not(None),
                 )
             ).count()
             > 0
