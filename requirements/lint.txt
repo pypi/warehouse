@@ -40,9 +40,9 @@ botocore-stubs==1.31.63 \
     --hash=sha256:873715a5c21d0f4593628393c78e47cf94e53a43e40863a9ef5f165fcdcf900f \
     --hash=sha256:e92b5bd8d2667e557ea25025b396613c9bcb33d18b1971f98ebc24fa54caf495
     # via boto3-stubs
-celery-types==0.20.0 \
-    --hash=sha256:5ebf858a4bf73ca610652d82940dc3a2e4c86afed0421ab1becbff66b49feea4 \
-    --hash=sha256:e5c762555605ed0592baed9d519230046ce8e7a11c67a821555c08b7cece1960
+celery-types==0.21.0 \
+    --hash=sha256:a447e653b70b47385b67175cd2f87b6e1dff6bc88dadcedb7a72143bd92118f2 \
+    --hash=sha256:c6f1628943280c7a253fbb30381621771f3d9e3a3e77c36979ed35043d6d416b
     # via -r requirements/lint.in
 cffi==1.16.0 \
     --hash=sha256:0c9ef6ff37e974b73c25eecc13952c55bceed9112be2d9d938ded8e856138bcc \
@@ -385,9 +385,9 @@ types-s3transfer==0.10.0 \
     --hash=sha256:35e4998c25df7f8985ad69dedc8e4860e8af3b43b7615e940d53c00d413bdc69 \
     --hash=sha256:44fcdf0097b924a9aab1ee4baa1179081a9559ca62a88c807e2b256893ce688f
     # via boto3-stubs
-types-setuptools==69.0.0.20240106 \
-    --hash=sha256:b1da8981425723a674fd459c43dfa4402abeaee3f9cf682723ee9cf226125cc3 \
-    --hash=sha256:e077f9089578df3c9938f6e4aa1633f182ba6740a6fdb1333f162bae5dfcbadc
+types-setuptools==69.0.0.20240115 \
+    --hash=sha256:1a9c863899f40cbe2053d0cd1d00ddef0330b492335467d018f73c1fec9462a3 \
+    --hash=sha256:7409e774c69e1810cb45052dbaed839fc30302e86a3ff945172ef2a2e7ab46f8
     # via
     #   -r requirements/lint.in
     #   types-babel
