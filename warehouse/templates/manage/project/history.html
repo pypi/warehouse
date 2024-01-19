@@ -237,11 +237,9 @@
       {% trans %}Creator{% endtrans %}:
       {% if event.additional.publisher_url %}
       {{ event.additional.publisher_name }}:
-        {% if event.additional.publisher_url %}
-        <a href="{{ event.additional.publisher_url }}">
-          {{ event.additional.publisher_url }}
-        </a>
-        {% endif %}
+      <a href="{{ event.additional.publisher_url }}">
+        {{ event.additional.publisher_url }}
+      </a>
       {% else %}
       {{ event.additional.publisher_name }}
       {% endif %}
