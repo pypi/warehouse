@@ -148,18 +148,6 @@ class MacaroonSecurityPolicy:
         # can't call this function without an identity that came from a macaroon
         assert isinstance(macaroon, str), "no valid macaroon"
 
-        # Check to make sure that the permission we're attempting to permit is one that
-        # is allowed to be used for macaroons.
-        # TODO: This should be moved out of there and into the macaroons themselves, it
-        #       doesn't really make a lot of sense here and it makes things more
-        #       complicated if we want to allow the use of macaroons for actions other
-        #       than uploading.
-        if permission not in ["upload"]:
-            return WarehouseDenied(
-                f"API tokens are not valid for permission: {permission}!",
-                reason="invalid_permission",
-            )
-
         # Check if our macaroon itself is valid. This does not actually check if the
         # identity bound to that macaroon has permission to do what it's trying to do
         # but rather that the caveats embedded into the macaroon are valid for the given

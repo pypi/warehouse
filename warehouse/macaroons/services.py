@@ -140,6 +140,16 @@ class DatabaseMacaroonService:
         if dm is None:
             raise InvalidMacaroonError("deleted or nonexistent macaroon")
 
+        # Originally our Macaroons did not have a caveat to indicate what permissions
+        # they were valid for, however they now do (and we currently always emit them
+        # with a permission caveat), so if this particular Macaroon predates that then
+        # we will do a legacy fallback here.
+        if dm.predates_permission_caveat:
+            if permission != "upload":
+                raise InvalidMacaroonError(
+                    f"token not valid for permission: {permission}"
+                )
+
         verified = caveats.verify(m, dm.key, request, context, permission)
         if verified:
             dm.last_used = datetime.datetime.now()
@@ -156,6 +166,9 @@ class DatabaseMacaroonService:
         user_id=None,
         oidc_publisher_id=None,
         additional=None,
+        # This is intended only for use in testing, to allow us to create legacy
+        # style Macaroons that do not have a permission scope.
+        _require_permission_scope=True,
     ):
         """
         Returns a tuple of a new raw (serialized) macaroon and its DB model.
@@ -166,6 +179,12 @@ class DatabaseMacaroonService:
         """
         if not all(isinstance(c, caveats.Caveat) for c in scopes):
             raise TypeError("scopes must be a list of Caveat instances")
+
+        if (
+            not any(isinstance(c, caveats.Permission) for c in scopes)
+            and _require_permission_scope
+        ):
+            raise ValueError("one of the scopes must be a Permission caveat")
 
         # NOTE: This is a bit of a hack: we keep a separate copy of the
         # permissions caveat in the DB, so that we can display scope information

@@ -898,7 +898,9 @@ class ProvisionMacaroonViews:
             if form.validated_scope == "user":
                 recorded_caveats = [{"permissions": form.validated_scope, "version": 1}]
                 macaroon_caveats = [
-                    caveats.RequestUser(user_id=str(self.request.user.id))
+                    caveats.RequestUser(user_id=str(self.request.user.id)),
+                    # TODO: Use an enum from warehouse.authz.Permission
+                    caveats.Permission(permissions=["upload"]),
                 ]
             else:
                 project_ids = [
@@ -915,6 +917,8 @@ class ProvisionMacaroonViews:
                         normalized_names=form.validated_scope["projects"]
                     ),
                     caveats.ProjectID(project_ids=project_ids),
+                    # TODO: Use an enum from warehouse.authz.Permission
+                    caveats.Permission(permissions=["upload"]),
                 ]
 
             serialized_macaroon, macaroon = self.macaroon_service.create_macaroon(

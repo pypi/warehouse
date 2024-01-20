@@ -21,7 +21,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.utils.db.types import datetime_now
+from warehouse.utils.db.types import bool_false, datetime_now
 
 
 def _generate_key():
@@ -90,3 +90,8 @@ class Macaroon(db.Model):
     # TODO: Can't annotate this as "OIDCPublisher" because that would create a
     #  circular import.
     oidc_publisher = orm.relationship("OIDCPublisher", lazy=True, viewonly=True)
+
+    # Previous Macaroon were generated without a caveat restricting what
+    # permissions they were valid for, so we'll store a flag to indicate whether
+    # this Macaroon predated the permission caveat.
+    predates_permission_caveat: Mapped[bool_false]

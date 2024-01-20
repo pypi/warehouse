@@ -262,6 +262,8 @@ def mint_token(
                 oidc_publisher_id=str(publisher.id),
             ),
             caveats.ProjectID(project_ids=[str(p.id) for p in publisher.projects]),
+            # TODO: Use an enum from warehouse.authz.Permission
+            caveats.Permission(permissions=["upload"]),
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=str(publisher.id),

@@ -28,6 +28,7 @@ from warehouse.macaroons.caveats import (
     Expiration,
     Failure,
     OIDCPublisher,
+    Permission,
     ProjectID,
     ProjectName,
     RequestUser,
@@ -346,6 +347,19 @@ class TestOIDCPublisherCaveat:
         result = caveat.verify(request, foobar, pretend.stub())
 
         assert result == Success()
+
+
+class TestPermissionCaveat:
+    def test_verify_invalid(self):
+        caveat = Permission(permissions=["upload"])
+        result = caveat.verify(pretend.stub(), pretend.stub(), "something:read")
+
+        assert result == Failure("token not valid for permission: something:read")
+
+    def test_verify_ok(self):
+        caveat = Permission(permissions=["other:perm", "upload"])
+        assert caveat.verify(pretend.stub(), pretend.stub(), "other:perm") == Success()
+        assert caveat.verify(pretend.stub(), pretend.stub(), "upload") == Success()
 
 
 class TestCaveatRegistry:

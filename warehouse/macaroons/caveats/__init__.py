@@ -143,6 +143,18 @@ class OIDCPublisher(Caveat, frozen=True):
         return Success()
 
 
+@as_caveat(tag=5)
+@dataclass(frozen=True)
+class Permission(Caveat):
+    permissions: list[StrictStr]
+
+    def verify(self, request: Request, context: Any, permission: str) -> Result:
+        if permission not in self.permissions:
+            return Failure(f"token not valid for permission: {permission}")
+
+        return Success()
+
+
 def verify(
     macaroon: Macaroon, key: bytes, request: Request, context: Any, permission: str
 ) -> Allowed | WarehouseDenied:

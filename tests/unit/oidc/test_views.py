@@ -552,6 +552,7 @@ def test_mint_token_no_pending_publisher_ok(
                     oidc_publisher_id=str(publisher.id),
                 ),
                 caveats.ProjectID(project_ids=["fakeprojectid"]),
+                caveats.Permission(permissions=["upload"]),
                 caveats.Expiration(expires_at=900, not_before=0),
             ],
             oidc_publisher_id=str(publisher.id),

@@ -2053,6 +2053,7 @@ class TestProvisionMacaroonViews:
                 description=create_macaroon_obj.description.data,
                 scopes=[
                     caveats.RequestUser(user_id="a user id"),
+                    caveats.Permission(permissions=["upload"]),
                 ],
                 additional={"made_with_2fa": has_2fa},
             )
@@ -2150,6 +2151,7 @@ class TestProvisionMacaroonViews:
                     caveats.ProjectID(
                         project_ids=[str(p.id) for p in request.user.projects]
                     ),
+                    caveats.Permission(permissions=["upload"]),
                 ],
                 additional={"made_with_2fa": False},
             )
