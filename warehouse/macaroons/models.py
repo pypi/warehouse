@@ -21,6 +21,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.macaroons.caveats import (
+    Caveat,
+    deserialize_obj as caveats_deserialize,
+    serialize_obj as caveats_serialize,
+)
 from warehouse.utils.db.types import datetime_now
 
 
@@ -70,6 +75,38 @@ class Macaroon(db.Model):
     permissions_caveat: Mapped[dict] = mapped_column(
         JSONB, server_default=sql.text("'{}'")
     )
+
+    # The caveats that were attached to this Macaroon when we generated it.
+    #
+    # NOTE: The cannonical, authoritative list of caveats that a Macaroon has is
+    #       contained within the Macaroon itself. These caveats are *not* used
+    #       during the authorization or authentication process, and are retained
+    #       merely for informational reasons.
+    #
+    # NOTE: Users can add additional caveats at any time without communicating
+    #       those additional caveats to us, so those would not be reflected in
+    #       this data.
+    #
+    # NOTE: Originally we only stored the "permissions" caveat, which maps to
+    #       the RequestUser and ProjectName caveat, while that data was mapped
+    #       into these caveats, there may have been additional caveats (such as
+    #       expiration) that were attached to the Macaroon during generation
+    #       that is missing from this column for older Macaroons.
+    #
+    _caveats: Mapped[list | None] = mapped_column("caveats", JSONB)
+
+    @property
+    def caveats(self) -> list[Caveat] | None:
+        if self._caveats is None:
+            return None
+        return [caveats_deserialize(c) for c in self._caveats]
+
+    @caveats.setter
+    def caveats(self, caveats: list[Caveat] | None):
+        if caveats is None:
+            self._caveats = None
+        else:
+            self._caveats = [list(caveats_serialize(c)) for c in caveats]
 
     # Additional state associated with this macaroon.
     # For OIDC publisher-issued macaroons, this will contain a subset of OIDC claims.
