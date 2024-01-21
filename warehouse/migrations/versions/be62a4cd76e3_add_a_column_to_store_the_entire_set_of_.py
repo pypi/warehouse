@@ -50,10 +50,14 @@ def upgrade():
     # names is taken from the permissions_caveat.
     op.execute(
         """ UPDATE macaroons
-            SET caveats = jsonb_build_array(jsonb_build_array(1, permissions_caveat->'permissions'->'projects'))
+            SET caveats = jsonb_build_array(
+                jsonb_build_array(1, permissions_caveat->'permissions'->'projects')
+            )
             WHERE
                 caveats IS NULL
-                AND jsonb_typeof(permissions_caveat->'permissions'->'projects') = 'array'
+                AND jsonb_typeof(
+                    permissions_caveat->'permissions'->'projects'
+                ) = 'array'
         """
     )
 
