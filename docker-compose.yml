@@ -8,6 +8,7 @@ volumes:
   policies:
   vault:
   caches:
+  rstuf-metadata:
 
 services:
   db:
@@ -141,6 +142,36 @@ services:
       FILES_BACKEND: "warehouse.packaging.services.LocalFileStorage path=/var/opt/warehouse/packages/ url=http://files:9001/packages/{path}"
       ARCHIVE_FILES_BACKEND: "warehouse.packaging.services.LocalArchiveFileStorage path=/var/opt/warehouse/packages-archive/ url=http://files:9001/packages-archive/{path}"
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
+
+  rstuf-api:
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.9.0b1
+    ports:
+      - 8001:80
+    environment:
+      - RSTUF_BROKER_SERVER=redis://redis/1
+      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_REDIS_SERVER_DB_RESULT=1
+      - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+
+  rstuf-worker:
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.11.0b1
+    volumes:
+      - rstuf-metadata:/var/opt/repository-service-tuf/storage
+    environment:
+      - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
+      - RSTUF_BROKER_SERVER=redis://redis/1
+      - RSTUF_REDIS_SERVER=redis://redis
+      - RSTUF_REDIS_SERVER_DB_RESULT=1
+      - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+      - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
+    healthcheck:
+      test: "exit 0"
+    restart: always
+    tty: true
+    depends_on:
+      db:
+        condition: service_healthy
 
   static:
     build:
