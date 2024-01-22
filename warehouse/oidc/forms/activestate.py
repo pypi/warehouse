@@ -154,8 +154,6 @@ class ActiveStatePublisherBase(forms.Form):
         ]
     )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
     def _lookup_organization(self, org_url_name: str) -> None:
         """Make gql API call to the ActiveState API to check if the organization

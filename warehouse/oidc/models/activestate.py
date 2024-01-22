@@ -122,7 +122,7 @@ class ActiveStatePublisherMixin:
     def project(self) -> str:
         return self.activestate_project_name
 
-    def publisher_url(self, claims=None):
+    def publisher_url(self, claims: SignedClaims | None = None) -> str:
         return urllib.parse.urljoin(
             _ACTIVESTATE_URL, f"{self.organization}/{self.activestate_project_name}"
         )
