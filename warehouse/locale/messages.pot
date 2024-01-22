@@ -5536,7 +5536,7 @@ msgid "Expiration:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:228
-msgid "Expiration Status:"
+msgid "Expiration status:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:232

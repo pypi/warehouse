@@ -265,7 +265,7 @@ def mint_token(
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=str(publisher.id),
-        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
+        additional={"oidc": publisher.stored_claims(claims)},
     )
     for project in publisher.projects:
         project.record_event(
