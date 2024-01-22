@@ -73,7 +73,8 @@ def _activestate_gql_api_call(
         )
         if response.status_code >= 400:
             sentry_sdk.capture_message(
-                f"Unexpected {response.status_code } error from ActiveState API: {response.content!r}"  # noqa
+                f"Unexpected {response.status_code } error "
+                f"from ActiveState API: {response.content!r}"
             )
             raise wtforms.validators.ValidationError(
                 _("Unexpected error from ActiveState. Try again")
@@ -153,7 +154,6 @@ class ActiveStatePublisherBase(forms.Form):
             _no_leading_or_trailing_dashes,
         ]
     )
-
 
     def _lookup_organization(self, org_url_name: str) -> None:
         """Make gql API call to the ActiveState API to check if the organization

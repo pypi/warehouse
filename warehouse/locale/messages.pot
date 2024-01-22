@@ -584,35 +584,35 @@ msgstr ""
 msgid "Leading or trailing dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:79
-#: warehouse/oidc/forms/activestate.py:84
-#: warehouse/oidc/forms/activestate.py:95
-#: warehouse/oidc/forms/activestate.py:104
+#: warehouse/oidc/forms/activestate.py:80
+#: warehouse/oidc/forms/activestate.py:85
+#: warehouse/oidc/forms/activestate.py:96
+#: warehouse/oidc/forms/activestate.py:105
 msgid "Unexpected error from ActiveState. Try again"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:114
+#: warehouse/oidc/forms/activestate.py:115
 msgid "Specify ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:118
+#: warehouse/oidc/forms/activestate.py:119
 msgid "Invalid ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:128
+#: warehouse/oidc/forms/activestate.py:129
 msgid "Specify ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:132
-#: warehouse/oidc/forms/activestate.py:136
+#: warehouse/oidc/forms/activestate.py:133
+#: warehouse/oidc/forms/activestate.py:137
 msgid "Invalid ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:168
+#: warehouse/oidc/forms/activestate.py:166
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:188
+#: warehouse/oidc/forms/activestate.py:186
 msgid "ActiveState actor not found"
 msgstr ""
 
