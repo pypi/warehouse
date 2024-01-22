@@ -15,7 +15,6 @@ import time
 from typing import Any
 
 from pydantic import StrictInt, StrictStr
-from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon, Verifier
 from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
@@ -50,8 +49,7 @@ __all__ = ["deserialize", "serialize", "verify"]
 
 
 @as_caveat(tag=0)
-@dataclass(frozen=True)
-class Expiration(Caveat):
+class Expiration(Caveat, frozen=True):
     expires_at: StrictInt
     not_before: StrictInt
 
@@ -63,8 +61,7 @@ class Expiration(Caveat):
 
 
 @as_caveat(tag=1)
-@dataclass(frozen=True)
-class ProjectName(Caveat):
+class ProjectName(Caveat, frozen=True):
     normalized_names: list[StrictStr]
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
@@ -80,8 +77,7 @@ class ProjectName(Caveat):
 
 
 @as_caveat(tag=2)
-@dataclass(frozen=True)
-class ProjectID(Caveat):
+class ProjectID(Caveat, frozen=True):
     project_ids: list[StrictStr]
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
@@ -97,8 +93,7 @@ class ProjectID(Caveat):
 
 
 @as_caveat(tag=3)
-@dataclass(frozen=True)
-class RequestUser(Caveat):
+class RequestUser(Caveat, frozen=True):
     user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
@@ -112,8 +107,7 @@ class RequestUser(Caveat):
 
 
 @as_caveat(tag=4)
-@dataclass(frozen=True)
-class OIDCPublisher(Caveat):
+class OIDCPublisher(Caveat, frozen=True):
     oidc_publisher_id: StrictStr
     oidc_claims: SignedClaims | None = None
     """
