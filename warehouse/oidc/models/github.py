@@ -225,6 +225,10 @@ class GitHubPublisherMixin:
             return f"{base}/commit/{sha}"
         return base
 
+    def stored_claims(self, claims=None):
+        claims = claims if claims else {}
+        return {"ref": claims.get("ref"), "sha": claims.get("sha")}
+
     def __str__(self):
         return self.workflow_filename
 
