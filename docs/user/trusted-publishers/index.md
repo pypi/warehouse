@@ -7,9 +7,8 @@ title: Getting Started
 "Trusted publishing" is our term for using the [OpenID Connect
 (OIDC)](https://openid.net/connect/) standard to exchange short-lived identity
 tokens between a trusted third-party service and PyPI. This method can be used
-in automated environments and eliminates the need to use username/password
-combinations or manually generated API tokens to authenticate with PyPI when
-publishing.
+in automated environments and eliminates the need to use manually generated API
+tokens to authenticate with PyPI when publishing.
 
 For a quickstart, see:
 
@@ -19,7 +18,7 @@ For a quickstart, see:
 ## Quick background: Publishing with OpenID Connect
 
 OpenID Connect (OIDC) publishing is a mechanism for uploading packages to PyPI, *complementing*
-existing methods (username/password combinations, API tokens).
+API tokens.
 
 You don't need to understand OIDC to use OIDC publishing with PyPI, but here's
 the TL;DR:
@@ -48,8 +47,5 @@ to PyPI's traditional authentication methods:
   manual step is configuring the publisher on PyPI.
 * Security: PyPI's normal API tokens are long-lived, meaning that an attacker
   who compromises a package's release token can use it until its legitimate user
-  notices and manually revokes it. Similarly, uploading with a password means
-  that an attacker can upload to *any* project associated with the account.
-  Trusted publishing avoids both of these problems: the tokens minted expire
-  automatically, and are scoped down to only the packages that they're
-  authorized to upload to.
+  notices and manually revokes it. Trusted publishing avoids this problem because
+  the tokens minted expire automatically.
