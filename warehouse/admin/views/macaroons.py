@@ -14,6 +14,7 @@ from pyramid.httpexceptions import HTTPBadRequest, HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
 from sqlalchemy.orm import joinedload
 
+from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -24,7 +25,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="admin/macaroons/decode_token.html",
-    permission="admin",
+    permission=Permissions.AdminMacaroonsRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -33,7 +34,7 @@ from warehouse.macaroons.services import deserialize_raw_macaroon
 @view_config(
     route_name="admin.macaroon.decode_token",
     renderer="admin/macaroons/decode_token.html",
-    permission="admin",
+    permission=Permissions.AdminMacaroonsRead,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -69,7 +70,7 @@ def macaroon_decode_token(request):
 @view_config(
     route_name="admin.macaroon.detail",
     renderer="admin/macaroons/detail.html",
-    permission="admin",
+    permission=Permissions.AdminMacaroonsRead,
     uses_session=True,
 )
 def macaroon_detail(request):
@@ -90,7 +91,7 @@ def macaroon_detail(request):
 
 @view_config(
     route_name="admin.macaroon.delete",
-    permission="admin",
+    permission=Permissions.AdminMacaroonsWrite,
     uses_session=True,
     require_methods=False,
 )

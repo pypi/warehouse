@@ -51,6 +51,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -253,8 +254,37 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     def __acl__(self):
         session = orm.object_session(self)
         acls = [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
+            #       permissions here in terms of the permissions that the user has on
+            #       the project. This is more complex, as add ACL Entries based on other
+            #       criteria, such as the user's role in the project.
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
         ]
 
         # The project has zero or more OIDC publishers registered to it,

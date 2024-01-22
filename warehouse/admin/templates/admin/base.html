@@ -111,7 +111,8 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          {% if request.has_permission('moderator') %}
+          {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
+          {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications <span class="right badge badge-danger">New</span></p>
@@ -163,6 +164,7 @@
             </a>
           </li>
           {% endif %}
+          {# TODO: This is implicitly allowed for PSF Staff #}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.banner.list') }}" class="nav-link">
               <i class="fa fa-quote-right nav-icon"></i> <p>Banners</p>

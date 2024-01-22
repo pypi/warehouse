@@ -82,12 +82,12 @@
 
 
             <div class="form-group">
-              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires staff privileges' if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
+              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires staff privileges' if not request.has_permission(Permissions.AdminBannerWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }}>Submit</button>
 
               {% if banner %}
               <a class="btn btn-info" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" rel="nofollow noopener noreferrer" target="_blank"><i class="icon fa fa-eye"></i> Preview Saved</a>
 
-              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
+              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }} value=>
                 <i class="icon fa fa-trash"></i> Delete banner
               </button>
               {% endif %}

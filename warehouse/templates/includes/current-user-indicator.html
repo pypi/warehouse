@@ -23,7 +23,7 @@
         </span>
       </button>
       <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans %}Main menu{% endtrans %}">
-        {% if request.has_permission("admin_dashboard_access") %}
+        {% if request.has_permission(Permissions.AdminDashboardRead) %}
         <li>
           <a href="{{ request.route_path('admin.dashboard') }}" class="dropdown__link">
             <i class="fa fa-wrench" aria-hidden="true"></i>
