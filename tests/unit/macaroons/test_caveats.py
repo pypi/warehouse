@@ -29,6 +29,7 @@ from warehouse.macaroons.caveats import (
     Failure,
     OIDCPublisher,
     Permission,
+    PublicPermissions,
     ProjectID,
     ProjectName,
     RequestUser,
@@ -354,12 +355,19 @@ class TestPermissionCaveat:
         caveat = Permission(permissions=["upload"])
         result = caveat.verify(pretend.stub(), pretend.stub(), "something:read")
 
-        assert result == Failure("token not valid for permission: something:read")
+        assert result == Failure("token does not have the required permissions")
 
     def test_verify_ok(self):
-        caveat = Permission(permissions=["other:perm", "upload"])
-        assert caveat.verify(pretend.stub(), pretend.stub(), "other:perm") == Success()
+        caveat = Permission(permissions=["upload"])
         assert caveat.verify(pretend.stub(), pretend.stub(), "upload") == Success()
+
+    def test_coerces_internal(self):
+        caveat = Permission(permissions=["upload"])
+        assert caveat.permissions == PublicPermissions.Upload
+
+    def test_doesnt_coerce_internal_when_deserializing(self):
+        with pytest.raises(CaveatError):
+            deserialize(b'[5, ["upload"]]')
 
 
 class TestCaveatRegistry:
