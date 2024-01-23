@@ -22,7 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
-from warehouse.observations.models import ObservationKind
+from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
@@ -32,8 +32,6 @@ from warehouse.utils.project import confirm_project, remove_project
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
 UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
-
-KIND_MAP = {kind.value[0]: kind for kind in ObservationKind}
 
 
 @view_config(
@@ -202,7 +200,7 @@ def add_project_observation(project, request):
         )
 
     try:
-        kind = KIND_MAP[kind]
+        kind = OBSERVATION_KIND_MAP[kind]
     except KeyError as e:
         request.session.flash("Invalid kind", queue="error")
         raise HTTPSeeOther(
@@ -340,7 +338,7 @@ def add_release_observation(release, request):
         )
 
     try:
-        kind = KIND_MAP[kind]
+        kind = OBSERVATION_KIND_MAP[kind]
     except KeyError as e:
         request.session.flash("Invalid kind", queue="error")
         raise HTTPSeeOther(
