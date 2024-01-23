@@ -10,7 +10,7 @@ msgid ""
 " action."
 msgstr ""
 
-#: warehouse/views.py:283
+#: warehouse/views.py:294
 msgid "Locale updated"
 msgstr ""
 
