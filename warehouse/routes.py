@@ -541,12 +541,12 @@ def includeme(config):
 
     config.add_route(
         "api.echo",
-        "/api/echo",
+        "/danger-api/echo",
         domain=warehouse,
     )
     config.add_route(
         "api.projects.observations",
-        "/api/projects/{name}/observations",
+        "/danger-api/projects/{name}/observations",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
         domain=warehouse,

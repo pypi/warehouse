@@ -536,12 +536,12 @@ def test_routes(warehouse):
         # API URLs
         pretend.call(
             "api.echo",
-            "/api/echo",
+            "/danger-api/echo",
             domain=warehouse,
         ),
         pretend.call(
             "api.projects.observations",
-            "/api/projects/{name}/observations",
+            "/danger-api/projects/{name}/observations",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
             domain=warehouse,
