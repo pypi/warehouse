@@ -25,13 +25,20 @@ if typing.TYPE_CHECKING:
     from warehouse.packaging.models import Project
 
 
+# ### DANGER ZONE ### #
+# These views are a v0, danger, all-bets-are-off version of the API.
+# We may change the API at any time, and we may remove it entirely
+# without notice, but we'll try to tell the folks we know are testing
+# it before we do.
+
+
 # TODO: Move this to a more general-purpose API view helper module
-def api_v1_view_config(**kwargs):
+def api_v0_view_config(**kwargs):
     """
     A helper decorator that is used to create a view configuration that is
-    useful for API version 1 views. Usage:
+    useful for API version 0 views. Usage:
 
-        @api_v1_view_config(
+        @api_v0_view_config(
             route_name="api.projects",
             permission=Permissions.API...,
         )
@@ -44,7 +51,7 @@ def api_v1_view_config(**kwargs):
 
     # Set defaults for API views
     kwargs.update(
-        accept="application/vnd.pypi.api-v1+json",
+        accept="application/vnd.pypi.api-v0-danger+json",
         renderer="json",
         require_csrf=False,
         # TODO: Can we apply a macaroon-based rate limiter here,
@@ -57,7 +64,7 @@ def api_v1_view_config(**kwargs):
     return _wrapper
 
 
-@api_v1_view_config(
+@api_v0_view_config(
     route_name="api.echo",
     permission=Permissions.APIEcho,
 )
@@ -67,7 +74,7 @@ def api_echo(request: Request):
     }
 
 
-@api_v1_view_config(
+@api_v0_view_config(
     route_name="api.projects.observations",
     permission=Permissions.APIObservationsAdd,
     require_methods=["POST"],
