@@ -3238,6 +3238,7 @@ class TestManageAccountPublishingViews:
                     "github.token": "fake-api-token",
                 }
             ),
+            user=pretend.stub(),
         )
         view = views.ManageAccountPublishingViews(request)
 
@@ -3315,8 +3316,9 @@ class TestManageAccountPublishingViews:
             view._check_ratelimits()
 
     def test_manage_publishing(self, metrics, monkeypatch):
+        user = pretend.stub()
         request = pretend.stub(
-            user=pretend.stub(),
+            user=user,
             registry=pretend.stub(
                 settings={
                     "github.token": "fake-api-token",
@@ -3370,11 +3372,13 @@ class TestManageAccountPublishingViews:
                 request.POST,
                 api_token="fake-api-token",
                 project_factory=project_factory,
+                current_user=user,
             )
         ]
 
     def test_manage_publishing_admin_disabled(self, monkeypatch, pyramid_request):
-        pyramid_request.user = pretend.stub()
+        user = pretend.stub()
+        pyramid_request.user = user
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -3436,6 +3440,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 api_token="fake-api-token",
                 project_factory=project_factory,
+                current_user=user,
             )
         ]
 
@@ -3457,7 +3462,8 @@ class TestManageAccountPublishingViews:
     def test_add_pending_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request, view_name, flag, publisher_name
     ):
-        pyramid_request.user = pretend.stub()
+        user = pretend.stub()
+        pyramid_request.user = user
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -3522,6 +3528,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 api_token="fake-api-token",
                 project_factory=project_factory,
+                current_user=user,
             )
         ]
 
@@ -3548,14 +3555,13 @@ class TestManageAccountPublishingViews:
         flag,
         publisher_name,
     ):
+        user = pretend.stub(has_primary_verified_email=False)
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
             }
         )
-        pyramid_request.user = pretend.stub(
-            has_primary_verified_email=False,
-        )
+        pyramid_request.user = user
         pyramid_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False),
         )
@@ -3621,6 +3627,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 api_token="fake-api-token",
                 project_factory=project_factory,
+                current_user=user,
             )
         ]
 
@@ -4092,7 +4099,8 @@ class TestManageAccountPublishingViews:
     def test_delete_pending_oidc_publisher_admin_disabled(
         self, monkeypatch, pyramid_request
     ):
-        pyramid_request.user = pretend.stub()
+        user = pretend.stub()
+        pyramid_request.user = user
         pyramid_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
@@ -4154,6 +4162,7 @@ class TestManageAccountPublishingViews:
                 pyramid_request.POST,
                 api_token="fake-api-token",
                 project_factory=project_factory,
+                current_user=user,
             )
         ]
 

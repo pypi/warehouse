@@ -40,9 +40,10 @@ class GooglePublisherBase(forms.Form):
 class PendingGooglePublisherForm(GooglePublisherBase, PendingPublisherMixin):
     __params__ = GooglePublisherBase.__params__ + ["project_name"]
 
-    def __init__(self, *args, project_factory, **kwargs):
+    def __init__(self, *args, project_factory, current_user, **kwargs):
         super().__init__(*args, **kwargs)
         self._project_factory = project_factory
+        self._current_user = current_user
 
 
 class GooglePublisherForm(GooglePublisherBase):

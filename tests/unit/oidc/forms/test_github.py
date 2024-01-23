@@ -22,7 +22,7 @@ from warehouse.oidc.forms import github
 
 class TestPendingGitHubPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        project_factory = {}
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -32,7 +32,10 @@ class TestPendingGitHubPublisherForm:
             }
         )
         form = github.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
+            MultiDict(data),
+            api_token=pretend.stub(),
+            project_factory=project_factory,
+            current_user=pretend.stub(username="some-owner"),
         )
 
         # We're testing only the basic validation here.
@@ -43,13 +46,36 @@ class TestPendingGitHubPublisherForm:
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
+        user = pretend.stub(username="some-owner")
+        project_factory = {
+            "some-project": pretend.stub(
+                owners=[pretend.stub(username="not-some-owner")]
+            )
+        }
         form = github.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            api_token="fake-token", project_factory=project_factory, current_user=user
         )
 
         field = pretend.stub(data="some-project")
-        with pytest.raises(wtforms.validators.ValidationError):
+        with pytest.raises(
+            wtforms.validators.ValidationError,
+            match="This project name is already in use",
+        ):
+            form.validate_project_name(field)
+
+    def test_validate_project_already_exists(self):
+        user = pretend.stub(username="some-owner")
+        project_factory = {"some-project": pretend.stub(owners=[user])}
+        form = github.PendingGitHubPublisherForm(
+            api_token="fake-token", project_factory=project_factory, current_user=user
+        )
+
+        field = pretend.stub(data="some-project")
+        with pytest.raises(
+            wtforms.validators.ValidationError,
+            match="Project some-project already exists, create an ordinary trusted "
+            "publisher instead",
+        ):
             form.validate_project_name(field)
 
 

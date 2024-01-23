@@ -1473,10 +1473,12 @@ class ManageAccountPublishingViews:
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
             project_factory=self.project_factory,
+            current_user=self.request.user,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
             project_factory=self.project_factory,
+            current_user=self.request.user,
         )
 
     @property
