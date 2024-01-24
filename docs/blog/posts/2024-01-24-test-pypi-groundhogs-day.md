@@ -20,7 +20,8 @@ published to TestPyPI.
 In order to use TestPyPI all past and new users will need to
 create a new account, enable 2FA, generate new API tokens,
 and update any tools to use their new credentials
-or configure []().
+or configure a new
+[Trusted Publisher](https://docs.pypi.org/trusted-publishers/).
 
 Associations between usernames and projects will not be retained,
 so new projects will need to be created via the standard tooling.
