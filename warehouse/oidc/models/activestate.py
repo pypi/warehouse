@@ -127,6 +127,9 @@ class ActiveStatePublisherMixin:
             _ACTIVESTATE_URL, f"{self.organization}/{self.activestate_project_name}"
         )
 
+    def stored_claims(self, claims=None):
+        return {}
+
     def __str__(self) -> str:
         return self.publisher_url()
 
