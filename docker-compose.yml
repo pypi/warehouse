@@ -6,7 +6,6 @@ volumes:
   packages-archive:
   sponsorlogos:
   policies:
-  vault:
   caches:
   rstuf-metadata:
 
