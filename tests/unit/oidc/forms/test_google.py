@@ -16,6 +16,8 @@ import wtforms
 
 from webob.multidict import MultiDict
 
+import warehouse
+
 from warehouse.oidc.forms import google
 
 
@@ -35,7 +37,7 @@ class TestPendingGooglePublisherForm:
         assert form._project_factory == project_factory
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
+    def test_validate_project_name_already_in_use(self, monkeypatch):
         user = pretend.stub(username="some-owner")
         project_factory = {
             "some-project": pretend.stub(
@@ -47,13 +49,19 @@ class TestPendingGooglePublisherForm:
         )
 
         field = pretend.stub(data="some-project")
+
+        # Bypass localization.
+        monkeypatch.setattr(
+            warehouse.oidc.forms._core, "_", pretend.call_recorder(lambda s: s)
+        )
+
         with pytest.raises(
             wtforms.validators.ValidationError,
             match="This project name is already in use",
         ):
             form.validate_project_name(field)
 
-    def test_validate_project_already_exists(self):
+    def test_validate_project_already_exists(self, monkeypatch):
         user = pretend.stub(username="some-owner")
         project_factory = {"some-project": pretend.stub(owners=[user])}
         form = google.PendingGooglePublisherForm(
@@ -61,9 +69,15 @@ class TestPendingGooglePublisherForm:
         )
 
         field = pretend.stub(data="some-project")
+
+        # Bypass localization.
+        monkeypatch.setattr(
+            warehouse.oidc.forms._core, "_", pretend.call_recorder(lambda s: s)
+        )
+
         with pytest.raises(
             wtforms.validators.ValidationError,
-            match="Project some-project already exists, create an ordinary trusted "
+            match="Project already exists, create an ordinary trusted "
             "publisher instead",
         ):
             form.validate_project_name(field)

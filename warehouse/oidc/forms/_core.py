@@ -37,12 +37,12 @@ class PendingPublisherMixin:
             return
 
         if self._current_user in project.owners:
-            error_msg = (
-                f"Project {project_name} already exists, create an ordinary "
+            error_msg = _(
+                "Project already exists, create an ordinary "
                 "trusted publisher instead"
             )
         else:
-            error_msg = "This project name is already in use"
+            error_msg = _("This project name is already in use")
 
         raise wtforms.validators.ValidationError(error_msg)
 
