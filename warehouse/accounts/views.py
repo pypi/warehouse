@@ -82,12 +82,14 @@ from warehouse.oidc.forms import (
     DeletePublisherForm,
     PendingActiveStatePublisherForm,
     PendingGitHubPublisherForm,
+    PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
+    PendingGitLabPublisher,
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
@@ -1481,6 +1483,10 @@ class ManageAccountPublishingViews:
             api_token=self.request.registry.settings.get("github.token"),
             project_factory=self.project_factory,
         )
+        self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory,
+        )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
             project_factory=self.project_factory,
@@ -1524,11 +1530,15 @@ class ManageAccountPublishingViews:
     def default_response(self):
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
+            "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
             "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "GitLab": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITLAB_OIDC
                 ),
                 "Google": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GOOGLE_OIDC
@@ -1749,6 +1759,33 @@ class ManageAccountPublishingViews:
                 organization=form.organization.data,
                 activestate_project_name=form.project.data,
                 actor_id=form.actor_id,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingGitLabPublisherForm.__params__,
+    )
+    def add_pending_gitlab_oidc_publisher(self):
+        form = self.default_response["pending_gitlab_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitLab",
+            publisher_class=PendingGitLabPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitLabPublisher(
+                project_name=form.project_name.data,
+                added_by=self.request.user,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.normalized_environment,
+            ),
+            make_existence_filters=lambda form: dict(
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.normalized_environment,
             ),
         )
 

@@ -124,6 +124,93 @@
     </form>
 {% endmacro %}
 
+{% macro gitlab_form(request, gitlab_publisher_form) %}
+    <p>
+      {% trans href="https://docs.gitlab.com/ee/ci/secrets/id_token_authentication.html" %}
+      Read more about GitLab CI/CD OpenID Connect support <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
+
+    {{ form_error_anchor(gitlab_publisher_form) }}
+    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(gitlab_publisher_form) }}
+      <div class="form-group">
+        <label for="namespace" class="form-group__label">
+          {% trans %}Namespace{% endtrans %}
+          {% if gitlab_publisher_form.namespace.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.namespace(placeholder=gettext("namespace"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="namespace-errors") }}
+        <p class="form-group__help-text">
+          {% trans %}The GitLab username or GitLab group/subgroup namespace that the project is under{% endtrans %}
+        </p>
+        <div id="namespace-errors">
+          {{ field_errors(gitlab_publisher_form.namespace) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="project" class="form-group__label">
+          {% trans %}Project name{% endtrans %}
+          {% if gitlab_publisher_form.project.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.project(placeholder=gettext("project"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans %}The name of the GitLab project that contains the publishing workflow{% endtrans %}
+        </p>
+        <div id="project-errors">
+          {{ field_errors(gitlab_publisher_form.project) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="workflow_filepath" class="form-group__label">
+          {% trans %}Workflow file path{% endtrans %}
+          {% if gitlab_publisher_form.workflow_filepath.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.workflow_filepath(placeholder=gettext(".gitlab-ci.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filepath-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans %}The file path of the publishing workflow, relative to the repository's root. This file should exist in the repository configured above (external workflows are not supported).{% endtrans %}
+        </p>
+        <div id="workflow_filepath-errors">
+          {{ field_errors(gitlab_publisher_form.workflow_filepath) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="environment" class="form-group__label">
+          {% trans %}Environment name{% endtrans %}
+          {% if gitlab_publisher_form.environment.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% else %}
+          <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans href="https://docs.gitlab.com/ee/ci/environments/" %}
+          The name of the <a href="{{ href }}">GitLab CI/CD environment</a>
+          that the above workflow uses for publishing.  This should be
+          configured under the repository's settings. While not required, a
+          dedicated publishing environment is <strong>strongly</strong>
+          encouraged, <strong>especially</strong> if your repository has
+          maintainers with commit access who shouldn't have PyPI publishing
+          access.
+          {% endtrans %}
+        </p>
+        <div id="environment-errors">
+          {{ field_errors(gitlab_publisher_form.environment) }}
+        </div>
+      </div>
+      <div>
+        <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+      </div>
+    </form>
+{% endmacro %}
+
 {% macro google_form(request, google_publisher_form) %}
   <p>
     {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
@@ -300,6 +387,7 @@
 
       {% set publishers = [
            ("GitHub", github_form(request, github_publisher_form)),
+           ("GitLab", gitlab_form(request, gitlab_publisher_form)),
            ("Google", google_form(request, google_publisher_form)),
            ("ActiveState", activestate_form(request, activestate_publisher_form)),
          ]

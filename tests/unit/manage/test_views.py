@@ -50,6 +50,7 @@ from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
     ActiveStatePublisher,
     GitHubPublisher,
+    GitLabPublisher,
     GooglePublisher,
     OIDCPublisher,
 )
@@ -5840,9 +5841,15 @@ class TestManageOIDCPublisherViews:
 
         view = views.ManageOIDCPublisherViews(project, request)
         assert view.manage_project_oidc_publishers() == {
-            "disabled": {"GitHub": False, "Google": False, "ActiveState": False},
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
         }
@@ -5850,6 +5857,7 @@ class TestManageOIDCPublisherViews:
         assert request.flags.disallow_oidc.calls == [
             pretend.call(),
             pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
@@ -5876,9 +5884,15 @@ class TestManageOIDCPublisherViews:
         view = views.ManageOIDCPublisherViews(project, pyramid_request)
 
         assert view.manage_project_oidc_publishers() == {
-            "disabled": {"GitHub": True, "Google": True, "ActiveState": True},
+            "disabled": {
+                "GitHub": True,
+                "GitLab": True,
+                "Google": True,
+                "ActiveState": True,
+            },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
         }
@@ -5886,6 +5900,7 @@ class TestManageOIDCPublisherViews:
         assert pyramid_request.flags.disallow_oidc.calls == [
             pretend.call(),
             pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
@@ -5921,6 +5936,27 @@ class TestManageOIDCPublisherViews:
                     repository=pretend.stub(data=publisher.repository_name),
                     normalized_owner=publisher.owner,
                     workflow_filename=pretend.stub(data=publisher.workflow_filename),
+                    normalized_environment=publisher.environment,
+                ),
+            ),
+            (
+                "add_gitlab_oidc_publisher",
+                pretend.stub(
+                    id="fakeid",
+                    publisher_name="GitLab",
+                    project="fakerepo",
+                    publisher_url=(
+                        lambda x=None: "https://gitlab.com/fakeowner/fakerepo"
+                    ),
+                    namespace="fakeowner",
+                    workflow_filepath="subfolder/fakeworkflow.yml",
+                    environment="some-environment",
+                ),
+                lambda publisher: pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    project=pretend.stub(data=publisher.project),
+                    namespace=pretend.stub(data=publisher.namespace),
+                    workflow_filepath=pretend.stub(data=publisher.workflow_filepath),
                     normalized_environment=publisher.environment,
                 ),
             ),
@@ -6002,6 +6038,7 @@ class TestManageOIDCPublisherViews:
         publisher_form_obj = make_form(publisher)
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
 
@@ -6071,6 +6108,17 @@ class TestManageOIDCPublisherViews:
                 pretend.stub(publisher_name="GitHub"),
             ),
             (
+                "add_gitlab_oidc_publisher",
+                pretend.stub(
+                    validate=pretend.call_recorder(lambda: True),
+                    project=pretend.stub(data="fakerepo"),
+                    namespace=pretend.stub(data="fakeowner"),
+                    workflow_filepath=pretend.stub(data="subfolder/fakeworkflow.yml"),
+                    normalized_environment="some-environment",
+                ),
+                pretend.stub(publisher_name="GitLab"),
+            ),
+            (
                 "add_google_oidc_publisher",
                 pretend.stub(
                     validate=pretend.call_recorder(lambda: True),
@@ -6132,6 +6180,7 @@ class TestManageOIDCPublisherViews:
 
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
         monkeypatch.setattr(
@@ -6224,6 +6273,24 @@ class TestManageOIDCPublisherViews:
                 ),
             ),
             (
+                "add_gitlab_oidc_publisher",
+                "GitLab",
+                GitLabPublisher(
+                    project="some-repository",
+                    namespace="some-owner",
+                    workflow_filepath="subfolder/some-workflow-filename.yml",
+                    environment="some-environment",
+                ),
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                    }
+                ),
+            ),
+            (
                 "add_google_oidc_publisher",
                 "Google",
                 GooglePublisher(
@@ -6310,9 +6377,15 @@ class TestManageOIDCPublisherViews:
         )
 
         assert getattr(view, view_name)() == {
-            "disabled": {"GitHub": False, "Google": False, "ActiveState": False},
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
             "project": project,
             "github_publisher_form": view.github_publisher_form,
+            "gitlab_publisher_form": view.gitlab_publisher_form,
             "google_publisher_form": view.google_publisher_form,
             "activestate_publisher_form": view.activestate_publisher_form,
         }
@@ -6334,6 +6407,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
         ],
@@ -6383,6 +6457,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
         ],
@@ -6425,6 +6500,7 @@ class TestManageOIDCPublisherViews:
         "view_name, publisher_name",
         [
             ("add_github_oidc_publisher", "GitHub"),
+            ("add_gitlab_oidc_publisher", "GitLab"),
             ("add_google_oidc_publisher", "Google"),
             ("add_activestate_oidc_publisher", "ActiveState"),
         ],
@@ -6450,12 +6526,14 @@ class TestManageOIDCPublisherViews:
         )
         publisher_form_cls = pretend.call_recorder(lambda *a, **kw: publisher_form_obj)
         monkeypatch.setattr(views, "GitHubPublisherForm", publisher_form_cls)
+        monkeypatch.setattr(views, "GitLabPublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "GooglePublisherForm", publisher_form_cls)
         monkeypatch.setattr(views, "ActiveStatePublisherForm", publisher_form_cls)
 
         view = views.ManageOIDCPublisherViews(project, request)
         default_response = {
             "github_publisher_form": publisher_form_obj,
+            "gitlab_publisher_form": publisher_form_obj,
             "google_publisher_form": publisher_form_obj,
             "activestate_publisher_form": publisher_form_obj,
         }
@@ -6488,6 +6566,12 @@ class TestManageOIDCPublisherViews:
                 repository_owner="some-owner",
                 repository_owner_id="666",
                 workflow_filename="some-workflow-filename.yml",
+                environment="some-environment",
+            ),
+            GitLabPublisher(
+                project="some-repository",
+                namespace="some-owner",
+                workflow_filepath="subfolder/some-workflow-filename.yml",
                 environment="some-environment",
             ),
             GooglePublisher(
@@ -6596,6 +6680,12 @@ class TestManageOIDCPublisherViews:
                 repository_owner="some-owner",
                 repository_owner_id="666",
                 workflow_filename="some-workflow-filename.yml",
+                environment="some-environment",
+            ),
+            GitLabPublisher(
+                project="some-repository",
+                namespace="some-owner",
+                workflow_filepath="subfolder/some-workflow-filename.yml",
                 environment="some-environment",
             ),
             GooglePublisher(
