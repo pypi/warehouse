@@ -165,10 +165,6 @@ services:
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
       - RSTUF_SQL_SERVER=postgresql://postgres@db:5432/rstuf
-    healthcheck:
-      test: "exit 0"
-    restart: always
-    tty: true
     depends_on:
       db:
         condition: service_healthy
