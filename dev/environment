@@ -58,9 +58,6 @@ TOKEN_REMEMBER_DEVICE_SECRET="an insecure remember device auth secret key"
 
 WAREHOUSE_LEGACY_DOMAIN=pypi.python.org
 
-VAULT_URL="http://vault:8200"
-VAULT_TOKEN="an insecure vault access token"
-
 GITHUB_TOKEN_SCANNING_META_API_URL="http://notgithub:8000/meta/public_keys/token_scanning"
 TWOFACTORREQUIREMENT_ENABLED=true
 TWOFACTORMANDATE_AVAILABLE=true
