@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deps:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04:20240116.3.0
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
