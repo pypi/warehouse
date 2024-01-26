@@ -101,6 +101,8 @@ initdb: .state/docker-build-base
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS rstuf"
+	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE rstuf ENCODING 'UTF8'"
 	docker compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
 	docker compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
 	$(MAKE) runmigrations
