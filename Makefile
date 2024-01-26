@@ -97,14 +97,14 @@ translations: .state/docker-build-base
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
 
+resetdb: .state/docker-build-base
+	docker compose up -d db
+	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
+	$(MAKE) initdb
+
 initdb: .state/docker-build-base
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS rstuf"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE rstuf ENCODING 'UTF8'"
-	docker compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
-	docker compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
+	docker compose up -d db
+	docker compose exec db /usr/local/bin/wait-for-db
 	$(MAKE) runmigrations
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
@@ -133,4 +133,4 @@ purge: stop clean
 stop:
 	docker compose stop
 
-.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations

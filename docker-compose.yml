@@ -21,6 +21,10 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
       start_period: 10s
+    volumes:
+      - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
+      - ./dev/example.sql.xz:/example.sql.xz:z
+      - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
 
   stripe:
     image: stripe/stripe-mock:v0.162.0

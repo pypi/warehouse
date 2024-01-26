@@ -213,8 +213,7 @@ Once ``make build`` has finished,  run the command:
 
 This command will:
 
-* create a new Postgres database,
-* install example data to the Postgres database,
+* ensure the db is prepared,
 * run migrations,
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
@@ -248,6 +247,16 @@ or that the ``static`` container has finished compiling the static assets:
     warehouse-static-1  | webpack 5.75.0 compiled with 1 warning in 6610 ms
 
 or maybe something else.
+
+
+Resetting the development database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    make resetdb
+
+This command will fully reset the development database.
 
 
 Viewing Warehouse in a browser

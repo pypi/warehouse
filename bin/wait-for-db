@@ -1,0 +1,28 @@
+#!/bin/bash
+set -e
+
+# Click requires us to ensure we have a well configured environment to run
+# our click commands. So we'll set our environment to ensure our locale is
+# correct.
+export LC_ALL="${ENCODING:-en_US.UTF-8}"
+export LANG="${ENCODING:-en_US.UTF-8}"
+
+echo -n 'waiting for db to be prepared.'
+
+QUERY="select name from users where username='ewdurbin';"
+
+ATTEMPTS=0
+until [ $ATTEMPTS -eq 60 ] || [ "$(psql -U postgres -d warehouse -A -t -c "$QUERY" 2>&1)" == "Ee Durbin" ]; do
+  >&2 >/dev/null
+  ATTEMPTS=$((ATTEMPTS+1));
+  echo -n "."
+  sleep 1
+done
+
+if [ $ATTEMPTS -eq 60 ]; then
+  >&2 echo ""
+  echo "db failed to prepare, exiting"
+  exit 1
+fi
+
+echo ""
