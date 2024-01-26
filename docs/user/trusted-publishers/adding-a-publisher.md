@@ -101,7 +101,33 @@ each.
 
 === "GitLab CI/CD"
 
-    TODO
+    For GitLab CI/CD, you **must** provide the repository's namespace, the
+    repository's name, and the filepath of the GitLab CI/CD workflow that's
+    authorized to upload to PyPI. In addition, you may **optionally**
+    provide the name of a
+    [GitLab CI/CD environment](https://docs.gitlab.com/ee/ci/environments/).
+
+    For example, if you have a project at `https://gitlab.com/namespace/sampleproject`
+    that uses a publishing workflow defined in `release.yml` and a custom
+    environment named `release`, then you'd do the following:
+
+    TODO: insert screenshot here
+
+    !!! note
+
+        Configuring an environment is optional, but **strongly** recommended:
+        with a GitLab environment, you can apply additional restrictions to
+        your trusted workflow, such as requiring manual approval on each run
+        by a trusted subset of repository maintainers.
+
+    Once you click "Add", your publisher will be registered and will appear
+    at the top of the page:
+
+    TODO: insert screenshot here
+
+    From this point onwards, the `release.yml` workflow on `namespace/sampleproject`
+    will be able to generate short-lived API tokens from PyPI for the project you've
+    registered it against.
 
 A publisher can be registered against multiple PyPI projects (e.g. for a
 multi-project repository), and a single PyPI project can have multiple

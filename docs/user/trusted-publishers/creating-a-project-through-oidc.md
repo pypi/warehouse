@@ -66,7 +66,21 @@ provide the name of the PyPI project that will be created.
 
 === "GitLab CI/CD"
 
-    TODO
+     If you have a repository at
+    `https://gitlab.com/namespace/sampleproject` with a release workflow at
+    `release.yml` and an environment named `release` that you would like to publish
+    to PyPI as `sampleproject`, then you would do the following:
+
+    TODO: add screenshot
+
+    !!! note
+
+        Like with "normal" trusted publishers, configuring a GitLab CI/CD
+        environment is **optional but strongly recommended**.
+
+    Clicking "Add" will register the "pending" publisher, and show it to you:
+
+    TODO: add screenshot
 
 
 
