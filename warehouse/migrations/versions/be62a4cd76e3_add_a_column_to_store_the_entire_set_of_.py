@@ -31,7 +31,7 @@ def upgrade():
         "macaroons",
         sa.Column(
             "caveats",
-            postgresql.ARRAY(postgresql.JSONB(astext_type=sa.Text())),
+            postgresql.JSONB(astext_type=sa.Text()),
             nullable=True,
             comment=(
                 "The list of caveats that were attached to this Macaroon when we "
@@ -50,7 +50,7 @@ def upgrade():
     # is the attached user_id for this Macaroon.
     op.execute(
         """ UPDATE macaroons
-            SET caveats = ARRAY[jsonb_build_array(3, user_id::text)]
+            SET caveats = jsonb_build_array(jsonb_build_array(3, user_id::text))
             WHERE
                 caveats IS NULL
                 AND user_id IS NOT NULL
@@ -63,9 +63,9 @@ def upgrade():
     # names is taken from the permissions_caveat.
     op.execute(
         """ UPDATE macaroons
-            SET caveats = ARRAY[
+            SET caveats = jsonb_build_array(
                 jsonb_build_array(1, permissions_caveat->'permissions'->'projects')
-            ]
+            )
             WHERE
                 caveats IS NULL
                 AND jsonb_typeof(

@@ -16,7 +16,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, orm, sql
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -79,7 +79,7 @@ class Macaroon(db.Model):
     # The caveats that were attached to this Macaroon when we generated it.
     _caveats: Mapped[list] = mapped_column(
         "caveats",
-        ARRAY(JSONB),
+        JSONB,
         server_default=sql.text("'{}'"),
         comment=(
             "The list of caveats that were attached to this Macaroon when we "
