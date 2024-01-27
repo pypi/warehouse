@@ -84,6 +84,9 @@ class GooglePublisherMixin:
     def publisher_url(self, claims=None):
         return None
 
+    def stored_claims(self, claims=None):
+        return {}
+
     @property
     def email_verified(self):
         # We don't consider a claim set valid unless `email_verified` is true;

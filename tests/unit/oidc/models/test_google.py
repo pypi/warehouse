@@ -38,6 +38,11 @@ class TestGooglePublisher:
 
         assert publisher.publisher_url() is None
 
+    def test_stored_claims(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.stored_claims() == {}
+
     def test_stringifies_as_email(self):
         publisher = google.GooglePublisher(email="fake@example.com")
 

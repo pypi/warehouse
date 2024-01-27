@@ -242,6 +242,21 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
+    def stored_claims(
+        self, claims: SignedClaims | None = None
+    ) -> dict:  # pragma: no cover
+        """
+        These are claims that are serialized into any macaroon generated for
+        this publisher. You likely want to use this to surface claims that
+        are not configured on the publishers, that might vary from one publish
+        event to the next, and are useful to show to the user.
+
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `stored_claims()`
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
 
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"

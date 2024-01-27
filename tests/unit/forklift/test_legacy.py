@@ -3382,6 +3382,7 @@ class TestFileUpload:
             "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
             if not test_with_user
             else None,
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         fileadd_event = {
@@ -3394,6 +3395,7 @@ class TestFileUpload:
             if not test_with_user
             else None,
             "project_id": str(project.id),
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         assert record_event.calls == [
