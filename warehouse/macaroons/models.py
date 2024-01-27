@@ -93,17 +93,12 @@ class Macaroon(db.Model):
     )
 
     @property
-    def caveats(self) -> list[Caveat] | None:
-        if self._caveats is None:
-            return None
+    def caveats(self) -> list[Caveat]:
         return [caveats_deserialize(c) for c in self._caveats]
 
     @caveats.setter
-    def caveats(self, caveats: list[Caveat] | None):
-        if caveats is None:
-            self._caveats = None
-        else:
-            self._caveats = [list(caveats_serialize(c)) for c in caveats]
+    def caveats(self, caveats: list[Caveat]):
+        self._caveats = [list(caveats_serialize(c)) for c in caveats]
 
     # Additional state associated with this macaroon.
     # For OIDC publisher-issued macaroons, this will contain a subset of OIDC claims.

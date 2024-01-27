@@ -33,7 +33,6 @@ class TestCaveats:
                 ],
                 [[1, ["example"]], [0, 1705876828, 1705875828]],
             ),
-            (None, None),
             ([], []),
         ],
     )
@@ -52,7 +51,6 @@ class TestCaveats:
                     caveats.ProjectName(normalized_names=["foo", "bar"]),
                 ],
             ),
-            (None, None),
             ([], []),
         ],
     )
