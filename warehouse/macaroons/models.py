@@ -16,7 +16,7 @@ from datetime import datetime
 from uuid import UUID
 
 from sqlalchemy import CheckConstraint, ForeignKey, UniqueConstraint, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID as PG_UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
@@ -77,23 +77,20 @@ class Macaroon(db.Model):
     )
 
     # The caveats that were attached to this Macaroon when we generated it.
-    #
-    # NOTE: The cannonical, authoritative list of caveats that a Macaroon has is
-    #       contained within the Macaroon itself. These caveats are *not* used
-    #       during the authorization or authentication process, and are retained
-    #       merely for informational reasons.
-    #
-    # NOTE: Users can add additional caveats at any time without communicating
-    #       those additional caveats to us, so those would not be reflected in
-    #       this data.
-    #
-    # NOTE: Originally we only stored the "permissions" caveat, which maps to
-    #       the RequestUser and ProjectName caveat, while that data was mapped
-    #       into these caveats, there may have been additional caveats (such as
-    #       expiration) that were attached to the Macaroon during generation
-    #       that is missing from this column for older Macaroons.
-    #
-    _caveats: Mapped[list | None] = mapped_column("caveats", JSONB)
+    _caveats: Mapped[list] = mapped_column(
+        "caveats",
+        ARRAY(JSONB),
+        server_default=sql.text("'{}'"),
+        comment=(
+            "The list of caveats that were attached to this Macaroon when we "
+            "generated it. Users can add additional caveats at any time without "
+            "communicating those additional caveats to us, which would not be "
+            "reflected in this data, and thus this field must only be used for "
+            "informational purposes and must not be used during the authorization "
+            "or authentication process. Older Macaroons may be missing caveats as "
+            "previously only the legacy permissions caveat were stored."
+        ),
+    )
 
     @property
     def caveats(self) -> list[Caveat] | None:

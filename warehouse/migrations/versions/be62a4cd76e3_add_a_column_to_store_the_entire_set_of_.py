@@ -23,13 +23,26 @@ from alembic import op
 from sqlalchemy.dialects import postgresql
 
 revision = "be62a4cd76e3"
-down_revision = "812e14a4cddf"
+down_revision = "a073e7979805"
 
 
 def upgrade():
     op.add_column(
         "macaroons",
-        sa.Column("caveats", postgresql.JSONB(astext_type=sa.Text()), nullable=True),
+        sa.Column(
+            "caveats",
+            postgresql.ARRAY(postgresql.JSONB(astext_type=sa.Text())),
+            nullable=True,
+            comment=(
+                "The list of caveats that were attached to this Macaroon when we "
+                "generated it. Users can add additional caveats at any time without "
+                "communicating those additional caveats to us, which would not be "
+                "reflected in this data, and thus this field must only be used for "
+                "informational purposes and must not be used during the authorization "
+                "or authentication process. Older Macaroons may be missing caveats as "
+                "previously only the legacy permissions caveat were stored."
+            ),
+        ),
     )
 
     # Where our permissions_caveat is {"permission": "user"}, set our caveats to
@@ -37,7 +50,7 @@ def upgrade():
     # is the attached user_id for this Macaroon.
     op.execute(
         """ UPDATE macaroons
-            SET caveats = jsonb_build_array(jsonb_build_array(3, user_id::text))
+            SET caveats = ARRAY[jsonb_build_array(3, user_id::text)]
             WHERE
                 caveats IS NULL
                 AND user_id IS NOT NULL
@@ -50,15 +63,20 @@ def upgrade():
     # names is taken from the permissions_caveat.
     op.execute(
         """ UPDATE macaroons
-            SET caveats = jsonb_build_array(
+            SET caveats = ARRAY[
                 jsonb_build_array(1, permissions_caveat->'permissions'->'projects')
-            )
+            ]
             WHERE
                 caveats IS NULL
                 AND jsonb_typeof(
                     permissions_caveat->'permissions'->'projects'
                 ) = 'array'
         """
+    )
+
+    # Set our column to not nullable
+    op.alter_column(
+        "macaroons", "caveats", server_default=sa.text("'{}'"), nullable=False
     )
 
 
