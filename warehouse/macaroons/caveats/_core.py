@@ -117,33 +117,39 @@ def as_caveat(*, tag: int) -> Callable[[type[T]], type[T]]:
     return deco
 
 
+def serialize_obj(caveat: Caveat) -> Sequence:
+    return caveat.__serialize__()
+
+
 def serialize(caveat: Caveat) -> bytes:
     return json.dumps(
-        caveat.__serialize__(), sort_keys=True, separators=(",", ":")
+        serialize_obj(caveat), sort_keys=True, separators=(",", ":")
     ).encode("utf8")
 
 
-def deserialize(data: bytes) -> Caveat:
-    loaded = json.loads(data)
-
+def deserialize_obj(obj: Any) -> Caveat:
     # Our original caveats were implemented as a mapping with arbitrary keys,
     # so if we've gotten one of our those, we'll attempt to adapt it to our
     # new format.
-    if isinstance(loaded, Mapping):
-        loaded = _legacy.adapt(loaded)
-        if loaded is None:
+    if isinstance(obj, Mapping):
+        obj = _legacy.adapt(obj)
+        if obj is None:
             raise CaveatDeserializationError("caveat must be an array")
 
-    if not isinstance(loaded, Sequence) or isinstance(loaded, str):
+    if not isinstance(obj, Sequence) or isinstance(obj, str):
         raise CaveatDeserializationError("caveat must be an array")
 
-    if not len(loaded):
+    if not len(obj):
         raise CaveatDeserializationError("caveat array cannot be empty")
 
-    tag, *fields = loaded
+    tag, *fields = obj
     cls = _caveat_registry.lookup(tag)
 
     if cls is None:
         raise CaveatDeserializationError(f"caveat has unknown tag: {tag}")
 
     return cls.__deserialize__(fields)
+
+
+def deserialize(data: bytes) -> Caveat:
+    return deserialize_obj(json.loads(data))

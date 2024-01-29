@@ -79,6 +79,7 @@ class TestGitHubPublisher:
             "runner_environment",
             "environment_node_id",
             "enterprise",
+            "enterprise_id",
             "ref_protected",
         }
 

@@ -454,7 +454,7 @@ def journals_list(project, request):
 
 @view_config(
     route_name="admin.project.set_upload_limit",
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsSetLimit,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -502,7 +502,7 @@ def set_upload_limit(project, request):
 
 @view_config(
     route_name="admin.project.set_total_size_limit",
-    permission=Permissions.AdminProjectsWrite,
+    permission=Permissions.AdminProjectsSetLimit,
     request_method="POST",
     uses_session=True,
     require_methods=False,
