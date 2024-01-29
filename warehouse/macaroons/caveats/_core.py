@@ -11,7 +11,6 @@
 # limitations under the License.
 from __future__ import annotations
 
-import dataclasses
 import json
 import typing
 
@@ -19,8 +18,7 @@ from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any, ClassVar, TypeVar
 
-from pydantic import ValidationError
-from pydantic.dataclasses import dataclass as pydantic_dataclass
+from pydantic import BaseModel, ValidationError, model_serializer, model_validator
 from pyramid.request import Request
 
 from warehouse.macaroons.caveats import _legacy
@@ -53,37 +51,36 @@ class Failure:
 Result = Success | Failure
 
 
-@pydantic_dataclass(frozen=True)
-class Caveat:
+class Caveat(BaseModel, frozen=True, extra="forbid"):
     tag: ClassVar[int]
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
         raise NotImplementedError
 
-    def __serialize__(self) -> Sequence:
-        return (self.tag,) + dataclasses.astuple(self)
-
+    @model_validator(mode="before")
     @classmethod
-    def __deserialize__(cls: type[Caveat], data: Sequence) -> Caveat:
-        kwargs = {}
-        for i, field in enumerate(dataclasses.fields(cls)):
-            if len(data) > i:
-                value = data[i]
-            elif field.default is not dataclasses.MISSING:
-                value = field.default
-            elif field.default_factory is not dataclasses.MISSING:
-                value = field.default_factory()
-            else:
-                raise CaveatDeserializationError("Not enough values")
+    def _validate_caveat(cls, data: Any) -> Any:
+        if isinstance(data, Sequence) and not isinstance(data, str):
+            # The first value is always our tag, which we'll validate that it is
+            # the tag for this Caveat.
+            tag, *data = data
+            if tag != cls.tag:
+                raise ValueError(
+                    f"invalid tag: {tag} for {cls.__name__}, expected {cls.tag}"
+                )
 
-            kwargs[field.name] = value
+            # Make sure that there is at least one value that is
+            # Check if there's too much data
+            if len(data) > len(cls.model_fields):
+                raise ValueError("unknown fields")
 
-        try:
-            obj = cls(**kwargs)
-        except ValidationError:
-            raise CaveatDeserializationError("invalid values for fields")
+            return dict(zip(cls.model_fields, data))
 
-        return obj
+        return data
+
+    @model_serializer
+    def _serialize_caveat(self) -> tuple[int, ...]:
+        return (self.tag,) + tuple(v for _, v in self)
 
 
 class _CaveatRegistry:
@@ -119,7 +116,7 @@ def as_caveat(*, tag: int) -> Callable[[type[T]], type[T]]:
 
 def serialize(caveat: Caveat) -> bytes:
     return json.dumps(
-        caveat.__serialize__(), sort_keys=True, separators=(",", ":")
+        caveat.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
     ).encode("utf8")
 
 
@@ -146,4 +143,7 @@ def deserialize(data: bytes) -> Caveat:
     if cls is None:
         raise CaveatDeserializationError(f"caveat has unknown tag: {tag}")
 
-    return cls.__deserialize__(fields)
+    try:
+        return cls.model_validate(loaded, strict=True)
+    except ValidationError:
+        raise CaveatDeserializationError("invalid values for caveat fields")

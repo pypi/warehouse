@@ -63,7 +63,10 @@ class TestMacaroonDecodeToken:
         token, macaroon = macaroon_service.create_macaroon(
             location="fake location",
             description="real description",
-            scopes=[caveats.RequestUser(user_id=str(user.id))],
+            scopes=[
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         db_request.method = "POST"
@@ -98,7 +101,10 @@ class TestMacaroonDetail:
         _, macaroon = macaroon_service.create_macaroon(
             location="test",
             description="test",
-            scopes=[caveats.RequestUser(user_id=str(user.id))],
+            scopes=[
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         db_request.matchdict["macaroon_id"] = macaroon.id
@@ -115,7 +121,10 @@ class TestMacaroonDelete:
         _, macaroon = macaroon_service.create_macaroon(
             location="test",
             description="test",
-            scopes=[caveats.RequestUser(user_id=str(user.id))],
+            scopes=[
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         macaroon_id = str(macaroon.id)

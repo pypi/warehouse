@@ -10,13 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import dataclasses
 import time
 
+from typing import ClassVar, Literal
+
 import pretend
+import pydantic
 import pytest
 
-from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
 
 from warehouse.accounts import _oidc_publisher
@@ -27,6 +28,8 @@ from warehouse.macaroons.caveats import (
     Expiration,
     Failure,
     OIDCPublisher,
+    Permission,
+    PublicPermissions,
     ProjectID,
     ProjectName,
     RequestUser,
@@ -43,11 +46,12 @@ from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import ProjectFactory
 
 
-@dataclass(frozen=True)
-class SampleCaveat(Caveat):
+class SampleCaveat(Caveat, frozen=True):
+    tag: ClassVar[Literal[1]] = 1
+
     first: int
     second: int = 2
-    third: int = dataclasses.field(default_factory=lambda: 3)
+    third: int = pydantic.Field(default_factory=lambda: 3)
 
 
 def test_bools():
@@ -145,13 +149,13 @@ class TestDeserialization:
             deserialize(b'{"version": 1, "permissions": "user"}')
 
     def test_deserialize_with_defaults(self):
-        assert SampleCaveat.__deserialize__([1]) == SampleCaveat(
+        assert SampleCaveat.model_validate([1, 1]) == SampleCaveat(
             first=1, second=2, third=3
         )
-        assert SampleCaveat.__deserialize__([1, 5]) == SampleCaveat(
+        assert SampleCaveat.model_validate([1, 1, 5]) == SampleCaveat(
             first=1, second=5, third=3
         )
-        assert SampleCaveat.__deserialize__([1, 5, 7]) == SampleCaveat(
+        assert SampleCaveat.model_validate([1, 1, 5, 7]) == SampleCaveat(
             first=1, second=5, third=7
         )
 
@@ -344,6 +348,26 @@ class TestOIDCPublisherCaveat:
         result = caveat.verify(request, foobar, pretend.stub())
 
         assert result == Success()
+
+
+class TestPermissionCaveat:
+    def test_verify_invalid(self):
+        caveat = Permission(permissions=["upload"])
+        result = caveat.verify(pretend.stub(), pretend.stub(), "something:read")
+
+        assert result == Failure("token does not have the required permissions")
+
+    def test_verify_ok(self):
+        caveat = Permission(permissions=["upload"])
+        assert caveat.verify(pretend.stub(), pretend.stub(), "upload") == Success()
+
+    def test_coerces_internal(self):
+        caveat = Permission(permissions=["upload"])
+        assert caveat.permissions == PublicPermissions.Upload
+
+    def test_doesnt_coerce_internal_when_deserializing(self):
+        with pytest.raises(CaveatError):
+            deserialize(b'[5, ["upload"]]')
 
 
 class TestCaveatRegistry:

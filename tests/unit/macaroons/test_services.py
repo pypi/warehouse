@@ -68,7 +68,10 @@ class TestDatabaseMacaroonService:
         _, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
 
@@ -83,7 +86,10 @@ class TestDatabaseMacaroonService:
         serialized, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
 
@@ -103,7 +109,10 @@ class TestDatabaseMacaroonService:
         ) = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+            [
+                caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             oidc_publisher_id=publisher.id,
             additional=claims,
         )
@@ -171,7 +180,10 @@ class TestDatabaseMacaroonService:
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.ProjectName(normalized_names=["foo"])],
+            [
+                caveats.ProjectName(normalized_names=["foo"]),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         assert macaroon_service.find_userid(f"{raw_macaroon}\n") is None
@@ -184,7 +196,10 @@ class TestDatabaseMacaroonService:
         ) = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+            [
+                caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             oidc_publisher_id=publisher.id,
         )
         assert macaroon_service.find_userid(raw_macaroon) is None
@@ -194,7 +209,10 @@ class TestDatabaseMacaroonService:
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         user_id = macaroon_service.find_userid(raw_macaroon)
@@ -237,7 +255,10 @@ class TestDatabaseMacaroonService:
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
 
@@ -295,12 +316,63 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.verify("pypi-thiswillnotdeserialize", None, None, None)
 
+    def test_verify_legacy_permission_valid(self, monkeypatch, macaroon_service):
+        user = UserFactory.create()
+        raw_macaroon, db_macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+            ],
+            user_id=user.id,
+            _require_permission_scope=False,
+        )
+        db_macaroon.predates_permission_caveat = True
+
+        verify = pretend.call_recorder(lambda m, k, r, c, p: True)
+        monkeypatch.setattr(caveats, "verify", verify)
+
+        request = pretend.stub()
+        context = pretend.stub()
+        permission = "upload"
+
+        assert macaroon_service.verify(raw_macaroon, request, context, permission)
+        assert verify.calls == [
+            pretend.call(mock.ANY, mock.ANY, request, context, permission)
+        ]
+
+    def test_verify_legacy_permission_invalid(self, monkeypatch, macaroon_service):
+        user = UserFactory.create()
+        raw_macaroon, db_macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+            ],
+            user_id=user.id,
+            _require_permission_scope=False,
+        )
+        db_macaroon.predates_permission_caveat = True
+
+        verify = pretend.call_recorder(lambda m, k, r, c, p: True)
+        monkeypatch.setattr(caveats, "verify", verify)
+
+        request = pretend.stub()
+        context = pretend.stub()
+        permission = "not-upload"
+
+        with pytest.raises(services.InvalidMacaroonError):
+            assert macaroon_service.verify(raw_macaroon, request, context, permission)
+
     def test_verify_valid_macaroon(self, monkeypatch, macaroon_service):
         user = UserFactory.create()
         raw_macaroon, _ = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
 
@@ -321,7 +393,10 @@ class TestDatabaseMacaroonService:
         _, macaroon = macaroon_service.create_macaroon(
             "fake location",
             "fake description",
-            [caveats.RequestUser(user_id=str(user.id))],
+            [
+                caveats.RequestUser(user_id=str(user.id)),
+                caveats.Permission(permissions=["upload"]),
+            ],
             user_id=user.id,
         )
         macaroon_id = str(macaroon.id)
@@ -347,6 +422,7 @@ class TestDatabaseMacaroonService:
             "fake description",
             [
                 caveats.ProjectName(normalized_names=["foo", "bar"]),
+                caveats.Permission(permissions=["upload"]),
                 caveats.Expiration(expires_at=10, not_before=5),
             ],
             user_id=user.id,
@@ -369,5 +445,21 @@ class TestDatabaseMacaroonService:
                 "fake location",
                 "fake description",
                 [{"version": 1, "permissions": "user"}],
+                user_id=user.id,
+            )
+
+    def test_errors_without_permission_caveat(self, macaroon_service):
+        user = UserFactory.create()
+
+        with pytest.raises(
+            ValueError, match="one of the scopes must be a Permission caveat"
+        ):
+            macaroon_service.create_macaroon(
+                "fake location",
+                "fake description",
+                [
+                    caveats.ProjectName(normalized_names=["foo", "bar"]),
+                    caveats.Expiration(expires_at=10, not_before=5),
+                ],
                 user_id=user.id,
             )

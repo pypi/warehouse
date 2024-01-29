@@ -313,23 +313,3 @@ class TestMacaroonSecurityPolicy:
         result = policy.permits(request, context, "upload")
 
         assert bool(result) == expected
-
-    @pytest.mark.parametrize(
-        "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
-    )
-    def test_denies_valid_macaroon_for_incorrect_permission(
-        self, monkeypatch, invalid_permission
-    ):
-        _extract_http_macaroon = pretend.call_recorder(lambda r: "not a real macaroon")
-        monkeypatch.setattr(
-            security_policy, "_extract_http_macaroon", _extract_http_macaroon
-        )
-
-        policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(pretend.stub(), pretend.stub(), invalid_permission)
-
-        assert result == Denied("")
-        assert result.s == (
-            f"API tokens are not valid for permission: {invalid_permission}!"
-        )

@@ -281,7 +281,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1531 warehouse/accounts/views.py:1721
-#: warehouse/manage/views/__init__.py:1193
+#: warehouse/manage/views/__init__.py:1197
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -301,15 +301,15 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1597 warehouse/manage/views/__init__.py:1228
-#: warehouse/manage/views/__init__.py:1341
+#: warehouse/accounts/views.py:1597 warehouse/manage/views/__init__.py:1232
+#: warehouse/manage/views/__init__.py:1345
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1608 warehouse/manage/views/__init__.py:1242
-#: warehouse/manage/views/__init__.py:1355
+#: warehouse/accounts/views.py:1608 warehouse/manage/views/__init__.py:1246
+#: warehouse/manage/views/__init__.py:1359
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -438,98 +438,98 @@ msgstr ""
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:984
+#: warehouse/manage/views/__init__.py:988
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1016
+#: warehouse/manage/views/__init__.py:1020
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1209
+#: warehouse/manage/views/__init__.py:1213
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1322
+#: warehouse/manage/views/__init__.py:1326
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1556
-#: warehouse/manage/views/__init__.py:1857
-#: warehouse/manage/views/__init__.py:1965
+#: warehouse/manage/views/__init__.py:1560
+#: warehouse/manage/views/__init__.py:1861
+#: warehouse/manage/views/__init__.py:1969
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1688
-#: warehouse/manage/views/__init__.py:1773
-#: warehouse/manage/views/__init__.py:1874
-#: warehouse/manage/views/__init__.py:1974
+#: warehouse/manage/views/__init__.py:1692
+#: warehouse/manage/views/__init__.py:1777
+#: warehouse/manage/views/__init__.py:1878
+#: warehouse/manage/views/__init__.py:1978
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1700
+#: warehouse/manage/views/__init__.py:1704
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1785
+#: warehouse/manage/views/__init__.py:1789
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1886
+#: warehouse/manage/views/__init__.py:1890
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1986
+#: warehouse/manage/views/__init__.py:1990
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1990
+#: warehouse/manage/views/__init__.py:1994
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2140
+#: warehouse/manage/views/__init__.py:2144
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2247
+#: warehouse/manage/views/__init__.py:2251
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2314
+#: warehouse/manage/views/__init__.py:2318
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2346
+#: warehouse/manage/views/__init__.py:2350
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2359
+#: warehouse/manage/views/__init__.py:2363
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2424
+#: warehouse/manage/views/__init__.py:2428
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2457
+#: warehouse/manage/views/__init__.py:2461
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2468
+#: warehouse/manage/views/__init__.py:2472
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2500
+#: warehouse/manage/views/__init__.py:2504
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
