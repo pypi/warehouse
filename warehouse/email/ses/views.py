@@ -14,8 +14,7 @@ import json
 
 import requests
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPServiceUnavailable
-from pyramid.response import Response
+from pyramid.httpexceptions import HTTPBadRequest, HTTPOk, HTTPServiceUnavailable
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.sql import exists
@@ -60,7 +59,7 @@ def confirm_subscription(request):
         TopicArn=data["TopicArn"], Token=data["Token"], AuthenticateOnUnsubscribe="true"
     )
 
-    return Response()
+    return HTTPOk()
 
 
 @view_config(
@@ -87,7 +86,7 @@ def notification(request):
         exists().where(Event.event_id == data["MessageId"])
     ).scalar()
     if event_exists:
-        return Response()
+        return HTTPOk()
 
     message = json.loads(data["Message"])
     message_id = message["mail"]["messageId"]
@@ -129,4 +128,4 @@ def notification(request):
         )
     )
 
-    return Response()
+    return HTTPOk()

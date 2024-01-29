@@ -64,6 +64,7 @@ class Permissions(StrEnum):
 
     AdminProjectsDelete = "admin:projects:delete"
     AdminProjectsRead = "admin:projects:read"
+    AdminProjectsSetLimit = "admin:projects:set-limit"
     AdminProjectsWrite = "admin:projects:write"
 
     AdminRoleAdd = "admin:role:add"

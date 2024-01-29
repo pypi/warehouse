@@ -20,6 +20,7 @@ from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
+    HTTPForbidden,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPRequestEntityTooLarge,
@@ -30,7 +31,6 @@ from pyramid.httpexceptions import (
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
-from pyramid.response import Response
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -94,9 +94,9 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = Response(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
-            response = Response(
+            response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",
                 content_type="application/json",
@@ -177,7 +177,7 @@ def forbidden(exc, request):
 def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
-    return Response(status=403)
+    return HTTPForbidden()
 
 
 @view_config(context=DatabaseNotAvailableError)
