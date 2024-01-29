@@ -27,6 +27,8 @@ down_revision = "a073e7979805"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 60000")  # 60s
+
     op.add_column(
         "macaroons",
         sa.Column(
@@ -71,6 +73,17 @@ def upgrade():
                 AND jsonb_typeof(
                     permissions_caveat->'permissions'->'projects'
                 ) = 'array'
+        """
+    )
+
+    # OIDC Caveats were not emitting the permissions caveat correctly, so we'll
+    # turn them into an empty array.
+    op.execute(
+        """ UPDATE macaroons
+            SET caveats = jsonb_build_array()
+            WHERE
+                caveats IS NULL
+                AND oidc_publisher_id IS NOT NULL
         """
     )
 
