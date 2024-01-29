@@ -27,6 +27,8 @@ down_revision = "a073e7979805"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 60000")  # 60s
+
     op.add_column(
         "macaroons",
         sa.Column(
