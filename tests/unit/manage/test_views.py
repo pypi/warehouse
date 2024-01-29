@@ -21,10 +21,10 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound,
+    HTTPOk,
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 from webauthn.helpers import bytes_to_base64url
@@ -943,7 +943,7 @@ class TestProvisionTOTP:
         view = views.ProvisionTOTPViews(request)
         result = view.generate_totp_qr()
 
-        assert isinstance(result, Response)
+        assert isinstance(result, HTTPOk)
         assert result.content_type == "image/svg+xml"
 
     def test_generate_totp_qr_two_factor_not_allowed(self):
