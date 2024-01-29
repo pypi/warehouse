@@ -76,6 +76,17 @@ def upgrade():
         """
     )
 
+    # OIDC Caveats were not emitting the permissions caveat correctly, so we'll
+    # turn them into an empty array.
+    op.execute(
+        """ UPDATE macaroons
+            SET caveats = jsonb_build_array()
+            WHERE
+                caveats IS NULL
+                AND oidc_publisher_id IS NOT NULL
+        """
+    )
+
     # Set our column to not nullable
     op.alter_column(
         "macaroons", "caveats", server_default=sa.text("'{}'"), nullable=False
