@@ -87,6 +87,22 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
             """
         )
 
+    # If no secret is supplied, bypass HelpScout API and print.
+    if not request.registry.settings.get("helpscout.app_secret"):  # pragma: no cover
+        output = (
+            dedent(
+                f"""
+            type: email
+            observer: {model.observer.parent.username}
+            customer: {model.observer.parent.email}
+            subject: Observation Report for {target_name}
+            """
+            )
+            + convo_text
+        )
+        print(output)
+        return
+
     _helpscout_bearer_token = _authenticate_helpscout(request)
     _helpscout_mailbox_id = request.registry.settings.get("helpscout.mailbox_id")
 

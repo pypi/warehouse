@@ -42,6 +42,7 @@ def test_execute_observation_report(app_config):
 )
 @pytest.mark.parametrize("payload", [{}, {"foo": "bar"}])
 def test_report_observation_to_helpscout(kind, payload, db_request, monkeypatch):
+    db_request.registry.settings = {"helpscout.app_secret": "fake-sekret"}
     # Mock out the authentication to HelpScout
     monkeypatch.setattr(
         "warehouse.observations.tasks._authenticate_helpscout",
