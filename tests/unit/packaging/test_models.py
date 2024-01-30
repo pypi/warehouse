@@ -188,6 +188,11 @@ class TestProject:
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
@@ -471,6 +476,11 @@ class TestRelease:
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
                 ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
             ),
         ] + sorted(
             [

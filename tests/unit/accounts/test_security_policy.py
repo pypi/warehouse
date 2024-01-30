@@ -215,7 +215,14 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_invalid_route(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "route_name",
+        [
+            "forklift.legacy.file_upload",
+            "api.echo",
+        ],
+    )
+    def test_identity_invalid_route(self, route_name, monkeypatch):
         session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
@@ -230,7 +237,7 @@ class TestSessionSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(name=route_name),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr="1.2.3.4",
         )

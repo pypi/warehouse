@@ -288,6 +288,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
         ]
 
         # The project has zero or more OIDC publishers registered to it,

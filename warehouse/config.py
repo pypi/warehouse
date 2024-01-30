@@ -127,6 +127,14 @@ class RootFactory:
                 Permissions.AdminSponsorsWrite,
             ),
         ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -349,6 +357,9 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
+    maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
+    maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
 
     # Configure our ratelimiters
     maybe_set(

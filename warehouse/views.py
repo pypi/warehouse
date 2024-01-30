@@ -180,6 +180,17 @@ def forbidden_include(exc, request):
     return HTTPForbidden()
 
 
+@forbidden_view_config(path_info=r"^/api/")
+@exception_view_config(PredicateMismatch, path_info=r"^/api/")
+def forbidden_api(exc, request):
+    # If the forbidden error is for an API endpoint, return a JSON response
+    # instead of redirecting
+    return HTTPForbidden(
+        json={"message": "Access was denied to this resource."},
+        content_type="application/json",
+    )
+
+
 @view_config(context=DatabaseNotAvailableError)
 def service_unavailable(exc, request):
     return httpexception_view(HTTPServiceUnavailable(), request)
