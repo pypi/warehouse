@@ -122,9 +122,9 @@ docutils==0.20.1 \
     # via
     #   myst-parser
     #   sphinx
-furo==2023.9.10 \
-    --hash=sha256:513092538537dc5c596691da06e3c370714ec99bc438680edc1debffb73e5bfc \
-    --hash=sha256:5707530a476d2a63b8cad83b4f961f3739a69f4b058bcf38a03a39fa537195b2
+furo==2024.1.29 \
+    --hash=sha256:3548be2cef45a32f8cdc0272d415fcb3e5fa6a0eb4ddfe21df3ecf1fe45a13cf \
+    --hash=sha256:4d6b2fe3f10a6e36eb9cc24c1e7beb38d7a23fc7b3c382867503b7fcac8a1e02
     # via -r requirements/docs-dev.in
 idna==3.6 \
     --hash=sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca \
@@ -303,7 +303,6 @@ sphinx==7.2.6 \
     #   myst-parser
     #   sphinx-autobuild
     #   sphinx-basic-ng
-    #   sphinxcontrib-applehelp
     #   sphinxcontrib-httpdomain
 sphinx-autobuild==2021.3.14 \
     --hash=sha256:8fe8cbfdb75db04475232f05187c776f46f6e9e04cacf1e49ce81bdac649ccac \
@@ -313,9 +312,9 @@ sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
     --hash=sha256:eb09aedbabfb650607e9b4b68c9d240b90b1e1be221d6ad71d61c52e29f7932b
     # via furo
-sphinxcontrib-applehelp==1.0.7 \
-    --hash=sha256:094c4d56209d1734e7d252f6e0b3ccc090bd52ee56807a5d9315b19c122ab15d \
-    --hash=sha256:39fdc8d762d33b01a7d8f026a3b7d71563ea3b72787d5f00ad8465bd9d6dfbfa
+sphinxcontrib-applehelp==1.0.8 \
+    --hash=sha256:c40a4f96f3776c4393d933412053962fac2b84f4c99a7982ba42e09576a70619 \
+    --hash=sha256:cb61eb0ec1b61f349e5cc36b2028e9e7ca765be05e49641c97241274753067b4
     # via sphinx
 sphinxcontrib-devhelp==1.0.6 \
     --hash=sha256:6485d09629944511c893fa11355bda18b742b83a2b181f9a009f7e500595c90f \
