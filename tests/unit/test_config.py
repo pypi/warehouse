@@ -520,5 +520,13 @@ def test_root_factory_access_control_list():
                 Permissions.AdminSponsorsWrite,
             ),
         ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]

@@ -35,6 +35,7 @@ from warehouse.views import (
     current_user_indicator,
     flash_messages,
     forbidden,
+    forbidden_api,
     forbidden_include,
     force_status,
     health,
@@ -316,6 +317,18 @@ class TestForbiddenIncludeView:
         assert resp.status_code == 403
         assert resp.content_type == "text/html"
         assert resp.content_length == 0
+
+
+class TestForbiddenAPIView:
+    def test_forbidden_api(self):
+        exc = pretend.stub()
+        request = pretend.stub()
+
+        resp = forbidden_api(exc, request)
+
+        assert resp.status_code == 403
+        assert resp.content_type == "application/json"
+        assert resp.json_body == {"message": "Access was denied to this resource."}
 
 
 class TestServiceUnavailableView:

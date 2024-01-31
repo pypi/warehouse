@@ -33,6 +33,7 @@ class Permissions(StrEnum):
     Keep the list alphabetized. Add spacing between logical groupings.
     """
 
+    # Admin Permissions
     AdminBannerRead = "admin:banner:read"
     AdminBannerWrite = "admin:banner:write"
 
@@ -75,3 +76,7 @@ class Permissions(StrEnum):
 
     AdminUsersRead = "admin:users:read"
     AdminUsersWrite = "admin:users:write"
+
+    # API Permissions
+    APIEcho = "api:echo"
+    APIObservationsAdd = "api:observations:add"

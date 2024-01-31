@@ -194,7 +194,12 @@ class TestUser:
                 True,
                 False,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
             ),
             (
                 False,
@@ -206,7 +211,12 @@ class TestUser:
                 True,
                 True,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
             ),
             (
                 False,
