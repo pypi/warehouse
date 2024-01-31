@@ -70,7 +70,7 @@
   </div>
   <div class="card-footer">
     <div class="form-group">
-      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteMacaroon" {{ "disabled" if not request.has_permission('admin') }} value=>
+      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteMacaroon" {{ "disabled" if not request.has_permission(Permissions.AdminMacaroonsWrite) }} value=>
         <i class="icon fa fa-trash"></i> Delete Macaroon
       </button>
     </div>

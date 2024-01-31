@@ -79,6 +79,7 @@ class TestGitHubPublisher:
             "runner_environment",
             "environment_node_id",
             "enterprise",
+            "enterprise_id",
             "ref_protected",
         }
 
@@ -100,6 +101,10 @@ class TestGitHubPublisher:
             publisher.publisher_url({"sha": "somesha"})
             == "https://github.com/fakeowner/fakerepo/commit/somesha"
         )
+        assert publisher.stored_claims({"sha": "somesha", "ref": "someref"}) == {
+            "sha": "somesha",
+            "ref": "someref",
+        }
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
         publisher = github.GitHubPublisher(

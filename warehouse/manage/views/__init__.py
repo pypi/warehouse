@@ -19,10 +19,10 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound,
+    HTTPOk,
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
@@ -509,7 +509,7 @@ class ProvisionTOTPViews:
         qr_buffer = io.BytesIO()
         totp_qr.svg(qr_buffer, scale=5)
 
-        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+        return HTTPOk(content_type="image/svg+xml", body=qr_buffer.getvalue())
 
     @view_config(request_method="GET")
     def totp_provision(self):

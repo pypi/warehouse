@@ -568,10 +568,11 @@ Use :command:`make` to build the documentation. For example:
 
 .. code-block:: console
 
-    make docs
+    make user-docs dev-docs
 
-The HTML documentation index can now be found at
-:file:`docs/_build/html/index.html`.
+The HTML index for the user documentation can now be found at
+:file:`docs/user-site/index.html`, and the index for the developer
+documentation at :file:`docs/dev/_build/html/index.html`.
 
 Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:

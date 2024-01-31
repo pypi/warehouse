@@ -35,6 +35,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.observations.models import HasObserversMixin
 from warehouse.sitemap.models import SitemapMixin
@@ -92,6 +93,9 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
     is_superuser: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
+    is_observer: Mapped[bool_false] = mapped_column(
+        comment="Is this user allowed to add Observations?"
+    )
     prohibit_password_reset: Mapped[bool_false]
     hide_avatar: Mapped[bool_false]
     date_joined: Mapped[datetime_now | None]
@@ -249,13 +253,31 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
+        if self.is_observer or self.is_superuser:
+            principals.append("group:observers")
 
         return principals
 
     def __acl__(self):
+        # TODO: This ACL is duplicating permissions set in RootFactory.__acl__
+        #   If nothing else, setting the ACL on the model is more restrictive
+        #   than RootFactory.__acl__, which is why we duplicate
+        #   AdminDashboardSidebarRead here, otherwise the sidebar is not displayed.
         return [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     def __lt__(self, other):

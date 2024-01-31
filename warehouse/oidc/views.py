@@ -19,8 +19,8 @@ import jwt
 import sentry_sdk
 
 from pydantic import BaseModel, StrictStr, ValidationError
+from pyramid.httpexceptions import HTTPForbidden
 from pyramid.request import Request
-from pyramid.response import Response
 from pyramid.view import view_config
 
 from warehouse.events.tags import EventTag
@@ -83,8 +83,8 @@ def _invalid(errors: list[Error], request: Request) -> JsonResponse:
 )
 def oidc_audience(request: Request):
     if request.flags.disallow_oidc():
-        return Response(
-            status=403, json={"message": "Trusted publishing functionality not enabled"}
+        return HTTPForbidden(
+            json={"message": "Trusted publishing functionality not enabled"}
         )
 
     audience: str = request.registry.settings["warehouse.oidc.audience"]
@@ -265,7 +265,7 @@ def mint_token(
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=str(publisher.id),
-        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
+        additional={"oidc": publisher.stored_claims(claims)},
     )
     for project in publisher.projects:
         project.record_event(

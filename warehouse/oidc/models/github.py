@@ -144,6 +144,7 @@ class GitHubPublisherMixin:
         "runner_environment",
         "environment_node_id",
         "enterprise",
+        "enterprise_id",
         "ref_protected",
     }
 
@@ -224,6 +225,10 @@ class GitHubPublisherMixin:
         if sha:
             return f"{base}/commit/{sha}"
         return base
+
+    def stored_claims(self, claims=None):
+        claims = claims if claims else {}
+        return {"ref": claims.get("ref"), "sha": claims.get("sha")}
 
     def __str__(self):
         return self.workflow_filename

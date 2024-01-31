@@ -31,18 +31,18 @@
     <div class="card-body">
       <div class="form-group">
         <label for="prohibitedProjectName">Project name(s)</label>
-        <textarea name="projects" class="form-control" id="prohibitedProjectName" rows="20" placeholder="Enter project name(s) to prohibit " {{ "disabled" if not request.has_permission('admin') }} autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+        <textarea name="projects" class="form-control" id="prohibitedProjectName" rows="20" placeholder="Enter project name(s) to prohibit " {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }} autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
       </div>
 
       <div class="form-group">
         <label for="prohibitedComment">Comment</label>
-        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}></textarea>
       </div>
     </div>
 
     <div class="card-footer">
       <div class="float-right">
-        <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+        <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}>Submit</button>
       </div>
     </div>
   </form>

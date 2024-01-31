@@ -38,6 +38,11 @@ class TestGooglePublisher:
 
         assert publisher.publisher_url() is None
 
+    def test_stored_claims(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.stored_claims() == {}
+
     def test_stringifies_as_email(self):
         publisher = google.GooglePublisher(email="fake@example.com")
 
@@ -159,7 +164,7 @@ class TestGooglePublisher:
             ("fakesubject", "fakesubject", True),
             ("fakesubject", "wrongsubject", False),
             # Publisher configured without subject: any subject is acceptable.
-            (None, "anysubject", True),
+            ("", "anysubject", True),
             # Publisher configured with subject, none provided: must fail.
             ("fakesubject", None, False),
         ],
