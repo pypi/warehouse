@@ -88,7 +88,7 @@ class DatabaseOrganizationService:
             query = query.filter(OrganizationApplication.submitted_by == submitted_by)
         if undecided is True:
             query = query.filter(OrganizationApplication.is_approved.is_(None))
-        return query.all()
+        return query.order_by(OrganizationApplication.normalized_name).all()
 
     def find_organizationid(self, name):
         """
