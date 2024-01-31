@@ -372,9 +372,9 @@ types-pyopenssl==24.0.0.20240130 \
     --hash=sha256:24a255458b5b8a7fca8139cf56f2a8ad5a4f1a5f711b73a5bb9cb50dc688fab5 \
     --hash=sha256:c812e5c1c35249f75ef5935708b2a997d62abf9745be222e5f94b9595472ab25
     # via types-redis
-types-python-slugify==8.0.0.3 \
-    --hash=sha256:2353c161c79ab6cce955b50720c6cd03586ec297558122236d130e4a19f21209 \
-    --hash=sha256:868e6610ab9a01c01b2ccc1b982363e694d6bbb4fcf32e0d82688c89dceb4e2c
+types-python-slugify==8.0.2.20240127 \
+    --hash=sha256:3ac009c48bb2591390ae7124c4c4db92dcc7a38e79ac5ee696bd6c70777c0a69 \
+    --hash=sha256:93ba6486a79e361a8855d33f1beddbbc11f2e39ff8f8a06821fa45faf4877a27
     # via -r requirements/lint.in
 types-pytz==2023.4.0.20240130 \
     --hash=sha256:33676a90bf04b19f92c33eec8581136bea2f35ddd12759e579a624a006fd387a \
