@@ -1396,9 +1396,9 @@ python-slugify==8.0.2 \
     --hash=sha256:428ea9b00c977b8f6c097724398f190b2c18e2a6011094d1001285875ccacdbf \
     --hash=sha256:a1a02b127a95c124fd84f8f88be730e557fd823774bf19b1cd5e8704e2ae0e5e
     # via -r requirements/main.in
-pytz==2023.4 \
-    --hash=sha256:31d4583c4ed539cd037956140d695e42c033a19e984bfce9964a3f7d59bc2b40 \
-    --hash=sha256:f90ef520d95e7c46951105338d918664ebfd6f1d995bd7d153127ce90efafa6a
+pytz==2024.1 \
+    --hash=sha256:2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812 \
+    --hash=sha256:328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319
     # via -r requirements/main.in
 readme-renderer[md]==42.0 \
     --hash=sha256:13d039515c1f24de668e2c93f2e877b9dbe6c6c32328b90a40a49d8b2b85f36d \
