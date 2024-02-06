@@ -376,9 +376,9 @@ types-python-slugify==8.0.2.20240127 \
     --hash=sha256:3ac009c48bb2591390ae7124c4c4db92dcc7a38e79ac5ee696bd6c70777c0a69 \
     --hash=sha256:93ba6486a79e361a8855d33f1beddbbc11f2e39ff8f8a06821fa45faf4877a27
     # via -r requirements/lint.in
-types-pytz==2023.4.0.20240130 \
-    --hash=sha256:33676a90bf04b19f92c33eec8581136bea2f35ddd12759e579a624a006fd387a \
-    --hash=sha256:6ce76a9f8fd22bd39b01a59c35bfa2db39b60d11a2f77145e97b730de7e64fe0
+types-pytz==2024.1.0.20240203 \
+    --hash=sha256:9679eef0365db3af91ef7722c199dbb75ee5c1b67e3c4dd7bfbeb1b8a71c21a3 \
+    --hash=sha256:c93751ee20dfc6e054a0148f8f5227b9a00b79c90a4d3c9f464711a73179c89e
     # via
     #   -r requirements/lint.in
     #   types-babel
