@@ -124,6 +124,16 @@ table.columns([".ip_address", ".hashed_ip"]).visible(false);
 new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
 table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 
+// User API Tokens
+let token_table = $("#api-tokens").DataTable({
+  responsive: true,
+  lengthChange: false,
+});
+token_table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
+token_table.columns([".permissions_caveat"]).visible(false);
+new $.fn.dataTable.Buttons(token_table, {buttons: ["colvis"]});
+token_table.buttons().container().appendTo($(".col-md-6:eq(0)", token_table.table().container()));
+
 // Observations
 let obs_table = $("#observations").DataTable({
   responsive: true,
