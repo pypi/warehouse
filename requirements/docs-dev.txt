@@ -304,9 +304,9 @@ sphinx==7.2.6 \
     #   sphinx-autobuild
     #   sphinx-basic-ng
     #   sphinxcontrib-httpdomain
-sphinx-autobuild==2021.3.14 \
-    --hash=sha256:8fe8cbfdb75db04475232f05187c776f46f6e9e04cacf1e49ce81bdac649ccac \
-    --hash=sha256:de1ca3b66e271d2b5b5140c35034c89e47f263f2cd5db302c9217065f7443f05
+sphinx-autobuild==2024.2.4 \
+    --hash=sha256:63fd87ab7505872a89aef468ce6503f65e794a195f4ae62269db3b85b72d4854 \
+    --hash=sha256:cb9d2121a176d62d45471624872afc5fad7755ad662738abe400ecf4a7954303
     # via -r requirements/docs-dev.in
 sphinx-basic-ng==1.0.0b2 \
     --hash=sha256:9ec55a47c90c8c002b5960c57492ec3021f5193cb26cebc2dc4ea226848651c9 \
