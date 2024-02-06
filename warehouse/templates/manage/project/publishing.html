@@ -192,7 +192,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ activestate_pubisher_form.organization(placeholder=gettext("my-organization"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="organization-errors") }}
+      {{ activestate_pubisher_form.organization(
+        placeholder=gettext("my-organization"), 
+        autocomplete="off", 
+        autocapitalize="off", 
+        spellcheck="false", 
+        class_="form-group__field", 
+        aria_describedby="organization-errors")
+      }}
       <p class="form-group__help-text">
         {% trans %}The ActiveState organization name that owns the project{% endtrans %}
       </p>
@@ -207,7 +214,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ activestate_pubisher_form.project(placeholder=gettext("my-project"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+      {{ activestate_pubisher_form.project(
+        placeholder=gettext("my-project"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project-errors")
+      }}
       <p class="form-group__help-text">
       {% trans %}The ActiveState project that will build your Python artifact.{% endtrans %}
       </p>
@@ -222,9 +236,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ activestate_pubisher_form.actor(placeholder=gettext("my-username"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"actor-errors"}) }}
+      {{ activestate_pubisher_form.actor(
+        placeholder=gettext("my-username"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="actor-errors")
+      }}
       <p class="form-group__help-text">
-        {% trans %}The ActiveState user that will trigger the build of your Python artifact.{% endtrans %}
+        {% trans %}The username for the ActiveState account that will trigger the build of your Python artifact.{% endtrans %}
       </p>
       <div id="actor-errors">
         {{ field_errors(activestate_pubisher_form.actor) }}

@@ -3371,7 +3371,7 @@ class TestManageAccountPublishingViews:
             },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
-            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert request.flags.disallow_oidc.calls == [
@@ -3441,7 +3441,7 @@ class TestManageAccountPublishingViews:
             },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
-            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -3543,7 +3543,7 @@ class TestManageAccountPublishingViews:
             },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
-            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -3654,7 +3654,7 @@ class TestManageAccountPublishingViews:
             },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
-            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
@@ -4305,7 +4305,7 @@ class TestManageAccountPublishingViews:
             },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
             "pending_google_publisher_form": pending_google_publisher_form_obj,
-            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [

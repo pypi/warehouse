@@ -28,7 +28,7 @@ _VALID_PROJECT_NAME = re.compile(r"^[.a-zA-Z0-9-]{3,40}$")
 _DOUBLE_DASHES = re.compile(r"--+")
 
 _ACTIVESTATE_GRAPHQL_API_URL = "https://platform.activestate.com/graphql/v1/graphql"
-_GRAPHQL_GET_ORGANIZATION = "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}"  # noqa
+_GRAPHQL_GET_ORGANIZATION = "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}"  # noqa: E501
 _GRAPHQL_GET_ACTOR = (
     "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}"
 )
@@ -71,7 +71,15 @@ def _activestate_gql_api_call(
             },
             timeout=5,
         )
-        if response.status_code >= 400:
+        if response.status_code == 404:
+            sentry_sdk.capture_message(
+                f"Unexpected {response.status_code } error "
+                f"from ActiveState API: {response.content!r}"
+            )
+            raise wtforms.validators.ValidationError(
+                _("Unexpected error from ActiveState. Try again in a few minutes")
+            )
+        elif response.status_code >= 400:
             sentry_sdk.capture_message(
                 f"Unexpected {response.status_code } error "
                 f"from ActiveState API: {response.content!r}"
@@ -82,7 +90,7 @@ def _activestate_gql_api_call(
     except (requests.Timeout, requests.ConnectionError):
         sentry_sdk.capture_message("Connection error from ActiveState API")
         raise wtforms.validators.ValidationError(
-            _("Unexpected error from ActiveState. Try again")
+            _("Unexpected error from ActiveState. Try again in a few minutes")
         )
     # Graphql reports it's errors within the body of the 200 response
     try:

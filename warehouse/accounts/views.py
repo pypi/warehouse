@@ -1520,7 +1520,7 @@ class ManageAccountPublishingViews:
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
-            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC

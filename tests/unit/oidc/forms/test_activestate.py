@@ -108,7 +108,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa
+                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa: E501
                     "variables": {"username": fake_username},
                 },
                 timeout=5,
@@ -142,7 +142,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa
+                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa: E501
                     "variables": {"username": fake_username},
                 },
                 timeout=5,
@@ -244,7 +244,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa
+                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa: E501
                     "variables": {"username": fake_username},
                 },
                 timeout=5,
@@ -275,7 +275,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa
+                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa: E501
                     "variables": {"username": fake_username},
                 },
                 timeout=5,
@@ -304,7 +304,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa
+                    "query": "query($username: String) {users(where: {username: {_eq: $username}}) {user_id}}",  # noqa: E501
                     "variables": {"username": fake_username},
                 },
                 timeout=5,
@@ -337,7 +337,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa
+                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa: E501
                     "variables": {"orgname": fake_org_name},
                 },
                 timeout=5,
@@ -371,7 +371,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa
+                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa: E501
                     "variables": {"orgname": fake_org_name},
                 },
                 timeout=5,
@@ -474,7 +474,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa
+                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa: E501
                     "variables": {"orgname": fake_org_name},
                 },
                 timeout=5,
@@ -506,7 +506,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa
+                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa: E501
                     "variables": {"orgname": fake_org_name},
                 },
                 timeout=5,
@@ -530,7 +530,7 @@ class TestActiveStatePublisherForm:
             pretend.call(
                 "https://platform.activestate.com/graphql/v1/graphql",
                 json={
-                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa
+                    "query": "query($orgname: String) {organizations(where: {display_name: {_eq: $orgname}}) {added}}",  # noqa: E501
                     "variables": {"orgname": fake_org_name},
                 },
                 timeout=5,
