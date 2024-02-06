@@ -70,6 +70,7 @@ class Macaroon(db.Model):
     created: Mapped[datetime_now]
     last_used: Mapped[datetime | None]
 
+    # FIXME: Deprecated in favor of `Macaroon.caveats()`.
     # Human-readable "permissions" for this macaroon, corresponding to the
     # body of the permissions ("V1") caveat.
     permissions_caveat: Mapped[dict] = mapped_column(
