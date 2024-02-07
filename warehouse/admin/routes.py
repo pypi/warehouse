@@ -253,6 +253,11 @@ def includeme(config):
         domain=warehouse,
     )
 
+    # Observation related Admin pages
+    config.add_route(
+        "admin.observations.list", "/admin/observations/", domain=warehouse
+    )
+
     # Email related Admin pages
     config.add_route("admin.emails.list", "/admin/emails/", domain=warehouse)
     config.add_route("admin.emails.mass", "/admin/emails/mass/", domain=warehouse)

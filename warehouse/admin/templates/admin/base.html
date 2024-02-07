@@ -115,7 +115,7 @@
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
-              <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications <span class="right badge badge-danger">New</span></p>
+              <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
             </a>
           </li>
           <li class="nav-item">
@@ -151,6 +151,11 @@
           <li class="nav-item">
             <a href="{{ request.route_path('admin.prohibited_project_names.list') }}" class="nav-link">
               <i class="fa fa-ban nav-icon"></i> <p>Prohibited Project Names</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="{{ request.route_path('admin.observations.list') }}" class="nav-link">
+              <i class="fa-solid fa-eye nav-icon"></i> <p>Observations <span class="right badge badge-danger">New</span></p>
             </a>
           </li>
           <li class="nav-item">
