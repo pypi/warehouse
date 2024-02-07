@@ -51,7 +51,14 @@
           {% endif %}
         </label>
         {% if request.has_permission("manage:organization") %}
-        {{ save_organization_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        {{ save_organization_form.display_name(
+          placeholder=gettext("Name of your business, product, or project"),
+          autocomplete="organization",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="display-name-errors",
+        ) }}
         {% else %}
         <p class="form-group__text">
           {{ save_organization_form.display_name.data }}
@@ -81,7 +88,14 @@
           {% endif %}
         </label>
         {% if request.has_permission("manage:organization") %}
-        {{ save_organization_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+        {{ save_organization_form.link_url(
+          placeholder=gettext("URL for your business, product, or project"),
+          autocomplete="url",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="link-url-errors"
+        ) }}
         {% else %}
         <p class="form-group__text">
           {{ save_organization_form.link_url.data }}
@@ -105,7 +119,14 @@
           {% endif %}
         </label>
         {% if request.has_permission("manage:organization") %}
-        {{ save_organization_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        {{ save_organization_form.description(
+          placeholder=gettext("Description of your business, product, or project"),
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="true",
+          class_="form-group__field",
+          aria_describedby="description-errors"
+        ) }}
         {% else %}
         <p class="form-group__text">
           {{ save_organization_form.description.data }}
@@ -130,7 +151,10 @@
           {% endif %}
         </label>
         {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company %}
-        {{ save_organization_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+        {{ save_organization_form.orgtype(
+          class_="form-group__field",
+          aria_describedby="orgtype-errors",
+        ) }}
         {% else %}
         <input name="orgtype" type="hidden" value="Company">  {# Ensure request params match Pyramid POST route #}
         <p class="form-group__text">
@@ -197,7 +221,13 @@
       {% set action = request.current_route_path() + "#current_organization_name-modal" %}
       {% set extra_fields %}
         <label for="name">New organization account name</label>
-        {{ save_organization_name_form.name(autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+        {{ save_organization_name_form.name(
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="name-errors",
+        ) }}
         <div id="name-errors">
           {% if save_organization_name_form.name.errors %}
           <ul class="form-errors" role="alert">

@@ -49,7 +49,14 @@
             <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
             {% endif %}
           </label>
-          {{ form.full_name(placeholder=gettext("Your name"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+          {{ form.full_name(
+              placeholder=gettext("Your name"),
+              autocomplete="name",
+              autocapitalize="off",
+              spellcheck="false",
+              class_="form-group__field",
+              aria_describedby="name-errors",
+          ) }}
           <div id="name-errors">
             {% if form.full_name.errors %}
             <ul class="form-errors" role="alert">
@@ -68,7 +75,14 @@
             <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
             {% endif %}
           </label>
-          {{ form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"email-errors"}) }}
+          {{ form.email(
+              placeholder=gettext("Your email address"),
+              autocomplete="email",
+              spellcheck="false",
+              required="required",
+              class_="form-group__field",
+              aria_describedby="email-errors",
+          ) }}
           <div id="email-errors">
             {% if form.email.errors %}
             <ul class="form-errors" role="alert">
@@ -83,7 +97,10 @@
         {# The following is a honeypot field and is hidden from the user #}
         <div class="form-group confirm-form">
           <label for="confirm_form" class="form-group__label">{% trans %}Confirm form{% endtrans %}</label>
-          {{ form.confirm_form(class="form-group__field", **{'aria-hidden':'true'}) }}
+          {{ form.confirm_form(
+              class="form-group__field",
+              aria_hidden='true',
+          ) }}
         </div>
 
         <div class="form-group">
@@ -93,7 +110,14 @@
             <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
             {% endif %}
           </label>
-          {{ form.username(placeholder=gettext("Select a username"), autocapitalize="off", autocomplete="username", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"username-errors"}) }}
+          {{ form.username(placeholder=gettext("Select a username"),
+              autocapitalize="off",
+              autocomplete="username",
+              spellcheck="false",
+              required="required",
+              class_="form-group__field",
+              aria_describedby="username-errors",
+          ) }}
           <div id="username-errors">
             {% if form.username.errors %}
             <ul class="form-errors" role="alert">
@@ -119,7 +143,19 @@
                   id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
               </label>
             </div>
-            {{ form.new_password(placeholder=gettext("Select a password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_password_target="password", data_password_match_target="passwordMatch", data_password_strength_gauge_target="password", data_password_breach_target="password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check", **{"aria-describedby":"password-errors password-strength"}) }}
+            {{ form.new_password(
+              placeholder=gettext("Select a password"),
+              required="required",
+              class_="form-group__field",
+              autocomplete="new-password",
+              spellcheck="false",
+              data_password_target="password",
+              data_password_match_target="passwordMatch",
+              data_password_strength_gauge_target="password",
+              data_password_breach_target="password",
+              data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength input->password-breach#check",
+              aria_describedby="password-errors password-strength"
+            ) }}
             <div id="password-errors">
               {% if form.new_password.errors %}
               <ul class="form-errors" role="alert">
@@ -139,7 +175,17 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ form.password_confirm(placeholder=gettext("Confirm password"), required="required", class_="form-group__field", autocomplete="new-password", spellcheck="false", data_password_target="password", data_password_match_target="passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"password-confirm-errors"}) }}
+            {{ form.password_confirm(
+              placeholder=gettext("Confirm password"),
+              required="required",
+              class_="form-group__field",
+              autocomplete="new-password",
+              spellcheck="false",
+              data_password_target="password",
+              data_password_match_target="passwordMatch",
+              data_action="input->password-match#checkPasswordsMatch",
+              aria_describedby="password-confirm-errors",
+            ) }}
             <div id="password-confirm-errors">
               {% if form.password_confirm.errors %}
               <ul class="form-errors" role="alert">
