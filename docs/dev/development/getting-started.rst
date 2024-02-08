@@ -543,6 +543,21 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
+You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. code-block:: console
+
+    TESTARGS="-vvv -x" make tests
+
+This will pass the arguments ``-vvv`` and ``-x`` down to ``pytest``.
+
+This is useful in scenarios like passing a
+`random seed <https://pypi.org/project/pytest-randomly/>`_ to the test runner:
+
+.. code-block:: console
+
+    TESTARGS="--randomly-seed=1234" make tests
+
 You can run linters, programs that check the code, with:
 
 .. code-block:: console

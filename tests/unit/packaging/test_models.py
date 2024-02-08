@@ -615,11 +615,13 @@ class TestRelease:
             release=release,
             filename=f"{release.project.name}-{release.version}.tar.gz",
             python_version="source",
+            packagetype="sdist",
         )
         rfile_2 = DBFileFactory.create(
             release=release,
             filename=f"{release.project.name}-{release.version}.whl",
             python_version="bdist_wheel",
+            packagetype="bdist_wheel",
         )
         DBFileEventFactory.create(
             source=rfile_1,

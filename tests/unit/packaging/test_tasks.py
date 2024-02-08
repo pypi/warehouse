@@ -98,8 +98,8 @@ def test_compute_packaging_metrics(db_request, metrics):
     release3 = ReleaseFactory(project=project2)
     FileFactory(release=release1)
     FileFactory(release=release2)
-    FileFactory(release=release3)
-    FileFactory(release=release3)
+    FileFactory(release=release3, packagetype="sdist")
+    FileFactory(release=release3, packagetype="bdist_wheel")
 
     compute_packaging_metrics(db_request)
 
