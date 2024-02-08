@@ -133,10 +133,6 @@ class ActiveStatePublisherBase(forms.Form):
                 _VALID_PROJECT_NAME,
                 message=_("Invalid ActiveState project name"),
             ),
-            wtforms.validators.Regexp(
-                _VALID_PROJECT_NAME,
-                message=_("Invalid ActiveState project name"),
-            ),
             _no_double_dashes,
             _no_leading_or_trailing_dashes,
         ]

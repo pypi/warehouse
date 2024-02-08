@@ -224,7 +224,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_activestate_pubisher_form.project_name(placeholder=gettext("project name"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="project_name-errors") }}
+      {{ pending_activestate_pubisher_form.project_name(
+        placeholder=gettext("project name"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project_name-errors")
+      }}
       <p class="form-group__help-text">
         {% trans %}The project (on PyPI) that will be created when this publisher is used{% endtrans %}
       </p>

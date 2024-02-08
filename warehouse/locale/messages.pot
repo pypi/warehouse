@@ -609,15 +609,14 @@ msgid "Specify ActiveState project name"
 msgstr ""
 
 #: warehouse/oidc/forms/activestate.py:134
-#: warehouse/oidc/forms/activestate.py:138
 msgid "Invalid ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:161
+#: warehouse/oidc/forms/activestate.py:157
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:181
+#: warehouse/oidc/forms/activestate.py:177
 msgid "ActiveState actor not found"
 msgstr ""
 
@@ -1313,9 +1312,9 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/account/publishing.html:189
 #: warehouse/templates/manage/account/publishing.html:224
-#: warehouse/templates/manage/account/publishing.html:239
-#: warehouse/templates/manage/account/publishing.html:261
-#: warehouse/templates/manage/account/publishing.html:283
+#: warehouse/templates/manage/account/publishing.html:246
+#: warehouse/templates/manage/account/publishing.html:268
+#: warehouse/templates/manage/account/publishing.html:290
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -2524,7 +2523,7 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:45
 #: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:237
+#: warehouse/templates/manage/account/publishing.html:244
 #: warehouse/templates/manage/project/publishing.html:190
 #: warehouse/templates/organizations/profile.html:30
 msgid "Organization"
@@ -2532,7 +2531,7 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:46
 #: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:259
+#: warehouse/templates/manage/account/publishing.html:266
 #: warehouse/templates/manage/project/publishing.html:212
 msgid "ActiveState Project name"
 msgstr ""
@@ -4285,13 +4284,13 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:43
 #: warehouse/templates/manage/account/publishing.html:162
-#: warehouse/templates/manage/account/publishing.html:227
+#: warehouse/templates/manage/account/publishing.html:228
 msgid "project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:45
 #: warehouse/templates/manage/account/publishing.html:164
-#: warehouse/templates/manage/account/publishing.html:229
+#: warehouse/templates/manage/account/publishing.html:236
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
@@ -4369,7 +4368,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/account/publishing.html:210
-#: warehouse/templates/manage/account/publishing.html:300
+#: warehouse/templates/manage/account/publishing.html:307
 #: warehouse/templates/manage/project/publishing.html:122
 #: warehouse/templates/manage/project/publishing.html:178
 #: warehouse/templates/manage/project/publishing.html:253
@@ -4409,86 +4408,86 @@ msgid ""
 "identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:243
+#: warehouse/templates/manage/account/publishing.html:250
 #: warehouse/templates/manage/project/publishing.html:196
 msgid "my-organization"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:251
+#: warehouse/templates/manage/account/publishing.html:258
 #: warehouse/templates/manage/project/publishing.html:204
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:265
+#: warehouse/templates/manage/account/publishing.html:272
 #: warehouse/templates/manage/project/publishing.html:218
 msgid "my-project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:273
+#: warehouse/templates/manage/account/publishing.html:280
 #: warehouse/templates/manage/project/publishing.html:226
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:281
+#: warehouse/templates/manage/account/publishing.html:288
 #: warehouse/templates/manage/project/publishing.html:234
 msgid "Actor Username"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:287
+#: warehouse/templates/manage/account/publishing.html:294
 #: warehouse/templates/manage/project/publishing.html:240
 msgid "my-username"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:293
+#: warehouse/templates/manage/account/publishing.html:300
 #: warehouse/templates/manage/project/publishing.html:246
 msgid ""
 "The username for the ActiveState account that will trigger the build of "
 "your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:311
+#: warehouse/templates/manage/account/publishing.html:318
 msgid "Manage publishers"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:321
+#: warehouse/templates/manage/account/publishing.html:328
 msgid "Project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:343
+#: warehouse/templates/manage/account/publishing.html:350
 msgid ""
 "No publishers are currently configured. Publishers for existing projects "
 "can be added in the publishing configuration for each individual project."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:355
+#: warehouse/templates/manage/account/publishing.html:362
 msgid "Pending project name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:356
+#: warehouse/templates/manage/account/publishing.html:363
 #: warehouse/templates/manage/project/publishing.html:280
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:357
+#: warehouse/templates/manage/account/publishing.html:364
 #: warehouse/templates/manage/project/publishing.html:281
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:369
+#: warehouse/templates/manage/account/publishing.html:376
 msgid ""
 "No pending publishers are currently configured. Publishers for projects "
 "that don't exist yet can be added below."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:377
+#: warehouse/templates/manage/account/publishing.html:384
 msgid "Add a new pending publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:380
+#: warehouse/templates/manage/account/publishing.html:387
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:386
+#: warehouse/templates/manage/account/publishing.html:393
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered "
@@ -4499,7 +4498,7 @@ msgid ""
 "trusted publishers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:425
+#: warehouse/templates/manage/account/publishing.html:432
 #: warehouse/templates/manage/project/publishing.html:328
 #, python-format
 msgid ""
