@@ -540,6 +540,16 @@ class TestActiveStatePublisherForm:
     @pytest.mark.parametrize(
         "data",
         [
+            # Organization
+            # Missing
+            # Empty
+            {"organization": "", "project": "good", "actor": "good"},
+            # Actor
+            # Missing
+            # Empty
+            {"actor": "", "project": "good", "organization": "good"},
+            {"actor": None, "project": "good", "organization": "good"},
+            # Project
             # Too short
             # Too long
             # Invalid characters
@@ -547,40 +557,6 @@ class TestActiveStatePublisherForm:
             # No double --
             # Missing
             # Empty
-            #
-            # organization
-            {"organization": "AB", "project": "good", "actor": "good"},
-            {
-                "organization": "abcdefghojklmnopqrstuvwxyz123456789012345",
-                "project": "good",
-                "actor": "good",
-            },
-            {
-                "organization": "invalid_characters@",
-                "project": "good",
-                "actor": "good",
-            },
-            {"organization": "-foo-", "project": "good", "actor": "good"},
-            {"organization": "---", "project": "good", "actor": "good"},
-            {"organization": "", "project": "good", "actor": "good"},
-            {"organization": None, "project": "good", "actor": "good"},
-            # actor
-            {"actor": "AB", "project": "good", "organization": "good"},
-            {
-                "actor": "abcdefghojklmnopqrstuvwxyz123456789012345",
-                "project": "good",
-                "organization": "good",
-            },
-            {
-                "actor": "invalid_characters@",
-                "project": "good",
-                "organization": "good",
-            },
-            {"actor": "-foo-", "project": "good", "organization": "good"},
-            {"actor": "---", "project": "good", "organization": "good"},
-            {"actor": "", "project": "good", "organization": "good"},
-            {"actor": None, "project": "good", "organization": "good"},
-            # project
             {"project": "AB", "actor": "good", "organization": "good"},
             {
                 "project": "abcdefghojklmnopqrstuvwxyz123456789012345",

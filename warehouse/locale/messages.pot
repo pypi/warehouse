@@ -581,47 +581,43 @@ msgstr ""
 msgid "Publisher must be specified by ID"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:49
+#: warehouse/oidc/forms/activestate.py:48
 msgid "Double dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:56
+#: warehouse/oidc/forms/activestate.py:55
 msgid "Leading or trailing dashes are not allowed in the name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:80
-#: warehouse/oidc/forms/activestate.py:93
+#: warehouse/oidc/forms/activestate.py:79
+#: warehouse/oidc/forms/activestate.py:92
 msgid "Unexpected error from ActiveState. Try again in a few minutes"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:88
-#: warehouse/oidc/forms/activestate.py:104
-#: warehouse/oidc/forms/activestate.py:113
+#: warehouse/oidc/forms/activestate.py:87
+#: warehouse/oidc/forms/activestate.py:103
+#: warehouse/oidc/forms/activestate.py:112
 msgid "Unexpected error from ActiveState. Try again"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:123
+#: warehouse/oidc/forms/activestate.py:122
 msgid "Specify ActiveState organization name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:127
-msgid "Invalid ActiveState organization name"
-msgstr ""
-
-#: warehouse/oidc/forms/activestate.py:137
+#: warehouse/oidc/forms/activestate.py:130
 msgid "Specify ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:141
-#: warehouse/oidc/forms/activestate.py:145
+#: warehouse/oidc/forms/activestate.py:134
+#: warehouse/oidc/forms/activestate.py:138
 msgid "Invalid ActiveState project name"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:174
+#: warehouse/oidc/forms/activestate.py:161
 msgid "ActiveState organization not found"
 msgstr ""
 
-#: warehouse/oidc/forms/activestate.py:194
+#: warehouse/oidc/forms/activestate.py:181
 msgid "ActiveState actor not found"
 msgstr ""
 

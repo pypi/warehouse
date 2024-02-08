@@ -23,7 +23,6 @@ from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
-_VALID_ORG_URL_NAME_AND_ACTOR_NAME = re.compile(r"^[a-zA-Z0-9-]{3,40}$")
 _VALID_PROJECT_NAME = re.compile(r"^[.a-zA-Z0-9-]{3,40}$")
 _DOUBLE_DASHES = re.compile(r"--+")
 
@@ -122,12 +121,6 @@ class ActiveStatePublisherBase(forms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify ActiveState organization name"),
             ),
-            wtforms.validators.Regexp(
-                _VALID_ORG_URL_NAME_AND_ACTOR_NAME,
-                message=_("Invalid ActiveState organization name"),
-            ),
-            _no_double_dashes,
-            _no_leading_or_trailing_dashes,
         ]
     )
 
@@ -154,12 +147,6 @@ class ActiveStatePublisherBase(forms.Form):
             wtforms.validators.InputRequired(
                 message=("Specify the ActiveState actor username")
             ),
-            wtforms.validators.Regexp(
-                _VALID_ORG_URL_NAME_AND_ACTOR_NAME,
-                message=("Invalid ActiveState username"),
-            ),
-            _no_double_dashes,
-            _no_leading_or_trailing_dashes,
         ]
     )
 
