@@ -34,7 +34,6 @@ from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
 from pyramid_mailer.mailer import DummyMailer
-from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
@@ -244,13 +243,12 @@ def cli():
 
 
 @pytest.fixture(scope="session")
-def database(request):
-    config = get_config(request)
-    pg_host = config.get("host")
-    pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
-    pg_user = config.get("user")
-    pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 14.4)
+def database(postgresql_proc, request):
+    pg_host = postgresql_proc.host
+    pg_port = postgresql_proc.port
+    pg_user = postgresql_proc.user
+    pg_db = postgresql_proc.dbname
+    pg_version = postgresql_proc.version
 
     janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
 
