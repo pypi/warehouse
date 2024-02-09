@@ -180,6 +180,81 @@
   </form>
 {% endmacro %}
 
+{% macro activestate_form(request, activestate_pubisher_form) %}
+  {{ form_error_anchor(activestate_pubisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(activestate_pubisher_form) }}
+    <div class="form-group">
+      <label for="organization" class="form-group__label">
+        {% trans %}Organization{% endtrans %}
+        {% if activestate_pubisher_form.organization.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.organization(
+        placeholder=gettext("my-organization"), 
+        autocomplete="off", 
+        autocapitalize="off", 
+        spellcheck="false", 
+        class_="form-group__field", 
+        aria_describedby="organization-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The ActiveState organization name that owns the project{% endtrans %}
+      </p>
+      <div id="organization-errors">
+        {{ field_errors(activestate_pubisher_form.organization) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="project" class="form-group__label">
+        {% trans %}ActiveState Project name{% endtrans %}
+        {% if activestate_pubisher_form.project.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.project(
+        placeholder=gettext("my-project"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project-errors")
+      }}
+      <p class="form-group__help-text">
+      {% trans %}The ActiveState project that will build your Python artifact.{% endtrans %}
+      </p>
+      <div id="project-errors">
+        {{ field_errors(activestate_pubisher_form.project) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="actor" class="form-group__label">
+        {% trans %}Actor Username{% endtrans %}
+        {% if activestate_pubisher_form.actor.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.actor(
+        placeholder=gettext("my-username"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="actor-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The username for the ActiveState account that will trigger the build of your Python artifact.{% endtrans %}
+      </p>
+      <div id="actor-errors">
+        {{ field_errors(activestate_pubisher_form.actor) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+{% endmacro %}
+
 {% block main %}
 {% if testPyPI %}
 {% set title = "TestPyPI" %}
@@ -226,6 +301,7 @@
       {% set publishers = [
            ("GitHub", github_form(request, github_publisher_form)),
            ("Google", google_form(request, google_publisher_form)),
+           ("ActiveState", activestate_form(request, activestate_publisher_form)),
          ]
       %}
 

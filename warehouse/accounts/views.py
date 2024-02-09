@@ -79,11 +79,13 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import (
     DeletePublisherForm,
+    PendingActiveStatePublisherForm,
     PendingGitHubPublisherForm,
     PendingGooglePublisherForm,
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
     PendingGooglePublisher,
     PendingOIDCPublisher,
@@ -1478,6 +1480,10 @@ class ManageAccountPublishingViews:
             self.request.POST,
             project_factory=self.project_factory,
         )
+        self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory,
+        )
 
     @property
     def _ratelimiters(self):
@@ -1514,12 +1520,16 @@ class ManageAccountPublishingViews:
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
                 ),
                 "Google": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+                "ActiveState": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
                 ),
             },
         }
@@ -1708,6 +1718,32 @@ class ManageAccountPublishingViews:
                 repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
                 environment=form.normalized_environment,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingActiveStatePublisherForm.__params__,
+    )
+    def add_pending_activestate_oidc_publisher(self):
+        form = self.default_response["pending_activestate_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="ActiveState",
+            publisher_class=PendingActiveStatePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingActiveStatePublisher(
+                project_name=form.project_name.data,
+                added_by=self.request.user,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+            ),
+            make_existence_filters=lambda form: dict(
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor_id=form.actor_id,
             ),
         )
 
