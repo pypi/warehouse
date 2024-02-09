@@ -13,24 +13,6 @@
 -#}
 {% extends "admin/base.html" %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
-<div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
-
-  <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
-
-    {% if field.errors %}
-    <div class="help-block">
-    {% for error in field.errors %}
-      <div>{{ error }}</div>
-    {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</div>
-{% endmacro %}
-
 {% block title %}{{ organization.name }}{% endblock %}
 
 {% block breadcrumb %}

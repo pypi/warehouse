@@ -25,6 +25,7 @@ from sqlalchemy.orm import joinedload
 from warehouse import forms
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
+from warehouse.authnz import Permissions
 from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
@@ -33,7 +34,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.user.list",
     renderer="admin/users/list.html",
-    permission="moderator",
+    permission=Permissions.AdminUsersRead,
     uses_session=True,
 )
 def user_list(request):
@@ -90,6 +91,7 @@ class UserForm(forms.Form):
     is_superuser = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
+    is_observer = wtforms.fields.BooleanField()
 
     prohibit_password_reset = wtforms.fields.BooleanField()
     hide_avatar = wtforms.fields.BooleanField()
@@ -108,7 +110,7 @@ class UserForm(forms.Form):
 @view_config(
     route_name="admin.user.detail",
     renderer="admin/users/detail.html",
-    permission="moderator",
+    permission=Permissions.AdminUsersRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -117,7 +119,7 @@ class UserForm(forms.Form):
 @view_config(
     route_name="admin.user.detail",
     renderer="admin/users/detail.html",
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -163,7 +165,7 @@ def user_detail(user, request):
 @view_config(
     route_name="admin.user.add_email",
     require_methods=["POST"],
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -245,7 +247,7 @@ def _nuke_user(user, request):
 @view_config(
     route_name="admin.user.delete",
     require_methods=["POST"],
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -277,7 +279,7 @@ def _user_reset_password(user, request):
 @view_config(
     route_name="admin.user.reset_password",
     require_methods=["POST"],
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -302,7 +304,7 @@ def user_reset_password(user, request):
 @view_config(
     route_name="admin.user.wipe_factors",
     require_methods=["POST"],
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -332,7 +334,7 @@ def user_wipe_factors(user, request):
 @view_config(
     route_name="admin.prohibited_user_names.bulk_add",
     renderer="admin/prohibited_user_names/bulk.html",
-    permission="admin",
+    permission=Permissions.AdminUsersWrite,
     uses_session=True,
     require_methods=False,
 )

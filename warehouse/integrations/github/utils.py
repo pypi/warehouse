@@ -251,6 +251,7 @@ def _analyze_disclosure(request, disclosure_record, origin):
             "permissions": database_macaroon.permissions_caveat.get(
                 "permissions", "user"
             ),
+            "caveats": database_macaroon.caveats,
             "description": database_macaroon.description,
         },
     )

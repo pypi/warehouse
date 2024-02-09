@@ -18,6 +18,7 @@ from pyramid.view import view_config
 from sqlalchemy import or_
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.authnz import Permissions
 from warehouse.events.tags import EventTag
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
@@ -31,7 +32,7 @@ from warehouse.utils.paginate import paginate_url_factory
 @view_config(
     route_name="admin.organization.list",
     renderer="admin/organizations/list.html",
-    permission="moderator",
+    permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
 def organization_list(request):
@@ -132,7 +133,7 @@ def organization_list(request):
     route_name="admin.organization.detail",
     require_methods=False,
     renderer="admin/organizations/detail.html",
-    permission="admin",
+    permission=Permissions.AdminOrganizationsRead,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -205,7 +206,7 @@ def organization_detail(request):
 @view_config(
     route_name="admin.organization_application.list",
     renderer="admin/organization_applications/list.html",
-    permission="moderator",
+    permission=Permissions.AdminOrganizationsRead,
     uses_session=True,
 )
 def organization_applications_list(request):
@@ -321,7 +322,7 @@ def organization_applications_list(request):
     route_name="admin.organization_application.detail",
     require_methods=False,
     renderer="admin/organization_applications/detail.html",
-    permission="admin",
+    permission=Permissions.AdminOrganizationsRead,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -350,7 +351,7 @@ def organization_application_detail(request):
     route_name="admin.organization_application.approve",
     require_methods=["POST"],
     renderer="admin/organization_applicationss/approve.html",
-    permission="admin",
+    permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -391,7 +392,7 @@ def organization_application_approve(request):
     route_name="admin.organization_application.decline",
     require_methods=["POST"],
     renderer="admin/organization_applications/decline.html",
-    permission="admin",
+    permission=Permissions.AdminOrganizationsWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,

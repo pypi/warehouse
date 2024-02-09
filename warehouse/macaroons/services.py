@@ -185,6 +185,7 @@ class DatabaseMacaroonService:
             description=description,
             permissions_caveat={"permissions": permissions},
             additional=additional,
+            caveats=scopes,
         )
         self.db.add(dm)
         self.db.flush()  # flush db now so dm.id is available

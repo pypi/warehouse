@@ -31,12 +31,14 @@ from warehouse.macaroons.caveats._core import (
     Success,
     as_caveat,
     deserialize,
+    deserialize_obj,
     serialize,
+    serialize_obj,
 )
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
-__all__ = ["deserialize", "serialize", "verify"]
+__all__ = ["deserialize", "deserialize_obj", "serialize", "serialize_obj", "verify"]
 
 
 # NOTE: Under the covers, caveat serialization is done as an array

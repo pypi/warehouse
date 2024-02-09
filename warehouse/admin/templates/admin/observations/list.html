@@ -1,0 +1,80 @@
+{#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-#}
+
+{% extends "admin/base.html" %}
+
+{% import "admin/utils/pagination.html" as pagination %}
+
+{% block title %}Observations{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item active">Observations</li>
+{% endblock %}
+
+{% block content %}
+  <div class="card card-primary card-outline card-outline-tabs">
+
+    <div class="card-header p-0 border-bottom-0">
+      <ul class="nav nav-tabs" id="observation-tabs-tab" role="tablist">
+        {% for kind_group in kind_groups %}
+          <li class="nav-item">
+            <a class="nav-link {{ "active" if loop.first }}"
+               id="observation-tabs-{{ kind_group }}-tab"
+               data-toggle="pill" href="#observation-tabs-{{ kind_group }}"
+               role="tab"
+               aria-controls="observation-tabs-{{ kind_group }}-tab"
+               aria-selected="true">{{ kind_group }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div class="card-body">
+      <div class="tab-content" id="observation-tabs-tabContent">
+        {% for kind_group in kind_groups %}
+          <div class="tab-pane fade {{ "active show" if loop.first }}"
+               id="observation-tabs-{{ kind_group }}"
+               role="tabpanel"
+               aria-labelledby="observation-tabs-{{ kind_group }}-tab">
+            {# TODO: Use DataTables if we need more functionality #}
+            <div class="table-responsive">
+              <table class="table table-striped">
+                <thead>
+                <tr>
+                  <th>Created</th>
+                  <th>Related Model</th>
+                  <th>Summary</th>
+                  <th>Observer</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for observation in kind_groups[kind_group] %}
+                  <tr>
+                    <td>{{ observation.created }}</td>
+                    <td>{{ observation.related }}</td>
+                    <td>{{ observation.summary }}</td>
+                    {# TODO: Does not yet handle Observer parents with no username (aka machine accounts) #}
+                    <td>{{ observation.observer.parent.username }}</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+{% endblock %}

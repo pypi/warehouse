@@ -111,11 +111,19 @@ class ObservationKind(enum.Enum):
     The kinds of observations we can make. Format:
 
     key_used_in_python = ("key_used_in_postgres", "Human Readable Name")
+
+    Explicitly not a ForeignKey to a table, since we want to be able to add new
+    kinds of observations without having to update the database schema.
     """
 
-    IsMalicious = ("is_malicious", "Is Malicious")
+    IsDependencyConfusion = ("is_dependency_confusion", "Is Dependency Confusion")
+    IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
     SomethingElse = ("something_else", "Something Else")
+
+
+# A reverse-lookup map by the string value stored in the database
+OBSERVATION_KIND_MAP = {kind.value[0]: kind for kind in ObservationKind}
 
 
 class Observation(AbstractConcreteBase, db.Model):
@@ -184,7 +192,11 @@ class HasObservations:
                 },
                 related_id=mapped_column(
                     PG_UUID,
-                    ForeignKey(f"{cls.__tablename__}.id"),
+                    ForeignKey(
+                        f"{cls.__tablename__}.id",
+                        onupdate="CASCADE",
+                        ondelete="CASCADE",
+                    ),
                     comment="The ID of the related model",
                     nullable=False,
                     index=True,
@@ -199,7 +211,7 @@ class HasObservations:
                 observer=relationship(Observer),
             ),
         )
-        return relationship(cls.Observation)
+        return relationship(cls.Observation, cascade="all, delete-orphan")
 
     def record_observation(
         self,

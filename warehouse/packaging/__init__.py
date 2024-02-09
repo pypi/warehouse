@@ -28,7 +28,6 @@ from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
-    compute_2fa_mandate,
     compute_2fa_metrics,
     compute_packaging_metrics,
     update_description_html,
@@ -184,10 +183,6 @@ def includeme(config):
 
     config.add_periodic_task(crontab(minute="*/5"), update_description_html)
     config.add_periodic_task(crontab(minute="*/5"), update_role_invitation_status)
-
-    # Add a periodic task to recompute the critical projects list once a day
-    if config.get_settings().get("warehouse.two_factor_mandate.available", False):
-        config.add_periodic_task(crontab(minute=0, hour=3), compute_2fa_mandate)
 
     # Add a periodic task to generate 2FA metrics
     config.add_periodic_task(crontab(minute="*/5"), compute_2fa_metrics)

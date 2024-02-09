@@ -30,12 +30,6 @@ def compute_oidc_metrics(request):
         projects_configured_oidc.count(),
     )
 
-    # Metric for count of critical projects that have configured OIDC.
-    metrics.gauge(
-        "warehouse.oidc.total_critical_projects_configured_oidc_publishers",
-        projects_configured_oidc.where(Project.pypi_mandates_2fa.is_(True)).count(),
-    )
-
     # Need to check FileEvent.additional['publisher_url'] to determine which
     # projects have successfully published via an OIDC publisher.
     projects_published_with_oidc = (
@@ -51,12 +45,6 @@ def compute_oidc_metrics(request):
     metrics.gauge(
         "warehouse.oidc.total_projects_published_with_oidc_publishers",
         projects_published_with_oidc.count(),
-    )
-
-    # Metric for count of critical projects that have published via OIDC
-    metrics.gauge(
-        "warehouse.oidc.total_critical_projects_published_with_oidc_publishers",
-        projects_published_with_oidc.where(Project.pypi_mandates_2fa.is_(True)).count(),
     )
 
     # Metric for total number of files published via OIDC

@@ -21,7 +21,6 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
-from warehouse import recaptcha
 from warehouse.accounts import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
@@ -30,6 +29,7 @@ from warehouse.accounts.interfaces import (
     TooManyFailedLogins,
 )
 from warehouse.accounts.models import DisableReason
+from warehouse.captcha import recaptcha
 from warehouse.events.tags import EventTag
 from warehouse.utils.webauthn import AuthenticationRejectedError
 
@@ -374,7 +374,7 @@ class TestLoginForm:
 
 class TestRegistrationForm:
     def test_validate(self):
-        recaptcha_service = pretend.stub(
+        captcha_service = pretend.stub(
             enabled=False,
             verify_response=pretend.call_recorder(lambda _: None),
         )
@@ -400,12 +400,12 @@ class TestRegistrationForm:
                 }
             ),
             user_service=user_service,
-            recaptcha_service=recaptcha_service,
+            captcha_service=captcha_service,
             breach_service=breach_service,
         )
 
         assert form.user_service is user_service
-        assert form.recaptcha_service is recaptcha_service
+        assert form.captcha_service is captcha_service
         assert form.validate(), str(form.errors)
 
     def test_password_confirm_required_error(self):
@@ -414,7 +414,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw: False),
         )
 
@@ -430,7 +430,7 @@ class TestRegistrationForm:
                 {"new_password": "password", "password_confirm": "mismatch"}
             ),
             user_service=user_service,
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -452,7 +452,7 @@ class TestRegistrationForm:
                 }
             ),
             user_service=user_service,
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -466,7 +466,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -480,7 +480,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -495,7 +495,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -508,7 +508,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: pretend.stub())
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -525,7 +525,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
-            recaptcha_service=pretend.stub(enabled=True),
+            captcha_service=pretend.stub(enabled=True),
             breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
         )
 
@@ -540,7 +540,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             formdata=MultiDict({"g_recpatcha_response": ""}),
             user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -555,7 +555,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             formdata=MultiDict({"g_recaptcha_response": ""}),
             user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=True,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -568,7 +568,7 @@ class TestRegistrationForm:
         form = forms.RegistrationForm(
             formdata=MultiDict({"g_recaptcha_response": "asd"}),
             user_service=pretend.stub(),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 verify_response=pretend.raiser(recaptcha.RecaptchaError),
                 enabled=True,
             ),
@@ -584,7 +584,7 @@ class TestRegistrationForm:
                 find_userid=pretend.call_recorder(lambda name: 1),
                 username_is_prohibited=lambda a: False,
             ),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -603,7 +603,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 username_is_prohibited=lambda a: True,
             ),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -624,7 +624,7 @@ class TestRegistrationForm:
                 find_userid=pretend.call_recorder(lambda _: None),
                 username_is_prohibited=lambda a: False,
             ),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -649,7 +649,7 @@ class TestRegistrationForm:
             form = forms.RegistrationForm(
                 formdata=MultiDict({"new_password": pwd, "password_confirm": pwd}),
                 user_service=pretend.stub(),
-                recaptcha_service=pretend.stub(
+                captcha_service=pretend.stub(
                     enabled=False,
                     verify_response=pretend.call_recorder(lambda _: None),
                 ),
@@ -664,7 +664,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),
@@ -688,7 +688,7 @@ class TestRegistrationForm:
             user_service=pretend.stub(
                 find_userid=pretend.call_recorder(lambda _: None)
             ),
-            recaptcha_service=pretend.stub(
+            captcha_service=pretend.stub(
                 enabled=False,
                 verify_response=pretend.call_recorder(lambda _: None),
             ),

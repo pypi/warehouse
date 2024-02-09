@@ -56,52 +56,10 @@
     </p>
   {% endif %}
 
-  {% if request.registry.settings["warehouse.two_factor_requirement.enabled"] %}
-  <h3>{% trans %}<abbr title="two factor authentication">2FA</abbr> requirement{% endtrans %}</h3>
-  <p>{% trans %}Requiring 2FA for this project will require all collaborators to have 2FA enabled for their individual account. Any collaborator who does not have 2FA enabled will not be able to manage the project until they enable 2FA.{% endtrans %}</p>
-
-  {% set disabled = False %}
-  {% if project.pypi_mandates_2fa %}
-    {% if request.registry.settings["warehouse.two_factor_mandate.enabled"] %}
-      {% set disabled = True %}
-      <div class="callout-block">
-        <p>
-        {% trans %}This project is part of PyPI's two-factor authentication mandate for critical projects. As a result, this setting cannot be disabled for this project.{% endtrans %}
-        </p>
-      </div>
-    {% elif request.registry.settings["warehouse.two_factor_mandate.available"] %}
-      {% set disabled = True %}
-      <div class="callout-block">
-        <p>
-        {% trans %}This project will be part of PyPI's two-factor authentication mandate for critical projects. As a result, this setting cannot be disabled for this project.{% endtrans %}
-        </p>
-      </div>
-    {% endif %}
-  {% elif not user.has_two_factor %}
-    {% set disabled = True %}
-    <div class="callout-block">
-      <p>
-      {% trans %}You must enable 2FA for your account before you can modify this setting.{% endtrans %}
-      </p>
-      <a href="{{ request.route_path("manage.account.two-factor") }}" class="button button--primary">Enable 2FA for your account</a>
-    </div>
-    {% endif %}
-
-    <form method="POST">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      {{ toggle_2fa_form.two_factor_requirement_sentinel }}
-      {% if project.pypi_mandates_2fa or project.owners_require_2fa %}
-      <input type="submit" class="button button--danger" {{ "disabled" if disabled else ""}} value="{% trans project_name=project.name %}Disable 2FA requirement for {{ project_name }}{% endtrans %}">
-      {% else %}
-      <input type="submit" class="button button--primary" {{ "disabled" if disabled else ""}} value="{% trans project_name=project.name %}Enable 2FA requirement for {{ project_name }}{% endtrans %}">
-      {% endif %}
-    </form>
-  {% endif %}
-
   <div class="callout-block" data-controller="dismissable" data-dismissable-identifier="settings">
     <h3>{% trans %}Project description and sidebar{% endtrans %}</h3>
     <p>
-      {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/en/latest/tutorials/packaging-projects/#creating-pyproject-toml', twine_docs_href='https://twine.readthedocs.io/en/latest/', distribution_href='https://packaging.python.org/tutorials/distributing-packages/' %}
+      {% trans project_name=project.name, pyproject_args_href='https://packaging.python.org/tutorials/packaging-projects/#creating-pyproject-toml', twine_docs_href='https://twine.readthedocs.io/', distribution_href='https://packaging.python.org/guides/section-build-and-publish/' %}
         To set the '{{ project_name }}' description, author, links, classifiers, and other details for your next release, use the <a href="{{ pyproject_args_href }}" rel="noopener" target="_blank"><code>setup()</code> arguments in your <code>setup.py</code> file</a>.
         Updating these fields will not change the metadata for past releases.
         Additionally, you <strong>must</strong> use <a href="{{ twine_docs_href }}" rel="noopener" target="_blank">Twine</a> to upload your files in order to get full support for these fields.

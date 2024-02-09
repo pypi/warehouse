@@ -19,10 +19,10 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound,
+    HTTPOk,
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
@@ -86,7 +86,6 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
-    Toggle2FARequirementForm,
     TransferOrganizationProjectForm,
 )
 from warehouse.manage.views.organizations import (
@@ -100,10 +99,13 @@ from warehouse.manage.views.view_helpers import (
     user_projects,
 )
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeletePublisherForm
-from warehouse.oidc.forms.github import GitHubPublisherForm
+from warehouse.oidc.forms import (
+    DeletePublisherForm,
+    GitHubPublisherForm,
+    GooglePublisherForm,
+)
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import GitHubPublisher, GooglePublisher, OIDCPublisher
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,
@@ -507,7 +509,7 @@ class ProvisionTOTPViews:
         qr_buffer = io.BytesIO()
         totp_qr.svg(qr_buffer, scale=5)
 
-        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+        return HTTPOk(content_type="image/svg+xml", body=qr_buffer.getvalue())
 
     @view_config(request_method="GET")
     def totp_provision(self):
@@ -1041,9 +1043,6 @@ def manage_projects(request):
     projects_sole_owned = {
         project.name for project in all_user_projects["projects_sole_owned"]
     }
-    projects_requiring_2fa = {
-        project.name for project in all_user_projects["projects_requiring_2fa"]
-    }
 
     for team in request.user.teams:
         projects |= set(team.projects)
@@ -1061,7 +1060,6 @@ def manage_projects(request):
         "projects": sorted(projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
-        "projects_requiring_2fa": projects_requiring_2fa,
         "project_invites": project_invites,
     }
 
@@ -1080,7 +1078,6 @@ class ManageProjectSettingsViews:
     def __init__(self, project, request):
         self.project = project
         self.request = request
-        self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
         self.transfer_organization_project_form_class = TransferOrganizationProjectForm
 
     @view_config(request_method="GET")
@@ -1112,60 +1109,12 @@ class ManageProjectSettingsViews:
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
             "transfer_organization_project_form": (
                 self.transfer_organization_project_form_class(
                     organization_choices=organization_choices,
                 )
             ),
         }
-
-    @view_config(
-        request_method="POST",
-        request_param=Toggle2FARequirementForm.__params__,
-        require_reauth=True,
-    )
-    def toggle_2fa_requirement(self):
-        if not self.request.registry.settings[
-            "warehouse.two_factor_requirement.enabled"
-        ]:
-            raise HTTPNotFound
-
-        if self.project.pypi_mandates_2fa:
-            self.request.session.flash(
-                self.request._(
-                    "2FA requirement cannot be disabled for critical projects"
-                ),
-                queue="error",
-            )
-        elif self.project.owners_require_2fa:
-            self.project.owners_require_2fa = False
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FADisabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement disabled for { self.project.name }"),
-                queue="success",
-            )
-        else:
-            self.project.owners_require_2fa = True
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FAEnabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement enabled for { self.project.name }"),
-                queue="success",
-            )
-
-        return HTTPSeeOther(
-            self.request.route_path(
-                "manage.project.settings", project_name=self.project.name
-            )
-        )
 
 
 @view_defaults(
@@ -1185,6 +1134,11 @@ class ManageOIDCPublisherViews:
         self.request = request
         self.project = project
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.github_publisher_form = GitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
+        self.google_publisher_form = GooglePublisherForm(self.request.POST)
 
     @property
     def _ratelimiters(self):
@@ -1217,17 +1171,19 @@ class ManageOIDCPublisherViews:
             )
 
     @property
-    def github_publisher_form(self):
-        return GitHubPublisherForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-        )
-
-    @property
     def default_response(self):
         return {
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
+            "google_publisher_form": self.google_publisher_form,
+            "disabled": {
+                "GitHub": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "Google": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+            },
         }
 
     @view_config(request_method="GET")
@@ -1352,6 +1308,115 @@ class ManageOIDCPublisherViews:
 
         self.metrics.increment(
             "warehouse.oidc.add_publisher.ok", tags=["publisher:GitHub"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=GooglePublisherForm.__params__,
+    )
+    def add_google_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GOOGLE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Google-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Google"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:Google"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["google_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Google OIDC publishers are unique on the tuple of (email, sub), so we
+        # check for an already registered one before creating.
+        publisher = (
+            self.request.db.query(GooglePublisher)
+            .filter(
+                GooglePublisher.email == form.email.data,
+                GooglePublisher.sub == form.sub.data,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = GooglePublisher(
+                email=form.email.data,
+                sub=form.sub.data,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} "
+            + (f"in {publisher.publisher_url()}" if publisher.publisher_url() else "")
+            + f" to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:Google"]
         )
 
         return HTTPSeeOther(self.request.path)

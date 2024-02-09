@@ -18,6 +18,7 @@ from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
+from warehouse.authnz import Permissions
 from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -28,7 +29,7 @@ if typing.TYPE_CHECKING:
 @view_config(
     route_name="admin.ip_address.list",
     renderer="admin/ip_addresses/list.html",
-    permission="admin",
+    permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )
 def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] | str]:
@@ -55,7 +56,7 @@ def ip_address_list(request: Request) -> dict[str, SQLAlchemyORMPage[IpAddress] 
 @view_config(
     route_name="admin.ip_address.detail",
     renderer="admin/ip_addresses/detail.html",
-    permission="admin",
+    permission=Permissions.AdminIpAddressesRead,
     uses_session=True,
 )
 def ip_address_detail(request: Request) -> dict[str, IpAddress]:

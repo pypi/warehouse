@@ -42,11 +42,24 @@ def includeme(config):
         name="google",
     )
 
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="activestate",
+            issuer_url=GOOGLE_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="activestate",
+    )
+
     # During deployments, we separate auth routes into their own subdomain
     # to simplify caching exclusion.
     auth = config.get_settings().get("auth.domain")
 
     config.add_route("oidc.audience", "/_/oidc/audience", domain=auth)
+    config.add_route("oidc.mint_token", "/_/oidc/mint-token", domain=auth)
+    # NOTE: This is a legacy route for the above. Pyramid requires route
+    # names to be unique, so we can't deduplicate it.
     config.add_route("oidc.github.mint_token", "/_/oidc/github/mint-token", domain=auth)
 
     # Compute OIDC metrics periodically

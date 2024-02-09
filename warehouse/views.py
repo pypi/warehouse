@@ -20,6 +20,7 @@ from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
+    HTTPForbidden,
     HTTPMovedPermanently,
     HTTPNotFound,
     HTTPRequestEntityTooLarge,
@@ -30,7 +31,6 @@ from pyramid.httpexceptions import (
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
-from pyramid.response import Response
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
@@ -94,9 +94,9 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = Response(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
-            response = Response(
+            response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",
                 content_type="application/json",
@@ -153,11 +153,7 @@ def forbidden(exc, request):
 
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
-        if exc.result.reason in {
-            "owners_require_2fa",
-            "pypi_mandates_2fa",
-            "manage_2fa_required",
-        }:
+        if exc.result.reason == "manage_2fa_required":
             request.session.flash(
                 request._(
                     "Two-factor authentication must be enabled on your account to "
@@ -181,7 +177,18 @@ def forbidden(exc, request):
 def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
-    return Response(status=403)
+    return HTTPForbidden()
+
+
+@forbidden_view_config(path_info=r"^/api/")
+@exception_view_config(PredicateMismatch, path_info=r"^/api/")
+def forbidden_api(exc, request):
+    # If the forbidden error is for an API endpoint, return a JSON response
+    # instead of redirecting
+    return HTTPForbidden(
+        json={"message": "Access was denied to this resource."},
+        content_type="application/json",
+    )
 
 
 @view_config(context=DatabaseNotAvailableError)
@@ -473,11 +480,6 @@ class SecurityKeyGiveaway:
 
     @view_config(request_method="GET")
     def security_key_giveaway(self):
-        if not self.request.registry.settings.get(
-            "warehouse.two_factor_mandate.available"
-        ):
-            raise HTTPNotFound
-
         return self.default_response
 
 

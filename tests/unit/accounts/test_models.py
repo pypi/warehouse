@@ -18,6 +18,7 @@ import pytest
 from pyramid.authorization import Authenticated
 
 from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
+from warehouse.authnz import Permissions
 from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
@@ -164,8 +165,20 @@ class TestUser:
     def test_acl(self, db_session):
         user = DBUserFactory.create()
         assert user.__acl__() == [
-            ("Allow", "group:admins", "admin"),
-            ("Allow", "group:moderators", "moderator"),
+            (
+                "Allow",
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     @pytest.mark.parametrize(
@@ -181,7 +194,12 @@ class TestUser:
                 True,
                 False,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
             ),
             (
                 False,
@@ -193,7 +211,12 @@ class TestUser:
                 True,
                 True,
                 False,
-                ["group:admins", "group:moderators", "group:psf_staff"],
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
             ),
             (
                 False,

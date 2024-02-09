@@ -18,6 +18,7 @@ import pytest
 from pyramid.authorization import Allow
 from pyramid.location import lineage
 
+from warehouse.authnz import Permissions
 from warehouse.organizations.models import TeamProjectRoleType
 from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
 
@@ -158,8 +159,40 @@ class TestProject:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
         ) + sorted(
@@ -415,8 +448,40 @@ class TestRelease:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
         ] + sorted(
             [
                 (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
@@ -550,11 +615,13 @@ class TestRelease:
             release=release,
             filename=f"{release.project.name}-{release.version}.tar.gz",
             python_version="source",
+            packagetype="sdist",
         )
         rfile_2 = DBFileFactory.create(
             release=release,
             filename=f"{release.project.name}-{release.version}.whl",
             python_version="bdist_wheel",
+            packagetype="bdist_wheel",
         )
         DBFileEventFactory.create(
             source=rfile_1,
@@ -643,7 +710,7 @@ class TestFile:
 
         assert results == (expected, expected + ".metadata")
 
-    def test_published_via_trusted_publisher(self, db_session):
+    def test_published_via_trusted_publisher_from_publisher_url(self, db_session):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
         rfile = DBFileFactory.create(
@@ -662,7 +729,37 @@ class TestFile:
         DBFileEventFactory.create(
             source=rfile,
             tag="fake:event",
-            additional={"publisher_url": "https://fake/url"},
+            additional={
+                "publisher_url": "https://fake/url",
+                "uploaded_via_trusted_publisher": False,
+            },
+        )
+
+        assert rfile.uploaded_via_trusted_publisher
+
+    def test_published_via_trusted_publisher_from_uploaded_via_trusted_publisher(
+        self, db_session
+    ):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+        )
+
+        # Without `uploaded_via_trusted_publisher` being true,
+        # not considered trusted published
+        assert not rfile.uploaded_via_trusted_publisher
+
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={"publisher_url": None, "uploaded_via_trusted_publisher": True},
         )
 
         assert rfile.uploaded_via_trusted_publisher
