@@ -111,10 +111,8 @@
     padding-bottom: 2px;
   }
 
-  &__yanked-reason {
+  &__yanked-reason p {
     @include ellipsis;
-    font-size: 0.90rem;
-    color: $danger-color;
   }
 
   &--current {

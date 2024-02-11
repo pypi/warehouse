@@ -358,10 +358,10 @@
                   {{ humanize(hversion.created) }}
                 </p>
                 {% if hversion.yanked and hversion.yanked_reason %}
-                <p class="release__yanked-reason">
-                  <span class="sr-only">{% trans %}Reason this release was yanked:{% endtrans %}</span>
-                  {{ hversion.yanked_reason }}
-                </p>
+                  <div class="callout-block callout-block--danger release__yanked-reason">
+                    <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+                    <p>{{ hversion.yanked_reason }}</p>
+                  </div>
                 {% endif %}
               </a>
             </div>
