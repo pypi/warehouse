@@ -62,7 +62,7 @@ Documentation
 
 Important information should be documented with prose in the ``docs`` section.
 To ensure it builds and passes `doc8`_ style checks you can run
-``make docs`` and ``make lint`` respectively.
+``make dev-docs user-docs`` and ``make lint`` respectively.
 
 
 Translations

@@ -244,6 +244,11 @@ def test_includeme():
             "/admin/prohibited_project_names/release/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.observations.list",
+            "/admin/observations/",
+            domain=warehouse,
+        ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
         pretend.call(

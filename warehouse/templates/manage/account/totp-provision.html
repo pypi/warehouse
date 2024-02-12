@@ -69,7 +69,17 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ provision_totp_form.totp_value(placeholder=gettext("Authentication code"), autocapitalize="off", autocomplete="off", inputmode="numeric", pattern="\d{6}", required="required", spellcheck="false", class_="form-group__field", **{"aria-describedby":"totp-help totp-errors"}) }}
+        {{ provision_totp_form.totp_value(
+          placeholder=gettext("Authentication code"),
+          autocapitalize="off",
+          autocomplete="off",
+          inputmode="numeric",
+          pattern="\d{6}",
+          required="required",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="totp-help totp-errors",
+        ) }}
         <p id="totp-help" class="form-group__help-text">{% trans %}To finalize the set-up process, enter the 6-digit code provided by your TOTP application.{% endtrans %}</p>
         <div id="totp-errors">
           {% if provision_totp_form.totp_value.errors %}

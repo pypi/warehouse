@@ -269,6 +269,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminProhibitedProjectsWrite,
                     Permissions.AdminProjectsDelete,
                     Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
                     Permissions.AdminProjectsWrite,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
@@ -282,10 +283,12 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     Permissions.AdminObservationsRead,
                     Permissions.AdminObservationsWrite,
                     Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
                     Permissions.AdminRoleAdd,
                     Permissions.AdminRoleDelete,
                 ),
             ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
         ]
 
         # The project has zero or more OIDC publishers registered to it,
@@ -363,7 +366,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(
-                Release.version, Release.created, Release.is_prerelease, Release.yanked
+                Release.version,
+                Release.created,
+                Release.is_prerelease,
+                Release.yanked,
+                Release.yanked_reason,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())

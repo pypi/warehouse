@@ -555,6 +555,7 @@ def test_analyze_disclosure(monkeypatch, metrics):
         user=user,
         id=12,
         permissions_caveat={"permissions": "user", "version": 1},
+        caveats=[],
         description="foo",
     )
 
@@ -601,6 +602,7 @@ def test_analyze_disclosure(monkeypatch, metrics):
                 "macaroon_id": "12",
                 "public_url": "http://example.com",
                 "permissions": "user",
+                "caveats": [],
                 "description": "foo",
             },
         )

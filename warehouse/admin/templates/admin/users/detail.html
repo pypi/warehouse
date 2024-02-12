@@ -264,6 +264,7 @@
                       {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
                       {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
                       {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+                      {{ render_checkbox("Observer", form.is_observer, "is-observer")}}
                     </div>
                   </div>
                   <div class="col">
@@ -429,14 +430,15 @@
         </div>
 
         <div class="card-body">
-          <table class="table table-hover">
+          <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
-                <th>Token</th>
-                <th>Description</th>
-                <th>Created</th>
-                <th>Last Used</th>
-                <th>Permissions</th>
+                <th scope="col" class="token">Token</th>
+                <th scope="col" class="description">Description</th>
+                <th scope="col" class="created">Created</th>
+                <th scope="col" class="last_used">Last Used</th>
+                <th scope="col" class="caveats">Caveats (as created)</th>
+                <th scope="col" class="permissions_caveat">Permissions (deprecated)</th>
               </tr>
             </thead>
             <tbody>
@@ -450,6 +452,7 @@
                 <td>{{ token.description }}</td>
                 <td>{{ token.created }}</td>
                 <td>{{ token.last_used }}</td>
+                <td>{{ token.caveats }}</td>
                 <td>{{ token.permissions_caveat }}</td>
               </tr>
               {% endfor %}

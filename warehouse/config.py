@@ -25,7 +25,7 @@ import transaction
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
 from pyramid.config import Configurator as _Configurator
-from pyramid.response import Response
+from pyramid.exceptions import HTTPForbidden
 from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
@@ -85,6 +85,7 @@ class RootFactory:
                 Permissions.AdminProhibitedProjectsWrite,
                 Permissions.AdminProjectsDelete,
                 Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
                 Permissions.AdminProjectsWrite,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
@@ -108,6 +109,7 @@ class RootFactory:
                 Permissions.AdminOrganizationsRead,
                 Permissions.AdminProhibitedProjectsRead,
                 Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
                 Permissions.AdminRoleAdd,
                 Permissions.AdminRoleDelete,
                 Permissions.AdminSponsorsRead,
@@ -125,6 +127,14 @@ class RootFactory:
                 Permissions.AdminSponsorsWrite,
             ),
         ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
         (Allow, Authenticated, "manage:user"),
     ]
 
@@ -140,7 +150,7 @@ def require_https_tween_factory(handler, registry):
         # If we have an :action URL and we're not using HTTPS, then we want to
         # return a 403 error.
         if request.params.get(":action", None) and request.scheme != "https":
-            resp = Response("SSL is required.", status=403, content_type="text/plain")
+            resp = HTTPForbidden(body="SSL is required.", content_type="text/plain")
             resp.status = "403 SSL is required"
             resp.headers["X-Fastly-Error"] = "803"
             return resp
@@ -347,6 +357,9 @@ def configure(settings=None):
     maybe_set(
         settings, "admin.helpscout.app_secret", "HELPSCOUT_APP_SECRET", default=None
     )
+    maybe_set(settings, "helpscout.app_id", "HELPSCOUT_WAREHOUSE_APP_ID")
+    maybe_set(settings, "helpscout.app_secret", "HELPSCOUT_WAREHOUSE_APP_SECRET")
+    maybe_set(settings, "helpscout.mailbox_id", "HELPSCOUT_WAREHOUSE_MAILBOX_ID")
 
     # Configure our ratelimiters
     maybe_set(

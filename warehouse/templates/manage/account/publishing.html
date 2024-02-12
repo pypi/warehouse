@@ -70,7 +70,14 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
+      {{ pending_github_publisher_form.repository(
+        placeholder=gettext("repository"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="repository-errors",
+      ) }}
       <p class="form-group__help-text">
       {% trans %}The name of the GitHub repository that contains the publishing workflow{% endtrans %}
       </p>
@@ -85,7 +92,12 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
+      {{ pending_github_publisher_form.workflow_filename(
+        placeholder=gettext("workflow.yml"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="workflow_filename-errors",
+      ) }}
       <p class="form-group__help-text">
         {% trans %}The filename of the publishing workflow. This file should exist in the <code>.github/workflows/</code> directory in the repository configured above.{% endtrans %}
       </p>
@@ -102,7 +114,12 @@
         <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_github_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+      {{ pending_github_publisher_form.environment(
+        placeholder=gettext("release"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="environment-errors",
+      ) }}
       <p class="form-group__help-text">
         {% trans href="https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment" %}
         The name of the <a href="{{ href }}">GitHub Actions environment</a>
@@ -174,12 +191,116 @@
         <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ pending_google_publisher_form.sub(placeholder=gettext("subject"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"sub-errors"}) }}
+      {{ pending_google_publisher_form.sub(
+        placeholder=gettext("subject"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="sub-errors",
+      ) }}
       <p class="form-group__help-text">
       {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
       </p>
       <div id="sub-errors">
         {{ field_errors(pending_google_publisher_form.sub) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary {{ "button--disabled" if not pending_oidc_enabled else "" }}">
+    </div>
+  </form>
+{% endmacro %}
+
+{% macro activestate_form(request, pending_activestate_pubisher_form) %}
+  {{ form_error_anchor(pending_activestate_pubisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(pending_activestate_pubisher_form) }}
+    <div class="form-group">
+      <label for="project_name" class="form-group__label">
+        {% trans %}PyPI Project Name{% endtrans %}
+        {% if pending_activestate_pubisher_form.project_name.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_activestate_pubisher_form.project_name(
+        placeholder=gettext("project name"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project_name-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The project (on PyPI) that will be created when this publisher is used{% endtrans %}
+      </p>
+      <div id="project_name-errors">
+        {{ field_errors(pending_activestate_pubisher_form.project_name) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="organization" class="form-group__label">
+        {% trans %}Organization{% endtrans %}
+        {% if pending_activestate_pubisher_form.organization.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_activestate_pubisher_form.organization(
+        placeholder=gettext("my-organization"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="organization-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The ActiveState organization name that owns the project{% endtrans %}
+      </p>
+      <div id="organization-errors">
+        {{ field_errors(pending_activestate_pubisher_form.organization) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="project" class="form-group__label">
+        {% trans %}ActiveState Project name{% endtrans %}
+        {% if pending_activestate_pubisher_form.project.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_activestate_pubisher_form.project(
+        placeholder=gettext("my-project"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project-errors")
+      }}
+      <p class="form-group__help-text">
+      {% trans %}The ActiveState project that will build your Python artifact.{% endtrans %}
+      </p>
+      <div id="project-errors">
+        {{ field_errors(pending_activestate_pubisher_form.project) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="actor" class="form-group__label">
+        {% trans %}Actor Username{% endtrans %}
+        {% if pending_activestate_pubisher_form.actor.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ pending_activestate_pubisher_form.actor(
+        placeholder=gettext("my-username"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="actor-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The username for the ActiveState account that will trigger the build of your Python artifact.{% endtrans %}
+      </p>
+      <div id="actor-errors">
+        {{ field_errors(pending_activestate_pubisher_form.actor) }}
       </div>
     </div>
     <div>
@@ -283,6 +404,7 @@
     {% set publishers = [
          ("GitHub", github_form(request, pending_github_publisher_form)),
          ("Google", google_form(request, pending_google_publisher_form)),
+         ("ActiveState", activestate_form(request, pending_activestate_publisher_form)),
        ]
     %}
 
