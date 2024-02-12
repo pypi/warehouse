@@ -117,7 +117,6 @@ services:
     image: warehouse:docker-compose
     pull_policy: never
     volumes: *base_volumes
-    env_file: dev/environment  # TODO: find what settings are not in conftest.py setup and move there
     depends_on:
       stripe:
         condition: service_started
