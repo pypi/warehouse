@@ -33,7 +33,8 @@ class PendingPublisherMixin:
         if project_name in self._project_factory:
             raise wtforms.validators.ValidationError(
                 _(
-                    "This project already exists, create an ordinary Trusted Publisher instead"
+                    "This project already exists, create an ordinary Trusted "
+                    "Publisher instead"
                 )
             )
 
