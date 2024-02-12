@@ -573,11 +573,11 @@ msgstr ""
 msgid "This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:46
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:47
+#: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
 msgstr ""
 
