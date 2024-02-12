@@ -570,14 +570,14 @@ msgid "Invalid project name"
 msgstr ""
 
 #: warehouse/oidc/forms/_core.py:35
-msgid "This project name is already in use"
+msgid "This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:46
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:47
 msgid "Publisher must be specified by ID"
 msgstr ""
 
