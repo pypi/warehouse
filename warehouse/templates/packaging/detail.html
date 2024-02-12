@@ -357,6 +357,12 @@
                 <p class="release__version-date">
                   {{ humanize(hversion.created) }}
                 </p>
+                {% if hversion.yanked and hversion.yanked_reason %}
+                  <div class="callout-block callout-block--danger release__yanked-reason">
+                    <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+                    <p>{{ hversion.yanked_reason }}</p>
+                  </div>
+                {% endif %}
               </a>
             </div>
             {% endfor %}
