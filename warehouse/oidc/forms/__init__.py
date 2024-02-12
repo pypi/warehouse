@@ -11,6 +11,10 @@
 # limitations under the License.
 
 from warehouse.oidc.forms._core import DeletePublisherForm
+from warehouse.oidc.forms.activestate import (
+    ActiveStatePublisherForm,
+    PendingActiveStatePublisherForm,
+)
 from warehouse.oidc.forms.github import GitHubPublisherForm, PendingGitHubPublisherForm
 from warehouse.oidc.forms.google import GooglePublisherForm, PendingGooglePublisherForm
 
@@ -20,4 +24,6 @@ __all__ = [
     "PendingGitHubPublisherForm",
     "GooglePublisherForm",
     "PendingGooglePublisherForm",
+    "ActiveStatePublisherForm",
+    "PendingActiveStatePublisherForm",
 ]

@@ -156,7 +156,7 @@ def mint_token_from_oidc(request: Request):
             errors=[
                 {
                     "code": "not-enabled",
-                    "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
+                    "description": f"{service_name} trusted publishing functionality not enabled",  # noqa: E501
                 }
             ],
             request=request,
