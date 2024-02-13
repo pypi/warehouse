@@ -29,7 +29,7 @@ def upgrade():
     op.add_column(
         "release_files",
         sa.Column(
-            "unbackfillable",
+            "metadata_file_unbackfillable",
             sa.Boolean(),
             server_default=sa.text("false"),
             nullable=True,
@@ -39,4 +39,4 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column("release_files", "unbackfillable")
+    op.drop_column("release_files", "metadata_file_unbackfillable")
