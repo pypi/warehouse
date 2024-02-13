@@ -64,7 +64,9 @@ OIDC_PUBLISHER_CLASSES: dict[
 }
 
 
-def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=False):
+def find_publisher_by_issuer(
+    session, issuer_url: str, signed_claims: SignedClaims, *, pending: bool = False
+) -> OIDCPublisher | PendingOIDCPublisher:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
     for a token from that OIDC issuer, retrieve either an `OIDCPublisher` registered

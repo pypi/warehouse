@@ -15,7 +15,11 @@ from celery.schedules import crontab
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
 from warehouse.oidc.tasks import compute_oidc_metrics
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL
+from warehouse.oidc.utils import (
+    ACTIVESTATE_OIDC_ISSUER_URL,
+    GITHUB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
+)
 
 
 def includeme(config):
@@ -45,7 +49,7 @@ def includeme(config):
     config.register_service_factory(
         OIDCPublisherServiceFactory(
             publisher="activestate",
-            issuer_url=GOOGLE_OIDC_ISSUER_URL,
+            issuer_url=ACTIVESTATE_OIDC_ISSUER_URL,
             service_class=oidc_publisher_service_class,
         ),
         IOIDCPublisherService,
