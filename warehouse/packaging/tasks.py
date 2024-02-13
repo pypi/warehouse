@@ -78,7 +78,7 @@ def backfill_metadata(request):
     )
 
     with tempfile.TemporaryDirectory() as tmpdir:
-        for file_ in files_without_metadata.yield_per(100):
+        for file_ in files_without_metadata.yield_per(100).limit(500):
             # Use pip to download just the metadata of the wheel
             file_url = base_url.format(path=file_.path)
             lazy_dist = dist_from_wheel_url(
