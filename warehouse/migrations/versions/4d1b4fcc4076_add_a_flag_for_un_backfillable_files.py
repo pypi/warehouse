@@ -32,7 +32,7 @@ def upgrade():
             "unbackfillable",
             sa.Boolean(),
             server_default=sa.text("false"),
-            nullable=False,
+            nullable=True,
             comment="If True, the metadata for the file cannot be backfilled.",
         ),
     )
