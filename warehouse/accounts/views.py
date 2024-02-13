@@ -723,12 +723,18 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
 
-        email = None
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
+        if user is not None:
             email = first(
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
+        else:
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            # We could not find the user by username nor email.
+            # Return a response as if we did, to avoid leaking registered emails.
+            return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
             raise TooManyPasswordResetRequests(
