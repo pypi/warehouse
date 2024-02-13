@@ -27,6 +27,7 @@ from warehouse.packaging.interfaces import (
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
+    backfill_metadata,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
@@ -193,3 +194,6 @@ def includeme(config):
     # TODO: restore this
     # if config.get_settings().get("warehouse.release_files_table"):
     #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)
+
+    # Backfill wheel metadata
+    config.add_periodic_task(crontab(minute="*/5"), backfill_metadata)

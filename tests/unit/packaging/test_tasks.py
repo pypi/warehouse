@@ -10,10 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import builtins
 import tempfile
 
 from contextlib import contextmanager
 from itertools import product
+from pathlib import Path
 
 import pretend
 import pytest
@@ -24,8 +26,11 @@ from wtforms import Field, Form, StringField
 import warehouse.packaging.tasks
 
 from warehouse.accounts.models import WebAuthn
+from warehouse.metrics.interfaces import IMetricsService
+from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
+    backfill_metadata,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
@@ -887,4 +892,107 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
         pretend.call("warehouse.2fa.total_users_with_totp_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
+    ]
+
+
+def test_backfill_metadata(db_request, monkeypatch, metrics):
+    project = ProjectFactory()
+    release1 = ReleaseFactory(project=project)
+    release2 = ReleaseFactory(project=project)
+    FileFactory(release=release1, packagetype="sdist")
+    FileFactory(
+        release=release1,
+        packagetype="bdist_wheel",
+        metadata_file_sha256_digest="d34db33f",
+    )
+    FileFactory(release=release2, packagetype="sdist")
+    backfillable_file = FileFactory(
+        release=release2, packagetype="bdist_wheel", metadata_file_sha256_digest=None
+    )
+
+    metadata_contents = b"some\nmetadata\ncontents"
+    stub_dist = pretend.stub(
+        _dist=pretend.stub(_files={Path("METADATA"): metadata_contents})
+    )
+    stub_session = pretend.stub()
+    dist_from_wheel_url = pretend.call_recorder(
+        lambda project_name, file_url, session: stub_dist
+    )
+    monkeypatch.setattr(
+        warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
+    )
+    monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
+    archive_storage = pretend.stub(
+        store=pretend.call_recorder(lambda path_out, path_in, meta: None),
+    )
+    cache_storage = pretend.stub(
+        store=pretend.call_recorder(lambda path_out, path_in, meta: None),
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None, context=None: {
+            IFileStorage: {
+                "archive": archive_storage,
+                "cache": cache_storage,
+            },
+            IMetricsService: {None: metrics},
+        }[iface][name]
+    )
+
+    @contextmanager
+    def mock_temporary_directory():
+        yield "/tmp/wutang"
+
+    monkeypatch.setattr(tempfile, "TemporaryDirectory", mock_temporary_directory)
+
+    mock_write = pretend.call_recorder(lambda value: None)
+
+    @contextmanager
+    def mock_open(filename, perms):
+        yield pretend.stub(write=mock_write)
+
+    monkeypatch.setattr(builtins, "open", mock_open)
+
+    db_request.registry.settings[
+        "files.url"
+    ] = "https://files.example.com/packages/{path}"
+
+    backfill_metadata(db_request)
+
+    assert dist_from_wheel_url.calls == [
+        pretend.call(
+            project.normalized_name,
+            f"https://files.example.com/packages/{backfillable_file.path}",
+            stub_session,
+        )
+    ]
+
+    assert backfillable_file.metadata_file_sha256_digest == (
+        "e85ce4c9e2d2eddba19c396ed04470efaa2a9c2a6b3c6463e6876a41e55d828d"
+    )
+    assert backfillable_file.metadata_file_blake2_256_digest == (
+        "39cc629504be4087d48889e8666392bd379b91e1826e269cd8467bb29298da82"
+    )
+    assert (
+        archive_storage.store.calls
+        == cache_storage.store.calls
+        == [
+            pretend.call(
+                backfillable_file.metadata_path,
+                f"/tmp/wutang/{backfillable_file.filename}.metadata",
+                meta={
+                    "project": project.normalized_name,
+                    "version": release2.version,
+                    "package-type": backfillable_file.packagetype,
+                    "python-version": backfillable_file.python_version,
+                },
+            ),
+        ]
+    )
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.packaging.metadata_backfill.files"),
+        pretend.call("warehouse.packaging.metadata_backfill.tasks"),
+    ]
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.metadata_backfill.remaining", 0)
     ]
