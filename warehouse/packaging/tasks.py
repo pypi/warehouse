@@ -75,7 +75,7 @@ def backfill_metadata(request):
         request.db.query(File)
         .filter(File.packagetype == "bdist_wheel")
         .filter(File.metadata_file_sha256_digest.is_(None))
-        .filter(File.unbackfillable.isnot(True))
+        .filter(File.metadata_file_unbackfillable.isnot(True))
         .order_by(desc(File.upload_time))
     )
 
@@ -89,7 +89,7 @@ def backfill_metadata(request):
                 )
                 wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
             except UnsupportedWheel:
-                file_.unbackfillable = True
+                file_.metadata_file_unbackfillable = True
                 continue
 
             # Write the metadata to a temporary file

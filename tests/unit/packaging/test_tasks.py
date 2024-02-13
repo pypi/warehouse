@@ -999,7 +999,7 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
     ]
 
 
-def test_backfill_metadata_unbackfillable(db_request, monkeypatch, metrics):
+def test_backfill_metadata_file_unbackfillable(db_request, monkeypatch, metrics):
     project = ProjectFactory()
     release = ReleaseFactory(project=project)
     backfillable_file = FileFactory(
@@ -1025,11 +1025,11 @@ def test_backfill_metadata_unbackfillable(db_request, monkeypatch, metrics):
         "files.url"
     ] = "https://files.example.com/packages/{path}"
 
-    assert backfillable_file.unbackfillable is False
+    assert backfillable_file.metadata_file_unbackfillable is False
 
     backfill_metadata(db_request)
 
-    assert backfillable_file.unbackfillable is True
+    assert backfillable_file.metadata_file_unbackfillable is True
     assert metrics.increment.calls == [
         pretend.call("warehouse.packaging.metadata_backfill.tasks"),
     ]
