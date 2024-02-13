@@ -65,7 +65,8 @@ def backfill_metadata(request):
     metrics = request.find_service(IMetricsService, context=None)
     base_url = request.registry.settings.get("files.url")
 
-    storage = request.find_service(IFileStorage, name="archive")
+    archive_storage = request.find_service(IFileStorage, name="archive")
+    cache_storage = request.find_service(IFileStorage, name="cache")
     session = PipSession()
 
     # Get all wheel files without metadata in reverse chronologicial order
@@ -101,7 +102,18 @@ def backfill_metadata(request):
             )
 
             # Store the metadata file via our object storage backend
-            storage.store(
+            archive_storage.store(
+                file_.metadata_path,
+                temporary_filename,
+                meta={
+                    "project": file_.release.project.normalized_name,
+                    "version": file_.release.version,
+                    "package-type": file_.packagetype,
+                    "python-version": file_.python_version,
+                },
+            )
+            # Write it to our storage cache as well
+            cache_storage.store(
                 file_.metadata_path,
                 temporary_filename,
                 meta={

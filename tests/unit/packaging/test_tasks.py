@@ -922,14 +922,17 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
         warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
     )
     monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
-    archive_service = pretend.stub(
+    archive_storage = pretend.stub(
+        store=pretend.call_recorder(lambda path_out, path_in, meta: None),
+    )
+    cache_storage = pretend.stub(
         store=pretend.call_recorder(lambda path_out, path_in, meta: None),
     )
     db_request.find_service = pretend.call_recorder(
         lambda iface, name=None, context=None: {
             IFileStorage: {
-                "archive": archive_service,
-                "metrics": metrics,
+                "archive": archive_storage,
+                "cache": cache_storage,
             },
             IMetricsService: {None: metrics},
         }[iface][name]
@@ -969,18 +972,22 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
     assert backfillable_file.metadata_file_blake2_256_digest == (
         "39cc629504be4087d48889e8666392bd379b91e1826e269cd8467bb29298da82"
     )
-    assert archive_service.store.calls == [
-        pretend.call(
-            backfillable_file.metadata_path,
-            f"/tmp/wutang/{backfillable_file.filename}.metadata",
-            meta={
-                "project": project.normalized_name,
-                "version": release2.version,
-                "package-type": backfillable_file.packagetype,
-                "python-version": backfillable_file.python_version,
-            },
-        ),
-    ]
+    assert (
+        archive_storage.store.calls
+        == cache_storage.store.calls
+        == [
+            pretend.call(
+                backfillable_file.metadata_path,
+                f"/tmp/wutang/{backfillable_file.filename}.metadata",
+                meta={
+                    "project": project.normalized_name,
+                    "version": release2.version,
+                    "package-type": backfillable_file.packagetype,
+                    "python-version": backfillable_file.python_version,
+                },
+            ),
+        ]
+    )
 
     assert metrics.increment.calls == [
         pretend.call("warehouse.packaging.metadata_backfill.files"),
