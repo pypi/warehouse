@@ -21,6 +21,7 @@ from itertools import product
 from pathlib import Path
 
 from google.cloud.bigquery import LoadJobConfig
+from pip._internal.exceptions import UnsupportedWheel
 from pip._internal.network.lazy_wheel import dist_from_wheel_url
 from pip._internal.network.session import PipSession
 from sqlalchemy import desc
@@ -74,6 +75,7 @@ def backfill_metadata(request):
         request.db.query(File)
         .filter(File.packagetype == "bdist_wheel")
         .filter(File.metadata_file_sha256_digest.is_(None))
+        .filter(File.unbackfillable.is_(False))
         .order_by(desc(File.upload_time))
     )
 
@@ -81,10 +83,14 @@ def backfill_metadata(request):
         for file_ in files_without_metadata.yield_per(100).limit(500):
             # Use pip to download just the metadata of the wheel
             file_url = base_url.format(path=file_.path)
-            lazy_dist = dist_from_wheel_url(
-                file_.release.project.normalized_name, file_url, session
-            )
-            wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
+            try:
+                lazy_dist = dist_from_wheel_url(
+                    file_.release.project.normalized_name, file_url, session
+                )
+                wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
+            except UnsupportedWheel:
+                file_.unbackfillable = True
+                continue
 
             # Write the metadata to a temporary file
             temporary_filename = os.path.join(tmpdir, file_.filename) + ".metadata"
