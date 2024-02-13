@@ -75,7 +75,7 @@ def backfill_metadata(request):
         request.db.query(File)
         .filter(File.packagetype == "bdist_wheel")
         .filter(File.metadata_file_sha256_digest.is_(None))
-        .filter(File.unbackfillable.is_(False))
+        .filter(File.unbackfillable.isnot(True))
         .order_by(desc(File.upload_time))
     )
 
