@@ -719,7 +719,7 @@ class File(HasEvents, db.Model):
     archived: Mapped[bool_false] = mapped_column(
         comment="If True, the object has been archived to our archival bucket.",
     )
-    unbackfillable: Mapped[bool_false] = mapped_column(
+    metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
         comment="If True, the metadata for the file cannot be backfilled.",
     )
 
