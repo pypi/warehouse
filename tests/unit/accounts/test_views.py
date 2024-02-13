@@ -1676,6 +1676,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=pretend.stub(),
             username=pretend.stub(),
+            emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1931,6 +1932,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=pretend.stub(),
             username=pretend.stub(),
+            emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=False,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1962,6 +1964,29 @@ class TestRequestPasswordReset:
                 request=pyramid_request,
             )
         ]
+
+    def test_password_reset_with_nonexistent_email(
+        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
+    ):
+        pyramid_request.method = "POST"
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
+        user_service.get_user_by_email = pretend.call_recorder(lambda a: None)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface]
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data="foo@bar.net"),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+
+        result = views.request_password_reset(pyramid_request, _form_class=form_class)
+
+        assert result == {"n_hours": 6}
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(user=pretend.stub())
