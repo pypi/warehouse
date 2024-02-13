@@ -63,9 +63,7 @@ def sync_file_to_cache(request, file_id):
 @tasks.task(ignore_result=True, acks_late=True)
 def backfill_metadata(request):
     metrics = request.find_service(IMetricsService, context=None)
-    is_pypi = request.registry.settings.get("warehouse.domain") == "pypi.org"
-    subdomain = "files" if is_pypi else "test-files"
-    base_url = f"https://{subdomain}.pythonhosted.org/packages"
+    base_url = request.registry.settings.get("files.url")
 
     storage = request.find_service(IFileStorage, name="archive")
     session = PipSession()
@@ -81,7 +79,7 @@ def backfill_metadata(request):
     with tempfile.TemporaryDirectory() as tmpdir:
         for file_ in files_without_metadata.yield_per(100):
             # Use pip to download just the metadata of the wheel
-            file_url = f"{base_url}/{file_.path}"
+            file_url = base_url.format(path=file_.path)
             lazy_dist = dist_from_wheel_url(
                 file_.release.project.normalized_name, file_url, session
             )

@@ -949,12 +949,16 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
 
     monkeypatch.setattr(builtins, "open", mock_open)
 
+    db_request.registry.settings[
+        "files.url"
+    ] = "https://files.example.com/packages/{path}"
+
     backfill_metadata(db_request)
 
     assert dist_from_wheel_url.calls == [
         pretend.call(
             project.normalized_name,
-            f"https://test-files.pythonhosted.org/packages/{backfillable_file.path}",
+            f"https://files.example.com/packages/{backfillable_file.path}",
             stub_session,
         )
     ]
