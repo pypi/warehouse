@@ -20,6 +20,7 @@ from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.authnz import Permissions
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
@@ -316,7 +317,7 @@ class TestMacaroonSecurityPolicy:
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
+        [Permissions.AccountManage, "manage:project", "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission
