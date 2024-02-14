@@ -276,19 +276,34 @@ class TestGitLabPublisher:
                 True,
                 None,
             ),
+            # bad: either ref_path or sha empty
             (
                 "gitlab.com/foo/bar//workflows/baz.yml@somesha",
                 None,
                 "somesha",
-                True,
-                None,
+                False,
+                "The ref_path and sha claims are empty",
             ),
             (
                 "gitlab.com/foo/bar//workflows/baz.yml@somesha",
                 "",
                 "somesha",
-                True,
+                False,
+                "The ref_path and sha claims are empty",
+            ),
+            (
+                "gitlab.com/foo/bar//workflows/baz.yml@missing",
+                "someref",
                 None,
+                False,
+                "The ref_path and sha claims are empty",
+            ),
+            (
+                "gitlab.com/foo/bar//workflows/baz.yml@missing",
+                "someref",
+                "",
+                False,
+                "The ref_path and sha claims are empty",
             ),
             # bad: both ref_path and sha are missing
             (

@@ -18,11 +18,9 @@ from warehouse import forms
 from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
-# TODO Gitlab also accepts emojis
-# see:
 # https://docs.gitlab.com/ee/user/reserved_names.html#limitations-on-project-and-group-names
-_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9-_.+\- ]*$")
-_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9_][a-zA-Z0-9_.()\- /]*$")
+_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
+_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
 _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
 

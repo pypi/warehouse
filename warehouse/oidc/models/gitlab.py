@@ -37,13 +37,13 @@ def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
     if not signed_claim:
         raise InvalidPublisherError("The ci_config_ref_uri claim is empty")
 
-    # We need at least one of these to be non-empty
-    ref = all_signed_claims.get("ref_path")
+    # Same defensive check as above but for ref_path and sha.
+    ref_path = all_signed_claims.get("ref_path")
     sha = all_signed_claims.get("sha")
-    if not (ref or sha):
+    if not (ref_path and sha):
         raise InvalidPublisherError("The ref_path and sha claims are empty")
 
-    expected = {f"{ground_truth}@{_ref}" for _ref in [ref, sha] if _ref}
+    expected = {f"{ground_truth}@{_ref}" for _ref in [ref_path, sha] if _ref}
     if signed_claim not in expected:
         raise InvalidPublisherError(
             "The ci_config_ref_uri claim does not match, expecting one of "

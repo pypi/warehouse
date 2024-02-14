@@ -206,7 +206,7 @@
       </label>
       {{ pending_gitlab_publisher_form.workflow_filepath(placeholder=gettext(".gitlab-ci.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filepath-errors"}) }}
       <p class="form-group__help-text">
-        {% trans %}The file path of the publishing workflow, relative to the repository's root. This file should exist in the repository configured above (external workflows are not supported).{% endtrans %}
+        {% trans %}The file path of the publishing workflow, relative to the project's root. This file should exist in the project configured above (external workflows are not supported).{% endtrans %}
       </p>
       <div id="workflow_filepath-errors">
         {{ field_errors(pending_gitlab_publisher_form.workflow_filepath) }}
@@ -226,9 +226,9 @@
         {% trans href="https://docs.gitlab.com/ee/ci/environments/" %}
         The name of the <a href="{{ href }}">GitLab CI/CD environment</a>
         that the above workflow uses for publishing.  This should be
-        configured under the repository's settings. While not required, a
+        configured under the project's settings. While not required, a
         dedicated publishing environment is <strong>strongly</strong>
-        encouraged, <strong>especially</strong> if your repository has
+        encouraged, <strong>especially</strong> if your project has
         maintainers with commit access who shouldn't have PyPI publishing
         access.
         {% endtrans %}

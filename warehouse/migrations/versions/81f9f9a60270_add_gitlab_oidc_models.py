@@ -13,7 +13,7 @@
 Add GitLab OIDC models
 
 Revision ID: 81f9f9a60270
-Revises: be62a4cd76e3
+Revises: 4d1b4fcc4076
 Create Date: 2024-01-16 17:46:16.443395
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "81f9f9a60270"
-down_revision = "be62a4cd76e3"
+down_revision = "4d1b4fcc4076"
 
 
 def upgrade():
@@ -32,7 +32,7 @@ def upgrade():
         VALUES (
             'disallow-gitlab-oidc',
             'Disallow the GitLab OIDC provider',
-            FALSE,
+            TRUE,
             FALSE
         )
         """

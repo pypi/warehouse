@@ -71,6 +71,21 @@ class TestGitLabPublisherForm:
                 "project": "some",
                 "workflow_filepath": "some",
             },
+            {
+                "namespace": "invalid_parethen(sis",
+                "project": "some",
+                "workflow_filepath": "some",
+            },
+            {
+                "namespace": "some",
+                "project": "invalid space",
+                "workflow_filepath": "some",
+            },
+            {
+                "namespace": "some",
+                "project": "invalid+plus",
+                "workflow_filepath": "some",
+            },
             {"project": None, "namespace": "some", "workflow_filepath": "some"},
             {"project": "", "namespace": "some", "workflow_filepath": "some"},
             {

@@ -369,7 +369,7 @@ msgid "Select project"
 msgstr ""
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
-#: warehouse/oidc/forms/gitlab.py:46
+#: warehouse/oidc/forms/gitlab.py:44
 msgid "Specify project name"
 msgstr ""
 
@@ -574,7 +574,7 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:48
+#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
 msgid "Invalid project name"
 msgstr ""
 
@@ -677,27 +677,27 @@ msgstr ""
 msgid "Workflow filename must be a filename only, without directories"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:35
+#: warehouse/oidc/forms/gitlab.py:33
 msgid "Specify GitLab namespace (username or group/subgroup)"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:39
+#: warehouse/oidc/forms/gitlab.py:37
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:55
+#: warehouse/oidc/forms/gitlab.py:53
 msgid "Specify workflow filepath"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:63
+#: warehouse/oidc/forms/gitlab.py:61
 msgid "Invalid environment name"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:78
+#: warehouse/oidc/forms/gitlab.py:76
 msgid "Workflow file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:82
+#: warehouse/oidc/forms/gitlab.py:80
 msgid "Workflow file path cannot start or end with /"
 msgstr ""
 
@@ -4489,9 +4489,9 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
-"The file path of the publishing workflow, relative to the repository's "
-"root. This file should exist in the repository configured above (external"
-" workflows are not supported)."
+"The file path of the publishing workflow, relative to the project's root."
+" This file should exist in the project configured above (external "
+"workflows are not supported)."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:226
@@ -4500,10 +4500,10 @@ msgstr ""
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that "
 "the above workflow uses for publishing.  This should be configured under "
-"the repository's settings. While not required, a dedicated publishing "
+"the project's settings. While not required, a dedicated publishing "
 "environment is <strong>strongly</strong> encouraged, "
-"<strong>especially</strong> if your repository has maintainers with "
-"commit access who shouldn't have PyPI publishing access."
+"<strong>especially</strong> if your project has maintainers with commit "
+"access who shouldn't have PyPI publishing access."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:248

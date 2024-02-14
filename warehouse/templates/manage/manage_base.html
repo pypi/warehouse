@@ -546,7 +546,7 @@
         <i>({% trans %}Any{% endtrans %})</i>
       {% endif %}
     {% elif publisher.publisher_name == "GitLab" %}
-      <b>Repository:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project_path }}</a><br>
+      <b>Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project_path }}</a><br>
       <b>Workflow:</b> {{ publisher.workflow_filepath }}<br>
       <b>Environment name:</b>
       {% if publisher.environment %}
