@@ -21,6 +21,7 @@ import pretend
 import pytest
 
 from google.cloud.bigquery import SchemaField
+from pip._internal.exceptions import UnsupportedWheel
 from wtforms import Field, Form, StringField
 
 import warehouse.packaging.tasks
@@ -991,6 +992,45 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
 
     assert metrics.increment.calls == [
         pretend.call("warehouse.packaging.metadata_backfill.files"),
+        pretend.call("warehouse.packaging.metadata_backfill.tasks"),
+    ]
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.metadata_backfill.remaining", 0)
+    ]
+
+
+def test_backfill_metadata_file_unbackfillable(db_request, monkeypatch, metrics):
+    project = ProjectFactory()
+    release = ReleaseFactory(project=project)
+    backfillable_file = FileFactory(
+        release=release, packagetype="bdist_wheel", metadata_file_sha256_digest=None
+    )
+
+    stub_session = pretend.stub()
+    monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
+    dist_from_wheel_url = pretend.raiser(UnsupportedWheel)
+    monkeypatch.setattr(
+        warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None, context=None: {
+            IFileStorage: {
+                "archive": pretend.stub(),
+                "cache": pretend.stub(),
+            },
+            IMetricsService: {None: metrics},
+        }[iface][name]
+    )
+    db_request.registry.settings[
+        "files.url"
+    ] = "https://files.example.com/packages/{path}"
+
+    assert backfillable_file.metadata_file_unbackfillable is False
+
+    backfill_metadata(db_request)
+
+    assert backfillable_file.metadata_file_unbackfillable is True
+    assert metrics.increment.calls == [
         pretend.call("warehouse.packaging.metadata_backfill.tasks"),
     ]
     assert metrics.gauge.calls == [
