@@ -31,11 +31,11 @@ from warehouse.metrics.interfaces import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
-    metadata_backfill,
-    metadata_backfill_individual,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    metadata_backfill,
+    metadata_backfill_individual,
     sync_bigquery_release_files,
     sync_file_to_cache,
     update_bigquery_release_files,

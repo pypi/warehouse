@@ -27,10 +27,10 @@ from warehouse.packaging.interfaces import (
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (
-    metadata_backfill,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
+    metadata_backfill,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
