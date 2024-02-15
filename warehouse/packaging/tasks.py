@@ -90,8 +90,8 @@ def backfill_metadata_individual(_task, request, file_id):
     base_url = request.registry.settings.get("files.url")
     file_url = base_url.format(path=file_.path)
     metrics = request.find_service(IMetricsService, context=None)
-    archive_storage = request.find_service(IFileStorage, name="archive")
     cache_storage = request.find_service(IFileStorage, name="cache")
+    archive_storage = request.find_service(IFileStorage, name="archive")
     session = PipSession()
 
     # Use pip to download just the metadata of the wheel
@@ -121,7 +121,7 @@ def backfill_metadata_individual(_task, request, file_id):
             fp.write(wheel_metadata_contents)
 
         # Store the metadata file via our object storage backend
-        archive_storage.store(
+        cache_storage.store(
             file_.metadata_path,
             temporary_filename,
             meta={
@@ -131,8 +131,8 @@ def backfill_metadata_individual(_task, request, file_id):
                 "python-version": file_.python_version,
             },
         )
-        # Write it to our storage cache as well
-        cache_storage.store(
+        # Write it to our archive storage as well
+        archive_storage.store(
             file_.metadata_path,
             temporary_filename,
             meta={
