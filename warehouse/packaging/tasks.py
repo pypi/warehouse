@@ -50,7 +50,8 @@ def _copy_file_to_cache(archive_storage, cache_storage, path):
 @tasks.task(ignore_result=True, acks_late=True)
 def sync_file_to_cache(request, file_id):
     file = request.db.get(File, file_id)
-    if not file.cached:
+
+    if file and not file.cached:
         archive_storage = request.find_service(IFileStorage, name="archive")
         cache_storage = request.find_service(IFileStorage, name="cache")
 
@@ -87,6 +88,11 @@ def metadata_backfill(request):
 @tasks.task(ignore_result=True, acks_late=True)
 def metadata_backfill_individual(request, file_id):
     file_ = request.db.get(File, file_id)
+
+    # Short-circuit if the file has been deleted
+    if file_ is None:
+        return
+
     base_url = request.registry.settings.get("files.url")
     file_url = base_url.format(path=file_.path)
     metrics = request.find_service(IMetricsService, context=None)
