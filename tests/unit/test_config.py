@@ -252,6 +252,7 @@ def test_configure(monkeypatch, settings, environment):
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
+        "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
     }
     if environment == config.Environment.development:
