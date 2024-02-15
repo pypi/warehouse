@@ -32,6 +32,7 @@ from warehouse.packaging.interfaces import IFileStorage
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
     backfill_metadata,
+    backfill_metadata_individual,
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
@@ -911,6 +912,38 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
         release=release2, packagetype="bdist_wheel", metadata_file_sha256_digest=None
     )
 
+    delay = pretend.call_recorder(lambda x: None)
+    db_request.task = pretend.call_recorder(lambda x: pretend.stub(delay=delay))
+    db_request.registry.settings["backfill_metadata.batch_size"] = 500
+
+    backfill_metadata(db_request)
+
+    assert db_request.task.calls == [pretend.call(backfill_metadata_individual)]
+    assert delay.calls == [pretend.call(backfillable_file.id)]
+
+    assert metrics.increment.calls == [
+        pretend.call("warehouse.packaging.metadata_backfill.tasks"),
+    ]
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.packaging.metadata_backfill.remaining", 1)
+    ]
+
+
+def test_backfill_metadata_individual(db_request, monkeypatch, metrics):
+    project = ProjectFactory()
+    release1 = ReleaseFactory(project=project)
+    release2 = ReleaseFactory(project=project)
+    FileFactory(release=release1, packagetype="sdist")
+    FileFactory(
+        release=release1,
+        packagetype="bdist_wheel",
+        metadata_file_sha256_digest="d34db33f",
+    )
+    FileFactory(release=release2, packagetype="sdist")
+    backfillable_file = FileFactory(
+        release=release2, packagetype="bdist_wheel", metadata_file_sha256_digest=None
+    )
+
     metadata_contents = b"some\nmetadata\ncontents"
     stub_dist = pretend.stub(
         _dist=pretend.stub(_files={Path("METADATA"): metadata_contents})
@@ -957,7 +990,7 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
         "files.url"
     ] = "https://files.example.com/packages/{path}"
 
-    backfill_metadata(db_request)
+    backfill_metadata_individual(pretend.stub(), db_request, backfillable_file.id)
 
     assert dist_from_wheel_url.calls == [
         pretend.call(
@@ -992,10 +1025,6 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
 
     assert metrics.increment.calls == [
         pretend.call("warehouse.packaging.metadata_backfill.files"),
-        pretend.call("warehouse.packaging.metadata_backfill.tasks"),
-    ]
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.metadata_backfill.remaining", 0)
     ]
 
 
@@ -1027,12 +1056,7 @@ def test_backfill_metadata_file_unbackfillable(db_request, monkeypatch, metrics)
 
     assert backfillable_file.metadata_file_unbackfillable is False
 
-    backfill_metadata(db_request)
+    backfill_metadata_individual(pretend.stub(), db_request, backfillable_file.id)
 
     assert backfillable_file.metadata_file_unbackfillable is True
-    assert metrics.increment.calls == [
-        pretend.call("warehouse.packaging.metadata_backfill.tasks"),
-    ]
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.packaging.metadata_backfill.remaining", 0)
-    ]
+    assert metrics.increment.calls == []
