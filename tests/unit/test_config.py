@@ -541,7 +541,7 @@ def test_root_factory_access_control_list():
                 Permissions.AccountVerifyOrgRole,
                 Permissions.AccountVerifyProjectRole,
                 Permissions.OrganizationsManage,
-                Permissions.ProjectsView,
+                Permissions.ProjectsRead,
             ),
         ),
     ]

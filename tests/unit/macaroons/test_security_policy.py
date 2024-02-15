@@ -317,7 +317,7 @@ class TestMacaroonSecurityPolicy:
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        [Permissions.AccountManage, "manage:project", "nonexistent"],
+        [Permissions.AccountManage, Permissions.ProjectsWrite, "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission
