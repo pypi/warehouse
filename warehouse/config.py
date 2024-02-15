@@ -135,7 +135,21 @@ class RootFactory:
                 Permissions.APIObservationsAdd,
             ),
         ),
-        (Allow, Authenticated, "manage:user"),
+        (
+            Allow,
+            Authenticated,
+            (
+                Permissions.Account2FA,
+                Permissions.AccountAPITokens,
+                Permissions.AccountManage,
+                Permissions.AccountManagePublishing,
+                Permissions.AccountVerifyEmail,
+                Permissions.AccountVerifyOrgRole,
+                Permissions.AccountVerifyProjectRole,
+                Permissions.OrganizationsManage,
+                Permissions.ProjectsView,
+            ),
+        ),
     ]
 
     def __init__(self, request):

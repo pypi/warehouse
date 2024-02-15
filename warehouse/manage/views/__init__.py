@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -142,7 +143,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -467,7 +468,7 @@ class ManageAccountViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     has_translations=True,
     require_reauth=True,
 )
@@ -481,7 +482,7 @@ def manage_two_factor(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -631,7 +632,7 @@ class ProvisionTOTPViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -758,7 +759,7 @@ class ProvisionWebAuthnViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -843,7 +844,7 @@ class ProvisionRecoveryCodesViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountAPITokens,
     renderer="manage/account/token.html",
     route_name="manage.account.token",
     has_translations=True,
@@ -1032,7 +1033,7 @@ class ProvisionMacaroonViews:
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.ProjectsView,
     has_translations=True,
 )
 def manage_projects(request):
