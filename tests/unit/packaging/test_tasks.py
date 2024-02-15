@@ -1060,3 +1060,29 @@ def test_metadata_backfill_file_unbackfillable(db_request, monkeypatch, metrics)
 
     assert backfillable_file.metadata_file_unbackfillable is True
     assert metrics.increment.calls == []
+
+
+def test_metadata_backfill_file_delorted(db_request, monkeypatch, metrics):
+    stub_session = pretend.stub()
+    monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
+    dist_from_wheel_url = pretend.call_recorder(lambda *a, **kw: None)
+    monkeypatch.setattr(
+        warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
+    )
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None, context=None: {
+            IFileStorage: {
+                "archive": pretend.stub(),
+                "cache": pretend.stub(),
+            },
+            IMetricsService: {None: metrics},
+        }[iface][name]
+    )
+    db_request.registry.settings[
+        "files.url"
+    ] = "https://files.example.com/packages/{path}"
+
+    metadata_backfill_individual(db_request, "66642069-0000-0000-0000-000000000000")
+
+    assert dist_from_wheel_url.calls == []
+    assert metrics.increment.calls == []
