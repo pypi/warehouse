@@ -914,6 +914,7 @@ def test_backfill_metadata(db_request, monkeypatch, metrics):
 
     delay = pretend.call_recorder(lambda x: None)
     db_request.task = pretend.call_recorder(lambda x: pretend.stub(delay=delay))
+    db_request.registry.settings["backfill_metadata.batch_size"] = 500
 
     backfill_metadata(db_request)
 

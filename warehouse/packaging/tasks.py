@@ -64,6 +64,7 @@ def sync_file_to_cache(request, file_id):
 @tasks.task(ignore_result=True, acks_late=True)
 def backfill_metadata(request):
     metrics = request.find_service(IMetricsService, context=None)
+    batch_size = request.registry.settings["backfill_metadata.batch_size"]
 
     # Get all wheel files without metadata in reverse chronologicial order
     files_without_metadata = (
@@ -73,8 +74,7 @@ def backfill_metadata(request):
         .filter(File.metadata_file_unbackfillable.isnot(True))
         .order_by(desc(File.upload_time))
     )
-
-    for file_ in files_without_metadata.yield_per(100).limit(500):
+    for file_ in files_without_metadata.yield_per(100).limit(batch_size):
         request.task(backfill_metadata_individual).delay(file_.id)
 
     metrics.increment("warehouse.packaging.metadata_backfill.tasks")
