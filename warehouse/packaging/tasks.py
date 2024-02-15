@@ -62,13 +62,9 @@ def sync_file_to_cache(request, file_id):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def backfill_metadata(request):
+def metadata_backfill(request):
     metrics = request.find_service(IMetricsService, context=None)
-    base_url = request.registry.settings.get("files.url")
-
-    archive_storage = request.find_service(IFileStorage, name="archive")
-    cache_storage = request.find_service(IFileStorage, name="cache")
-    session = PipSession()
+    batch_size = request.registry.settings["metadata_backfill.batch_size"]
 
     # Get all wheel files without metadata in reverse chronologicial order
     files_without_metadata = (
@@ -78,63 +74,75 @@ def backfill_metadata(request):
         .filter(File.metadata_file_unbackfillable.isnot(True))
         .order_by(desc(File.upload_time))
     )
+    for file_ in files_without_metadata.yield_per(100).limit(batch_size):
+        request.task(metadata_backfill_individual).delay(file_.id)
 
-    with tempfile.TemporaryDirectory() as tmpdir:
-        for file_ in files_without_metadata.yield_per(100).limit(500):
-            # Use pip to download just the metadata of the wheel
-            file_url = base_url.format(path=file_.path)
-            try:
-                lazy_dist = dist_from_wheel_url(
-                    file_.release.project.normalized_name, file_url, session
-                )
-                wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
-            except UnsupportedWheel:
-                file_.metadata_file_unbackfillable = True
-                continue
-
-            # Write the metadata to a temporary file
-            temporary_filename = os.path.join(tmpdir, file_.filename) + ".metadata"
-            with open(temporary_filename, "wb") as fp:
-                fp.write(wheel_metadata_contents)
-
-            # Hash the metadata and add it to the File instance
-            file_.metadata_file_sha256_digest = (
-                hashlib.sha256(wheel_metadata_contents).hexdigest().lower()
-            )
-            file_.metadata_file_blake2_256_digest = (
-                hashlib.blake2b(wheel_metadata_contents, digest_size=256 // 8)
-                .hexdigest()
-                .lower()
-            )
-
-            # Store the metadata file via our object storage backend
-            archive_storage.store(
-                file_.metadata_path,
-                temporary_filename,
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
-            # Write it to our storage cache as well
-            cache_storage.store(
-                file_.metadata_path,
-                temporary_filename,
-                meta={
-                    "project": file_.release.project.normalized_name,
-                    "version": file_.release.version,
-                    "package-type": file_.packagetype,
-                    "python-version": file_.python_version,
-                },
-            )
-            metrics.increment("warehouse.packaging.metadata_backfill.files")
-        metrics.increment("warehouse.packaging.metadata_backfill.tasks")
+    metrics.increment("warehouse.packaging.metadata_backfill.tasks")
     metrics.gauge(
         "warehouse.packaging.metadata_backfill.remaining",
         files_without_metadata.count(),
     )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def metadata_backfill_individual(_task, request, file_id):
+    file_ = request.db.get(File, file_id)
+    base_url = request.registry.settings.get("files.url")
+    file_url = base_url.format(path=file_.path)
+    metrics = request.find_service(IMetricsService, context=None)
+    cache_storage = request.find_service(IFileStorage, name="cache")
+    archive_storage = request.find_service(IFileStorage, name="archive")
+    session = PipSession()
+
+    # Use pip to download just the metadata of the wheel
+    try:
+        lazy_dist = dist_from_wheel_url(
+            file_.release.project.normalized_name, file_url, session
+        )
+        wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
+    except UnsupportedWheel:
+        file_.metadata_file_unbackfillable = True
+        return
+
+    # Hash the metadata and add it to the File instance
+    file_.metadata_file_sha256_digest = (
+        hashlib.sha256(wheel_metadata_contents).hexdigest().lower()
+    )
+    file_.metadata_file_blake2_256_digest = (
+        hashlib.blake2b(wheel_metadata_contents, digest_size=256 // 8)
+        .hexdigest()
+        .lower()
+    )
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Write the metadata to a temporary file
+        temporary_filename = os.path.join(tmpdir, file_.filename) + ".metadata"
+        with open(temporary_filename, "wb") as fp:
+            fp.write(wheel_metadata_contents)
+
+        # Store the metadata file via our object storage backend
+        cache_storage.store(
+            file_.metadata_path,
+            temporary_filename,
+            meta={
+                "project": file_.release.project.normalized_name,
+                "version": file_.release.version,
+                "package-type": file_.packagetype,
+                "python-version": file_.python_version,
+            },
+        )
+        # Write it to our archive storage as well
+        archive_storage.store(
+            file_.metadata_path,
+            temporary_filename,
+            meta={
+                "project": file_.release.project.normalized_name,
+                "version": file_.release.version,
+                "package-type": file_.packagetype,
+                "python-version": file_.python_version,
+            },
+        )
+    metrics.increment("warehouse.packaging.metadata_backfill.files")
 
 
 @tasks.task(ignore_result=True, acks_late=True)
