@@ -990,7 +990,7 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
         "files.url"
     ] = "https://files.example.com/packages/{path}"
 
-    metadata_backfill_individual(pretend.stub(), db_request, backfillable_file.id)
+    metadata_backfill_individual(db_request, backfillable_file.id)
 
     assert dist_from_wheel_url.calls == [
         pretend.call(
@@ -1056,7 +1056,7 @@ def test_metadata_backfill_file_unbackfillable(db_request, monkeypatch, metrics)
 
     assert backfillable_file.metadata_file_unbackfillable is False
 
-    metadata_backfill_individual(pretend.stub(), db_request, backfillable_file.id)
+    metadata_backfill_individual(db_request, backfillable_file.id)
 
     assert backfillable_file.metadata_file_unbackfillable is True
     assert metrics.increment.calls == []

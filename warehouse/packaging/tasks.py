@@ -85,7 +85,7 @@ def metadata_backfill(request):
 
 
 @tasks.task(ignore_result=True, acks_late=True)
-def metadata_backfill_individual(_task, request, file_id):
+def metadata_backfill_individual(request, file_id):
     file_ = request.db.get(File, file_id)
     base_url = request.registry.settings.get("files.url")
     file_url = base_url.format(path=file_.path)
