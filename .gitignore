@@ -25,6 +25,7 @@ node_modules/
 dev/example.sql
 dev/prod.sql
 dev/prod.sql.xz
+dev/.coverage
 ./data/
 
 warehouse/.commit

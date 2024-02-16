@@ -1,5 +1,6 @@
 [tool.coverage.run]
 branch = true
+data_file = "dev/.coverage"
 dynamic_context = "test_function"
 source = ["warehouse"]
 omit = [

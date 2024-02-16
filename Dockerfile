@@ -226,6 +226,4 @@ COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
 
 # We cannot run `postgres` as root, so add a user to run the application
-# The user is replaced by `nobody` in the production image by cabotage.
-RUN adduser warehouse && chown -R warehouse /opt/warehouse/src
-USER warehouse
+USER nobody
