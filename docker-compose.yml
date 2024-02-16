@@ -80,7 +80,6 @@ services:
       - ./tests:/opt/warehouse/src/tests:z
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
-      - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
@@ -110,6 +109,14 @@ services:
         condition: service_started
       redis:
         condition: service_started
+      stripe:
+        condition: service_started
+
+  tests:
+    image: warehouse:docker-compose
+    pull_policy: never
+    volumes: *base_volumes
+    depends_on:
       stripe:
         condition: service_started
 
