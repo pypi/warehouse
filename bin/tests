@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ex
 
+# Create any dist directories to silence whitenoise warnings.
+mkdir -p warehouse/warehouse/admin/static/dist/
+mkdir -p warehouse/warehouse/static/dist/
+
 python -m coverage run -m pytest --strict-markers "$@"
 python -m coverage html --show-contexts
 python -m coverage report -m --fail-under 100

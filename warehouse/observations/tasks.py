@@ -63,7 +63,7 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
      we can look at creating a more general-purpose library/module.
     """
     # Fetch the Observation from the database
-    model = request.db.query(Observation).get(model_id)
+    model = request.db.get(Observation, model_id)
 
     # TODO: What do we do for Release/File/User/etc?
     #  Maybe need a mapping of ObservationType and the name we want to use.

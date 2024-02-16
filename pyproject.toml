@@ -85,7 +85,11 @@ module = [
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
-addopts = "--disable-socket --allow-hosts='localhost,::1,stripe' --durations=20"
+addopts = [
+  "--disable-socket",
+  "--allow-hosts=localhost,::1,notdatadog,stripe",
+  "--durations=20",
+]
 cache_dir = "dev/.pytest_cache"
 norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
 markers = [
