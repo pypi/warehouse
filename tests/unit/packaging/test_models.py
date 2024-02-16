@@ -200,22 +200,22 @@ class TestProject:
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    ["manage:project", "upload"],
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    ["manage:project", "upload"],
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner3.user.id}",
-                    ["manage:project", "upload"],
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
                 ),
                 (
                     Allow,
                     f"user:{owner4.user.id}",
-                    ["manage:project", "upload"],
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
                 ),
             ],
             key=lambda x: x[1],
@@ -484,8 +484,16 @@ class TestRelease:
             ),
         ] + sorted(
             [
-                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
-                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
+                (
+                    Allow,
+                    f"user:{owner1.user.id}",
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                ),
+                (
+                    Allow,
+                    f"user:{owner2.user.id}",
+                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(

@@ -1353,7 +1353,7 @@ def manage_organization_history(organization, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1447,7 +1447,7 @@ def remove_organization_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )

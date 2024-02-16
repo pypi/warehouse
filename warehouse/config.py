@@ -147,7 +147,7 @@ class RootFactory:
                 Permissions.AccountVerifyOrgRole,
                 Permissions.AccountVerifyProjectRole,
                 Permissions.OrganizationsManage,
-                Permissions.ProjectsView,
+                Permissions.ProjectsRead,
             ),
         ),
     ]

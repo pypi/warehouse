@@ -91,7 +91,8 @@ class Permissions(StrEnum):
     AccountVerifyProjectRole = "account:verify-project-role"
 
     # Projects Permissions
-    ProjectsView = "projects:view"
+    ProjectsRead = "projects:read"
+    ProjectsWrite = "projects:write"  # TODO: Worth splitting out ProjectDelete?
 
     # Organization Permissions
     OrganizationsManage = "organizations:manage"
