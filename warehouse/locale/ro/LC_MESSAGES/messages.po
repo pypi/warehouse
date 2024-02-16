@@ -42,11 +42,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Setări regionale actualizate"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "Parola nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -57,27 +57,27 @@ msgstr ""
 "asemenea, să înceapă și să termine cu o literă sau un număr. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "Niciun utilizator găsit cu acel nume de utilizator"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Codul TOTP trebuie să conțină ${totp_length} cifre."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "Alegeți un nume de utilizator cu 50 de caractere sau mai puțin."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -85,12 +85,12 @@ msgstr ""
 "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 msgid "Password too long."
 msgstr ""
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -101,27 +101,27 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "Parolele tale nu se potrivesc. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Nu puteți utiliza o adresă de e-mail din acest domeniu. Utilizați un alt e-"
 "mail."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -129,7 +129,7 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de acest cont. Utilizați un alt "
 "e-mail."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -137,31 +137,33 @@ msgstr ""
 "Această adresă de e-mail este deja utilizată de un alt cont. Utilizați un "
 "alt e-mail."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Numele e prea lung. Alegeți un nume cu 100 de caractere sau mai puțin."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "Cod TOTP nevalid."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Aserțiune WebAuthn nevalidă: Sarcină utilă incorectă"
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Cod de recuperare nevalid."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr "Codul de recuperare a fost folosit anterior."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "Niciun utilizator găsit cu acel nume de utilizator sau e-mail"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "Adresa de e-mail nu este validă. Încearcă din nou."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -172,7 +174,7 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -180,7 +182,7 @@ msgstr ""
 "Prea multe e-mailuri au fost adăugate la acest cont fără a le verifica. "
 "Verificați inboxul și urmați linkurile de verificare. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -190,26 +192,26 @@ msgstr ""
 "parolei pentru acest cont fără a verifica completarea lor. Verificați-vă "
 "căsuța de e-mail și urmați linkurile de verificare. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "Conectare în doi factori nevalidă sau expirată."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Deja autentificat"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Aserțiune WebAuthn cu succes"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Cod de recuperare acceptat. Codul furnizat nu se poate utiliza din nou."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -217,152 +219,152 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "Token expirat: solicitați un nou link de resetare a parolei"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Token nevalid: solicitați un nou link de resetare a parolei"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Token nevalid: nu este furnizat niciun jeton"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Token nevalid: nu un jeton de resetare a parolei"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Token nevalid: utilizatorul nu a fost găsit"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Token nevalid: utilizatorul s-a conectat de când a fost solicitat acest jeton"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Token nevalid: parola a fost deja modificată de la solicitarea acestui jeton"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "V-ați resetat parola"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Token nevalid: nu un Token de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "E-mailul nu a fost găsit"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "E-mailul a fost deja verificat"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "Acum puteți seta acest e-mail ca adresă principală"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Aceasta este adresa dvs. principală"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "Adresa de e-mail ${email_address} a fost verificată. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 #, fuzzy
 #| msgid "Expired token: request a new email verification link"
 msgid "Expired token: request a new organization invitation"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 #, fuzzy
 #| msgid "Invalid token: request a new email verification link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Token nevalid: nu un Token de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 #, fuzzy
 #| msgid "Expired token: request a new email verification link"
 msgid "Expired token: request a new project role invitation"
 msgstr "Token expirat: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 #, fuzzy
 #| msgid "Invalid token: request a new email verification link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Token nevalid: solicitați un nou link de verificare prin e-mail"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr ""
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invitația pentru „${project_name}” este refuzată."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -374,7 +376,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -384,19 +386,19 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -407,28 +409,28 @@ msgstr ""
 "Au fost prea multe încercări de conectare nereușite. Încercați din nou mai "
 "târziu."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -562,35 +564,35 @@ msgstr ""
 "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
 "nume de utilizator."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Coduri de recuperare deja generate"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -602,7 +604,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -614,7 +616,7 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -626,9 +628,9 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -640,101 +642,101 @@ msgstr ""
 "Înregistrarea unui nou utilizator a fost dezactivată temporar. Consultați "
 "https://pypi.org/help#admin-intervention pentru detalii."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Acum sunteți ${role} din proiectul „${project_name}”."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Could not find organization invitation."
 msgstr "Invitația la rol nu este validă."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Invitația la rol nu mai există."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -747,20 +749,15 @@ msgid "Invalid project name"
 msgstr "Cod de recuperare nevalid."
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
-msgid "This project name is already in use"
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
-"Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un alt "
-"nume de utilizator."
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1857,7 +1854,9 @@ msgid "Reset email sent"
 msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -9055,6 +9054,18 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
 msgstr[2] ""
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "Niciun utilizator găsit cu acel nume de utilizator sau e-mail"
+
+#, fuzzy
+#~| msgid ""
+#~| "This username is already being used by another account. Choose a "
+#~| "different username."
+#~ msgid "This project name is already in use"
+#~ msgstr ""
+#~ "Acest nume de utilizator este deja utilizat de un alt cont. Alegeți un "
+#~ "alt nume de utilizator."
 
 #, fuzzy, python-format
 #~| msgid "Invitation for '${project_name}' is declined."

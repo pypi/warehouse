@@ -53,11 +53,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Локалізація оновлена"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "Цей пароль недійсний. Спробуйте ще."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -67,27 +67,27 @@ msgstr ""
 "літер, чисел, крапок, дефісів та підкреслень. Також вони мають починатися і "
 "закінчуватися на літеру або число. Оберіть інше ім'я користувача."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "Користувача з таким іменем не знайдено"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Код TOTP має містити ${totp_length} цифр(и)."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "Оберіть ім'я користувача, довжиною 50 символів чи менше."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -95,12 +95,12 @@ msgstr ""
 "Таким ім'ям користувача уже користується хтось інший. Оберіть інше ім'я "
 "користувача."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 msgid "Password too long."
 msgstr "Пароль занадто довгий."
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -109,27 +109,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "Ви здійснили забагато невдалих спроб увійти. Спробуйте знову пізніше."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "Ваші паролі не збігаються. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "Ця електронна адреса недійсна. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Ця електронна адреса недійсна. Спробуйте знову."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Ви не можете використовувати електронну адресу із цього домену. "
 "Скористайтеся іншою."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -137,37 +137,39 @@ msgstr ""
 "Ця електронна адреса вже використовується у цьому обліковому записі. Введіть "
 "іншу."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Ця електронна адреса вже кимось використовується. Введіть іншу."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Це ім'я задовге. Оберіть ім'я довжиною 100 символів або менше."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "Недійсний код TOTP."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недійсна перевірка WebAuthn: Неправильний вміст"
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Недійсний код відновлення."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr "Код відновлення вже використано."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "Користувача з таким ім'ям чи електронною адресою не знайдено"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "Ця електронна адреса недійсна. Спробуйте знову."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -176,7 +178,7 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "Ви здійснили забагато невдалих спроб увійти. Спробуйте знову пізніше."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -184,7 +186,7 @@ msgstr ""
 "Ви додали забагато електронних адрес, не підтвердивши їх. Перевірте свою "
 "скриньку та перейдіть за посиланнями підтвердження. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -194,25 +196,25 @@ msgstr ""
 "Перевірте свою скриньку та перейдіть за посиланнями підтвердження. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "Двофакторний вхід недійсний або термін його дії збіг."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Уже аутентифіковано"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Перевірка WebAuthn успішна"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Код відновлення прийнято. Введений код не можна використати повторно."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -220,141 +222,141 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr ""
 "Час дії токена завершився: здійсніть запит нового посилання для скидання "
 "пароля"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Недійсний токен: не вказано токена"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Недійсний токен: не є токеном для скидання пароля"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Недійсний токен: користувача не знайдено"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Недійсний токен: користувач здійснив вхід з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Недійсний токен: пароль уже було змінено з моменту запиту цього токена"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "Ви скинули свій пароль"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Час дії токена збіг: здійсніть запит нового посилання для підтвердження "
 "електронної адреси"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "Недійсний токен: здійсніть запит нового посилання для скидання пароля"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Недійсний токен: не є токеном для підтвердження електронної адреси"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "Електронної адреси не знайдено"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "Електронну адресу підтверджено"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "Тепер ви можете встановити цю електронну адресу основною"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Це ваша основна адреса"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Електронну адресу ${email_address} підтверджено. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 msgid "Expired token: request a new organization invitation"
 msgstr ""
 "Час дії токена завершився: здійсніть запит нового запрошення у організацію"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 msgid "Invalid token: request a new organization invitation"
 msgstr "Недійсний токен: здійсніть запит нового запрошення в організацію"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 msgid "Invalid token: not an organization invitation token"
 msgstr "Недійсний токен: не є токеном запрошення до організації"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Organization invitation is not valid."
 msgstr "Запрошення в організацію недійсне."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 msgid "Organization invitation no longer exists."
 msgstr "Запрошення в організацію вже не існує."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Запрошення до '${organization_name}' відхилене."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Ви тепер ${role} проєкту '${project_name}'."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 msgid "Expired token: request a new project role invitation"
 msgstr "Устарівший токен: здійсніть запит нового запрошення на роль у проєкті"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Недійсний токен: запросіть нове запрошення на роль у проєкті"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Недійсний токен: не є токеном запрошення до співпраці"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "Запрошення на роль недійсне."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "Запрошення на роль уже не існує."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Запрошення до '${project_name}' відхилене."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Ви тепер ${role} проєкту '${project_name}'."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -366,7 +368,7 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -376,7 +378,7 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 #, fuzzy
 msgid ""
 "You must have a verified email in order to register a pending trusted "
@@ -386,7 +388,7 @@ msgstr ""
 "чекающого підключення постачальника OpenID Connect. Перейдіть на https://"
 "pypi.org/help#openid-connect для отримання більш детальної інформації."
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 #, fuzzy
 #| msgid ""
 #| "You can't register more than 3 pending OpenID Connect providers at once."
@@ -395,9 +397,9 @@ msgstr ""
 "Ви не можете зарегеструвати більш ніж 3-х чекаючих підключення поставників "
 "OpenID Connect одночасно."
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -409,13 +411,13 @@ msgstr ""
 "Ви здійснили забагато спроб зареєструватися через OpenID Connect. Спробуйте "
 "знову пізніше."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 #, fuzzy
 #| msgid ""
 #| "This OpenID Connect provider has already been registered. Please contact "
@@ -427,20 +429,20 @@ msgstr ""
 "Цей OpenID  Connect  провайдер вже зарегестрований. Будь ласка звернітся "
 "PyPl адмінам якщо це  помилка."
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 #, fuzzy
 #| msgid "Manage current providers"
 msgid "Registered a new pending publisher to create "
 msgstr "Керувати поточними провайдерами"
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Керувати версією"
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -559,42 +561,42 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Ця назва команди вже використовуєтся. Оберіть іншу назву команди."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Деталі облікового запису"
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Електронну адресу ${email_address} додано — знайдіть посилання-підтвердження "
 "у своїй електронній скриньці"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Коди відновлення вже згенеровані"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Генерування нових кодів відновлення зробить ваші існуючі коди недійсними."
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Підтвердіть свою електронну адресу або додайте нову."
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr "Недійсні облікові дані. Спробуйте знову"
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -606,7 +608,7 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -618,7 +620,7 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -630,9 +632,9 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -644,60 +646,60 @@ msgstr ""
 "Реєстрація нових користувачів тимчасово вимкнена. Ознайомтеся з деталями на "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Підтвердьте запрошення"
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "Перепублікувати випуск"
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "Перепублікувати випуск"
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Видалити публікацію"
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Запрошення на роль знайти не вдалося."
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} у проєкті"
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} у проєкті"
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Ви тепер ${role} проєкту '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -705,37 +707,37 @@ msgstr ""
 "Основна електронна адреса користувача(-ки) '${username}' непідтверджена, "
 "тому його (її) неможливо додати до проєкту в якості ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "Користувач(-ка) '${username}' уже має активне запрошення. Будь ласка, "
 "спробуйте знову згодом."
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr "Запрошення надіслано до '${username}'"
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr "Запрошення на роль знайти не вдалося."
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr "Термін дії запрошення вже сплив."
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr "Запрошення '${username}' скасовано."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Користувач(-ка) '${username}' уже має роль ${role_name} в організації"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -747,20 +749,20 @@ msgstr ""
 "Основна електронна адреса користувача(-ки) '${username}' непідтверджена, "
 "тому його (її) неможливо додати до проєкту в якості ${role_name}"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Запрошення на роль знайти не вдалося."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Запрошення в організацію вже не існує."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -773,16 +775,15 @@ msgid "Invalid project name"
 msgstr "Недійсна назва репозиторію"
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid "This project has no releases"
-msgid "This project name is already in use"
-msgstr "Цей проєкт не має публікацій"
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
+msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
@@ -2023,7 +2024,11 @@ msgid "Reset email sent"
 msgstr "Електронний лист-скидання надіслано"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+#, fuzzy
+#| msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr "Листа надіслано на вашу зареєстровану електронну адресу."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -11286,6 +11291,14 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Немає результатів для «%(term)s»"
 msgstr[1] "Немає результатів для «%(term)s»"
 msgstr[2] "Немає результатів для «%(term)s»"
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "Користувача з таким ім'ям чи електронною адресою не знайдено"
+
+#, fuzzy
+#~| msgid "This project has no releases"
+#~ msgid "This project name is already in use"
+#~ msgstr "Цей проєкт не має публікацій"
 
 #, fuzzy, python-format
 #~| msgid ""

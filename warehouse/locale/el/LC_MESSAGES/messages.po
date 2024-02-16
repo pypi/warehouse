@@ -8,13 +8,14 @@
 # Christos Ploutarchou <cploutarchou@gmail.com>, 2020, 2022.
 # Michalis <michalisntovas@yahoo.gr>, 2021, 2022.
 # Eugenia Russell <eugenia.russell2019@gmail.com>, 2021, 2022.
+# Kostantinos Vovos <kvovos@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2022-06-28 19:47+0000\n"
-"Last-Translator: Giorgos K. <kavalieratos.giwrgos@gmail.com>\n"
+"PO-Revision-Date: 2024-02-13 23:54+0000\n"
+"Last-Translator: Kostantinos Vovos <kvovos@gmail.com>\n"
 "Language-Team: Greek <https://hosted.weblate.org/projects/pypa/warehouse/el/"
 ">\n"
 "Language: el\n"
@@ -22,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.4-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -30,54 +31,59 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Θα πρέπει να επιβεβαιώσετε τον **πρωτεύοντα** λογαριασμό ηλεκτρονικού "
+"ταχυδρομείου σας πριν μπορέσετε να εκτελέσετε αυτή τη δράση."
 
 #: warehouse/views.py:158
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
 msgstr ""
+"Η αυθεντικοποίηση δύο σημείων πρέπει να είναι ενεργοποιημένη στο λογαριασμό "
+"σας για να εκτελέσετε αυτή τη δράση."
 
 # | msgid "Stay updated:"
 #: warehouse/views.py:294
 msgid "Locale updated"
-msgstr "Μείνετε ενημερωμένοι"
-
-#: warehouse/accounts/forms.py:48
-msgid "The password is invalid. Try again."
-msgstr "Ο κωδικός χρήστη δεν είναι έγκυρος. Δοκιμάστε ξανά."
+msgstr "η τοπική γλώσσα ενημερώθηκε"
 
 #: warehouse/accounts/forms.py:49
+msgid "The password is invalid. Try again."
+msgstr "Ο κωδικός δεν είναι έγκυρος. Προσπαθήστε ξανά."
+
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
 "or number. Choose a different username."
 msgstr ""
-"Το όνομα χρήστη δεν είναι έγκυρο. Τα ονόματα χρηστών πρέπει να αποτελούνται "
-"από γράμματα, αριθμούς, τελείες, παύλες και κάτω παύλες. Επίσης, πρέπει "
-"αρχίζουν και να τελειώνουν με γράμμα ή αριθμό. Διαλέξτε ένα διαφορετικό "
-"όνομα χρήστη."
+"Το όνομα χρήστη δεν είναι έγκυρο. Τα ονόματα χρήστη πρέπει να αποτελούνται "
+"από γράμματα, αριθμούς, τελείες, παύλες και κάτω παύλες. Και πρέπει επίσης "
+"να ξεκινά και να τελειώνει με ένα γράμμα ή έναν αριθμό. Επιλέξτε ένα "
+"διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "Μηδενικά byte δεν επιτρέπονται."
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
-msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα χρήστη"
+msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Ο κώδικας TOTP πρέπει να αποτελείται από ${totp_length} ψηφία."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
+"Οι Kωδικοί Aνάκτησης πρέπει να είναι ${recovery_code_length} χαρακτήρες."
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
-msgstr "Επιλέξτε ένα όνομα χρήστη μέχρι 50 χαρακτήρες."
+msgstr "Επιλέξτε ένα όνομα χρήστη έως 50 χαρακτήρες ή λιγότερους."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -85,14 +91,14 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Δύναμη κωδικού χρήστη:"
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -101,27 +107,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "Οι κωδικοί δεν ταιριάζουν. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Το email δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Δεν μπορείτε να χρησιμοποιήσετε ένα email από αυτό το domain. Δοκιμάστε με "
 "άλλο email."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -129,7 +135,7 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από αυτόν τον λογαριασμό. Χρησιμοποιήστε "
 "ένα διαφορετικό email."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -137,91 +143,80 @@ msgstr ""
 "Αυτό το email χρησιμοποιείται ήδη από άλλο λογαριασμό. Χρησιμοποιήστε ένα "
 "διαφορετικό email."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Το όνομα είναι πολύ μεγάλο. Διαλέξτε ένα όνομα με μέγιστο 100 χαρακτήρες."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "Μη έγκυρος TOTP κωδικός."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Μη έγκυρο WebAuthn assertion: Bad payload"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
-#: warehouse/accounts/forms.py:521
-#, fuzzy
-#| msgid "Recovery codes already generated"
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
-msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
+msgstr "Ο Κωδικός Ανάκτησης έχει ήδη χρησιμοποιηθεί."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
+#: warehouse/accounts/forms.py:552
+msgid "The username isn't valid. Try again."
+msgstr "Το όνομα χρήστη δεν είναι έγκυρο. Δοκιμάστε ξανά."
 
-#: warehouse/accounts/views.py:117
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
+#: warehouse/accounts/views.py:118
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
+msgstr ""
+"Υπήρξαν πάρα πολλές ανεπιτυχείς προσπάθειες σύνδεσης. Έχετε αποκλειστεί για "
+"{}. Παρακαλώ δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/views.py:134
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
-"Έχουν προστεθεί πάρα πολλά ηλεκτρονικα μηνύματα σε αυτόν τον λογαριασμό "
-"χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
-"συνδέσμους επαλήθευσης."
+"Έχουν προστεθεί πάρα πολλά μηνύματα ηλεκτρονικού ταχυδρομείου σε αυτόν τον "
+"λογαριασμό χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και "
+"ακολουθήστε τους συνδέσμους επαλήθευσης. (IP: ${ip}"
 
-#: warehouse/accounts/views.py:146
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links."
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"Έχουν προστεθεί πάρα πολλά ηλεκτρονικα μηνύματα σε αυτόν τον λογαριασμό "
-"χωρίς να τα επαληθεύσετε. Ελέγξτε τα εισερχόμενά σας και ακολουθήστε τους "
-"συνδέσμους επαλήθευσης."
+"Έχουν ζητηθεί πάρα πολλές επαναφορές κωδικού πρόσβασης για αυτόν τον "
+"λογαριασμό που δεν ολοκληρώνονται. Ελέγξτε τα εισερχόμενά σας και "
+"ακολουθήστε τους συνδέσμους επαλήθευσης. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
-msgstr "Μη έγκυρη ή ληγμένη σύνδεση two factor."
+msgstr "Μη έγκυρη ή ληγμένη σύνδεση δύο βημάτων."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Ήδη πιστοποιημένος"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Επιτυχής WebAuthn assertion"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Ο κωδικός ανάκτησης έγινε δεκτός. Ο παρεχόμενος κωδικός δεν μπορεί να "
 "χρησιμοποιηθεί ξανά."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -229,33 +224,33 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Μη έγκυρο token: δεν έγινε παροχή του token"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Μη έγκυρο token: δεν αποτελεί token επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Μη έγκυρο token: ο χρήστης δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Μη έγκυρο token: ο χρήστης συνδέθηκε από τότε που ζητήθηκε αυτό το token"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
@@ -263,116 +258,116 @@ msgstr ""
 "Μη έγκυρο token: ο κωδικός έχει ήδη αλλάξει από τότε που ζητήθηκε αυτό το "
 "token"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "Έχετε μηδενίσει τον κωδικό χρήστη σας"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr "Ληγμένο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο email επιβεβαίωσης συνδέσμου"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "Το email δεν βρέθηκε"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "Μπορείτε, πλέον, να θέσετε αυτό το email ως την κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Αυτή είναι η κύρια διεύθυνση σας"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Η διεύθυνση email ${email_address} επιβεβαιώθηκε. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Organization invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 msgid "Organization invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 msgid "Invitation for '${organization_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Λειγμένο token: ζητήστε πρόσκληση για νέο ρόλο έργου"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 #, fuzzy
 #| msgid "Invalid token: request a new password reset link"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Μη έγκυρο token: ζητήστε ένα νέο σύνδεσμο επαναφοράς κωδικού"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 #, fuzzy
 #| msgid "Invalid token: not an email verification token"
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Μη έγκυρο token: αυτό δεν αποτελεί ένα email επιβεβαίωσης token"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr ""
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr ""
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr ""
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -384,7 +379,7 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -394,19 +389,19 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -415,32 +410,32 @@ msgid ""
 "again later."
 msgstr "Έγιναν πολλές ανεπιτυχείς απόπειρες σύνδεσης. Δοκιμάστε ξανά αργότερα."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Διαχείριση αυτού του project"
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Διαχείριση έκδοσης"
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -581,41 +576,41 @@ msgstr ""
 "Αυτό το όνομα χρήστη χρησιμοποιείται ήδη από άλλον λογαριασμό. Διαλέξτε ένα "
 "διαφορετικό όνομα χρήστη."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Λεπτομέρειες λογαριασμού"
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Το email ${email_address} προστέθηκε - ελέγξτε το email σας για τον σύνδεσμο "
 "επαλήθευσης"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Οι κωδικοί ανάκτησης έχουν ήδη δημιουργηθεί"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Επιβεβαιώστε την διεύθυνση email σας ή προσθέστε μια νέα."
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr "Λάθος διαπιστευτήρια. Προσπάθησε ξανά"
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -627,7 +622,7 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -639,7 +634,7 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -651,9 +646,9 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -665,109 +660,109 @@ msgstr ""
 "Η εγγραφή του νέου χρήστη είναι προσωρινά απενεργοποιημένη. Δείτε στο "
 "https://pypi.org/help#admin-intervention για λεπτομέρειες."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Confirm the request"
 msgstr "Επιβεβαίωση φόρμας"
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "προ-έκδοση"
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "προ-έκδοση"
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Διαγραφή κυκλοφορίας"
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are not an owner of this project"
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Δεν είστε ο κάτοχος αυτού του project"
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 #, fuzzy
 #| msgid "Email already verified"
 msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -779,16 +774,15 @@ msgid "Invalid project name"
 msgstr "Μη έγκυρος κωδικός ανάκτησης."
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid "This project has no releases"
-msgid "This project name is already in use"
-msgstr "Αυτό το project δεν έχει κυκλοφορίες"
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
+msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1989,7 +1983,11 @@ msgid "Reset email sent"
 msgstr "Το email, για μηδενισμό του κωδικού χρήστη, στάλθηκε"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+#, fuzzy
+#| msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr "Ένα email έχει αποσταλεί στην καταχωρημένη διεύθυνση email σας."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -11207,6 +11205,14 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
 msgstr[1] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
+
+#, fuzzy
+#~| msgid "This project has no releases"
+#~ msgid "This project name is already in use"
+#~ msgstr "Αυτό το project δεν έχει κυκλοφορίες"
 
 #, fuzzy
 #~| msgid "Requires:"
