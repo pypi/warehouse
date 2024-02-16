@@ -126,7 +126,7 @@ clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state dev/.coverage* dev/.pytest_cache dev/.mypy_cache
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache
 	docker compose down -v
 	docker compose rm --force
 

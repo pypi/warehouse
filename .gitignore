@@ -27,6 +27,8 @@ dev/prod.sql
 dev/prod.sql.xz
 dev/.coverage*
 dev/.mypy_cache/
+dev/.pip-cache/
+dev/.pip-tools-cache/
 dev/.pytest_cache/
 ./data/
 

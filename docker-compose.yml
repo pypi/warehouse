@@ -69,6 +69,10 @@ services:
         DEVEL: "yes"
         IPYTHON: "no"
     image: warehouse:docker-compose
+    environment:
+      # Runs as `nobody`, override the home directory
+      - PIP_CACHE_DIR=/opt/warehouse/src/dev/.pip-cache
+      - PIP_TOOLS_CACHE_DIR=/opt/warehouse/src/dev/.pip-tools-cache
     volumes: &base_volumes
       # We specify paths explicitly to only add what we need, and to avoid
       # adding the entire repository.
@@ -87,7 +91,6 @@ services:
       - simple:/var/opt/warehouse/simple
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
-      - caches:/root/.cache
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
