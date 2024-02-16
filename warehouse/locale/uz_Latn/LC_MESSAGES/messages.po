@@ -37,11 +37,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Mahalliy til yangilandi"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "Parolingiz ma'qullanmadi. Qaytadan urinib ko'ring."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -52,27 +52,27 @@ msgstr ""
 "albatta, harf yoki raqam bilan yakunlangan bo'lishi kerak. Boshqa "
 "foydalanuvchi ismini tanlang."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "Foydalanuvchi ismi topilmadi"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP kodi ${totp_length} shaklida bo'lishi kerak."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -80,14 +80,14 @@ msgstr ""
 "Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
 "Boshqa foydalanuvchi ismini tanlab ko'ring."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Kalit so'z mustahkamligi:"
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -98,27 +98,27 @@ msgstr ""
 "Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
 "ko'ring."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "Parolingiz mosh tushmadi. Qaytadan urinib ko'ring."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Bu domendagi email manzillardan foydalana olmaysiz. Boshqa emaildan "
 "foydalaning."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -126,7 +126,7 @@ msgstr ""
 "Bu email manzil boshqa foydalanuvchi tomonidan ishlatilmoqda. Boshqa "
 "emaildan foydalaning."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -134,33 +134,35 @@ msgstr ""
 "Bu email manzili boshqa foydalanuvchi tomonidan sihlatilmoqda. Yangi "
 "manzildan foydalaning."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 "Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
 "miqdordagi ism tanlang."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "TOTP kodi not`g`ri"
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Qayta tiklash kodi yaroqsiz."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "Bu foydalanuvchi nomi elektron pochtasi bilan hech kim topilmadi"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -171,7 +173,7 @@ msgstr ""
 "Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
 "ko'ring."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -179,7 +181,7 @@ msgstr ""
 "Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
 "Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 #, fuzzy
 #| msgid ""
 #| "Too many emails have been added to this account without verifying them. "
@@ -192,27 +194,27 @@ msgstr ""
 "Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
 "Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "Noto'g'ri yoki muddati ikki faktorli kirish."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Allaqachon tasdiqlangan"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Muvaffaqiyatli WebAuthn tasdiqlash"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Qayta tiklash kodi qabul qilindi. Taqdim etilgan kodni qayta ishlatib "
 "bo'lmaydi."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -220,155 +222,155 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "Muddati o' tgan token: parolni qayta tiklash havolasini so'rang"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Noto'g'ri belgi: yangi parolni tiklash havolasini so'rang"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Noto'g'ri token: hech qanday token berilmagan"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Noto'g'ri belgi: parolni tiklash belgisi emas"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Xato token: foydalanuvchi mavjud emas"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr ""
 "Noto'g'ri token: foydalanuvchi bu token so'ralganidan beri tizimga kirgan"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Yaroqsiz token: token so'ralgandan beri parol allaqachon o'zgartirilgan"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "siz parolingizni qayta tiklagansiz"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr ""
 "Muddati tugagan token: elektron pochtani tasdiqlash uchun yangi havolani "
 "so'rang"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr ""
 "Noto'g'ri belgi: elektron pochtani tasdiqlash uchun yangi havolani so'rang"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Noto'g'ri token: elektron pochta tasdiqlash belgisi emas"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "Email topilmadi"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "E -pochta manzili allaqachon tasdiqlangan"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Endi siz ushbu elektron pochtani asosiy manzil sifatida belgilashingiz mumkin"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Bu sizning asosiy manzilingiz"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Email adress ${email_address} tasdiqlangan. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Muddati o'tgan token: yangi loyiha rolini taklif qilishni so'rang"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Noto'g'ri belgi: yangi loyiha rolini taklif qilishni so'rang"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Rol taklifi haqiqiy emas."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Rol taklifnomasi endi yo'q."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "\"$ {Project_name}\" taklifi rad etildi."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Muddati o'tgan token: yangi loyiha rolini taklif qilishni so'rang"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Noto'g'ri belgi: yangi loyiha rolini taklif qilishni so'rang"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "Rol taklifi haqiqiy emas."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "Rol taklifnomasi endi yo'q."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "\"$ {Project_name}\" taklifi rad etildi."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -380,7 +382,7 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -390,19 +392,19 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -413,28 +415,28 @@ msgstr ""
 "Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
 "ko'ring."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -578,37 +580,37 @@ msgstr ""
 "Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
 "Boshqa foydalanuvchi ismini tanlab ko'ring."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "$ {Email_address} elektron pochtasi qo'shildi - elektron pochta manzilini "
 "tekshirish havolasini tekshiring"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Qayta tiklash kodlari allaqachon yaratilgan"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Yangi qutqaruv kodlarini yaratish mavjud kodlarni bekor qiladi."
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr "Hisob ma'lumotlari noto'g'ri. Qayta urinib ko'ring"
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -620,7 +622,7 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -632,7 +634,7 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -644,9 +646,9 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -658,36 +660,36 @@ msgstr ""
 "Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
 "uchun https://pypi.org/help#admin-intervention ga qarang."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Rol taklifnomasi topilmadi."
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
@@ -695,19 +697,19 @@ msgstr ""
 "\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
 "roliga ega"
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
 "roliga ega"
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -715,33 +717,33 @@ msgstr ""
 "\"$ {Username}\" foydalanuvchisi tasdiqlangan asosiy elektron pochta "
 "manziliga ega emas va uni loyihaga $ {role_name} sifatida qo'shib bo'lmaydi"
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "\"$ {Username}\" foydalanuvchisida allaqachon faol taklif mavjud. Iltimos "
 "keyinroq qayta urinib ko'ring."
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr "\"$ {Username}\" ga taklifnoma yuborildi"
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr "Rol taklifnomasi topilmadi."
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr "Taklif muddati tugagan."
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr "\"$ {Username}\" dan taklifnoma bekor qilindi."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "User '${username}' already has ${role_name} role for organization"
@@ -749,7 +751,7 @@ msgstr ""
 "\"$ {Username}\" foydalanuvchisi allaqachon loyiha uchun $ {role_name} "
 "roliga ega"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 #, fuzzy
 #| msgid ""
 #| "User '${username}' does not have a verified primary email address and "
@@ -761,20 +763,20 @@ msgstr ""
 "\"$ {Username}\" foydalanuvchisi tasdiqlangan asosiy elektron pochta "
 "manziliga ega emas va uni loyihaga $ {role_name} sifatida qo'shib bo'lmaydi"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find organization invitation."
 msgstr "Rol taklifnomasi topilmadi."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Rol taklifnomasi endi yo'q."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -787,20 +789,15 @@ msgid "Invalid project name"
 msgstr "Qayta tiklash kodi yaroqsiz."
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
-msgid "This project name is already in use"
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
 msgstr ""
 
@@ -1927,7 +1924,9 @@ msgid "Reset email sent"
 msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr ""
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -9136,6 +9135,18 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "Bu foydalanuvchi nomi elektron pochtasi bilan hech kim topilmadi"
+
+#, fuzzy
+#~| msgid ""
+#~| "This username is already being used by another account. Choose a "
+#~| "different username."
+#~ msgid "This project name is already in use"
+#~ msgstr ""
+#~ "Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
+#~ "Boshqa foydalanuvchi ismini tanlab ko'ring."
 
 #, fuzzy, python-format
 #~| msgid "Invitation for '${project_name}' is declined."

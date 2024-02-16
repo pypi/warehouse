@@ -46,11 +46,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Regio aangepast"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "Het wachtwoord is niet correct. Probeer het nogmaals."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -61,38 +61,38 @@ msgstr ""
 "beginnen en eindigen met een letter of cijfer. Kies een andere "
 "gebruikersnaam."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr "Null bytes zijn niet toegestaan."
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "Geen gebruiker met deze gebruikersnaam gevonden"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "De TOTP-code moet ${totp_length} cijfers lang zijn."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Herstelcodes moeten ${recovery_code_length} karakters bevatten."
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "Kies een gebruikersnaam met 50 tekens of minder."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "Deze gebruikersnaam is al in gebruik. Kies een andere gebruikersnaam."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 msgid "Password too long."
 msgstr "Wachtwoord te lang."
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -100,32 +100,32 @@ msgstr ""
 "Er zijn te veel login-pogingen gedaan. Je kan gedurende${time} niet "
 "inloggen. Probeer het later nog eens."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "De wachtwoorden komen niet overeen. Probeer het nogeens."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 msgid "The email address is too long. Try again."
 msgstr "Het e-mailadres is te lang. Probeer het nog eens."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Het e-mailadres is niet geldig. Probeer het nogeens."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Het is niet mogelijk e-mailadressen van dit domein te gebruiken. Gebruik een "
 "ander adres."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr ""
 "Dit e-mailadres is al in gebruik door dit account. Gebruik een ander adres."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -133,31 +133,33 @@ msgstr ""
 "Dit e-mailadres is al in gebruik door een ander account. Gebruik een ander "
 "adres."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "De naam is te lang. Gebruik een naam met 100 tekens of minder."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "Ongeldige TOTP-code."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ongeldige WebAuthn-assertion: slechte payload"
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Ongeldige herstelcode."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr "Herstelcode is al eerder gebruikt."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "Geen gebruiker gevonden met die gebruikersnaam of e-mailadres"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "Het e-mailadres is niet geldig. Probeer het nogeens."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -165,7 +167,7 @@ msgstr ""
 "Er zijn te veel login-pogingen gedaan. Je kan gedurende${time} niet "
 "inloggen. Probeer het later nog eens."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -173,7 +175,7 @@ msgstr ""
 "Te veel e-mailadressen zijn aan dit account toegevoegd zonder ze te "
 "verifiëren. Controleer uw inbox en volg de verificatielinks. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -182,26 +184,26 @@ msgstr ""
 "Er zijn te veel wachtwoordresets aangevraagd voor dit account zonder dat ze "
 "voltooid zijn. Controleer uw inbox en volg de verificatielinks. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "Ongeldige of verlopen two-factor login."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Reeds geauthenticeerd"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Succesvolle WebAuthn-assertion"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Herstelcode geaccepteerd. De gegeven code kan niet opnieuw gebruikt worden."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -209,132 +211,132 @@ msgstr ""
 "Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://pypi."
 "org/help#admin-intervention voor meer details."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "Verlopen token: dien een nieuw wachtwoordresetverzoek in"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Ongeldig token: dien een nieuw wachtwoordresetverzoek in"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Ongeldig token: geen token doorgegeven"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Ongeldig token: geen correct wachtwoordresettoken"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Ongeldig token: gebruiker niet gevonden"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Ongeldig token: gebruiker heeft in de tussentijd ingelogd"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Ongeldig token: wachtwoord is al gereset sinds het token is uitgegeven"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "Het wachtwoord is gereset"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr "Verlopen token: dien een nieuw e-mailverificatieverzoek in"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "Ongeldig token: dien een nieuw e-mailverificatieverzoek in"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Ongeldig token: geen correct e-mailverificatietoken"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "E-mailadres niet gevonden"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "E-mailadres al geverifieerd"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "E-mailadres kan nu als primair adres ingesteld worden"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Dit is het primaire adres"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailadres ${email_address} geverifieerd. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 msgid "Expired token: request a new organization invitation"
 msgstr "Verlopen token: vraag een nieuwe organisatie-uitnodiging aan"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 msgid "Invalid token: request a new organization invitation"
 msgstr "Ongeldige token: vraag een nieuwe organisatie-uitnodiging aan"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 msgid "Invalid token: not an organization invitation token"
 msgstr "Ongeldig token: geen organisatie-uitnodigingstoken"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Organization invitation is not valid."
 msgstr "Uitnodiging van de organisatie is niet geldig."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 msgid "Organization invitation no longer exists."
 msgstr "Organisatie-uitnodiging bestaat niet meer."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Uitnodiging voor '${organization_name}' is geweigerd."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "U bent nu ${role} van de '${organization_name}' organisatie."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 msgid "Expired token: request a new project role invitation"
 msgstr ""
 "Verlopen token: dien een nieuw verzoek in voor een projectroluitnodiging"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 msgid "Invalid token: request a new project role invitation"
 msgstr "Ongeldig token: dien een nieuwe uitnodiging voor een projectrol in"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ongeldig token: geen samenwerkingsuitnodigingstoken"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "Rol uitnodiging is niet valide."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "Rol uitnodiging bestaat niet langer."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Uitnodiging voor '${project_name}' is geweigerd."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "U bent nu ${role} van het '${project_name}' project."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -342,7 +344,7 @@ msgstr ""
 "Vertrouwd publiceren is tijdelijk stopgezet. Zie https://pypi.org/help#admin-"
 "intervention voor meer details."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -352,7 +354,7 @@ msgstr ""
 "Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://pypi."
 "org/help#admin-intervention voor meer details."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -361,15 +363,15 @@ msgstr ""
 "vertrouwde uitgever te registreren. Zie https://pypi.org/help#openid-connect "
 "voor meer informatie."
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "U kunt niet meer dan 3 in behandeling zijnde vertrouwde uitgevers tegelijk "
 "registreren."
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -377,14 +379,14 @@ msgstr ""
 "Er zijn te veel vertrouwde uitgever registratiepogingen gedaan. Probeer het "
 "later nog eens."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 #, fuzzy
 msgid "The trusted publisher could not be registered"
 msgstr "The trusted publisher could not be registered"
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -392,18 +394,18 @@ msgstr ""
 "Deze vertrouwde uitgever is al eerder geregistreed. Neem kontakt op met de "
 "PyPI's admins als dit niet de bedoeling was."
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 #, fuzzy
 #| msgid "Create an account"
 msgid "Invalid publisher ID"
 msgstr "Account aanmaken"
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr "De vertrouwde uitgever voor het project is verwijderd. "
 
@@ -516,39 +518,39 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Deze projectnaam is al in gebruik. Kies een andere projectnaam."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Account details"
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailadres ${email_address} toegevoegd -- e-mailverificatielink is onderweg"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Herstelcodes zijn al gegenereerd"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Als u nieuwe herstelcodes genereert, worden uw bestaande codes ongeldig."
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 msgid "Verify your email to create an API token."
 msgstr "Verifieer uw e-mail om een API-token te maken."
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr "Dit API token bestaat niet."
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr "Ongeldige inloggegevens. Probeer het opnieuw"
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -556,7 +558,7 @@ msgstr ""
 "Vertrouwd publiceren op basis van GitHub is tijdelijk stopgezet. Zie https://"
 "pypi.org/help#admin-intervention voor meer details."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -568,7 +570,7 @@ msgstr ""
 "Vertrouwd publiceren op basis van GitHub is tijdelijk stopgezet. Zie https://"
 "pypi.org/help#admin-intervention voor meer details."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -580,9 +582,9 @@ msgstr ""
 "Vertrouwd publiceren op basis van GitHub is tijdelijk stopgezet. Zie https://"
 "pypi.org/help#admin-intervention voor meer details."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -594,54 +596,54 @@ msgstr ""
 "Registratie van nieuwe gebruikers is tijdelijk stopgezet. Zie https://pypi."
 "org/help#admin-intervention voor meer details."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Uitnodiging accepteren"
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 msgid "Could not yank release - "
 msgstr "Kon release niet intrekken - "
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 msgid "Could not un-yank release - "
 msgstr "Kon het intekken van de release niet ongedaan maken - "
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 msgid "Could not delete release - "
 msgstr "Kon de release niet verwijderen - "
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Kan roluitnodiging niet vinden."
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr "Kon dit bestand niet verwijderen - "
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor project"
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor project"
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "U bent nu ${role} van het '${project_name}' project."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -649,37 +651,37 @@ msgstr ""
 "Gebruiker '${gebruikersnaam}' heeft geen geverifieerd primair e-mailadres en "
 "kan niet worden toegevoegd als een ${role_name} voor project"
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "Gebruiker '${username}' heeft al een actieve uitnodiging. Probeer het later "
 "nog eens."
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr "Uitnodiging verzonden naar '${gebruikersnaam}'"
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr "Kan roluitnodiging niet vinden."
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr "Uitnodiging is al verlopen."
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr "Uitnodiging van '${gebruikersnaam}' is ingetrokken."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Gebruiker '${username}' heeft al de ${role_name} rol voor organisatie"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -687,18 +689,18 @@ msgstr ""
 "Gebruiker '${gebruikersnaam}' heeft geen geverifieerd primair e-mailadres en "
 "kan niet worden toegevoegd als een ${role_name} voor organisatie"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 msgid "Could not find organization invitation."
 msgstr "Kan de uitnodiging van de organisatie niet vinden."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "Organisatie-uitnodiging bestaat niet meer."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -711,17 +713,15 @@ msgid "Invalid project name"
 msgstr "Ongeldige repositorynaam."
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid ""
-#| "This project name has already been used. Choose a different project name."
-msgid "This project name is already in use"
-msgstr "Deze projectnaam is al in gebruik. Kies een andere projectnaam."
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
+msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr "Geef een uitgevers-ID op"
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
@@ -1902,7 +1902,11 @@ msgid "Reset email sent"
 msgstr "Wachtwoordresete-mail verstuurd"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+#, fuzzy
+#| msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr "Er is een e-mail naar uw bij ons geregistreerde e-mailadres verstuurd."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -9815,6 +9819,15 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "Geen gebruiker gevonden met die gebruikersnaam of e-mailadres"
+
+#, fuzzy
+#~| msgid ""
+#~| "This project name has already been used. Choose a different project name."
+#~ msgid "This project name is already in use"
+#~ msgstr "Deze projectnaam is al in gebruik. Kies een andere projectnaam."
 
 #, fuzzy, python-format
 #~| msgid ""
