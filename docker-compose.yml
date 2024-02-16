@@ -88,8 +88,6 @@ services:
       - ./bin:/opt/warehouse/src/bin:z
       - ./requirements:/opt/warehouse/src/requirements:z
       - caches:/root/.cache
-      - caches:/opt/warehouse/src/.mypy_cache
-      - caches:/opt/warehouse/src/.pytest_cache
       # Included to support linters during development
       - ./gunicorn-prod.conf.py:/opt/warehouse/src/gunicorn-prod.conf.py:z
       - ./gunicorn-uploads.conf.py:/opt/warehouse/src/gunicorn-uploads.conf.py:z
