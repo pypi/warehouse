@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import re
 
 from email.errors import HeaderParseError
 from email.headerregistry import Address
@@ -524,21 +525,32 @@ class RecoveryCodeAuthenticationForm(
 
 class RequestPasswordResetForm(forms.Form):
     username_or_email = wtforms.StringField(
-        validators=[wtforms.validators.InputRequired()]
+        validators=[
+            wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
+        ]
     )
 
-    def __init__(self, *args, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
-
     def validate_username_or_email(self, field):
-        username_or_email = self.user_service.get_user_by_username(field.data)
-        if username_or_email is None:
-            username_or_email = self.user_service.get_user_by_email(field.data)
-        if username_or_email is None:
-            raise wtforms.validators.ValidationError(
-                _("No user found with that username or email")
-            )
+        """
+        Check if the input is structurally correct, i.e. either a string or email.
+        Further validation happens in the View.
+        """
+        if "@" in field.data:
+            # Additional checks for the validity of the address
+            try:
+                Address(addr_spec=field.data)
+            except (ValueError, HeaderParseError):
+                raise wtforms.validators.ValidationError(
+                    message=INVALID_PASSWORD_MESSAGE
+                )
+        else:
+            # the regexp below must match the CheckConstraint
+            # for the username field in accounts.models.User
+            if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
+                raise wtforms.validators.ValidationError(
+                    message=_("The username isn't valid. Try again.")
+                )
 
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):

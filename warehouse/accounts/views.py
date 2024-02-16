@@ -61,6 +61,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
@@ -723,12 +724,18 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
 
-        email = None
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
+        if user is not None:
             email = first(
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
+        else:
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            # We could not find the user by username nor email.
+            # Return a response as if we did, to avoid leaking registered emails.
+            return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
             raise TooManyPasswordResetRequests(
@@ -886,7 +893,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 @view_config(
     route_name="accounts.verify-email",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyEmail,
     has_translations=True,
 )
 def verify_email(request):
@@ -990,7 +997,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     renderer="accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyOrgRole,
     has_translations=True,
 )
 def verify_organization_role(request):
@@ -1160,7 +1167,7 @@ def verify_organization_role(request):
     renderer="accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyProjectRole,
     has_translations=True,
 )
 def verify_project_role(request):
@@ -1462,7 +1469,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManagePublishing,
     has_translations=True,
     require_reauth=True,
 )

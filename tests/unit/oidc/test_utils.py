@@ -113,7 +113,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
 
 
 @pytest.mark.parametrize(
-    "expected_id, sub, organization, project, actor_id, actor",
+    "expected_id, sub, organization, project, actor_id, actor, ingredient_name",
     [
         (
             uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
@@ -122,6 +122,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
             "fakeproject1",
             "00000000-1000-8000-0000-000000000003",
             "fakeuser1",
+            "fakeingredient1",
         ),
         (
             uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
@@ -130,6 +131,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
             "fakeproject2",
             "00000000-1000-8000-0000-000000000006",
             "fakeuser2",
+            "fakeingredient2",
         ),
         (
             uuid.UUID("cccccccc-cccc-cccc-cccc-cccccccccccc"),
@@ -138,6 +140,7 @@ def test_find_publisher_by_issuer_google(db_request, sub, expected_id):
             "fakeproject3",
             "00000000-1000-8000-0000-000000000009",
             "fakeuser3",
+            "fakeingredient3",
         ),
     ],
 )
@@ -149,6 +152,7 @@ def test_find_publisher_by_issuer_activestate(
     project: str,
     actor_id: str,
     actor: str,
+    ingredient_name: str,
 ):
     ActiveStatePublisherFactory(
         id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -156,6 +160,7 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject1",
         actor_id="00000000-1000-8000-0000-000000000003",
         actor="fakeuser1",
+        ingredient="fakeingredient1",
     )
     ActiveStatePublisherFactory(
         id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -163,6 +168,7 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject2",
         actor_id="00000000-1000-8000-0000-000000000006",
         actor="fakeuser2",
+        ingredient="fakeingredient2",
     )
     ActiveStatePublisherFactory(
         id="cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -170,6 +176,7 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject3",
         actor_id="00000000-1000-8000-0000-000000000009",
         actor="fakeuser3",
+        ingredient="fakeingredient3",
     )
 
     signed_claims = {
@@ -178,6 +185,7 @@ def test_find_publisher_by_issuer_activestate(
         "project": project,
         "actor_id": actor_id,
         "actor": actor,
+        "ingredient_name": ingredient_name,
     }
 
     assert (

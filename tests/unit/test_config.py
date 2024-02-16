@@ -252,6 +252,7 @@ def test_configure(monkeypatch, settings, environment):
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
+        "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
     }
     if environment == config.Environment.development:
@@ -528,5 +529,19 @@ def test_root_factory_access_control_list():
                 Permissions.APIObservationsAdd,
             ),
         ),
-        (Allow, Authenticated, "manage:user"),
+        (
+            Allow,
+            Authenticated,
+            (
+                Permissions.Account2FA,
+                Permissions.AccountAPITokens,
+                Permissions.AccountManage,
+                Permissions.AccountManagePublishing,
+                Permissions.AccountVerifyEmail,
+                Permissions.AccountVerifyOrgRole,
+                Permissions.AccountVerifyProjectRole,
+                Permissions.OrganizationsManage,
+                Permissions.ProjectsView,
+            ),
+        ),
     ]

@@ -366,7 +366,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(
-                Release.version, Release.created, Release.is_prerelease, Release.yanked
+                Release.version,
+                Release.created,
+                Release.is_prerelease,
+                Release.yanked,
+                Release.yanked_reason,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
@@ -714,6 +718,10 @@ class File(HasEvents, db.Model):
     )
     archived: Mapped[bool_false] = mapped_column(
         comment="If True, the object has been archived to our archival bucket.",
+    )
+    metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
+        nullable=True,
+        comment="If True, the metadata for the file cannot be backfilled.",
     )
 
     @property

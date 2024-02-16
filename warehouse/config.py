@@ -135,7 +135,21 @@ class RootFactory:
                 Permissions.APIObservationsAdd,
             ),
         ),
-        (Allow, Authenticated, "manage:user"),
+        (
+            Allow,
+            Authenticated,
+            (
+                Permissions.Account2FA,
+                Permissions.AccountAPITokens,
+                Permissions.AccountManage,
+                Permissions.AccountManagePublishing,
+                Permissions.AccountVerifyEmail,
+                Permissions.AccountVerifyOrgRole,
+                Permissions.AccountVerifyProjectRole,
+                Permissions.OrganizationsManage,
+                Permissions.ProjectsView,
+            ),
+        ),
     ]
 
     def __init__(self, request):
@@ -325,6 +339,13 @@ def configure(settings=None):
         "RECONCILE_FILE_STORAGES_BATCH_SIZE",
         coercer=int,
         default=100,
+    )
+    maybe_set(
+        settings,
+        "metadata_backfill.batch_size",
+        "METADATA_BACKFILL_BATCH_SIZE",
+        coercer=int,
+        default=500,
     )
     maybe_set_compound(settings, "billing", "backend", "BILLING_BACKEND")
     maybe_set_compound(settings, "files", "backend", "FILES_BACKEND")
