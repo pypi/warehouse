@@ -80,3 +80,19 @@ class Permissions(StrEnum):
     # API Permissions
     APIEcho = "api:echo"
     APIObservationsAdd = "api:observations:add"
+
+    # User Permissions
+    Account2FA = "account:2fa"
+    AccountAPITokens = "account:api-tokens"
+    AccountManage = "account:manage"
+    AccountManagePublishing = "account:manage-publishing"
+    AccountVerifyEmail = "account:verify-email"
+    AccountVerifyOrgRole = "account:verify-org-role"
+    AccountVerifyProjectRole = "account:verify-project-role"
+
+    # Projects Permissions
+    ProjectsRead = "projects:read"
+    ProjectsWrite = "projects:write"  # TODO: Worth splitting out ProjectDelete?
+
+    # Organization Permissions
+    OrganizationsManage = "organizations:manage"

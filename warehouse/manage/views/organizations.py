@@ -24,6 +24,7 @@ from webob.multidict import MultiDict
 
 from warehouse.accounts.interfaces import ITokenService, IUserService, TokenExpired
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.email import (
     send_admin_organization_deleted_email,
     send_admin_organization_renamed_email,
@@ -127,7 +128,7 @@ def organization_members(request, organization):
     require_active_organization=False,  # Allow list/create orgs without active org.
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 class ManageOrganizationsViews:
@@ -1352,7 +1353,7 @@ def manage_organization_history(organization, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1446,7 +1447,7 @@ def remove_organization_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )

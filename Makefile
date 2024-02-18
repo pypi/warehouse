@@ -61,7 +61,7 @@ debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
 tests: .state/docker-build-base
-	docker compose run --rm web bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm tests bin/tests $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
@@ -126,7 +126,7 @@ clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache
 	docker compose down -v
 	docker compose rm --force
 

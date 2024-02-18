@@ -327,7 +327,17 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             if permission_name == "Administer":
-                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsWrite,
+                            "upload",
+                        ],
+                    )
+                )
             else:
                 acls.append((Allow, f"user:{user_id}", ["upload"]))
         return acls

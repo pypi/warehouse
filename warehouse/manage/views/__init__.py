@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -142,7 +143,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -467,7 +468,7 @@ class ManageAccountViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     has_translations=True,
     require_reauth=True,
 )
@@ -481,7 +482,7 @@ def manage_two_factor(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -631,7 +632,7 @@ class ProvisionTOTPViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -758,7 +759,7 @@ class ProvisionWebAuthnViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -843,7 +844,7 @@ class ProvisionRecoveryCodesViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountAPITokens,
     renderer="manage/account/token.html",
     route_name="manage.account.token",
     has_translations=True,
@@ -1032,7 +1033,7 @@ class ProvisionMacaroonViews:
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_projects(request):
@@ -1075,7 +1076,7 @@ def manage_projects(request):
     context=Project,
     renderer="manage/project/settings.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
     require_reauth=True,
     require_methods=False,
@@ -1130,7 +1131,7 @@ class ManageProjectSettingsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
     http_cache=0,
@@ -1667,7 +1668,7 @@ def get_user_role_in_organization_project(project, user, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1714,7 +1715,7 @@ def delete_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1734,7 +1735,7 @@ def destroy_project_docs(project, request):
     context=Project,
     renderer="manage/project/releases.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
     require_reauth=True,
 )
@@ -1778,7 +1779,7 @@ def manage_project_releases(project, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2174,7 +2175,7 @@ class ManageProjectRelease:
     renderer="manage/project/roles.html",
     uses_session=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2558,7 +2559,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
 )
 def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
@@ -2635,7 +2636,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2718,7 +2719,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2789,7 +2790,7 @@ def delete_project_role(project, request):
     context=Project,
     renderer="manage/project/history.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_project_history(project, request):
@@ -2838,7 +2839,7 @@ def manage_project_history(project, request):
     context=Project,
     renderer="manage/project/documentation.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_project_documentation(project, request):

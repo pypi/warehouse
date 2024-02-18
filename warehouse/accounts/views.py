@@ -61,6 +61,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
@@ -225,8 +226,6 @@ def accounts_search(request) -> dict[str, list[User]]:
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
-    # TODO: Configure the login view as the default view for not having
-    #       permission to view something.
     if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
@@ -892,7 +891,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 @view_config(
     route_name="accounts.verify-email",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyEmail,
     has_translations=True,
 )
 def verify_email(request):
@@ -996,7 +995,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     renderer="accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyOrgRole,
     has_translations=True,
 )
 def verify_organization_role(request):
@@ -1166,7 +1165,7 @@ def verify_organization_role(request):
     renderer="accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyProjectRole,
     has_translations=True,
 )
 def verify_project_role(request):
@@ -1468,7 +1467,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManagePublishing,
     has_translations=True,
     require_reauth=True,
 )

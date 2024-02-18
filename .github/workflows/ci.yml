@@ -47,7 +47,7 @@ jobs:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host localhost
+            command: bin/tests
           - name: Lint
             command: bin/lint
           - name: User Documentation
@@ -62,14 +62,6 @@ jobs:
             command: bin/translations
     runs-on: ubuntu-latest
     services:
-      postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.4' || '' }}
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
-        # Set health checks to wait until postgres has started
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
       stripe:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
@@ -92,7 +84,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-              .mypy_cache
+              dev/.mypy_cache
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Restore built Python environment from deps
         uses: actions/cache/restore@v4
