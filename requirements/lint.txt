@@ -317,9 +317,9 @@ pygments==2.17.2 \
     --hash=sha256:b27c2826c47d0f3219f29554824c30c5e8945175d888647acd804ddd04af846c \
     --hash=sha256:da46cec9fd2de5be3a8a784f434e4c4ab670b4ff54d605c4c2717e9d49c4c367
     # via doc8
-pyupgrade==3.15.0 \
-    --hash=sha256:8dc8ebfaed43566e2c65994162795017c7db11f531558a74bc8aa077907bc305 \
-    --hash=sha256:a7fde381060d7c224f55aef7a30fae5ac93bbc428367d27e70a603bc2acd4f00
+pyupgrade==3.15.1 \
+    --hash=sha256:7690857cae0f6253f39241dcd2e57118c333c438b78609fc3c17a5aa61227b7d \
+    --hash=sha256:c5e005de2805edcd333d1deb04553200ec69da85e4bc9db37b16345ed9e27ed9
     # via -r requirements/lint.in
 restructuredtext-lint==1.4.0 \
     --hash=sha256:1b235c0c922341ab6c530390892eb9e92f90b9b75046063e047cacfb0f050c45
