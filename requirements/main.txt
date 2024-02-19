@@ -508,9 +508,9 @@ github-reserved-names==2023.9.1 \
     --hash=sha256:16bb1a8ff505dd082c7167670b4115b31c00b8ffa77e0c1b7676807117c0169a \
     --hash=sha256:707551fd0521a74274c5d3e73810a10b3e72762e3c69a12e0d96f87ce64c845f
     # via -r requirements/main.in
-google-api-core==2.16.2 \
-    --hash=sha256:032d37b45d1d6bdaf68fb11ff621e2593263a239fa9246e2e94325f9c47876d2 \
-    --hash=sha256:449ca0e3f14c179b4165b664256066c7861610f70b6ffe54bb01a04e9b466929
+google-api-core==2.17.1 \
+    --hash=sha256:610c5b90092c360736baccf17bd3efbcb30dd380e7a6dc28a71059edb8bd0d8e \
+    --hash=sha256:9df18a1f87ee0df0bc4eea2770ebc4228392d8cc4066655b320e2cfccb15db95
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
