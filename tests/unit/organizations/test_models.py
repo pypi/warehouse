@@ -135,7 +135,7 @@ class TestOrganization:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                         "add:project",
                         "remove:project",
                     ],
@@ -148,7 +148,7 @@ class TestOrganization:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                         "add:project",
                         "remove:project",
                     ],
@@ -163,7 +163,7 @@ class TestOrganization:
                     [
                         Permissions.OrganizationsRead,
                         Permissions.OrganizationTeamsRead,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                     ],
                 ),
                 (
@@ -172,7 +172,7 @@ class TestOrganization:
                     [
                         Permissions.OrganizationsRead,
                         Permissions.OrganizationTeamsRead,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                     ],
                 ),
             ],
@@ -352,7 +352,7 @@ class TestTeam:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                         "add:project",
                         "remove:project",
                     ],
@@ -365,7 +365,7 @@ class TestTeam:
                         Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         Permissions.OrganizationTeamsManage,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                         "add:project",
                         "remove:project",
                     ],
@@ -380,7 +380,7 @@ class TestTeam:
                     [
                         Permissions.OrganizationsRead,
                         Permissions.OrganizationTeamsRead,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                     ],
                 ),
                 (
@@ -389,7 +389,7 @@ class TestTeam:
                     [
                         Permissions.OrganizationsRead,
                         Permissions.OrganizationTeamsRead,
-                        "manage:billing",
+                        Permissions.OrganizationsBillingManage,
                     ],
                 ),
             ],

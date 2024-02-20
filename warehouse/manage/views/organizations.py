@@ -459,7 +459,7 @@ class ManageOrganizationSettingsViews:
     require_active_organization=False,  # Allow reactivate billing for inactive org.
     require_csrf=True,
     require_methods=False,
-    permission="manage:billing",
+    permission=Permissions.OrganizationsBillingManage,
     has_translations=True,
     require_reauth=True,
 )

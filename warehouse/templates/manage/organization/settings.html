@@ -186,7 +186,7 @@
     </form>
   </section>
 
-  {% if request.has_permission("manage:billing") and organization.orgtype == OrganizationType.Company %}
+  {% if request.has_permission(Permissions.OrganizationsBillingManage) and organization.orgtype == OrganizationType.Company %}
   <hr>
 
   <section id="billing-details">
