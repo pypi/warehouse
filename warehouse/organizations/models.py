@@ -365,7 +365,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             # Allow write access depending on role.
             if role.role_name == OrganizationRoleType.Owner:
                 # Allowed:
-                # - View organization ("view:organization")
+                # - View organization (Permissions.OrganizationsRead)
                 # - View team ("view:team")
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
                 # - Create/delete team and add/remove team member ("manage:team")
@@ -379,7 +379,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         Allow,
                         f"user:{role.user.id}",
                         [
-                            "view:organization",
+                            Permissions.OrganizationsRead,
                             "view:team",
                             Permissions.OrganizationsManage,
                             "manage:team",
@@ -391,7 +391,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 )
             elif role.role_name == OrganizationRoleType.BillingManager:
                 # Allowed:
-                # - View organization ("view:organization")
+                # - View organization (Permissions.OrganizationsRead)
                 # - View team ("view:team")
                 # - Manage billing ("manage:billing")
                 # Disallowed:
@@ -403,12 +403,12 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        ["view:organization", "view:team", "manage:billing"],
+                        [Permissions.OrganizationsRead, "view:team", "manage:billing"],
                     )
                 )
             elif role.role_name == OrganizationRoleType.Manager:
                 # Allowed:
-                # - View organization ("view:organization")
+                # - View organization (Permissions.OrganizationsRead)
                 # - View team ("view:team")
                 # - Create/delete team and add/remove team member ("manage:team")
                 # - Add project ("add:project")
@@ -421,7 +421,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         Allow,
                         f"user:{role.user.id}",
                         [
-                            "view:organization",
+                            Permissions.OrganizationsRead,
                             "view:team",
                             "manage:team",
                             "add:project",
@@ -432,7 +432,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # No member-specific write access needed for now.
 
                 # Allowed:
-                # - View organization ("view:organization")
+                # - View organization (Permissions.OrganizationsRead)
                 # - View team ("view:team")
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
@@ -441,7 +441,11 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Add project ("add:project")
                 # - Remove project ("remove:project")
                 acls.append(
-                    (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
+                    (
+                        Allow,
+                        f"user:{role.user.id}",
+                        [Permissions.OrganizationsRead, "view:team"],
+                    )
                 )
         return acls
 

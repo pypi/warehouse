@@ -96,3 +96,4 @@ class Permissions(StrEnum):
 
     # Organization Permissions
     OrganizationsManage = "organizations:manage"
+    OrganizationsRead = "organizations:read"

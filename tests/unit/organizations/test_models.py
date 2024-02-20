@@ -131,7 +131,7 @@ class TestOrganization:
                     Allow,
                     f"user:{owner1.user.id}",
                     [
-                        "view:organization",
+                        Permissions.OrganizationsRead,
                         "view:team",
                         Permissions.OrganizationsManage,
                         "manage:team",
@@ -144,7 +144,7 @@ class TestOrganization:
                     Allow,
                     f"user:{owner2.user.id}",
                     [
-                        "view:organization",
+                        Permissions.OrganizationsRead,
                         "view:team",
                         Permissions.OrganizationsManage,
                         "manage:team",
@@ -160,12 +160,12 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
                 ),
             ],
             key=lambda x: x[1],
@@ -174,19 +174,37 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{account_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        "view:team",
+                        "manage:team",
+                        "add:project",
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{account_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        "view:team",
+                        "manage:team",
+                        "add:project",
+                    ],
                 ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{member1.user.id}", ["view:organization", "view:team"]),
-                (Allow, f"user:{member2.user.id}", ["view:organization", "view:team"]),
+                (
+                    Allow,
+                    f"user:{member1.user.id}",
+                    [Permissions.OrganizationsRead, "view:team"],
+                ),
+                (
+                    Allow,
+                    f"user:{member2.user.id}",
+                    [Permissions.OrganizationsRead, "view:team"],
+                ),
             ],
             key=lambda x: x[1],
         )
@@ -322,7 +340,7 @@ class TestTeam:
                     Allow,
                     f"user:{owner1.user.id}",
                     [
-                        "view:organization",
+                        Permissions.OrganizationsRead,
                         "view:team",
                         Permissions.OrganizationsManage,
                         "manage:team",
@@ -335,7 +353,7 @@ class TestTeam:
                     Allow,
                     f"user:{owner2.user.id}",
                     [
-                        "view:organization",
+                        Permissions.OrganizationsRead,
                         "view:team",
                         Permissions.OrganizationsManage,
                         "manage:team",
@@ -351,12 +369,12 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
                 ),
             ],
             key=lambda x: x[1],
@@ -365,19 +383,37 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{account_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        "view:team",
+                        "manage:team",
+                        "add:project",
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{account_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        "view:team",
+                        "manage:team",
+                        "add:project",
+                    ],
                 ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{member1.user.id}", ["view:organization", "view:team"]),
-                (Allow, f"user:{member2.user.id}", ["view:organization", "view:team"]),
+                (
+                    Allow,
+                    f"user:{member1.user.id}",
+                    [Permissions.OrganizationsRead, "view:team"],
+                ),
+                (
+                    Allow,
+                    f"user:{member2.user.id}",
+                    [Permissions.OrganizationsRead, "view:team"],
+                ),
             ],
             key=lambda x: x[1],
         )

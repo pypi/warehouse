@@ -292,7 +292,7 @@ class ManageOrganizationSettingsViews:
             "active_projects": self.active_projects,
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_organization(self):
         return self.default_response
 
@@ -601,7 +601,7 @@ class ManageOrganizationTeamsViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_teams(self):
         return self.default_response
 
@@ -713,7 +713,7 @@ class ManageOrganizationProjectsViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_organization_projects(self):
         return self.default_response
 
@@ -956,7 +956,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
-    permission="view:organization",
+    permission=Permissions.OrganizationsRead,
     has_translations=True,
     require_reauth=True,
 )
@@ -1224,7 +1224,7 @@ def change_organization_role(
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="view:organization",
+    permission=Permissions.OrganizationsRead,
     has_translations=True,
     require_reauth=True,
 )
