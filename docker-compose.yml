@@ -160,7 +160,7 @@ services:
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   rstuf-api:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.9.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
     ports:
       - 8001:80
     environment:
@@ -170,7 +170,7 @@ services:
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
 
   rstuf-worker:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.11.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
     environment:
