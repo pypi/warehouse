@@ -39,6 +39,7 @@ from tests.common.db.subscriptions import (
 )
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.accounts.interfaces import TokenExpired
+from warehouse.authnz import Permissions
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations import IOrganizationService
@@ -2763,7 +2764,9 @@ class TestDeleteOrganizationRoles:
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.has_permission.calls == [pretend.call("manage:organization")]
+        assert db_request.has_permission.calls == [
+            pretend.call(Permissions.OrganizationsManage)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Cannot remove other people from the organization", queue="error"

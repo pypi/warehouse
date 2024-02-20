@@ -31,11 +31,11 @@
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Team name{% endtrans %}
-          {% if request.has_permission("manage:team") and save_team_form.name.flags.required %}
+          {% if request.has_permission(Permissions.OrganizationTeamsManage) and save_team_form.name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:team") %}
+        {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
         {{ save_team_form.name(
           placeholder=gettext("Name of your team"),
           autocomplete="off",
@@ -67,13 +67,13 @@
         </p>
       </div>
 
-      {% if request.has_permission("manage:team") %}
+      {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
       <input value="{% trans %}Update team{% endtrans %}" class="button button--primary" type="submit">
       {% endif %}
     </form>
   </section>
 
-  {% if request.has_permission("manage:team") %}
+  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
   <hr>
 
   <section id="delete-team">
