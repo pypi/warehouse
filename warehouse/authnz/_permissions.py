@@ -98,5 +98,6 @@ class Permissions(StrEnum):
     OrganizationsManage = "organizations:manage"
     OrganizationsBillingManage = "organizations:billing:manage"
     OrganizationsRead = "organizations:read"
+    OrganizationProjectsAdd = "organizations:projects:add"
     OrganizationTeamsManage = "organizations:teams:manage"
     OrganizationTeamsRead = "organizations:teams:read"

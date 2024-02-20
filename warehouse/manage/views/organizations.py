@@ -717,7 +717,7 @@ class ManageOrganizationProjectsViews:
     def manage_organization_projects(self):
         return self.default_response
 
-    @view_config(request_method="POST", permission="add:project")
+    @view_config(request_method="POST", permission=Permissions.OrganizationProjectsAdd)
     def add_organization_project(self):
         # Get and validate form from default response.
         default_response = self.default_response
