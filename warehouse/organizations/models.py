@@ -368,7 +368,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - View organization (Permissions.OrganizationsRead)
                 # - View team (Permissions.OrganizationTeamsRead)
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
-                # - Create/delete team and add/remove team member ("manage:team")
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Manage billing ("manage:billing")
                 # - Add project ("add:project")
                 # - Remove project ("remove:project")
@@ -382,7 +382,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                             Permissions.OrganizationsRead,
                             Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsManage,
-                            "manage:team",
+                            Permissions.OrganizationTeamsManage,
                             "manage:billing",
                             "add:project",
                             "remove:project",
@@ -396,7 +396,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - Manage billing ("manage:billing")
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
-                # - Create/delete team and add/remove team member ("manage:team")
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project ("add:project")
                 # - Remove project ("remove:project")
                 acls.append(
@@ -414,7 +414,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # Allowed:
                 # - View organization (Permissions.OrganizationsRead)
                 # - View team (Permissions.OrganizationTeamsRead)
-                # - Create/delete team and add/remove team member ("manage:team")
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Add project ("add:project")
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
@@ -427,7 +427,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         [
                             Permissions.OrganizationsRead,
                             Permissions.OrganizationTeamsRead,
-                            "manage:team",
+                            Permissions.OrganizationTeamsManage,
                             "add:project",
                         ],
                     )
@@ -440,7 +440,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # - View team (Permissions.OrganizationTeamsRead)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
-                # - Create/delete team and add/remove team member ("manage:team")
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
                 # - Manage billing ("manage:billing")
                 # - Add project ("add:project")
                 # - Remove project ("remove:project")

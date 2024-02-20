@@ -61,7 +61,7 @@ from warehouse.utils.paginate import paginate_url_factory
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:team",
+    permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -195,7 +195,7 @@ class ManageTeamSettingsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:team",
+    permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -239,7 +239,7 @@ class ManageTeamProjectsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:team",
+    permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -369,7 +369,7 @@ class ManageTeamRolesViews:
         if not role or role.team_id != self.team.id:
             self.request.session.flash("Could not find member", queue="error")
         elif (
-            not self.request.has_permission("manage:team")
+            not self.request.has_permission(Permissions.OrganizationTeamsManage)
             and role.user != self.request.user
         ):
             self.request.session.flash(
@@ -450,7 +450,7 @@ class ManageTeamRolesViews:
     context=Team,
     renderer="manage/team/history.html",
     uses_session=True,
-    permission="manage:team",
+    permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
 )
 def manage_team_history(team, request):
