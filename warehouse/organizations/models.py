@@ -366,7 +366,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             if role.role_name == OrganizationRoleType.Owner:
                 # Allowed:
                 # - View organization (Permissions.OrganizationsRead)
-                # - View team ("view:team")
+                # - View team (Permissions.OrganizationTeamsRead)
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
                 # - Create/delete team and add/remove team member ("manage:team")
                 # - Manage billing ("manage:billing")
@@ -380,7 +380,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
-                            "view:team",
+                            Permissions.OrganizationTeamsRead,
                             Permissions.OrganizationsManage,
                             "manage:team",
                             "manage:billing",
@@ -392,7 +392,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             elif role.role_name == OrganizationRoleType.BillingManager:
                 # Allowed:
                 # - View organization (Permissions.OrganizationsRead)
-                # - View team ("view:team")
+                # - View team (Permissions.OrganizationTeamsRead)
                 # - Manage billing ("manage:billing")
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
@@ -403,13 +403,17 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        [Permissions.OrganizationsRead, "view:team", "manage:billing"],
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            "manage:billing",
+                        ],
                     )
                 )
             elif role.role_name == OrganizationRoleType.Manager:
                 # Allowed:
                 # - View organization (Permissions.OrganizationsRead)
-                # - View team ("view:team")
+                # - View team (Permissions.OrganizationTeamsRead)
                 # - Create/delete team and add/remove team member ("manage:team")
                 # - Add project ("add:project")
                 # Disallowed:
@@ -422,7 +426,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         f"user:{role.user.id}",
                         [
                             Permissions.OrganizationsRead,
-                            "view:team",
+                            Permissions.OrganizationTeamsRead,
                             "manage:team",
                             "add:project",
                         ],
@@ -433,7 +437,7 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
 
                 # Allowed:
                 # - View organization (Permissions.OrganizationsRead)
-                # - View team ("view:team")
+                # - View team (Permissions.OrganizationTeamsRead)
                 # Disallowed:
                 # - Invite/remove organization member (Permissions.OrganizationsManage)
                 # - Create/delete team and add/remove team member ("manage:team")
@@ -444,7 +448,10 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                     (
                         Allow,
                         f"user:{role.user.id}",
-                        [Permissions.OrganizationsRead, "view:team"],
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                        ],
                     )
                 )
         return acls

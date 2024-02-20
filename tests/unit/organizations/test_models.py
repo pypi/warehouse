@@ -132,7 +132,7 @@ class TestOrganization:
                     f"user:{owner1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
@@ -145,7 +145,7 @@ class TestOrganization:
                     f"user:{owner2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
@@ -160,12 +160,20 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        "manage:billing",
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        "manage:billing",
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -176,7 +184,7 @@ class TestOrganization:
                     f"user:{account_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         "manage:team",
                         "add:project",
                     ],
@@ -186,7 +194,7 @@ class TestOrganization:
                     f"user:{account_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         "manage:team",
                         "add:project",
                     ],
@@ -198,12 +206,12 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, "view:team"],
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
                 ),
                 (
                     Allow,
                     f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, "view:team"],
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
                 ),
             ],
             key=lambda x: x[1],
@@ -341,7 +349,7 @@ class TestTeam:
                     f"user:{owner1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
@@ -354,7 +362,7 @@ class TestTeam:
                     f"user:{owner2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
@@ -369,12 +377,20 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        "manage:billing",
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    [Permissions.OrganizationsRead, "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        "manage:billing",
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -385,7 +401,7 @@ class TestTeam:
                     f"user:{account_mgr1.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         "manage:team",
                         "add:project",
                     ],
@@ -395,7 +411,7 @@ class TestTeam:
                     f"user:{account_mgr2.user.id}",
                     [
                         Permissions.OrganizationsRead,
-                        "view:team",
+                        Permissions.OrganizationTeamsRead,
                         "manage:team",
                         "add:project",
                     ],
@@ -407,12 +423,12 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{member1.user.id}",
-                    [Permissions.OrganizationsRead, "view:team"],
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
                 ),
                 (
                     Allow,
                     f"user:{member2.user.id}",
-                    [Permissions.OrganizationsRead, "view:team"],
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
                 ),
             ],
             key=lambda x: x[1],

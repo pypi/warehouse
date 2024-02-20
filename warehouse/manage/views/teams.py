@@ -90,7 +90,7 @@ class ManageTeamSettingsViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:team")
+    @view_config(request_method="GET", permission=Permissions.OrganizationTeamsRead)
     def manage_team(self):
         return self.default_response
 
@@ -226,7 +226,7 @@ class ManageTeamProjectsViews:
             "projects_sole_owned": projects_sole_owned,
         }
 
-    @view_config(request_method="GET", permission="view:team")
+    @view_config(request_method="GET", permission=Permissions.OrganizationTeamsRead)
     def manage_team_projects(self):
         return self.default_response
 
@@ -272,7 +272,7 @@ class ManageTeamRolesViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:team")
+    @view_config(request_method="GET", permission=Permissions.OrganizationTeamsRead)
     def manage_team_roles(self):
         return self.default_response
 
@@ -359,7 +359,7 @@ class ManageTeamRolesViews:
     @view_config(
         request_method="POST",
         route_name="manage.team.delete_role",
-        permission="view:team",
+        permission=Permissions.OrganizationTeamsRead,
     )
     def delete_team_role(self):
         # Get team role.
