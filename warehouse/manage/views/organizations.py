@@ -252,7 +252,7 @@ class ManageOrganizationsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -666,7 +666,7 @@ class ManageOrganizationTeamsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -1005,7 +1005,7 @@ def manage_organization_roles(
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def resend_organization_invitation(organization, request):
@@ -1052,7 +1052,7 @@ def resend_organization_invitation(organization, request):
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def revoke_organization_invitation(organization, request):
@@ -1148,7 +1148,7 @@ def revoke_organization_invitation(organization, request):
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -1241,7 +1241,8 @@ def delete_organization_role(organization, request):
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
     elif (
-        not request.has_permission("manage:organization") and role.user != request.user
+        not request.has_permission(Permissions.OrganizationsManage)
+        and role.user != request.user
     ):
         request.session.flash(
             "Cannot remove other people from the organization", queue="error"
@@ -1312,7 +1313,7 @@ def delete_organization_role(organization, request):
     context=Organization,
     renderer="manage/organization/history.html",
     uses_session=True,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def manage_organization_history(organization, request):

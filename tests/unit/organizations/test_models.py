@@ -133,7 +133,7 @@ class TestOrganization:
                     [
                         "view:organization",
                         "view:team",
-                        "manage:organization",
+                        Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
                         "add:project",
@@ -146,7 +146,7 @@ class TestOrganization:
                     [
                         "view:organization",
                         "view:team",
-                        "manage:organization",
+                        Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
                         "add:project",
@@ -324,7 +324,7 @@ class TestTeam:
                     [
                         "view:organization",
                         "view:team",
-                        "manage:organization",
+                        Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
                         "add:project",
@@ -337,7 +337,7 @@ class TestTeam:
                     [
                         "view:organization",
                         "view:team",
-                        "manage:organization",
+                        Permissions.OrganizationsManage,
                         "manage:team",
                         "manage:billing",
                         "add:project",

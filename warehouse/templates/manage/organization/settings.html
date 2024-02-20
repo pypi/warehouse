@@ -46,11 +46,11 @@
       <div class="form-group">
         <label for="display_name" class="form-group__label">
           {% trans %}Organization display name{% endtrans %}
-          {% if request.has_permission("manage:organization") and save_organization_form.display_name.flags.required %}
+          {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.display_name.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         {{ save_organization_form.display_name(
           placeholder=gettext("Name of your business, product, or project"),
           autocomplete="organization",
@@ -73,7 +73,7 @@
           </ul>
           {% endif %}
         </div>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         <p class="form-group__help-text">
           {% trans %}For example{% endtrans %}: Python Software Foundation
         </p>
@@ -83,11 +83,11 @@
       <div class="form-group">
         <label class="form-group__label" for="link_url">
           {% trans %}️Organization URL{% endtrans %}
-          {% if request.has_permission("manage:organization") and save_organization_form.link_url.flags.required %}
+          {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.link_url.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         {{ save_organization_form.link_url(
           placeholder=gettext("URL for your business, product, or project"),
           autocomplete="url",
@@ -104,7 +104,7 @@
         <div id="link-url-errors">
           {{ field_errors(save_organization_form.link_url) }}
         </div>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         <p class="form-group__help-text">
           {% trans %}For example{% endtrans %}: https://www.python.org/psf/
         </p>
@@ -114,11 +114,11 @@
       <div class="form-group">
         <label for="description" class="form-group__label">
           {% trans %}Organization description{% endtrans %}
-          {% if request.has_permission("manage:organization") and save_organization_form.description.flags.required %}
+          {% if request.has_permission(Permissions.OrganizationsManage) and save_organization_form.description.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         {{ save_organization_form.description(
           placeholder=gettext("Description of your business, product, or project"),
           autocomplete="off",
@@ -146,11 +146,11 @@
       <div class="form-group">
         <label class="form-group__label" for="orgtype">
           {% trans %}️Organization type{% endtrans %}
-          {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company and save_organization_form.orgtype.flags.required %}
+          {% if request.has_permission(Permissions.OrganizationsManage) and organization.orgtype != OrganizationType.Company and save_organization_form.orgtype.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {% if request.has_permission("manage:organization") and organization.orgtype != OrganizationType.Company %}
+        {% if request.has_permission(Permissions.OrganizationsManage) and organization.orgtype != OrganizationType.Company %}
         {{ save_organization_form.orgtype(
           class_="form-group__field",
           aria_describedby="orgtype-errors",
@@ -164,7 +164,7 @@
         <div id="orgtype-errors">
           {{ field_errors(save_organization_form.orgtype) }}
         </div>
-        {% if request.has_permission("manage:organization") %}
+        {% if request.has_permission(Permissions.OrganizationsManage) %}
         <p class="form-group__help-text">
           {% trans %}
           Companies can create organization accounts as a paid service while community projects are granted complimentary access.
@@ -180,7 +180,7 @@
         {% endif %}
       </div>
 
-      {% if request.has_permission("manage:organization") %}
+      {% if request.has_permission(Permissions.OrganizationsManage) %}
       <input value="{% trans %}Update organization{% endtrans %}" class="button button--primary" type="submit">
       {% endif %}
     </form>
@@ -207,7 +207,7 @@
   </section>
   {% endif %}
 
-  {% if request.has_permission("manage:organization") %}
+  {% if request.has_permission(Permissions.OrganizationsManage) %}
   <hr>
 
   <section id="change-organization-account-name">
