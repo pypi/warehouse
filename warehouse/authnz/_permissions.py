@@ -99,5 +99,6 @@ class Permissions(StrEnum):
     OrganizationsBillingManage = "organizations:billing:manage"
     OrganizationsRead = "organizations:read"
     OrganizationProjectsAdd = "organizations:projects:add"
+    OrganizationProjectsRemove = "organizations:projects:remove"  # TODO: unused?
     OrganizationTeamsManage = "organizations:teams:manage"
     OrganizationTeamsRead = "organizations:teams:read"
