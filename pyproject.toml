@@ -29,6 +29,9 @@ exclude_lines = [
 # Don't show us anything that's already 100% covered.
 skip_covered = true
 
+[tool.coverage.html]
+directory = "dev/htmlcov"
+
 [tool.curlylint]
 include = '\.(html|jinja|txt)$'
 # For jinja's i18n extension:

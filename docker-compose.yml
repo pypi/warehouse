@@ -82,7 +82,6 @@ services:
       - ./docs:/opt/warehouse/src/docs:z
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./tests:/opt/warehouse/src/tests:z
-      - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
