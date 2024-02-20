@@ -402,7 +402,7 @@ def _validate_dynamic(_form, field):
         raise wtforms.validators.ValidationError(
             f"The following metadata field(s) cannot be marked as dynamic: {invalid!r}",
         )
-    # "Supported-Platform" is missing in the metadata form since does not have any
+    # "Supported-Platform" is missing in the metadata form since it does not have any
     # constraints
     allowed_dynamic_fields = (
         {field.description for field in MetadataForm() if field.description}
