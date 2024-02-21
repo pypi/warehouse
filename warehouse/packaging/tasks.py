@@ -123,8 +123,12 @@ def metadata_backfill_individual(request, file_id):
     with tempfile.TemporaryDirectory() as tmpdir:
         # Write the metadata to a temporary file
         temporary_filename = os.path.join(tmpdir, file_.filename) + ".metadata"
-        with open(temporary_filename, "wb") as fp:
-            fp.write(wheel_metadata_contents)
+        try:
+            with open(temporary_filename, "wb") as fp:
+                fp.write(wheel_metadata_contents)
+        except OSError:
+            file_.metadata_file_unbackfillable = True
+            return
 
         # Store the metadata file via our object storage backend
         cache_storage.store(
