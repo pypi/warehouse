@@ -1028,7 +1028,7 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
     ]
 
 
-def test_metadata_backfill_file_unbackfillable(db_request, monkeypatch, metrics):
+def test_metadata_backfill_file_invalid_wheel(db_request, monkeypatch, metrics):
     project = ProjectFactory()
     release = ReleaseFactory(project=project)
     backfillable_file = FileFactory(
@@ -1053,6 +1053,54 @@ def test_metadata_backfill_file_unbackfillable(db_request, monkeypatch, metrics)
     db_request.registry.settings["files.url"] = (
         "https://files.example.com/packages/{path}"
     )
+
+    assert backfillable_file.metadata_file_unbackfillable is False
+
+    metadata_backfill_individual(db_request, backfillable_file.id)
+
+    assert backfillable_file.metadata_file_unbackfillable is True
+    assert metrics.increment.calls == []
+
+
+def test_metadata_backfill_file_oserror(db_request, monkeypatch, metrics):
+    project = ProjectFactory()
+    release = ReleaseFactory(project=project)
+    backfillable_file = FileFactory(
+        release=release, packagetype="bdist_wheel", metadata_file_sha256_digest=None
+    )
+
+    metadata_contents = b"some\nmetadata\ncontents"
+    stub_dist = pretend.stub(
+        _dist=pretend.stub(_files={Path("METADATA"): metadata_contents})
+    )
+    stub_session = pretend.stub()
+    dist_from_wheel_url = pretend.call_recorder(
+        lambda project_name, file_url, session: stub_dist
+    )
+    monkeypatch.setattr(
+        warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
+    )
+    stub_session = pretend.stub()
+    monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
+
+    @contextmanager
+    def mock_open(filename, perms):
+        raise OSError
+
+    monkeypatch.setattr(builtins, "open", mock_open)
+
+    db_request.find_service = pretend.call_recorder(
+        lambda iface, name=None, context=None: {
+            IFileStorage: {
+                "archive": pretend.stub(),
+                "cache": pretend.stub(),
+            },
+            IMetricsService: {None: metrics},
+        }[iface][name]
+    )
+    db_request.registry.settings[
+        "files.url"
+    ] = "https://files.example.com/packages/{path}"
 
     assert backfillable_file.metadata_file_unbackfillable is False
 

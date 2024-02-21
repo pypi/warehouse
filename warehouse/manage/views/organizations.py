@@ -254,7 +254,7 @@ class ManageOrganizationsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -294,7 +294,7 @@ class ManageOrganizationSettingsViews:
             "active_projects": self.active_projects,
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_organization(self):
         return self.default_response
 
@@ -461,7 +461,7 @@ class ManageOrganizationSettingsViews:
     require_active_organization=False,  # Allow reactivate billing for inactive org.
     require_csrf=True,
     require_methods=False,
-    permission="manage:billing",
+    permission=Permissions.OrganizationsBillingManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -580,7 +580,7 @@ class ManageOrganizationBillingViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:team",
+    permission=Permissions.OrganizationTeamsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -603,7 +603,7 @@ class ManageOrganizationTeamsViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_teams(self):
         return self.default_response
 
@@ -668,7 +668,7 @@ class ManageOrganizationTeamsViews:
     require_active_organization=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -715,11 +715,11 @@ class ManageOrganizationProjectsViews:
             ),
         }
 
-    @view_config(request_method="GET", permission="view:organization")
+    @view_config(request_method="GET", permission=Permissions.OrganizationsRead)
     def manage_organization_projects(self):
         return self.default_response
 
-    @view_config(request_method="POST", permission="add:project")
+    @view_config(request_method="POST", permission=Permissions.OrganizationProjectsAdd)
     def add_organization_project(self):
         # Get and validate form from default response.
         default_response = self.default_response
@@ -958,7 +958,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     uses_session=True,
     require_active_organization=True,
     require_methods=False,
-    permission="view:organization",
+    permission=Permissions.OrganizationsRead,
     has_translations=True,
     require_reauth=True,
 )
@@ -1007,7 +1007,7 @@ def manage_organization_roles(
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def resend_organization_invitation(organization, request):
@@ -1054,7 +1054,7 @@ def resend_organization_invitation(organization, request):
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def revoke_organization_invitation(organization, request):
@@ -1150,7 +1150,7 @@ def revoke_organization_invitation(organization, request):
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -1226,7 +1226,7 @@ def change_organization_role(
     uses_session=True,
     require_active_organization=True,
     require_methods=["POST"],
-    permission="view:organization",
+    permission=Permissions.OrganizationsRead,
     has_translations=True,
     require_reauth=True,
 )
@@ -1243,7 +1243,8 @@ def delete_organization_role(organization, request):
     if not role or role.organization_id != organization.id:
         request.session.flash("Could not find member", queue="error")
     elif (
-        not request.has_permission("manage:organization") and role.user != request.user
+        not request.has_permission(Permissions.OrganizationsManage)
+        and role.user != request.user
     ):
         request.session.flash(
             "Cannot remove other people from the organization", queue="error"
@@ -1314,7 +1315,7 @@ def delete_organization_role(organization, request):
     context=Organization,
     renderer="manage/organization/history.html",
     uses_session=True,
-    permission="manage:organization",
+    permission=Permissions.OrganizationsManage,
     has_translations=True,
 )
 def manage_organization_history(organization, request):

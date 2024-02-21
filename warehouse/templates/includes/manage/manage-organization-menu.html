@@ -34,7 +34,7 @@
         <span class="badge badge--neutral">{{ organization.teams|length }}</span>
       </a>
     </li>
-    {% if request.has_permission("manage:organization") %}
+    {% if request.has_permission(Permissions.OrganizationsManage) %}
     <li>
       <a href="{{ request.route_path('manage.organization.history', organization_name=organization.normalized_name) }}" class="vertical-tabs__tab vertical-tabs__tab--with-icon {% if active_tab == 'history' %}vertical-tabs__tab--is-active{% endif %} {% if mode == 'mobile' %}vertical-tabs__tab--mobile{% endif %}" {% if active_tab == 'history' %}aria-selected="true"{% endif %}>
         <i class="fa fa-history" aria-hidden="true"></i>
