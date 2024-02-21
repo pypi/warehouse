@@ -90,27 +90,27 @@ msgid ""
 "different email."
 msgstr ""
 
-#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
-#: warehouse/accounts/forms.py:427
+#: warehouse/accounts/forms.py:426
 msgid "Invalid TOTP code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:444
+#: warehouse/accounts/forms.py:443
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:513
+#: warehouse/accounts/forms.py:512
 msgid "Invalid recovery code."
 msgstr ""
 
-#: warehouse/accounts/forms.py:522
+#: warehouse/accounts/forms.py:521
 msgid "Recovery code has been previously used."
 msgstr ""
 
-#: warehouse/accounts/forms.py:552
+#: warehouse/accounts/forms.py:551
 msgid "The username isn't valid. Try again."
 msgstr ""
 
@@ -520,12 +520,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2481
-#: warehouse/manage/views/organizations.py:879
+#: warehouse/manage/views/organizations.py:881
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2546
-#: warehouse/manage/views/organizations.py:944
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -538,30 +538,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2622
-#: warehouse/manage/views/organizations.py:1131
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:855
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:866
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1027
-#: warehouse/manage/views/organizations.py:1069
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1039
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1084
+#: warehouse/manage/views/organizations.py:1086
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
