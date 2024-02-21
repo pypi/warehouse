@@ -32,11 +32,11 @@ msgstr "بۆ بەکارهێنانی ئەو کردارە پێویستە دوو ف
 msgid "Locale updated"
 msgstr "Ndnv"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "وشەی نهێنیەکەت هەڵەیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -46,27 +46,27 @@ msgstr ""
 "ژمارە یاخوود خاڵ بەکاربهێندرێت . وە هەروەها پێویستە دەست پێببکات و کۆتایش پێ "
 "بێت بە پیت یاخوود ژمارە. نازناوی جیاواز بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "هیچ بەکارهێنەرێک نەدۆزراوە بەو نازناوە"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "‮fzmg"
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -74,12 +74,12 @@ msgstr ""
 "ئەو نازناوە پێشتر لەلایەن هەژماری ترەوە بەکارهاتووە. نازناوێکی جیاواز "
 "بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 msgid "Password too long."
 msgstr "وشەی نهێنیەکەت زۆر درێژە."
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -88,27 +88,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "پاسۆردەکانت وەکوو یەک نین. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "تۆ ناتوانیت ئەو ناونیشانەی پۆستە ئەلیکترۆنیە بەکاربهێنی بەهۆی پاشگرەکەی. "
 "پۆستێکی ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -116,7 +116,7 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە پێشووتر بەکارهاتووە لەلایەن هەژماری ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -124,31 +124,33 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "کۆدی TOTP نادروستە."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "کۆدی هێنانەوەت نادروستە."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr "کۆدی ‌هێنانەوەکەت پێشووتر بەکارهاتووە."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr "هیچ بەکارهێنەرێک نەدۆزرایەوە بەو نازناوەو و پۆستی ئەلیکترۆنیە"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -157,13 +159,13 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -173,26 +175,26 @@ msgstr ""
 "سەردانی ئەو نامانە بکە کە بۆت هاتووە وە بەستەرەی پشتراستکردنەوە قبوڵ بکە."
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "چوونەژوورەوەی دوو فاکتەر هەڵەیە یاخوود بەسەرچووە."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "پێشووتر ڕەسەنایەتی کراوە"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "جەختکردنەوەیەکی سەرکەوتووی ڕەسەنایەتی پەڕە"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "کۆدی هێنانەوە وەرگیراوە. کۆدی نێردراو ناتوانرێت دووبارە بەکاربهێندرێتەوە."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -200,132 +202,132 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "پولێكی ‌‌بەسەرچووە: داواکاری بەستەرەیەکی نوێی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی گۆرینی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "پولێکی ‌هەڵە: هیچ پولێک نەنێردراوە"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "پولێکی هەڵە: پولێکی گۆرینی وشەی نهێنی نیە"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "پولێکی هەڵە: بەکارهێنەر نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "پولێکی هەڵە: بەکارهێنەر چۆتەوە ژوورەوە کاتێک ئەو پولە داواکراوە پێشتر"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "پولێکی هەڵە: وشەی نهێنی پێشتر گۆردراوە کاتێک ئەو پولە داواکراوە"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "وشەی نهێنی خۆتت گۆریوەتەوە"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr "پولێکی بەسەرچوون: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "پولێکی هەڵە: پولی پۆستی ئەلیکترۆنی سەڵماندن نیە"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "پۆستی ئەلیکترۆنی نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "پۆستی ئەلیکترۆنیەکە پێشووتر پشتراستکراوەتەوە"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "ئێستا دەتوانیت ئەم ئیمەیڵە وەک ناونیشانی سەرەکی خۆت دابنێیت"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "ئەمە ناونیشانی سەرەکی تۆیە"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "ناونیشانی ئیمەیڵ ${email_address} پشتڕاستکرایەوە. ${پەیام_دڵنیاکردنەوە}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 msgid "Expired token: request a new organization invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 msgid "Invalid token: request a new organization invitation"
 msgstr "نیشانەیەکی هەڵە: داوای بانگێشتنامەی رێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 msgid "Invalid token: not an organization invitation token"
 msgstr "نیشانەی هەڵە:نەک نیشانەی بانگهێشتی ڕێکخراو"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Organization invitation is not valid."
 msgstr "بانگهێشتی ڕێکخراوەکە ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 msgid "Organization invitation no longer exists."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${organization_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ئێستا تۆ ${role} ی ڕێکخراوی '${organization_name}'یت."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 msgid "Expired token: request a new project role invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 msgid "Invalid token: request a new project role invitation"
 msgstr "نیشانەی هەڵە:داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "نیشانەی نادروست: نیشانەی بانگهێشتی هاوکاری نییە"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "بانگهێشتی ڕۆڵ ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "بانگهێشتی ڕۆڵ چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -337,7 +339,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -347,19 +349,19 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -369,28 +371,28 @@ msgid ""
 "again later."
 msgstr "زۆر هەوڵی تۆمارکردنی OpenID Connect دراوە. دواتر هه ولٓبه ره وه."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -504,40 +506,40 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "وردەکاری هەژمار"
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "ئیمەیڵ ${email_address} زیادکرا - ئیمەیڵەکەت بپشکنە بۆ بەستەری پشتڕاستکردنەوە"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "کۆدەکانی گەڕانەوە کە پێشتر دروستکراون"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "دروستکردنی کۆدی نوێی گەڕانەوە کۆدەکانی ئێستات هەڵدەوەشێنێتەوە."
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "ئیمەیڵەکەت پشتڕاست بکەرەوە یان ناونیشانێکی نوێ زیاد بکە."
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -549,7 +551,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -561,7 +563,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -573,9 +575,9 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -587,54 +589,54 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "بانگێشتنامەکە پەسەند بکە"
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -642,37 +644,37 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ پڕۆژە زیاد بکرێت"
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "بەکارهێنەر '${username}' پێشتر بانگهێشتێکی چالاکی هەیە. تکایە دووبارە "
 "هەوڵبدەرەوە."
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr "بانگهێشتنامە نێردراوە بۆ '${username}'."
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr "بانگێشتنامە پێشتر بەسەرچووە."
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr "بانگهێشتنامە لە '${username}' هەڵوەشایەوە."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ ڕێکخستن"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -680,18 +682,18 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ ڕێکخراو زیاد بکرێت"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 msgid "Could not find organization invitation."
 msgstr "نەتوانرا بانگهێشتی ڕێکخراو بدۆزرێتەوە."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -704,17 +706,15 @@ msgid "Invalid project name"
 msgstr "ناوی کۆگاکە نادروستە"
 
 #: warehouse/oidc/forms/_core.py:35
-#, fuzzy
-#| msgid ""
-#| "This project name has already been used. Choose a different project name."
-msgid "This project name is already in use"
-msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
+msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 #, fuzzy
 #| msgid "Provider must be specified by ID"
 msgid "Publisher must be specified by ID"
@@ -1909,7 +1909,11 @@ msgid "Reset email sent"
 msgstr "ئیمەیڵی نێردراو دووبارە دانانەوەی بکە"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+#, fuzzy
+#| msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr "ئیمەیڵێک بۆ ناونیشانی ئیمەیڵی تۆمارکراوت نێردراوە."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -9713,6 +9717,15 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "No user found with that username or email"
+#~ msgstr "هیچ بەکارهێنەرێک نەدۆزرایەوە بەو نازناوەو و پۆستی ئەلیکترۆنیە"
+
+#, fuzzy
+#~| msgid ""
+#~| "This project name has already been used. Choose a different project name."
+#~ msgid "This project name is already in use"
+#~ msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
 #, fuzzy, python-format
 #~| msgid ""

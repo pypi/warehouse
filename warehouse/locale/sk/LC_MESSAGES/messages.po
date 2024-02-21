@@ -34,11 +34,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Miestne nastavenie bolo aktualizované"
 
-#: warehouse/accounts/forms.py:48
+#: warehouse/accounts/forms.py:49
 msgid "The password is invalid. Try again."
 msgstr "Heslo je neplatné. Skúste to znova."
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:50
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -48,39 +48,39 @@ msgstr ""
 "písmen, číslic, bodiek, pomlčiek a podčiarkovníkov. A tiež musí začínať a "
 "končiť písmenom alebo číslom. Vyberte iné používateľské meno."
 
-#: warehouse/accounts/forms.py:67
+#: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
 msgstr "Nulové bajty nie sú povolené."
 
-#: warehouse/accounts/forms.py:88
+#: warehouse/accounts/forms.py:89
 msgid "No user found with that username"
 msgstr "Nenašiel sa žiadny používateľ s týmto používateľským menom"
 
-#: warehouse/accounts/forms.py:99
+#: warehouse/accounts/forms.py:100
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "Kód TOTP musí obsahovať ${totp_length} číslic."
 
-#: warehouse/accounts/forms.py:119
+#: warehouse/accounts/forms.py:120
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr "Kódy na obnovenie musia mať ${recovery_code_length} znakov."
 
-#: warehouse/accounts/forms.py:134
+#: warehouse/accounts/forms.py:135
 msgid "Choose a username with 50 characters or less."
 msgstr "Vyberte si používateľské meno s 50 alebo menej znakmi."
 
-#: warehouse/accounts/forms.py:151
+#: warehouse/accounts/forms.py:152
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr ""
 "Toto používateľské meno už používa iný účet. Vyberte iné používateľské meno."
 
-#: warehouse/accounts/forms.py:165 warehouse/accounts/forms.py:214
-#: warehouse/accounts/forms.py:227
+#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
+#: warehouse/accounts/forms.py:228
 msgid "Password too long."
 msgstr "Heslo je príliš dlhé."
 
-#: warehouse/accounts/forms.py:201
+#: warehouse/accounts/forms.py:202
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
@@ -88,60 +88,61 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste vymknutý "
 "na ${time}. Skúste neskôr prosím."
 
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:231
 msgid "Your passwords don't match. Try again."
 msgstr "Vaše heslá sa nezhodujú. Skúste to znova."
 
-#: warehouse/accounts/forms.py:264
+#: warehouse/accounts/forms.py:265
 msgid "The email address is too long. Try again."
 msgstr "Emailová adresa je príliš dlhá. Skúste to znovu."
 
-#: warehouse/accounts/forms.py:275
+#: warehouse/accounts/forms.py:276
 msgid "The email address isn't valid. Try again."
 msgstr "Neplatná emailová adresa. Skúste to znovu."
 
-#: warehouse/accounts/forms.py:283
+#: warehouse/accounts/forms.py:284
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr "Nemôžete použiť e-mailovú adresu z tejto domény. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:294
+#: warehouse/accounts/forms.py:295
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
 msgstr "Tento účet už túto e-mailovú adresu používa. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:301
+#: warehouse/accounts/forms.py:302
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
 msgstr "Túto e-mailovú adresu už používa iný účet. Použite iný e-mail."
 
-#: warehouse/accounts/forms.py:335 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Názov je príliš dlhý. Vyberte názov so 100 znakmi alebo menej."
 
-#: warehouse/accounts/forms.py:426
+#: warehouse/accounts/forms.py:427
 msgid "Invalid TOTP code."
 msgstr "Neplatný TOTP kód."
 
-#: warehouse/accounts/forms.py:443
+#: warehouse/accounts/forms.py:444
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Neplatné tvrdenie WebAuthn: Zlé užitočné zaťaženie"
 
-#: warehouse/accounts/forms.py:512
+#: warehouse/accounts/forms.py:513
 msgid "Invalid recovery code."
 msgstr "Neplatný obnovovací kód."
 
-#: warehouse/accounts/forms.py:521
+#: warehouse/accounts/forms.py:522
 msgid "Recovery code has been previously used."
 msgstr "Obnovovací kód už bol použitý."
 
-#: warehouse/accounts/forms.py:540
-msgid "No user found with that username or email"
-msgstr ""
-"Nenašiel sa žiadny používateľ s týmto používateľským menom alebo e-mailom"
+#: warehouse/accounts/forms.py:552
+#, fuzzy
+#| msgid "The email address isn't valid. Try again."
+msgid "The username isn't valid. Try again."
+msgstr "Neplatná emailová adresa. Skúste to znovu."
 
-#: warehouse/accounts/views.py:117
+#: warehouse/accounts/views.py:118
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
@@ -149,7 +150,7 @@ msgstr ""
 "Vyskytlo sa príliš veľa neúspešných pokusov o prihlásenie. Boli ste "
 "zablokovaní na {}. Skúste neskôr prosím."
 
-#: warehouse/accounts/views.py:134
+#: warehouse/accounts/views.py:135
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
@@ -158,7 +159,7 @@ msgstr ""
 "Skontrolujte si doručenú poštu a postupujte podľa overovacích odkazov. (IP: "
 "${ip})"
 
-#: warehouse/accounts/views.py:146
+#: warehouse/accounts/views.py:147
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -168,25 +169,25 @@ msgstr ""
 "dokončenia. Skontrolujte si doručenú poštu a postupujte podľa overovacích "
 "odkazov. (IP: ${ip})"
 
-#: warehouse/accounts/views.py:330 warehouse/accounts/views.py:399
-#: warehouse/accounts/views.py:401 warehouse/accounts/views.py:430
-#: warehouse/accounts/views.py:432 warehouse/accounts/views.py:538
+#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
+#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
+#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
 msgid "Invalid or expired two factor login."
 msgstr "Neplatné alebo vypršané dvojfaktorové prihlásenie."
 
-#: warehouse/accounts/views.py:393
+#: warehouse/accounts/views.py:392
 msgid "Already authenticated"
 msgstr "Už overené"
 
-#: warehouse/accounts/views.py:473
+#: warehouse/accounts/views.py:472
 msgid "Successful WebAuthn assertion"
 msgstr "Úspešné tvrdenie WebAuthn"
 
-#: warehouse/accounts/views.py:569 warehouse/manage/views/__init__.py:832
+#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Obnovovací kód bol prijatý. Dodaný kód nie je možné znova použiť."
 
-#: warehouse/accounts/views.py:661
+#: warehouse/accounts/views.py:660
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -194,132 +195,132 @@ msgstr ""
 "Registrácia nového používateľa je dočasne zakázaná. Podrobnosti nájdete na "
 "https://pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:792
+#: warehouse/accounts/views.py:797
 msgid "Expired token: request a new password reset link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:794
+#: warehouse/accounts/views.py:799
 msgid "Invalid token: request a new password reset link"
 msgstr "Neplatný token: požiadajte o nový odkaz na obnovenie hesla"
 
-#: warehouse/accounts/views.py:796 warehouse/accounts/views.py:909
-#: warehouse/accounts/views.py:1013 warehouse/accounts/views.py:1182
+#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
 msgid "Invalid token: no token supplied"
 msgstr "Neplatný token: nebol dodaný žiadny token"
 
-#: warehouse/accounts/views.py:800
+#: warehouse/accounts/views.py:805
 msgid "Invalid token: not a password reset token"
 msgstr "Neplatný token: nejde o token na obnovenie hesla"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:810
 msgid "Invalid token: user not found"
 msgstr "Neplatný token: používateľ sa nenašiel"
 
-#: warehouse/accounts/views.py:827
+#: warehouse/accounts/views.py:832
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Neplatný token: používateľ sa prihlásil od vyžiadania tohto tokenu"
 
-#: warehouse/accounts/views.py:845
+#: warehouse/accounts/views.py:850
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr ""
 "Neplatný token: heslo už bolo zmenené, odkedy bol tento token vyžiadaný"
 
-#: warehouse/accounts/views.py:877
+#: warehouse/accounts/views.py:882
 msgid "You have reset your password"
 msgstr "Obnovili ste svoje heslo"
 
-#: warehouse/accounts/views.py:905
+#: warehouse/accounts/views.py:910
 msgid "Expired token: request a new email verification link"
 msgstr "Platnosť tokenu vypršala: vyžiadajte si nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:907
+#: warehouse/accounts/views.py:912
 msgid "Invalid token: request a new email verification link"
 msgstr "Neplatný token: požiadajte o nový odkaz na overenie e-mailu"
 
-#: warehouse/accounts/views.py:913
+#: warehouse/accounts/views.py:918
 msgid "Invalid token: not an email verification token"
 msgstr "Neplatný token: nejde o overovací token e-mailu"
 
-#: warehouse/accounts/views.py:922
+#: warehouse/accounts/views.py:927
 msgid "Email not found"
 msgstr "Email nenájdený"
 
-#: warehouse/accounts/views.py:925
+#: warehouse/accounts/views.py:930
 msgid "Email already verified"
 msgstr "Email už bol overený"
 
-#: warehouse/accounts/views.py:942
+#: warehouse/accounts/views.py:947
 msgid "You can now set this email as your primary address"
 msgstr "Teraz môžete tento e-mail nastaviť ako svoju primárnu adresu"
 
-#: warehouse/accounts/views.py:946
+#: warehouse/accounts/views.py:951
 msgid "This is your primary address"
 msgstr "Toto je vaša primárna adresa"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:956
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "E-mailová adresa ${email_address} bola overená. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1009
+#: warehouse/accounts/views.py:1014
 msgid "Expired token: request a new organization invitation"
 msgstr "Token s vypršanou platnosťou: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1011
+#: warehouse/accounts/views.py:1016
 msgid "Invalid token: request a new organization invitation"
 msgstr "Neplatný token: požiadajte o pozvánku novej organizácie"
 
-#: warehouse/accounts/views.py:1017
+#: warehouse/accounts/views.py:1022
 msgid "Invalid token: not an organization invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky do organizácie"
 
-#: warehouse/accounts/views.py:1021
+#: warehouse/accounts/views.py:1026
 msgid "Organization invitation is not valid."
 msgstr "Pozvánka do organizácie je neplatná."
 
-#: warehouse/accounts/views.py:1030
+#: warehouse/accounts/views.py:1035
 msgid "Organization invitation no longer exists."
 msgstr "Pozvánka do organizácie už neexistuje."
 
-#: warehouse/accounts/views.py:1081
+#: warehouse/accounts/views.py:1086
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Pozvánka do '${organization_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1144
+#: warehouse/accounts/views.py:1149
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Teraz ste ${role} organizácie '${organization_name}'."
 
-#: warehouse/accounts/views.py:1178
+#: warehouse/accounts/views.py:1183
 msgid "Expired token: request a new project role invitation"
 msgstr "Expirovaný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1180
+#: warehouse/accounts/views.py:1185
 msgid "Invalid token: request a new project role invitation"
 msgstr "Neplatný token: požiadajte o novú pozvánku pre rolu v projekte"
 
-#: warehouse/accounts/views.py:1186
+#: warehouse/accounts/views.py:1191
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Neplatný token: nejedná sa o token pozvánky k spolupráci"
 
-#: warehouse/accounts/views.py:1190
+#: warehouse/accounts/views.py:1195
 msgid "Role invitation is not valid."
 msgstr "Pozvánka pre rolu je neplatná."
 
-#: warehouse/accounts/views.py:1205
+#: warehouse/accounts/views.py:1210
 msgid "Role invitation no longer exists."
 msgstr "Pozvánka pre rolu už neexistuje."
 
-#: warehouse/accounts/views.py:1236
+#: warehouse/accounts/views.py:1241
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Pozvánka pre '${project_name}' bola odmietnutá."
 
-#: warehouse/accounts/views.py:1302
+#: warehouse/accounts/views.py:1307
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Teraz ste ${role} projektu '${project_name}'."
 
-#: warehouse/accounts/views.py:1541 warehouse/accounts/views.py:1757
-#: warehouse/manage/views/__init__.py:1204
+#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
+#: warehouse/manage/views/__init__.py:1205
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -327,7 +328,7 @@ msgstr ""
 "Nové registrácie sú dočasne zakázané. Viac informácií na https://pypi.org/"
 "help#admin-intervention."
 
-#: warehouse/accounts/views.py:1562
+#: warehouse/accounts/views.py:1567
 #, fuzzy
 #| msgid ""
 #| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
@@ -337,7 +338,7 @@ msgstr ""
 "Odstránenie projektu je dočasne zakázané. Podrobnosti nájdete na https://"
 "pypi.org/help#admin-intervention."
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1583
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
@@ -345,14 +346,14 @@ msgstr ""
 "Ak chcete zaregistrovať čakajúceho dôveryhodného vydavateľa, musíte mať "
 "overený e-mail. Podrobnosti nájdete na https://pypi.org/help#openid-connect."
 
-#: warehouse/accounts/views.py:1591
+#: warehouse/accounts/views.py:1596
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "Naraz nemôžete zaregistrovať viac ako 3 čakajúcich dôveryhodných vydavateľov."
 
-#: warehouse/accounts/views.py:1607 warehouse/manage/views/__init__.py:1239
-#: warehouse/manage/views/__init__.py:1352
-#: warehouse/manage/views/__init__.py:1462
+#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
+#: warehouse/manage/views/__init__.py:1353
+#: warehouse/manage/views/__init__.py:1463
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -360,13 +361,13 @@ msgstr ""
 "Príliš mnoho neúspešných pokusov o registráciu pomocou OpenID Connect. "
 "Skúste to prosím neskoršie."
 
-#: warehouse/accounts/views.py:1618 warehouse/manage/views/__init__.py:1253
-#: warehouse/manage/views/__init__.py:1366
-#: warehouse/manage/views/__init__.py:1476
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
+#: warehouse/manage/views/__init__.py:1367
+#: warehouse/manage/views/__init__.py:1477
 msgid "The trusted publisher could not be registered"
 msgstr "Dôveryhodného vydavateľa sa nepodarilo zaregistrovať"
 
-#: warehouse/accounts/views.py:1632
+#: warehouse/accounts/views.py:1637
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
@@ -374,16 +375,16 @@ msgstr ""
 "Tento dôveryhodný vydavateľ už bol zaregistrovaný. Ak to nebolo úmyselné, "
 "kontaktujte administrátorov PyPI."
 
-#: warehouse/accounts/views.py:1659
+#: warehouse/accounts/views.py:1664
 msgid "Registered a new pending publisher to create "
 msgstr "Zaregistroval sa nový vydavateľ čakajúci na vytvorenie. "
 
-#: warehouse/accounts/views.py:1771 warehouse/accounts/views.py:1784
-#: warehouse/accounts/views.py:1791
+#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
+#: warehouse/accounts/views.py:1796
 msgid "Invalid publisher ID"
 msgstr "Neplatné ID vlastníka"
 
-#: warehouse/accounts/views.py:1797
+#: warehouse/accounts/views.py:1802
 msgid "Removed trusted publisher for project "
 msgstr "Pre projekt bol odstránený dôveryhodný vydavateľ. "
 
@@ -490,39 +491,39 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Tento názov tímu už bol použitý. Vyberte iný názov tímu."
 
-#: warehouse/manage/views/__init__.py:200
+#: warehouse/manage/views/__init__.py:201
 msgid "Account details updated"
 msgstr "Podrobnosti účtu boli aktualizované"
 
-#: warehouse/manage/views/__init__.py:229
+#: warehouse/manage/views/__init__.py:230
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mailová adresa ${email_address} bola pridaná – skontrolujte svoj e-mail, "
 "či nemáte verifikačný odkaz"
 
-#: warehouse/manage/views/__init__.py:780
+#: warehouse/manage/views/__init__.py:781
 msgid "Recovery codes already generated"
 msgstr "Obnovovacie kódy sú už vygenerované"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:782
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Generovanie nových kódov na obnovenie zruší platnosť vašich existujúcich "
 "kódov."
 
-#: warehouse/manage/views/__init__.py:890
+#: warehouse/manage/views/__init__.py:891
 msgid "Verify your email to create an API token."
 msgstr "Ak chcete vytvoriť token rozhrania API, overte svoj e-mail."
 
-#: warehouse/manage/views/__init__.py:990
+#: warehouse/manage/views/__init__.py:991
 msgid "API Token does not exist."
 msgstr "API token neexistuje."
 
-#: warehouse/manage/views/__init__.py:1022
+#: warehouse/manage/views/__init__.py:1023
 msgid "Invalid credentials. Try again"
 msgstr "Neplatné poverenia. Skúste to znova"
 
-#: warehouse/manage/views/__init__.py:1220
+#: warehouse/manage/views/__init__.py:1221
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -530,7 +531,7 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1333
+#: warehouse/manage/views/__init__.py:1334
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -542,7 +543,7 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1442
+#: warehouse/manage/views/__init__.py:1443
 #, fuzzy
 #| msgid ""
 #| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
@@ -554,9 +555,9 @@ msgstr ""
 "Dôveryhodné publikovanie na GitHub je dočasne zakázané. Podrobnosti nájdete "
 "na https://pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1677
-#: warehouse/manage/views/__init__.py:1978
-#: warehouse/manage/views/__init__.py:2086
+#: warehouse/manage/views/__init__.py:1678
+#: warehouse/manage/views/__init__.py:1979
+#: warehouse/manage/views/__init__.py:2087
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -564,46 +565,46 @@ msgstr ""
 "Odstránenie projektu je dočasne zakázané. Podrobnosti nájdete na https://"
 "pypi.org/help#admin-intervention."
 
-#: warehouse/manage/views/__init__.py:1809
-#: warehouse/manage/views/__init__.py:1894
-#: warehouse/manage/views/__init__.py:1995
-#: warehouse/manage/views/__init__.py:2095
+#: warehouse/manage/views/__init__.py:1810
+#: warehouse/manage/views/__init__.py:1895
+#: warehouse/manage/views/__init__.py:1996
+#: warehouse/manage/views/__init__.py:2096
 msgid "Confirm the request"
 msgstr "Potvrďte žiadosť"
 
-#: warehouse/manage/views/__init__.py:1821
+#: warehouse/manage/views/__init__.py:1822
 msgid "Could not yank release - "
 msgstr "Nepodarilo sa vytrhnúť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:1906
+#: warehouse/manage/views/__init__.py:1907
 msgid "Could not un-yank release - "
 msgstr "Nepodarilo sa uvoľniť uvoľnenie -. "
 
-#: warehouse/manage/views/__init__.py:2007
+#: warehouse/manage/views/__init__.py:2008
 msgid "Could not delete release - "
 msgstr "Vydanie sa nepodarilo odstrániť -. "
 
-#: warehouse/manage/views/__init__.py:2107
+#: warehouse/manage/views/__init__.py:2108
 msgid "Could not find file"
 msgstr "Nepodarilo sa nájsť súbor"
 
-#: warehouse/manage/views/__init__.py:2111
+#: warehouse/manage/views/__init__.py:2112
 msgid "Could not delete file - "
 msgstr "Nepodarilo sa odstrániť súbor -. "
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2262
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "Tím '${team_name}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2368
+#: warehouse/manage/views/__init__.py:2369
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Používateľ '${username}' už má v projekte rolu ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2435
+#: warehouse/manage/views/__init__.py:2436
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} je teraz ${role} projektu '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2467
+#: warehouse/manage/views/__init__.py:2468
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -611,35 +612,35 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre projekt"
 
-#: warehouse/manage/views/__init__.py:2480
-#: warehouse/manage/views/organizations.py:878
+#: warehouse/manage/views/__init__.py:2481
+#: warehouse/manage/views/organizations.py:879
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "Používateľ '${username}' už má aktívnu pozvánku. Skúste neskôr prosím."
 
-#: warehouse/manage/views/__init__.py:2545
-#: warehouse/manage/views/organizations.py:943
+#: warehouse/manage/views/__init__.py:2546
+#: warehouse/manage/views/organizations.py:944
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka bola odoslaná používateľovi '${username}'"
 
-#: warehouse/manage/views/__init__.py:2578
+#: warehouse/manage/views/__init__.py:2579
 msgid "Could not find role invitation."
 msgstr "Nepodarilo sa nájsť pozvánku na rolu."
 
-#: warehouse/manage/views/__init__.py:2589
+#: warehouse/manage/views/__init__.py:2590
 msgid "Invitation already expired."
 msgstr "Pozvánka už vypršala."
 
-#: warehouse/manage/views/__init__.py:2621
-#: warehouse/manage/views/organizations.py:1130
+#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/organizations.py:1131
 msgid "Invitation revoked from '${username}'."
 msgstr "Pozvánka od '${username}' bola odvolaná."
 
-#: warehouse/manage/views/organizations.py:854
+#: warehouse/manage/views/organizations.py:855
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Používateľ '${username}' už má rolu ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:865
+#: warehouse/manage/views/organizations.py:866
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -647,16 +648,16 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:1026
-#: warehouse/manage/views/organizations.py:1068
+#: warehouse/manage/views/organizations.py:1027
+#: warehouse/manage/views/organizations.py:1069
 msgid "Could not find organization invitation."
 msgstr "Nepodarilo sa nájsť pozvánku organizácie."
 
-#: warehouse/manage/views/organizations.py:1036
+#: warehouse/manage/views/organizations.py:1037
 msgid "Organization invitation could not be re-sent."
 msgstr "Pozvánku organizácie nebolo možné znova odoslať."
 
-#: warehouse/manage/views/organizations.py:1083
+#: warehouse/manage/views/organizations.py:1084
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Pozvánka s vypršanou platnosťou pre '${username}' bola odstránená."
 
@@ -665,14 +666,15 @@ msgid "Invalid project name"
 msgstr "Neplatný názov projektu"
 
 #: warehouse/oidc/forms/_core.py:35
-msgid "This project name is already in use"
-msgstr "Tento názov projektu sa už používa"
+msgid ""
+"This project already exists, create an ordinary Trusted Publisher instead"
+msgstr ""
 
-#: warehouse/oidc/forms/_core.py:44
+#: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
 msgstr "Zadajte ID vlastníka"
 
-#: warehouse/oidc/forms/_core.py:45
+#: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
 msgstr "Vydavateľ musí byť špecifikovaný ID"
 
@@ -1841,7 +1843,11 @@ msgid "Reset email sent"
 msgstr "Email pre reset hesla odoslaný"
 
 #: warehouse/templates/accounts/request-password-reset.html:51
-msgid "An email has been sent to your registered email address."
+#, fuzzy
+#| msgid "An email has been sent to your registered email address."
+msgid ""
+"If you submitted a valid username or email address, an email has been sent "
+"to your registered email address."
 msgstr "Na vašu zaregistrovanú e-mailovú adresu bol odoslaný e-mail."
 
 #: warehouse/templates/accounts/request-password-reset.html:52
@@ -10270,6 +10276,13 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Pre filter '%(filters)s' neboli žiadne výsledky"
 msgstr[1] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
+
+#~ msgid "No user found with that username or email"
+#~ msgstr ""
+#~ "Nenašiel sa žiadny používateľ s týmto používateľským menom alebo e-mailom"
+
+#~ msgid "This project name is already in use"
+#~ msgstr "Tento názov projektu sa už používa"
 
 #, python-format
 #~ msgid ""

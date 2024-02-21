@@ -226,8 +226,6 @@ def accounts_search(request) -> dict[str, list[User]]:
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
-    # TODO: Configure the login view as the default view for not having
-    #       permission to view something.
     if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
