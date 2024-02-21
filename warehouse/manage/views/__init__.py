@@ -310,9 +310,9 @@ class ManageAccountViews:
             tag=EventTag.Account.EmailPrimaryChange,
             request=self.request,
             additional={
-                "old_primary": previous_primary_email.email
-                if previous_primary_email
-                else None,
+                "old_primary": (
+                    previous_primary_email.email if previous_primary_email else None
+                ),
                 "new_primary": new_primary_email.email,
             },
         )

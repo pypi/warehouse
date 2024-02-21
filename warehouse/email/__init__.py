@@ -197,9 +197,11 @@ def _email(
                     tags=[
                         f"template_name:{name}",
                         f"allow_unverified:{allow_unverified}",
-                        f"repeat_window:{repeat_window.total_seconds()}"
-                        if repeat_window
-                        else "repeat_window:none",
+                        (
+                            f"repeat_window:{repeat_window.total_seconds()}"
+                            if repeat_window
+                            else "repeat_window:none"
+                        ),
                     ],
                 )
 

@@ -3375,25 +3375,29 @@ class TestFileUpload:
 
         # Ensure that all of our events have been created
         release_event = {
-            "submitted_by": identity.username
-            if test_with_user
-            else "OpenID created token",
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
-            if not test_with_user
-            else None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
             "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         fileadd_event = {
             "filename": filename,
-            "submitted_by": identity.username
-            if test_with_user
-            else "OpenID created token",
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
-            if not test_with_user
-            else None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
             "project_id": str(project.id),
             "uploaded_via_trusted_publisher": not test_with_user,
         }

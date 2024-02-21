@@ -897,9 +897,9 @@ class TestSendPasswordResetEmail:
                     "user_id": stub_user.id,
                     "additional": {
                         "from_": "noreply@example.com",
-                        "to": "other@example.com"
-                        if stub_email
-                        else "email@example.com",
+                        "to": (
+                            "other@example.com" if stub_email else "email@example.com"
+                        ),
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },

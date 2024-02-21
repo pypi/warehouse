@@ -64,9 +64,9 @@ class TestQueries:
                                     {
                                         "multi_match": {
                                             "fields": EXPECTED_SEARCH_FIELDS,
-                                            "query": "foo bar"
-                                            if terms != '"a"'
-                                            else "a",
+                                            "query": (
+                                                "foo bar" if terms != '"a"' else "a"
+                                            ),
                                             "type": expected_type,
                                         }
                                     },

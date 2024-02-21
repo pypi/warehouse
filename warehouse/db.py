@@ -62,8 +62,7 @@ pyramid_retry.mark_error_retryable(IntegrityError)
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
 # use this so we can catch it later and turn it into a generic 5xx error.
-class DatabaseNotAvailableError(Exception):
-    ...
+class DatabaseNotAvailableError(Exception): ...
 
 
 # The Global metadata object.

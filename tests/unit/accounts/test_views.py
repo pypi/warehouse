@@ -2964,9 +2964,11 @@ class TestVerifyProjectRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-            if desired_role == "Owner"
-            else pretend.call("packaging.project", name=project.name)
+            (
+                pretend.call("manage.project.roles", project_name=project.name)
+                if desired_role == "Owner"
+                else pretend.call("packaging.project", name=project.name)
+            )
         ]
 
     @pytest.mark.parametrize(
