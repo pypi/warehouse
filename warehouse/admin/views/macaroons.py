@@ -55,7 +55,7 @@ def macaroon_decode_token(request):
     try:
         macaroon = deserialize_raw_macaroon(token)
     except InvalidMacaroonError as e:
-        raise HTTPBadRequest("The token cannot be deserialized") from e
+        raise HTTPBadRequest(f"The token cannot be deserialized: {e!r}") from e
 
     # Try to find the database record for this macaroon
     macaroon_service = request.find_service(IMacaroonService, context=None)

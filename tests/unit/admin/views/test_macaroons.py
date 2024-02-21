@@ -55,7 +55,10 @@ class TestMacaroonDecodeToken:
 
         with pytest.raises(views.HTTPBadRequest) as excinfo:
             views.macaroon_decode_token(db_request)
-        assert excinfo.value.message == "The token cannot be deserialized"
+        assert excinfo.value.message == (
+            "The token cannot be deserialized: InvalidMacaroonError('malformed "
+            "or nonexistent macaroon')"
+        )
 
     def test_post_token_found(self, db_request, macaroon_service):
         user = UserFactory.create()

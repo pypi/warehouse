@@ -19,6 +19,7 @@ from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config, view_defaults
 
 from warehouse.api.billing import handle_billing_webhook_event
+from warehouse.authnz import Permissions
 from warehouse.organizations.models import Organization
 from warehouse.subscriptions.interfaces import IBillingService
 from warehouse.subscriptions.services import MockStripeBillingService
@@ -28,7 +29,7 @@ from warehouse.subscriptions.services import MockStripeBillingService
     context=Organization,
     uses_session=True,
     require_methods=False,
-    permission="manage:billing",
+    permission=Permissions.OrganizationsBillingManage,
     has_translations=True,
     require_reauth=True,
 )
