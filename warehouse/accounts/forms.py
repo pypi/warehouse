@@ -307,7 +307,6 @@ class NewEmailMixin:
 
 
 class HoneypotMixin:
-
     """A mixin to catch spammers. This field should always be blank"""
 
     confirm_form = wtforms.StringField()

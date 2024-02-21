@@ -296,9 +296,9 @@ def test_reconcile_file_storages_borked(
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == borked.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == borked.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
@@ -343,9 +343,9 @@ def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == just_dist.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == just_dist.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
@@ -986,9 +986,9 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
 
     monkeypatch.setattr(builtins, "open", mock_open)
 
-    db_request.registry.settings[
-        "files.url"
-    ] = "https://files.example.com/packages/{path}"
+    db_request.registry.settings["files.url"] = (
+        "https://files.example.com/packages/{path}"
+    )
 
     metadata_backfill_individual(db_request, backfillable_file.id)
 
@@ -1050,9 +1050,9 @@ def test_metadata_backfill_file_unbackfillable(db_request, monkeypatch, metrics)
             IMetricsService: {None: metrics},
         }[iface][name]
     )
-    db_request.registry.settings[
-        "files.url"
-    ] = "https://files.example.com/packages/{path}"
+    db_request.registry.settings["files.url"] = (
+        "https://files.example.com/packages/{path}"
+    )
 
     assert backfillable_file.metadata_file_unbackfillable is False
 
@@ -1078,9 +1078,9 @@ def test_metadata_backfill_file_delorted(db_request, monkeypatch, metrics):
             IMetricsService: {None: metrics},
         }[iface][name]
     )
-    db_request.registry.settings[
-        "files.url"
-    ] = "https://files.example.com/packages/{path}"
+    db_request.registry.settings["files.url"] = (
+        "https://files.example.com/packages/{path}"
+    )
 
     metadata_backfill_individual(db_request, "66642069-0000-0000-0000-000000000000")
 

@@ -67,15 +67,21 @@ def _simple_detail(project, request):
                 "requires-python": file.release.requires_python,
                 "size": file.size,
                 "upload-time": file.upload_time.isoformat() + "Z",
-                "yanked": file.release.yanked_reason
-                if file.release.yanked and file.release.yanked_reason
-                else file.release.yanked,
-                "data-dist-info-metadata": {"sha256": file.metadata_file_sha256_digest}
-                if file.metadata_file_sha256_digest
-                else False,
-                "core-metadata": {"sha256": file.metadata_file_sha256_digest}
-                if file.metadata_file_sha256_digest
-                else False,
+                "yanked": (
+                    file.release.yanked_reason
+                    if file.release.yanked and file.release.yanked_reason
+                    else file.release.yanked
+                ),
+                "data-dist-info-metadata": (
+                    {"sha256": file.metadata_file_sha256_digest}
+                    if file.metadata_file_sha256_digest
+                    else False
+                ),
+                "core-metadata": (
+                    {"sha256": file.metadata_file_sha256_digest}
+                    if file.metadata_file_sha256_digest
+                    else False
+                ),
             }
             for file in files
         ],

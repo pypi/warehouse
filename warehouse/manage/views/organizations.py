@@ -183,21 +183,23 @@ class ManageOrganizationsViews:
                 organization.name
                 for organization in all_user_organizations["organizations_billing"]
             ),
-            "create_organization_application_form": CreateOrganizationApplicationForm(
-                organization_service=self.organization_service,
-                user=self.request.user,
-            )
-            if len(
-                [
-                    app
-                    for app in self.request.user.organization_applications
-                    if app.is_approved is None
+            "create_organization_application_form": (
+                CreateOrganizationApplicationForm(
+                    organization_service=self.organization_service,
+                    user=self.request.user,
+                )
+                if len(
+                    [
+                        app
+                        for app in self.request.user.organization_applications
+                        if app.is_approved is None
+                    ]
+                )
+                < self.request.registry.settings[
+                    "warehouse.organizations.max_undecided_organization_applications"
                 ]
-            )
-            < self.request.registry.settings[
-                "warehouse.organizations.max_undecided_organization_applications"
-            ]
-            else None,
+                else None
+            ),
         }
 
     @view_config(request_method="GET")
