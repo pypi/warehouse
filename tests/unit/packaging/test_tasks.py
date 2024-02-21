@@ -1098,9 +1098,9 @@ def test_metadata_backfill_file_oserror(db_request, monkeypatch, metrics):
             IMetricsService: {None: metrics},
         }[iface][name]
     )
-    db_request.registry.settings[
-        "files.url"
-    ] = "https://files.example.com/packages/{path}"
+    db_request.registry.settings["files.url"] = (
+        "https://files.example.com/packages/{path}"
+    )
 
     assert backfillable_file.metadata_file_unbackfillable is False
 

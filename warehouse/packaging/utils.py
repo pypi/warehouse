@@ -64,9 +64,11 @@ def _simple_detail(project, request):
                 "hashes": {
                     "sha256": file.sha256_digest,
                 },
-                "requires-python": file.release.requires_python
-                if file.release.requires_python
-                else None,
+                "requires-python": (
+                    file.release.requires_python
+                    if file.release.requires_python
+                    else None
+                ),
                 "size": file.size,
                 "upload-time": file.upload_time.isoformat() + "Z",
                 "yanked": (
