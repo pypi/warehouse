@@ -21,6 +21,17 @@ from warehouse.packaging.utils import _simple_detail, render_simple_detail
 from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
+def test_simple_detail_empty_string(db_request):
+    project = ProjectFactory.create()
+    release = ReleaseFactory.create(project=project, version="1.0", requires_python="")
+    FileFactory.create(release=release)
+
+    db_request.route_url = lambda *a, **kw: "the-url"
+    expected_content = _simple_detail(project, db_request)
+
+    assert expected_content["files"][0]["requires-python"] is None
+
+
 def test_render_simple_detail(db_request, monkeypatch, jinja):
     project = ProjectFactory.create()
     release1 = ReleaseFactory.create(project=project, version="1.0")
