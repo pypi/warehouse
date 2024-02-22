@@ -249,12 +249,12 @@ def cli():
 
 
 @pytest.fixture(scope="session")
-def database(request):
+def database(request, worker_id):
     config = get_config(request)
     pg_host = config.get("host")
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
-    pg_db = config.get("db", "tests")
+    pg_db = f"tests-{worker_id}"
     pg_version = config.get("version", 16.1)
 
     janitor = DatabaseJanitor(
