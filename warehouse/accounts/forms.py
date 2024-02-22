@@ -79,7 +79,7 @@ class UsernameMixin:
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
         ],
-        filters=[lambda username: username.strip() if username else None]
+        filters=[lambda username: username.strip() if username else None],
     )
 
     def validate_username(self, field):
