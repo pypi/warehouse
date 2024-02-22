@@ -173,8 +173,10 @@ services:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/rstuf/keys/online:/keyvault
     environment:
       - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
