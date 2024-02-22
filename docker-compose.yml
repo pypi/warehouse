@@ -119,6 +119,8 @@ services:
     pull_policy: never
     volumes: *base_volumes
     depends_on:
+      db:
+        condition: service_healthy
       stripe:
         condition: service_started
 

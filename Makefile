@@ -61,7 +61,7 @@ debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
 tests: .state/docker-build-base
-	docker compose run --rm tests bin/tests $(T) $(TESTARGS)
+	docker compose run --rm tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
