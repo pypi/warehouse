@@ -20,6 +20,7 @@ from pyramid.authorization import Authenticated
 from tests.common.db.oidc import (
     ActiveStatePublisherFactory,
     GitHubPublisherFactory,
+    GitLabPublisherFactory,
     GooglePublisherFactory,
 )
 from warehouse.oidc import errors, utils
@@ -72,6 +73,47 @@ def test_find_publisher_by_issuer_github(db_request, environment, expected_id):
         utils.find_publisher_by_issuer(
             db_request.db,
             utils.GITHUB_OIDC_ISSUER_URL,
+            signed_claims,
+        ).id
+        == expected_id
+    )
+
+
+@pytest.mark.parametrize(
+    "environment, expected_id",
+    [
+        (None, uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_other_environment", uuid.UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")),
+        ("some_environment", uuid.UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")),
+    ],
+)
+def test_find_publisher_by_issuer_gitlab(db_request, environment, expected_id):
+    GitLabPublisherFactory(
+        id="aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        namespace="foo",
+        project="bar",
+        workflow_filepath="workflows/ci.yml",
+        environment="",  # No environment
+    )
+    GitLabPublisherFactory(
+        id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+        namespace="foo",
+        project="bar",
+        workflow_filepath="workflows/ci.yml",
+        environment="some_environment",  # Environment set
+    )
+
+    signed_claims = {
+        "project_path": "foo/bar",
+        "ci_config_ref_uri": "gitlab.com/foo/bar//workflows/ci.yml@refs/heads/main",
+    }
+    if environment:
+        signed_claims["environment"] = environment
+
+    assert (
+        utils.find_publisher_by_issuer(
+            db_request.db,
+            utils.GITLAB_OIDC_ISSUER_URL,
             signed_claims,
         ).id
         == expected_id
