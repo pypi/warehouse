@@ -39,7 +39,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.ext.associationproxy import association_proxy
+from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
@@ -72,6 +72,7 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
+    from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import OIDCPublisher
 
 
@@ -205,6 +206,19 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
+    )
+
+    # Link to association table that keeps track of warnings for API
+    # token usage in projects that have Trusted Publishing configured.
+    _macaroons_tp_warning: Mapped[list[ProjectMacaroonWarningAssociation]] = (
+        orm.relationship(cascade="all, delete")
+    )
+    macaroons_tp_warning: AssociationProxy[list[Project]] = association_proxy(
+        "_macaroons_tp_warning",
+        "macaroon",
+        creator=lambda macaroon_obj: ProjectMacaroonWarningAssociation(
+            macaroon=macaroon_obj
+        ),
     )
 
     __table_args__ = (
@@ -878,3 +892,29 @@ class ProhibitedProjectName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+
+
+class ProjectMacaroonWarningAssociation(db.Model):
+    """
+    Association table for Projects and Macaroons where a row (P, M) exists in
+    the table iff all of the following statements are true:
+    - M is an API-token Macaroon
+    - M was used to upload a file to project P
+    - P had a Trusted Publisher configured at the time of the upload
+    - An email warning was sent to P's maintainers about the use of M
+
+    In other words, this table tracks if we have warned a project's
+    maintainers about a specific API token being used in spite of a Trusted
+    Publisher being present. This is used in order to only send the warning
+    once per project and API token.
+    """
+
+    __tablename__ = "project_macaroon_warning_association"
+
+    macaroon_id = mapped_column(
+        ForeignKey("macaroons.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    project_id = mapped_column(ForeignKey("projects.id"), primary_key=True)
+
+    macaroon: Mapped[Macaroon] = orm.relationship()
