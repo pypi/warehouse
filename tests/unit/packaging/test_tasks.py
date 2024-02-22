@@ -16,6 +16,7 @@ import tempfile
 from contextlib import contextmanager
 from itertools import product
 from pathlib import Path
+from zipfile import BadZipFile
 
 import pretend
 import pytest
@@ -1028,7 +1029,10 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
     ]
 
 
-def test_metadata_backfill_file_invalid_wheel(db_request, monkeypatch, metrics):
+@pytest.mark.parametrize("exception", [UnsupportedWheel, BadZipFile])
+def test_metadata_backfill_file_invalid_wheel(
+    db_request, monkeypatch, metrics, exception
+):
     project = ProjectFactory()
     release = ReleaseFactory(project=project)
     backfillable_file = FileFactory(
@@ -1037,7 +1041,7 @@ def test_metadata_backfill_file_invalid_wheel(db_request, monkeypatch, metrics):
 
     stub_session = pretend.stub()
     monkeypatch.setattr(warehouse.packaging.tasks, "PipSession", lambda: stub_session)
-    dist_from_wheel_url = pretend.raiser(UnsupportedWheel)
+    dist_from_wheel_url = pretend.raiser(exception)
     monkeypatch.setattr(
         warehouse.packaging.tasks, "dist_from_wheel_url", dist_from_wheel_url
     )
