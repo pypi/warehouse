@@ -36,7 +36,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.11.7-slim-bookworm as docs
+FROM python:3.11.8-slim-bookworm as docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
+    build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -82,10 +82,10 @@ COPY requirements /tmp/requirements
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-            install --no-deps \
-            -r /tmp/requirements/docs-dev.txt \
-            -r /tmp/requirements/docs-user.txt \
-            -r /tmp/requirements/docs-blog.txt \
+    install --no-deps \
+    -r /tmp/requirements/docs-dev.txt \
+    -r /tmp/requirements/docs-user.txt \
+    -r /tmp/requirements/docs-blog.txt \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -105,7 +105,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.11.7-slim-bookworm as build
+FROM python:3.11.8-slim-bookworm as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -131,8 +131,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
+    build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
+    $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -172,10 +172,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-            install --no-deps \
-                    -r /tmp/requirements/deploy.txt \
-                    -r /tmp/requirements/main.txt \
-                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+    install --no-deps \
+    -r /tmp/requirements/deploy.txt \
+    -r /tmp/requirements/main.txt \
+    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -184,7 +184,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.11.7-slim-bookworm
+FROM python:3.11.8-slim-bookworm
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -211,8 +211,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client postgresql build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
+    libpq5 libxml2 libxslt1.1 libcurl4  \
+    $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client postgresql build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
