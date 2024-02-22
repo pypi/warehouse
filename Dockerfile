@@ -212,7 +212,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
         libpq5 libxml2 libxslt1.1 libcurl4  \
-        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client postgresql build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -224,6 +224,3 @@ COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/
 COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
-
-# We cannot run `postgres` as root, so add a user to run the application
-USER nobody

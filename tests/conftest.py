@@ -33,6 +33,7 @@ from pyramid.i18n import TranslationString
 from pyramid.static import ManifestCacheBuster
 from pyramid_jinja2 import IJinja2Environment
 from pyramid_mailer.mailer import DummyMailer
+from pytest_postgresql.config import get_config
 from pytest_postgresql.janitor import DatabaseJanitor
 from sqlalchemy import event
 
@@ -248,12 +249,13 @@ def cli():
 
 
 @pytest.fixture(scope="session")
-def database(postgresql_proc, request):
-    pg_host = postgresql_proc.host
-    pg_port = postgresql_proc.port
-    pg_user = postgresql_proc.user
-    pg_db = postgresql_proc.dbname
-    pg_version = postgresql_proc.version
+def database(request):
+    config = get_config(request)
+    pg_host = config.get("host")
+    pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
+    pg_user = config.get("user")
+    pg_db = config.get("db", "tests")
+    pg_version = config.get("version", 14.4)
 
     janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
 
@@ -311,8 +313,6 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
-        "billing.api_base": "http://stripe:12111",
-        "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
