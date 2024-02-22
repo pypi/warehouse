@@ -400,14 +400,12 @@ def _validate_dynamic(_form, field):
     disallowed_dynamic_fields = {"Name", "Version", "Metadata-Version"}
     if invalid := (declared_dynamic_fields & disallowed_dynamic_fields):
         raise wtforms.validators.ValidationError(
-            f"The following metadata field(s) cannot be marked as dynamic: {invalid!r}",
+            f"The following metadata field(s) are valid, but cannot be marked as dynamic: {invalid!r}",
         )
-    allowed_dynamic_fields = (
-        {field.description for field in MetadataForm() if field.description}
-    ) - disallowed_dynamic_fields
+    allowed_dynamic_fields = set(DynamicFieldsEnum.enums)
     if invalid := (declared_dynamic_fields - allowed_dynamic_fields):
         raise wtforms.validators.ValidationError(
-            f"The following values are not valid for Dynamic: {invalid!r}"
+            f"The following metadata field(s) are not valid and cannot be marked as dynamic: {invalid!r}"
         )
 
 
