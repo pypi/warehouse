@@ -211,11 +211,7 @@ class GitLabPublisherMixin:
 
     def publisher_url(self, claims=None):
         base = f"https://gitlab.com/{self.project_path}"
-        sha = claims.get("sha") if claims else None
-
-        if sha:
-            return f"{base}/commit/{sha}"
-        return base
+        return f"{base}/commit/{claims['sha']}" if claims else base
 
     def stored_claims(self, claims=None):
         claims = claims if claims else {}
