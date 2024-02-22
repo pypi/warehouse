@@ -313,6 +313,8 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "billing.api_base": "http://stripe:12111",
+        "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
