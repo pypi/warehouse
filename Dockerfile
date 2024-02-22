@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-    build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
+        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -82,10 +82,10 @@ COPY requirements /tmp/requirements
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-    install --no-deps \
-    -r /tmp/requirements/docs-dev.txt \
-    -r /tmp/requirements/docs-user.txt \
-    -r /tmp/requirements/docs-blog.txt \
+            install --no-deps \
+            -r /tmp/requirements/docs-dev.txt \
+            -r /tmp/requirements/docs-user.txt \
+            -r /tmp/requirements/docs-blog.txt \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -131,8 +131,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-    build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
-    $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
+        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -172,10 +172,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 RUN --mount=type=cache,target=/root/.cache/pip \
     set -x \
     && pip --disable-pip-version-check \
-    install --no-deps \
-    -r /tmp/requirements/deploy.txt \
-    -r /tmp/requirements/main.txt \
-    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+            install --no-deps \
+                    -r /tmp/requirements/deploy.txt \
+                    -r /tmp/requirements/main.txt \
+                    $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -211,8 +211,8 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-    libpq5 libxml2 libxslt1.1 libcurl4  \
-    $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client postgresql build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
+        libpq5 libxml2 libxslt1.1 libcurl4  \
+        $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -224,6 +224,3 @@ COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/
 COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
-
-# We cannot run `postgres` as root, so add a user to run the application
-USER nobody
