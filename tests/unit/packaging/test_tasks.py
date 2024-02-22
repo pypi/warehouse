@@ -22,7 +22,7 @@ import pretend
 import pytest
 
 from google.cloud.bigquery import SchemaField
-from pip._internal.exceptions import UnsupportedWheel
+from pip._internal.exceptions import InvalidWheel, UnsupportedWheel
 from wtforms import Field, Form, StringField
 
 import warehouse.packaging.tasks
@@ -1029,7 +1029,9 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
     ]
 
 
-@pytest.mark.parametrize("exception", [UnsupportedWheel, BadZipFile])
+@pytest.mark.parametrize(
+    "exception", [InvalidWheel("foo", "bar"), UnsupportedWheel, BadZipFile]
+)
 def test_metadata_backfill_file_invalid_wheel(
     db_request, monkeypatch, metrics, exception
 ):

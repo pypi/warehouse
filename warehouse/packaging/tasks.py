@@ -22,7 +22,7 @@ from pathlib import Path
 from zipfile import BadZipFile
 
 from google.cloud.bigquery import LoadJobConfig
-from pip._internal.exceptions import UnsupportedWheel
+from pip._internal.exceptions import InvalidWheel, UnsupportedWheel
 from pip._internal.network.lazy_wheel import dist_from_wheel_url
 from pip._internal.network.session import PipSession
 from sqlalchemy import desc
@@ -107,7 +107,7 @@ def metadata_backfill_individual(request, file_id):
             file_.release.project.normalized_name, file_url, session
         )
         wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
-    except (UnsupportedWheel, BadZipFile):
+    except (InvalidWheel, UnsupportedWheel, BadZipFile):
         file_.metadata_file_unbackfillable = True
         return
 
