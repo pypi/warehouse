@@ -85,7 +85,6 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
-      - .coveragerc:/opt/warehouse/src/.coveragerc:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
