@@ -33,6 +33,7 @@ from warehouse.accounts.utils import UserTokenContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
+from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
@@ -3845,6 +3846,139 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information. "
             "See /the/help/url/ for more information."
         )
+
+    @pytest.mark.parametrize(
+        # The only case where we expect the warning email to be sent is the first one:
+        # A project that has a trusted publisher, with an upload authenticated using an
+        # API token, where the warning has not already been sent.
+        (
+            "has_trusted_publisher",
+            "auth_with_api_token",
+            "warning_already_sent",
+            "expect_warning",
+        ),
+        [
+            (True, True, False, True),
+            (True, False, False, False),
+            (False, True, False, False),
+            (True, True, True, False),
+            (True, False, True, False),
+            (False, True, True, False),
+        ],
+    )
+    def test_upload_with_token_api_warns_if_trusted_publisher_configured(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        has_trusted_publisher,
+        auth_with_api_token,
+        warning_already_sent,
+        expect_warning,
+    ):
+        # Sanity check: If we're not authenticating with an API token,
+        # that means we have at least one trusted publisher
+        assert auth_with_api_token or has_trusted_publisher
+
+        project = ProjectFactory.create()
+        publisher = None
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        if has_trusted_publisher:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            project.oidc_publishers = [publisher]
+
+        if auth_with_api_token:
+            EmailFactory.create(user=maintainer)
+            db_request.user = maintainer
+            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+                "fake location",
+                "fake description",
+                [caveats.RequestUser(user_id=str(maintainer.id))],
+                user_id=maintainer.id,
+            )
+            identity = UserTokenContext(maintainer, macaroon)
+        else:
+            claims = {"sha": "somesha"}
+            identity = PublisherTokenContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
+            db_request.user = None
+            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+                "fake location",
+                "fake description",
+                [
+                    caveats.OIDCPublisher(
+                        oidc_publisher_id=str(publisher.id), oidc_claims=identity.claims
+                    )
+                ],
+                oidc_publisher_id=str(publisher.id),
+            )
+        if warning_already_sent:
+            project.macaroons_tp_warning.append(macaroon)
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            legacy, "send_api_token_used_in_trusted_publisher_project_email", send_email
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        if expect_warning:
+            assert send_email.calls == [
+                pretend.call(
+                    db_request,
+                    [owner, maintainer],
+                    project_name=project.name,
+                    token_owner_username=maintainer.username,
+                    token_name=macaroon.description,
+                ),
+            ]
+            assert project.macaroons_tp_warning == [macaroon]
+        else:
+            assert send_email.calls == []
+            if not warning_already_sent:
+                assert project.macaroons_tp_warning == []
 
 
 def test_submit(pyramid_request):

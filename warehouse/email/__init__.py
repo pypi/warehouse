@@ -1036,6 +1036,17 @@ def send_pending_trusted_publisher_invalidated_email(request, user, project_name
     }
 
 
+@_email("api-token-used-in-trusted-publisher-project")
+def send_api_token_used_in_trusted_publisher_project_email(
+    request, users, project_name, token_owner_username, token_name
+):
+    return {
+        "token_owner_username": token_owner_username,
+        "project_name": project_name,
+        "token_name": token_name,
+    }
+
+
 def includeme(config):
     email_sending_class = config.maybe_dotted(config.registry.settings["mail.backend"])
     config.register_service_factory(email_sending_class.create_service, IEmailSender)
