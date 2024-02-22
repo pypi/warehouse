@@ -16,15 +16,18 @@ from warehouse.oidc.models.activestate import (
     PendingActiveStatePublisher,
 )
 from warehouse.oidc.models.github import GitHubPublisher, PendingGitHubPublisher
+from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.oidc.models.google import GooglePublisher, PendingGooglePublisher
 
 __all__ = [
     "OIDCPublisher",
     "PendingOIDCPublisher",
     "PendingGitHubPublisher",
+    "PendingGitLabPublisher",
     "PendingGooglePublisher",
     "PendingActiveStatePublisher",
     "GitHubPublisher",
+    "GitLabPublisher",
     "GooglePublisher",
     "ActiveStatePublisher",
 ]

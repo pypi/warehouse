@@ -262,6 +262,14 @@ def test_mint_token_from_oidc_unknown_issuer():
             ),
             "google",
         ),
+        (
+            (
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2dpd"
+                "GxhYi5jb20iLCJpYXQiOjE3MDYwMjYxNjR9.EcmGXp-aFWLrwbNm5QIjDAQ_mR"
+                "sHtF7obbcnu4w_ZSU"
+            ),
+            "gitlab",
+        ),
     ],
 )
 def test_mint_token_from_oidc_creates_expected_service(

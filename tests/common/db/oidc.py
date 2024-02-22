@@ -15,9 +15,11 @@ import factory
 from warehouse.oidc.models import (
     ActiveStatePublisher,
     GitHubPublisher,
+    GitLabPublisher,
     GooglePublisher,
     PendingActiveStatePublisher,
     PendingGitHubPublisher,
+    PendingGitLabPublisher,
     PendingGooglePublisher,
 )
 
@@ -47,6 +49,30 @@ class PendingGitHubPublisherFactory(WarehouseFactory):
     repository_owner = factory.Faker("pystr", max_chars=12)
     repository_owner_id = factory.Faker("pystr", max_chars=12)
     workflow_filename = "example.yml"
+    environment = "production"
+    added_by = factory.SubFactory(UserFactory)
+
+
+class GitLabPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = GitLabPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project = factory.Faker("pystr", max_chars=12)
+    namespace = factory.Faker("pystr", max_chars=12)
+    workflow_filepath = "subfolder/example.yml"
+    environment = "production"
+
+
+class PendingGitLabPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingGitLabPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
+    project = factory.Faker("pystr", max_chars=12)
+    namespace = factory.Faker("pystr", max_chars=12)
+    workflow_filepath = "subfolder/example.yml"
     environment = "production"
     added_by = factory.SubFactory(UserFactory)
 
