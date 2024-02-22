@@ -3941,6 +3941,110 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         )
 
+    @pytest.mark.parametrize(
+        # The only case where we expect the warning email to be sent is the first one:
+        # A project that has a trusted publisher, with an upload authenticated using an
+        # API token, that creates a new release.
+        (
+            "has_trusted_publisher",
+            "auth_with_api_token",
+            "new_release",
+            "expect_warning",
+        ),
+        [
+            (True, True, True, True),
+            (True, False, True, False),
+            (False, True, True, False),
+            (True, True, False, False),
+            (True, False, False, False),
+            (False, True, False, False),
+        ],
+    )
+    def test_upload_with_token_api_warns_if_trusted_publisher_configured(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        has_trusted_publisher,
+        auth_with_api_token,
+        new_release,
+        expect_warning,
+    ):
+        project = ProjectFactory.create()
+        # If we are testing the behavior of uploading files to an existing
+        # release, we create an empty one
+        if not new_release:
+            release = ReleaseFactory.create(version="1.0")
+            project.releases = [release]
+
+        publisher = None
+        if has_trusted_publisher:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            project.oidc_publishers = [publisher]
+
+        if auth_with_api_token:
+            identity = UserFactory.create()
+            RoleFactory.create(user=identity, project=project)
+            EmailFactory.create(user=identity)
+            db_request.user = identity
+        else:
+            claims = {"sha": "somesha"}
+            identity = OIDCContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
+            db_request.user = None
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            legacy, "send_api_token_used_in_trusted_publisher_project_email", send_email
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        if expect_warning:
+            expected_email_calls = [
+                pretend.call(
+                    db_request,
+                    [identity],
+                    project_name=project.name,
+                    token_owner_username=identity.username,
+                ),
+            ]
+        else:
+            expected_email_calls = []
+
+        assert send_email.calls == expected_email_calls
+
 
 def test_submit(pyramid_request):
     resp = legacy.submit(pyramid_request)

@@ -48,6 +48,7 @@ from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
+    send_api_token_used_in_trusted_publisher_project_email,
     send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
@@ -1152,6 +1153,18 @@ def file_upload(request):
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
+
+        # If this is a user identity (i.e: API token) but there exists
+        # a trusted publisher for this project, send an email warning that an
+        # API token was used to upload a project where Trusted Publishing is configured.
+        # Only do this when a new release is uploaded, and not per each individual file.
+        if request.user and project.oidc_publishers:
+            send_api_token_used_in_trusted_publisher_project_email(
+                request,
+                project.users,
+                project_name=project.name,
+                token_owner_username=request.user.username,
+            )
 
     # TODO: We need a better solution to this than to just do it inline inside
     #       this method. Ideally the version field would just be sortable, but

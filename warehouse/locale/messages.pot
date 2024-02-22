@@ -1857,6 +1857,25 @@ msgid ""
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#, python-format
+msgid ""
+"An API token belonging to user <strong>%(token_owner_username)s</strong> "
+"was used to upload files to the project "
+"<strong>%(project_name)s</strong>, even though the project has a Trusted "
+"Publisher configured. We suggest you remove the API token and use Trusted"
+" Publishing instead."
+msgstr ""
+
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:28
+#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
+#, python-format
+msgid ""
+"If you believe this was done in error, you can email <a "
+"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
 msgid ""
@@ -2249,14 +2268,6 @@ msgid ""
 "You registered an pending OpenID Connect publisher for a project "
 "(<strong>%(project_name)s</strong>), but someone else has invalidated "
 "your pending publisher by creating the project before you did."
-msgstr ""
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
 msgstr ""
 
 #: warehouse/templates/email/primary-email-change/body.html:18
