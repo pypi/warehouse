@@ -18,6 +18,7 @@ from warehouse.oidc.tasks import compute_oidc_metrics
 from warehouse.oidc.utils import (
     ACTIVESTATE_OIDC_ISSUER_URL,
     GITHUB_OIDC_ISSUER_URL,
+    GITLAB_OIDC_ISSUER_URL,
     GOOGLE_OIDC_ISSUER_URL,
 )
 
@@ -35,6 +36,15 @@ def includeme(config):
         ),
         IOIDCPublisherService,
         name="github",
+    )
+    config.register_service_factory(
+        OIDCPublisherServiceFactory(
+            publisher="gitlab",
+            issuer_url=GITLAB_OIDC_ISSUER_URL,
+            service_class=oidc_publisher_service_class,
+        ),
+        IOIDCPublisherService,
+        name="gitlab",
     )
     config.register_service_factory(
         OIDCPublisherServiceFactory(
