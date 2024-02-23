@@ -194,28 +194,45 @@ class TestProject:
                 Permissions.APIObservationsAdd,
             ),
         ] + sorted(
-            [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
+            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+            key=lambda x: x[1],
         ) + sorted(
             [
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner3.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner4.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -224,12 +241,12 @@ class TestProject:
                 (
                     Allow,
                     f"user:{maintainer1.user.id}",
-                    ["upload"],
+                    [Permissions.ProjectsUpload],
                 ),
                 (
                     Allow,
                     f"user:{maintainer2.user.id}",
-                    ["upload"],
+                    [Permissions.ProjectsUpload],
                 ),
             ],
             key=lambda x: x[1],
@@ -487,19 +504,27 @@ class TestRelease:
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    [Permissions.ProjectsRead, Permissions.ProjectsWrite, "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
-                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", [Permissions.ProjectsUpload]),
+                (Allow, f"user:{maintainer2.user.id}", [Permissions.ProjectsUpload]),
             ],
             key=lambda x: x[1],
         )
