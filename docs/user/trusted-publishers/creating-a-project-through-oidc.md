@@ -71,7 +71,7 @@ provide the name of the PyPI project that will be created.
     `release.yml` and an environment named `release` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
-    TODO: add screenshot
+    ![](/assets/trusted-publishing/gitlab/pending-publisher-form-filled.png)
 
     !!! note
 
@@ -80,7 +80,7 @@ provide the name of the PyPI project that will be created.
 
     Clicking "Add" will register the "pending" publisher, and show it to you:
 
-    TODO: add screenshot
+    ![](/assets/trusted-publishing/gitlab/pending-publisher-registered.png)
 
 
 

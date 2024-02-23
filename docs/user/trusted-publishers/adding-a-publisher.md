@@ -111,7 +111,7 @@ each.
     that uses a publishing workflow defined in `release.yml` and a custom
     environment named `release`, then you'd do the following:
 
-    TODO: insert screenshot here
+    ![](/assets/trusted-publishing/gitlab/project-publishing-form.png)
 
     !!! note
 
@@ -123,7 +123,7 @@ each.
     Once you click "Add", your publisher will be registered and will appear
     at the top of the page:
 
-    TODO: insert screenshot here
+    ![](/assets/trusted-publishing/gitlab/project-publisher-registered.png)
 
     From this point onwards, the `release.yml` workflow on `namespace/sampleproject`
     will be able to generate short-lived API tokens from PyPI for the project you've
