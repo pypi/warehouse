@@ -14,7 +14,9 @@ import datetime
 
 import pretend
 
-from warehouse.oidc.tasks import compute_oidc_metrics
+from warehouse.macaroons import caveats
+from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
@@ -22,6 +24,7 @@ from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
+    UserFactory,
 )
 
 
@@ -94,4 +97,76 @@ def test_compute_oidc_metrics(db_request, metrics):
         pretend.call(
             "warehouse.oidc.publishers", 4, tags=["publisher:github_oidc_publishers"]
         ),
+    ]
+
+
+def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
+    # We'll create 4 macaroons:
+    # - An OIDC macaroon with creation time of 1 day ago
+    # - An OIDC macaroon with creation time of 1 hour ago
+    # - An OIDC macaroon with creation time now
+    # - A non-OIDC macaroon with creation time of 1 day ago
+    # The task should only delete the first one
+
+    publisher = GitHubPublisherFactory.create()
+    claims = {"sha": "somesha", "ref": "someref"}
+    # Create an OIDC macaroon and set its creation time to 1 day ago
+    (_, old_oidc_macaroon) = macaroon_service.create_macaroon(
+        "fake location",
+        "fake description",
+        [
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+        ],
+        oidc_publisher_id=publisher.id,
+        additional={"oidc": publisher.stored_claims(claims)},
+    )
+    old_oidc_macaroon.created -= datetime.timedelta(days=1)
+
+    # Create an OIDC macaroon and set its creation time to 1 hour ago
+    macaroon_service.create_macaroon(
+        "fake location",
+        "fake description",
+        [
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+        ],
+        oidc_publisher_id=publisher.id,
+        additional={"oidc": publisher.stored_claims(claims)},
+    )
+    old_oidc_macaroon.created -= datetime.timedelta(hours=1)
+
+    # Create a normal OIDC macaroon
+    macaroon_service.create_macaroon(
+        "fake location",
+        "fake description",
+        [caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id))],
+        oidc_publisher_id=publisher.id,
+        additional={"oidc": publisher.stored_claims(claims)},
+    )
+
+    # Create a non-OIDC macaroon and set its creation time to 1 day ago
+    user = UserFactory.create()
+    (_, non_oidc_macaroon) = macaroon_service.create_macaroon(
+        "fake location",
+        "fake description",
+        [caveats.RequestUser(user_id=str(user.id))],
+        user_id=user.id,
+    )
+    non_oidc_macaroon.created -= datetime.timedelta(days=1)
+
+    assert db_request.db.query(Macaroon).count() == 4
+
+    # The ID of the macaroon we expect to be deleted by the task
+    old_oidc_macaroon_id = old_oidc_macaroon.id
+
+    delete_expired_oidc_macaroons(db_request)
+    assert db_request.db.query(Macaroon).count() == 3
+    assert (
+        db_request.db.query(Macaroon)
+        .filter(Macaroon.id == old_oidc_macaroon_id)
+        .count()
+        == 0
+    )
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.oidc.expired_oidc_tokens_deleted", 1),
     ]
