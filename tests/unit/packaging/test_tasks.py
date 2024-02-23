@@ -1030,7 +1030,7 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
 
 
 @pytest.mark.parametrize(
-    "exception", [InvalidWheel("foo", "bar"), UnsupportedWheel, BadZipFile]
+    "exception", [InvalidWheel("foo", "bar"), UnsupportedWheel, BadZipFile, KeyError]
 )
 def test_metadata_backfill_file_invalid_wheel(
     db_request, monkeypatch, metrics, exception
