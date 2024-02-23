@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timedelta, timezone
+
 from warehouse import tasks
+from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.packaging.models import File, Project, Release
@@ -65,3 +68,21 @@ def compute_oidc_metrics(request):
             .count(),
             tags=[f"publisher:{discriminator}"],
         )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def delete_expired_oidc_macaroons(request):
+    # Purge all API tokens minted using OIDC Trusted Publishing with a creation time
+    # more than 15 minutes ago. Since OIDC-minted macaroons expire 15 minutes after
+    # creation, this task cleans up all the expired tokens that have accumulated since
+    # the last time this task was run.
+    (
+        request.db.query(Macaroon)
+        .filter(Macaroon.oidc_publisher_id.isnot(None))
+        .filter(
+            # The expiration time (created + 15 mins) is in the past
+            Macaroon.created + timedelta(minutes=15)
+            < datetime.now(tz=timezone.utc)
+        )
+        .delete(synchronize_session=False)
+    )
