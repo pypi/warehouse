@@ -101,8 +101,9 @@ def test_compute_oidc_metrics(db_request, metrics):
 
 
 def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
-    # We'll create 3 macaroons:
+    # We'll create 4 macaroons:
     # - An OIDC macaroon with creation time of 1 day ago
+    # - An OIDC macaroon with creation time of 1 hour ago
     # - An OIDC macaroon with creation time now
     # - A non-OIDC macaroon with creation time of 1 day ago
     # The task should only delete the first one
@@ -120,6 +121,18 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         additional={"oidc": publisher.stored_claims(claims)},
     )
     old_oidc_macaroon.created -= datetime.timedelta(days=1)
+
+    # Create an OIDC macaroon and set its creation time to 1 hour ago
+    macaroon_service.create_macaroon(
+        "fake location",
+        "fake description",
+        [
+            caveats.OIDCPublisher(oidc_publisher_id=str(publisher.id)),
+        ],
+        oidc_publisher_id=publisher.id,
+        additional={"oidc": publisher.stored_claims(claims)},
+    )
+    old_oidc_macaroon.created -= datetime.timedelta(hours=1)
 
     # Create a normal OIDC macaroon
     macaroon_service.create_macaroon(
@@ -140,13 +153,13 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
     )
     non_oidc_macaroon.created -= datetime.timedelta(days=1)
 
-    assert db_request.db.query(Macaroon).count() == 3
+    assert db_request.db.query(Macaroon).count() == 4
 
     # The ID of the macaroon we expect to be deleted by the task
     old_oidc_macaroon_id = old_oidc_macaroon.id
 
     delete_expired_oidc_macaroons(db_request)
-    assert db_request.db.query(Macaroon).count() == 2
+    assert db_request.db.query(Macaroon).count() == 3
     assert (
         db_request.db.query(Macaroon)
         .filter(Macaroon.id == old_oidc_macaroon_id)
