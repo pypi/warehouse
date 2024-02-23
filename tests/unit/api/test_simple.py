@@ -102,7 +102,7 @@ class TestSimpleIndex:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -121,7 +121,7 @@ class TestSimpleIndex:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -142,7 +142,7 @@ class TestSimpleIndex:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -168,7 +168,7 @@ class TestSimpleIndex:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
 
 class TestSimpleDetail:
@@ -210,7 +210,7 @@ class TestSimpleDetail:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -235,7 +235,7 @@ class TestSimpleDetail:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -283,7 +283,7 @@ class TestSimpleDetail:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -331,7 +331,7 @@ class TestSimpleDetail:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
 
     @pytest.mark.parametrize(
         "content_type,renderer_override",
@@ -424,4 +424,4 @@ class TestSimpleDetail:
         _assert_has_cors_headers(db_request.response.headers)
 
         if renderer_override is not None:
-            db_request.override_renderer == renderer_override
+            assert db_request.override_renderer == renderer_override
