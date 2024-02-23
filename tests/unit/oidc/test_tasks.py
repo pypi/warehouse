@@ -102,14 +102,14 @@ def test_compute_oidc_metrics(db_request, metrics):
 
 def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
     # We'll create 3 macaroons:
-    # - An OIDC macaroon with creation time of 15 minutes ago
+    # - An OIDC macaroon with creation time of 1 day ago
     # - An OIDC macaroon with creation time now
-    # - A non-OIDC macaroon with creation time of 15 minutes ago
+    # - A non-OIDC macaroon with creation time of 1 day ago
     # The task should only delete the first one
 
     publisher = GitHubPublisherFactory.create()
     claims = {"sha": "somesha", "ref": "someref"}
-    # Create an OIDC macaroon and set its creation time to 15 minutes ago
+    # Create an OIDC macaroon and set its creation time to 1 day ago
     (_, old_oidc_macaroon) = macaroon_service.create_macaroon(
         "fake location",
         "fake description",
@@ -119,7 +119,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         oidc_publisher_id=publisher.id,
         additional={"oidc": publisher.stored_claims(claims)},
     )
-    old_oidc_macaroon.created -= datetime.timedelta(minutes=15)
+    old_oidc_macaroon.created -= datetime.timedelta(days=1)
 
     # Create a normal OIDC macaroon
     macaroon_service.create_macaroon(
@@ -130,7 +130,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         additional={"oidc": publisher.stored_claims(claims)},
     )
 
-    # Create a non-OIDC macaroon and set its creation time to 15 min ago
+    # Create a non-OIDC macaroon and set its creation time to 1 day ago
     user = UserFactory.create()
     (_, non_oidc_macaroon) = macaroon_service.create_macaroon(
         "fake location",
@@ -138,7 +138,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
         [caveats.RequestUser(user_id=str(user.id))],
         user_id=user.id,
     )
-    non_oidc_macaroon.created -= datetime.timedelta(minutes=15)
+    non_oidc_macaroon.created -= datetime.timedelta(days=1)
 
     assert db_request.db.query(Macaroon).count() == 3
 

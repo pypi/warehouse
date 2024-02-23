@@ -74,16 +74,16 @@ def compute_oidc_metrics(request):
 def delete_expired_oidc_macaroons(request):
     """
     Purge all API tokens minted using OIDC Trusted Publishing with a creation time
-    more than 15 minutes ago. Since OIDC-minted macaroons expire 15 minutes after
-    creation, this task cleans up all the expired tokens that have accumulated since
-    the last time this task was run.
+    more than 1 day ago. Since OIDC-minted macaroons expire 15 minutes after
+    creation, this task cleans up tokens that expired several hours ago and that
+    have accumulated since the last time this task was run.
     """
     rows_deleted = (
         request.db.query(Macaroon)
         .filter(Macaroon.oidc_publisher_id.isnot(None))
         .filter(
-            # The expiration time (created + 15 mins) is in the past
-            Macaroon.created + timedelta(minutes=15)
+            # The token has been created at more than 1 day ago
+            Macaroon.created + timedelta(days=1)
             < datetime.now(tz=timezone.utc)
         )
         .delete(synchronize_session=False)

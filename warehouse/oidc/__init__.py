@@ -81,4 +81,4 @@ def includeme(config):
 
     # Daily purge expired OIDC-minted API tokens. These tokens are temporary in nature
     # and expire after 15 minutes of creation.
-    config.add_periodic_task(crontab(minute=0, hour=0), delete_expired_oidc_macaroons)
+    config.add_periodic_task(crontab(minute=0, hour=6), delete_expired_oidc_macaroons)
