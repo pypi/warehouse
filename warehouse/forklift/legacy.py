@@ -46,6 +46,7 @@ from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_gpg_signature_uploaded_email,
@@ -959,7 +960,7 @@ def file_upload(request):
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    allowed = request.has_permission("upload", project)
+    allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
         if request.user:
