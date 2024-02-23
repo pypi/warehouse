@@ -100,7 +100,7 @@ def test_compute_oidc_metrics(db_request, metrics):
     ]
 
 
-def test_delete_expired_oidc_macaroons(db_request, macaroon_service):
+def test_delete_expired_oidc_macaroons(db_request, macaroon_service, metrics):
     # We'll create 3 macaroons:
     # - An OIDC macaroon with creation time of 15 minutes ago
     # - An OIDC macaroon with creation time now
@@ -153,3 +153,7 @@ def test_delete_expired_oidc_macaroons(db_request, macaroon_service):
         .count()
         == 0
     )
+
+    assert metrics.gauge.calls == [
+        pretend.call("warehouse.oidc.expired_oidc_tokens_deleted", 1),
+    ]
