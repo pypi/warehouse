@@ -85,6 +85,7 @@ class TestLoginForm:
             ("  my_username  ", "my_username"),
             ("my_username ", "my_username"),
             (" my_username", "my_username"),
+            ("   my_username    ", "my_username"),
         ],
     )
     def test_validate_username_with_user(self, input_username, expected_username):
