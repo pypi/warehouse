@@ -83,6 +83,8 @@ class UsernameMixin:
     )
 
     def validate_username(self, field):
+        field.data = field.data.strip()
+
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
@@ -365,6 +367,12 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.breach_service = breach_service
+
+    def username_strips_whitespace(self):
+        if self.username.data:
+            self.username.data = self.username.data.strip()
+
+        return super().username_strips_whitespace()
 
     def validate_password(self, field):
         # Before we try to validate anything, first check to see if the IP is banned
