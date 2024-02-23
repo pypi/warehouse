@@ -58,6 +58,7 @@ class TestGitLabPublisher:
             "exp",
             "aud",
             # unchecked claims
+            "project_id",
             "namespace_id",
             "namespace_path",
             "user_id",
@@ -78,6 +79,7 @@ class TestGitLabPublisher:
             "ci_config_sha",
             "project_visibility",
             "jti",
+            "user_access_level",
         }
 
     def test_gitlab_publisher_computed_properties(self):

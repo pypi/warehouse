@@ -119,6 +119,9 @@ class GitLabPublisherMixin:
     }
 
     __unchecked_claims__ = {
+        # We are not currently verifying project_id or namespace_id to protect against
+        # resurrection attacks: https://github.com/pypi/warehouse/issues/13575
+        "project_id",
         "namespace_id",
         "namespace_path",
         "user_id",
@@ -139,6 +142,7 @@ class GitLabPublisherMixin:
         "ci_config_sha",
         "project_visibility",
         "jti",
+        "user_access_level",
     }
 
     @staticmethod
