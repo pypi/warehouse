@@ -78,18 +78,27 @@ class TestLoginForm:
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
-    def test_validate_username_with_user(self):
+    @pytest.mark.parametrize(
+        "input_username,expected_username",
+        [
+            ("my_username", "my_username"),
+            ("  my_username  ", "my_username"),
+            ("my_username ", "my_username"),
+            (" my_username", "my_username"),
+            ("   my_username    ", "my_username"),
+        ],
+    )
+    def test_validate_username_with_user(self, input_username, expected_username):
         request = pretend.stub()
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
         form = forms.LoginForm(
             request=request, user_service=user_service, breach_service=breach_service
         )
-        field = pretend.stub(data="my_username")
-
+        field = pretend.stub(data=input_username)
         form.validate_username(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
     def test_validate_password_no_user(self):
         request = pretend.stub(

@@ -78,10 +78,12 @@ class UsernameMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
-        ]
+        ],
     )
 
     def validate_username(self, field):
+        field.data = field.data.strip()
+
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
