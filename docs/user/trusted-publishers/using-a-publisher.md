@@ -292,7 +292,7 @@ below describe the setup process for each supported trusted publisher.
       stage: build
       image: python:3-bookworm
       script:
-        - python -m pip install -U twine build
+        - python -m pip install -U build
         - cd python_pkg && python -m build
       artifacts:
         paths:
@@ -305,6 +305,7 @@ below describe the setup process for each supported trusted publisher.
         - build-job
       id_tokens:
         PYPI_ID_TOKEN:
+          # Use "testpypi" if uploading to TestPyPI
           aud: pypi
       script:
         # Install dependencies
@@ -313,9 +314,11 @@ below describe the setup process for each supported trusted publisher.
     
         # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
         - oidc_token=$(python -m id PYPI)
+        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
         - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
-        - api_token=$(jq '.token' <<< "${resp}")
+        - api_token=$(jq --raw-output '.token' <<< "${resp}")
     
         # Upload to PyPI authenticating via the newly-minted token
+        # Add "--repository testpypi" if uploading to TestPyPI
         - twine upload -u __token__ -p "${api_token}" python_pkg/dist/*
     ```
