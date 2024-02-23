@@ -294,7 +294,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         # The project has zero or more OIDC publishers registered to it,
         # each of which serves as an identity with the ability to upload releases.
         for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", ["upload"]))
+            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -333,13 +333,13 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                         f"user:{user_id}",
                         [
                             Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
                             Permissions.ProjectsWrite,
-                            "upload",
                         ],
                     )
                 )
             else:
-                acls.append((Allow, f"user:{user_id}", ["upload"]))
+                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
         return acls
 
     @property

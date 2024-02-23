@@ -285,7 +285,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, pretend.stub(), "upload")
+        result = policy.permits(request, pretend.stub(), Permissions.ProjectsUpload)
 
         assert result == Denied("")
         assert result.s == "Invalid API Token: foo"
@@ -308,10 +308,12 @@ class TestMacaroonSecurityPolicy:
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        context = pretend.stub(__acl__=[(Allow, "user:5", ["upload"])])
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", [Permissions.ProjectsUpload])]
+        )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, context, "upload")
+        result = policy.permits(request, context, Permissions.ProjectsUpload)
 
         assert bool(result) == expected
 

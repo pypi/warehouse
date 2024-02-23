@@ -92,6 +92,7 @@ class Permissions(StrEnum):
 
     # Projects Permissions
     ProjectsRead = "projects:read"
+    ProjectsUpload = "projects:upload"
     ProjectsWrite = "projects:write"  # TODO: Worth splitting out ProjectDelete?
 
     # Organization Permissions

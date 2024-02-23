@@ -156,7 +156,7 @@ class MacaroonSecurityPolicy:
         #       complicated if we want to allow the use of macaroons for actions other
         #       than uploading.
         if permission not in [
-            "upload",
+            Permissions.ProjectsUpload,
             # TODO: Adding API-specific routes here is not sustainable. However,
             #  removing this guard would allow Macaroons to be used for Session-based
             #  operations, bypassing any 2FA requirements.
