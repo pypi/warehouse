@@ -79,7 +79,6 @@ class UsernameMixin:
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
         ],
-        filters=[lambda username: username.strip() if username else None],
     )
 
     def validate_username(self, field):
@@ -367,12 +366,6 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.breach_service = breach_service
-
-    def username_strips_whitespace(self):
-        if self.username.data:
-            self.username.data = self.username.data.strip()
-
-        return super().username_strips_whitespace()
 
     def validate_password(self, field):
         # Before we try to validate anything, first check to see if the IP is banned
