@@ -250,8 +250,8 @@ class TestSimpleDetail:
             FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
             for r in releases
         ]
-        # let's assert the result is ordered by string comparison of filename
-        files = sorted(files, key=lambda key: key.filename)
+        # let's assert the result is ordered by string comparison of version, filename
+        files = sorted(files, key=lambda f: (parse(f.release.version), f.filename))
         urls_iter = (f"/file/{f.filename}" for f in files)
         db_request.matchdict["name"] = project.normalized_name
         db_request.route_url = lambda *a, **kw: next(urls_iter)
