@@ -84,6 +84,7 @@ class TestLoginForm:
             ("my_username", "my_username"),
             ("  my_username  ", "my_username"),
             ("my_username ", "my_username"),
+            (" my_username", "my_username"),
         ],
     )
     def test_validate_username_with_user(self, input_username, expected_username):
@@ -94,7 +95,6 @@ class TestLoginForm:
             request=request, user_service=user_service, breach_service=breach_service
         )
         field = pretend.stub(data=input_username)
-
         form.validate_username(field)
 
         assert user_service.find_userid.calls == [pretend.call(expected_username)]
