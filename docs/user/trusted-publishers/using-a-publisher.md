@@ -274,4 +274,51 @@ below describe the setup process for each supported trusted publisher.
 
 === "GitLab CI/CD"
 
-    TODO
+    This is an example GitLab workflow that builds and publishes a package to PyPI
+    using Trusted Publishing. The key differences with a normal workflow are in the
+    deployment step (`publish-job`):
+
+    - The keyword
+      [`id_tokens`](https://docs.gitlab.com/ee/ci/yaml/index.html#id_tokens) is used
+      to request an OIDC token from GitLab with name `PYPI_ID_TOKEN` and audience
+      `pypi`.
+    - This OIDC token is extracted from the CI/CD environment using the
+      [`id`](https://pypi.org/project/id/) package.
+    - The OIDC token is then sent to PyPI in exchange for a PyPI API token, which
+      is then used to publish the package using `twine`.
+
+    ```yaml
+    build-job:
+      stage: build
+      image: python:3-bookworm
+      script:
+        - python -m pip install -U build
+        - cd python_pkg && python -m build
+      artifacts:
+        paths:
+          - "python_pkg/dist/"
+    
+    publish-job:
+      stage: deploy
+      image: python:3-bookworm
+      dependencies:
+        - build-job
+      id_tokens:
+        PYPI_ID_TOKEN:
+          # Use "testpypi" if uploading to TestPyPI
+          aud: pypi
+      script:
+        # Install dependencies
+        - apt update && apt install -y jq
+        - python -m pip install -U twine id
+    
+        # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
+        - oidc_token=$(python -m id PYPI)
+        # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
+        - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
+        - api_token=$(jq --raw-output '.token' <<< "${resp}")
+    
+        # Upload to PyPI authenticating via the newly-minted token
+        # Add "--repository testpypi" if uploading to TestPyPI
+        - twine upload -u __token__ -p "${api_token}" python_pkg/dist/*
+    ```
