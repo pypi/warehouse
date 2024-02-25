@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-02-15 15:45+0000\n"
+"PO-Revision-Date: 2024-02-26 14:55+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -67,7 +67,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -555,15 +555,11 @@ msgstr ""
 "help#admin-intervention。"
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"基于 Github 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
+"基于 GitLab 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
 #: warehouse/manage/views/__init__.py:1453
@@ -796,39 +792,29 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "指定 GitHub 存储库所有者（用户名或组织）"
+msgstr "指定 GitLab 命名空间（用户名或群/子群）"
 
 #: warehouse/oidc/forms/gitlab.py:37
-#, fuzzy
-#| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
-msgstr "无效的 GitHub 用户或组织名称。"
+msgstr "无效的 GitLab 命名空间或群/子群名。"
 
 #: warehouse/oidc/forms/gitlab.py:53
-#, fuzzy
-#| msgid "Specify workflow filename"
 msgid "Specify workflow filepath"
-msgstr "指定工作流文件名"
+msgstr "指定工作流的文件路径"
 
 # | msgid "Invalid TOTP code."
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid environment name"
-msgstr "无效的项目名"
+msgstr "无效的环境名"
 
 #: warehouse/oidc/forms/gitlab.py:76
-#, fuzzy
-#| msgid "Workflow name must end with .yml or .yaml"
 msgid "Workflow file path must end with .yml or .yaml"
-msgstr "工作流名称必须以 .yml 或 .yaml 结尾"
+msgstr "工作流的文件路径必须以 .yml 或 .yaml 结尾"
 
 #: warehouse/oidc/forms/gitlab.py:80
 msgid "Workflow file path cannot start or end with /"
-msgstr ""
+msgstr "工作流的文件路径无法启动或以 / 结尾"
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -4826,37 +4812,30 @@ msgstr "添加"
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/project/publishing.html:129
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub Actions's OpenID Connect support <a "
-#| "href=\"%(href)s\">here</a>."
+#, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"如要获取更多关于GitHub Action 的 OpenID Connect 发布者的信息，<a "
-"href=\"%(href)s\">请点击此处</a>。"
+"如要获取更多关于GitLab CI/CD OpenID Connect 支持的信息，<a href=\"%(href)s\""
+">请点击此处</a>。"
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
 msgid "Namespace"
-msgstr "名称"
+msgstr "命名名称"
 
 #: warehouse/templates/manage/account/publishing.html:177
 #: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
 msgid "namespace"
-msgstr "未设置名称"
+msgstr "命名空间"
 
 #: warehouse/templates/manage/account/publishing.html:179
 #: warehouse/templates/manage/project/publishing.html:147
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
-msgstr ""
+msgstr "项目所在的 GitLab 命名空间或 GitLab 群/子群"
 
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
@@ -4868,56 +4847,36 @@ msgstr "项目名称"
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project"
 msgid "project"
 msgstr "项目"
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/project/publishing.html:162
-#, fuzzy
-#| msgid ""
-#| "The name of the GitHub repository that contains the publishing workflow"
 msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "包含发布工作流的 Github 存储库的名称"
+msgstr "包含发布工作流的 GitLab 项目的名称"
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Workflow name"
 msgid "Workflow file path"
-msgstr "工作流名称"
+msgstr "工作流文件路径"
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
 msgid ".gitlab-ci.yml"
-msgstr ""
+msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
-#, fuzzy
-#| msgid ""
-#| "The filename of the publishing workflow. This file should exist in the "
-#| "<code>.github/workflows/</code> directory in the repository configured "
-#| "above."
 msgid ""
 "The file path of the publishing workflow, relative to the project's root. "
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
-msgstr ""
-"发布工作流的文件名。这个文件应该存在于上文所配置的存储库中的 <code>.github/"
-"workflows/</code>目录中。"
+msgstr "相对于项目根目录的发布工作流的文件路径。此文件应该在上方所配置的项目中（不支"
+"持外部工作流）。"
 
 #: warehouse/templates/manage/account/publishing.html:226
 #: warehouse/templates/manage/project/publishing.html:194
-#, fuzzy, python-format
-#| msgid ""
-#| "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
-#| "the above workflow uses for publishing.  This should be configured under "
-#| "the repository's settings. While not required, a dedicated publishing "
-#| "environment is <strong>strongly</strong> encouraged, <strong>especially</"
-#| "strong> if your repository has maintainers with commit access who "
-#| "shouldn't have PyPI publishing access."
+#, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
 "above workflow uses for publishing.  This should be configured under the "
@@ -4926,10 +4885,10 @@ msgid ""
 "project has maintainers with commit access who shouldn't have PyPI "
 "publishing access."
 msgstr ""
-"上述工作流用于发布目的而使用的 <a href=\"%(href)s\">GitHub Actions 环境</a> "
-"的名称。  这应当在存储库的设置下进行配置。 虽然不是必需， 我们<strong>强烈</"
-"strong> 推荐使用专门的发布环境，<strong>尤其</strong> 如果你的存储库存在拥有"
-"代码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
+"上述工作流用于发布目的而使用的 <a href=\"%(href)s\">GitLab CI/CD 环境</a> "
+"的名称。  这应该在项目的设置下进行配置。 虽然不是必需， 我们<strong>强烈</"
+"strong> 推荐使用专门的发布环境，<strong>尤其</strong> "
+"如果你的项目存在拥有代码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
