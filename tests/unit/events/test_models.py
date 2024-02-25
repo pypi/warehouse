@@ -136,7 +136,7 @@ class TestUserAgentInfo:
             ),
             (
                 (
-                    "twine/3.1.1 pkginfo/1.5.0.1 requests/2.22.0 setuptools/45.2.0 "
+                    "twine/3.1.1 pkginfo/198.51.100.5 requests/2.22.0 setuptools/45.2.0 "
                     "requests-toolbelt/0.9.1 tqdm/4.42.1 CPython/3.6.9"
                 ),
                 {"installer": "twine", "implementation": "CPython", "system": None},
