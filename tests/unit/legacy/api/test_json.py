@@ -391,7 +391,7 @@ class TestReleaseFactory:
     def test_missing_release_with_multiple_canonical(self, db_request):
         project = ProjectFactory.create()
         ReleaseFactory.create(project=project, version="3.0.0")
-        ReleaseFactory.create(project=project, version="3.0.0.0")
+        ReleaseFactory.create(project=project, version="192.0.2.1")
         db_request.matchdict = {"name": project.normalized_name, "version": "3.0"}
         resp = json.release_factory(db_request)
         assert isinstance(resp, HTTPNotFound)
@@ -402,7 +402,7 @@ class TestReleaseFactory:
         [
             (["0.1", "1.0", "2.0"], "3.0", "3.0"),
             (["0.1", "1.0", "2.0"], "3.0.0", "3.0"),
-            (["0.1", "1.0", "2.0", "3.0.0"], "3.0.0.0.0", "3.0.0.0.0"),
+            (["0.1", "1.0", "2.0", "3.0.0"], "192.0.2.1.0", "192.0.2.1.0"),
         ],
     )
     def test_lookup_release(
