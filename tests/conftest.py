@@ -111,7 +111,7 @@ def metrics():
 
 @pytest.fixture
 def remote_addr():
-    return "1.2.3.4"
+    return "192.0.2.1"
 
 
 @pytest.fixture
