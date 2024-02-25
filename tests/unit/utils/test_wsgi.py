@@ -122,7 +122,7 @@ class TestProxyFixer:
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_FOR": "192.0.2.1",
+            "HTTP_X_FORWARDED_FOR": "1.2.3.4",
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
@@ -135,7 +135,7 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "192.0.2.1",
+                    "REMOTE_ADDR": "1.2.3.4",
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
@@ -167,7 +167,7 @@ class TestProxyFixer:
 
         environ = {
             "HTTP_X_FORWARDED_PROTO": "http",
-            "HTTP_X_FORWARDED_FOR": "2.2.3.4, 192.0.2.1, 198.51.100.5",
+            "HTTP_X_FORWARDED_FOR": "2.2.3.4, 1.2.3.4, 5.5.5.5",
             "HTTP_X_FORWARDED_HOST": "example.com",
             "HTTP_SOME_OTHER_HEADER": "woop",
         }
@@ -182,7 +182,7 @@ class TestProxyFixer:
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
-                    "REMOTE_ADDR": "192.0.2.1",
+                    "REMOTE_ADDR": "1.2.3.4",
                     "REMOTE_ADDR_HASHED": remote_addr_salted,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
