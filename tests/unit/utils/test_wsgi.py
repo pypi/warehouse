@@ -148,8 +148,10 @@ class TestProxyFixer:
         response = pretend.stub()
         app = pretend.call_recorder(lambda e, s: response)
 
-        environ = {"HTTP_X_FORWARDED_FOR": "192.0.2.1",
-                   "HTTP_SOME_OTHER_HEADER": "woop"}
+        environ = {
+            "HTTP_X_FORWARDED_FOR": "192.0.2.1",
+            "HTTP_SOME_OTHER_HEADER": "woop",
+        }
         start_response = pretend.stub()
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt=None, num_proxies=2)(
