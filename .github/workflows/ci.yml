@@ -69,7 +69,7 @@ jobs:
         env:
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
         # Set health checks to wait until postgres has started
-        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 -U postgres -d postgres
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 --username postgres --dbname postgres
       stripe:
         image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
