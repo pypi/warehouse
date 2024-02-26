@@ -25,6 +25,7 @@ from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
+    Column,
     FetchedValue,
     ForeignKey,
     Index,
@@ -36,7 +37,7 @@ from sqlalchemy import (
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -465,6 +466,32 @@ class ReleaseURL(db.Model):
     url: Mapped[str]
 
 
+DynamicFieldsEnum = ENUM(
+    "Platform",
+    "Supported-Platform",
+    "Summary",
+    "Description",
+    "Description-Content-Type",
+    "Keywords",
+    "Home-page",
+    "Download-URL",
+    "Author",
+    "Author-email",
+    "Maintainer",
+    "Maintainer-email",
+    "License",
+    "Classifier",
+    "Requires-Dist",
+    "Requires-Python",
+    "Requires-External",
+    "Project-URL",
+    "Provides-Extra",
+    "Provides-Dist",
+    "Obsoletes-Dist",
+    name="release_dynamic_fields",
+)
+
+
 class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
@@ -517,6 +544,12 @@ class Release(HasObservations, db.Model):
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
 
+    dynamic = Column(  # type: ignore[var-annotated]
+        ARRAY(DynamicFieldsEnum),
+        nullable=True,
+        comment="Array of metadata fields marked as Dynamic (PEP 643/Metadata 2.2)",
+    )
+
     _classifiers: Mapped[list[Classifier]] = orm.relationship(
         secondary="release_classifiers",
         order_by=Classifier.ordering,
@@ -568,6 +601,12 @@ class Release(HasObservations, db.Model):
 
     _provides_dist = _dependency_relation(DependencyKind.provides_dist)
     provides_dist = association_proxy("_provides_dist", "specifier")
+
+    provides_extra = Column(  # type: ignore[var-annotated]
+        ARRAY(Text),
+        nullable=True,
+        comment="Array of extra names (PEP 566/685|Metadata 2.1/2.3)",
+    )
 
     _obsoletes_dist = _dependency_relation(DependencyKind.obsoletes_dist)
     obsoletes_dist = association_proxy("_obsoletes_dist", "specifier")
