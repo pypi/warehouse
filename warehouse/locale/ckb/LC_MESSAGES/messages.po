@@ -50,23 +50,23 @@ msgstr ""
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:89
+#: warehouse/accounts/forms.py:91
 msgid "No user found with that username"
 msgstr "هیچ بەکارهێنەرێک نەدۆزراوە بەو نازناوە"
 
-#: warehouse/accounts/forms.py:100
+#: warehouse/accounts/forms.py:102
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "‮fzmg"
 
-#: warehouse/accounts/forms.py:120
+#: warehouse/accounts/forms.py:122
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:135
+#: warehouse/accounts/forms.py:137
 msgid "Choose a username with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:152
+#: warehouse/accounts/forms.py:154
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -74,12 +74,12 @@ msgstr ""
 "ئەو نازناوە پێشتر لەلایەن هەژماری ترەوە بەکارهاتووە. نازناوێکی جیاواز "
 "بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:166 warehouse/accounts/forms.py:215
-#: warehouse/accounts/forms.py:228
+#: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
+#: warehouse/accounts/forms.py:230
 msgid "Password too long."
 msgstr "وشەی نهێنیەکەت زۆر درێژە."
 
-#: warehouse/accounts/forms.py:202
+#: warehouse/accounts/forms.py:204
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -88,27 +88,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:231
+#: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."
 msgstr "پاسۆردەکانت وەکوو یەک نین. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:265
+#: warehouse/accounts/forms.py:267
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:276
+#: warehouse/accounts/forms.py:278
 msgid "The email address isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:284
+#: warehouse/accounts/forms.py:286
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "تۆ ناتوانیت ئەو ناونیشانەی پۆستە ئەلیکترۆنیە بەکاربهێنی بەهۆی پاشگرەکەی. "
 "پۆستێکی ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:295
+#: warehouse/accounts/forms.py:297
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -116,7 +116,7 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە پێشووتر بەکارهاتووە لەلایەن هەژماری ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:302
+#: warehouse/accounts/forms.py:304
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -124,33 +124,33 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:336 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:337 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:427
+#: warehouse/accounts/forms.py:428
 msgid "Invalid TOTP code."
 msgstr "کۆدی TOTP نادروستە."
 
-#: warehouse/accounts/forms.py:444
+#: warehouse/accounts/forms.py:445
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:513
+#: warehouse/accounts/forms.py:514
 msgid "Invalid recovery code."
 msgstr "کۆدی هێنانەوەت نادروستە."
 
-#: warehouse/accounts/forms.py:522
+#: warehouse/accounts/forms.py:523
 msgid "Recovery code has been previously used."
 msgstr "کۆدی ‌هێنانەوەکەت پێشووتر بەکارهاتووە."
 
-#: warehouse/accounts/forms.py:552
+#: warehouse/accounts/forms.py:553
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:118
+#: warehouse/accounts/views.py:120
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -159,13 +159,13 @@ msgid ""
 "out for {}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/views.py:135
+#: warehouse/accounts/views.py:137
 msgid ""
 "Too many emails have been added to this account without verifying them. "
 "Check your inbox and follow the verification links. (IP: ${ip})"
 msgstr ""
 
-#: warehouse/accounts/views.py:147
+#: warehouse/accounts/views.py:149
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
@@ -175,26 +175,26 @@ msgstr ""
 "سەردانی ئەو نامانە بکە کە بۆت هاتووە وە بەستەرەی پشتراستکردنەوە قبوڵ بکە."
 "(IP: ${ip})"
 
-#: warehouse/accounts/views.py:329 warehouse/accounts/views.py:398
-#: warehouse/accounts/views.py:400 warehouse/accounts/views.py:429
-#: warehouse/accounts/views.py:431 warehouse/accounts/views.py:537
+#: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
+#: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
+#: warehouse/accounts/views.py:433 warehouse/accounts/views.py:539
 msgid "Invalid or expired two factor login."
 msgstr "چوونەژوورەوەی دوو فاکتەر هەڵەیە یاخوود بەسەرچووە."
 
-#: warehouse/accounts/views.py:392
+#: warehouse/accounts/views.py:394
 msgid "Already authenticated"
 msgstr "پێشووتر ڕەسەنایەتی کراوە"
 
-#: warehouse/accounts/views.py:472
+#: warehouse/accounts/views.py:474
 msgid "Successful WebAuthn assertion"
 msgstr "جەختکردنەوەیەکی سەرکەوتووی ڕەسەنایەتی پەڕە"
 
-#: warehouse/accounts/views.py:568 warehouse/manage/views/__init__.py:833
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:835
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "کۆدی هێنانەوە وەرگیراوە. کۆدی نێردراو ناتوانرێت دووبارە بەکاربهێندرێتەوە."
 
-#: warehouse/accounts/views.py:660
+#: warehouse/accounts/views.py:662
 msgid ""
 "New user registration temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -202,132 +202,132 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:797
+#: warehouse/accounts/views.py:799
 msgid "Expired token: request a new password reset link"
 msgstr "پولێكی ‌‌بەسەرچووە: داواکاری بەستەرەیەکی نوێی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:801
 msgid "Invalid token: request a new password reset link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی گۆرینی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:801 warehouse/accounts/views.py:914
-#: warehouse/accounts/views.py:1018 warehouse/accounts/views.py:1187
+#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:916
+#: warehouse/accounts/views.py:1020 warehouse/accounts/views.py:1189
 msgid "Invalid token: no token supplied"
 msgstr "پولێکی ‌هەڵە: هیچ پولێک نەنێردراوە"
 
-#: warehouse/accounts/views.py:805
+#: warehouse/accounts/views.py:807
 msgid "Invalid token: not a password reset token"
 msgstr "پولێکی هەڵە: پولێکی گۆرینی وشەی نهێنی نیە"
 
-#: warehouse/accounts/views.py:810
+#: warehouse/accounts/views.py:812
 msgid "Invalid token: user not found"
 msgstr "پولێکی هەڵە: بەکارهێنەر نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:832
+#: warehouse/accounts/views.py:834
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "پولێکی هەڵە: بەکارهێنەر چۆتەوە ژوورەوە کاتێک ئەو پولە داواکراوە پێشتر"
 
-#: warehouse/accounts/views.py:850
+#: warehouse/accounts/views.py:852
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "پولێکی هەڵە: وشەی نهێنی پێشتر گۆردراوە کاتێک ئەو پولە داواکراوە"
 
-#: warehouse/accounts/views.py:882
+#: warehouse/accounts/views.py:884
 msgid "You have reset your password"
 msgstr "وشەی نهێنی خۆتت گۆریوەتەوە"
 
-#: warehouse/accounts/views.py:910
+#: warehouse/accounts/views.py:912
 msgid "Expired token: request a new email verification link"
 msgstr "پولێکی بەسەرچوون: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:912
+#: warehouse/accounts/views.py:914
 msgid "Invalid token: request a new email verification link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:918
+#: warehouse/accounts/views.py:920
 msgid "Invalid token: not an email verification token"
 msgstr "پولێکی هەڵە: پولی پۆستی ئەلیکترۆنی سەڵماندن نیە"
 
-#: warehouse/accounts/views.py:927
+#: warehouse/accounts/views.py:929
 msgid "Email not found"
 msgstr "پۆستی ئەلیکترۆنی نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:930
+#: warehouse/accounts/views.py:932
 msgid "Email already verified"
 msgstr "پۆستی ئەلیکترۆنیەکە پێشووتر پشتراستکراوەتەوە"
 
-#: warehouse/accounts/views.py:947
+#: warehouse/accounts/views.py:949
 msgid "You can now set this email as your primary address"
 msgstr "ئێستا دەتوانیت ئەم ئیمەیڵە وەک ناونیشانی سەرەکی خۆت دابنێیت"
 
-#: warehouse/accounts/views.py:951
+#: warehouse/accounts/views.py:953
 msgid "This is your primary address"
 msgstr "ئەمە ناونیشانی سەرەکی تۆیە"
 
-#: warehouse/accounts/views.py:956
+#: warehouse/accounts/views.py:958
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "ناونیشانی ئیمەیڵ ${email_address} پشتڕاستکرایەوە. ${پەیام_دڵنیاکردنەوە}."
 
-#: warehouse/accounts/views.py:1014
+#: warehouse/accounts/views.py:1016
 msgid "Expired token: request a new organization invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1018
 msgid "Invalid token: request a new organization invitation"
 msgstr "نیشانەیەکی هەڵە: داوای بانگێشتنامەی رێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1022
+#: warehouse/accounts/views.py:1024
 msgid "Invalid token: not an organization invitation token"
 msgstr "نیشانەی هەڵە:نەک نیشانەی بانگهێشتی ڕێکخراو"
 
-#: warehouse/accounts/views.py:1026
+#: warehouse/accounts/views.py:1028
 msgid "Organization invitation is not valid."
 msgstr "بانگهێشتی ڕێکخراوەکە ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1035
+#: warehouse/accounts/views.py:1037
 msgid "Organization invitation no longer exists."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1086
+#: warehouse/accounts/views.py:1088
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${organization_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1149
+#: warehouse/accounts/views.py:1151
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ئێستا تۆ ${role} ی ڕێکخراوی '${organization_name}'یت."
 
-#: warehouse/accounts/views.py:1183
+#: warehouse/accounts/views.py:1185
 msgid "Expired token: request a new project role invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1187
 msgid "Invalid token: request a new project role invitation"
 msgstr "نیشانەی هەڵە:داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1191
+#: warehouse/accounts/views.py:1193
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "نیشانەی نادروست: نیشانەی بانگهێشتی هاوکاری نییە"
 
-#: warehouse/accounts/views.py:1195
+#: warehouse/accounts/views.py:1197
 msgid "Role invitation is not valid."
 msgstr "بانگهێشتی ڕۆڵ ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1210
+#: warehouse/accounts/views.py:1212
 msgid "Role invitation no longer exists."
 msgstr "بانگهێشتی ڕۆڵ چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1241
+#: warehouse/accounts/views.py:1243
 msgid "Invitation for '${project_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1307
+#: warehouse/accounts/views.py:1309
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/accounts/views.py:1546 warehouse/accounts/views.py:1762
-#: warehouse/manage/views/__init__.py:1205
+#: warehouse/accounts/views.py:1556 warehouse/accounts/views.py:1799
+#: warehouse/manage/views/__init__.py:1212
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -339,7 +339,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1567
+#: warehouse/accounts/views.py:1577
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -349,19 +349,20 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1583
+#: warehouse/accounts/views.py:1593
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1596
+#: warehouse/accounts/views.py:1606
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1612 warehouse/manage/views/__init__.py:1240
-#: warehouse/manage/views/__init__.py:1353
-#: warehouse/manage/views/__init__.py:1463
+#: warehouse/accounts/views.py:1622 warehouse/manage/views/__init__.py:1247
+#: warehouse/manage/views/__init__.py:1360
+#: warehouse/manage/views/__init__.py:1472
+#: warehouse/manage/views/__init__.py:1582
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -371,28 +372,29 @@ msgid ""
 "again later."
 msgstr "زۆر هەوڵی تۆمارکردنی OpenID Connect دراوە. دواتر هه ولٓبه ره وه."
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1254
-#: warehouse/manage/views/__init__.py:1367
-#: warehouse/manage/views/__init__.py:1477
+#: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
+#: warehouse/manage/views/__init__.py:1374
+#: warehouse/manage/views/__init__.py:1486
+#: warehouse/manage/views/__init__.py:1596
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1637
+#: warehouse/accounts/views.py:1647
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1664
+#: warehouse/accounts/views.py:1674
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1776 warehouse/accounts/views.py:1789
-#: warehouse/accounts/views.py:1796
+#: warehouse/accounts/views.py:1813 warehouse/accounts/views.py:1826
+#: warehouse/accounts/views.py:1833
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1802
+#: warehouse/accounts/views.py:1839
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -441,6 +443,7 @@ msgid "Select project"
 msgstr "پرۆژە هەڵبژێرە"
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/oidc/forms/gitlab.py:44
 msgid "Specify project name"
 msgstr "ناوی پڕۆژەکە دیاری بکە"
 
@@ -506,40 +509,40 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/manage/views/__init__.py:201
+#: warehouse/manage/views/__init__.py:203
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "وردەکاری هەژمار"
 
-#: warehouse/manage/views/__init__.py:230
+#: warehouse/manage/views/__init__.py:232
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "ئیمەیڵ ${email_address} زیادکرا - ئیمەیڵەکەت بپشکنە بۆ بەستەری پشتڕاستکردنەوە"
 
-#: warehouse/manage/views/__init__.py:781
+#: warehouse/manage/views/__init__.py:783
 msgid "Recovery codes already generated"
 msgstr "کۆدەکانی گەڕانەوە کە پێشتر دروستکراون"
 
-#: warehouse/manage/views/__init__.py:782
+#: warehouse/manage/views/__init__.py:784
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "دروستکردنی کۆدی نوێی گەڕانەوە کۆدەکانی ئێستات هەڵدەوەشێنێتەوە."
 
-#: warehouse/manage/views/__init__.py:891
+#: warehouse/manage/views/__init__.py:893
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "ئیمەیڵەکەت پشتڕاست بکەرەوە یان ناونیشانێکی نوێ زیاد بکە."
 
-#: warehouse/manage/views/__init__.py:991
+#: warehouse/manage/views/__init__.py:993
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1025
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1221
+#: warehouse/manage/views/__init__.py:1228
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -551,7 +554,19 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1334
+#: warehouse/manage/views/__init__.py:1341
+#, fuzzy
+#| msgid ""
+#| "New user registration temporarily disabled. See https://pypi.org/"
+#| "help#admin-intervention for details."
+msgid ""
+"GitLab-based trusted publishing is temporarily disabled. See https://pypi."
+"org/help#admin-intervention for details."
+msgstr ""
+"تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
+"org/help#admin-intervention بۆ وردەکاریەکان."
+
+#: warehouse/manage/views/__init__.py:1453
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -563,7 +578,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1443
+#: warehouse/manage/views/__init__.py:1562
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -575,9 +590,9 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1678
-#: warehouse/manage/views/__init__.py:1979
-#: warehouse/manage/views/__init__.py:2087
+#: warehouse/manage/views/__init__.py:1797
+#: warehouse/manage/views/__init__.py:2098
+#: warehouse/manage/views/__init__.py:2206
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -589,54 +604,54 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1810
-#: warehouse/manage/views/__init__.py:1895
-#: warehouse/manage/views/__init__.py:1996
-#: warehouse/manage/views/__init__.py:2096
+#: warehouse/manage/views/__init__.py:1929
+#: warehouse/manage/views/__init__.py:2014
+#: warehouse/manage/views/__init__.py:2115
+#: warehouse/manage/views/__init__.py:2215
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "بانگێشتنامەکە پەسەند بکە"
 
-#: warehouse/manage/views/__init__.py:1822
+#: warehouse/manage/views/__init__.py:1941
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1907
+#: warehouse/manage/views/__init__.py:2026
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2008
+#: warehouse/manage/views/__init__.py:2127
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2108
+#: warehouse/manage/views/__init__.py:2227
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2112
+#: warehouse/manage/views/__init__.py:2231
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2381
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2369
+#: warehouse/manage/views/__init__.py:2488
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2436
+#: warehouse/manage/views/__init__.py:2555
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/manage/views/__init__.py:2468
+#: warehouse/manage/views/__init__.py:2587
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -644,37 +659,37 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ پڕۆژە زیاد بکرێت"
 
-#: warehouse/manage/views/__init__.py:2481
-#: warehouse/manage/views/organizations.py:879
+#: warehouse/manage/views/__init__.py:2600
+#: warehouse/manage/views/organizations.py:881
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "بەکارهێنەر '${username}' پێشتر بانگهێشتێکی چالاکی هەیە. تکایە دووبارە "
 "هەوڵبدەرەوە."
 
-#: warehouse/manage/views/__init__.py:2546
-#: warehouse/manage/views/organizations.py:944
+#: warehouse/manage/views/__init__.py:2665
+#: warehouse/manage/views/organizations.py:946
 msgid "Invitation sent to '${username}'"
 msgstr "بانگهێشتنامە نێردراوە بۆ '${username}'."
 
-#: warehouse/manage/views/__init__.py:2579
+#: warehouse/manage/views/__init__.py:2698
 msgid "Could not find role invitation."
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2590
+#: warehouse/manage/views/__init__.py:2709
 msgid "Invitation already expired."
 msgstr "بانگێشتنامە پێشتر بەسەرچووە."
 
-#: warehouse/manage/views/__init__.py:2622
-#: warehouse/manage/views/organizations.py:1131
+#: warehouse/manage/views/__init__.py:2741
+#: warehouse/manage/views/organizations.py:1133
 msgid "Invitation revoked from '${username}'."
 msgstr "بانگهێشتنامە لە '${username}' هەڵوەشایەوە."
 
-#: warehouse/manage/views/organizations.py:855
+#: warehouse/manage/views/organizations.py:857
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ ڕێکخستن"
 
-#: warehouse/manage/views/organizations.py:866
+#: warehouse/manage/views/organizations.py:868
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -682,24 +697,24 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ ڕێکخراو زیاد بکرێت"
 
-#: warehouse/manage/views/organizations.py:1027
-#: warehouse/manage/views/organizations.py:1069
+#: warehouse/manage/views/organizations.py:1029
+#: warehouse/manage/views/organizations.py:1071
 msgid "Could not find organization invitation."
 msgstr "نەتوانرا بانگهێشتی ڕێکخراو بدۆزرێتەوە."
 
-#: warehouse/manage/views/organizations.py:1037
+#: warehouse/manage/views/organizations.py:1039
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/manage/views/organizations.py:1084
+#: warehouse/manage/views/organizations.py:1086
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/oidc/forms/_core.py:25
+#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid project name"
@@ -825,6 +840,40 @@ msgstr "ناوی وەرکفڵۆ دەبێت بە .yml یان .yaml کۆتایی �
 #: warehouse/oidc/forms/github.py:154
 msgid "Workflow filename must be a filename only, without directories"
 msgstr "ناوی پەڕگەی وەرکفڵۆ دەبێت تەنها ناوی پەڕگە بێت، بەبێ بەڕێوەبەرایەتی"
+
+#: warehouse/oidc/forms/gitlab.py:33
+#, fuzzy
+#| msgid "Specify GitHub repository owner (username or organization)"
+msgid "Specify GitLab namespace (username or group/subgroup)"
+msgstr "خاوەنی کۆگای GitHub دیاری بکە (ناوی بەکارهێنەر یان ڕێکخراو)"
+
+#: warehouse/oidc/forms/gitlab.py:37
+#, fuzzy
+#| msgid "Invalid GitHub user or organization name."
+msgid "Invalid GitLab username or group/subgroup name."
+msgstr "ناوی بەکارهێنەر یان ڕێکخراوی GitHub نادروستە."
+
+#: warehouse/oidc/forms/gitlab.py:53
+#, fuzzy
+#| msgid "Specify workflow filename"
+msgid "Specify workflow filepath"
+msgstr "ناوی پەڕگەی وەرکفڵۆ دیاری بکە"
+
+#: warehouse/oidc/forms/gitlab.py:61
+#, fuzzy
+#| msgid "Invalid repository name"
+msgid "Invalid environment name"
+msgstr "ناوی کۆگاکە نادروستە"
+
+#: warehouse/oidc/forms/gitlab.py:76
+#, fuzzy
+#| msgid "Workflow name must end with .yml or .yaml"
+msgid "Workflow file path must end with .yml or .yaml"
+msgstr "ناوی وەرکفڵۆ دەبێت بە .yml یان .yaml کۆتایی بێت"
+
+#: warehouse/oidc/forms/gitlab.py:80
+msgid "Workflow file path cannot start or end with /"
+msgstr ""
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -1508,10 +1557,15 @@ msgstr "وشەی نهێنی"
 #: warehouse/templates/manage/account/publishing.html:159
 #: warehouse/templates/manage/account/publishing.html:174
 #: warehouse/templates/manage/account/publishing.html:189
-#: warehouse/templates/manage/account/publishing.html:224
-#: warehouse/templates/manage/account/publishing.html:246
-#: warehouse/templates/manage/account/publishing.html:268
-#: warehouse/templates/manage/account/publishing.html:290
+#: warehouse/templates/manage/account/publishing.html:204
+#: warehouse/templates/manage/account/publishing.html:219
+#: warehouse/templates/manage/account/publishing.html:261
+#: warehouse/templates/manage/account/publishing.html:276
+#: warehouse/templates/manage/account/publishing.html:291
+#: warehouse/templates/manage/account/publishing.html:326
+#: warehouse/templates/manage/account/publishing.html:348
+#: warehouse/templates/manage/account/publishing.html:370
+#: warehouse/templates/manage/account/publishing.html:392
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1537,9 +1591,13 @@ msgstr "وشەی نهێنی"
 #: warehouse/templates/manage/project/publishing.html:95
 #: warehouse/templates/manage/project/publishing.html:142
 #: warehouse/templates/manage/project/publishing.html:157
-#: warehouse/templates/manage/project/publishing.html:192
-#: warehouse/templates/manage/project/publishing.html:214
-#: warehouse/templates/manage/project/publishing.html:236
+#: warehouse/templates/manage/project/publishing.html:172
+#: warehouse/templates/manage/project/publishing.html:187
+#: warehouse/templates/manage/project/publishing.html:229
+#: warehouse/templates/manage/project/publishing.html:244
+#: warehouse/templates/manage/project/publishing.html:279
+#: warehouse/templates/manage/project/publishing.html:301
+#: warehouse/templates/manage/project/publishing.html:323
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:289
 #: warehouse/templates/manage/project/roles.html:305
@@ -3082,15 +3140,15 @@ msgstr "ناوی کۆگاکە نادروستە"
 #: warehouse/templates/email/trusted-publisher-added/body.html:39
 #: warehouse/templates/email/trusted-publisher-removed/body.html:37
 #: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:172
-#: warehouse/templates/manage/project/publishing.html:140
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
 msgid "Email"
 msgstr "بەستەرەی ئەلیکترۆنی"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:41
 #: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:187
-#: warehouse/templates/manage/project/publishing.html:155
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
 #, fuzzy
 #| msgid "Subject:"
 msgid "Subject"
@@ -3103,8 +3161,8 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:45
 #: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:244
-#: warehouse/templates/manage/project/publishing.html:190
+#: warehouse/templates/manage/account/publishing.html:346
+#: warehouse/templates/manage/project/publishing.html:277
 #: warehouse/templates/organizations/profile.html:30
 #, fuzzy
 #| msgid "Confirm Organization Invite"
@@ -3113,8 +3171,8 @@ msgstr "بانگێشتنامەی رێکخراو پەسەند بکە"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:46
 #: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:266
-#: warehouse/templates/manage/project/publishing.html:212
+#: warehouse/templates/manage/account/publishing.html:368
+#: warehouse/templates/manage/project/publishing.html:299
 #, fuzzy
 #| msgid "Specify project name"
 msgid "ActiveState Project name"
@@ -4481,7 +4539,7 @@ msgstr "رێکخراوەکەی تۆ"
 #: warehouse/templates/manage/manage_base.html:80
 #: warehouse/templates/manage/manage_base.html:97
 #: warehouse/templates/manage/manage_base.html:100
-#: warehouse/templates/manage/manage_base.html:566
+#: warehouse/templates/manage/manage_base.html:575
 #: warehouse/templates/manage/organization/roles.html:202
 #: warehouse/templates/manage/organization/roles.html:204
 #: warehouse/templates/manage/organization/roles.html:209
@@ -4689,11 +4747,12 @@ msgstr ""
 "<a href=\"%(href)s\">%(href)s</a>\n"
 
 #: warehouse/templates/manage/manage_base.html:546
-#: warehouse/templates/manage/manage_base.html:554
+#: warehouse/templates/manage/manage_base.html:555
+#: warehouse/templates/manage/manage_base.html:563
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:573
+#: warehouse/templates/manage/manage_base.html:582
 #: warehouse/templates/manage/organization/history.html:166
 #: warehouse/templates/manage/project/history.html:43
 #: warehouse/templates/manage/project/history.html:97
@@ -4704,7 +4763,7 @@ msgstr ""
 msgid "Added by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:575
+#: warehouse/templates/manage/manage_base.html:584
 #: warehouse/templates/manage/organization/history.html:171
 #: warehouse/templates/manage/project/history.html:62
 #: warehouse/templates/manage/project/history.html:128
@@ -4715,28 +4774,28 @@ msgstr ""
 msgid "Removed by:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:577
+#: warehouse/templates/manage/manage_base.html:586
 #, fuzzy
 #| msgid "Invited by"
 msgid "Submitted by:"
 msgstr "بانگهێشت کراوە لەلایەن"
 
-#: warehouse/templates/manage/manage_base.html:580
+#: warehouse/templates/manage/manage_base.html:589
 #: warehouse/templates/manage/project/history.html:247
 msgid "Workflow:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:582
+#: warehouse/templates/manage/manage_base.html:591
 msgid "Specifier:"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:585
+#: warehouse/templates/manage/manage_base.html:594
 #, fuzzy
 #| msgid "Publisher name"
 msgid "Publisher:"
 msgstr "باوی بڵاوکەرەوە"
 
-#: warehouse/templates/manage/manage_base.html:587
+#: warehouse/templates/manage/manage_base.html:596
 #: warehouse/templates/manage/project/history.html:52
 #: warehouse/templates/manage/project/history.html:106
 msgid "URL:"
@@ -5042,7 +5101,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:38
 #: warehouse/templates/manage/account/publishing.html:157
-#: warehouse/templates/manage/account/publishing.html:222
+#: warehouse/templates/manage/account/publishing.html:259
+#: warehouse/templates/manage/account/publishing.html:324
 #, fuzzy
 #| msgid "Specify project name"
 msgid "PyPI Project Name"
@@ -5050,7 +5110,8 @@ msgstr "ناوی پڕۆژەکە دیاری بکە"
 
 #: warehouse/templates/manage/account/publishing.html:43
 #: warehouse/templates/manage/account/publishing.html:162
-#: warehouse/templates/manage/account/publishing.html:228
+#: warehouse/templates/manage/account/publishing.html:264
+#: warehouse/templates/manage/account/publishing.html:330
 #, fuzzy
 #| msgid "Specify project name"
 msgid "project name"
@@ -5058,7 +5119,8 @@ msgstr "ناوی پڕۆژەکە دیاری بکە"
 
 #: warehouse/templates/manage/account/publishing.html:45
 #: warehouse/templates/manage/account/publishing.html:164
-#: warehouse/templates/manage/account/publishing.html:236
+#: warehouse/templates/manage/account/publishing.html:266
+#: warehouse/templates/manage/account/publishing.html:338
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
@@ -5106,21 +5168,27 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:110
+#: warehouse/templates/manage/account/publishing.html:217
 #: warehouse/templates/manage/project/publishing.html:93
+#: warehouse/templates/manage/project/publishing.html:185
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Environment name"
 msgstr "ناوی کۆگاکە نادروستە"
 
 #: warehouse/templates/manage/account/publishing.html:114
-#: warehouse/templates/manage/account/publishing.html:191
+#: warehouse/templates/manage/account/publishing.html:221
+#: warehouse/templates/manage/account/publishing.html:293
 #: warehouse/templates/manage/project/publishing.html:97
-#: warehouse/templates/manage/project/publishing.html:159
+#: warehouse/templates/manage/project/publishing.html:189
+#: warehouse/templates/manage/project/publishing.html:246
 msgid "(optional)"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:118
+#: warehouse/templates/manage/account/publishing.html:224
 #: warehouse/templates/manage/project/publishing.html:101
+#: warehouse/templates/manage/project/publishing.html:192
 #, fuzzy
 #| msgid "Releases"
 msgid "release"
@@ -5139,11 +5207,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:139
-#: warehouse/templates/manage/account/publishing.html:210
-#: warehouse/templates/manage/account/publishing.html:307
+#: warehouse/templates/manage/account/publishing.html:241
+#: warehouse/templates/manage/account/publishing.html:312
+#: warehouse/templates/manage/account/publishing.html:409
 #: warehouse/templates/manage/project/publishing.html:122
-#: warehouse/templates/manage/project/publishing.html:178
-#: warehouse/templates/manage/project/publishing.html:253
+#: warehouse/templates/manage/project/publishing.html:209
+#: warehouse/templates/manage/project/publishing.html:265
+#: warehouse/templates/manage/project/publishing.html:340
 #: warehouse/templates/manage/project/roles.html:341
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
@@ -5157,6 +5227,94 @@ msgstr ""
 #| "You can generate recovery codes for your account here:\n"
 #| "<a href=\"%(href)s\">%(href)s</a>\n"
 msgid ""
+"Read more about GitLab CI/CD OpenID Connect support <a "
+"href=\"%(href)s\">here</a>."
+msgstr ""
+"\n"
+"دەتوانیت لێرە کۆدی گەڕانەوە بۆ ئەکاونتەکەت دروست بکەیت:\n"
+"<a href=\"%(href)s\">%(href)s</a>\n"
+
+#: warehouse/templates/manage/account/publishing.html:172
+#: warehouse/templates/manage/project/publishing.html:140
+#, fuzzy
+#| msgid "Name"
+msgid "Namespace"
+msgstr "ناو"
+
+#: warehouse/templates/manage/account/publishing.html:177
+#: warehouse/templates/manage/project/publishing.html:145
+#, fuzzy
+#| msgid "No name set"
+msgid "namespace"
+msgstr "هیچ ناوێک دانەنراوە"
+
+#: warehouse/templates/manage/account/publishing.html:179
+#: warehouse/templates/manage/project/publishing.html:147
+msgid ""
+"The GitLab username or GitLab group/subgroup namespace that the project is "
+"under"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:187
+#: warehouse/templates/manage/project/documentation.html:35
+#: warehouse/templates/manage/project/publishing.html:155
+#: warehouse/templates/manage/project/release.html:129
+#: warehouse/templates/pages/stats.html:42
+msgid "Project name"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:192
+#: warehouse/templates/manage/project/publishing.html:160
+#, fuzzy
+#| msgid "Projects"
+msgid "project"
+msgstr "پرۆژەکان"
+
+#: warehouse/templates/manage/account/publishing.html:194
+#: warehouse/templates/manage/project/publishing.html:162
+msgid "The name of the GitLab project that contains the publishing workflow"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:202
+#: warehouse/templates/manage/project/publishing.html:170
+#, fuzzy
+#| msgid "Specify workflow filename"
+msgid "Workflow file path"
+msgstr "ناوی پەڕگەی وەرکفڵۆ دیاری بکە"
+
+#: warehouse/templates/manage/account/publishing.html:207
+#: warehouse/templates/manage/project/publishing.html:175
+msgid ".gitlab-ci.yml"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:209
+#: warehouse/templates/manage/project/publishing.html:177
+msgid ""
+"The file path of the publishing workflow, relative to the project's root. "
+"This file should exist in the project configured above (external workflows "
+"are not supported)."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:226
+#: warehouse/templates/manage/project/publishing.html:194
+#, python-format
+msgid ""
+"The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
+"above workflow uses for publishing.  This should be configured under the "
+"project's settings. While not required, a dedicated publishing environment "
+"is <strong>strongly</strong> encouraged, <strong>especially</strong> if your "
+"project has maintainers with commit access who shouldn't have PyPI "
+"publishing access."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:248
+#: warehouse/templates/manage/project/publishing.html:216
+#, fuzzy, python-format
+#| msgid ""
+#| "\n"
+#| "You can generate recovery codes for your account here:\n"
+#| "<a href=\"%(href)s\">%(href)s</a>\n"
+msgid ""
 "Read more about Google's OpenID Connect support <a href=\"%(href)s\">here</"
 "a>."
 msgstr ""
@@ -5164,26 +5322,26 @@ msgstr ""
 "دەتوانیت لێرە کۆدی گەڕانەوە بۆ ئەکاونتەکەت دروست بکەیت:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 
-#: warehouse/templates/manage/account/publishing.html:177
-#: warehouse/templates/manage/project/publishing.html:145
+#: warehouse/templates/manage/account/publishing.html:279
+#: warehouse/templates/manage/project/publishing.html:232
 #, fuzzy
 #| msgid "Email"
 msgid "email"
 msgstr "بەستەرەی ئەلیکترۆنی"
 
-#: warehouse/templates/manage/account/publishing.html:179
-#: warehouse/templates/manage/project/publishing.html:147
+#: warehouse/templates/manage/account/publishing.html:281
+#: warehouse/templates/manage/project/publishing.html:234
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:195
-#: warehouse/templates/manage/project/publishing.html:163
+#: warehouse/templates/manage/account/publishing.html:297
+#: warehouse/templates/manage/project/publishing.html:250
 #, fuzzy
 #| msgid "Subject:"
 msgid "subject"
 msgstr "بابەت:"
 
-#: warehouse/templates/manage/account/publishing.html:203
+#: warehouse/templates/manage/account/publishing.html:305
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -5191,98 +5349,98 @@ msgid ""
 "identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:250
-#: warehouse/templates/manage/project/publishing.html:196
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
 #, fuzzy
 #| msgid "Confirm Organization Invite"
 msgid "my-organization"
 msgstr "بانگێشتنامەی رێکخراو پەسەند بکە"
 
-#: warehouse/templates/manage/account/publishing.html:258
-#: warehouse/templates/manage/project/publishing.html:204
+#: warehouse/templates/manage/account/publishing.html:360
+#: warehouse/templates/manage/project/publishing.html:291
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:272
-#: warehouse/templates/manage/project/publishing.html:218
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
 #, fuzzy
 #| msgid "Projects"
 msgid "my-project"
 msgstr "پرۆژەکان"
 
-#: warehouse/templates/manage/account/publishing.html:280
-#: warehouse/templates/manage/project/publishing.html:226
+#: warehouse/templates/manage/account/publishing.html:382
+#: warehouse/templates/manage/project/publishing.html:313
 msgid "The ActiveState project that will build your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:288
-#: warehouse/templates/manage/project/publishing.html:234
+#: warehouse/templates/manage/account/publishing.html:390
+#: warehouse/templates/manage/project/publishing.html:321
 #, fuzzy
 #| msgid "Your username"
 msgid "Actor Username"
 msgstr "نازناوەکەت"
 
-#: warehouse/templates/manage/account/publishing.html:294
-#: warehouse/templates/manage/project/publishing.html:240
+#: warehouse/templates/manage/account/publishing.html:396
+#: warehouse/templates/manage/project/publishing.html:327
 #, fuzzy
 #| msgid "Username"
 msgid "my-username"
 msgstr "نازناو"
 
-#: warehouse/templates/manage/account/publishing.html:300
-#: warehouse/templates/manage/project/publishing.html:246
+#: warehouse/templates/manage/account/publishing.html:402
+#: warehouse/templates/manage/project/publishing.html:333
 msgid ""
 "The username for the ActiveState account that will trigger the build of your "
 "Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:318
+#: warehouse/templates/manage/account/publishing.html:420
 msgid "Manage publishers"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:328
+#: warehouse/templates/manage/account/publishing.html:430
 #, fuzzy
 #| msgid "Projects"
 msgid "Project"
 msgstr "پرۆژەکان"
 
-#: warehouse/templates/manage/account/publishing.html:350
+#: warehouse/templates/manage/account/publishing.html:452
 msgid ""
 "No publishers are currently configured. Publishers for existing projects can "
 "be added in the publishing configuration for each individual project."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:362
+#: warehouse/templates/manage/account/publishing.html:464
 #, fuzzy
 #| msgid "Trending projects"
 msgid "Pending project name"
 msgstr "پرۆژە بەناوبانگەکان"
 
-#: warehouse/templates/manage/account/publishing.html:363
-#: warehouse/templates/manage/project/publishing.html:280
+#: warehouse/templates/manage/account/publishing.html:465
+#: warehouse/templates/manage/project/publishing.html:367
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:364
-#: warehouse/templates/manage/project/publishing.html:281
+#: warehouse/templates/manage/account/publishing.html:466
+#: warehouse/templates/manage/project/publishing.html:368
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:376
+#: warehouse/templates/manage/account/publishing.html:478
 msgid ""
 "No pending publishers are currently configured. Publishers for projects that "
 "don't exist yet can be added below."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:384
+#: warehouse/templates/manage/account/publishing.html:486
 msgid "Add a new pending publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:387
+#: warehouse/templates/manage/account/publishing.html:489
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:393
+#: warehouse/templates/manage/account/publishing.html:495
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered against "
@@ -5293,8 +5451,8 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:432
-#: warehouse/templates/manage/project/publishing.html:328
+#: warehouse/templates/manage/account/publishing.html:535
+#: warehouse/templates/manage/project/publishing.html:416
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> on "
@@ -6455,12 +6613,6 @@ msgstr ""
 msgid "Destroy Documentation for project"
 msgstr ""
 
-#: warehouse/templates/manage/project/documentation.html:35
-#: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
-msgid "Project name"
-msgstr ""
-
 #: warehouse/templates/manage/project/documentation.html:39
 msgid "Project documentation"
 msgstr ""
@@ -6687,7 +6839,7 @@ msgstr ""
 msgid "Back to projects"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:171
+#: warehouse/templates/manage/project/publishing.html:258
 #, python-format
 msgid ""
 "The subject is the numeric ID that represents the principal making the "
@@ -6696,20 +6848,20 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:272
+#: warehouse/templates/manage/project/publishing.html:359
 msgid "Manage current publishers"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:276
+#: warehouse/templates/manage/project/publishing.html:363
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:292
+#: warehouse/templates/manage/project/publishing.html:379
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:297
+#: warehouse/templates/manage/project/publishing.html:384
 msgid "Add a new publisher"
 msgstr ""
 

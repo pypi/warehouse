@@ -17,7 +17,9 @@ from unittest import mock
 import pretend
 import pytest
 
+from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy.orm import joinedload
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
@@ -25,6 +27,7 @@ from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import Project, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
+from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
 from ....common.db.observations import ObserverFactory
@@ -433,8 +436,21 @@ class TestProjectObservationsList:
         observer = ObserverFactory.create()
         UserFactory.create(observer=observer)
         project = ProjectFactory.create()
-        observations = ProjectObservationFactory.create_batch(
+        ProjectObservationFactory.create_batch(
             size=30, related=project, observer=observer
+        )
+
+        observations_query = (
+            db_request.db.query(project.Observation)
+            .options(joinedload(project.Observation.observer))
+            .filter(project.Observation.related == project)
+            .order_by(project.Observation.created.desc())
+        )
+        observations_page = SqlalchemyOrmPage(
+            observations_query,
+            page=2,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
         )
 
         db_request.matchdict["project_name"] = project.normalized_name
@@ -442,9 +458,10 @@ class TestProjectObservationsList:
         result = views.project_observations_list(project, db_request)
 
         assert result == {
-            "observations": observations[25:],
+            "observations": observations_page,
             "project": project,
         }
+        assert len(observations_page.items) == 5
 
     def test_with_invalid_page(self, db_request):
         project = ProjectFactory.create()
