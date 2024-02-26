@@ -14,7 +14,7 @@ from celery.schedules import crontab
 
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.services import OIDCPublisherServiceFactory
-from warehouse.oidc.tasks import compute_oidc_metrics
+from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons
 from warehouse.oidc.utils import (
     ACTIVESTATE_OIDC_ISSUER_URL,
     GITHUB_OIDC_ISSUER_URL,
@@ -78,3 +78,7 @@ def includeme(config):
 
     # Compute OIDC metrics periodically
     config.add_periodic_task(crontab(minute=0, hour="*"), compute_oidc_metrics)
+
+    # Daily purge expired OIDC-minted API tokens. These tokens are temporary in nature
+    # and expire after 15 minutes of creation.
+    config.add_periodic_task(crontab(minute=0, hour=6), delete_expired_oidc_macaroons)

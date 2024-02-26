@@ -107,7 +107,7 @@ def metadata_backfill_individual(request, file_id):
             file_.release.project.normalized_name, file_url, session
         )
         wheel_metadata_contents = lazy_dist._dist._files[Path("METADATA")]
-    except (InvalidWheel, UnsupportedWheel, BadZipFile):
+    except (InvalidWheel, UnsupportedWheel, BadZipFile, KeyError):
         file_.metadata_file_unbackfillable = True
         return
 

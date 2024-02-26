@@ -178,7 +178,6 @@ class JournalEntryFactory(WarehouseFactory):
     class Meta:
         model = JournalEntry
 
-    id = factory.Sequence(lambda n: n)
     name = factory.Faker("word")
     version = factory.Sequence(lambda n: str(n) + ".0")
     submitted_date = factory.Faker(
