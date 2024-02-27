@@ -19,7 +19,7 @@ import jwt
 import sentry_sdk
 
 from pydantic import BaseModel, StrictStr, ValidationError
-from pyramid.httpexceptions import HTTPForbidden
+from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
 from pyramid.view import view_config
 
@@ -203,15 +203,22 @@ def mint_token(
                     request=request,
                 )
 
-            # Create the new project, and reify the pending publisher against it.
+            # Try creating the new project
             project_service = request.find_service(IProjectService)
-            new_project = project_service.create_project(
-                pending_publisher.project_name,
-                pending_publisher.added_by,
-                request,
-                ratelimited=False,
-            )
+            try:
+                new_project = project_service.create_project(
+                    pending_publisher.project_name,
+                    pending_publisher.added_by,
+                    request,
+                    ratelimited=False,
+                )
+            except HTTPException as exc:
+                return _invalid(
+                    errors=[{"code": "invalid-payload", "description": str(exc)}],
+                    request=request,
+                )
 
+            # Reify the pending publisher against the newly created project
             oidc_service.reify_pending_publisher(pending_publisher, new_project)
 
             # Successfully converting a pending publisher into a normal publisher
