@@ -69,7 +69,7 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
-from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
+from warehouse.utils.project import PROJECT_NAME_RE
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
@@ -995,16 +995,13 @@ def file_upload(request):
             )
 
         # We attempt to create the project.
-        try:
-            validate_project_name(form.name.data, request)
-        except HTTPException as exc:
-            raise _exc_with_message(exc.__class__, exc.detail) from None
-
         project_service = request.find_service(IProjectService)
         try:
             project = project_service.create_project(
                 form.name.data, request.user, request
             )
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -1576,7 +1573,7 @@ def file_upload(request):
         "uploaded_via": file_data.uploaded_via,
         "upload_time": file_data.upload_time,
     }
-    if not request.registry.settings.get("warehouse.release_files_table") is None:
+    if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload

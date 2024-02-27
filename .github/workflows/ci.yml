@@ -63,7 +63,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.4' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
         ports:
           - 5432:5432
         env:
