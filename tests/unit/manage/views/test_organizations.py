@@ -1616,7 +1616,7 @@ class TestManageOrganizationProjects:
                 "requirements.txt",
                 (
                     "The name 'requirements.txt' isn't allowed. See help-url "
-                    "for more information.",
+                    "for more information."
                 ),
             ),
         ],
