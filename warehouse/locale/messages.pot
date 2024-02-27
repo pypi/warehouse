@@ -2285,22 +2285,6 @@ msgstr[1] ""
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated "
-"your pending publisher by creating the project before you did."
-msgstr ""
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
