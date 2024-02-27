@@ -529,12 +529,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -547,30 +547,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 

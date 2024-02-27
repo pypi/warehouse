@@ -19,7 +19,7 @@ import pytest
 
 from tests.common.db.accounts import UserFactory
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
-from tests.common.db.packaging import ProjectFactory
+from tests.common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 from warehouse.events.tags import EventTag
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
@@ -595,3 +595,85 @@ def test_mint_token_no_pending_publisher_ok(
             },
         )
     ]
+
+
+def test_mint_token_with_prohibited_name_fails(
+    monkeypatch,
+    db_request,
+    dummy_github_oidc_jwt,
+):
+    prohibited_project_name = ProhibitedProjectFactory.create()
+    user = UserFactory.create()
+    PendingGitHubPublisherFactory.create(
+        project_name=prohibited_project_name.name,
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="",
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.remote_addr = "0.0.0.0"
+    db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert err["description"] == (
+            f"The name {prohibited_project_name.name!r} isn't allowed. "
+            "See /the/help/url/ "
+            "for more information."
+        )
+
+
+def test_mint_token_with_invalid_name_fails(
+    monkeypatch,
+    db_request,
+    dummy_github_oidc_jwt,
+):
+    user = UserFactory.create()
+    pending_publisher = PendingGitHubPublisherFactory.create(
+        project_name="-foo-",
+        added_by=user,
+        repository_name="bar",
+        repository_owner="foo",
+        repository_owner_id="123",
+        workflow_filename="example.yml",
+        environment="",
+    )
+
+    db_request.flags.disallow_oidc = lambda f=None: False
+    db_request.body = json.dumps({"token": dummy_github_oidc_jwt})
+    db_request.remote_addr = "0.0.0.0"
+
+    ratelimiter = pretend.stub(clear=pretend.call_recorder(lambda id: None))
+    ratelimiters = {
+        "user.oidc": ratelimiter,
+        "ip.oidc": ratelimiter,
+    }
+    monkeypatch.setattr(views, "_ratelimiters", lambda r: ratelimiters)
+
+    resp = views.mint_token_from_oidc(db_request)
+
+    assert resp["message"] == "Token request failed"
+    assert isinstance(resp["errors"], list)
+    for err in resp["errors"]:
+        assert isinstance(err, dict)
+        assert err["code"] == "invalid-payload"
+        assert err["description"] == (
+            f"The name {pending_publisher.project_name!r} is invalid."
+        )
