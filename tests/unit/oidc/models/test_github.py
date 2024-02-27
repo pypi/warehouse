@@ -245,6 +245,27 @@ class TestGitHubPublisher:
         )
 
     @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            # invalid: claim should never be empty or missing
+            ("", None, False),
+            ("foo", None, False),
+            ("", "", False),
+            ("foo", "", False),
+            # valid: exact and case-insensitive matches
+            ("foo", "foo", True),
+            ("Foo", "foo", True),
+            ("Foo", "Foo", True),
+            ("foo", "Foo", True),
+            ("FOO", "foo", True),
+            ("foo", "FOO", True),
+        ],
+    )
+    def test_check_repository(self, truth, claim, valid):
+        check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
+        assert check(truth, claim, pretend.stub()) == valid
+
+    @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),
         [
             # okay: workflow name, followed by a nonempty ref
