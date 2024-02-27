@@ -13,21 +13,15 @@
 -#}
 {% extends "email/_base/body.html" %}
 
-
 {% block content %}
 <p>
-    {% trans username=username, project_name=project_name %}
     You registered an pending OpenID Connect publisher for a project
     (<strong>{{ project_name }}</strong>), but someone else has invalidated your
     pending publisher by creating the project before you did.
-    {% endtrans %}
 </p>
-
 <p>
-    {% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
     If you believe this was done in error, you can email
-    <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI
+    <a href="mailto:admin@pypi.org"> admin@pypi.org</a> to communicate with the PyPI
     administrators.
-    {% endtrans %}
 </p>
 {% endblock %}
