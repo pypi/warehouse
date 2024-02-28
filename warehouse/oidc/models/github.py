@@ -27,6 +27,15 @@ from warehouse.oidc.models._core import (
 )
 
 
+def _check_repository(ground_truth, signed_claim, all_signed_claims):
+    # Defensive: GitHub should never give us an empty repository claim.
+    if not signed_claim:
+        return False
+
+    # GitHub repository names are case-insensitive.
+    return signed_claim.lower() == ground_truth.lower()
+
+
 def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # We expect a string formatted as follows:
     #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
@@ -112,7 +121,7 @@ class GitHubPublisherMixin:
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
-        "repository": check_claim_binary(str.__eq__),
+        "repository": _check_repository,
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,

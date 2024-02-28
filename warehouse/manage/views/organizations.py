@@ -74,7 +74,7 @@ from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.organization import confirm_organization
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, validate_project_name
+from warehouse.utils.project import confirm_project
 
 
 def organization_owners(request, organization):
@@ -770,24 +770,21 @@ class ManageOrganizationProjectsViews:
                     },
                 )
         else:
-            # Validate new project name.
-            try:
-                validate_project_name(form.new_project_name.data, self.request)
-            except HTTPException as exc:
-                form.new_project_name.errors.append(exc.detail)
-                return default_response
-
-            # Add new project.
+            # Try to add a new project.
             # Note that we pass `creator_is_owner=False`, since the project being
             # created is controlled by the organization and not the user creating it.
             project_service = self.request.find_service(IProjectService)
-            project = project_service.create_project(
-                form.new_project_name.data,
-                self.request.user,
-                request=self.request,
-                creator_is_owner=False,
-                ratelimited=False,
-            )
+            try:
+                project = project_service.create_project(
+                    form.new_project_name.data,
+                    self.request.user,
+                    request=self.request,
+                    creator_is_owner=False,
+                    ratelimited=False,
+                )
+            except HTTPException as exc:
+                form.new_project_name.errors.append(exc.detail)
+                return default_response
 
         # Add project to organization.
         self.organization_service.add_organization_project(

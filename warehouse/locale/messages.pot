@@ -529,12 +529,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -547,30 +547,30 @@ msgid "Invitation already expired."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -2285,22 +2285,6 @@ msgstr[1] ""
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated "
-"your pending publisher by creating the project before you did."
-msgstr ""
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -2520,7 +2504,7 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3109,15 +3093,19 @@ msgstr ""
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
