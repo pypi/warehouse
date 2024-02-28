@@ -930,7 +930,24 @@ def test_metadata_backfill(db_request, monkeypatch, metrics):
     ]
 
 
-def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
+@pytest.mark.parametrize(
+    "path, requested_path",
+    [
+        # Regular path
+        (
+            "8a/6a/19...3b/pip-24.0-py3-none-any.whl",
+            "8a/6a/19...3b/pip-24.0-py3-none-any.whl",
+        ),
+        # Path with characters that need quoted
+        (
+            "da/5d/cc...0d/scalg-0.1.1#-py3-none-any.whl",
+            "da/5d/cc...0d/scalg-0.1.1%23-py3-none-any.whl",
+        ),
+    ],
+)
+def test_metadata_backfill_individual(
+    db_request, monkeypatch, metrics, path, requested_path
+):
     project = ProjectFactory()
     release1 = ReleaseFactory(project=project)
     release2 = ReleaseFactory(project=project)
@@ -942,7 +959,10 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
     )
     FileFactory(release=release2, packagetype="sdist")
     backfillable_file = FileFactory(
-        release=release2, packagetype="bdist_wheel", metadata_file_sha256_digest=None
+        release=release2,
+        packagetype="bdist_wheel",
+        metadata_file_sha256_digest=None,
+        path=path,
     )
 
     metadata_contents = b"some\nmetadata\ncontents"
@@ -996,7 +1016,7 @@ def test_metadata_backfill_individual(db_request, monkeypatch, metrics):
     assert dist_from_wheel_url.calls == [
         pretend.call(
             project.normalized_name,
-            f"https://files.example.com/packages/{backfillable_file.path}",
+            f"https://files.example.com/packages/{requested_path}",
             stub_session,
         )
     ]

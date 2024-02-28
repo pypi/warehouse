@@ -15,6 +15,7 @@ import hashlib
 import logging
 import os
 import tempfile
+import urllib.parse
 
 from collections import namedtuple
 from itertools import product
@@ -95,7 +96,7 @@ def metadata_backfill_individual(request, file_id):
         return
 
     base_url = request.registry.settings.get("files.url")
-    file_url = base_url.format(path=file_.path)
+    file_url = urllib.parse.quote(base_url.format(path=file_.path), safe=":/")
     metrics = request.find_service(IMetricsService, context=None)
     cache_storage = request.find_service(IFileStorage, name="cache")
     archive_storage = request.find_service(IFileStorage, name="archive")
