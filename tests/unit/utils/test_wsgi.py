@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
+
 import pretend
 import pytest
 import sentry_sdk
@@ -22,6 +24,12 @@ from warehouse.ip_addresses.models import IpAddress
 from warehouse.utils import wsgi
 
 from ...common.db.ip_addresses import IpAddressFactory as DBIpAddressFactory
+
+
+def calculate_hashed_value(remote_addr, salt="pepa"):
+    if salt is not None:
+        return hashlib.sha256((remote_addr + salt).encode("utf8")).hexdigest()
+    return remote_addr
 
 
 class TestProxyFixer:
@@ -130,13 +138,14 @@ class TestProxyFixer:
 
         resp = wsgi.ProxyFixer(app, token=None, ip_salt="pepa")(environ, start_response)
 
+        expected_remote_addr_hashed = calculate_hashed_value("1.2.3.4", "pepa")
         assert resp is response
         assert app.calls == [
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR_HASHED": expected_remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
@@ -179,13 +188,14 @@ class TestProxyFixer:
             environ, start_response
         )
 
+        expected_remote_addr_hashed = calculate_hashed_value("1.2.3.4", "pepa")
         assert resp is response
         assert app.calls == [
             pretend.call(
                 {
                     "HTTP_SOME_OTHER_HEADER": "woop",
                     "REMOTE_ADDR": "1.2.3.4",
-                    "REMOTE_ADDR_HASHED": remote_addr_salted,
+                    "REMOTE_ADDR_HASHED": expected_remote_addr_hashed,
                     "HTTP_HOST": "example.com",
                     "wsgi.url_scheme": "http",
                 },
