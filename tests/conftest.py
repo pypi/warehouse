@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import hashlib
 import os
 import os.path
 import re
@@ -109,26 +110,26 @@ def metrics():
     )
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def remote_addr():
     return "192.0.2.1"
 
 
-@pytest.fixture
-def remote_addr_hashed():
-    """
-    Static output of `hashlib.sha256(remote_addr.encode("utf8")).hexdigest()`
-    Created statically to prevent needing to calculate it every run.
-    """
-    return "6694f83c9f476da31f5df6bcc520034e7e57d421d247b9d34f49edbfc84a764c"
+@pytest.fixture(scope="session")
+def remote_addr_hashed(remote_addr):
+    return hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
 
 
-@pytest.fixture
-def remote_addr_salted():
-    """
-    Output of `hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()`
-    """
-    return "a69a49383d81404e4b1df297c7baa28e1cd6c4ee1495ed5d0ab165a63a147763"
+@pytest.fixture(scope="function")
+def remote_addr_hashed(remote_addr):
+    if remote_addr is None:
+        return None
+    return hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
+
+
+@pytest.fixture(scope="session")
+def remote_addr_salted(remote_addr):
+    return hashlib.sha256((remote_addr + "pepa").encode("utf8")).hexdigest()
 
 
 @pytest.fixture
