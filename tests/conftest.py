@@ -115,11 +115,6 @@ def remote_addr():
     return "192.0.2.1"
 
 
-@pytest.fixture(scope="session")
-def remote_addr_hashed(remote_addr):
-    return hashlib.sha256(remote_addr.encode("utf8")).hexdigest()
-
-
 @pytest.fixture(scope="function")
 def remote_addr_hashed(remote_addr):
     if remote_addr is None:
