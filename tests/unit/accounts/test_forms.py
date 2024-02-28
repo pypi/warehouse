@@ -126,7 +126,9 @@ class TestLoginForm:
             pretend.call("my_username"),
         ]
 
-    def test_validate_password_disabled_for_compromised_pw(self, db_session, remote_addr):
+    def test_validate_password_disabled_for_compromised_pw(
+        self, db_session, remote_addr
+    ):
         request = pretend.stub(
             remote_addr=remote_addr, banned=pretend.stub(by_ip=lambda ip_address: False)
         )
@@ -864,7 +866,9 @@ class TestTOTPAuthenticationForm:
             ("1 2 3 4 5 6 7", "TOTP code must be 6 digits."),
         ],
     )
-    def test_totp_secret_not_valid(self, pyramid_config, totp_value, expected_error, remote_addr):
+    def test_totp_secret_not_valid(
+        self, pyramid_config, totp_value, expected_error, remote_addr
+    ):
         user = pretend.stub(record_event=pretend.call_recorder(lambda *a, **kw: None))
         get_user = pretend.call_recorder(lambda userid: user)
         request = pretend.stub(remote_addr=remote_addr)
