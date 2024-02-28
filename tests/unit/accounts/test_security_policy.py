@@ -188,7 +188,7 @@ class TestSessionSecurityPolicy:
             pretend.call(request, userid, foo=None)
         ]
 
-    def test_identity_missing_route(self, monkeypatch):
+    def test_identity_missing_route(self, monkeypatch, remote_addr):
         session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
@@ -205,7 +205,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=None,
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -222,7 +222,7 @@ class TestSessionSecurityPolicy:
             "api.echo",
         ],
     )
-    def test_identity_invalid_route(self, route_name, monkeypatch):
+    def test_identity_invalid_route(self, route_name, monkeypatch, remote_addr):
         session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
@@ -239,7 +239,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name=route_name),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -249,7 +249,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_no_userid(self, monkeypatch):
+    def test_identity_no_userid(self, monkeypatch, remote_addr):
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: None)
         )
@@ -268,7 +268,7 @@ class TestSessionSecurityPolicy:
             add_response_callback=pretend.call_recorder(lambda cb: None),
             matched_route=pretend.stub(name="a.permitted.route"),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -279,7 +279,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_no_user(self, monkeypatch):
+    def test_identity_no_user(self, monkeypatch, remote_addr):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -301,7 +301,7 @@ class TestSessionSecurityPolicy:
             matched_route=pretend.stub(name="a.permitted.route"),
             find_service=pretend.call_recorder(lambda i, **kw: user_service),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -314,7 +314,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_password_outdated(self, monkeypatch):
+    def test_identity_password_outdated(self, monkeypatch, remote_addr):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -347,7 +347,7 @@ class TestSessionSecurityPolicy:
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -366,7 +366,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_is_disabled(self, monkeypatch):
+    def test_identity_is_disabled(self, monkeypatch, remote_addr):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -399,7 +399,7 @@ class TestSessionSecurityPolicy:
                 flash=pretend.call_recorder(lambda *a, **kw: None),
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
@@ -419,7 +419,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity(self, monkeypatch):
+    def test_identity(self, monkeypatch, remote_addr):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -450,7 +450,7 @@ class TestSessionSecurityPolicy:
                 password_outdated=pretend.call_recorder(lambda ts: False)
             ),
             banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is user
@@ -465,7 +465,7 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_ip_banned(self, monkeypatch):
+    def test_identity_ip_banned(self, monkeypatch, remote_addr):
         userid = pretend.stub()
         session_helper_obj = pretend.stub(
             authenticated_userid=pretend.call_recorder(lambda r: userid)
@@ -495,7 +495,7 @@ class TestSessionSecurityPolicy:
                 password_outdated=pretend.call_recorder(lambda ts: False)
             ),
             banned=pretend.stub(by_ip=lambda ip_address: True),
-            remote_addr="192.0.2.1",
+            remote_addr=remote_addr,
         )
 
         assert policy.identity(request) is None
