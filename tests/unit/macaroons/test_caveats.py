@@ -77,6 +77,51 @@ def test_serialization(caveat, expected):
     assert serialize(caveat) == expected
 
 
+@pytest.mark.parametrize(
+    "caveat,expected",
+    [
+        (
+            Expiration(expires_at=50, not_before=10),
+            [
+                {
+                    "expires_at": 50,
+                    "not_before": 10,
+                },
+            ],
+        ),
+        (
+            ProjectName(normalized_names=["foo", "bar"]),
+            [
+                {
+                    "normalized_names": [
+                        "foo",
+                        "bar",
+                    ],
+                },
+            ],
+        ),
+        (
+            ProjectID(project_ids=["123uuid", "456uuid"]),
+            [
+                {
+                    "project_ids": [
+                        "123uuid",
+                        "456uuid",
+                    ],
+                },
+            ],
+        ),
+        (RequestUser(user_id="a uuid"), [{"user_id": "a uuid"}]),
+    ],
+)
+def test_serialization_onto_events(caveat, expected, db_request):
+    user = UserFactory()
+    user.record_event(
+        tag="foobar", request=db_request, additional={"caveats": [caveat]}
+    )
+    assert user.events[0].additional["caveats"] == expected
+
+
 class TestDeserialization:
     @pytest.mark.parametrize(
         "data,expected",
