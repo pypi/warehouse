@@ -1661,9 +1661,9 @@ whitenoise==6.6.0 \
     --hash=sha256:8998f7370973447fac1e8ef6e8ded2c5209a7b1f67c1012866dbcd09681c3251 \
     --hash=sha256:b1f9db9bf67dc183484d760b99f4080185633136a273a03f6436034a41064146
     # via -r requirements/main.in
-wired==0.3 \
-    --hash=sha256:08dcb4ccfe8c0ee5d7a65e73520b4cd838420491a640b5c8d12d39e26aee8e84 \
-    --hash=sha256:1122ff2df20aed18e8fe318daba13afc80640bc81f4bb0c2499c73c6a1dc4df0
+wired==0.4 \
+    --hash=sha256:2c8007863e9bfbc119da58a6d7d615a5a747986c5ce698916e44e19d88e905ff \
+    --hash=sha256:cc8d9705c0f70234a3dab41ab9e6fcd35351042699a13551e43390f281535771
     # via pyramid-services
 wrapt==1.16.0 \
     --hash=sha256:0d2691979e93d06a95a26257adb7bfd0c93818e89b1406f5a28f36e0d8c1e1fc \
