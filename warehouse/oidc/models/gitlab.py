@@ -23,8 +23,16 @@ from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
     PendingOIDCPublisher,
-    check_claim_binary,
 )
+
+
+def _check_project_path(ground_truth, signed_claim, all_signed_claims):
+    # Defensive: GitLab should never give us an empty project_path claim.
+    if not signed_claim:
+        return False
+
+    # GitLab project paths are case-insensitive.
+    return signed_claim.lower() == ground_truth.lower()
 
 
 def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
@@ -108,7 +116,7 @@ class GitLabPublisherMixin:
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
-        "project_path": check_claim_binary(str.__eq__),
+        "project_path": _check_project_path,
         "ci_config_ref_uri": _check_ci_config_ref_uri,
     }
 

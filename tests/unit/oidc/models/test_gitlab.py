@@ -239,6 +239,32 @@ class TestGitLabPublisher:
         )
 
     @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            # invalid: claim should never be empty or missing
+            ("", None, False),
+            ("foo/bar", None, False),
+            ("", "", False),
+            ("foo/bar", "", False),
+            # valid: exact and case-insensitive matches
+            ("foo/bar", "foo/bar", True),
+            ("Foo/bar", "foo/bar", True),
+            ("Foo/bar", "Foo/bar", True),
+            ("foo/bar", "Foo/bar", True),
+            ("FOO/bar", "foo/bar", True),
+            ("foo/bar", "FOO/bar", True),
+            ("foo/Bar", "foo/bar", True),
+            ("foo/Bar", "Foo/Bar", True),
+            ("foo/bar", "foo/Bar", True),
+            ("foo/BAR", "foo/bar", True),
+            ("foo/bar", "foo/BAR", True),
+        ],
+    )
+    def test_check_project_path(self, truth, claim, valid):
+        check = gitlab.GitLabPublisher.__required_verifiable_claims__["project_path"]
+        assert check(truth, claim, pretend.stub()) == valid
+
+    @pytest.mark.parametrize(
         ("claim", "ref_path", "sha", "valid", "expected"),
         [
             # okay: workflow name, followed by a nonempty ref_path
