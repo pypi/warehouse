@@ -368,9 +368,9 @@ types-passlib==1.7.7.20240106 \
     --hash=sha256:2231ae83d1dd9e485b7ec6041d81b4f9c66403d1767360e860605a90db48ea27 \
     --hash=sha256:347aa64d4c2bc239f3765fe38fc79dad3d67f9def7b3ea721daaaaa835a91dad
     # via -r requirements/lint.in
-types-pyopenssl==24.0.0.20240130 \
-    --hash=sha256:24a255458b5b8a7fca8139cf56f2a8ad5a4f1a5f711b73a5bb9cb50dc688fab5 \
-    --hash=sha256:c812e5c1c35249f75ef5935708b2a997d62abf9745be222e5f94b9595472ab25
+types-pyopenssl==24.0.0.20240228 \
+    --hash=sha256:a472cf877a873549175e81972f153f44e975302a3cf17381eb5f3d41ccfb75a4 \
+    --hash=sha256:cd990717d8aa3743ef0e73e0f462e64b54d90c304249232d48fece4f0f7c3c6a
     # via types-redis
 types-python-slugify==8.0.2.20240127 \
     --hash=sha256:3ac009c48bb2591390ae7124c4c4db92dcc7a38e79ac5ee696bd6c70777c0a69 \
