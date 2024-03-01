@@ -394,9 +394,9 @@ types-s3transfer==0.10.0 \
     --hash=sha256:35e4998c25df7f8985ad69dedc8e4860e8af3b43b7615e940d53c00d413bdc69 \
     --hash=sha256:44fcdf0097b924a9aab1ee4baa1179081a9559ca62a88c807e2b256893ce688f
     # via boto3-stubs
-types-setuptools==69.1.0.20240217 \
-    --hash=sha256:243fecc8850b6f7fbfa84bab18ec93407046a4e91130056fd5a7caef971aaff9 \
-    --hash=sha256:8b60e14a652b48bda292801c5a0c1251c190ad587c295f7839e901634913bb96
+types-setuptools==69.1.0.20240301 \
+    --hash=sha256:2033afa8efe3f566ec18997c4b614664b2ed9653160d941745389ad61a50d1f6 \
+    --hash=sha256:f99cf5a7f5c281c55f16ba860da68cb2cd8f3b3a472f78ec8e744240fc3aa09e
     # via
     #   -r requirements/lint.in
     #   types-babel
