@@ -270,7 +270,38 @@ below describe the setup process for each supported trusted publisher.
 
 === "ActiveState"
 
-    TODO
+    ActiveState's platform works as a kind of "zero-config" CI platform to automatically
+    build cross-platform wheels of your PyPI project. Once you're set up on the platform
+    and have linked your PyPI project, you're ready to publish.
+    [//]: # (For more info on getting started, linking your project, etc. click here)
+
+    1. Publish an your package to ActiveState's catalog. This will allow ActiveState's
+    platform to build it for you. You can do this in two ways:
+
+    - Run this state tool CLI command:
+    ``` state publish YOUR_SDIST_FILENAME --depends ... ```
+    or, you can clone this repo that contains some helpful scripts for getting started
+    publishing on the ActiveState platform: `state checkout ActiveState/buildwheel`
+
+    2. Once you've published your package, you need to configure a build script that
+    can build it into a wheel and publish it to PyPI. Here's an example script you can
+    use to achieve this:
+
+    ``` INSERT SAMPLE SCRIPT HERE ```
+
+    - Alternatively: You can use the helper scripts in the above repo that can help you
+    publish: `state checkout ActiveState/buildwheel`.
+
+    3. You need to then "commit" this build script to the system, by running, `state commit`.
+
+    4. Now you're ready to publish!
+
+    - If you want to build a wheel, run: `state eval build-wheel`. When it completes you can run
+    `state builds dl <HASH_ID>` to download and test the wheel you've built.
+
+    - When you're ready to publish to PyPI, run: `state eval pypi-publish`.
+
+    That's it!
 
 === "GitLab CI/CD"
 
