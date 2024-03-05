@@ -17,6 +17,7 @@ import pytest
 
 from pyramid.authorization import Allow
 from pyramid.location import lineage
+from pyramid.security import Authenticated
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import TeamProjectRoleType
@@ -192,6 +193,11 @@ class TestProject:
                 Allow,
                 "group:observers",
                 Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
             ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
@@ -498,6 +504,11 @@ class TestRelease:
                 Allow,
                 "group:observers",
                 Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
             ),
         ] + sorted(
             [

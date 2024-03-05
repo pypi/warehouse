@@ -16,7 +16,10 @@ from pyramid.view import view_config
 from sqlalchemy.exc import NoResultFound
 
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
+from warehouse.observations.models import ObservationKind
+from warehouse.packaging.forms import SubmitMalwareObservationForm
 from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.utils import readme
 
@@ -161,3 +164,46 @@ def release_detail(release, request):
 )
 def edit_project_button(project, request):
     return {"project": project}
+
+
+@view_config(
+    context=Project,
+    has_translations=True,
+    permission=Permissions.SubmitMalwareObservation,
+    renderer="packaging/submit-malware-observation.html",
+    require_csrf=True,
+    require_methods=False,
+    require_reauth=True,
+    route_name="packaging.project.submit_malware_observation",
+    uses_session=True,
+)
+def submit_malware_observation(
+    project,
+    request,
+    _form_class=SubmitMalwareObservationForm,
+):
+    """
+    Allow Authenticated users to submit malware reports (observations) about a project.
+    """
+    form = _form_class(request.GET)
+
+    if request.method == "POST":
+        form = _form_class(request.POST)
+
+        if form.validate():
+            project.record_observation(
+                request=request,
+                kind=ObservationKind.IsMalware,
+                actor=request.user,
+                summary=form.summary.data + "\n\n" + form.inspector_link.data,
+                payload={"origin": "web", "inspector_link": form.inspector_link.data},
+            )
+            request.session.flash(
+                request._("Your report has been recorded. Thank you for your help."),
+                queue="success",
+            )
+            return HTTPMovedPermanently(
+                request.route_path("packaging.project", name=project.name)
+            )
+
+    return {"form": form, "project": project}

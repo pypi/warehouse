@@ -497,6 +497,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "packaging.project.submit_malware_observation",
+            "/project/{name}/submit-malware-report/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",

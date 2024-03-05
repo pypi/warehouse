@@ -493,6 +493,13 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "packaging.project.submit_malware_observation",
+        "/project/{name}/submit-malware-report/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
         "packaging.release",
         "/project/{name}/{version}/",
         factory="warehouse.packaging.models:ProjectFactory",
