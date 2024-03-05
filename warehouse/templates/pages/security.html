@@ -33,13 +33,19 @@
       <br>
 
       <h2>{% trans %}If you've identified a security issue with a project hosted on PyPI{% endtrans %}</h2>
-      <p>{% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing the following details:{% endtrans %}</p>
+      <p>
+        {% trans %}
+          Visit the project's page on PyPI.
+          At the bottom of the sidebar, click <strong>Report project as malware</strong>.
+          Supply the following details in the form:
+        {% endtrans %}
+      </p>
       <ul>
           <li>{% trans %}A URL to the project in question{% endtrans %}</li>
           <li>{% trans %}An explanation of what makes the project a security issue{% endtrans %}</li>
           <li>{% trans href='https://inspector.pypi.io/' %}A link to the problematic lines in the project's distributions via <a href="{{ href }}">inspector.pypi.io</a>{% endtrans %}</li>
       </ul>
-      <p>{% trans %}Valid malware reports may include examples of typo-squatting, dependency confusion, data exfiltration, obfustication, command/control, etc.{% endtrans %}</p>
+      <p>{% trans %}Valid malware reports may include examples of typo-squatting, dependency confusion, data exfiltration, obfuscation, command/control, etc.{% endtrans %}</p>
 
       <h2>{% trans %}If you've identified a security issue with PyPI itself (not a project hosted on PyPI){% endtrans %}</h2>
       <p>{% trans href='mailto:security@pypi.org' %}Email <a href="{{ href }}">security@pypi.org</a>, providing as much relevant information as possible, including reproducing steps.{% endtrans %}</p>
@@ -49,7 +55,7 @@
       <p>{% trans %}Depending on the action to be taken, you may receive further follow-up emails.{% endtrans %}</p>
 
       <br>
-      <p><i>{% trans %}This security policy was last updated on June 2022.{% endtrans %}</i></p>
+      <p><i>{% trans %}This security policy was last updated on March 2024.{% endtrans %}</i></p>
     </div>
   </div>
 {% endblock %}
