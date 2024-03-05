@@ -701,6 +701,14 @@ msgstr ""
 msgid "Workflow file path cannot start or end with /"
 msgstr ""
 
+#: warehouse/packaging/forms.py:29
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:213
+msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
@@ -1293,6 +1301,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr ""
@@ -1393,6 +1402,8 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:44
+#: warehouse/templates/packaging/submit-malware-observation.html:57
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr ""
@@ -3110,6 +3121,10 @@ msgstr ""
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:33
@@ -6772,6 +6787,22 @@ msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:48
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:56
+msgid "Summary"
+msgstr ""
+
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
 "Each project's maintainers provide PyPI with a list of \"Trove "
@@ -8443,65 +8474,65 @@ msgstr ""
 msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:36
-#, python-format
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following"
-" details:"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:38
-msgid "A URL to the project in question"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:39
-msgid "An explanation of what makes the project a security issue"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:40
-#, python-format
-msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:42
-msgid ""
-"Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"Visit the project's page on PyPI. At the bottom of the sidebar, click "
+"<strong>Report project as malware</strong>. Supply the following details "
+"in the form:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:44
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+msgid "An explanation of what makes the project a security issue"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:46
+#, python-format
+msgid ""
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfuscation, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project "
 "hosted on PyPI)"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, python-format
 msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much "
 "relevant information as possible, including reproducing steps."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:52
-msgid "This security policy was last updated on June 2022."
+#: warehouse/templates/pages/security.html:58
+msgid "This security policy was last updated on March 2024."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21
