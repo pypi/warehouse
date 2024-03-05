@@ -100,3 +100,6 @@ filterwarnings = [
     'ignore::warehouse.utils.exceptions.InsecureOIDCPublisherWarning',
     'ignore::warehouse.packaging.services.InsecureStorageWarning',
 ]
+
+[tool.pip-tools.compile]
+allow-unsafe = true
