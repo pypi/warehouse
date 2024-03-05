@@ -170,3 +170,6 @@
   </ul>
 </div>
 {% endif %}
+
+{% csi request.route_url("includes.submit_malware_report", project_name=project.name) %}
+{% endcsi %}

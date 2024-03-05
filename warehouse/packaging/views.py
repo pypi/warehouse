@@ -169,6 +169,17 @@ def edit_project_button(project, request):
 @view_config(
     context=Project,
     has_translations=True,
+    renderer="includes/packaging/submit-malware-report.html",
+    route_name="includes.submit_malware_report",
+    uses_session=True,
+)
+def includes_submit_malware_observation(project, request):
+    return {"project": project}
+
+
+@view_config(
+    context=Project,
+    has_translations=True,
     permission=Permissions.SubmitMalwareObservation,
     renderer="packaging/submit-malware-observation.html",
     require_csrf=True,

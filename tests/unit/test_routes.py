@@ -139,6 +139,13 @@ def test_routes(warehouse):
             traverse="/{user_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.submit_malware_report",
+            "/_includes/submit-malware-report/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
