@@ -308,7 +308,6 @@
             {% endfor %}
           </td>
         </tr>
-        {#
           <tr>
           <td>Provides-Extra</td>
           <td>
@@ -317,7 +316,14 @@
             {% endfor %}
           </td>
         </tr>
-        #}
+          <tr>
+          <td>Dynamic</td>
+          <td>
+            {% for dynamic in release.dynamic %}
+            <code>{{ dynamic }}</code><br>
+            {% endfor %}
+          </td>
+        </tr>
       </table>
     </div>
   </div>
