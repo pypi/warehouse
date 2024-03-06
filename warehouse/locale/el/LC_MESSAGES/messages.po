@@ -731,13 +731,13 @@ msgid ""
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
@@ -752,32 +752,32 @@ msgid "Invitation already expired."
 msgstr "Το email είναι ήδη επιβεβαιωμένο"
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 #, fuzzy
 #| msgid "%(user)s has not uploaded any projects to PyPI, yet"
 msgid "Could not find organization invitation."
 msgstr "Ο χρήστης %(user)s δεν έχει ανεβάσει projects στο PyPI, ακόμα"
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr ""
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
@@ -927,6 +927,14 @@ msgstr ""
 msgid "Workflow file path cannot start or end with /"
 msgstr ""
 
+#: warehouse/packaging/forms.py:27
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:213
+msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 #, fuzzy
@@ -1016,8 +1024,8 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:376
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:397
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1590,6 +1598,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr "Σφάλμα επεξεργασίας της φόρμας"
@@ -1692,6 +1701,8 @@ msgstr "Κωδικός πρόσβασης"
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:71
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr "(υποχρεωτικό)"
@@ -2817,29 +2828,6 @@ msgstr[1] "Αυτός ο σύνδεσμος θα λήξει σε %(n_hours)s ώ�
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr "Αν δεν κάνατε αυτή την αίτηση, μπορείτε να αγνοήσετε αυτό το email."
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated your "
-"pending publisher by creating the project before you did."
-msgstr ""
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, fuzzy, python-format
-#| msgid ""
-#| "If you did not make this change, you can email <a "
-#| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#| "administrators."
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
-"href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
-"τους διαχειριστές του PyPI."
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -3142,7 +3130,7 @@ msgstr "Το όνομα σας"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3829,20 +3817,28 @@ msgstr "Ετικέτες"
 msgid "Requires:"
 msgstr "Απαιτήσεις:"
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr "Συντηρητές"
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Το avatar του χρήστη {username} από το gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "Ταξινομητές"
+
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -8233,84 +8229,84 @@ msgid "Navigation"
 msgstr "Πλοήγηση"
 
 #: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:254
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Πλοήγηση για το %(project)s"
 
 #: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project description. Focus will be moved to the description."
 msgstr "Περιγραφή project. Η εστίαση θα μεταφερθεί στην περιγραφή."
 
 #: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:293
 msgid "Project description"
 msgstr "Περιγραφή project"
 
 #: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "Ιστορικό εκδόσεων. Η εστίαση θα μεταφερθεί στον πίνακα ιστορικού."
 
 #: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release history"
 msgstr "Ιστορικό εκδόσεων"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Κατέβασμα αρχείων. Η εστίαση θα μεταφερθεί στα αρχεία του project."
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:377
 msgid "Download files"
 msgstr "Κατέβασμα αρχείων"
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:263
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Λεπτομέρειες project. Η εστίαση θα μεταφερθεί στις λεπτομέρειες του ptoject."
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:307
 msgid "Project details"
 msgstr "Λεπτομέρειες project"
 
-#: warehouse/templates/packaging/detail.html:287
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:364
 msgid "Reason this release was yanked:"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:300
 msgid "The author of this package has not provided a project description"
 msgstr "Ο κάτοχος αυτού του πακέτου δεν εισήγαγε περιγραφή για το project"
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 msgid "Release notifications"
 msgstr "Ειδοποιήσεις εκδόσεων"
 
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:318
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "This version"
 msgstr "Αυτή η έκδοση"
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:350
 msgid "pre-release"
 msgstr "προ-έκδοση"
 
-#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:355
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8321,17 +8317,17 @@ msgstr ""
 "μάθετε περισσότερα στη σελίδα <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">εγκατάσταση πακέτων</a>."
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:380
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:397
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8343,11 +8339,51 @@ msgstr ""
 "Μάθετε πως να ανεβάζετε αρχεία στο <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Python Packaging User Guide</a>"
 
-#: warehouse/templates/packaging/detail.html:402
+#: warehouse/templates/packaging/detail.html:404
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:31
+msgid ""
+"Use this form to submit reports of malicious projects for review by the PyPI "
+"Administrators. Examples of malicious activity in projects include typo-"
+"squatting, dependency confusion, data exfiltration, obfuscation, command/"
+"control, and other similar behaviors."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:37
+#, python-format
+msgid ""
+"You'll be required to provide a link to notable source code using our <a "
+"href=\"%(href)s\">Inspector</a> service. This allows for reports to be "
+"reviewed more quickly, so please ensure that the link is to a meaningful "
+"portion of the relevant files."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+msgid ""
+"Your summary should include a general description of the malicious behavior "
+"as well as any other pertinent details such as what specific release(s) or "
+"file(s) are involved if it is not an entirely malicious Project."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:62
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:70
+msgid "Summary"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 #, fuzzy
@@ -10846,47 +10882,41 @@ msgstr "Επίσημα ή ανεπίσημα mailing lists"
 msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:36
-#, fuzzy, python-format
-#| msgid ""
-#| "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
-#| "directly, providing as much relevant information as possible."
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
-"details:"
-msgstr ""
-"Αντ' αυτού, στείλτε ένα email απ' ευθείας στο <a href=\"%(href)s\">security "
-"at python dot org</a>, παρέχοντας μας όσες περισσότερες πληροφορίες μπορείτε "
-"σχετικά με το θέμα."
-
-#: warehouse/templates/pages/security.html:38
-msgid "A URL to the project in question"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:39
-msgid "An explanation of what makes the project a security issue"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:40
-#, python-format
-msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:42
-msgid ""
-"Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"Login to your PyPI account, then visit the project's page on PyPI. At the "
+"bottom of the sidebar, click <strong>Report project as malware</strong>. "
+"Supply the following details in the form:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:44
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+msgid "An explanation of what makes the project a security issue"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:46
+#, python-format
+msgid ""
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfuscation, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, fuzzy, python-format
 #| msgid ""
 #| "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
@@ -10899,28 +10929,28 @@ msgstr ""
 "at python dot org</a>, παρέχοντας μας όσες περισσότερες πληροφορίες μπορείτε "
 "σχετικά με το θέμα."
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr "Τι γίνεται μετά;"
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 "Όταν καταθέσετε ένα θέμα μέσω email, θα λάβετε αναγνώριση μέσα σε 48 ώρες."
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 "Ανάλογα με την ενέργεια που πρέπει να παρθεί, ίσως λάβετε και άλλα emails."
 
-#: warehouse/templates/pages/security.html:52
+#: warehouse/templates/pages/security.html:58
 #, fuzzy
 #| msgid "This security policy was last updated on March 14, 2018."
-msgid "This security policy was last updated on June 2022."
+msgid "This security policy was last updated on March 2024."
 msgstr "Η τρέχουσα πολιτική ασφάλειας ανανεώθηκε στις 14 Μαρτίου 2018."
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -11348,6 +11378,32 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
 msgstr[1] "Δεν βρέθηκαν αποτελέσματα για '%(term)s'"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "Instead, email <a href=\"%(href)s\">security at python dot org</a> "
+#~| "directly, providing as much relevant information as possible."
+#~ msgid ""
+#~ "Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+#~ "details:"
+#~ msgstr ""
+#~ "Αντ' αυτού, στείλτε ένα email απ' ευθείας στο <a "
+#~ "href=\"%(href)s\">security at python dot org</a>, παρέχοντας μας όσες "
+#~ "περισσότερες πληροφορίες μπορείτε σχετικά με το θέμα."
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "If you did not make this change, you can email <a "
+#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~| "administrators."
+#~ msgid ""
+#~ "If you believe this was done in error, you can email <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Αν δεν κάνατε αυτή την αλλαγή, μπορείτε να στείλετε email στο <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> προκειμένου να επικοινωνήσετε με "
+#~ "τους διαχειριστές του PyPI."
 
 #~ msgid "No user found with that username or email"
 #~ msgstr "Δεν βρέθηκε χρήστης με αυτό το όνομα ή email"
