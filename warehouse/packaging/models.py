@@ -21,6 +21,7 @@ import packaging.utils
 
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
+from pyramid.security import Authenticated
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
@@ -290,6 +291,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 ),
             ),
             (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
         # The project has zero or more OIDC publishers registered to it,

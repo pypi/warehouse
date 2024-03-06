@@ -21,6 +21,7 @@
 
   Modifiers:
     - small: Makes button small.
+    - full-width: Makes button full width of parent container.
     - primary: Makes button bright blue.
     - danger: Makes button red.
     - warning: Makes button brown.
@@ -62,6 +63,10 @@
   &--small {
     font-size: $small-font-size;
     padding: 6px 8px;
+  }
+
+  &--full-width {
+    width: 100%;
   }
 
   &--primary {
