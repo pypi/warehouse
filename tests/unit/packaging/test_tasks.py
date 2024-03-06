@@ -74,20 +74,8 @@ def test_sync_file_to_cache(db_request, monkeypatch, cached):
 
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
 
-    sync_file_to_cache(db_request, file.id)
-
-    assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [pretend.call(file.path)]
-        assert archive_stub.get.calls == [pretend.call(file.path)]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+    with pytest.raises(Exception):
+        sync_file_to_cache(db_request, file.id)
 
 
 def test_compute_packaging_metrics(db_request, metrics):
@@ -139,27 +127,8 @@ def test_sync_file_to_cache_includes_bonus_files(db_request, monkeypatch, cached
 
     monkeypatch.setattr(tempfile, "NamedTemporaryFile", mock_named_temporary_file)
 
-    sync_file_to_cache(db_request, file.id)
-
-    assert file.cached
-
-    if not cached:
-        assert archive_stub.get_metadata.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert archive_stub.get.calls == [
-            pretend.call(file.path),
-            pretend.call(file.metadata_path),
-        ]
-        assert cache_stub.store.calls == [
-            pretend.call(file.path, "/tmp/wutang", meta={"fizz": "buzz"}),
-            pretend.call(file.metadata_path, "/tmp/wutang", meta={"fizz": "buzz"}),
-        ]
-    else:
-        assert archive_stub.get_metadata.calls == []
-        assert archive_stub.get.calls == []
-        assert cache_stub.store.calls == []
+    with pytest.raises(Exception):
+        sync_file_to_cache(db_request, file.id)
 
 
 def test_check_file_cache_tasks_outstanding(db_request, metrics):

@@ -40,19 +40,13 @@ def _copy_file_to_cache(archive_storage, cache_storage, path):
         cache_storage.store(path, file_for_cache.name, meta=metadata)
 
 
-@tasks.task(ignore_result=True, acks_late=True)
+@tasks.task(
+    ignore_result=True,
+    acks_late=True,
+    autoretry_for=(Exception,),
+)
 def sync_file_to_cache(request, file_id):
-    file = request.db.get(File, file_id)
-
-    if file and not file.cached:
-        archive_storage = request.find_service(IFileStorage, name="archive")
-        cache_storage = request.find_service(IFileStorage, name="cache")
-
-        _copy_file_to_cache(archive_storage, cache_storage, file.path)
-        if file.metadata_file_sha256_digest is not None:
-            _copy_file_to_cache(archive_storage, cache_storage, file.metadata_path)
-
-        file.cached = True
+    raise Exception()
 
 
 @tasks.task(ignore_result=True, acks_late=True)
