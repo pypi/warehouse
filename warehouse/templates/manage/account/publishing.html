@@ -24,8 +24,8 @@
 
 {% macro github_form(request, pending_github_publisher_form) %}
   <p>
-    {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
-    Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% trans href="https://docs.activestate.com/platform/user/oidc/" %}
+    Read more about ActiveState's OpenID Connect support <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>
 
@@ -315,6 +315,11 @@
 {% endmacro %}
 
 {% macro activestate_form(request, pending_activestate_pubisher_form) %}
+  <p>
+    {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
+    Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
   {{ form_error_anchor(pending_activestate_pubisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
