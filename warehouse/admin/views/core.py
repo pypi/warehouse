@@ -12,11 +12,13 @@
 
 from pyramid.view import view_config
 
+from warehouse.authnz import Permissions
+
 
 @view_config(
     route_name="admin.dashboard",
     renderer="admin/dashboard.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminDashboardRead,
     uses_session=True,
 )
 def dashboard(request):

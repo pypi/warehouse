@@ -245,6 +245,8 @@
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
         {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+        {% csi request.route_url("includes.submit_malware_report", project_name=project.name) %}
+        {% endcsi %}
 
       </div>
       <div class="vertical-tabs__panel">
@@ -357,6 +359,12 @@
                 <p class="release__version-date">
                   {{ humanize(hversion.created) }}
                 </p>
+                {% if hversion.yanked and hversion.yanked_reason %}
+                  <div class="callout-block callout-block--danger release__yanked-reason">
+                    <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+                    <p>{{ hversion.yanked_reason }}</p>
+                  </div>
+                {% endif %}
               </a>
             </div>
             {% endfor %}
@@ -367,7 +375,7 @@
           {# Tab: Downloads #}
           <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
-            <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
+            <p>{% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
             <h3>
               {% trans count=sdists|length %}
                 Source Distribution

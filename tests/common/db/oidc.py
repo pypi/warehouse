@@ -13,9 +13,13 @@
 import factory
 
 from warehouse.oidc.models import (
+    ActiveStatePublisher,
     GitHubPublisher,
+    GitLabPublisher,
     GooglePublisher,
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
+    PendingGitLabPublisher,
     PendingGooglePublisher,
 )
 
@@ -49,6 +53,30 @@ class PendingGitHubPublisherFactory(WarehouseFactory):
     added_by = factory.SubFactory(UserFactory)
 
 
+class GitLabPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = GitLabPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project = factory.Faker("pystr", max_chars=12)
+    namespace = factory.Faker("pystr", max_chars=12)
+    workflow_filepath = "subfolder/example.yml"
+    environment = "production"
+
+
+class PendingGitLabPublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingGitLabPublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = "fake-nonexistent-project"
+    project = factory.Faker("pystr", max_chars=12)
+    namespace = factory.Faker("pystr", max_chars=12)
+    workflow_filepath = "subfolder/example.yml"
+    environment = "production"
+    added_by = factory.SubFactory(UserFactory)
+
+
 class GooglePublisherFactory(WarehouseFactory):
     class Meta:
         model = GooglePublisher
@@ -67,3 +95,29 @@ class PendingGooglePublisherFactory(WarehouseFactory):
     email = factory.Faker("safe_email")
     sub = factory.Faker("pystr", max_chars=12)
     added_by = factory.SubFactory(UserFactory)
+
+
+class ActiveStatePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = ActiveStatePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    organization = factory.Faker("pystr", max_chars=12)
+    activestate_project_name = factory.Faker("pystr", max_chars=12)
+    actor = factory.Faker("pystr", max_chars=12)
+    actor_id = factory.Faker("uuid4")
+    ingredient = factory.Faker("pystr", max_chars=12)
+
+
+class PendingActiveStatePublisherFactory(WarehouseFactory):
+    class Meta:
+        model = PendingActiveStatePublisher
+
+    id = factory.Faker("uuid4", cast_to=None)
+    project_name = factory.Faker("pystr", max_chars=12)
+    organization = factory.Faker("pystr", max_chars=12)
+    activestate_project_name = factory.Faker("pystr", max_chars=12)
+    actor = factory.Faker("pystr", max_chars=12)
+    actor_id = factory.Faker("uuid4")
+    added_by = factory.SubFactory(UserFactory)
+    ingredient = factory.Faker("pystr", max_chars=12)

@@ -35,10 +35,10 @@ from pyramid.httpexceptions import (
     HTTPException,
     HTTPForbidden,
     HTTPGone,
+    HTTPOk,
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
@@ -46,13 +46,12 @@ from trove_classifiers import classifiers, deprecated_classifiers
 
 from warehouse import forms
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
-    send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
-from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -60,6 +59,7 @@ from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
     Description,
+    DynamicFieldsEnum,
     File,
     Filename,
     JournalEntry,
@@ -69,14 +69,12 @@ from warehouse.packaging.models import (
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import http, readme
-from warehouse.utils.project import PROJECT_NAME_RE, validate_project_name
-from warehouse.utils.security_policy import AuthenticationMethod
+from warehouse.utils.project import PROJECT_NAME_RE
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
 
 MAX_FILESIZE = 100 * ONE_MB
-MAX_SIGSIZE = 8 * 1024
 MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
@@ -398,6 +396,37 @@ def _validate_classifiers(form, field):
             )
 
 
+def _validate_dynamic(_form, field):
+    declared_dynamic_fields = {str.title(k) for k in field.data or []}
+    disallowed_dynamic_fields = {"Name", "Version", "Metadata-Version"}
+    if invalid := (declared_dynamic_fields & disallowed_dynamic_fields):
+        raise wtforms.validators.ValidationError(
+            f"The following metadata field(s) are valid, "
+            f"but cannot be marked as dynamic: {invalid!r}",
+        )
+    allowed_dynamic_fields = set(DynamicFieldsEnum.enums)
+    if invalid := (declared_dynamic_fields - allowed_dynamic_fields):
+        raise wtforms.validators.ValidationError(
+            f"The following metadata field(s) are not valid "
+            f"and cannot be marked as dynamic: {invalid!r}"
+        )
+
+
+_extra_name_re = re.compile("^([a-z0-9]|[a-z0-9]([a-z0-9-](?!--))*[a-z0-9])$")
+
+
+def _validate_provides_extras(form, field):
+    metadata_version = packaging.version.Version(form.metadata_version.data)
+
+    if metadata_version >= packaging.version.Version("2.3"):
+        if invalid := [
+            name for name in field.data or [] if not _extra_name_re.match(name)
+        ]:
+            raise wtforms.validators.ValidationError(
+                f"The following Provides-Extra value(s) are invalid: {invalid!r}"
+            )
+
+
 def _construct_dependencies(form, types):
     for name, kind in types.items():
         for item in getattr(form, name).data:
@@ -422,7 +451,7 @@ class MetadataForm(forms.Form):
                 # Note: This isn't really Metadata 2.0, however bdist_wheel
                 #       claims it is producing a Metadata 2.0 metadata when in
                 #       reality it's more like 1.2 with some extensions.
-                ["1.0", "1.1", "1.2", "2.0", "2.1"],
+                ["1.0", "1.1", "1.2", "2.0", "2.1", "2.2", "2.3"],
                 message="Use a known metadata version.",
             ),
         ],
@@ -473,6 +502,9 @@ class MetadataForm(forms.Form):
     author = wtforms.StringField(
         description="Author", validators=[wtforms.validators.Optional()]
     )
+    supported_platform = wtforms.StringField(
+        description="Supported-Platform", validators=[wtforms.validators.Optional()]
+    )
     description_content_type = wtforms.StringField(
         description="Description-Content-Type",
         validators=[wtforms.validators.Optional(), _validate_description_content_type],
@@ -497,6 +529,10 @@ class MetadataForm(forms.Form):
     classifiers = ListField(
         description="Classifier",
         validators=[_validate_no_deprecated_classifiers, _validate_classifiers],
+    )
+    dynamic = ListField(
+        description="Dynamic",
+        validators=[_validate_dynamic],
     )
     platform = wtforms.StringField(
         description="Platform", validators=[wtforms.validators.Optional()]
@@ -567,6 +603,10 @@ class MetadataForm(forms.Form):
         description="Requires-Dist",
         validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
     )
+    provides_extra = ListField(
+        description="Provides-Extra",
+        validators=[wtforms.validators.Optional(), _validate_provides_extras],
+    )
     provides_dist = ListField(
         description="Provides-Dist",
         validators=[wtforms.validators.Optional(), _validate_legacy_dist_req_list],
@@ -615,6 +655,15 @@ class MetadataForm(forms.Form):
             raise wtforms.validators.ValidationError(
                 "Include at least one message digest."
             )
+
+        # Dynamic is only allowed with metadata version 2.2+
+        if self.dynamic.data:
+            metadata_version = packaging.version.Version(self.metadata_version.data)
+            if metadata_version and metadata_version < packaging.version.Version("2.2"):
+                raise wtforms.validators.ValidationError(
+                    "'Dynamic' is only allowed in metadata version 2.2 and higher, "
+                    f"but you declared {self.metadata_version.data}"
+                )
 
 
 def _validate_filename(filename, filetype):
@@ -946,16 +995,13 @@ def file_upload(request):
             )
 
         # We attempt to create the project.
-        try:
-            validate_project_name(form.name.data, request)
-        except HTTPException as exc:
-            raise _exc_with_message(exc.__class__, exc.detail) from None
-
         project_service = request.find_service(IProjectService)
         try:
             project = project_service.create_project(
                 form.name.data, request.user, request
             )
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -963,7 +1009,7 @@ def file_upload(request):
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    allowed = request.has_permission("upload", project)
+    allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
         if request.user:
@@ -992,25 +1038,6 @@ def file_upload(request):
                 else allowed.msg
             )
         raise _exc_with_message(HTTPForbidden, msg)
-
-    # Check if the user has 2FA and used basic auth
-    # NOTE: We don't need to guard request.user here because basic auth
-    # can only be used with user identities.
-    if (
-        request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        and request.user.has_two_factor
-    ):
-        send_basic_auth_with_two_factor_email(
-            request, request.user, project_name=project.name
-        )
-        raise _exc_with_message(
-            BasicAuthTwoFactorEnabled,
-            (
-                f"User { request.user.username } has two factor auth enabled, "
-                "an API Token or Trusted Publisher must be used to upload "
-                "in place of password."
-            ),
-        )
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -1129,6 +1156,8 @@ def file_upload(request):
                     "home_page",
                     "download_url",
                     "requires_python",
+                    "dynamic",
+                    "provides_extra",
                 }
             },
             uploader=request.user if request.user else None,
@@ -1163,15 +1192,16 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseAdd,
             request=request,
             additional={
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
+                "submitted_by": (
+                    request.user.username if request.user else "OpenID created token"
+                ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
@@ -1299,7 +1329,7 @@ def file_upload(request):
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
             request.tm.doom()
-            return Response()
+            return HTTPOk()
         elif is_duplicate is not None:
             raise _exc_with_message(
                 HTTPBadRequest,
@@ -1437,16 +1467,17 @@ def file_upload(request):
             request=request,
             additional={
                 "filename": file_.filename,
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
+                "submitted_by": (
+                    request.user.username if request.user else "OpenID created token"
+                ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "project_id": str(project.id),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
@@ -1542,7 +1573,7 @@ def file_upload(request):
         "uploaded_via": file_data.uploaded_via,
         "upload_time": file_data.upload_time,
     }
-    if not request.registry.settings.get("warehouse.release_files_table") is None:
+    if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload
@@ -1552,7 +1583,7 @@ def file_upload(request):
     request.task(sync_file_to_cache).delay(file_.id)
 
     # Return any warnings that we've accumulated as the response body.
-    return Response("\n".join(warnings))
+    return HTTPOk(body="\n".join(warnings))
 
 
 @view_config(

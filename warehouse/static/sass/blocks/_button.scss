@@ -21,8 +21,10 @@
 
   Modifiers:
     - small: Makes button small.
+    - full-width: Makes button full width of parent container.
     - primary: Makes button bright blue.
     - danger: Makes button red.
+    - warning: Makes button brown.
     - disabled: Styles for when the button cannot be clicked.
     - switch-to-desktop: Switch to desktop button found in site footer.
     - switch-to-mobile: Switch to mobile button found in site header.
@@ -61,6 +63,10 @@
   &--small {
     font-size: $small-font-size;
     padding: 6px 8px;
+  }
+
+  &--full-width {
+    width: 100%;
   }
 
   &--primary {
@@ -108,6 +114,27 @@
     &:focus {
       border-color: $white;
       @include link-focus-state($danger-color);
+    }
+  }
+
+  &--warning {
+    border-color: $warning-color;
+    background-color: $warning-color;
+    color: $white;
+
+    &:focus,
+    &:hover,
+    &:active {
+      border-color: darken($warning-color, 5);
+      background-color: darken($warning-color, 4);
+      text-decoration-color: transparentize($white, 0.8);
+      color: $white;
+    }
+
+    &:active,
+    &:focus {
+      border-color: $white;
+      @include link-focus-state($warning-color);
     }
   }
 

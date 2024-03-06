@@ -89,7 +89,7 @@
       <div class="callout-block no-top-margin">
         <p>
           {% trans %}There are no projects in your organization, yet.{% endtrans %}
-          {% if request.has_permission("add:project") %}
+          {% if request.has_permission(Permissions.OrganizationProjectsAdd) %}
           {% trans href='https://packaging.python.org/' %}Get started by adding a project that you own using the form below. To learn how to create a new project, visit the <a href="{{ href }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}
           {% endif %}
         </p>
@@ -97,7 +97,7 @@
     {% endfor %}
   </div>
 
-  {% if request.has_permission("add:project") %}
+  {% if request.has_permission(Permissions.OrganizationProjectsAdd) %}
   <hr>
 
   {{ form_error_anchor(add_organization_project_form) }}
@@ -111,7 +111,7 @@
           {% trans %}️New or existing project?{% endtrans %}
         </label>
         {% for subfield in add_organization_project_form.add_existing_project %}
-        {{ subfield(**{"data-target": ".radio-toggle-" + loop.index|string}) }}
+        {{ subfield(data_target=".radio-toggle-" + loop.index|string) }}
         {{ subfield.label }}
         {% endfor %}
         <div id="add-existing-project-errors">
@@ -128,7 +128,12 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
         {% set no_existing_projects = add_organization_project_form.existing_project_name.choices|length <= 1 %}
-        {{ add_organization_project_form.existing_project_name(class_="form-group__field", disabled=no_existing_projects, title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "", **{"aria-describedby":"existing-project-name-errors"}) }}
+        {{ add_organization_project_form.existing_project_name(
+          class_="form-group__field",
+          disabled=no_existing_projects,
+          title=gettext("You do not own any projects that you can add to this organization.") if no_existing_projects else "",
+          aria_describedby="existing-project-name-errors",
+        ) }}
         <div id="existing-project-name-errors">
           {{ field_errors(add_organization_project_form.existing_project_name) }}
         </div>
@@ -145,7 +150,10 @@
           {% trans %}️Name of new project{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
-        {{ add_organization_project_form.new_project_name(class_="form-group__field", **{"aria-describedby":"new-project-name-errors"}) }}
+        {{ add_organization_project_form.new_project_name(
+          class_="form-group__field",
+          aria_describedby="new-project-name-errors",
+        ) }}
         <div id="new-project-name-errors">
           {{ field_errors(add_organization_project_form.new_project_name) }}
         </div>

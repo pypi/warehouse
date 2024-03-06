@@ -897,9 +897,9 @@ class TestSendPasswordResetEmail:
                     "user_id": stub_user.id,
                     "additional": {
                         "from_": "noreply@example.com",
-                        "to": "other@example.com"
-                        if stub_email
-                        else "email@example.com",
+                        "to": (
+                            "other@example.com" if stub_email else "email@example.com"
+                        ),
                         "subject": "Email Subject",
                         "redact_ip": False,
                     },
@@ -1380,88 +1380,6 @@ class TestPasswordCompromisedEmail:
                         "redact_ip": False,
                     },
                 },
-            )
-        ]
-
-
-class TestBasicAuthWith2FAEmail:
-    @pytest.mark.parametrize("verified", [True, False])
-    def test_basic_auth_with_2fa_email(
-        self, pyramid_request, pyramid_config, monkeypatch, verified, metrics
-    ):
-        stub_user = pretend.stub(
-            id="id",
-            username="username",
-            name="",
-            email="email@example.com",
-            primary_email=pretend.stub(email="email@example.com", verified=verified),
-        )
-        subject_renderer = pyramid_config.testing_add_renderer(
-            "email/basic-auth-with-2fa/subject.txt"
-        )
-        subject_renderer.string_response = "Email Subject"
-        body_renderer = pyramid_config.testing_add_renderer(
-            "email/basic-auth-with-2fa/body.txt"
-        )
-        body_renderer.string_response = "Email Body"
-        html_renderer = pyramid_config.testing_add_renderer(
-            "email/basic-auth-with-2fa/body.html"
-        )
-        html_renderer.string_response = "Email HTML Body"
-
-        send_email = pretend.stub(
-            delay=pretend.call_recorder(lambda *args, **kwargs: None)
-        )
-        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
-        monkeypatch.setattr(email, "send_email", send_email)
-
-        pyramid_request.db = pretend.stub(
-            query=lambda a: pretend.stub(
-                filter=lambda *a: pretend.stub(
-                    one=lambda: pretend.stub(user_id=stub_user.id)
-                )
-            ),
-        )
-        pyramid_request.user = stub_user
-        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-        project_name = "exampleproject"
-        result = email.send_basic_auth_with_two_factor_email(
-            pyramid_request, stub_user, project_name=project_name
-        )
-
-        assert result == {"project_name": project_name}
-        assert pyramid_request.task.calls == [pretend.call(send_email)]
-        assert send_email.delay.calls == [
-            pretend.call(
-                f"{stub_user.username} <{stub_user.email}>",
-                {
-                    "subject": "Email Subject",
-                    "body_text": "Email Body",
-                    "body_html": (
-                        "<html>\n<head></head>\n"
-                        "<body><p>Email HTML Body</p></body>\n</html>\n"
-                    ),
-                },
-                {
-                    "tag": "account:email:sent",
-                    "user_id": stub_user.id,
-                    "additional": {
-                        "from_": "noreply@example.com",
-                        "to": stub_user.email,
-                        "subject": "Email Subject",
-                        "redact_ip": False,
-                    },
-                },
-            )
-        ]
-        assert metrics.increment.calls == [
-            pretend.call(
-                "warehouse.emails.scheduled",
-                tags=[
-                    "template_name:basic-auth-with-2fa",
-                    "allow_unverified:True",
-                    "repeat_window:86400.0",
-                ],
             )
         ]
 

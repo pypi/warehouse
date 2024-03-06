@@ -109,6 +109,11 @@
     <strong>{% trans %}Requires:{% endtrans %}</strong> Python {{ release.requires_python|replace(',', ', ') }}
   </p>
   {% endif %}
+  {% if release.provides_extra %}
+  <p>
+    <strong>{% trans %}Provides-Extra:{% endtrans %}</strong> {% for extra in release.provides_extra %}<code>{{ extra }}</code>{% if not loop.last %}, {% endif %}{% endfor %}
+  </p>
+  {% endif %}
 </div>
 {% endif %}
 

@@ -39,6 +39,7 @@ from tests.common.db.subscriptions import (
 )
 from warehouse.accounts import ITokenService, IUserService
 from warehouse.accounts.interfaces import TokenExpired
+from warehouse.authnz import Permissions
 from warehouse.manage import views
 from warehouse.manage.views import organizations as org_views
 from warehouse.organizations import IOrganizationService
@@ -1575,9 +1576,6 @@ class TestManageOrganizationProjects:
             org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
 
-        validate_project_name = pretend.call_recorder(lambda *a, **kw: True)
-        monkeypatch.setattr(org_views, "validate_project_name", validate_project_name)
-
         send_organization_project_added_email = pretend.call_recorder(
             lambda req, user, **k: None
         )
@@ -1601,7 +1599,6 @@ class TestManageOrganizationProjects:
 
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == db_request.path
-        assert validate_project_name.calls == [pretend.call("fakepackage", db_request)]
         assert send_organization_project_added_email.calls == [
             pretend.call(
                 db_request,
@@ -1611,6 +1608,19 @@ class TestManageOrganizationProjects:
             )
         ]
 
+    @pytest.mark.parametrize(
+        "invalid_name, expected",
+        [
+            ("-invalid-name-", "The name '-invalid-name-' is invalid."),
+            (
+                "requirements.txt",
+                (
+                    "The name 'requirements.txt' isn't allowed. See help-url "
+                    "for more information."
+                ),
+            ),
+        ],
+    )
     def test_add_organization_project_new_project_exception(
         self,
         db_request,
@@ -1618,7 +1628,11 @@ class TestManageOrganizationProjects:
         organization_service,
         enable_organizations,
         monkeypatch,
+        invalid_name,
+        expected,
     ):
+        db_request.help_url = lambda *a, **kw: "help-url"
+
         organization = OrganizationFactory.create()
         OrganizationProjectFactory.create(
             organization=organization, project=ProjectFactory.create()
@@ -1633,7 +1647,7 @@ class TestManageOrganizationProjects:
 
         add_organization_project_obj = pretend.stub(
             add_existing_project=pretend.stub(data=False),
-            new_project_name=pretend.stub(data=project.name, errors=[]),
+            new_project_name=pretend.stub(data=invalid_name, errors=[]),
             validate=lambda *a, **kw: True,
         )
         add_organization_project_cls = pretend.call_recorder(
@@ -1642,11 +1656,6 @@ class TestManageOrganizationProjects:
         monkeypatch.setattr(
             org_views, "AddOrganizationProjectForm", add_organization_project_cls
         )
-
-        def validate_project_name(*a, **kw):
-            raise HTTPBadRequest("error-message")
-
-        monkeypatch.setattr(org_views, "validate_project_name", validate_project_name)
 
         view = org_views.ManageOrganizationProjectsViews(organization, db_request)
         result = view.add_organization_project()
@@ -1658,7 +1667,7 @@ class TestManageOrganizationProjects:
             "projects_sole_owned": {project.name, organization.projects[0].name},
             "add_organization_project_form": add_organization_project_obj,
         }
-        assert add_organization_project_obj.new_project_name.errors == ["error-message"]
+        assert add_organization_project_obj.new_project_name.errors == [expected]
         assert len(organization.projects) == 1
 
     def test_add_organization_project_new_project_name_conflict(
@@ -2763,7 +2772,9 @@ class TestDeleteOrganizationRoles:
 
         result = org_views.delete_organization_role(organization, db_request)
 
-        assert db_request.has_permission.calls == [pretend.call("manage:organization")]
+        assert db_request.has_permission.calls == [
+            pretend.call(Permissions.OrganizationsManage)
+        ]
         assert db_request.session.flash.calls == [
             pretend.call(
                 "Cannot remove other people from the organization", queue="error"

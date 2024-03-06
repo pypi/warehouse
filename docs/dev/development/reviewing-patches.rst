@@ -157,4 +157,4 @@ Merge requirements
 
 .. _`twine`: https://github.com/pypa/twine
 
-.. _`Python Packaging User Guide`: https://packaging.python.org/tutorials/distributing-packages/#packaging-your-project
+.. _`Python Packaging User Guide`: https://packaging.python.org/guides/distributing-packages-using-setuptools/#packaging-your-project

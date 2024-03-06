@@ -543,6 +543,21 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
+You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. code-block:: console
+
+    TESTARGS="-vvv -x" make tests
+
+This will pass the arguments ``-vvv`` and ``-x`` down to ``pytest``.
+
+This is useful in scenarios like passing a
+`random seed <https://pypi.org/project/pytest-randomly/>`_ to the test runner:
+
+.. code-block:: console
+
+    TESTARGS="--randomly-seed=1234" make tests
+
 You can run linters, programs that check the code, with:
 
 .. code-block:: console
@@ -568,10 +583,11 @@ Use :command:`make` to build the documentation. For example:
 
 .. code-block:: console
 
-    make docs
+    make user-docs dev-docs
 
-The HTML documentation index can now be found at
-:file:`docs/_build/html/index.html`.
+The HTML index for the user documentation can now be found at
+:file:`docs/user-site/index.html`, and the index for the developer
+documentation at :file:`docs/dev/_build/html/index.html`.
 
 Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:

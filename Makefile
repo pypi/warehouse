@@ -61,7 +61,7 @@ debug: .state/docker-build-base
 	docker compose run --rm --service-ports web
 
 tests: .state/docker-build-base
-	docker compose run --rm web bin/tests --postgresql-host db $(T) $(TESTARGS)
+	docker compose run --rm tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
 static_tests: .state/docker-build-static
 	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
@@ -101,6 +101,8 @@ initdb: .state/docker-build-base
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
+	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS rstuf"
+	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE rstuf ENCODING 'UTF8'"
 	docker compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
 	docker compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
 	$(MAKE) runmigrations
@@ -124,7 +126,7 @@ clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache
 	docker compose down -v
 	docker compose rm --force
 

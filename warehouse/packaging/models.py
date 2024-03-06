@@ -21,10 +21,12 @@ import packaging.utils
 
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
 from pyramid.authorization import Allow
+from pyramid.security import Authenticated
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
+    Column,
     FetchedValue,
     ForeignKey,
     Index,
@@ -32,10 +34,11 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    or_,
     orm,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -51,6 +54,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
@@ -253,14 +257,47 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     def __acl__(self):
         session = orm.object_session(self)
         acls = [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
+            #       permissions here in terms of the permissions that the user has on
+            #       the project. This is more complex, as add ACL Entries based on other
+            #       criteria, such as the user's role in the project.
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
         # The project has zero or more OIDC publishers registered to it,
         # each of which serves as an identity with the ability to upload releases.
         for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", ["upload"]))
+            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -293,9 +330,19 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             if permission_name == "Administer":
-                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    )
+                )
             else:
-                acls.append((Allow, f"user:{user_id}", ["upload"]))
+                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
         return acls
 
     @property
@@ -332,7 +379,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(
-                Release.version, Release.created, Release.is_prerelease, Release.yanked
+                Release.version,
+                Release.created,
+                Release.is_prerelease,
+                Release.yanked,
+                Release.yanked_reason,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
@@ -417,6 +468,32 @@ class ReleaseURL(db.Model):
     url: Mapped[str]
 
 
+DynamicFieldsEnum = ENUM(
+    "Platform",
+    "Supported-Platform",
+    "Summary",
+    "Description",
+    "Description-Content-Type",
+    "Keywords",
+    "Home-page",
+    "Download-URL",
+    "Author",
+    "Author-email",
+    "Maintainer",
+    "Maintainer-email",
+    "License",
+    "Classifier",
+    "Requires-Dist",
+    "Requires-Python",
+    "Requires-External",
+    "Project-URL",
+    "Provides-Extra",
+    "Provides-Dist",
+    "Obsoletes-Dist",
+    name="release_dynamic_fields",
+)
+
+
 class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
@@ -469,6 +546,12 @@ class Release(HasObservations, db.Model):
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
 
+    dynamic = Column(  # type: ignore[var-annotated]
+        ARRAY(DynamicFieldsEnum),
+        nullable=True,
+        comment="Array of metadata fields marked as Dynamic (PEP 643/Metadata 2.2)",
+    )
+
     _classifiers: Mapped[list[Classifier]] = orm.relationship(
         secondary="release_classifiers",
         order_by=Classifier.ordering,
@@ -520,6 +603,12 @@ class Release(HasObservations, db.Model):
 
     _provides_dist = _dependency_relation(DependencyKind.provides_dist)
     provides_dist = association_proxy("_provides_dist", "specifier")
+
+    provides_extra = Column(  # type: ignore[var-annotated]
+        ARRAY(Text),
+        nullable=True,
+        comment="Array of extra names (PEP 566/685|Metadata 2.1/2.3)",
+    )
 
     _obsoletes_dist = _dependency_relation(DependencyKind.obsoletes_dist)
     obsoletes_dist = association_proxy("_obsoletes_dist", "specifier")
@@ -681,13 +770,24 @@ class File(HasEvents, db.Model):
     archived: Mapped[bool_false] = mapped_column(
         comment="If True, the object has been archived to our archival bucket.",
     )
+    metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
+        nullable=True,
+        comment="If True, the metadata for the file cannot be backfilled.",
+    )
 
     @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
         return (
             self.events.where(
-                self.Event.additional.op("->>")("publisher_url").is_not(None)  # type: ignore[attr-defined] # noqa E501
+                or_(
+                    self.Event.additional[  # type: ignore[attr-defined]
+                        "uploaded_via_trusted_publisher"
+                    ].as_boolean(),
+                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
+                    .as_string()
+                    .is_not(None),
+                )
             ).count()
             > 0
         )

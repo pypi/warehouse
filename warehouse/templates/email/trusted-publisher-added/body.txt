@@ -35,6 +35,11 @@ users and can create project releases automatically.
 {%- if publisher.sub %}
 * {% trans %}Subject{% endtrans %}: {{ publisher.sub }}
 {%- endif %}
+{% elif publisher.publisher_name == "ActiveState" %}
+* {% trans %}Platform Project URL{% endtrans %}: {{ publisher.publisher_url }}
+* {% trans %}Organization{% endtrans %}: {{ publisher.organization }}
+* {% trans %}Project{% endtrans %}: {{ publisher.activestate_project_name }}
+* {% trans %}Actor{% endtrans %}: {{ publisher.actor }}
 {%- endif %}
 
 {% trans %}

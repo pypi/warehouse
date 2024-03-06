@@ -16,6 +16,7 @@ import pretend
 import pytest
 
 from pyramid.authorization import Allow
+from pyramid.exceptions import HTTPForbidden
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
@@ -32,17 +33,16 @@ class TestBasicAuthSecurityPolicy:
         )
 
     def test_noops(self):
+        """Basically, anything that isn't `identity()` is a no-op."""
         policy = security_policy.BasicAuthSecurityPolicy()
         with pytest.raises(NotImplementedError):
             policy.authenticated_userid(pretend.stub())
+        with pytest.raises(NotImplementedError):
+            policy.permits(pretend.stub(), pretend.stub(), pretend.stub())
 
-    def test_forget_and_remember(self):
-        policy = security_policy.BasicAuthSecurityPolicy()
-
+        # These are no-ops, but they don't raise, used in MultiSecurityPolicy
         assert policy.forget(pretend.stub()) == []
-        assert policy.remember(pretend.stub(), pretend.stub()) == [
-            ("WWW-Authenticate", 'Basic realm="Realm"')
-        ]
+        assert policy.remember(pretend.stub(), pretend.stub()) == []
 
     def test_identity_no_credentials(self, monkeypatch):
         extract_http_basic_credentials = pretend.call_recorder(lambda request: None)
@@ -60,8 +60,7 @@ class TestBasicAuthSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
         )
 
         assert policy.identity(request) is None
@@ -78,9 +77,6 @@ class TestBasicAuthSecurityPolicy:
             extract_http_basic_credentials,
         )
 
-        basic_auth_check = pretend.call_recorder(lambda u, p, r: False)
-        monkeypatch.setattr(security_policy, "_basic_auth_check", basic_auth_check)
-
         policy = security_policy.BasicAuthSecurityPolicy()
 
         vary_cb = pretend.stub()
@@ -89,13 +85,13 @@ class TestBasicAuthSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
+            help_url=lambda _anchor=None: "/help",
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
         )
 
-        assert policy.identity(request) is None
+        with pytest.raises(HTTPForbidden):
+            policy.identity(request)
         assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert basic_auth_check.calls == [pretend.call(creds[0], creds[1], request)]
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
@@ -128,7 +124,7 @@ class TestBasicAuthSecurityPolicy:
         assert policy.identity(fake_request) is None
 
     def test_identity(self, monkeypatch):
-        creds = (pretend.stub(), pretend.stub())
+        creds = ("__token__", pretend.stub())
         extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
         monkeypatch.setattr(
             security_policy,
@@ -136,72 +132,21 @@ class TestBasicAuthSecurityPolicy:
             extract_http_basic_credentials,
         )
 
-        basic_auth_check = pretend.call_recorder(lambda u, p, r: True)
-        monkeypatch.setattr(security_policy, "_basic_auth_check", basic_auth_check)
-
         policy = security_policy.BasicAuthSecurityPolicy()
 
         vary_cb = pretend.stub()
         add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
         monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
 
-        user = pretend.stub()
-        user_service = pretend.stub(
-            get_user_by_username=pretend.call_recorder(lambda u: user)
-        )
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            find_service=pretend.call_recorder(lambda a, **kw: user_service),
-            banned=pretend.stub(by_ip=lambda ip_address: False),
-            remote_addr="1.2.3.4",
-        )
-
-        assert policy.identity(request) is user
-        assert request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        assert extract_http_basic_credentials.calls == [pretend.call(request)]
-        assert basic_auth_check.calls == [pretend.call(creds[0], creds[1], request)]
-        assert request.find_service.calls == [pretend.call(IUserService, context=None)]
-        assert user_service.get_user_by_username.calls == [pretend.call(creds[0])]
-
-        assert add_vary_cb.calls == [pretend.call("Authorization")]
-        assert request.add_response_callback.calls == [pretend.call(vary_cb)]
-
-    def test_identityi_ip_banned(self, monkeypatch):
-        creds = (pretend.stub(), pretend.stub())
-        extract_http_basic_credentials = pretend.call_recorder(lambda request: creds)
-        monkeypatch.setattr(
-            security_policy,
-            "extract_http_basic_credentials",
-            extract_http_basic_credentials,
-        )
-
-        basic_auth_check = pretend.call_recorder(lambda u, p, r: True)
-        monkeypatch.setattr(security_policy, "_basic_auth_check", basic_auth_check)
-
-        policy = security_policy.BasicAuthSecurityPolicy()
-
-        vary_cb = pretend.stub()
-        add_vary_cb = pretend.call_recorder(lambda *v: vary_cb)
-        monkeypatch.setattr(security_policy, "add_vary_callback", add_vary_cb)
-
-        user = pretend.stub()
-        user_service = pretend.stub(
-            get_user_by_username=pretend.call_recorder(lambda u: user)
-        )
-        request = pretend.stub(
-            add_response_callback=pretend.call_recorder(lambda cb: None),
-            find_service=pretend.call_recorder(lambda a, **kw: user_service),
-            banned=pretend.stub(by_ip=lambda ip_address: True),
-            remote_addr="1.2.3.4",
+            help_url=lambda _anchor=None: "/help",
+            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
         )
 
         assert policy.identity(request) is None
         assert request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        assert extract_http_basic_credentials.calls == []
-        assert basic_auth_check.calls == []
-        assert request.find_service.calls == []
-        assert user_service.get_user_by_username.calls == []
-
+        assert extract_http_basic_credentials.calls == [pretend.call(request)]
         assert add_vary_cb.calls == [pretend.call("Authorization")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
@@ -270,7 +215,14 @@ class TestSessionSecurityPolicy:
         assert add_vary_cb.calls == [pretend.call("Cookie")]
         assert request.add_response_callback.calls == [pretend.call(vary_cb)]
 
-    def test_identity_invalid_route(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "route_name",
+        [
+            "forklift.legacy.file_upload",
+            "api.echo",
+        ],
+    )
+    def test_identity_invalid_route(self, route_name, monkeypatch):
         session_helper_obj = pretend.stub()
         session_helper_cls = pretend.call_recorder(lambda: session_helper_obj)
         monkeypatch.setattr(
@@ -285,7 +237,7 @@ class TestSessionSecurityPolicy:
 
         request = pretend.stub(
             add_response_callback=pretend.call_recorder(lambda cb: None),
-            matched_route=pretend.stub(name="forklift.legacy.file_upload"),
+            matched_route=pretend.stub(name=route_name),
             banned=pretend.stub(by_ip=lambda ip_address: False),
             remote_addr="1.2.3.4",
         )
@@ -561,7 +513,7 @@ class TestSessionSecurityPolicy:
 
 @pytest.mark.parametrize(
     "policy_class",
-    [security_policy.BasicAuthSecurityPolicy, security_policy.SessionSecurityPolicy],
+    [security_policy.SessionSecurityPolicy],
 )
 class TestPermits:
     @pytest.mark.parametrize(

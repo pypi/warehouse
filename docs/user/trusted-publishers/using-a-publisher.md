@@ -193,11 +193,11 @@ below describe the setup process for each supported trusted publisher.
               # retrieve the ambient OIDC token
               resp=$(curl -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
                 "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=pypi")
-              oidc_token=$(jq '.value' <<< "${resp}")
+              oidc_token=$(jq -r '.value' <<< "${resp}")
 
               # exchange the OIDC token for an API token
               resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\": \"${oidc_token}\"}")
-              api_token=$(jq '.token' <<< "${resp}")
+              api_token=$(jq -r '.token' <<< "${resp}")
 
               # mask the newly minted API token, so that we don't accidentally leak it
               echo "::add-mask::${api_token}"

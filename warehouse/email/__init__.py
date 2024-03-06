@@ -197,9 +197,11 @@ def _email(
                     tags=[
                         f"template_name:{name}",
                         f"allow_unverified:{allow_unverified}",
-                        f"repeat_window:{repeat_window.total_seconds()}"
-                        if repeat_window
-                        else "repeat_window:none",
+                        (
+                            f"repeat_window:{repeat_window.total_seconds()}"
+                            if repeat_window
+                            else "repeat_window:none"
+                        ),
                     ],
                 )
 
@@ -331,15 +333,6 @@ def send_password_compromised_email_hibp(request, user):
 @_email("token-compromised-leak", allow_unverified=True)
 def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
-
-
-@_email(
-    "basic-auth-with-2fa",
-    allow_unverified=True,
-    repeat_window=datetime.timedelta(days=1),
-)
-def send_basic_auth_with_two_factor_email(request, user, *, project_name):
-    return {"project_name": project_name}
 
 
 @_email(

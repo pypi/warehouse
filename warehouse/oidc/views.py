@@ -19,8 +19,8 @@ import jwt
 import sentry_sdk
 
 from pydantic import BaseModel, StrictStr, ValidationError
+from pyramid.httpexceptions import HTTPException, HTTPForbidden
 from pyramid.request import Request
-from pyramid.response import Response
 from pyramid.view import view_config
 
 from warehouse.events.tags import EventTag
@@ -83,8 +83,8 @@ def _invalid(errors: list[Error], request: Request) -> JsonResponse:
 )
 def oidc_audience(request: Request):
     if request.flags.disallow_oidc():
-        return Response(
-            status=403, json={"message": "Trusted publishing functionality not enabled"}
+        return HTTPForbidden(
+            json={"message": "Trusted publishing functionality not enabled"}
         )
 
     audience: str = request.registry.settings["warehouse.oidc.audience"]
@@ -156,7 +156,7 @@ def mint_token_from_oidc(request: Request):
             errors=[
                 {
                     "code": "not-enabled",
-                    "description": f"{service_name} trusted publishing functionality not enabled",  # noqa
+                    "description": f"{service_name} trusted publishing functionality not enabled",  # noqa: E501
                 }
             ],
             request=request,
@@ -203,15 +203,22 @@ def mint_token(
                     request=request,
                 )
 
-            # Create the new project, and reify the pending publisher against it.
+            # Try creating the new project
             project_service = request.find_service(IProjectService)
-            new_project = project_service.create_project(
-                pending_publisher.project_name,
-                pending_publisher.added_by,
-                request,
-                ratelimited=False,
-            )
+            try:
+                new_project = project_service.create_project(
+                    pending_publisher.project_name,
+                    pending_publisher.added_by,
+                    request,
+                    ratelimited=False,
+                )
+            except HTTPException as exc:
+                return _invalid(
+                    errors=[{"code": "invalid-payload", "description": str(exc)}],
+                    request=request,
+                )
 
+            # Reify the pending publisher against the newly created project
             oidc_service.reify_pending_publisher(pending_publisher, new_project)
 
             # Successfully converting a pending publisher into a normal publisher
@@ -265,7 +272,7 @@ def mint_token(
             caveats.Expiration(expires_at=expires_at, not_before=not_before),
         ],
         oidc_publisher_id=str(publisher.id),
-        additional={"oidc": {"ref": claims.get("ref"), "sha": claims.get("sha")}},
+        additional={"oidc": publisher.stored_claims(claims)},
     )
     for project in publisher.projects:
         project.record_event(

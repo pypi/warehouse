@@ -17,6 +17,7 @@ import tempfile
 from collections import namedtuple
 from itertools import product
 
+from celery.exceptions import SoftTimeLimitExceeded, TimeLimitExceeded
 from google.cloud.bigquery import LoadJobConfig
 from sqlalchemy.orm import joinedload
 
@@ -40,10 +41,19 @@ def _copy_file_to_cache(archive_storage, cache_storage, path):
         cache_storage.store(path, file_for_cache.name, meta=metadata)
 
 
-@tasks.task(ignore_result=True, acks_late=True)
+@tasks.task(
+    ignore_result=True,
+    acks_late=True,
+    time_limit=30,
+    autoretry_for=(
+        SoftTimeLimitExceeded,
+        TimeLimitExceeded,
+    ),
+)
 def sync_file_to_cache(request, file_id):
     file = request.db.get(File, file_id)
-    if not file.cached:
+
+    if file and not file.cached:
         archive_storage = request.find_service(IFileStorage, name="archive")
         cache_storage = request.find_service(IFileStorage, name="cache")
 

@@ -32,6 +32,10 @@ fi
 # Print all the following commands
 set -x
 
+# Create any dist directories to silence whitenoise warnings.
+mkdir -p warehouse/admin/static/dist/
+mkdir -p warehouse/static/dist/
+
 # Actually run our tests.
 python -m coverage run -m pytest --strict-markers $COMMAND_ARGS
 python -m coverage html --show-contexts

@@ -100,7 +100,7 @@ class OIDCPublisherMixin:
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Claims that have already been verified during the JWT signature
-    # verification phase.
+    # verification phase if present.
     __preverified_claims__ = {
         "iss",
         "iat",
@@ -238,6 +238,21 @@ class OIDCPublisherMixin:
         """
         NOTE: This is **NOT** a `@property` because we pass `claims` to it.
         When calling, make sure to use `publisher_url()`
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
+    def stored_claims(
+        self, claims: SignedClaims | None = None
+    ) -> dict:  # pragma: no cover
+        """
+        These are claims that are serialized into any macaroon generated for
+        this publisher. You likely want to use this to surface claims that
+        are not configured on the publishers, that might vary from one publish
+        event to the next, and are useful to show to the user.
+
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `stored_claims()`
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError

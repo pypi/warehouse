@@ -98,8 +98,8 @@ def test_compute_packaging_metrics(db_request, metrics):
     release3 = ReleaseFactory(project=project2)
     FileFactory(release=release1)
     FileFactory(release=release2)
-    FileFactory(release=release3)
-    FileFactory(release=release3)
+    FileFactory(release=release3, packagetype="sdist")
+    FileFactory(release=release3, packagetype="bdist_wheel")
 
     compute_packaging_metrics(db_request)
 
@@ -289,9 +289,9 @@ def test_reconcile_file_storages_borked(
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == borked.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == borked.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
@@ -336,9 +336,9 @@ def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == just_dist.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == just_dist.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {

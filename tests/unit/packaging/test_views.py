@@ -190,6 +190,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -216,7 +228,7 @@ class TestReleaseDetail:
             "description": "<pre>plaintext description</pre>",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -237,6 +249,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -263,7 +287,7 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -282,6 +306,18 @@ class TestReleaseDetail:
                 ),
             )
             for v in ["1.0", "2.0", "3.0", "4.0.dev0"]
+        ] + [
+            ReleaseFactory.create(
+                project=project,
+                version="5.0",
+                description=DescriptionFactory.create(
+                    raw="plaintext description",
+                    html="",
+                    content_type="text/plain",
+                ),
+                yanked=True,
+                yanked_reason="plaintext yanked reason",
+            )
         ]
         files = [
             FileFactory.create(
@@ -314,7 +350,7 @@ class TestReleaseDetail:
             "description": "rendered description",
             "latest_version": project.latest_version,
             "all_versions": [
-                (r.version, r.created, r.is_prerelease, r.yanked)
+                (r.version, r.created, r.is_prerelease, r.yanked, r.yanked_reason)
                 for r in reversed(releases)
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
@@ -413,6 +449,81 @@ class TestReleaseDetail:
             "Multiline License is very long, so long that it is far longer than 100 "
             "characters, it's really so lo..."
         )
+
+
+class TestReportMalwareButton:
+    def test_report_malware_button(self):
+        project = pretend.stub()
+        assert views.includes_submit_malware_observation(project, pretend.stub()) == {
+            "project": project
+        }
+
+
+class TestProjectSubmitMalwareObservation:
+    def test_get_render_form(self, pyramid_request):
+        project = pretend.stub()
+        form_obj = pretend.stub()
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        result = views.submit_malware_observation(
+            project, pyramid_request, _form_class=form_class
+        )
+
+        assert result == {"project": project, "form": form_obj}
+        assert form_class.calls == [pretend.call(pyramid_request.POST)]
+
+    def test_post_invalid_form(self, pyramid_request):
+        project = pretend.stub()
+        form_obj = pretend.stub()
+        form_obj.validate = pretend.call_recorder(lambda: False)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        pyramid_request.method = "POST"
+
+        result = views.submit_malware_observation(
+            project, pyramid_request, _form_class=form_class
+        )
+
+        assert result == {"project": project, "form": form_obj}
+        assert form_obj.validate.calls == [pretend.call()]
+
+    def test_post_valid_form(self, db_request):
+        user = UserFactory.create()
+        project = ProjectFactory.create()
+        form_obj = pretend.stub()
+        form_obj.inspector_link = pretend.stub(
+            data=f"https://inspector.pypi.io/project/{project.name}/"
+        )
+        form_obj.summary = pretend.stub(data="Bad stuff in here")
+        form_obj.validate = pretend.call_recorder(lambda: True)
+        form_class = pretend.call_recorder(lambda d, **kw: form_obj)
+
+        db_request.method = "POST"
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: f"/project/{project.name}/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = user
+
+        result = views.submit_malware_observation(
+            project, db_request, _form_class=form_class
+        )
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == f"/project/{project.name}/"
+        assert form_obj.validate.calls == [pretend.call()]
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "Your report has been recorded. Thank you for your help.",
+                queue="success",
+            )
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("packaging.project", name=project.name)
+        ]
+        assert len(project.observations) == 1
 
 
 class TestEditProjectButton:

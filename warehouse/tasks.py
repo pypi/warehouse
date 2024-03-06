@@ -34,9 +34,9 @@ from warehouse.metrics import IMetricsService
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES[
-    "rediss"
-] = "warehouse.tasks:TLSRedisBackend"  # noqa
+celery.app.backends.BACKEND_ALIASES["rediss"] = (
+    "warehouse.tasks:TLSRedisBackend"  # noqa
+)
 
 
 # We need to register that the sqs:// url scheme uses a netloc

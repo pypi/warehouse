@@ -53,7 +53,15 @@
                 {% endif %}
               </label>
             </div>
-            {{ form.password(placeholder=gettext("Your password"), required="required", class_="form-group__field", autocomplete="current-password", spellcheck="false", data_password_target="password", **{"aria-describedby":"password-errors"}) }}
+            {{ form.password(
+              placeholder=gettext("Your password"),
+              required="required",
+              class_="form-group__field",
+              autocomplete="current-password",
+              spellcheck="false",
+              data_password_target="password",
+              aria_describedby="password-errors",
+            ) }}
             <div id="password-errors">
               {% if form.password.errors %}
               <ul class="form-errors" role="alert">

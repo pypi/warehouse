@@ -61,6 +61,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import Email, User
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.email import (
@@ -79,12 +80,16 @@ from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.forms import (
     DeletePublisherForm,
+    PendingActiveStatePublisherForm,
     PendingGitHubPublisherForm,
+    PendingGitLabPublisherForm,
     PendingGooglePublisherForm,
 )
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
 from warehouse.oidc.models import (
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
+    PendingGitLabPublisher,
     PendingGooglePublisher,
     PendingOIDCPublisher,
 )
@@ -223,8 +228,6 @@ def accounts_search(request) -> dict[str, list[User]]:
 )
 def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginForm):
     # TODO: Logging in should reset request.user
-    # TODO: Configure the login view as the default view for not having
-    #       permission to view something.
     if request.user is not None:
         return HTTPSeeOther(request.route_path("manage.projects"))
 
@@ -721,12 +724,18 @@ def request_password_reset(request, _form_class=RequestPasswordResetForm):
     if request.method == "POST" and form.validate():
         user = user_service.get_user_by_username(form.username_or_email.data)
 
-        email = None
         if user is None:
             user = user_service.get_user_by_email(form.username_or_email.data)
+        if user is not None:
             email = first(
                 user.emails, key=lambda e: e.email == form.username_or_email.data
             )
+        else:
+            token_service = request.find_service(ITokenService, name="password")
+            n_hours = token_service.max_age // 60 // 60
+            # We could not find the user by username nor email.
+            # Return a response as if we did, to avoid leaking registered emails.
+            return {"n_hours": n_hours}
 
         if not user_service.ratelimiters["password.reset"].test(user.id):
             raise TooManyPasswordResetRequests(
@@ -884,7 +893,7 @@ def reset_password(request, _form_class=ResetPasswordForm):
 @view_config(
     route_name="accounts.verify-email",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyEmail,
     has_translations=True,
 )
 def verify_email(request):
@@ -988,7 +997,7 @@ def _get_two_factor_data(request, _redirect_to="/"):
     renderer="accounts/organization-invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyOrgRole,
     has_translations=True,
 )
 def verify_organization_role(request):
@@ -1158,7 +1167,7 @@ def verify_organization_role(request):
     renderer="accounts/invite-confirmation.html",
     require_methods=False,
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.AccountVerifyProjectRole,
     has_translations=True,
 )
 def verify_project_role(request):
@@ -1460,7 +1469,7 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManagePublishing,
     has_translations=True,
     require_reauth=True,
 )
@@ -1474,7 +1483,15 @@ class ManageAccountPublishingViews:
             api_token=self.request.registry.settings.get("github.token"),
             project_factory=self.project_factory,
         )
+        self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory,
+        )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
+            self.request.POST,
+            project_factory=self.project_factory,
+        )
+        self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
             project_factory=self.project_factory,
         )
@@ -1513,13 +1530,21 @@ class ManageAccountPublishingViews:
     def default_response(self):
         return {
             "pending_github_publisher_form": self.pending_github_publisher_form,
+            "pending_gitlab_publisher_form": self.pending_gitlab_publisher_form,
             "pending_google_publisher_form": self.pending_google_publisher_form,
+            "pending_activestate_publisher_form": self.pending_activestate_publisher_form,  # noqa: E501
             "disabled": {
                 "GitHub": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GITHUB_OIDC
                 ),
+                "GitLab": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITLAB_OIDC
+                ),
                 "Google": self.request.flags.disallow_oidc(
                     AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+                "ActiveState": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
                 ),
             },
         }
@@ -1707,6 +1732,59 @@ class ManageAccountPublishingViews:
                 repository_name=form.repository.data,
                 repository_owner=form.normalized_owner,
                 workflow_filename=form.workflow_filename.data,
+                environment=form.normalized_environment,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingActiveStatePublisherForm.__params__,
+    )
+    def add_pending_activestate_oidc_publisher(self):
+        form = self.default_response["pending_activestate_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="ActiveState",
+            publisher_class=PendingActiveStatePublisher,
+            admin_flag=AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingActiveStatePublisher(
+                project_name=form.project_name.data,
+                added_by=self.request.user,
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+            ),
+            make_existence_filters=lambda form: dict(
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor_id=form.actor_id,
+            ),
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=PendingGitLabPublisherForm.__params__,
+    )
+    def add_pending_gitlab_oidc_publisher(self):
+        form = self.default_response["pending_gitlab_publisher_form"]
+        return self._add_pending_oidc_publisher(
+            publisher_name="GitLab",
+            publisher_class=PendingGitLabPublisher,
+            admin_flag=AdminFlagValue.DISALLOW_GITLAB_OIDC,
+            form=form,
+            make_pending_publisher=lambda request, form: PendingGitLabPublisher(
+                project_name=form.project_name.data,
+                added_by=self.request.user,
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.normalized_environment,
+            ),
+            make_existence_filters=lambda form: dict(
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
                 environment=form.normalized_environment,
             ),
         )

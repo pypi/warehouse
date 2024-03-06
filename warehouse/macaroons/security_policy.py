@@ -17,6 +17,7 @@ from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
@@ -154,7 +155,14 @@ class MacaroonSecurityPolicy:
         #       doesn't really make a lot of sense here and it makes things more
         #       complicated if we want to allow the use of macaroons for actions other
         #       than uploading.
-        if permission not in ["upload"]:
+        if permission not in [
+            Permissions.ProjectsUpload,
+            # TODO: Adding API-specific routes here is not sustainable. However,
+            #  removing this guard would allow Macaroons to be used for Session-based
+            #  operations, bypassing any 2FA requirements.
+            Permissions.APIEcho,
+            Permissions.APIObservationsAdd,
+        ]:
             return WarehouseDenied(
                 f"API tokens are not valid for permission: {permission}!",
                 reason="invalid_permission",

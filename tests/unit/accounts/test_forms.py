@@ -78,18 +78,27 @@ class TestLoginForm:
 
         assert user_service.find_userid.calls == [pretend.call("my_username")]
 
-    def test_validate_username_with_user(self):
+    @pytest.mark.parametrize(
+        "input_username,expected_username",
+        [
+            ("my_username", "my_username"),
+            ("  my_username  ", "my_username"),
+            ("my_username ", "my_username"),
+            (" my_username", "my_username"),
+            ("   my_username    ", "my_username"),
+        ],
+    )
+    def test_validate_username_with_user(self, input_username, expected_username):
         request = pretend.stub()
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
         form = forms.LoginForm(
             request=request, user_service=user_service, breach_service=breach_service
         )
-        field = pretend.stub(data="my_username")
-
+        field = pretend.stub(data=input_username)
         form.validate_username(field)
 
-        assert user_service.find_userid.calls == [pretend.call("my_username")]
+        assert user_service.find_userid.calls == [pretend.call(expected_username)]
 
     def test_validate_password_no_user(self):
         request = pretend.stub(
@@ -702,54 +711,30 @@ class TestRegistrationForm:
 
 
 class TestRequestPasswordResetForm:
-    def test_validate(self):
-        user_service = pretend.stub(
-            get_user_by_username=pretend.call_recorder(lambda userid: "1")
-        )
+    @pytest.mark.parametrize(
+        "form_input",
+        [
+            "username",
+            "foo@bar.net",
+        ],
+    )
+    def test_validate(self, form_input):
         form = forms.RequestPasswordResetForm(
-            formdata=MultiDict({"username_or_email": "foo@bar.net"}),
-            user_service=user_service,
+            formdata=MultiDict({"username_or_email": form_input}),
         )
-        assert form.user_service is user_service
-        assert form.validate(), str(form.errors)
+        assert form.validate()
 
     def test_no_password_field(self):
-        user_service = pretend.stub()
-        form = forms.RequestPasswordResetForm(user_service=user_service)
+        form = forms.RequestPasswordResetForm()
         assert "password" not in form._fields
 
-    def test_validate_username_or_email(self):
-        user_service = pretend.stub(
-            get_user_by_username=pretend.call_recorder(lambda userid: "1"),
-            get_user_by_email=pretend.call_recorder(lambda userid: "1"),
-        )
-        form = forms.RequestPasswordResetForm(user_service=user_service)
-        field = pretend.stub(data="username_or_email")
-
-        form.validate_username_or_email(field)
-
-        assert user_service.get_user_by_username.calls == [
-            pretend.call("username_or_email")
-        ]
-
-    def test_validate_username_or_email_with_none(self):
-        user_service = pretend.stub(
-            get_user_by_username=pretend.call_recorder(lambda userid: None),
-            get_user_by_email=pretend.call_recorder(lambda userid: None),
-        )
-        form = forms.RequestPasswordResetForm(user_service=user_service)
-        field = pretend.stub(data="username_or_email")
+    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net"])
+    def test_validate_with_invalid_inputs(self, form_input):
+        form = forms.RequestPasswordResetForm()
+        field = pretend.stub(data=form_input)
 
         with pytest.raises(wtforms.validators.ValidationError):
             form.validate_username_or_email(field)
-
-        assert user_service.get_user_by_username.calls == [
-            pretend.call("username_or_email")
-        ]
-
-        assert user_service.get_user_by_email.calls == [
-            pretend.call("username_or_email")
-        ]
 
 
 class TestResetPasswordForm:
