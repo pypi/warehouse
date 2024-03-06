@@ -279,27 +279,50 @@ below describe the setup process for each supported trusted publisher.
     platform to build it for you. You can do this in two ways:
 
     - Run this state tool CLI command:
-    ``` state publish YOUR_SDIST_FILENAME --depends ... ```
-    or, you can clone this repo that contains some helpful scripts for getting started
-    publishing on the ActiveState platform: `state checkout ActiveState/buildwheel`
+    ``` state publish --namespace USERNAME/python --name PKG_NAME SDIST_FILENAME --depend "builder/python-module-builder@>=0" --depend "language/python@>=3" --depend "language/python/setuptools@>=43.0.0" --depend "language/python/wheel@>=0" ```
+    
+    Substitute your own username, package name, and filename into the relevant places. You can edit the
+    dependencies if your package has additional dependencies, but these should get your started.
 
     2. Once you've published your package, you need to configure a build script that
     can build it into a wheel and publish it to PyPI. Here's an example script you can
     use to achieve this:
 
-    ``` INSERT SAMPLE SCRIPT HERE ```
+    ```python
+    at_time =  "2023-12-19T22:53:09.573000Z"
 
-    - Alternatively: You can use the helper scripts in the above repo that can help you
-    publish: `state checkout ActiveState/buildwheel`.
+    sources = solve(
+      at_time = at_time,
+      platforms = [
+        "78977bc8-0f32-519d-80f3-9043f059398c",
+        "7c998ec2-7491-4e75-be4d-8885800ef5f2",
+        "96b7e6f2-bebf-564c-bc1c-f04482398f38"
+      ],
+      requirements = [
+        Req(name = "USERNAME/NAMESPACE/PKG_NAME, version=Eq("1.0.0"))
+      ],
+    )
+
+    wheels = wheel_artifacts(src=$sources)
+    publish_receipt = pypi_publisher(src=$wheels)
+
+    runtime = state_tool_artifacts_v1(
+      build_flags = [   // Given this is the 90% case we should find a way to make it not needed
+      ],
+      src = sources
+    )
+
+    main = runtime 
+    ```
 
     3. You need to then "commit" this build script to the system, by running, `state commit`.
 
     4. Now you're ready to publish!
 
-    - If you want to build a wheel, run: `state eval build-wheel`. When it completes you can run
+    - If you want to build a wheel, run: `state eval wheels`. When it completes you can run
     `state builds dl <HASH_ID>` to download and test the wheel you've built.
 
-    - When you're ready to publish to PyPI, run: `state eval pypi-publish`.
+    - When you're ready to publish to PyPI, run: `state eval publish_receipt`.
 
     That's it!
 
