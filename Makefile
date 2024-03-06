@@ -95,7 +95,7 @@ translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm base bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
 
 initdb: .state/docker-build-base
 	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
