@@ -19,8 +19,6 @@ from warehouse.i18n import localize as _
 class SubmitMalwareObservationForm(forms.Form):
     """Form to submit details about a Project with Malware"""
 
-    # TODO: Add a honeypot field? Or better to add a CAPTCHA on the page?
-
     inspector_link = wtforms.fields.URLField(
         validators=[
             wtforms.validators.Length(max=2000),
