@@ -628,13 +628,13 @@ msgstr ""
 "pridaný ako ${role_name} pre projekt"
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "Používateľ '${username}' už má aktívnu pozvánku. Skúste neskôr prosím."
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Pozvánka bola odoslaná používateľovi '${username}'"
 
@@ -647,15 +647,15 @@ msgid "Invitation already expired."
 msgstr "Pozvánka už vypršala."
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Pozvánka od '${username}' bola odvolaná."
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Používateľ '${username}' už má rolu ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -663,16 +663,16 @@ msgstr ""
 "Používateľ '${username}' nemá overenú primárnu e-mailovú adresu a nemôže byť "
 "pridaný ako ${role_name} pre organizáciu"
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr "Nepodarilo sa nájsť pozvánku organizácie."
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr "Pozvánku organizácie nebolo možné znova odoslať."
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Pozvánka s vypršanou platnosťou pre '${username}' bola odstránená."
 
@@ -835,6 +835,14 @@ msgstr "Názov pracovného postupu musí končiť príponou .yml alebo .yaml"
 msgid "Workflow file path cannot start or end with /"
 msgstr ""
 
+#: warehouse/packaging/forms.py:27
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:213
+msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
@@ -916,8 +924,8 @@ msgstr "Monty Python - Náčrt syrárne"
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:376
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:397
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1460,6 +1468,7 @@ msgstr "Zistite, ako zabaliť kód Python pre PyPI"
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr "Chyba pri spracovaní formulára"
@@ -1560,6 +1569,8 @@ msgstr "Heslo"
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:71
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr "(povinné)"
@@ -2594,27 +2605,6 @@ msgstr[2] "Platnosť tohto odkazu vyprší o %(n_hours)s hodín."
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr "Ak ste túto žiadosť neodoslali, môžete tento e-mail pokojne ignorovať."
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated your "
-"pending publisher by creating the project before you did."
-msgstr ""
-"Zaregistrovali ste čakajúceho vydavateľa OpenID Connect pre projekt "
-"(<strong>%(project_name)s</strong>), ale niekto iný zrušil platnosť vášho "
-"čakajúceho vydavateľa vytvorením projektu pred vami."
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Ak sa domnievate, že k tomu došlo omylom, môžete poslať e-mail na adresu <a "
-"href=\"%(href)s\">%(email_address)s</a> a komunikovať s administrátormi PyPI."
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -2879,7 +2869,7 @@ msgstr "Pracovný postup"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3544,20 +3534,28 @@ msgstr "Tagy"
 msgid "Requires:"
 msgstr "Vyžaduje sa:"
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr "Údržbári"
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Avatar pre {username} z gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "Klasifikátory"
+
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -7527,85 +7525,85 @@ msgid "Navigation"
 msgstr "Navigácia"
 
 #: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:254
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigácia pre %(project)s"
 
 #: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project description. Focus will be moved to the description."
 msgstr "Popis projektu. Zameranie sa presunie na popis."
 
 #: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:293
 msgid "Project description"
 msgstr "Popis projektu"
 
 #: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "História vydania. Zameranie sa presunie na panel histórie."
 
 #: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release history"
 msgstr "História vydania"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Stiahnite si súbory. Zameranie sa presunie na súbory projektu."
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:377
 msgid "Download files"
 msgstr "Stiahnite si súbory"
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:263
 msgid "Project details. Focus will be moved to the project details."
 msgstr "Podrobnosti projektu. Zameranie sa presunie na detaily projektu."
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:307
 msgid "Project details"
 msgstr "Podrobnosti projektu"
 
-#: warehouse/templates/packaging/detail.html:287
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:364
 #, fuzzy
 #| msgid "This release has been yanked"
 msgid "Reason this release was yanked:"
 msgstr "Toto vydanie bolo vytrhnuté"
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:300
 msgid "The author of this package has not provided a project description"
 msgstr "Autor tohto balíka neposkytol popis projektu"
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 msgid "Release notifications"
 msgstr "Upozornenia na vydanie"
 
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:318
 msgid "RSS feed"
 msgstr "RSS zdroj"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "This version"
 msgstr "Táto verzia"
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:350
 msgid "pre-release"
 msgstr "predbežné vydanie"
 
-#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:355
 msgid "yanked"
 msgstr "trhol"
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7616,18 +7614,18 @@ msgstr ""
 "prečítajte si viac o <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">inštalácii balíkov</a>."
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:380
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Distribúcia zdroja"
 msgstr[1] "Distribúcie zdrojov"
 msgstr[2] "Distribúcie zdrojov"
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "No source distribution files available for this release."
 msgstr "Pre toto vydanie nie sú dostupné žiadne zdrojové distribučné súbory."
 
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:397
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7636,12 +7634,58 @@ msgstr ""
 "Pozrite si návod na <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generovanie archívov distribúcie</a>."
 
-#: warehouse/templates/packaging/detail.html:402
+#: warehouse/templates/packaging/detail.html:404
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "Postavená distribúcia"
 msgstr[1] "Postavené distribúcie"
 msgstr[2] "Postavených distribúcií"
+
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:31
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
+msgid ""
+"Use this form to submit reports of malicious projects for review by the PyPI "
+"Administrators. Examples of malicious activity in projects include typo-"
+"squatting, dependency confusion, data exfiltration, obfuscation, command/"
+"control, and other similar behaviors."
+msgstr ""
+"Platné hlásenia škodlivého softvéru môžu zahŕňať príklady preklepov, zámeny "
+"závislostí, exfiltrácia údajov, zahmlievanie, príkazy/ovládanie atď."
+
+#: warehouse/templates/packaging/submit-malware-observation.html:37
+#, python-format
+msgid ""
+"You'll be required to provide a link to notable source code using our <a "
+"href=\"%(href)s\">Inspector</a> service. This allows for reports to be "
+"reviewed more quickly, so please ensure that the link is to a meaningful "
+"portion of the relevant files."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+msgid ""
+"Your summary should include a general description of the malicious behavior "
+"as well as any other pertinent details such as what specific release(s) or "
+"file(s) are involved if it is not an entirely malicious Project."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:62
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:70
+msgid "Summary"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -10007,41 +10051,46 @@ msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 "Ak ste identifikovali bezpečnostný problém s projektom hosteným na PyPI"
 
-#: warehouse/templates/pages/security.html:36
-#, python-format
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
-"details:"
+"Login to your PyPI account, then visit the project's page on PyPI. At the "
+"bottom of the sidebar, click <strong>Report project as malware</strong>. "
+"Supply the following details in the form:"
 msgstr ""
-"Pošlite e-mail na adresu <a href=\"%(href)s\">security@pypi.org</a> a uveďte "
-"nasledujúce podrobnosti:"
 
-#: warehouse/templates/pages/security.html:38
+#: warehouse/templates/pages/security.html:44
 msgid "A URL to the project in question"
 msgstr "Adresa URL príslušného projektu"
 
-#: warehouse/templates/pages/security.html:39
+#: warehouse/templates/pages/security.html:45
 msgid "An explanation of what makes the project a security issue"
 msgstr "Vysvetlenie toho, čo robí projekt bezpečnostným problémom"
 
-#: warehouse/templates/pages/security.html:40
-#, python-format
+#: warehouse/templates/pages/security.html:46
+#, fuzzy, python-format
+#| msgid ""
+#| "If applicable: a link to the problematic lines in the project's "
+#| "distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
 msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
 "V prípade potreby: odkaz na problematické riadky v distribúciách projektu "
 "cez <a href=\"%(href)s\">inspector.pypi.io</a>"
 
-#: warehouse/templates/pages/security.html:42
+#: warehouse/templates/pages/security.html:48
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"confusion, data exfiltration, obfuscation, command/control, etc."
 msgstr ""
 "Platné hlásenia škodlivého softvéru môžu zahŕňať príklady preklepov, zámeny "
 "závislostí, exfiltrácia údajov, zahmlievanie, príkazy/ovládanie atď."
 
-#: warehouse/templates/pages/security.html:44
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
@@ -10049,7 +10098,7 @@ msgstr ""
 "Ak ste identifikovali problém so zabezpečením samotného PyPI (nie projektu "
 "hosteného na PyPI)"
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, python-format
 msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
@@ -10058,18 +10107,18 @@ msgstr ""
 "E-mailom na <a href=\"%(href)s\">security@pypi.org</a> uveďte čo najviac "
 "relevantných informácií vrátane reprodukovaných krokov."
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr "Čo bude ďalej?"
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 "Po odoslaní problému e-mailom by ste mali dostať potvrdenie do 48 hodín."
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
@@ -10077,8 +10126,10 @@ msgstr ""
 "V závislosti od akcie, ktorá sa má vykonať, môžete dostať ďalšie následné e-"
 "maily."
 
-#: warehouse/templates/pages/security.html:52
-msgid "This security policy was last updated on June 2022."
+#: warehouse/templates/pages/security.html:58
+#, fuzzy
+#| msgid "This security policy was last updated on June 2022."
+msgid "This security policy was last updated on March 2024."
 msgstr "Táto bezpečnostná politika bola naposledy aktualizovaná v júni 2022."
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -10450,6 +10501,34 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Pre filter '%(filters)s' neboli žiadne výsledky"
 msgstr[1] "Pre filtre '%(filters)s' neboli žiadne výsledky"
 msgstr[2] "Pre filtre '%(filters)s' neboli žiadne výsledky"
+
+#, python-format
+#~ msgid ""
+#~ "Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+#~ "details:"
+#~ msgstr ""
+#~ "Pošlite e-mail na adresu <a href=\"%(href)s\">security@pypi.org</a> a "
+#~ "uveďte nasledujúce podrobnosti:"
+
+#, python-format
+#~ msgid ""
+#~ "You registered an pending OpenID Connect publisher for a project "
+#~ "(<strong>%(project_name)s</strong>), but someone else has invalidated "
+#~ "your pending publisher by creating the project before you did."
+#~ msgstr ""
+#~ "Zaregistrovali ste čakajúceho vydavateľa OpenID Connect pre projekt "
+#~ "(<strong>%(project_name)s</strong>), ale niekto iný zrušil platnosť vášho "
+#~ "čakajúceho vydavateľa vytvorením projektu pred vami."
+
+#, python-format
+#~ msgid ""
+#~ "If you believe this was done in error, you can email <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Ak sa domnievate, že k tomu došlo omylom, môžete poslať e-mail na adresu "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> a komunikovať s "
+#~ "administrátormi PyPI."
 
 #~ msgid "No user found with that username or email"
 #~ msgstr ""
