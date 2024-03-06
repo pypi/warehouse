@@ -1,2 +1,2 @@
 gunicorn==21.2.0
-ddtrace==2.7.0
+ddtrace==2.7.1
