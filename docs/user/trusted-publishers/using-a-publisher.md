@@ -269,14 +269,17 @@ below describe the setup process for each supported trusted publisher.
     ```
 
 === "ActiveState"
+
     ActiveState's Platform works as a "zero-config" CI solution to automatically build cross-platform wheels of your PyPI projects. Once you're set up on the Platform and have linked your PyPI project, you're ready to publish. For more information on getting started with ActiveState go [here](https://docs.activestate.com/platform/start/PYPI). To begin:
     Publish your package to ActiveState's catalog. This will allow ActiveState's Platform to build it for you.
+
     1. Run the following command using the State Tool CLI:
     ```
     state publish --namespace USERNAME/python --name PKG_NAME SDIST_FILENAME --depend "builder/python-module-builder@>=0" --depend "language/python@>=3" --depend "language/python/setuptools@>=43.0.0" --depend "language/python/wheel@>=0"
     ```
     Replace the placeholder values in the block above with your ActiveState username (USERNAME), package name (PKG_NAME), and the filename of your sdist (SDIST_FILENAME) and run the command.  Running the command will publish your package to the ActiveState Platform and produce an `activestate.yaml` file and a `buildscript.as` file in your working directory.
-    2. After publishing your package to ActiveState, configure a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Replace the existing file’s code (`buildscript.as`) with the code below, substituting the placeholder values with those from your project (“USERNAME”, “NAMESPACE”, “PKG_NAME”). Save the chages to the file.
+
+    2. After publishing your package to ActiveState, configure a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Replace the existing file’s code (`buildscript.as`) with the code below, substituting the placeholder values with those from your project (“USERNAME”, “NAMESPACE”, “PKG_NAME”). Save the changes to the file.
     ```
     at_time =  "2023-12-19T22:53:09.573000Z"
     sources = solve(
@@ -299,12 +302,15 @@ below describe the setup process for each supported trusted publisher.
     )
     main = runtime
     ```
+
     1. Then, "commit" this build script to the system by running `state commit` in your terminal. Now you're ready to publish to PyPI!
     2. To build your wheel, run `state eval wheels`
     3. After building your wheel, run `state builds --all` to view all of the builds available. Take note of the `HASH_ID` of your new wheel.
     4. Run `state builds dl <HASH_ID>` to download and test the wheel you've built.
     5. When you're ready to publish your wheel to PyPI, run: `state eval publish_receipt`.
-    That's it! You have successfully published a Python wheel using the ActiveState Platform.
+    That's it!
+
+    You have successfully published a Python wheel using the ActiveState Platform.
 
 === "GitLab CI/CD"
 
