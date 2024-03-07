@@ -277,10 +277,10 @@ below describe the setup process for each supported trusted publisher.
     ```
     state publish --namespace USERNAME/python --name PKG_NAME SDIST_FILENAME --depend "builder/python-module-builder@>=0" --depend "language/python@>=3" --depend "language/python/setuptools@>=43.0.0" --depend "language/python/wheel@>=0"
     ```
-    Replace the placeholder values in the block above with your ActiveState username (USERNAME), package name (PKG_NAME), and the filename of your sdist (SDIST_FILENAME) and run the command.  Running the command will publish your package to the ActiveState Platform and produce an `activestate.yaml` file and a `buildscript.as` file in your working directory.
+    Replace the placeholder values in the block above with your ActiveState username (USERNAME), package name (PKG_NAME), and the filename of your sdist (SDIST_FILENAME) and run the command.
 
-    2. After publishing your package to ActiveState, configure a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Replace the existing file’s code (`buildscript.as`) with the code below, substituting the placeholder values with those from your project (“USERNAME”, “NAMESPACE”, “PKG_NAME”). Save the changes to the file.
-    ```
+    2. After publishing your package to ActiveState, you'll need to create a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Create a new build script file in the same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste the code below, substituting the placeholder values with those from your project: your ActiveState username (USERNAME), the name of the namespace (ie. folder where you published the ingredient, in this case `python`) (NAMESPACE), and finally the name of your package (PKG_NAME). Save the changes to the file.
+    ```python
     at_time =  "2023-12-19T22:53:09.573000Z"
     sources = solve(
       at_time = at_time,
@@ -296,7 +296,7 @@ below describe the setup process for each supported trusted publisher.
     wheels = wheel_artifacts(src=$sources)
     publish_receipt = pypi_publisher(src=$wheels)
     runtime = state_tool_artifacts_v1(
-      build_flags = [   // Given this is the 90% case we should find a way to make it not needed
+      build_flags = [
       ],
       src = sources
     )
