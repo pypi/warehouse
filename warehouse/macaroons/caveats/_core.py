@@ -86,7 +86,7 @@ class Caveat:
         return obj
 
     def __json__(self, request):
-        return self.__dict__
+        return self.__serialize__()
 
 
 class _CaveatRegistry:

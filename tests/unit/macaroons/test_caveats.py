@@ -80,38 +80,13 @@ def test_serialization(caveat, expected):
 @pytest.mark.parametrize(
     "caveat,expected",
     [
-        (
-            Expiration(expires_at=50, not_before=10),
-            [
-                {
-                    "expires_at": 50,
-                    "not_before": 10,
-                },
-            ],
-        ),
-        (
-            ProjectName(normalized_names=["foo", "bar"]),
-            [
-                {
-                    "normalized_names": [
-                        "foo",
-                        "bar",
-                    ],
-                },
-            ],
-        ),
+        (Expiration(expires_at=50, not_before=10), [[0, 50, 10]]),
+        (ProjectName(normalized_names=["foo", "bar"]), [[1, ["foo", "bar"]]]),
         (
             ProjectID(project_ids=["123uuid", "456uuid"]),
-            [
-                {
-                    "project_ids": [
-                        "123uuid",
-                        "456uuid",
-                    ],
-                },
-            ],
+            [[2, ["123uuid", "456uuid"]]],
         ),
-        (RequestUser(user_id="a uuid"), [{"user_id": "a uuid"}]),
+        (RequestUser(user_id="a uuid"), [[3, "a uuid"]]),
     ],
 )
 def test_serialization_onto_events(caveat, expected, db_request):
