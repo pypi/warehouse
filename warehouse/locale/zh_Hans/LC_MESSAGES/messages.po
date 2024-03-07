@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-02-15 15:45+0000\n"
+"PO-Revision-Date: 2024-03-01 16:07+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -67,7 +67,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -555,15 +555,11 @@ msgstr ""
 "help#admin-intervention。"
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"基于 Github 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
+"基于 GitLab 的受信任发布暂时被禁用。有关详细信息，请参见 https://pypi.org/"
 "help#admin-intervention。"
 
 #: warehouse/manage/views/__init__.py:1453
@@ -640,13 +636,13 @@ msgstr ""
 "{role_name}添加"
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "用户'$ {username}'已经具有有效的邀请。请稍后再试。"
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "邀请已发送到“ $ {username}”"
 
@@ -659,15 +655,15 @@ msgid "Invitation already expired."
 msgstr "邀请已过期。"
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "从“${username}”撤回邀请。"
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "用户 '${username}' 已在组织中任 ${role_name}"
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -675,16 +671,16 @@ msgstr ""
 "用户'$ {username}'没有经过验证的主电子邮件地址，因此不能被加为组织的$ "
 "{role_name}"
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr "找不到组织邀请。"
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr "不能重新发送组织邀请。"
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr "删除了对 '${username}' 的过期邀请。"
 
@@ -796,38 +792,36 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "工作流文件名必须仅为文件名，不能包含目录"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "指定 GitHub 存储库所有者（用户名或组织）"
+msgstr "指定 GitLab 命名空间（用户名或组/子组）"
 
 #: warehouse/oidc/forms/gitlab.py:37
-#, fuzzy
-#| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
-msgstr "无效的 GitHub 用户或组织名称。"
+msgstr "无效的 GitLab 用户名或组/子组名。"
 
 #: warehouse/oidc/forms/gitlab.py:53
-#, fuzzy
-#| msgid "Specify workflow filename"
 msgid "Specify workflow filepath"
-msgstr "指定工作流文件名"
+msgstr "指定工作流文件路径"
 
 # | msgid "Invalid TOTP code."
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid environment name"
-msgstr "无效的项目名"
+msgstr "无效的环境名"
 
 #: warehouse/oidc/forms/gitlab.py:76
-#, fuzzy
-#| msgid "Workflow name must end with .yml or .yaml"
 msgid "Workflow file path must end with .yml or .yaml"
-msgstr "工作流名称必须以 .yml 或 .yaml 结尾"
+msgstr "工作流文件路径必须以 .yml 或 .yaml 结尾"
 
 #: warehouse/oidc/forms/gitlab.py:80
 msgid "Workflow file path cannot start or end with /"
+msgstr "工作流文件路径不能以 / 开头或结尾"
+
+#: warehouse/packaging/forms.py:27
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:213
+msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
 #: warehouse/subscriptions/models.py:35
@@ -911,8 +905,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:376
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:397
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1219,7 +1213,7 @@ msgstr "帮助导航"
 
 #: warehouse/templates/base.html:278
 msgid "Installing packages"
-msgstr "安装软件包（英文）"
+msgstr "安装软件包"
 
 #: warehouse/templates/base.html:279
 msgid "Uploading packages"
@@ -1440,6 +1434,7 @@ msgstr "学习如何为PyPI打包你的Python代码"
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr "表单错误"
@@ -1540,6 +1535,8 @@ msgstr "密码"
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:71
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr "（必填）"
@@ -2522,26 +2519,6 @@ msgstr[0] "此链接将在%(n_hours)s个小时后过期。"
 msgid "If you did not make this request, you can safely ignore this email."
 msgstr "如果你没有提出此请求，你可以安全地忽略此电子邮件。"
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated your "
-"pending publisher by creating the project before you did."
-msgstr ""
-"你为项目 (<strong>%(project_name)s</strong>) 注册了一个待定的 OpenID Connect "
-"发布者，但由于其他人在你之前创建了同名项目，你的注册申请变得无效。"
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"如果你认为这是个错误，可以通过向 <a href=\"%(href)s\">%(email_address)s</a> "
-"发送电子邮件的方式与 PyPI 管理员进行沟通。"
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -2783,7 +2760,7 @@ msgstr "工作流"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3450,20 +3427,28 @@ msgstr "标签"
 msgid "Requires:"
 msgstr "需要："
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr "Provides-Extra:"
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr "维护者"
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr "gravatar.com 上 {username} 的头像"
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "分类"
+
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -4826,37 +4811,30 @@ msgstr "添加"
 
 #: warehouse/templates/manage/account/publishing.html:146
 #: warehouse/templates/manage/project/publishing.html:129
-#, fuzzy, python-format
-#| msgid ""
-#| "Read more about GitHub Actions's OpenID Connect support <a "
-#| "href=\"%(href)s\">here</a>."
+#, python-format
 msgid ""
 "Read more about GitLab CI/CD OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
-"如要获取更多关于GitHub Action 的 OpenID Connect 发布者的信息，<a "
-"href=\"%(href)s\">请点击此处</a>。"
+"如要获取更多关于GitLab CI/CD OpenID Connect 支持的信息，<a href=\"%(href)s\">"
+"请点击此处</a>。"
 
 #: warehouse/templates/manage/account/publishing.html:172
 #: warehouse/templates/manage/project/publishing.html:140
-#, fuzzy
-#| msgid "Name"
 msgid "Namespace"
-msgstr "名称"
+msgstr "命名空间"
 
 #: warehouse/templates/manage/account/publishing.html:177
 #: warehouse/templates/manage/project/publishing.html:145
-#, fuzzy
-#| msgid "No name set"
 msgid "namespace"
-msgstr "未设置名称"
+msgstr "命名空间"
 
 #: warehouse/templates/manage/account/publishing.html:179
 #: warehouse/templates/manage/project/publishing.html:147
 msgid ""
 "The GitLab username or GitLab group/subgroup namespace that the project is "
 "under"
-msgstr ""
+msgstr "GitLab用户名或项目所在的 GitLab 群/子群命名空间"
 
 #: warehouse/templates/manage/account/publishing.html:187
 #: warehouse/templates/manage/project/documentation.html:35
@@ -4868,56 +4846,37 @@ msgstr "项目名称"
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project"
 msgid "project"
 msgstr "项目"
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/project/publishing.html:162
-#, fuzzy
-#| msgid ""
-#| "The name of the GitHub repository that contains the publishing workflow"
 msgid "The name of the GitLab project that contains the publishing workflow"
-msgstr "包含发布工作流的 Github 存储库的名称"
+msgstr "包含发布工作流的 GitLab 项目的名称"
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Workflow name"
 msgid "Workflow file path"
-msgstr "工作流名称"
+msgstr "工作流文件路径"
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
 msgid ".gitlab-ci.yml"
-msgstr ""
+msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
-#, fuzzy
-#| msgid ""
-#| "The filename of the publishing workflow. This file should exist in the "
-#| "<code>.github/workflows/</code> directory in the repository configured "
-#| "above."
 msgid ""
 "The file path of the publishing workflow, relative to the project's root. "
 "This file should exist in the project configured above (external workflows "
 "are not supported)."
 msgstr ""
-"发布工作流的文件名。这个文件应该存在于上文所配置的存储库中的 <code>.github/"
-"workflows/</code>目录中。"
+"相对于项目根目录的发布工作流的文件路径。文件应存在于之前配置的项目中（不支持"
+"外部工作流）。"
 
 #: warehouse/templates/manage/account/publishing.html:226
 #: warehouse/templates/manage/project/publishing.html:194
-#, fuzzy, python-format
-#| msgid ""
-#| "The name of the <a href=\"%(href)s\">GitHub Actions environment</a> that "
-#| "the above workflow uses for publishing.  This should be configured under "
-#| "the repository's settings. While not required, a dedicated publishing "
-#| "environment is <strong>strongly</strong> encouraged, <strong>especially</"
-#| "strong> if your repository has maintainers with commit access who "
-#| "shouldn't have PyPI publishing access."
+#, python-format
 msgid ""
 "The name of the <a href=\"%(href)s\">GitLab CI/CD environment</a> that the "
 "above workflow uses for publishing.  This should be configured under the "
@@ -4926,10 +4885,10 @@ msgid ""
 "project has maintainers with commit access who shouldn't have PyPI "
 "publishing access."
 msgstr ""
-"上述工作流用于发布目的而使用的 <a href=\"%(href)s\">GitHub Actions 环境</a> "
-"的名称。  这应当在存储库的设置下进行配置。 虽然不是必需， 我们<strong>强烈</"
-"strong> 推荐使用专门的发布环境，<strong>尤其</strong> 如果你的存储库存在拥有"
-"代码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
+"上述工作流用于发布目的而使用的 <a href=\"%(href)s\">GitLab CI/CD 环境</a> 的"
+"名称。  这应当在项目的设置下进行配置。 虽然不是必需， 我们<strong>强烈</"
+"strong> 推荐使用专门的发布环境，<strong>尤其</strong> 如果你的项目存在拥有代"
+"码提交权限的维护者，但这些人不应有 PyPI 发布权限。"
 
 #: warehouse/templates/manage/account/publishing.html:248
 #: warehouse/templates/manage/project/publishing.html:216
@@ -7201,83 +7160,83 @@ msgid "Navigation"
 msgstr "导航栏"
 
 #: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:254
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 项目的导航"
 
 #: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project description. Focus will be moved to the description."
 msgstr "项目描述。焦点将移至描述。"
 
 #: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:293
 msgid "Project description"
 msgstr "项目描述"
 
 #: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "发布历史记录。焦点将移到“历史记录”面板。"
 
 #: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release history"
 msgstr "发行版"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下载文件。焦点将移到项目文件。"
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:377
 msgid "Download files"
 msgstr "下载文件"
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:263
 msgid "Project details. Focus will be moved to the project details."
 msgstr "项目详细信息。焦点将移到项目详细信息。"
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:307
 msgid "Project details"
 msgstr "项目详情"
 
-#: warehouse/templates/packaging/detail.html:287
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:364
 msgid "Reason this release was yanked:"
 msgstr "对此版本执行 yank 操作的原因："
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:300
 msgid "The author of this package has not provided a project description"
 msgstr "该软件包的作者没有提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 msgid "Release notifications"
 msgstr "版本发布设置"
 
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:318
 msgid "RSS feed"
 msgstr "RSS 订阅源"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "This version"
 msgstr "当前版本"
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:350
 msgid "pre-release"
 msgstr "预览版"
 
-#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:355
 msgid "yanked"
 msgstr "被执行了 yank 操作"
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7288,16 +7247,16 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装"
 "软件包（英文）</a> 的更多信息。"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:380
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "源分发"
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "No source distribution files available for this release."
 msgstr "没有可用于此版本的源代码分发文件。"
 
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:397
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7306,10 +7265,56 @@ msgstr ""
 "参考<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">生成分发文件</a>的教程。"
 
-#: warehouse/templates/packaging/detail.html:402
+#: warehouse/templates/packaging/detail.html:404
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "构建分发"
+
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:31
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
+msgid ""
+"Use this form to submit reports of malicious projects for review by the PyPI "
+"Administrators. Examples of malicious activity in projects include typo-"
+"squatting, dependency confusion, data exfiltration, obfuscation, command/"
+"control, and other similar behaviors."
+msgstr ""
+"有效的恶意软件报告可能包括拼写错误抢注、依赖关系混淆、数据泄露、混淆、命令/控"
+"制等示例。"
+
+#: warehouse/templates/packaging/submit-malware-observation.html:37
+#, python-format
+msgid ""
+"You'll be required to provide a link to notable source code using our <a "
+"href=\"%(href)s\">Inspector</a> service. This allows for reports to be "
+"reviewed more quickly, so please ensure that the link is to a meaningful "
+"portion of the relevant files."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+msgid ""
+"Your summary should include a general description of the malicious behavior "
+"as well as any other pertinent details such as what specific release(s) or "
+"file(s) are involved if it is not an entirely malicious Project."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:62
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:70
+msgid "Summary"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -9394,45 +9399,52 @@ msgstr "官方或非官方邮件列表"
 msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr "如果您已发现 PyPI 上托管的项目存在安全问题"
 
-#: warehouse/templates/pages/security.html:36
-#, python-format
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
-"details:"
-msgstr "发送邮件到 <a href=\"%(href)s\">security@pypi.org</a>，提供下列细节："
+"Login to your PyPI account, then visit the project's page on PyPI. At the "
+"bottom of the sidebar, click <strong>Report project as malware</strong>. "
+"Supply the following details in the form:"
+msgstr ""
 
-#: warehouse/templates/pages/security.html:38
+#: warehouse/templates/pages/security.html:44
 msgid "A URL to the project in question"
 msgstr "相关项目的 URL"
 
-#: warehouse/templates/pages/security.html:39
+#: warehouse/templates/pages/security.html:45
 msgid "An explanation of what makes the project a security issue"
 msgstr "说明是什么使项目成为安全问题"
 
-#: warehouse/templates/pages/security.html:40
-#, python-format
+#: warehouse/templates/pages/security.html:46
+#, fuzzy, python-format
+#| msgid ""
+#| "If applicable: a link to the problematic lines in the project's "
+#| "distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
 msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
 "如果适用：通过 <a href=\"%(href)s\">inspector.pypi.io</a> 链接到项目发行版中"
 "存在问题的行"
 
-#: warehouse/templates/pages/security.html:42
+#: warehouse/templates/pages/security.html:48
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"confusion, data exfiltration, obfuscation, command/control, etc."
 msgstr ""
 "有效的恶意软件报告可能包括拼写错误抢注、依赖关系混淆、数据泄露、混淆、命令/控"
 "制等示例。"
 
-#: warehouse/templates/pages/security.html:44
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
 msgstr "如果您发现了 PyPI 本身的安全问题（不是托管在 PyPI 上的项目）"
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, python-format
 msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
@@ -9441,24 +9453,26 @@ msgstr ""
 "发送邮件到 <a href=\"%(href)s\">security@pypi.org</a>，提供尽可能多的相关信"
 "息，包括重现步骤。"
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr "随后发生了什么？"
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr "通过电子邮件提交问题后，你应在48小时内收到确认。"
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr "根据采取的行动，你可能会收到进一步的后续电子邮件。"
 
-#: warehouse/templates/pages/security.html:52
-msgid "This security policy was last updated on June 2022."
+#: warehouse/templates/pages/security.html:58
+#, fuzzy
+#| msgid "This security policy was last updated on June 2022."
+msgid "This security policy was last updated on March 2024."
 msgstr "本安全政策最近更新于2022年6月。"
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -9844,6 +9858,31 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "“%(filters)s”筛选器没有结果"
 
+#, python-format
+#~ msgid ""
+#~ "Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+#~ "details:"
+#~ msgstr ""
+#~ "发送邮件到 <a href=\"%(href)s\">security@pypi.org</a>，提供下列细节："
+
+#, python-format
+#~ msgid ""
+#~ "You registered an pending OpenID Connect publisher for a project "
+#~ "(<strong>%(project_name)s</strong>), but someone else has invalidated "
+#~ "your pending publisher by creating the project before you did."
+#~ msgstr ""
+#~ "你为项目 (<strong>%(project_name)s</strong>) 注册了一个待定的 OpenID "
+#~ "Connect 发布者，但由于其他人在你之前创建了同名项目，你的注册申请变得无效。"
+
+#, python-format
+#~ msgid ""
+#~ "If you believe this was done in error, you can email <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "如果你认为这是个错误，可以通过向 <a href=\"%(href)s\">%(email_address)s</"
+#~ "a> 发送电子邮件的方式与 PyPI 管理员进行沟通。"
+
 #~ msgid "No user found with that username or email"
 #~ msgstr "未找到使用该用户名或电子邮件的用户"
 
@@ -10096,9 +10135,6 @@ msgstr[0] "“%(filters)s”筛选器没有结果"
 
 #~ msgid "The filename of the publishing workflow"
 #~ msgstr "发布工作流的文件名"
-
-#~ msgid "Provider:"
-#~ msgstr "提供方："
 
 #~ msgid "Manage pending providers"
 #~ msgstr "管理待定提供商"

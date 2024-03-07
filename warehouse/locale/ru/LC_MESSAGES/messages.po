@@ -34,7 +34,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-01-24 15:50+0000\n"
+"PO-Revision-Date: 2024-03-04 20:50+0000\n"
 "Last-Translator: gfbdrgng <hnaofegnp@hldrive.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
@@ -44,7 +44,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -177,10 +177,8 @@ msgid "Recovery code has been previously used."
 msgstr "Коды восстановления были повторно сгенерированы."
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "Некорректный адрес электронной почты. Попробуйте ещё раз."
+msgstr "Имя пользователя не является действительным. Попробуй еще раз."
 
 #: warehouse/accounts/views.py:120
 msgid ""
@@ -594,16 +592,12 @@ msgstr ""
 "смотрите здесь: https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1341
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
-"смотрите здесь: https://pypi.org/help#admin-intervention."
+"Доверенное издание на базе GitLab временно отключено. См. https://pypi.org/"
+"help#admin-intervention for details."
 
 #: warehouse/manage/views/__init__.py:1453
 msgid ""
@@ -614,16 +608,12 @@ msgstr ""
 "на сайте https://pypi.org/help#admin-intervention."
 
 #: warehouse/manage/views/__init__.py:1562
-#, fuzzy
-#| msgid ""
-#| "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
-#| "org/help#admin-intervention for details."
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"Размещаемая на GitHub трастовая публикация временно отключена. Подробнее "
-"смотрите здесь: https://pypi.org/help#admin-intervention."
+"Доверенное издание на базе ActiveState временно отключено. См. https://pypi."
+"org/help#admin-intervention for details."
 
 #: warehouse/manage/views/__init__.py:1797
 #: warehouse/manage/views/__init__.py:2098
@@ -683,7 +673,7 @@ msgstr ""
 "электронной почты и не может быть добавлен в проект с ролью ${role_name}"
 
 #: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
@@ -691,7 +681,7 @@ msgstr ""
 "повторите попытку позже."
 
 #: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Приглашение отправлено пользователю «${username}»"
 
@@ -704,15 +694,15 @@ msgid "Invitation already expired."
 msgstr "Приглашение уже истекло."
 
 #: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Приглашение для «${username}» отозвано."
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "Пользователь '${username} уже имеет роль ${role_name} для организации"
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -721,16 +711,16 @@ msgstr ""
 "электронной почты и не может быть добавлен в качестве ${имя_роли} для "
 "организации"
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr "Не удалось найти приглашения для организации."
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 msgid "Organization invitation could not be re-sent."
 msgstr "Приглашение организации не может быть отправлено повторно."
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 msgid "Expired invitation for '${username}' deleted."
 msgstr "Исключенное приглашение для \"${username}\" удалено."
 
@@ -742,6 +732,7 @@ msgstr "Неверное имя проекта"
 msgid ""
 "This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
+"Этот проект уже существует, вместо этого создайте обычный Trusted Publisher"
 
 #: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
@@ -755,44 +746,34 @@ msgstr "Издатель должен быть указан через ID"
 #, fuzzy
 #| msgid "Null bytes are not allowed."
 msgid "Double dashes are not allowed in the name"
-msgstr "Нуль байты не разрешены."
+msgstr "Двойные оттенки не допускаются во имя"
 
 #: warehouse/oidc/forms/activestate.py:55
 msgid "Leading or trailing dashes are not allowed in the name"
-msgstr ""
+msgstr "Ведущие или следящие шашки не допускаются во имя"
 
 #: warehouse/oidc/forms/activestate.py:79
 #: warehouse/oidc/forms/activestate.py:92
-#, fuzzy
-#| msgid "Unexpected timeout from GitHub. Try again in a few minutes."
 msgid "Unexpected error from ActiveState. Try again in a few minutes"
-msgstr "Неожиданный таймаут от GitHub. Попробуй еще раз через несколько минут."
+msgstr "Неожиданная ошибка от ActiveState. Попробуйте снова за несколько минут"
 
 #: warehouse/oidc/forms/activestate.py:87
 #: warehouse/oidc/forms/activestate.py:103
 #: warehouse/oidc/forms/activestate.py:112
-#, fuzzy
-#| msgid "Unexpected error from GitHub. Try again."
 msgid "Unexpected error from ActiveState. Try again"
-msgstr "Неожиданная ошибка от GitHub. Попробуй еще раз."
+msgstr "Неожиданная ошибка от ActiveState. Попробуйте снова"
 
 #: warehouse/oidc/forms/activestate.py:122
-#, fuzzy
-#| msgid "Select an organization account name"
 msgid "Specify ActiveState organization name"
-msgstr "Выберите имя учетной записи организации"
+msgstr "Указать название организации ActiveState"
 
 #: warehouse/oidc/forms/activestate.py:130
-#, fuzzy
-#| msgid "Specify project name"
 msgid "Specify ActiveState project name"
-msgstr "Укажите название проекта"
+msgstr "Указать название проекта ActiveState"
 
 #: warehouse/oidc/forms/activestate.py:134
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid ActiveState project name"
-msgstr "Неверное имя проекта"
+msgstr "Название проекта < < Инвалидное активное государство > >"
 
 #: warehouse/oidc/forms/activestate.py:157
 #, fuzzy
@@ -892,6 +873,14 @@ msgstr "Название рабочего процесса должно зака
 msgid "Workflow file path cannot start or end with /"
 msgstr ""
 
+#: warehouse/packaging/forms.py:27
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:213
+msgid "Your report has been recorded. Thank you for your help."
+msgstr ""
+
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
 msgid "Active"
@@ -973,8 +962,8 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:376
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:397
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1521,6 +1510,7 @@ msgstr "Узнайте, как упаковать ваш Python-код для Py
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr "Ошибка обработки формы"
@@ -1621,6 +1611,8 @@ msgstr "Пароль"
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:71
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr "(обязательно)"
@@ -2668,28 +2660,6 @@ msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 "Если вы не делали этого запроса, то можете проигнорировать это сообщение."
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, python-format
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated your "
-"pending publisher by creating the project before you did."
-msgstr ""
-"Вы зарегистрировали отложенного издателя OpenID Connect для проекта "
-"(<strong>%(project_name)s</strong>), но кто-то еще аннулировал вашего "
-"ожидающего издателя, создав проект до того, как вы это сделали."
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, python-format
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Если вы считаете, что это было сделано по ошибке, вы можете написать <a "
-"href=\"%(href)s\">%(email_address)s</a>, чтобы связаться с администраторами "
-"PyPI."
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -2955,7 +2925,7 @@ msgstr "Рабочий процесс"
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3627,20 +3597,28 @@ msgstr "Метки"
 msgid "Requires:"
 msgstr "Требует:"
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr "Сопровождающие"
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr "Аватар для {username} из gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "Классификаторы"
+
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
+msgstr ""
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -7641,84 +7619,84 @@ msgid "Navigation"
 msgstr "Навигация"
 
 #: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:254
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Навигация для проекта %(project)s"
 
 #: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:257
 msgid "Project description. Focus will be moved to the description."
 msgstr "Описание проекта. Фокус будет перенесён на описание."
 
 #: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:259
+#: warehouse/templates/packaging/detail.html:293
 msgid "Project description"
 msgstr "Описание проекта"
 
 #: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:269
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "История выпусков. Фокус будет перенесён на панель истории."
 
 #: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:271
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release history"
 msgstr "История выпусков"
 
 #: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:276
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Загрузка файлов. Фокус будет перенесён на файлы проекта."
 
 #: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:278
+#: warehouse/templates/packaging/detail.html:377
 msgid "Download files"
 msgstr "Загрузка файлов"
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:263
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Подробности проекта. Фокус будет перенесён на подробную информацию о проекте."
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:265
+#: warehouse/templates/packaging/detail.html:307
 msgid "Project details"
 msgstr "Подробности проекта"
 
-#: warehouse/templates/packaging/detail.html:287
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:289
+#: warehouse/templates/packaging/detail.html:364
 msgid "Reason this release was yanked:"
 msgstr "Причина, по которой этот релиз был удален:"
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:300
 msgid "The author of this package has not provided a project description"
 msgstr "Автор данного пакета не предоставил описание проекта"
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:317
 msgid "Release notifications"
 msgstr "Уведомления о выпусках"
 
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:318
 msgid "RSS feed"
 msgstr "Лента RSS"
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:330
 msgid "This version"
 msgstr "Эта версия"
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:350
 msgid "pre-release"
 msgstr "предварительный выпуск"
 
-#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:355
 msgid "yanked"
 msgstr "изъятый"
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:378
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7729,18 +7707,18 @@ msgstr ""
 "узнайте больше об <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">установке пакетов</a>."
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:380
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Источник распределения"
 msgstr[1] "Распределение источника"
 msgstr[2] "Распределение источников"
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:396
 msgid "No source distribution files available for this release."
 msgstr "Для этого выпуска не доступны файлы дистрибутива исходного кода."
 
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:397
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7749,12 +7727,58 @@ msgstr ""
 "Смотрите руководство по <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">генерированию архивов дистрибутивов</a>."
 
-#: warehouse/templates/packaging/detail.html:402
+#: warehouse/templates/packaging/detail.html:404
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "Построенный дистрибутив"
 msgstr[1] "Построенных дистрибутива"
 msgstr[2] "Построенных дистрибутивов"
+
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:31
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
+msgid ""
+"Use this form to submit reports of malicious projects for review by the PyPI "
+"Administrators. Examples of malicious activity in projects include typo-"
+"squatting, dependency confusion, data exfiltration, obfuscation, command/"
+"control, and other similar behaviors."
+msgstr ""
+"В сообщениях о вредоносном ПО могут быть примеры опечаток, путаницы в "
+"зависимостях, утечки данных, обфусцирования, командования/контроля и т. д."
+
+#: warehouse/templates/packaging/submit-malware-observation.html:37
+#, python-format
+msgid ""
+"You'll be required to provide a link to notable source code using our <a "
+"href=\"%(href)s\">Inspector</a> service. This allows for reports to be "
+"reviewed more quickly, so please ensure that the link is to a meaningful "
+"portion of the relevant files."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+msgid ""
+"Your summary should include a general description of the malicious behavior "
+"as well as any other pertinent details such as what specific release(s) or "
+"file(s) are involved if it is not an entirely malicious Project."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:62
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:70
+msgid "Summary"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -10032,41 +10056,46 @@ msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 "Если вы обнаружили проблему безопасности в проекте, размещенном на PyPI"
 
-#: warehouse/templates/pages/security.html:36
-#, python-format
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
-"details:"
+"Login to your PyPI account, then visit the project's page on PyPI. At the "
+"bottom of the sidebar, click <strong>Report project as malware</strong>. "
+"Supply the following details in the form:"
 msgstr ""
-"Напишите по электронной почте <a href=\"%(href)s\">security@pypi.org</a>, "
-"указав следующие данные:"
 
-#: warehouse/templates/pages/security.html:38
+#: warehouse/templates/pages/security.html:44
 msgid "A URL to the project in question"
 msgstr "URL-адрес проекта, о котором идет речь"
 
-#: warehouse/templates/pages/security.html:39
+#: warehouse/templates/pages/security.html:45
 msgid "An explanation of what makes the project a security issue"
 msgstr "Объяснение того, что делает проект проблемой безопасности"
 
-#: warehouse/templates/pages/security.html:40
-#, python-format
+#: warehouse/templates/pages/security.html:46
+#, fuzzy, python-format
+#| msgid ""
+#| "If applicable: a link to the problematic lines in the project's "
+#| "distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
 msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
 msgstr ""
 "Если применимо: ссылка на проблемные строки в дистрибутивах проекта через <a "
 "href=\"%(href)s\">inspector.pypi.io</a>"
 
-#: warehouse/templates/pages/security.html:42
+#: warehouse/templates/pages/security.html:48
+#, fuzzy
+#| msgid ""
+#| "Valid malware reports may include examples of typo-squatting, dependency "
+#| "confusion, data exfiltration, obfustication, command/control, etc."
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"confusion, data exfiltration, obfuscation, command/control, etc."
 msgstr ""
 "В сообщениях о вредоносном ПО могут быть примеры опечаток, путаницы в "
 "зависимостях, утечки данных, обфусцирования, командования/контроля и т. д."
 
-#: warehouse/templates/pages/security.html:44
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
@@ -10074,7 +10103,7 @@ msgstr ""
 "Если вы обнаружили проблему безопасности в самом PyPI (а не в проекте, "
 "размещенном на PyPI)"
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, python-format
 msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
@@ -10084,11 +10113,11 @@ msgstr ""
 "предоставив как можно больше релевантной информации, включая воспроизведение "
 "шагов."
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr "Что произойдёт дальше?"
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
@@ -10096,7 +10125,7 @@ msgstr ""
 "После того, как вы отправили сообщение о проблеме по электронной почте, вы "
 "должны в течение 48 часов получить подтверждение."
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
@@ -10104,8 +10133,10 @@ msgstr ""
 "В зависимости от того, какие действия необходимо предпринять, вы можете "
 "получить дополнительные электронные письма."
 
-#: warehouse/templates/pages/security.html:52
-msgid "This security policy was last updated on June 2022."
+#: warehouse/templates/pages/security.html:58
+#, fuzzy
+#| msgid "This security policy was last updated on June 2022."
+msgid "This security policy was last updated on March 2024."
 msgstr "Последний раз эта политика безопасности обновлялась в июне 2022 года."
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -10484,6 +10515,34 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Не было результатов для фильтра '%(filters)s'"
 msgstr[1] "Не было результатов для фильтра '%(filters)s'"
 msgstr[2] "Не было результатов для фильтров '%(filters)s'"
+
+#, python-format
+#~ msgid ""
+#~ "Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
+#~ "details:"
+#~ msgstr ""
+#~ "Напишите по электронной почте <a href=\"%(href)s\">security@pypi.org</a>, "
+#~ "указав следующие данные:"
+
+#, python-format
+#~ msgid ""
+#~ "You registered an pending OpenID Connect publisher for a project "
+#~ "(<strong>%(project_name)s</strong>), but someone else has invalidated "
+#~ "your pending publisher by creating the project before you did."
+#~ msgstr ""
+#~ "Вы зарегистрировали отложенного издателя OpenID Connect для проекта "
+#~ "(<strong>%(project_name)s</strong>), но кто-то еще аннулировал вашего "
+#~ "ожидающего издателя, создав проект до того, как вы это сделали."
+
+#, python-format
+#~ msgid ""
+#~ "If you believe this was done in error, you can email <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Если вы считаете, что это было сделано по ошибке, вы можете написать <a "
+#~ "href=\"%(href)s\">%(email_address)s</a>, чтобы связаться с "
+#~ "администраторами PyPI."
 
 #~ msgid "No user found with that username or email"
 #~ msgstr "Пользователь с таким именем или адресом электронной почты не найден"

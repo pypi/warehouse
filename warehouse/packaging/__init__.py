@@ -30,7 +30,6 @@ from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
     compute_2fa_metrics,
     compute_packaging_metrics,
-    metadata_backfill,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
@@ -194,6 +193,3 @@ def includeme(config):
     # TODO: restore this
     # if config.get_settings().get("warehouse.release_files_table"):
     #     config.add_periodic_task(crontab(minute=0), sync_bigquery_release_files)
-
-    # Backfill wheel metadata
-    config.add_periodic_task(crontab(minute="*/5"), metadata_backfill)
