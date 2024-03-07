@@ -12,7 +12,6 @@
 
 import enum
 import functools
-import json
 import logging
 
 from uuid import UUID
@@ -24,6 +23,7 @@ import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -191,21 +191,10 @@ def includeme(config):
     config.add_request_method(_create_session, name="db", reify=True)
 
     # Set a custom JSON serializer for psycopg
-    def serialize_as_json(obj):
-        def serialize(obj):
-            if isinstance(obj, (list, tuple)):
-                # If it's a list or tuple, recursively serialize each element
-                return [serialize(item) for item in obj]
-            elif isinstance(obj, dict):
-                # If it's a dictionary, recursively serialize each value
-                return {key: serialize(value) for key, value in obj.items()}
-            elif hasattr(obj, "__dict__"):
-                # If the object has a __dict__ attribute, serialize its __dict__
-                return serialize(obj.__dict__)
-            else:
-                # For other types, use default serialization
-                return obj
+    renderer = JSON()
+    renderer_factory = renderer(None)
 
-        return json.dumps(serialize(obj))
+    def serialize_as_json(obj):
+        return renderer_factory(obj, {})
 
     psycopg.types.json.set_json_dumps(serialize_as_json)

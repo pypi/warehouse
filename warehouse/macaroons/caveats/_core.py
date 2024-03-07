@@ -85,6 +85,9 @@ class Caveat:
 
         return obj
 
+    def __json__(self, request):
+        return self.__dict__
+
 
 class _CaveatRegistry:
     _tags: dict[int, type[Caveat]]
