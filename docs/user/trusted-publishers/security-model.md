@@ -155,7 +155,7 @@ own security model and considerations.
 
     ### Security Model
 
-    Trusted Publishing occurs from within an isolated build containers in the ActiveState
+    Trusted Publishing occurs from within an isolated build container in the ActiveState
     Platform build infrastructure.  When a build is triggered by a user that will publish
     to PyPI, an OIDC token is generated and passed into the necessary build container as
     an environmental variable along with your release artifact that will be uploaded. The
@@ -163,14 +163,13 @@ own security model and considerations.
     uses to upload your release.
 
     ### Considerations
-
+    
     * The user configured in the Trusted Publisher must be the user that triggers the
       build in the ActiveState Platform.  This user will need editing privileges in the
-      organization where the project is.
+      ActiveState organization associated with the project.
     * The ActiveState Platform project must be private.
-
     For more information about Trusted Publishing using the ActiveState Platform please
-    see the [PyPI configuration documentation]() and the [ActiveState Platform documentation]().
+    see the [PyPI configuration documentation](https://docs.activestate.com/platform/start/PYPI) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
 
 === "GitLab CI/CD"
     

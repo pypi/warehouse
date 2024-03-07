@@ -97,16 +97,11 @@ each.
 
 === "ActiveState"
 
-    For ActiveState, you need to provide the project name on ActiveState's platform,
-    the organization that project belongs to, and the username who will be performing
-    the publish action. Learn more about getting set up on the ActiveState platform here.
-    [//]:# (TODO Insert a link to our documentation to get started.)
-
-    [//]:# (TODO Link to image for filled form)
-
+    For ActiveState, you need to provide the project name on ActiveState's Platform,
+    the organization that project belongs to, and the username performing
+    the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
     Once you click "Add", your publisher will be registered and will appear at the top of the page:
-
-    ![](/assets/trusted-publishing/google/project-publisher-registered.png)
+    ![](/assets/trusted-publishing/activestate/project-publisher-registered.png)
 
 === "GitLab CI/CD"
 
