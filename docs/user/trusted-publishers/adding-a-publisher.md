@@ -100,6 +100,7 @@ each.
     For ActiveState, you need to provide the project name on ActiveState's Platform,
     the organization that project belongs to, and the username performing
     the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
+    ![](/assets/trusted-publishing/activestate/project-publishing-form.png)
     Once you click "Add", your publisher will be registered and will appear at the top of the page:
     ![](/assets/trusted-publishing/activestate/project-publisher-registered.png)
 
