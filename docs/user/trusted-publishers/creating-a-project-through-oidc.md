@@ -66,7 +66,11 @@ provide the name of the PyPI project that will be created.
     updating a project. You need to provide the project name on ActiveState's Platform,
     the ActiveState organization that project belongs to, and the username who will be performing
     the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
+
+    ![](/assets/trusted-publishing/activestate/pending-publisher-form-filled.png)
+
     Clicking "Add" will register the "pending" publisher, and show it to you:
+    
     ![](/assets/trusted-publishing/activestate/pending-publisher-registered.png)
 
 === "GitLab CI/CD"
