@@ -97,7 +97,7 @@ each.
 
 === "ActiveState"
 
-    For ActiveState, you need to provide the project name on ActiveState's Platform,
+    For ActiveState, you need to provide the name of the ActiveState project,
     the organization that project belongs to, and the username performing
     the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
     ![](/assets/trusted-publishing/activestate/project-publishing-form.png)
