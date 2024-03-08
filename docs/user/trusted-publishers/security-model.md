@@ -158,7 +158,7 @@ own security model and considerations.
     Trusted Publishing occurs from within an isolated build container in the ActiveState
     Platform build infrastructure.  When a build is triggered by a user that will publish
     to PyPI, an OIDC token is generated and passed into the necessary build container as
-    an environmental variable along with your release artifact that will be uploaded. The
+    an environment variable along with your release artifact that will be uploaded. The
     OIDC token is used by the build container to request a PyPI API token which it then
     uses to upload your release.
 
