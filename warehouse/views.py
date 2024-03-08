@@ -180,8 +180,8 @@ def forbidden_include(exc, request):
     return HTTPForbidden()
 
 
-@forbidden_view_config(path_info=r"^/api/")
-@exception_view_config(PredicateMismatch, path_info=r"^/api/")
+@forbidden_view_config(path_info=r"^/(danger-)?api/")
+@exception_view_config(PredicateMismatch, path_info=r"^/(danger-)?api/")
 def forbidden_api(exc, request):
     # If the forbidden error is for an API endpoint, return a JSON response
     # instead of redirecting

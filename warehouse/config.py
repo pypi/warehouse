@@ -18,6 +18,7 @@ import os
 import shlex
 
 from datetime import timedelta
+from pathlib import Path
 
 import orjson
 import transaction
@@ -772,6 +773,14 @@ def configure(settings=None):
     config.whitenoise_add_manifest(
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
+
+    # Set up OpenAPI
+    config.include("pyramid_openapi3")
+    config.pyramid_openapi3_spec(
+        str(Path(__file__).parent / "api" / "openapi.yaml"),
+        route="/api/openapi.yaml",
+    )
+    config.pyramid_openapi3_add_explorer(route="/api/explorer/")
 
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
