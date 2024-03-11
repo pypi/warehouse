@@ -69,3 +69,8 @@ def includeme(config: Configurator) -> None:
     )
     # Set up the route for the OpenAPI Web UI
     config.pyramid_openapi3_add_explorer(route="/api/explorer/")
+
+    # Helpful toggles for development.
+    # config.registry.settings["pyramid_openapi3.enable_endpoint_validation"] = False
+    # config.registry.settings["pyramid_openapi3.enable_request_validation"] = False
+    # config.registry.settings["pyramid_openapi3.enable_response_validation"] = False
