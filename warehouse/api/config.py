@@ -26,34 +26,33 @@ if typing.TYPE_CHECKING:
     from pyramid.config import Configurator
 
 
+def _api_set_content_type(view, info):
+    """
+    Set the content type based on API version parameter.
+
+    Use in a `@view_config` decorator like so:
+
+        @view_config(renderer="json", api_version="v1", ...)
+        def my_view(request):
+            return {"hello": "world"}
+
+    This will set the content type to `application/vnd.pypi.v1+json` and
+    pass to whatever `json` renderer is configured.
+    """
+    if api_version := info.options.get("api_version"):  # pragma: no cover
+
+        def wrapper(context, request):
+            request.response.content_type = f"application/vnd.pypi.{api_version}+json"
+            return view(context, request)
+
+        return wrapper
+    return view
+
+
+_api_set_content_type.options = ("api_version",)  # type: ignore[attr-defined]
+
+
 def includeme(config: Configurator) -> None:
-
-    def _api_set_content_type(view, info):
-        """
-        Set the content type based on API version parameter.
-
-        Use in a `@view_config` decorator like so:
-
-            @view_config(renderer="json", api_version="v1", ...)
-            def my_view(request):
-                return {"hello": "world"}
-
-        This will set the content type to `application/vnd.pypi.v1+json` and
-        pass to whatever `json` renderer is configured.
-        """
-        if api_version := info.options.get("api_version"):
-
-            def wrapper(context, request):
-                request.response.content_type = (
-                    f"application/vnd.pypi.{api_version}+json"
-                )
-                return view(context, request)
-
-            return wrapper
-        return view
-
-    _api_set_content_type.options = ("api_version",)  # type: ignore[attr-defined]
-
     config.add_view_deriver(_api_set_content_type)
 
     # Set up OpenAPI
