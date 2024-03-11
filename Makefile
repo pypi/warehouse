@@ -100,10 +100,12 @@ requirements/%.txt: requirements/%.in
 	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-base
+	docker compose pause web worker
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
 	rm -f .state/db-populated .state/db-migrated
 	$(MAKE) initdb
+	docker compose unpause web worker
 
 .state/search-indexed: .state/db-populated
 	$(MAKE) reindex
