@@ -51,7 +51,8 @@ def api_v0_view_config(**kwargs):
 
     # Set defaults for API views
     kwargs.update(
-        header="PyPI-API-Version:api-v0-danger",
+        api_version="api-v0-danger",
+        accept="application/vnd.pypi.api-v0-danger+json",
         renderer="json",
         require_csrf=False,
         # TODO: Can we apply a macaroon-based rate limiter here,

@@ -14,33 +14,26 @@ components:
       type: http
       scheme: bearer
       bearerFormat: API Token
-  parameters:
-    pypi_api_version:
-      name: PyPI-API-Version
-      # FIXME: Use a real URL once it exists
-      description: "Required header for API versioning. See [API Versioning](https://warehouse.pypa.io/api-reference/versioning/) for more information."
-      in: header
-      required: true
-      schema:
-        type: string
-        enum: [ "api-v0-danger", "api-v1" ]
-        example: "api-v0-danger"
 security:
   - bearerAuth: [ ]
 
+tags:
+  - name: danger-api
+    description: "[Danger Zone API](https://blog.pypi.org/posts/2024-03-06-malware-reporting-evolved/#via-api)"
+
 paths:
   /danger-api/echo:
-    parameters:
-      - $ref: '#/components/parameters/pypi_api_version'
     get:
       summary: Echo Username
       description: Echo username of authenticated user. Likely to be omitted from v1.
       operationId: echoUsername
+      tags:
+        - danger-api
       responses:
         '200':
           description: Echo username of authenticated user
           content:
-            application/json:
+            application/vnd.pypi.api-v0-danger+json:
               schema:
                 type: object
                 properties:
