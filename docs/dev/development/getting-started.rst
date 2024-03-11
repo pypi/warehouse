@@ -209,23 +209,16 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
-    make initdb
+    make serve
 
 This command will:
 
-* create a new Postgres database,
-* install example data to the Postgres database,
+* ensure the db is prepared,
 * run migrations,
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
+* start up the containers needed to run Warehouse
 
-Once the ``make initdb`` command has finished, you are ready to continue:
-
-.. code-block:: console
-
-    make serve
-
-This command starts the containers that run Warehouse on your local machine.
 After the initial build process, you will only need this command each time you
 want to startup Warehouse locally.
 
@@ -248,6 +241,16 @@ or that the ``static`` container has finished compiling the static assets:
     warehouse-static-1  | webpack 5.75.0 compiled with 1 warning in 6610 ms
 
 or maybe something else.
+
+
+Resetting the development database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    make resetdb
+
+This command will fully reset the development database.
 
 
 Viewing Warehouse in a browser
