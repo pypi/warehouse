@@ -209,7 +209,7 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
-    make initdb
+    make serve
 
 This command will:
 
@@ -217,14 +217,8 @@ This command will:
 * run migrations,
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
+* start up the containers needed to run Warehouse
 
-Once the ``make initdb`` command has finished, you are ready to continue:
-
-.. code-block:: console
-
-    make serve
-
-This command starts the containers that run Warehouse on your local machine.
 After the initial build process, you will only need this command each time you
 want to startup Warehouse locally.
 

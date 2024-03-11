@@ -55,6 +55,8 @@ build:
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
+	$(MAKE) .state/db-populated
+	$(MAKE) .state/search-indexed
 	docker compose up --remove-orphans
 
 debug: .state/docker-build-base
@@ -100,14 +102,25 @@ requirements/%.txt: requirements/%.in
 resetdb: .state/docker-build-base
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
+	rm -f .state/db-populated .state/db-migrated
 	$(MAKE) initdb
 
-initdb: .state/docker-build-base
+.state/search-indexed: .state/db-populated
+	$(MAKE) reindex
+	mkdir -p .state && touch .state/search-indexed
+
+.state/db-populated: .state/db-migrated
+	docker compose run --rm web python -m warehouse sponsors populate-db
+	docker compose run --rm web python -m warehouse classifiers sync
+	mkdir -p .state && touch .state/db-populated
+
+.state/db-migrated: .state/docker-build-base
 	docker compose up -d db
 	docker compose exec db /usr/local/bin/wait-for-db
 	$(MAKE) runmigrations
-	docker compose run --rm web python -m warehouse sponsors populate-db
-	docker compose run --rm web python -m warehouse classifiers sync
+	mkdir -p .state && touch .state/db-migrated
+
+initdb: .state/docker-build-base .state/db-populated
 	$(MAKE) reindex
 
 runmigrations: .state/docker-build-base
@@ -126,7 +139,7 @@ clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
 	docker compose down -v
 	docker compose rm --force
 
