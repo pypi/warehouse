@@ -140,7 +140,7 @@ clean:
 
 purge: stop clean
 	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
-	docker compose down -v
+	docker compose down -v --remove-orphans
 	docker compose rm --force
 
 stop:
