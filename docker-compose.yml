@@ -121,6 +121,8 @@ services:
   tests:
     image: warehouse:docker-compose
     pull_policy: never
+    environment:
+      ENCODING: "C"
     volumes: *base_volumes
     depends_on:
       db:
