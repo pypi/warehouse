@@ -20,6 +20,12 @@ class IMacaroonService(Interface):
         InvalidMacaroon if not found or for malformed macaroons.
         """
 
+    def find_from_request(request, increase_metrics: bool):
+        """
+        Returns a macaroon model from the DB from a request, or raises
+        InvalidMacaroon if not found or for malformed request.
+        """
+
     def find_macaroon(macaroon_id):
         """
         Returns a macaroon model from the DB by its identifier.

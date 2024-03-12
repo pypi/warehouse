@@ -137,6 +137,45 @@ class TestDatabaseMacaroonService:
         with pytest.raises(services.InvalidMacaroonError):
             macaroon_service.find_from_raw(raw_macaroon)
 
+    @pytest.mark.parametrize("increase_metrics", [True, False])
+    def test_find_from_request(self, macaroon_service, metrics, increase_metrics):
+        user = UserFactory.create()
+        serialized, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(user.id))],
+            user_id=user.id,
+        )
+        request = pretend.stub(
+            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            headers=pretend.stub(
+                get=pretend.call_recorder(lambda k: f"token {serialized}")
+            ),
+        )
+
+        dm = macaroon_service.find_from_request(
+            request, increase_metrics=increase_metrics
+        )
+
+        assert isinstance(dm, Macaroon)
+        assert macaroon.id == dm.id
+        assert macaroon.user == user
+        assert macaroon.additional is None
+        if increase_metrics:
+            assert metrics.increment.calls == [
+                pretend.call("warehouse.macaroon.auth_method", tags=["method:token"])
+            ]
+
+    def test_find_from_request_not_found_or_invalid(
+        self, monkeypatch, macaroon_service
+    ):
+        extract_http_macaroon = pretend.call_recorder(lambda r, increase_metrics: None)
+        monkeypatch.setattr(services, "_extract_http_macaroon", extract_http_macaroon)
+
+        request = pretend.stub()
+        with pytest.raises(services.InvalidMacaroonError, match="Macaroon not found"):
+            macaroon_service.find_from_request(request, increase_metrics=False)
+
     def test_find_userid_no_macaroon(self, macaroon_service):
         assert macaroon_service.find_userid(None) is None
 

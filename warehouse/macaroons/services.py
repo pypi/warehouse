@@ -9,9 +9,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from __future__ import annotations
 
+import base64
 import datetime
 import uuid
+
+from typing import TYPE_CHECKING
 
 import pymacaroons
 
@@ -19,10 +23,69 @@ from pymacaroons.exceptions import MacaroonDeserializationException
 from sqlalchemy.orm import joinedload
 from zope.interface import implementer
 
+if TYPE_CHECKING:
+    from pyramid.request import Request
+
 from warehouse.macaroons import caveats
 from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.models import Macaroon
+from warehouse.metrics import IMetricsService
+
+
+def _extract_basic_macaroon(auth):
+    """
+    A helper function for extracting a macaroon from a
+    HTTP Basic Authentication-style header.
+
+    Returns None if the header doesn't contain a structurally
+    valid macaroon, or the candidate (not yet verified) macaroon
+    in a serialized form.
+    """
+    try:
+        authorization = base64.b64decode(auth).decode()
+        auth_method, _, auth = authorization.partition(":")
+    except ValueError:
+        return None
+
+    if auth_method != "__token__":
+        return None
+
+    # Strip leading/trailing whitespace characters from the macaroon
+    auth = auth.strip()
+
+    return auth
+
+
+def _extract_http_macaroon(request: Request, increase_metrics: bool = False):
+    """
+    A helper function for the extraction of HTTP Macaroon from a given request.
+    Returns either a None if no macaroon could be found, or the string
+    that represents our serialized macaroon.
+    """
+    authorization = request.headers.get("Authorization")
+    if not authorization:
+        return None
+
+    try:
+        auth_method, auth = authorization.split(" ", 1)
+    except ValueError:
+        return None
+
+    auth_method = auth_method.lower()
+
+    if increase_metrics:
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment(
+            "warehouse.macaroon.auth_method", tags=[f"method:{auth_method}"]
+        )
+
+    if auth_method == "basic":
+        return _extract_basic_macaroon(auth)
+    elif auth_method in ["token", "bearer"]:
+        return auth
+
+    return None
 
 
 def _extract_raw_macaroon(prefixed_macaroon: str | None) -> str | None:
@@ -126,6 +189,17 @@ class DatabaseMacaroonService:
         if not dm:
             raise InvalidMacaroonError("Macaroon not found")
         return dm
+
+    def find_from_request(self, request: Request, increase_metrics: bool) -> Macaroon:
+        """
+        Returns a DB macaroon matching the input, or raises InvalidMacaroonError
+        """
+        # We need to extract our Macaroon from the request.
+        macaroon = _extract_http_macaroon(request, increase_metrics)
+        if macaroon is None:
+            raise InvalidMacaroonError("Macaroon not found")
+
+        return self.find_from_raw(macaroon)
 
     def verify(self, raw_macaroon: str, request, context, permission) -> bool:
         """
