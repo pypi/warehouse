@@ -277,31 +277,30 @@ below describe the setup process for each supported trusted publisher.
     ```
     state publish --namespace USERNAME/python --name PKG_NAME SDIST_FILENAME --depend "builder/python-module-builder@>=0" --depend "language/python@>=3" --depend "language/python/setuptools@>=43.0.0" --depend "language/python/wheel@>=0"
     ```
-    Replace the placeholder values in the block above with your ActiveState username (USERNAME), package name (PKG_NAME), and the filename of your sdist (SDIST_FILENAME) and run the command.
+    Replace the placeholder values in the block above with your ActiveState username (USERNAME), package name (PKG_NAME), and the filename of your sdist (SDIST_FILENAME) and run the command. Take note of the TIMESTAMP in the output.
 
-    2. After publishing your package to ActiveState, you'll need to create a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Create a new build script file in the same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste the code below, substituting the placeholder values with those from your project: your ActiveState username (USERNAME), the name of the namespace (ie. folder where you published the ingredient, in this case `python`) (NAMESPACE), and finally the name of your package (PKG_NAME). Save the changes to the file.
+    2. After publishing your package to ActiveState, you'll need to create a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Create a new build script file in the same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste the code below, substituting the placeholder values with those from your project: the timestamp of the package you just published (PUBLISHED_TIMESTAMP), your ActiveState username (USERNAME), the name of the namespace (ie. folder where you published the ingredient, in this case `python`) (NAMESPACE), and finally the name of your package (PKG_NAME). Save the changes to the file.
     ```python
-    at_time =  "2023-12-19T22:53:09.573000Z"
+    at_time =  "PUBLISHED_TIMESTAMP"
     sources = solve(
       at_time = at_time,
       platforms = [
-        "78977bc8-0f32-519d-80f3-9043f059398c",
         "7c998ec2-7491-4e75-be4d-8885800ef5f2",
-        "96b7e6f2-bebf-564c-bc1c-f04482398f38"
       ],
       requirements = [
         Req(name = "USERNAME/NAMESPACE/PKG_NAME, version=Eq("1.0.0"))
       ],
     )
-    wheels = wheel_artifacts(src=$sources)
-    publish_receipt = pypi_publisher(src=$wheels)
-    runtime = state_tool_artifacts_v1(
+    wheels = wheel_artifacts(src=sources)
+    publish_receipt = pypi_publisher(src=wheels)
+    runtime = state_tool_artifacts(
       build_flags = [
       ],
       src = sources
     )
     main = runtime
     ```
+    Note: The strings after `platforms = [` are the UUIDs of the supported platforms you want to build a wheel for. A list of all supported platforms can be found [here](https://docs.activestate.com/platform/updates/supported-platforms). Select all applicable to your project from the list provided.
 
     1. Then, "commit" this build script to the system by running `state commit` in your terminal. Now you're ready to publish to PyPI!
     2. To build your wheel, run `state eval wheels`
