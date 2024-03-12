@@ -3,9 +3,8 @@ info:
   title: Warehouse Management API
   description: "**BETA** API for managing warehouse interactions"
   version: 0.0.0
-servers:
-  - url: http://localhost
-    description: Local development server
+# Intentionally exclude `servers` key, defaults to the server this is loaded from.
+# Potentially challenging for generating client code.
 
 components:
   schemas:
