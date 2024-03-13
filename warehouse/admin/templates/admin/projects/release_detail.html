@@ -311,17 +311,21 @@
           <tr>
           <td>Provides-Extra</td>
           <td>
+            {% if release.provides_extra is not none %}
             {% for extra in release.provides_extra %}
             <code>{{ extra }}</code><br>
             {% endfor %}
+            {% endif %}
           </td>
         </tr>
           <tr>
           <td>Dynamic</td>
           <td>
+            {% if release.dynamic is not none %}
             {% for dynamic in release.dynamic %}
             <code>{{ dynamic }}</code><br>
             {% endfor %}
+            {% endif %}
           </td>
         </tr>
       </table>
