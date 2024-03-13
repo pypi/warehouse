@@ -13,95 +13,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 jobs:
-  deps:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install platform dependencies
-        run: |
-          sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: '.python-version'
-      - name: pip cache
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}
-      - name: Cache built Python environment
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-      - name: Install Python dependencies
-        run: |
-          pip install -U setuptools wheel pip
-          pip install -r requirements.txt --no-deps
-          pip install -r requirements/dev.txt
-          pip check
-  test:
-    # Time out if our test suite has gotten hung
-    timeout-minutes: 15
-    needs: deps
-    strategy:
-      matrix:
-        include:
-          - name: Tests
-            command: bin/tests --postgresql-host localhost
-          - name: Lint
-            command: bin/lint
-          - name: User Documentation
-            command: bin/user-docs
-          - name: Developer Documentation
-            command: bin/dev-docs
-          - name: Dependencies
-            command: bin/github-actions-deps
-          - name: Licenses
-            command: bin/licenses
-          - name: Translations
-            command: bin/translations
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
-        # Set health checks to wait until postgres has started
-        options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
-      stripe:
-        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
-        ports:
-          - 12111:12111
-    name: ${{ matrix.name }}
-    env:
-      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://localhost:12111 api_version=2020-08-27
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Install platform dependencies
-        run: |
-          sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: '.python-version'
-      - name: Cache mypy results
-        if: ${{ (matrix.name == 'Lint') }}
-        uses: actions/cache@v4
-        with:
-          path: |
-              dev/.mypy_cache
-          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-      - name: Restore built Python environment from deps
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-          # Since we don't install deps again, we fail if we can't restore the cache (timeout, etc)
-          fail-on-cache-miss: true
-      - name: Run ${{ matrix.name }}
-        run: ${{ matrix.command }}
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Build Docker Image
+        run: docker buildx build --cache-to type=gha --cache-from gha
