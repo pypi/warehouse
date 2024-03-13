@@ -34,6 +34,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: PWD
+            command: pwd && ls /opt/warehouse/src/
           - name: Tests
             command: bin/tests --postgresql-host postgres
     runs-on: ubuntu-latest
@@ -57,4 +59,6 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Run ${{ matrix.name }}
-        run: ${{ matrix.command }}
+        run: |
+          cd /opt/warehouse/src/
+          ${{ matrix.command }}
