@@ -112,6 +112,10 @@ FROM python:3.11.8-slim-bookworm as build
 # test dependencies.
 ARG DEVEL=no
 
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
+
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
