@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+      env:
+        BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
       volumes:
         - .:/opt/warehouse/src
     services:
@@ -69,9 +71,9 @@ jobs:
         ports:
           - 12111:12111
     name: ${{ matrix.name }}
-    env:
-      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
       - name: Run ${{ matrix.name }}
         run: |
           cd /opt/warehouse/src/
