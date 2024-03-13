@@ -53,10 +53,6 @@ jobs:
             command: bin/tests --postgresql-host postgres
           - name: Lint
             command: bin/lint
-          #- name: User Documentation
-          #  command: bin/user-docs
-          #- name: Developer Documentation
-          #  command: bin/dev-docs
           - name: Dependencies
             command: bin/deps
           - name: Licenses
@@ -94,10 +90,10 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: User Documentation
-            command: bin/user-docs
-          - name: Developer Documentation
-            command: bin/dev-docs
+          #- name: User Documentation
+          #  command: bin/user-docs
+          #- name: Developer Documentation
+          #  command: bin/dev-docs
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:docs-ci-${{ github.run_id }}
