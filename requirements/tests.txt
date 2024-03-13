@@ -237,6 +237,7 @@ pytest==8.1.1 \
     #   pytest-postgresql
     #   pytest-randomly
     #   pytest-socket
+    #   pytest-timeout
 pytest-icdiff==0.9 \
     --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
     --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
@@ -252,6 +253,10 @@ pytest-randomly==3.15.0 \
 pytest-socket==0.7.0 \
     --hash=sha256:71ab048cbbcb085c15a4423b73b619a8b35d6a307f46f78ea46be51b1b7e11b3 \
     --hash=sha256:7e0f4642177d55d317bbd58fc68c6bd9048d6eadb2d46a89307fa9221336ce45
+    # via -r requirements/tests.in
+pytest-timeout==2.3.1 \
+    --hash=sha256:12397729125c6ecbdaca01035b9e5239d4db97352320af155b3f5de1ba5165d9 \
+    --hash=sha256:68188cb703edfc6a18fad98dc25a3c61e9f24d644b0b70f33af545219fc7813e
     # via -r requirements/tests.in
 python-dateutil==2.9.0.post0 \
     --hash=sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3 \
