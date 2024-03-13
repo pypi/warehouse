@@ -35,7 +35,7 @@ jobs:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host localhost
+            command: bin/tests --postgresql-host postgres
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -53,4 +53,4 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Run ${{ matrix.name }}
-        run: docker run --rm ghcr.io/pypi/warehouse:ci-${{ github.run_id }} ${{ matrix.command }}
+        run: docker run --rm -e BILLING_BACKEND="warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27" ghcr.io/pypi/warehouse:ci-${{ github.run_id }} ${{ matrix.command }}
