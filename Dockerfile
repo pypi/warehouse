@@ -112,10 +112,6 @@ FROM python:3.11.8-slim-bookworm as build
 # test dependencies.
 ARG DEVEL=no
 
-# Define whether we're building a CI image. This will include all the docs stuff
-# as well for the matrix!
-ARG CI=no
-
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
@@ -202,6 +198,10 @@ WORKDIR /opt/warehouse/src/
 # generally be used to control whether or not we install our development and
 # test dependencies.
 ARG DEVEL=no
+
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
 
 # This is a work around because otherwise postgresql-client bombs out trying
 # to create symlinks to these directories.
