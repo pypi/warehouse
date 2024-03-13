@@ -31,7 +31,7 @@ from warehouse.accounts.services import (
 from warehouse.accounts.tasks import compute_user_metrics
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 from ...common.db.accounts import UserFactory
@@ -62,7 +62,7 @@ class TestOIDCPublisherAndClaims:
         assert isinstance(publisher, OIDCPublisher)
         claims = SignedClaims({"foo": "bar"})
 
-        request = pretend.stub(identity=OIDCContext(publisher, claims))
+        request = pretend.stub(identity=PublisherTokenContext(publisher, claims))
 
         assert accounts._oidc_publisher(request) is publisher
         assert accounts._oidc_claims(request) is claims
