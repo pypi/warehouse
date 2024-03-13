@@ -9,6 +9,8 @@ on:
   workflow_dispatch:  # generally only for the "combine-prs" workflow
 permissions:
   contents: read
+  packages: read
+  pckages: write
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
