@@ -65,11 +65,10 @@ class ActiveStatePublisherMixin:
     organization = mapped_column(String, nullable=False)
     activestate_project_name = mapped_column(String, nullable=False)
     actor = mapped_column(String, nullable=False)
-    # 'actor' (The ActiveState platform username) is obstained from the user
+    # 'actor' (The ActiveState platform username) is obtained from the user
     # while configuring the publisher We'll make an api call to ActiveState to
     # get the 'actor_id'
     actor_id = mapped_column(String, nullable=False)
-    ingredient = mapped_column(String, nullable=True)
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
@@ -81,13 +80,10 @@ class ActiveStatePublisherMixin:
         "builder": oidccore.check_claim_invariant("pypi-publisher"),
     }
 
-    __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
-        "ingredient": oidccore.check_claim_binary(str.__eq__),
-    }
-
     __unchecked_claims__ = {
         "actor",
         "artifact_id",
+        "ingredient",
         "organization_id",
         "project_id",
         "project_path",
