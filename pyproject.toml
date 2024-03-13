@@ -85,6 +85,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 timeout = 60
+timeout_method = "thread"
 addopts = [
   "--disable-socket",
   "--allow-hosts=localhost,::1,notdatadog,stripe",
