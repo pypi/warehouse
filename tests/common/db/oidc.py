@@ -106,7 +106,6 @@ class ActiveStatePublisherFactory(WarehouseFactory):
     activestate_project_name = factory.Faker("pystr", max_chars=12)
     actor = factory.Faker("pystr", max_chars=12)
     actor_id = factory.Faker("uuid4")
-    ingredient = factory.Faker("pystr", max_chars=12)
 
 
 class PendingActiveStatePublisherFactory(WarehouseFactory):
@@ -120,4 +119,3 @@ class PendingActiveStatePublisherFactory(WarehouseFactory):
     actor = factory.Faker("pystr", max_chars=12)
     actor_id = factory.Faker("uuid4")
     added_by = factory.SubFactory(UserFactory)
-    ingredient = factory.Faker("pystr", max_chars=12)

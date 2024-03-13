@@ -144,7 +144,6 @@ class TestActiveStatePublisher:
             organization=ORG_URL_NAME,
             activestate_project_name=PROJECT_NAME,
             actor_id=ACTOR_ID,
-            ingredient=INGREDIENT,
         )
 
         scope = pretend.stub()
@@ -180,7 +179,6 @@ class TestActiveStatePublisher:
             ("actor_id", False, "Missing claim 'actor_id'"),
             ("actor", True, None),
             ("builder", False, "Missing claim 'builder'"),
-            ("ingredient", True, None),
             ("organization_id", True, None),
             ("project_id", True, None),
             ("project_visibility", True, None),
@@ -195,7 +193,6 @@ class TestActiveStatePublisher:
             activestate_project_name=PROJECT_NAME,
             actor_id=ACTOR_ID,
             actor=ACTOR,
-            ingredient=INGREDIENT,
         )
 
         scope = pretend.stub()
@@ -241,7 +238,6 @@ class TestActiveStatePublisher:
             activestate_project_name=PROJECT_NAME,
             actor_id=ACTOR_ID,
             actor=ACTOR,
-            ingredient=INGREDIENT,
         )
 
         signed_claims = new_signed_claims(organization=expect)
@@ -263,7 +259,6 @@ class TestActiveStatePublisher:
             activestate_project_name=actual,
             actor_id=ACTOR_ID,
             actor=ACTOR,
-            ingredient=INGREDIENT,
         )
 
         signed_claims = new_signed_claims(project=expect)
@@ -285,7 +280,6 @@ class TestActiveStatePublisher:
             activestate_project_name=PROJECT_NAME,
             actor_id=actual,
             actor=ACTOR,
-            ingredient=INGREDIENT,
         )
         signed_claims = new_signed_claims(actor_id=expect)
         check = publisher.__required_verifiable_claims__["actor_id"]
