@@ -67,6 +67,7 @@ linkcheck_ignore = [
 # a list of builtin themes.
 html_theme = "furo"
 
+html_static_path = ["_static"]
 html_css_files = [
     "css/extra.css",
 ]
