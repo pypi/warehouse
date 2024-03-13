@@ -90,6 +90,8 @@ jobs:
     strategy:
       matrix:
         include:
+          - name: Debug
+             command: whoami
           #- name: User Documentation
           #  command: bin/user-docs
           #- name: Developer Documentation
