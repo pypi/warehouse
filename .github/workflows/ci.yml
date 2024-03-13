@@ -37,6 +37,10 @@ jobs:
           - name: Tests
             command: bin/tests --postgresql-host postgres
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+    env:
+      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
@@ -53,4 +57,4 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Run ${{ matrix.name }}
-        run: docker run --rm -e BILLING_BACKEND="warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27" ghcr.io/pypi/warehouse:ci-${{ github.run_id }} ${{ matrix.command }}
+        run: ${{ matrix.command }}
