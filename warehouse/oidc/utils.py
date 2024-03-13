@@ -94,7 +94,7 @@ def find_publisher_by_issuer(
 
 
 @dataclass
-class PublisherTokenContext:
+class OIDCContext:
     """
     This class supports `MacaroonSecurityPolicy` in
     `warehouse.macaroons.security_policy`.

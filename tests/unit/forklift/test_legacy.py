@@ -36,7 +36,7 @@ from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.oidc.utils import OIDCContext
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -3354,7 +3354,7 @@ class TestFileUpload:
         else:
             publisher = GitHubPublisherFactory.create(projects=[project])
             claims = {"sha": "somesha"}
-            identity = PublisherTokenContext(publisher, SignedClaims(claims))
+            identity = OIDCContext(publisher, SignedClaims(claims))
             db_request.oidc_publisher = identity.publisher
             db_request.oidc_claims = identity.claims
 
