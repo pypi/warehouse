@@ -29,4 +29,4 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build Docker Image
-        run: docker buildx build --cache-to type=gha --cache-from gha --push -t ghcr.io/pypi/warehouse-ci:${{ github.run_id }} .
+        run: docker buildx build --cache-to type=gha --cache-from type=gha --push -t ghcr.io/pypi/warehouse-ci:${{ github.run_id }} .
