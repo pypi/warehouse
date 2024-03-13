@@ -186,6 +186,10 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # pull in the static files that were built above.
 FROM python:3.11.8-slim-bookworm
 
+# Generate expected locales
+RUN locale-gen "en_US.UTF-8"
+RUN dpkg-reconfigure locales
+
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /opt/warehouse/src/
