@@ -52,6 +52,8 @@ jobs:
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
       env:
+        LC_ALL: en_US.UTF-8
+        LANG: en_US.UTF-8
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
       volumes:
         - .:/opt/warehouse/src
@@ -61,8 +63,6 @@ jobs:
         ports:
           - 5432:5432
         env:
-          LC_ALL: en_US.UTF-8
-          LANG: en_US.UTF-8
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
