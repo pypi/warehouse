@@ -23,4 +23,4 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Build Docker Image
-        run: docker buildx build --cache-to type=gha --cache-from gha
+        run: docker buildx build --cache-to type=gha --cache-from gha .
