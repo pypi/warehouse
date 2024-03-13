@@ -186,10 +186,6 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 # pull in the static files that were built above.
 FROM python:3.11.8-slim-bookworm
 
-# Generate expected locales
-RUN locale-gen "en_US.UTF-8"
-RUN dpkg-reconfigure locales
-
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONPATH /opt/warehouse/src/
@@ -219,6 +215,10 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Generate expected locales
+RUN locale-gen "en_US.UTF-8"
+RUN dpkg-reconfigure locales
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
