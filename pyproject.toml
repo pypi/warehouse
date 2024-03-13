@@ -90,7 +90,7 @@ session_timeout = 600
 addopts = [
   "--disable-socket",
   "--allow-hosts=localhost,::1,notdatadog,stripe",
-  "--durations=20",
+  "--durations=0",
 ]
 cache_dir = "dev/.pytest_cache"
 norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
