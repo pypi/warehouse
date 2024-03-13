@@ -24,7 +24,7 @@ from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
@@ -122,7 +122,7 @@ class MacaroonSecurityPolicy:
                 return None
             return UserTokenContext(dm.user, dm)
 
-        return OIDCContext(dm.oidc_publisher, oidc_claims)
+        return PublisherTokenContext(dm.oidc_publisher, oidc_claims)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow

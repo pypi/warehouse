@@ -26,7 +26,7 @@ from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 
 
 @pytest.mark.parametrize(
@@ -259,7 +259,7 @@ class TestMacaroonSecurityPolicy:
         identity = policy.identity(request)
         assert identity
         assert identity.publisher is oidc_publisher
-        assert identity == OIDCContext(
+        assert identity == PublisherTokenContext(
             oidc_publisher, SignedClaims(oidc_additional["oidc"])
         )
 
