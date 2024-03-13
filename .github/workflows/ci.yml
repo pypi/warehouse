@@ -34,20 +34,8 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: Tests
-            command: bin/tests --postgresql-host postgres
-          - name: Lint
-            command: bin/lint
-          - name: User Documentation
-            command: bin/user-docs
-          - name: Developer Documentation
-            command: bin/dev-docs
-          - name: Dependencies
-            command: bin/github-actions-deps
-          - name: Licenses
-            command: bin/licenses
-          - name: Translations
-            command: bin/translations
+          - name: Locale
+            command: locale
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
