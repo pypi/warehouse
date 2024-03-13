@@ -90,7 +90,7 @@ jobs:
           cd /opt/warehouse/src/
           /bin/bash -c "${{ matrix.command }}"
   test-docs:
-    needs: build
+    needs: build-docs
     strategy:
       matrix:
         include:
