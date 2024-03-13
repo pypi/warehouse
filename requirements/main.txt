@@ -175,7 +175,6 @@ celery[sqs]==5.3.1 \
     --hash=sha256:f84d1c21a1520c116c2b7d26593926581191435a03aa74b77c941b93ca1c6210
     # via
     #   -r requirements/main.in
-    #   celery
     #   celery-redbeat
 celery-redbeat==2.2.0 \
     --hash=sha256:71104729380d4eaefd91a9b7d270ba7851bfff9ad55a43ac8365acbb0c608b77
@@ -837,7 +836,6 @@ kombu[sqs]==5.3.1 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 limits==3.9.0 \
     --hash=sha256:6dce07d1a4d7bd3361d36f59f3f43c4f39675001daeeae2617c3be42d718daa8 \
     --hash=sha256:7b44aa4d05c539276928372681190136914958cccbb99c30ecc5df72a179661a
@@ -1443,9 +1441,7 @@ pytz==2024.1 \
 readme-renderer[md]==43.0 \
     --hash=sha256:1818dd28140813509eeed8d62687f7cd4f7bad90d4db586001c5dc09d4fde311 \
     --hash=sha256:19db308d86ecd60e5affa3b2a98f017af384678c63c88e5d4556a380e674f3f9
-    # via
-    #   -r requirements/main.in
-    #   readme-renderer
+    # via -r requirements/main.in
 redis==5.0.2 \
     --hash=sha256:3f82cc80d350e93042c8e6e7a5d0596e4dd68715babffba79492733e1f367037 \
     --hash=sha256:4caa8e1fcb6f3c0ef28dba99535101d80934b7d4cd541bbb47f4a3826ee472d1
@@ -1486,9 +1482,9 @@ s3transfer==0.7.0 \
     --hash=sha256:10d6923c6359175f264811ef4bf6161a3156ce8e350e705396a7557d6293c33a \
     --hash=sha256:fd3889a66f5fe17299fe75b82eae6cf722554edca744ca5d5fe308b104883d2e
     # via boto3
-sentry-sdk==1.40.6 \
-    --hash=sha256:becda09660df63e55f307570e9817c664392655a7328bbc414b507e9cb874c67 \
-    --hash=sha256:f143f3fb4bb57c90abef6e2ad06b5f6f02b2ca13e4060ec5c0549c7a9ccce3fa
+sentry-sdk==1.41.0 \
+    --hash=sha256:4f2d6c43c07925d8cd10dfbd0970ea7cb784f70e79523cca9dbcd72df38e5a46 \
+    --hash=sha256:be4f8f4b29a80b6a3b71f0f31487beb9e296391da20af8504498a328befed53f
     # via -r requirements/main.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
@@ -1555,7 +1551,6 @@ sqlalchemy[asyncio]==2.0.28 \
     #   alembic
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
-    #   sqlalchemy
     #   zope-sqlalchemy
 stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
