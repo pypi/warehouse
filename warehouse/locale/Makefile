@@ -38,7 +38,8 @@ build-mos: compile-pot
 
 translations: compile-pot
 ifneq ($(GITHUB_ACTIONS), false)
-	echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1
+	cd ../../; \
+	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
 
