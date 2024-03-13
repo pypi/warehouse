@@ -34,15 +34,23 @@ jobs:
     strategy:
       matrix:
         include:
-          - name: PWD
-            command: pwd && ls /opt/warehouse/src/
           - name: Tests
             command: bin/tests --postgresql-host postgres
+          - name: Lint
+            command: bin/lint
+          - name: User Documentation
+            command: bin/user-docs
+          - name: Developer Documentation
+            command: bin/dev-docs
+          - name: Dependencies
+            command: bin/github-actions-deps
+          - name: Licenses
+            command: bin/licenses
+          - name: Translations
+            command: bin/translations
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
-    env:
-      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
@@ -57,6 +65,8 @@ jobs:
         ports:
           - 12111:12111
     name: ${{ matrix.name }}
+    env:
+      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     steps:
       - name: Run ${{ matrix.name }}
         run: |
