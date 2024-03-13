@@ -91,7 +91,7 @@ jobs:
       matrix:
         include:
           - name: Debug
-             command: whoami
+            command: whoami
           #- name: User Documentation
           #  command: bin/user-docs
           #- name: Developer Documentation
