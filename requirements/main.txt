@@ -53,10 +53,6 @@ asn1crypto==1.5.1 \
     --hash=sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c \
     --hash=sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67
     # via webauthn
-async-timeout==4.0.3 \
-    --hash=sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f \
-    --hash=sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028
-    # via redis
 attrs==23.2.0 \
     --hash=sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30 \
     --hash=sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1
@@ -175,7 +171,6 @@ celery[sqs]==5.3.1 \
     --hash=sha256:f84d1c21a1520c116c2b7d26593926581191435a03aa74b77c941b93ca1c6210
     # via
     #   -r requirements/main.in
-    #   celery
     #   celery-redbeat
 celery-redbeat==2.2.0 \
     --hash=sha256:71104729380d4eaefd91a9b7d270ba7851bfff9ad55a43ac8365acbb0c608b77
@@ -837,7 +832,6 @@ kombu[sqs]==5.3.1 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
 limits==3.9.0 \
     --hash=sha256:6dce07d1a4d7bd3361d36f59f3f43c4f39675001daeeae2617c3be42d718daa8 \
     --hash=sha256:7b44aa4d05c539276928372681190136914958cccbb99c30ecc5df72a179661a
@@ -1443,12 +1437,10 @@ pytz==2024.1 \
 readme-renderer[md]==43.0 \
     --hash=sha256:1818dd28140813509eeed8d62687f7cd4f7bad90d4db586001c5dc09d4fde311 \
     --hash=sha256:19db308d86ecd60e5affa3b2a98f017af384678c63c88e5d4556a380e674f3f9
-    # via
-    #   -r requirements/main.in
-    #   readme-renderer
-redis==5.0.2 \
-    --hash=sha256:3f82cc80d350e93042c8e6e7a5d0596e4dd68715babffba79492733e1f367037 \
-    --hash=sha256:4caa8e1fcb6f3c0ef28dba99535101d80934b7d4cd541bbb47f4a3826ee472d1
+    # via -r requirements/main.in
+redis==5.0.3 \
+    --hash=sha256:4973bae7444c0fbed64a06b87446f79361cb7e4ec1538c022d696ed7a5015580 \
+    --hash=sha256:5da9b8fe9e1254293756c16c008e8620b3d15fcc6dde6babde9541850e72a32d
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -1555,7 +1547,6 @@ sqlalchemy[asyncio]==2.0.28 \
     #   alembic
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
-    #   sqlalchemy
     #   zope-sqlalchemy
 stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
