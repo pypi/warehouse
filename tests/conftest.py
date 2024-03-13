@@ -10,9 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 import os
 import os.path
 import re
+import time
 import xmlrpc.client
 
 from collections import defaultdict
@@ -61,6 +63,8 @@ from warehouse.subscriptions.interfaces import IBillingService, ISubscriptionSer
 from .common.db import Session
 from .common.db.accounts import EmailFactory, UserFactory
 from .common.db.ip_addresses import IpAddressFactory
+
+logger = logging.getLogger(__name__)
 
 
 @contextmanager
@@ -708,3 +712,11 @@ class _MockRedis:
 def mockredis():
     mock_redis = _MockRedis()
     yield mock_redis
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_fixture_setup(fixturedef, request):
+    start = time.time()
+    yield
+    end = time.time()
+    logger.info("pytest_fixture_setup" f", request={request}" f", time={end - start}")
