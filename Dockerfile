@@ -112,6 +112,10 @@ FROM python:3.11.8-slim-bookworm as build
 # test dependencies.
 ARG DEVEL=no
 
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
+
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
@@ -176,6 +180,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
