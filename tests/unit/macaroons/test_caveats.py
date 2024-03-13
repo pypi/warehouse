@@ -36,7 +36,7 @@ from warehouse.macaroons.caveats import (
     verify,
 )
 from warehouse.macaroons.caveats._core import _CaveatRegistry
-from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.oidc.utils import OIDCContext
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -295,7 +295,7 @@ class TestOIDCPublisherCaveat:
         )
 
     def test_verify_invalid_publisher_id(self, db_request):
-        identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
+        identity = OIDCContext(GitHubPublisherFactory.create(), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
 
@@ -307,7 +307,7 @@ class TestOIDCPublisherCaveat:
         )
 
     def test_verify_invalid_context(self, db_request):
-        identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
+        identity = OIDCContext(GitHubPublisherFactory.create(), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
 
@@ -322,9 +322,7 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        identity = PublisherTokenContext(
-            GitHubPublisherFactory.create(projects=[foobar]), None
-        )
+        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
         caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
@@ -338,9 +336,7 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        identity = PublisherTokenContext(
-            GitHubPublisherFactory.create(projects=[foobar]), None
-        )
+        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
         caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))

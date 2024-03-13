@@ -20,13 +20,12 @@ from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.utils import UserTokenContext
 from warehouse.authnz import Permissions
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.oidc.utils import OIDCContext
 
 
 @pytest.mark.parametrize(
@@ -215,7 +214,7 @@ class TestMacaroonSecurityPolicy:
             ),
         )
 
-        assert policy.identity(request) == UserTokenContext(user, macaroon)
+        assert policy.identity(request) is user
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None),
@@ -259,7 +258,7 @@ class TestMacaroonSecurityPolicy:
         identity = policy.identity(request)
         assert identity
         assert identity.publisher is oidc_publisher
-        assert identity == PublisherTokenContext(
+        assert identity == OIDCContext(
             oidc_publisher, SignedClaims(oidc_additional["oidc"])
         )
 

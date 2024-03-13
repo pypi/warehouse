@@ -17,14 +17,13 @@ from pyramid.interfaces import ISecurityPolicy
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.utils import UserTokenContext
 from warehouse.authnz import Permissions
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.utils import PublisherTokenContext
+from warehouse.oidc.utils import OIDCContext
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
 
 
@@ -120,9 +119,9 @@ class MacaroonSecurityPolicy:
             is_disabled, _ = login_service.is_disabled(dm.user.id)
             if is_disabled:
                 return None
-            return UserTokenContext(dm.user, dm)
+            return dm.user
 
-        return PublisherTokenContext(dm.oidc_publisher, oidc_claims)
+        return OIDCContext(dm.oidc_publisher, oidc_claims)
 
     def remember(self, request, userid, **kw):
         # This is a NO-OP because our Macaroon header policy doesn't allow
