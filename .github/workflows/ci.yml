@@ -43,7 +43,7 @@ jobs:
       - name: Build Docker Image
         run: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            docker buildx build --target docs --build-arg="DEVEL=yes" --cache-to type=gha --cache-from type=gha --push -t ghcr.io/pypi/warehouse:docs-ci-${{ github.run_id }} .
+            docker buildx build --target docs --build-arg="DEVEL=yes" --build-arg="USER_ID=$(id -u nobody)" --build-arg="GROUP_ID=$(id -g nobody)" --cache-to type=gha --cache-from type=gha --push -t ghcr.io/pypi/warehouse:docs-ci-${{ github.run_id }} .
   test:
     needs: build
     strategy:
