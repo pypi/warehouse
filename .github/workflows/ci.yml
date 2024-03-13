@@ -57,8 +57,8 @@ jobs:
         ports:
           - 5432:5432
         env:
-          LC_ALL: C.UTF-8
-          LANG: C.UTF-8
+          LC_ALL: en_US.UTF-8
+          LANG: en_US.UTF-8
           POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
