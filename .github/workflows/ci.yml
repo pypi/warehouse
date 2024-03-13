@@ -51,6 +51,8 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+      volumes:
+        - .:/opt/warehouse/src
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}

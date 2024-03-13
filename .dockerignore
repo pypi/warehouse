@@ -2,7 +2,6 @@
 .stylelintcache
 node_modules
 dev/*
-!dev/flake8
 **/*.pyc
 htmlcov
 warehouse/static/dist

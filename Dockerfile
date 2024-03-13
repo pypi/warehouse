@@ -52,7 +52,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev locales
+        build-essential git libcairo2-dev libfreetype6-dev libjpeg-dev libpng-dev libz-dev
 
 # We create an /opt directory with a virtual environment in it to store our
 # application in.
@@ -135,7 +135,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev locales \
+        build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev \
         $(if [ "$DEVEL" = "yes" ]; then echo 'libjpeg-dev'; fi)
 
 # We create an /opt directory with a virtual environment in it to store our
@@ -216,14 +216,11 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4 locales \
+        libpq5 libxml2 libxslt1.1 libcurl4 \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
+        $(if [ "$CI" = "yes" ]; then echo 'git'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Generate expected locales
-RUN locale-gen "en_US.UTF-8"
-RUN dpkg-reconfigure locales
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
