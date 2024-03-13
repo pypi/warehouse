@@ -67,6 +67,10 @@ linkcheck_ignore = [
 # a list of builtin themes.
 html_theme = "furo"
 
+html_css_files = [
+    "css/extra.css",
+]
+
 # Output file base name for HTML help builder.
 htmlhelp_basename = "Warehousedoc"
 
