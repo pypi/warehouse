@@ -53,4 +53,4 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Run ${{ matrix.name }}
-        run: docker run --rm ghcr.io/pypi/warehouse:ci-${{ github.run_id }} -- ${{ matrix.command }}
+        run: docker run --rm ghcr.io/pypi/warehouse:ci-${{ github.run_id }} ${{ matrix.command }}
