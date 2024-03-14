@@ -87,18 +87,12 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          tags: ${{ env.REGISTRY }}/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
@@ -125,7 +119,7 @@ jobs:
             command: bin/dev-docs
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
+      image: ${{ env.REGISTRY}}/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
