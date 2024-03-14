@@ -79,8 +79,8 @@ jobs:
           skip-extraction: ${{ steps.cache-root-npm.outputs.cache-hit }}
       - name: Build Docker Image
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | BUILDKIT_NO_CLIENT_TOKEN=1 docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            BUILDKIT_NO_CLIENT_TOKEN=1 docker buildx build --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }} .
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker buildx build --build-arg="BUILDKIT_NO_CLIENT_TOKEN=1" --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }} .
   test:
     needs: build
     strategy:
