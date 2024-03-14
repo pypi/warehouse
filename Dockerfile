@@ -112,6 +112,10 @@ FROM python:3.11.8-slim-bookworm as build
 # test dependencies.
 ARG DEVEL=no
 
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
+
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
 # i.e. 'docker compose run --rm web python -m warehouse shell --type=ipython')
@@ -176,6 +180,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -198,6 +203,10 @@ WORKDIR /opt/warehouse/src/
 # test dependencies.
 ARG DEVEL=no
 
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
+
 # This is a work around because otherwise postgresql-client bombs out trying
 # to create symlinks to these directories.
 RUN set -x \
@@ -211,8 +220,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     set -x \
     && apt-get update \
     && apt-get install --no-install-recommends -y \
-        libpq5 libxml2 libxslt1.1 libcurl4  \
+        libpq5 libxml2 libxslt1.1 libcurl4 \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim'; fi) \
+        $(if [ "$CI" = "yes" ]; then echo 'git'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
