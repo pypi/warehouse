@@ -80,7 +80,7 @@ jobs:
       - name: Build Docker Image
         run: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            docker buildx build --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/pypi/warehouse:ci-${{ github.run_id }} .
+            docker buildx build --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/${{ github.repository }}:ci-${{ github.run_id }} .
   test:
     needs: build
     strategy:
@@ -102,7 +102,7 @@ jobs:
             command: bin/dev-docs
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+      image: ghcr.io/${{ github.repository }}:ci-${{ github.run_id }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
