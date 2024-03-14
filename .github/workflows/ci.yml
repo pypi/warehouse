@@ -42,8 +42,8 @@ jobs:
             command: bin/github-actions-deps
           - name: Licenses
             command: bin/licenses
-          #- name: Translations
-          #  command: bin/translations
+          - name: Translations
+            command: bin/translations
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
@@ -51,6 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/pypi/warehouse:ci-${{ github.run_id }}
+      options: --user root
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
