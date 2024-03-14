@@ -30,21 +30,29 @@ jobs:
         with:
           path: var-cache-apt
           key: var-cache-apt-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            var-cache-apt-
       - name: Cache RUN --mount=type=cache /var/lib/apt
         uses: actions/cache@v3
         with:
           path: var-lib-apt
           key: var-lib-apt-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            var-lib-apt-
       - name: Cache RUN --mount=type=cache /root/.cache/pip
         uses: actions/cache@v3
         with:
           path: root-cache-pip
-          key: root-cache-pip-${{ runner.os }}
+          key: root-cache-pip-${{ hashFiles('requirements/*.txt') }}
+          restore-keys: |
+            root-cache-pip-
       - name: Cache RUN --mount=type=cache /root/.npm
         uses: actions/cache@v3
         with:
           path: root-npm
           key: root-npm-${{ hashFiles('package.json', 'package-lock.json') }}
+          restore-keys: |
+            root-npm-
       - name: inject var-cache-apt into docker
         uses: reproducible-containers/buildkit-cache-dance@v2.1.4
         with:

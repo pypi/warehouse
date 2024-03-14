@@ -1,4 +1,3 @@
-
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
 FROM node:20.11.1-bookworm as static-deps
