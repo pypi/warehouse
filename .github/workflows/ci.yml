@@ -102,7 +102,7 @@ jobs:
             command: bin/dev-docs
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/${{ github.event_name == 'pull_request' ? github.event.pull_request.head.repo.full_name : github.repository }}:ci-${{ github.run_id }}
+      image: ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
       env:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
