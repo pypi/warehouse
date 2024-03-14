@@ -13,9 +13,12 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
+from uuid import UUID
 
-from warehouse.accounts.models import User
-from warehouse.macaroons.models import Macaroon
+if TYPE_CHECKING:
+    from warehouse.accounts.models import User
+    from warehouse.macaroons.models import Macaroon
 
 
 @dataclass
@@ -42,3 +45,7 @@ class UserTokenContext:
 
     def __principals__(self) -> list[str]:
         return self.user.__principals__()
+
+    @property
+    def id(self) -> UUID:
+        return self.user.id

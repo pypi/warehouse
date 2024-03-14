@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import time
+
 from typing import Any
 
 from pydantic import StrictInt, StrictStr
@@ -20,7 +21,6 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
 from pyramid.security import Allowed
 
-from warehouse.accounts.models import User
 from warehouse.accounts.utils import UserTokenContext
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
