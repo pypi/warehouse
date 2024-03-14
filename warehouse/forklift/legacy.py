@@ -440,7 +440,7 @@ class ListField(wtforms.Field):
 
 # TODO: Eventually this whole validation thing should move to the packaging
 #       library and we should just call that. However until PEP 426 is done
-#       that library won't have an API for this.
+#       that library won't have an API for this. ref: #14718
 class MetadataForm(forms.Form):
     # Metadata version
     metadata_version = wtforms.StringField(
