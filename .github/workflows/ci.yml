@@ -25,6 +25,50 @@ jobs:
         uses: crazy-max/ghaction-github-runtime@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+      - name: Cache RUN --mount=type=cache /var/cache/apt
+        uses: actions/cache@v3
+        with:
+          path: var-cache-apt
+          key: var-cache-apt-${{ hashFiles('Dockerfile') }}
+      - name: Cache RUN --mount=type=cache /var/lib/apt
+        uses: actions/cache@v3
+        with:
+          path: var-lib-apt
+          key: var-lib-apt-${{ hashFiles('Dockerfile') }}
+      - name: Cache RUN --mount=type=cache /root/.cache/pip
+        uses: actions/cache@v3
+        with:
+          path: root-cache-pip
+          key: root-cache-pip-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+      - name: Cache RUN --mount=type=cache /root/.npm
+        uses: actions/cache@v3
+        with:
+          path: root-npm
+          key: root-npm-${{ hashFiles('package.json', 'package-lock.json') }}
+      - name: inject var-cache-apt into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+        with:
+          cache-source: var-cache-apt
+          cache-target: /var/cache/apt
+          skip-extraction: ${{ steps.cache-var-cache-apt.outputs.cache-hit }}
+      - name: inject var-lib-apt into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+        with:
+          cache-source: var-lib-apt
+          cache-target: /var/lib/apt
+          skip-extraction: ${{ steps.cache-var-lib-apt.outputs.cache-hit }}
+      - name: inject root-cache-pip into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+        with:
+          cache-source: root-cache-pip
+          cache-target: /root/.cache/pip
+          skip-extraction: ${{ steps.cache-root-cache-pip.outputs.cache-hit }}
+      - name: inject root-npm into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.4
+        with:
+          cache-source: root-npm
+          cache-target: /root/.npm
+          skip-extraction: ${{ steps.cache-root-npm.outputs.cache-hit }}
       - name: Build Docker Image
         run: |
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
