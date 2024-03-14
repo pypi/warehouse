@@ -13,6 +13,8 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
+env:
+  REGISTRY: ghcr.io
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -81,15 +83,21 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Build and push Docker image
         id: build-and-push
         uses: docker/build-push-action@v4
         with:
           push: true
-          tags: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
