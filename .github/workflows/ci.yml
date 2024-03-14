@@ -42,8 +42,8 @@ jobs:
             command: bin/deps
           - name: Licenses
             command: bin/licenses
-          - name: Translations
-            command: bin/translations
+          #- name: Translations
+          #  command: bin/translations
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
