@@ -45,7 +45,3 @@ class UserTokenContext:
 
     def __principals__(self) -> list[str]:
         return self.user.__principals__()
-
-    @property
-    def id(self) -> UUID:
-        return self.user.id
