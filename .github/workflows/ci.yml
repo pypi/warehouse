@@ -24,10 +24,7 @@ jobs:
       - name: Expose GitHub Runtime
         uses: crazy-max/ghaction-github-runtime@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3.1.0
-        with:
-          env:
-            BUILDKIT_NO_CLIENT_TOKEN: 1
+        uses: docker/setup-buildx-action@v3
       - name: Cache RUN --mount=type=cache /var/cache/apt
         uses: actions/cache@v3
         with:
@@ -82,8 +79,8 @@ jobs:
           skip-extraction: ${{ steps.cache-root-npm.outputs.cache-hit }}
       - name: Build Docker Image
         run: |
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            BUILDKIT_NO_CLIENT_TOKEN=true docker buildx build --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }} .
+            echo ${{ secrets.GITHUB_TOKEN }} | BUILDKIT_NO_CLIENT_TOKEN=1 docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            BUILDKIT_NO_CLIENT_TOKEN=1 docker buildx build --build-arg="DEVEL=yes" --build-arg="CI=yes" --cache-to type=gha,mode=max --cache-from type=gha --push -t ghcr.io/${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }} .
   test:
     needs: build
     strategy:
