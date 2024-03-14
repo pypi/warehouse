@@ -20,6 +20,7 @@ from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
 
 from warehouse.accounts import _oidc_publisher
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
@@ -260,10 +261,11 @@ class TestRequestUserCaveat:
 
     def test_verify_invalid_user_id(self, db_request):
         user = UserFactory.create()
+        user_token_context = UserTokenContext(user, pretend.stub())
 
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure(
@@ -272,10 +274,11 @@ class TestRequestUserCaveat:
 
     def test_verify_ok(self, db_request):
         user = UserFactory.create()
+        user_token_context = UserTokenContext(user, pretend.stub())
 
         caveat = RequestUser(user_id=str(user.id))
         result = caveat.verify(
-            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Success()

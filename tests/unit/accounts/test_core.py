@@ -12,7 +12,6 @@
 
 import pretend
 import pytest
-
 from celery.schedules import crontab
 
 from warehouse import accounts
@@ -29,6 +28,7 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.oidc.utils import PublisherTokenContext
@@ -42,6 +42,13 @@ class TestUser:
     def test_with_user(self, db_request):
         user = UserFactory.create()
         request = pretend.stub(identity=user)
+
+        assert accounts._user(request) is user
+
+    def test_with_user_token_context(self, db_request):
+        user = UserFactory.create()
+        user_ctx = UserTokenContext(user, pretend.stub())
+        request = pretend.stub(identity=user_ctx)
 
         assert accounts._user(request) is user
 
