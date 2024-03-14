@@ -88,8 +88,8 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v4
         with:
-          push: ${{ github.event_name != 'pull_request' }} # Don't push on PR
-          tags: pypi/warehouse:ci-${{ github.run_id }}
+          push: true
+          tags: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name || github.repository }}:ci-${{ github.run_id }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |
