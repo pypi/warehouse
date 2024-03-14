@@ -852,7 +852,7 @@ def _send_organization_invitation(request, organization, role_name, user):
     if existing_role:
         request.session.flash(
             request._(
-                "Youser '${username}' already has ${role_name} role for organization",
+                "User '${username}' already has ${role_name} role for organization",
                 mapping={
                     "username": user.username,
                     "role_name": existing_role.role_name.value,
