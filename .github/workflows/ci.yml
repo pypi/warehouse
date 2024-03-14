@@ -39,7 +39,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: root-cache-pip
-          key: root-cache-pip-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+          key: root-cache-pip-${{ runner.os }}
       - name: Cache RUN --mount=type=cache /root/.npm
         uses: actions/cache@v3
         with:
