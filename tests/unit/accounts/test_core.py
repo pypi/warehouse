@@ -12,6 +12,7 @@
 
 import pretend
 import pytest
+
 from celery.schedules import crontab
 
 from warehouse import accounts
