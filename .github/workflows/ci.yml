@@ -27,7 +27,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.1.0
         with:
           env:
-            - BUILDKIT_NO_CLIENT_TOKEN: 1
+            BUILDKIT_NO_CLIENT_TOKEN: 1
       - name: Cache RUN --mount=type=cache /var/cache/apt
         uses: actions/cache@v3
         with:
