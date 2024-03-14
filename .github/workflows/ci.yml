@@ -122,5 +122,12 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Cache mypy results
+        if: ${{ (matrix.name == 'Lint') }}
+        uses: actions/cache@v4
+        with:
+          path: |
+              dev/.mypy_cache
+          key: ${{ runner.os }}-mypy-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
