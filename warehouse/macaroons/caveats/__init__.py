@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import time
-
 from typing import Any
 
 from pydantic import StrictInt, StrictStr
@@ -22,6 +21,7 @@ from pyramid.request import Request
 from pyramid.security import Allowed
 
 from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
     Caveat,
@@ -104,7 +104,7 @@ class RequestUser(Caveat):
     user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        if not isinstance(request.identity, User):
+        if not isinstance(request.identity, UserTokenContext):
             return Failure("token with user restriction without a user")
 
         if str(request.identity.id) != self.user_id:
