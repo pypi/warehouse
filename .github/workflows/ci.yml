@@ -39,11 +39,11 @@ jobs:
           - name: Lint
             command: bin/lint
           - name: Dependencies
-            command: bin/deps
+            command: bin/github-actions-deps
           - name: Licenses
             command: bin/licenses
-          #- name: Translations
-          #  command: bin/translations
+          - name: Translations
+            command: bin/translations
           - name: User Documentation
             command: bin/user-docs
           - name: Developer Documentation
@@ -70,5 +70,7 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
