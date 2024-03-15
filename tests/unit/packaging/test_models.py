@@ -15,9 +15,8 @@ from collections import OrderedDict
 import pretend
 import pytest
 
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
-from pyramid.security import Authenticated
 
 from warehouse.authnz import Permissions
 from warehouse.organizations.models import TeamProjectRoleType
