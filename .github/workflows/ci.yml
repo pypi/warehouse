@@ -8,48 +8,45 @@ on:
     types: [checks_requested]
   workflow_dispatch:  # generally only for the "combine-prs" workflow
 permissions:
+  id-token: write
   contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 jobs:
-  deps:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: depot-ubuntu-22.04
+    outputs:
+      buildId: ${{ steps.build.outputs.build-id}}
+      token: ${{ steps.pull-token.outputs.token }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install platform dependencies
-        run: |
-          sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
-      - uses: actions/setup-python@v5
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
         with:
-          python-version-file: '.python-version'
-      - name: pip cache
-        uses: actions/cache@v4
+          oidc: true
+      - name: Build image
+        id: build
+        uses: depot/build-push-action@v1
         with:
-          path: ~/.cache/pip
-          key: pip-${{ runner.os }}
-      - name: Cache built Python environment
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-      - name: Install Python dependencies
-        run: |
-          pip install -U setuptools wheel pip
-          pip install -r requirements.txt --no-deps
-          pip install -r requirements/dev.txt
-          pip check
+          save: true
+          build-args: |
+            DEVEL=yes
+            CI=yes
+          tags: pypi/warehouse:ci-${{ github.run_id }}
+      - name: Export Token
+        id: pull-token
+        run: echo "token=$(depot pull-token)" >> "$GITHUB_OUTPUT"
   test:
     # Time out if our test suite has gotten hung
     timeout-minutes: 15
-    needs: deps
+    needs: build
     strategy:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host localhost
+            command: bin/tests --postgresql-host postgres
           - name: Lint
             command: bin/lint
           - name: User Documentation
@@ -57,12 +54,19 @@ jobs:
           - name: Developer Documentation
             command: bin/dev-docs
           - name: Dependencies
-            command: bin/github-actions-deps
+            command: bin/deps
           - name: Licenses
             command: bin/licenses
           - name: Translations
             command: bin/translations
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04
+    container:
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+      credentials:
+        username: x-token
+        password: ${{ needs.build.outputs.token }}
+      env:
+        BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
         image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
@@ -77,18 +81,9 @@ jobs:
         ports:
           - 12111:12111
     name: ${{ matrix.name }}
-    env:
-      BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://localhost:12111 api_version=2020-08-27
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Install platform dependencies
-        run: |
-          sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config libxml2-dev libxslt-dev
-      - uses: actions/setup-python@v5
-        with:
-          python-version-file: '.python-version'
       - name: Cache mypy results
         if: ${{ (matrix.name == 'Lint') }}
         uses: actions/cache@v4
@@ -96,12 +91,5 @@ jobs:
           path: |
               dev/.mypy_cache
           key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-      - name: Restore built Python environment from deps
-        uses: actions/cache/restore@v4
-        with:
-          path: ${{ env.pythonLocation }}
-          key: ${{ runner.os }}-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-          # Since we don't install deps again, we fail if we can't restore the cache (timeout, etc)
-          fail-on-cache-miss: true
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}
