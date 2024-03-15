@@ -59,7 +59,7 @@ jobs:
           - name: Provisional Licenses
             command: bin/licenses
           - name: Provisional Translations
-            command: bin/translations
+            command: bin/translations-dockah
     runs-on: depot-ubuntu-22.04
     container:
       image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
