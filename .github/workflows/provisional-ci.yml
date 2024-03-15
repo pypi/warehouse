@@ -70,7 +70,7 @@ jobs:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
+        image: ${{ (matrix.name == 'Provisional Tests') && 'postgres:14.11' || '' }}
         ports:
           - 5432:5432
         env:
@@ -78,7 +78,7 @@ jobs:
         # Set health checks to wait until postgres has started
         options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
       stripe:
-        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
+        image: ${{ (matrix.name == 'Provisional Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
         ports:
           - 12111:12111
     name: ${{ matrix.name }}
@@ -86,7 +86,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Cache mypy results
-        if: ${{ (matrix.name == 'Lint') }}
+        if: ${{ (matrix.name == 'Provisional Lint') }}
         uses: actions/cache@v4
         with:
           path: |
