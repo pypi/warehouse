@@ -806,3 +806,12 @@ class TestFile:
         )
 
         assert rfile.uploaded_via_trusted_publisher
+
+    def test_pretty_wheel_tags(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release, filename=f"{project.name}-{release.version}.tar.gz"
+        )
+
+        assert rfile.pretty_wheel_tags == ["Source"]
