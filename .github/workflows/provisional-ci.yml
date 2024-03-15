@@ -1,0 +1,96 @@
+name: Provisional CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:  # generally only for the "combine-prs" workflow
+permissions:
+  id-token: write
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: true
+jobs:
+  build:
+    if: github.repository_owner == 'pypi'
+    runs-on: depot-ubuntu-22.04
+    outputs:
+      buildId: ${{ steps.build.outputs.build-id}}
+      token: ${{ steps.pull-token.outputs.token }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+        with:
+          oidc: true
+      - name: Build image
+        id: build
+        uses: depot/build-push-action@v1
+        with:
+          save: true
+          build-args: |
+            DEVEL=yes
+            CI=yes
+          tags: pypi/warehouse:ci-${{ github.run_id }}
+      - name: Export Token
+        id: pull-token
+        run: echo "token=$(depot pull-token)" >> "$GITHUB_OUTPUT"
+  test:
+    # Time out if our test suite has gotten hung
+    timeout-minutes: 15
+    needs: build
+    strategy:
+      matrix:
+        include:
+          - name: Provisional Tests
+            command: bin/tests --postgresql-host postgres
+          - name: Provisional Lint
+            command: bin/lint
+          - name: Provisional User Documentation
+            command: bin/user-docs
+          - name: Provisional Developer Documentation
+            command: bin/dev-docs
+          - name: Provisional Dependencies
+            command: bin/deps
+          - name: Provisional Licenses
+            command: bin/licenses
+          - name: Provisional Translations
+            command: bin/translations
+    runs-on: depot-ubuntu-22.04
+    container:
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+      credentials:
+        username: x-token
+        password: ${{ needs.build.outputs.token }}
+      env:
+        BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
+    services:
+      postgres:
+        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+        # Set health checks to wait until postgres has started
+        options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+      stripe:
+        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
+        ports:
+          - 12111:12111
+    name: ${{ matrix.name }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Cache mypy results
+        if: ${{ (matrix.name == 'Lint') }}
+        uses: actions/cache@v4
+        with:
+          path: |
+              dev/.mypy_cache
+          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
+      - name: Run ${{ matrix.name }}
+        run: ${{ matrix.command }}
