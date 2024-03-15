@@ -16,13 +16,11 @@ import re
 import tarfile
 import tempfile
 import zipfile
-
 from cgi import FieldStorage
 from unittest import mock
 
 import pretend
 import pytest
-
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
@@ -31,6 +29,7 @@ from webob.multidict import MultiDict
 from wtforms.form import Form
 from wtforms.validators import ValidationError
 
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy
@@ -1379,6 +1378,7 @@ class TestFileUpload:
 
         assert "\x00" not in db_request.POST["summary"]
 
+    @pytest.mark.parametrize("token_context", [True, False])
     @pytest.mark.parametrize(
         ("digests",),
         [
@@ -1407,6 +1407,7 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         digests,
+        token_context,
         metrics,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
@@ -1421,8 +1422,13 @@ class TestFileUpload:
 
         filename = f"{project.name}-{release.version}.tar.gz"
 
-        pyramid_config.testing_securitypolicy(identity=user)
         db_request.user = user
+        if token_context:
+            user_context = UserTokenContext(user, pretend.stub())
+            pyramid_config.testing_securitypolicy(identity=user_context)
+        else:
+            pyramid_config.testing_securitypolicy(identity=user)
+
         db_request.user_agent = "warehouse-tests/6.6.6"
 
         content = FieldStorage()
