@@ -50,7 +50,10 @@ def test_api_set_content_type_no_api_version():
     assert request.response.content_type is None
 
 
-def test_includeme():
+def test_includeme(monkeypatch):
+    # We use `str(Path(__file__).parent / 'openapi.yaml'` to get the path.
+    # In our test, monkeypatch to a known value.
+    monkeypatch.setattr(config, "__file__", "/mnt/dummy/config.py")
 
     conf = pretend.stub(
         add_view_deriver=pretend.call_recorder(
@@ -67,9 +70,7 @@ def test_includeme():
     assert conf.add_view_deriver.calls == [pretend.call(config._api_set_content_type)]
     assert conf.include.calls == [pretend.call("pyramid_openapi3")]
     assert conf.pyramid_openapi3_spec.calls == [
-        pretend.call(
-            "/opt/warehouse/src/warehouse/api/openapi.yaml", route="/api/openapi.yaml"
-        )
+        pretend.call("/mnt/dummy/openapi.yaml", route="/api/openapi.yaml")
     ]
     assert conf.pyramid_openapi3_add_deserializer.calls == [
         pretend.call("application/vnd.pypi.api-v0-danger+json", orjson.loads)
