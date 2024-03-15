@@ -1,4 +1,4 @@
-# This is only used for dependabot
+# This is only used for dependabot and Github Actions CI
 -r requirements/main.txt
 -r requirements/deploy.txt
 -r requirements/docs-dev.txt
