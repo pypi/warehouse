@@ -20,8 +20,7 @@ from uuid import UUID
 import packaging.utils
 
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
-from pyramid.authorization import Allow
-from pyramid.security import Authenticated
+from pyramid.authorization import Allow, Authenticated
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
