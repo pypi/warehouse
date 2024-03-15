@@ -42,6 +42,8 @@ jobs:
           pip install -r requirements/dev.txt
           pip check
   test:
+    # Time out if our test suite has gotten hung
+    timeout-minutes: 15
     needs: deps
     strategy:
       matrix:

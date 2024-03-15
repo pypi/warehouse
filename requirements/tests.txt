@@ -228,9 +228,9 @@ psycopg==3.1.18 \
     --hash=sha256:31144d3fb4c17d78094d9e579826f047d4af1da6a10427d91dfcfb6ecdf6f12b \
     --hash=sha256:4d5a0a5a8590906daa58ebd5f3cfc34091377354a1acced269dd10faf55da60e
     # via pytest-postgresql
-pytest==8.0.2 \
-    --hash=sha256:d4051d623a2e0b7e51960ba963193b09ce6daeb9759a451844a21e4ddedfc1bd \
-    --hash=sha256:edfaaef32ce5172d5466b5127b42e0d6d35ebbe4453f0e3505d96afd93f6b096
+pytest==8.1.1 \
+    --hash=sha256:2a8386cfc11fa9d2c50ee7b2a57e7d898ef90470a7a34c4b949ff59662bb78b7 \
+    --hash=sha256:ac978141a75948948817d360297b7aae0fcb9d6ff6bc9ec6d514b85d5a65c044
     # via
     #   -r requirements/tests.in
     #   pytest-icdiff
@@ -241,9 +241,9 @@ pytest-icdiff==0.9 \
     --hash=sha256:13aede616202e57fcc882568b64589002ef85438046f012ac30a8d959dac8b75 \
     --hash=sha256:efee0da3bd1b24ef2d923751c5c547fbb8df0a46795553fba08ef57c3ca03d82
     # via -r requirements/tests.in
-pytest-postgresql==5.1.0 \
-    --hash=sha256:8747199f33d2db0199ee6ec4dbd3955e14b53d702894c038639c591a405271bd \
-    --hash=sha256:9d575796dad2c0bbbf87a3af150ed273911b10dc2a47360a90e1a92f7fcb74d4
+pytest-postgresql==6.0.0 \
+    --hash=sha256:6a4d8e600a2eef273f3c0e846cd0b2ea577282e252de29b4ca854bfb929bb682 \
+    --hash=sha256:f14272bffad16a74d9a63f4cc828f243a12ae92995e236b68fd53154760e6a5a
     # via -r requirements/tests.in
 pytest-randomly==3.15.0 \
     --hash=sha256:0516f4344b29f4e9cdae8bce31c4aeebf59d0b9ef05927c33354ff3859eeeca6 \
