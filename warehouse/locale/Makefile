@@ -36,10 +36,18 @@ build-mos: compile-pot
 		L=$$LOCALE $(MAKE) compile-po ; \
 		done
 
+
 translations: compile-pot
 ifneq ($(GITHUB_ACTIONS), false)
 	cd ../../; \
-	git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+        git diff --quiet ./warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
+else
+endif
+
+translations-dockah: compile-pot
+ifneq ($(GITHUB_ACTIONS), false)
+	cd ../../; \
+	cmp -s ./warehouse/locale/messages.pot /opt/warehouse/src/warehouse/locale/messages.pot || (echo "There are outstanding translations, run 'make translations' and commit the changes."; exit 1)
 else
 endif
 
