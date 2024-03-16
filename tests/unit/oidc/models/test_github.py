@@ -79,6 +79,7 @@ class TestGitHubPublisher:
             "runner_environment",
             "environment_node_id",
             "enterprise",
+            "enterprise_id",
             "ref_protected",
         }
 
@@ -100,6 +101,10 @@ class TestGitHubPublisher:
             publisher.publisher_url({"sha": "somesha"})
             == "https://github.com/fakeowner/fakerepo/commit/somesha"
         )
+        assert publisher.stored_claims({"sha": "somesha", "ref": "someref"}) == {
+            "sha": "somesha",
+            "ref": "someref",
+        }
 
     def test_github_publisher_unaccounted_claims(self, monkeypatch):
         publisher = github.GitHubPublisher(
@@ -238,6 +243,27 @@ class TestGitHubPublisher:
         assert len(noop_check.calls) == len(verifiable_claims) + len(
             optional_verifiable_claims
         )
+
+    @pytest.mark.parametrize(
+        ("truth", "claim", "valid"),
+        [
+            # invalid: claim should never be empty or missing
+            ("", None, False),
+            ("foo", None, False),
+            ("", "", False),
+            ("foo", "", False),
+            # valid: exact and case-insensitive matches
+            ("foo", "foo", True),
+            ("Foo", "foo", True),
+            ("Foo", "Foo", True),
+            ("foo", "Foo", True),
+            ("FOO", "foo", True),
+            ("foo", "FOO", True),
+        ],
+    )
+    def test_check_repository(self, truth, claim, valid):
+        check = github.GitHubPublisher.__required_verifiable_claims__["repository"]
+        assert check(truth, claim, pretend.stub()) == valid
 
     @pytest.mark.parametrize(
         ("claim", "ref", "sha", "valid", "expected"),

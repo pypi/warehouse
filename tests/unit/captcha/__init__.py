@@ -9,19 +9,3 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import click
-
-from warehouse.cli import warehouse
-from warehouse.packaging.tasks import compute_2fa_mandate as _compute_2fa_mandate
-
-
-@warehouse.command()
-@click.pass_obj
-def compute_2fa_mandate(config):
-    """
-    Run a one-off computation of the 2FA-mandated projects
-    """
-
-    request = config.task(_compute_2fa_mandate).get_request()
-    config.task(_compute_2fa_mandate).run(request)

@@ -47,7 +47,7 @@
           </p>
         </div>
         <div class="team-snippet__buttons">
-          {% if request.has_permission("manage:team") %}
+          {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
           {# Show manage button #}
           <a
             href="{{ request.route_path('manage.team.settings', organization_name=organization.normalized_name, team_name=team.normalized_name) }}"
@@ -74,7 +74,7 @@
     {% endfor %}
   </div>
 
-  {% if request.has_permission("manage:team") %}
+  {% if request.has_permission(Permissions.OrganizationTeamsManage) %}
   <hr>
 
   {{ form_error_anchor(create_team_form) }}
@@ -88,7 +88,10 @@
           {% trans %}️Team name{% endtrans %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         </label>
-        {{ create_team_form.name(class_="form-group__field", **{"aria-describedby": "name-errors"}) }}
+        {{ create_team_form.name(
+          class_="form-group__field",
+          aria_describedby="name-errors",
+        ) }}
         <div id="existing-team-name-errors">
           {{ field_errors(create_team_form.name) }}
         </div>

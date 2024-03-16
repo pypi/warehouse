@@ -192,11 +192,4 @@ def user_projects(request):
         "projects_sole_owned": (
             request.db.query(Project).join(with_sole_owner).order_by(Project.name).all()
         ),
-        "projects_requiring_2fa": (
-            request.db.query(Project)
-            .join(projects_collaborator, Project.id == projects_collaborator.c.id)
-            .filter(Project.two_factor_required)
-            .order_by(Project.name)
-            .all()
-        ),
     }

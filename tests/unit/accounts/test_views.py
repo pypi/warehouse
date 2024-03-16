@@ -53,10 +53,16 @@ from warehouse.accounts.views import (
     two_factor_and_totp_validate,
 )
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.captcha.interfaces import ICaptchaService
 from warehouse.events.tags import EventTag
 from warehouse.metrics.interfaces import IMetricsService
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import PendingGitHubPublisher
+from warehouse.oidc.models import (
+    PendingActiveStatePublisher,
+    PendingGitHubPublisher,
+    PendingGitLabPublisher,
+    PendingGooglePublisher,
+)
 from warehouse.organizations.models import (
     OrganizationInvitation,
     OrganizationRole,
@@ -1570,7 +1576,7 @@ class TestRegister:
                 ),
                 IRateLimiter: pretend.stub(hit=lambda user_id: None),
                 "csp": pretend.stub(merge=lambda *a, **kw: {}),
-                "recaptcha": pretend.stub(
+                ICaptchaService: pretend.stub(
                     csp_policy={}, enabled=True, verify_response=lambda a: True
                 ),
             }[key]
@@ -1671,6 +1677,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=pretend.stub(),
             username=pretend.stub(),
+            emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=True,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1926,6 +1933,7 @@ class TestRequestPasswordReset:
         stub_user = pretend.stub(
             id=pretend.stub(),
             username=pretend.stub(),
+            emails=[pretend.stub(email="foo@example.com")],
             can_reset_password=False,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -1957,6 +1965,29 @@ class TestRequestPasswordReset:
                 request=pyramid_request,
             )
         ]
+
+    def test_password_reset_with_nonexistent_email(
+        self, monkeypatch, pyramid_request, pyramid_config, user_service, token_service
+    ):
+        pyramid_request.method = "POST"
+        pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
+        user_service.get_user_by_username = pretend.call_recorder(lambda a: None)
+        user_service.get_user_by_email = pretend.call_recorder(lambda a: None)
+        pyramid_request.find_service = pretend.call_recorder(
+            lambda interface, **kw: {
+                IUserService: user_service,
+                ITokenService: token_service,
+            }[interface]
+        )
+        form_obj = pretend.stub(
+            username_or_email=pretend.stub(data="foo@bar.net"),
+            validate=pretend.call_recorder(lambda: True),
+        )
+        form_class = pretend.call_recorder(lambda d, user_service: form_obj)
+
+        result = views.request_password_reset(pyramid_request, _form_class=form_class)
+
+        assert result == {"n_hours": 6}
 
     def test_redirect_authenticated_user(self):
         pyramid_request = pretend.stub(user=pretend.stub())
@@ -2934,9 +2965,11 @@ class TestVerifyProjectRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/"
         assert db_request.route_path.calls == [
-            pretend.call("manage.project.roles", project_name=project.name)
-            if desired_role == "Owner"
-            else pretend.call("packaging.project", name=project.name)
+            (
+                pretend.call("manage.project.roles", project_name=project.name)
+                if desired_role == "Owner"
+                else pretend.call("packaging.project", name=project.name)
+            )
         ]
 
     @pytest.mark.parametrize(
@@ -3231,6 +3264,12 @@ class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):
         request = pretend.stub(
             find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            POST=MultiDict(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                }
+            ),
         )
         view = views.ManageAccountPublishingViews(request)
 
@@ -3274,6 +3313,12 @@ class TestManageAccountPublishingViews:
             find_service=pretend.call_recorder(find_service),
             user=pretend.stub(id=pretend.stub()),
             remote_addr=pretend.stub(),
+            POST=MultiDict(),
+            registry=pretend.stub(
+                settings={
+                    "github.token": "fake-api-token",
+                }
+            ),
         )
 
         view = views.ManageAccountPublishingViews(request)
@@ -3327,19 +3372,63 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
         )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        pending_gitlab_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_gitlab_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitLabPublisherForm", pending_gitlab_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(request)
 
         assert view.manage_publishing() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
-        assert request.flags.disallow_oidc.calls == [pretend.call()]
+        assert request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        ]
         assert project_factory_cls.calls == [pretend.call(request)]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
                 request.POST,
                 api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+        assert pending_gitlab_publisher_form_cls.calls == [
+            pretend.call(
+                request.POST,
                 project_factory=project_factory,
             )
         ]
@@ -3369,14 +3458,52 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
         )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        pending_gitlab_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_gitlab_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitLabPublisherForm", pending_gitlab_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.manage_publishing() == {
+            "disabled": {
+                "GitHub": True,
+                "GitLab": True,
+                "Google": True,
+                "ActiveState": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3393,9 +3520,40 @@ class TestManageAccountPublishingViews:
                 project_factory=project_factory,
             )
         ]
+        assert pending_gitlab_publisher_form_cls.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                project_factory=project_factory,
+            )
+        ]
 
-    def test_add_pending_github_oidc_publisher_admin_disabled(
-        self, monkeypatch, pyramid_request
+    @pytest.mark.parametrize(
+        "view_name, flag, publisher_name",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITHUB_OIDC,
+                "GitHub",
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITLAB_OIDC,
+                "GitLab",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+                "ActiveState",
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_admin_disabled(
+        self, monkeypatch, pyramid_request, view_name, flag, publisher_name
     ):
         pyramid_request.user = pretend.stub()
         pyramid_request.registry = pretend.stub(
@@ -3419,23 +3577,66 @@ class TestManageAccountPublishingViews:
             lambda *a, **kw: pending_github_publisher_form_obj
         )
         monkeypatch.setattr(
-            views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
+            views,
+            "PendingGitHubPublisherForm",
+            pending_github_publisher_form_cls,
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        pending_gitlab_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_gitlab_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitLabPublisherForm", pending_gitlab_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
         )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
-        assert view.add_pending_github_oidc_publisher() == {
+        assert getattr(view, view_name)() == {
+            "disabled": {
+                "GitHub": True,
+                "GitLab": True,
+                "Google": True,
+                "ActiveState": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
-                    "GitHub-based trusted publishing is temporarily disabled. "
-                    "See https://pypi.org/help#admin-intervention for details."
+                    f"{publisher_name}-based trusted publishing is temporarily "
+                    "disabled. See https://pypi.org/help#admin-intervention for "
+                    "details."
                 ),
                 queue="error",
             )
@@ -3447,9 +3648,45 @@ class TestManageAccountPublishingViews:
                 project_factory=project_factory,
             )
         ]
+        assert pending_gitlab_publisher_form_cls.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                project_factory=project_factory,
+            )
+        ]
 
-    def test_add_pending_github_oidc_publisher_user_cannot_register(
-        self, monkeypatch, pyramid_request
+    @pytest.mark.parametrize(
+        "view_name, flag, publisher_name",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITHUB_OIDC,
+                "GitHub",
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITLAB_OIDC,
+                "GitLab",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+                "ActiveState",
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_user_cannot_register(
+        self,
+        monkeypatch,
+        pyramid_request,
+        view_name,
+        flag,
+        publisher_name,
     ):
         pyramid_request.registry = pretend.stub(
             settings={
@@ -3477,20 +3714,60 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
         )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        pending_gitlab_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_gitlab_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitLabPublisherForm", pending_gitlab_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
-        assert view.add_pending_github_oidc_publisher() == {
+        assert getattr(view, view_name)() == {
+            "disabled": {
+                "GitHub": False,
+                "GitLab": False,
+                "Google": False,
+                "ActiveState": False,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
         assert pyramid_request.flags.disallow_oidc.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert pyramid_request.session.flash.calls == [
@@ -3510,22 +3787,87 @@ class TestManageAccountPublishingViews:
                 project_factory=project_factory,
             )
         ]
+        assert pending_gitlab_publisher_form_cls.calls == [
+            pretend.call(
+                pyramid_request.POST,
+                project_factory=project_factory,
+            )
+        ]
 
+    @pytest.mark.parametrize(
+        "view_name, flag, publisher_name, make_publisher, publisher_class",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITHUB_OIDC,
+                "GitHub",
+                lambda i, user_id: PendingGitHubPublisher(
+                    project_name="some-project-name-" + str(i),
+                    repository_name="some-repository" + str(i),
+                    repository_owner="some-owner",
+                    repository_owner_id="some-id",
+                    workflow_filename="some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitHubPublisher,
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                AdminFlagValue.DISALLOW_GITLAB_OIDC,
+                "GitLab",
+                lambda i, user_id: PendingGitLabPublisher(
+                    project_name="some-project-name-" + str(i),
+                    project="some-repository" + str(i),
+                    namespace="some-namespace",
+                    workflow_filepath="some-filepath",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitLabPublisher,
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+                "Google",
+                lambda i, user_id: PendingGooglePublisher(
+                    project_name="some-project-name-" + str(i),
+                    email="some-email-" + str(i) + "@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+                "ActiveState",
+                lambda i, user_id: PendingActiveStatePublisher(
+                    project_name="some-project-name-" + str(i),
+                    added_by_id=user_id,
+                    organization="some-org-" + str(i),
+                    activestate_project_name="some-project-" + str(i),
+                    actor="some-user-" + str(i),
+                    actor_id="some-user-id-" + str(i),
+                ),
+                PendingActiveStatePublisher,
+            ),
+        ],
+    )
     def test_add_pending_github_oidc_publisher_too_many_already(
-        self, monkeypatch, db_request
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        flag,
+        publisher_name,
+        make_publisher,
+        publisher_class,
     ):
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
         for i in range(3):
-            pending_publisher = PendingGitHubPublisher(
-                project_name="some-project-name-" + str(i),
-                repository_name="some-repository" + str(i),
-                repository_owner="some-owner",
-                repository_owner_id="some-id",
-                workflow_filename="some-filename",
-                environment="",
-                added_by_id=db_request.user.id,
-            )
+            pending_publisher = make_publisher(i, db_request.user.id)
             db_request.db.add(pending_publisher)
 
         db_request.registry = pretend.stub(
@@ -3548,21 +3890,29 @@ class TestManageAccountPublishingViews:
                 "project_name": "some-other-project-name",
             }
         )
-        default_response = pretend.stub()
-        monkeypatch.setattr(
-            views.ManageAccountPublishingViews, "default_response", default_response
-        )
 
         view = views.ManageAccountPublishingViews(db_request)
 
-        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert getattr(view, view_name)() == view.default_response
         assert db_request.flags.disallow_oidc.calls == [
-            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC)
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(flag),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -3574,10 +3924,31 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
-        assert len(db_request.db.query(PendingGitHubPublisher).all()) == 3
+        assert len(db_request.db.query(publisher_class).all()) == 3
 
-    def test_add_pending_github_oidc_publisher_ratelimited(
-        self, monkeypatch, pyramid_request
+    @pytest.mark.parametrize(
+        "view_name, publisher_name",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_ratelimited(
+        self, monkeypatch, pyramid_request, view_name, publisher_name
     ):
         pyramid_request.user = pretend.stub(
             has_primary_verified_email=True,
@@ -3617,37 +3988,58 @@ class TestManageAccountPublishingViews:
             ),
         )
 
-        assert isinstance(view.add_pending_github_oidc_publisher(), HTTPTooManyRequests)
+        assert isinstance(getattr(view, view_name)(), HTTPTooManyRequests)
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.ratelimited",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
 
-    def test_add_pending_github_oidc_publisher_invalid_form(
-        self, monkeypatch, pyramid_request
+    @pytest.mark.parametrize(
+        "view_name, publisher_name",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_invalid_form(
+        self, monkeypatch, db_request, view_name, publisher_name
     ):
-        pyramid_request.user = pretend.stub(
+        db_request.user = pretend.stub(
             has_primary_verified_email=True,
             pending_oidc_publishers=[],
         )
-        pyramid_request.registry = pretend.stub(
+        db_request.registry = pretend.stub(
             settings={
                 "github.token": "fake-api-token",
             }
         )
-        pyramid_request.flags = pretend.stub(
+        db_request.flags = pretend.stub(
             disallow_oidc=pretend.call_recorder(lambda f=None: False)
         )
-        pyramid_request.session = pretend.stub(
+        db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        pyramid_request.POST = MultiDict(
+        db_request.POST = MultiDict(
             {
                 "owner": "some-owner",
                 "repository": "some-repository",
@@ -3657,7 +4049,7 @@ class TestManageAccountPublishingViews:
             }
         )
 
-        view = views.ManageAccountPublishingViews(pyramid_request)
+        view = views.ManageAccountPublishingViews(db_request)
 
         monkeypatch.setattr(
             views.ManageAccountPublishingViews,
@@ -3674,6 +4066,19 @@ class TestManageAccountPublishingViews:
             "validate_project_name",
             lambda *a: True,
         )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
+        )
+
         monkeypatch.setattr(
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -3681,30 +4086,113 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert getattr(view, view_name)() == view.default_response
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
 
-    def test_add_pending_github_oidc_publisher_already_exists(
-        self, monkeypatch, db_request
+    @pytest.mark.parametrize(
+        "view_name, publisher_name, make_publisher, post_body",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-owner-id",
+                    workflow_filename="some-workflow-filename.yml",
+                    environment="some-environment",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "owner": "some-owner",
+                        "repository": "some-repository",
+                        "workflow_filename": "some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-workflow-filename.yml",
+                    environment="some-environment",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+                lambda user_id: PendingActiveStatePublisher(
+                    project_name="some-project-name",
+                    added_by_id=user_id,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                        "project_name": "some-other-project-name",
+                    }
+                ),
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher_already_exists(
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        publisher_name,
+        make_publisher,
+        post_body,
     ):
         db_request.user = UserFactory.create()
         EmailFactory(user=db_request.user, verified=True, primary=True)
-        pending_publisher = PendingGitHubPublisher(
-            project_name="some-project-name",
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="some-id",
-            workflow_filename="some-workflow-filename.yml",
-            environment="some-environment",
-            added_by_id=db_request.user.id,
-        )
+        pending_publisher = make_publisher(db_request.user.id)
         db_request.db.add(pending_publisher)
         db_request.db.flush()  # To get it into the DB
 
@@ -3719,15 +4207,7 @@ class TestManageAccountPublishingViews:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repository",
-                "workflow_filename": "some-workflow-filename.yml",
-                "environment": "some-environment",
-                "project_name": "some-project-name",
-            }
-        )
+        db_request.POST = post_body
 
         view = views.ManageAccountPublishingViews(db_request)
 
@@ -3741,6 +4221,19 @@ class TestManageAccountPublishingViews:
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
         )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
+        )
+
         monkeypatch.setattr(
             view, "_check_ratelimits", pretend.call_recorder(lambda: None)
         )
@@ -3748,12 +4241,12 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        assert view.add_pending_github_oidc_publisher() == view.default_response
+        assert getattr(view, view_name)() == view.default_response
 
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
@@ -3768,7 +4261,73 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_add_pending_github_oidc_publisher(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        "view_name, publisher_name, post_body, publisher_class",
+        [
+            (
+                "add_pending_github_oidc_publisher",
+                "GitHub",
+                MultiDict(
+                    {
+                        "owner": "some-owner",
+                        "repository": "some-repository",
+                        "workflow_filename": "some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingGitHubPublisher,
+            ),
+            (
+                "add_pending_gitlab_oidc_publisher",
+                "GitLab",
+                MultiDict(
+                    {
+                        "namespace": "some-owner",
+                        "project": "some-repository",
+                        "workflow_filepath": "subfolder/some-workflow-filename.yml",
+                        "environment": "some-environment",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingGitLabPublisher,
+            ),
+            (
+                "add_pending_google_oidc_publisher",
+                "Google",
+                MultiDict(
+                    {
+                        "email": "some-email@example.com",
+                        "sub": "some-sub",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingGooglePublisher,
+            ),
+            (
+                "add_pending_activestate_oidc_publisher",
+                "ActiveState",
+                MultiDict(
+                    {
+                        "organization": "some-org",
+                        "project": "some-project",
+                        "actor": "some-user",
+                        "project_name": "some-project-name",
+                    }
+                ),
+                PendingActiveStatePublisher,
+            ),
+        ],
+    )
+    def test_add_pending_oidc_publisher(
+        self,
+        monkeypatch,
+        db_request,
+        view_name,
+        publisher_name,
+        publisher_class,
+        post_body,
+    ):
         db_request.user = UserFactory()
         db_request.user.record_event = pretend.call_recorder(lambda **kw: None)
         EmailFactory(user=db_request.user, verified=True, primary=True)
@@ -3783,19 +4342,23 @@ class TestManageAccountPublishingViews:
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-        db_request.POST = MultiDict(
-            {
-                "owner": "some-owner",
-                "repository": "some-repository",
-                "workflow_filename": "some-workflow-filename.yml",
-                "environment": "some-environment",
-                "project_name": "some-project-name",
-            }
-        )
+        db_request.POST = post_body
         monkeypatch.setattr(
             views.PendingGitHubPublisherForm,
             "_lookup_owner",
             lambda *a: {"login": "some-owner", "id": "some-owner-id"},
+        )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_organization",
+            lambda *a: None,
+        )
+
+        monkeypatch.setattr(
+            views.PendingActiveStatePublisherForm,
+            "_lookup_actor",
+            lambda *a: {"user_id": "some-user-id"},
         )
 
         view = views.ManageAccountPublishingViews(db_request)
@@ -3807,7 +4370,7 @@ class TestManageAccountPublishingViews:
             view, "_hit_ratelimits", pretend.call_recorder(lambda: None)
         )
 
-        resp = view.add_pending_github_oidc_publisher()
+        resp = getattr(view, view_name)()
 
         assert db_request.session.flash.calls == [
             pretend.call(
@@ -3819,24 +4382,23 @@ class TestManageAccountPublishingViews:
         assert view.metrics.increment.calls == [
             pretend.call(
                 "warehouse.oidc.add_pending_publisher.attempt",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
             pretend.call(
-                "warehouse.oidc.add_pending_publisher.ok", tags=["publisher:GitHub"]
+                "warehouse.oidc.add_pending_publisher.ok",
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert view._hit_ratelimits.calls == [pretend.call()]
         assert view._check_ratelimits.calls == [pretend.call()]
         assert isinstance(resp, HTTPSeeOther)
 
-        pending_publisher = db_request.db.query(PendingGitHubPublisher).one()
-        assert pending_publisher.project_name == "some-project-name"
+        pending_publisher = db_request.db.query(publisher_class).one()
         assert pending_publisher.added_by_id == db_request.user.id
-        assert pending_publisher.repository_name == "some-repository"
-        assert pending_publisher.repository_owner == "some-owner"
-        assert pending_publisher.repository_owner_id == "some-owner-id"
-        assert pending_publisher.workflow_filename == "some-workflow-filename.yml"
-        assert pending_publisher.environment == "some-environment"
+
+        mapping = {"owner": "repository_owner", "repository": "repository_name"}
+        for k, v in post_body.items():
+            assert getattr(pending_publisher, mapping.get(k, k)) == v
 
         assert db_request.user.record_event.calls == [
             pretend.call(
@@ -3880,14 +4442,52 @@ class TestManageAccountPublishingViews:
         monkeypatch.setattr(
             views, "PendingGitHubPublisherForm", pending_github_publisher_form_cls
         )
+        pending_gitlab_publisher_form_obj = pretend.stub()
+        pending_gitlab_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_gitlab_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGitLabPublisherForm", pending_gitlab_publisher_form_cls
+        )
+        pending_google_publisher_form_obj = pretend.stub()
+        pending_google_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_google_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views, "PendingGooglePublisherForm", pending_google_publisher_form_cls
+        )
+        pending_activestate_publisher_form_obj = pretend.stub()
+        pending_activestate_publisher_form_cls = pretend.call_recorder(
+            lambda *a, **kw: pending_activestate_publisher_form_obj
+        )
+        monkeypatch.setattr(
+            views,
+            "PendingActiveStatePublisherForm",
+            pending_activestate_publisher_form_cls,
+        )
 
         view = views.ManageAccountPublishingViews(pyramid_request)
 
         assert view.delete_pending_oidc_publisher() == {
+            "disabled": {
+                "GitHub": True,
+                "GitLab": True,
+                "Google": True,
+                "ActiveState": True,
+            },
             "pending_github_publisher_form": pending_github_publisher_form_obj,
+            "pending_gitlab_publisher_form": pending_gitlab_publisher_form_obj,
+            "pending_google_publisher_form": pending_google_publisher_form_obj,
+            "pending_activestate_publisher_form": pending_activestate_publisher_form_obj,  # noqa: E501
         }
 
-        assert pyramid_request.flags.disallow_oidc.calls == [pretend.call()]
+        assert pyramid_request.flags.disallow_oidc.calls == [
+            pretend.call(),
+            pretend.call(AdminFlagValue.DISALLOW_GITHUB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GITLAB_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
+            pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
+        ]
         assert pyramid_request.session.flash.calls == [
             pretend.call(
                 (
@@ -3901,6 +4501,12 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
+                project_factory=project_factory,
+            )
+        ]
+        assert pending_gitlab_publisher_form_cls.calls == [
+            pretend.call(
+                pyramid_request.POST,
                 project_factory=project_factory,
             )
         ]
@@ -3935,17 +4541,59 @@ class TestManageAccountPublishingViews:
             )
         ]
 
-    def test_delete_pending_oidc_publisher_not_found(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        "make_publisher, publisher_class",
+        [
+            (
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-id",
+                    workflow_filename="some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitHubPublisher,
+            ),
+            (
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitLabPublisher,
+            ),
+            (
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
+            (
+                lambda user_id: PendingActiveStatePublisher(
+                    project_name="some-project-name",
+                    added_by_id=user_id,
+                    organization="some-org",
+                    activestate_project_name="some-project",
+                    actor="some-user",
+                    actor_id="some-user-id",
+                ),
+                PendingActiveStatePublisher,
+            ),
+        ],
+    )
+    def test_delete_pending_oidc_publisher_not_found(
+        self, monkeypatch, db_request, make_publisher, publisher_class
+    ):
         db_request.user = UserFactory.create()
-        pending_publisher = PendingGitHubPublisher(
-            project_name="some-project-name",
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="some-id",
-            workflow_filename="some-filename",
-            environment="",
-            added_by_id=db_request.user.id,
-        )
+        pending_publisher = make_publisher(db_request.user.id)
         db_request.db.add(pending_publisher)
 
         db_request.flags = pretend.stub(
@@ -3973,20 +4621,51 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
-        assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+        assert db_request.db.query(publisher_class).all() == [pending_publisher]
 
-    def test_delete_pending_oidc_publisher_no_access(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        "make_publisher, publisher_class",
+        [
+            (
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-id",
+                    workflow_filename="some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitHubPublisher,
+            ),
+            (
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-project-name",
+                    namespace="some-owner",
+                    project="some-repository",
+                    workflow_filepath="subfolder/some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitLabPublisher,
+            ),
+            (
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
+        ],
+    )
+    def test_delete_pending_oidc_publisher_no_access(
+        self, monkeypatch, db_request, make_publisher, publisher_class
+    ):
         db_request.user = UserFactory.create()
         some_other_user = UserFactory.create()
-        pending_publisher = PendingGitHubPublisher(
-            project_name="some-project-name",
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="some-id",
-            workflow_filename="some-filename",
-            environment="",
-            added_by_id=some_other_user.id,
-        )
+        pending_publisher = make_publisher(some_other_user.id)
         db_request.db.add(pending_publisher)
         db_request.db.flush()  # To get the id
 
@@ -4016,19 +4695,53 @@ class TestManageAccountPublishingViews:
                 queue="error",
             )
         ]
-        assert db_request.db.query(PendingGitHubPublisher).all() == [pending_publisher]
+        assert db_request.db.query(publisher_class).all() == [pending_publisher]
 
-    def test_delete_pending_oidc_publisher(self, monkeypatch, db_request):
+    @pytest.mark.parametrize(
+        "publisher_name, make_publisher, publisher_class",
+        [
+            (
+                "GitHub",
+                lambda user_id: PendingGitHubPublisher(
+                    project_name="some-project-name",
+                    repository_name="some-repository",
+                    repository_owner="some-owner",
+                    repository_owner_id="some-id",
+                    workflow_filename="some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitHubPublisher,
+            ),
+            (
+                "GitLab",
+                lambda user_id: PendingGitLabPublisher(
+                    project_name="some-project-name",
+                    namespace="some-owner",
+                    project="some-owner",
+                    workflow_filepath="subfolder/some-filename",
+                    environment="",
+                    added_by_id=user_id,
+                ),
+                PendingGitLabPublisher,
+            ),
+            (
+                "Google",
+                lambda user_id: PendingGooglePublisher(
+                    project_name="some-project-name",
+                    email="some-email@example.com",
+                    sub="some-sub",
+                    added_by_id=user_id,
+                ),
+                PendingGooglePublisher,
+            ),
+        ],
+    )
+    def test_delete_pending_oidc_publisher(
+        self, monkeypatch, db_request, publisher_name, make_publisher, publisher_class
+    ):
         db_request.user = UserFactory.create()
-        pending_publisher = PendingGitHubPublisher(
-            project_name="some-project-name",
-            repository_name="some-repository",
-            repository_owner="some-owner",
-            repository_owner_id="some-id",
-            workflow_filename="some-filename",
-            environment="",
-            added_by_id=db_request.user.id,
-        )
+        pending_publisher = make_publisher(db_request.user.id)
         db_request.db.add(pending_publisher)
         db_request.db.flush()  # To get the id
 
@@ -4050,7 +4763,7 @@ class TestManageAccountPublishingViews:
             ),
             pretend.call(
                 "warehouse.oidc.delete_pending_publisher.ok",
-                tags=["publisher:GitHub"],
+                tags=[f"publisher:{publisher_name}"],
             ),
         ]
         assert db_request.session.flash.calls == [
@@ -4065,7 +4778,7 @@ class TestManageAccountPublishingViews:
                 request=db_request,
                 additional={
                     "project": "some-project-name",
-                    "publisher": "GitHub",
+                    "publisher": publisher_name,
                     "id": str(pending_publisher.id),
                     "specifier": str(pending_publisher),
                     "url": pending_publisher.publisher_url(),
@@ -4073,4 +4786,4 @@ class TestManageAccountPublishingViews:
                 },
             )
         ]
-        assert db_request.db.query(PendingGitHubPublisher).all() == []
+        assert db_request.db.query(publisher_class).all() == []

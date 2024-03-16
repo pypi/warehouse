@@ -41,7 +41,7 @@
     </strong>
     <small>
       {% trans %}Added by:{% endtrans %}
-      {% if event.additional.publisher_url %}
+      {% if event.additional.uploaded_via_trusted_publisher or event.additional.publisher_url %}
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
@@ -95,7 +95,7 @@
     </small>
     <small>
       {% trans %}Added by:{% endtrans %}
-      {% if event.additional.publisher_url %}
+      {% if event.additional.uploaded_via_trusted_publisher or event.additional.publisher_url %}
       <a href="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}">{{ event.additional.submitted_by }}</a>
       {% else %}
       <a href="{{ request.route_path('accounts.profile', username=event.additional.submitted_by) }}">{{ event.additional.submitted_by }}</a>
@@ -222,10 +222,10 @@
     <small>{% trans %}Permissions: Can upload to this project{% endtrans %}</small>
     {% if event.additional.expires %}
     <small>
-      {% trans %}Expiration: {% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
+      {% trans %}Expiration:{% endtrans %} {{ humanize(event.additional.expires | ctime, relative="false", time="true") }}
     </small>
     <small>
-      {% trans %} Expiration Status: {% endtrans %}
+      {% trans %}Expiration status:{% endtrans %} {{ ' ' }}
       {% if (event.additional.expires | ctime) > now() %}
         {% trans %}Active{% endtrans %}
       {% else %}

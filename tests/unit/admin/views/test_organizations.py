@@ -462,9 +462,9 @@ class TestOrganizationApplicationList:
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
         )
-        db_request.GET[
-            "q"
-        ] = f"organization:{organization_applications[0].display_name}"
+        db_request.GET["q"] = (
+            f"organization:{organization_applications[0].display_name}"
+        )
         result = views.organization_applications_list(db_request)
 
         assert organization_applications[0] in result["organization_applications"]
@@ -493,9 +493,9 @@ class TestOrganizationApplicationList:
             OrganizationApplicationFactory.create_batch(5),
             key=lambda o: o.normalized_name,
         )
-        db_request.GET[
-            "q"
-        ] = f"description:'{organization_applications[0].description}'"
+        db_request.GET["q"] = (
+            f"description:'{organization_applications[0].description}'"
+        )
         result = views.organization_applications_list(db_request)
 
         assert organization_applications[0] in result["organization_applications"]

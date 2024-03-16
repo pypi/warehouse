@@ -21,6 +21,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.macaroons.caveats import (
+    Caveat,
+    deserialize_obj as caveats_deserialize,
+    serialize_obj as caveats_serialize,
+)
 from warehouse.utils.db.types import datetime_now
 
 
@@ -65,11 +70,36 @@ class Macaroon(db.Model):
     created: Mapped[datetime_now]
     last_used: Mapped[datetime | None]
 
+    # FIXME: Deprecated in favor of `Macaroon.caveats()`.
     # Human-readable "permissions" for this macaroon, corresponding to the
     # body of the permissions ("V1") caveat.
     permissions_caveat: Mapped[dict] = mapped_column(
         JSONB, server_default=sql.text("'{}'")
     )
+
+    # The caveats that were attached to this Macaroon when we generated it.
+    _caveats: Mapped[list] = mapped_column(
+        "caveats",
+        JSONB,
+        server_default=sql.text("'{}'"),
+        comment=(
+            "The list of caveats that were attached to this Macaroon when we "
+            "generated it. Users can add additional caveats at any time without "
+            "communicating those additional caveats to us, which would not be "
+            "reflected in this data, and thus this field must only be used for "
+            "informational purposes and must not be used during the authorization "
+            "or authentication process. Older Macaroons may be missing caveats as "
+            "previously only the legacy permissions caveat were stored."
+        ),
+    )
+
+    @property
+    def caveats(self) -> list[Caveat]:
+        return [caveats_deserialize(c) for c in self._caveats]
+
+    @caveats.setter
+    def caveats(self, caveats: list[Caveat]):
+        self._caveats = [list(caveats_serialize(c)) for c in caveats]
 
     # Additional state associated with this macaroon.
     # For OIDC publisher-issued macaroons, this will contain a subset of OIDC claims.

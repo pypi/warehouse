@@ -19,10 +19,10 @@ from paginate_sqlalchemy import SqlalchemyOrmPage as SQLAlchemyORMPage
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPNotFound,
+    HTTPOk,
     HTTPSeeOther,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
@@ -42,6 +42,7 @@ from warehouse.accounts.interfaces import (
 from warehouse.accounts.models import Email, User
 from warehouse.accounts.views import logout
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.email import (
     send_account_deletion_email,
     send_added_as_collaborator_email,
@@ -86,7 +87,6 @@ from warehouse.manage.forms import (
     ProvisionTOTPForm,
     ProvisionWebAuthnForm,
     SaveAccountForm,
-    Toggle2FARequirementForm,
     TransferOrganizationProjectForm,
 )
 from warehouse.manage.views.organizations import (
@@ -100,10 +100,21 @@ from warehouse.manage.views.view_helpers import (
     user_projects,
 )
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.forms import DeletePublisherForm
-from warehouse.oidc.forms.github import GitHubPublisherForm
+from warehouse.oidc.forms import (
+    ActiveStatePublisherForm,
+    DeletePublisherForm,
+    GitHubPublisherForm,
+    GitLabPublisherForm,
+    GooglePublisherForm,
+)
 from warehouse.oidc.interfaces import TooManyOIDCRegistrations
-from warehouse.oidc.models import GitHubPublisher, OIDCPublisher
+from warehouse.oidc.models import (
+    ActiveStatePublisher,
+    GitHubPublisher,
+    GitLabPublisher,
+    GooglePublisher,
+    OIDCPublisher,
+)
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import (
     OrganizationProject,
@@ -134,7 +145,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountManage,
     has_translations=True,
     require_reauth=True,
 )
@@ -301,9 +312,9 @@ class ManageAccountViews:
             tag=EventTag.Account.EmailPrimaryChange,
             request=self.request,
             additional={
-                "old_primary": previous_primary_email.email
-                if previous_primary_email
-                else None,
+                "old_primary": (
+                    previous_primary_email.email if previous_primary_email else None
+                ),
                 "new_primary": new_primary_email.email,
             },
         )
@@ -459,7 +470,7 @@ class ManageAccountViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     has_translations=True,
     require_reauth=True,
 )
@@ -473,7 +484,7 @@ def manage_two_factor(request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -507,7 +518,7 @@ class ProvisionTOTPViews:
         qr_buffer = io.BytesIO()
         totp_qr.svg(qr_buffer, scale=5)
 
-        return Response(content_type="image/svg+xml", body=qr_buffer.getvalue())
+        return HTTPOk(content_type="image/svg+xml", body=qr_buffer.getvalue())
 
     @view_config(request_method="GET")
     def totp_provision(self):
@@ -623,7 +634,7 @@ class ProvisionTOTPViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -750,7 +761,7 @@ class ProvisionWebAuthnViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.Account2FA,
     http_cache=0,
     has_translations=True,
 )
@@ -835,7 +846,7 @@ class ProvisionRecoveryCodesViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:user",
+    permission=Permissions.AccountAPITokens,
     renderer="manage/account/token.html",
     route_name="manage.account.token",
     has_translations=True,
@@ -1024,7 +1035,7 @@ class ProvisionMacaroonViews:
     route_name="manage.projects",
     renderer="manage/projects.html",
     uses_session=True,
-    permission="manage:user",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_projects(request):
@@ -1040,9 +1051,6 @@ def manage_projects(request):
     projects_owned = {project.name for project in all_user_projects["projects_owned"]}
     projects_sole_owned = {
         project.name for project in all_user_projects["projects_sole_owned"]
-    }
-    projects_requiring_2fa = {
-        project.name for project in all_user_projects["projects_requiring_2fa"]
     }
 
     for team in request.user.teams:
@@ -1061,7 +1069,6 @@ def manage_projects(request):
         "projects": sorted(projects, key=_key, reverse=True),
         "projects_owned": projects_owned,
         "projects_sole_owned": projects_sole_owned,
-        "projects_requiring_2fa": projects_requiring_2fa,
         "project_invites": project_invites,
     }
 
@@ -1071,7 +1078,7 @@ def manage_projects(request):
     context=Project,
     renderer="manage/project/settings.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
     require_reauth=True,
     require_methods=False,
@@ -1080,7 +1087,6 @@ class ManageProjectSettingsViews:
     def __init__(self, project, request):
         self.project = project
         self.request = request
-        self.toggle_2fa_requirement_form_class = Toggle2FARequirementForm
         self.transfer_organization_project_form_class = TransferOrganizationProjectForm
 
     @view_config(request_method="GET")
@@ -1112,60 +1118,12 @@ class ManageProjectSettingsViews:
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
-            "toggle_2fa_form": self.toggle_2fa_requirement_form_class(),
             "transfer_organization_project_form": (
                 self.transfer_organization_project_form_class(
                     organization_choices=organization_choices,
                 )
             ),
         }
-
-    @view_config(
-        request_method="POST",
-        request_param=Toggle2FARequirementForm.__params__,
-        require_reauth=True,
-    )
-    def toggle_2fa_requirement(self):
-        if not self.request.registry.settings[
-            "warehouse.two_factor_requirement.enabled"
-        ]:
-            raise HTTPNotFound
-
-        if self.project.pypi_mandates_2fa:
-            self.request.session.flash(
-                self.request._(
-                    "2FA requirement cannot be disabled for critical projects"
-                ),
-                queue="error",
-            )
-        elif self.project.owners_require_2fa:
-            self.project.owners_require_2fa = False
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FADisabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement disabled for { self.project.name }"),
-                queue="success",
-            )
-        else:
-            self.project.owners_require_2fa = True
-            self.project.record_event(
-                tag=EventTag.Project.OwnersRequire2FAEnabled,
-                request=self.request,
-                additional={"modified_by": self.request.user.username},
-            )
-            self.request.session.flash(
-                self.request._(f"2FA requirement enabled for { self.project.name }"),
-                queue="success",
-            )
-
-        return HTTPSeeOther(
-            self.request.route_path(
-                "manage.project.settings", project_name=self.project.name
-            )
-        )
 
 
 @view_defaults(
@@ -1175,7 +1133,7 @@ class ManageProjectSettingsViews:
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
     http_cache=0,
@@ -1185,6 +1143,13 @@ class ManageOIDCPublisherViews:
         self.request = request
         self.project = project
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.github_publisher_form = GitHubPublisherForm(
+            self.request.POST,
+            api_token=self.request.registry.settings.get("github.token"),
+        )
+        self.gitlab_publisher_form = GitLabPublisherForm(self.request.POST)
+        self.google_publisher_form = GooglePublisherForm(self.request.POST)
+        self.activestate_publisher_form = ActiveStatePublisherForm(self.request.POST)
 
     @property
     def _ratelimiters(self):
@@ -1217,17 +1182,27 @@ class ManageOIDCPublisherViews:
             )
 
     @property
-    def github_publisher_form(self):
-        return GitHubPublisherForm(
-            self.request.POST,
-            api_token=self.request.registry.settings.get("github.token"),
-        )
-
-    @property
     def default_response(self):
         return {
             "project": self.project,
             "github_publisher_form": self.github_publisher_form,
+            "gitlab_publisher_form": self.gitlab_publisher_form,
+            "google_publisher_form": self.google_publisher_form,
+            "activestate_publisher_form": self.activestate_publisher_form,
+            "disabled": {
+                "GitHub": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITHUB_OIDC
+                ),
+                "GitLab": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GITLAB_OIDC
+                ),
+                "Google": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_GOOGLE_OIDC
+                ),
+                "ActiveState": self.request.flags.disallow_oidc(
+                    AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC
+                ),
+            },
         }
 
     @view_config(request_method="GET")
@@ -1358,6 +1333,337 @@ class ManageOIDCPublisherViews:
 
     @view_config(
         request_method="POST",
+        request_param=GitLabPublisherForm.__params__,
+    )
+    def add_gitlab_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GITLAB_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "GitLab-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:GitLab"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:GitLab"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["gitlab_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # GitLab OIDC publishers are unique on the tuple of
+        # (namespace, project, workflow_filepath, environment),
+        # so we check for an already registered one before creating.
+        publisher = (
+            self.request.db.query(GitLabPublisher)
+            .filter(
+                GitLabPublisher.namespace == form.namespace.data,
+                GitLabPublisher.project == form.project.data,
+                GitLabPublisher.workflow_filepath == form.workflow_filepath.data,
+                GitLabPublisher.environment == form.normalized_environment,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = GitLabPublisher(
+                namespace=form.namespace.data,
+                project=form.project.data,
+                workflow_filepath=form.workflow_filepath.data,
+                environment=form.normalized_environment,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:GitLab"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=GooglePublisherForm.__params__,
+    )
+    def add_google_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_GOOGLE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "Google-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:Google"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited", tags=["publisher:Google"]
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["google_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Google OIDC publishers are unique on the tuple of (email, sub), so we
+        # check for an already registered one before creating.
+        publisher = (
+            self.request.db.query(GooglePublisher)
+            .filter(
+                GooglePublisher.email == form.email.data,
+                GooglePublisher.sub == form.sub.data,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = GooglePublisher(
+                email=form.email.data,
+                sub=form.sub.data,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} "
+            + (f"in {publisher.publisher_url()}" if publisher.publisher_url() else "")
+            + f" to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:Google"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
+        request_param=ActiveStatePublisherForm.__params__,
+    )
+    def add_activestate_oidc_publisher(self):
+        if self.request.flags.disallow_oidc(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC):
+            self.request.session.flash(
+                self.request._(
+                    "ActiveState-based trusted publishing is temporarily disabled. "
+                    "See https://pypi.org/help#admin-intervention for details."
+                ),
+                queue="error",
+            )
+            return self.default_response
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.attempt", tags=["publisher:ActiveState"]
+        )
+
+        try:
+            self._check_ratelimits()
+        except TooManyOIDCRegistrations as exc:
+            self.metrics.increment(
+                "warehouse.oidc.add_publisher.ratelimited",
+                tags=["publisher:ActiveState"],
+            )
+            return HTTPTooManyRequests(
+                self.request._(
+                    "There have been too many attempted trusted publisher "
+                    "registrations. Try again later."
+                ),
+                retry_after=exc.resets_in.total_seconds(),
+            )
+
+        self._hit_ratelimits()
+
+        response = self.default_response
+        form = response["activestate_publisher_form"]
+
+        if not form.validate():
+            self.request.session.flash(
+                self.request._("The trusted publisher could not be registered"),
+                queue="error",
+            )
+            return response
+
+        # Check for an already registered publisher before creating.
+        publisher = (
+            self.request.db.query(ActiveStatePublisher)
+            .filter(
+                ActiveStatePublisher.organization == form.organization.data,
+                ActiveStatePublisher.activestate_project_name == form.project.data,
+                ActiveStatePublisher.actor_id == form.actor_id,
+            )
+            .one_or_none()
+        )
+        if publisher is None:
+            publisher = ActiveStatePublisher(
+                organization=form.organization.data,
+                activestate_project_name=form.project.data,
+                actor=form.actor.data,
+                actor_id=form.actor_id,
+            )
+
+            self.request.db.add(publisher)
+
+        # Each project has a unique set of OIDC publishers; the same
+        # publisher can't be registered to the project more than once.
+        if publisher in self.project.oidc_publishers:
+            self.request.session.flash(
+                self.request._(
+                    f"{publisher} is already registered with {self.project.name}"
+                ),
+                queue="error",
+            )
+            return response
+
+        for user in self.project.users:
+            send_trusted_publisher_added_email(
+                self.request,
+                user,
+                project_name=self.project.name,
+                publisher=publisher,
+            )
+
+        self.project.oidc_publishers.append(publisher)
+
+        self.project.record_event(
+            tag=EventTag.Project.OIDCPublisherAdded,
+            request=self.request,
+            additional={
+                "publisher": publisher.publisher_name,
+                "id": str(publisher.id),
+                "specifier": str(publisher),
+                "url": publisher.publisher_url(),
+                "submitted_by": self.request.user.username,
+            },
+        )
+
+        self.request.session.flash(
+            f"Added {publisher} in {publisher.publisher_url()} to {self.project.name}",
+            queue="success",
+        )
+
+        self.metrics.increment(
+            "warehouse.oidc.add_publisher.ok", tags=["publisher:ActiveState"]
+        )
+
+        return HTTPSeeOther(self.request.path)
+
+    @view_config(
+        request_method="POST",
         request_param=DeletePublisherForm.__params__,
     )
     def delete_oidc_publisher(self):
@@ -1481,7 +1787,7 @@ def get_user_role_in_organization_project(project, user, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1528,7 +1834,7 @@ def delete_project(project, request):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1548,7 +1854,7 @@ def destroy_project_docs(project, request):
     context=Project,
     renderer="manage/project/releases.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
     require_reauth=True,
 )
@@ -1592,7 +1898,7 @@ def manage_project_releases(project, request):
     uses_session=True,
     require_csrf=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -1988,7 +2294,7 @@ class ManageProjectRelease:
     renderer="manage/project/roles.html",
     uses_session=True,
     require_methods=False,
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2372,7 +2678,7 @@ def manage_project_roles(project, request, _form_class=CreateRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
 )
 def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm):
@@ -2449,7 +2755,7 @@ def revoke_project_role_invitation(project, request, _form_class=ChangeRoleForm)
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2532,7 +2838,7 @@ def change_project_role(project, request, _form_class=ChangeRoleForm):
     context=Project,
     uses_session=True,
     require_methods=["POST"],
-    permission="manage:project",
+    permission=Permissions.ProjectsWrite,
     has_translations=True,
     require_reauth=True,
 )
@@ -2603,7 +2909,7 @@ def delete_project_role(project, request):
     context=Project,
     renderer="manage/project/history.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_project_history(project, request):
@@ -2652,7 +2958,7 @@ def manage_project_history(project, request):
     context=Project,
     renderer="manage/project/documentation.html",
     uses_session=True,
-    permission="manage:project",
+    permission=Permissions.ProjectsRead,
     has_translations=True,
 )
 def manage_project_documentation(project, request):

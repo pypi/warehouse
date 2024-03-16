@@ -92,12 +92,12 @@ class TestOIDCPublisherService:
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
-                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    require=["iss", "iat", "exp", "aud"],
                     verify_iss=True,
                     verify_iat=True,
-                    verify_nbf=True,
                     verify_exp=True,
                     verify_aud=True,
+                    verify_nbf=True,
                     strict_aud=True,
                 ),
                 issuer=service.issuer_url,
@@ -848,7 +848,7 @@ class TestNullOIDCPublisherService:
 
         assert service.find_publisher(claims) == publisher
 
-    def test_find_publisher_full_pending(self, oidc_service):
+    def test_find_publisher_full_pending(self, github_oidc_service):
         pending_publisher = PendingGitHubPublisherFactory.create(
             project_name="does-not-exist",
             repository_name="bar",
@@ -886,10 +886,12 @@ class TestNullOIDCPublisherService:
             "iat": 1650663865,
         }
 
-        expected_pending_publisher = oidc_service.find_publisher(claims, pending=True)
+        expected_pending_publisher = github_oidc_service.find_publisher(
+            claims, pending=True
+        )
         assert expected_pending_publisher == pending_publisher
 
-    def test_find_publisher_full(self, oidc_service):
+    def test_find_publisher_full(self, github_oidc_service):
         publisher = GitHubPublisherFactory.create(
             repository_name="bar",
             repository_owner="foo",
@@ -926,7 +928,7 @@ class TestNullOIDCPublisherService:
             "iat": 1650663865,
         }
 
-        expected_publisher = oidc_service.find_publisher(claims, pending=False)
+        expected_publisher = github_oidc_service.find_publisher(claims, pending=False)
         assert expected_publisher == publisher
 
     def test_reify_publisher(self):

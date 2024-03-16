@@ -20,6 +20,7 @@ from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.authnz import Permissions
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
@@ -284,7 +285,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, pretend.stub(), "upload")
+        result = policy.permits(request, pretend.stub(), Permissions.ProjectsUpload)
 
         assert result == Denied("")
         assert result.s == "Invalid API Token: foo"
@@ -307,16 +308,18 @@ class TestMacaroonSecurityPolicy:
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        context = pretend.stub(__acl__=[(Allow, "user:5", ["upload"])])
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", [Permissions.ProjectsUpload])]
+        )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, context, "upload")
+        result = policy.permits(request, context, Permissions.ProjectsUpload)
 
         assert bool(result) == expected
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
+        [Permissions.AccountManage, Permissions.ProjectsWrite, "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission

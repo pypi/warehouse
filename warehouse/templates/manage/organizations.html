@@ -187,7 +187,15 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_application_form.name(placeholder=gettext("Select an organization account name"), autocapitalize="off", autocomplete="off", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"name-errors"}) }}
+        {{ create_organization_application_form.name(
+          placeholder=gettext("Select an organization account name"),
+          autocapitalize="off",
+          autocomplete="off",
+          spellcheck="false",
+          required="required",
+          class_="form-group__field",
+          aria_describedby="name-errors"
+        ) }}
         <div id="name-errors">
           {% if create_organization_application_form.name.errors %}
           <ul class="form-errors" role="alert">
@@ -210,7 +218,14 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_application_form.display_name(placeholder=gettext("Name of your business, product, or project"), autocomplete="organization", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"display-name-errors"}) }}
+        {{ create_organization_application_form.display_name(
+          placeholder=gettext("Name of your business, product, or project"),
+          autocomplete="organization",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="display-name-errors",
+        ) }}
         <div id="display-name-errors">
           {% if create_organization_application_form.display_name.errors %}
           <ul class="form-errors" role="alert">
@@ -233,7 +248,14 @@
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_application_form.link_url(placeholder=gettext("URL for your business, product, or project"), autocomplete="url", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"link-url-errors"}) }}
+          {{ create_organization_application_form.link_url(
+            placeholder=gettext("URL for your business, product, or project"),
+            autocomplete="url",
+            autocapitalize="off",
+            spellcheck="false",
+            class_="form-group__field",
+            aria_describedby="link-url-errors",
+          ) }}
         </p>
         <div id="link-url-errors">
           {{ field_errors(create_organization_application_form.link_url) }}
@@ -250,7 +272,14 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ create_organization_application_form.description(placeholder=gettext("Description of your business, product, or project"), autocomplete="off", autocapitalize="off", spellcheck="true", class_="form-group__field", **{"aria-describedby":"description-errors"}) }}
+        {{ create_organization_application_form.description(
+          placeholder=gettext("Description of your business, product, or project"),
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="true",
+          class_="form-group__field",
+          aria_describedby="description-errors",
+        ) }}
         <div id="description-errors">
           {% if create_organization_application_form.description.errors %}
           <ul class="form-errors" role="alert">
@@ -270,7 +299,10 @@
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ create_organization_application_form.orgtype(class_="form-group__field", **{"aria-describedby":"orgtype-errors"}) }}
+          {{ create_organization_application_form.orgtype(
+            class_="form-group__field",
+            aria_describedby="orgtype-errors",
+          ) }}
         </p>
         <div id="orgtype-errors">
           {{ field_errors(create_organization_application_form.orgtype) }}

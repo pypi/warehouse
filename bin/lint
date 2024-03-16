@@ -13,7 +13,7 @@ set -x
 # Actually run our tests.
 find . -name '*.py' -exec python -m pyupgrade --py311-plus {} +
 python -m flake8 .
-python -m black --check *.py warehouse/ tests/
+python -m black --check --diff *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
 python -m doc8 --allow-long-titles README.rst CONTRIBUTING.rst docs/ --ignore-path "docs/**/_build/"
 python -m curlylint ./warehouse/templates ./docs/blog

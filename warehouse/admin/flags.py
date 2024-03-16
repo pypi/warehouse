@@ -26,9 +26,10 @@ class AdminFlagValue(enum.Enum):
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
     DISALLOW_OIDC = "disallow-oidc"
     DISALLOW_GITHUB_OIDC = "disallow-github-oidc"
+    DISALLOW_GITLAB_OIDC = "disallow-gitlab-oidc"
     DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
+    DISALLOW_ACTIVESTATE_OIDC = "disallow-activestate-oidc"
     READ_ONLY = "read-only"
-    TWOFA_REQUIRED_EVERYWHERE = "2fa-required"
 
 
 class AdminFlag(db.ModelBase):

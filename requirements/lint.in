@@ -2,7 +2,7 @@ doc8>=1.1.0
 flake8
 curlylint
 pep8-naming
-black==23.11.0
+black==24.2.0
 isort>=5.13.1
 pyupgrade
 mypy

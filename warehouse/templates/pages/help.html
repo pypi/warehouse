@@ -215,7 +215,7 @@
 
         <h3 id="installing">{{ installing() }}</h3>
         <p>
-          {% trans installation_href='https://packaging.python.org/installing/', user_guide_href='https://packaging.python.org/', title=gettext('External link') %}
+          {% trans installation_href='https://packaging.python.org/tutorials/installing-packages/', user_guide_href='https://packaging.python.org/', title=gettext('External link') %}
           To learn how to install a file from PyPI, visit the <a href="{{ installation_href }}" title="{{ title }}" target="_blank" rel="noopener">installation tutorial</a> on the <a href="{{ user_guide_href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>.
           {% endtrans %}
         </p>
@@ -479,12 +479,33 @@
 
         <h3 id="apitoken">{{ apitoken() }}</h3>
 
-        {% trans %}
-          <p>API tokens provide an alternative way (instead of username and password) to authenticate when <strong>uploading packages</strong> to PyPI.</p>
-          <p>You can create a token for an entire PyPI account, in which case, the token will work for all projects associated with that account. Alternatively, you can limit a token's scope to a specific project.</p>
-          <p><strong>We strongly recommend you authenticate with an API token where possible.</strong></p>
-
-        {% endtrans %}
+        <p>
+          {% trans %}
+          API tokens are used to authenticate when <strong>uploading packages</strong> to PyPI.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          You can create a token for an entire PyPI account, in which case, the token will work
+          for all projects associated with that account. Alternatively, you can limit a token's
+          scope to a specific project.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+          When using an API token from a CI provider, we recommend
+          scoping the token down to the minimum necessary projects.
+          {% endtrans %}
+        </p>
+        <p>
+          <strong>
+            {% trans href='#trusted-publishers' %}
+            If you are publishing to PyPI from a CI provider that supports
+            <a href="{{ href }}">Trusted Publishing</a>, we strongly recommend
+            using Trusted Publishing instead.
+            {% endtrans %}
+          </strong>
+        </p>
 
         <p>{% trans %}To make an API token:{% endtrans %}</p>
 
@@ -524,7 +545,7 @@
           {% trans docs="https://docs.pypi.org/trusted-publishers/" %}
           PyPI users and projects can use <a href="{{ docs}}">Trusted Publishers</a> to delegate
           publishing authority for a PyPI package to a trusted third party service, eliminating
-          the need to use API tokens or passwords.
+          the need to use API tokens.
           {% endtrans %}
         </p>
       </section>
@@ -595,7 +616,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
         <p>{% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
-        <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#description', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
+        <p>{% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
@@ -655,7 +676,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="description-render-failure">{{ description_render_failure() }}</h3>
         <p>
-          {% trans href='https://twine.readthedocs.io/en/latest/#twine-check', title=gettext('External link') %}
+          {% trans href='https://twine.readthedocs.io/#twine-check', title=gettext('External link') %}
             PyPI will reject uploads if the package description fails to render. You may <a href="{{ href }}" title="{{ title }}">use twine's check command</a> to locally check a description for validity.
           {% endtrans %}
         </p>
@@ -683,24 +704,16 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         {{ code_of_conduct() }}
 
         <h3 id="invalid-auth">{{ invalid_auth() }}</h3>
-        <p>{% trans %}If you are using a username and password for uploads:{% endtrans %}</p>
-        <ol>
-          <li>{% trans %}Ensure that your username and password are correct.{% endtrans %}</li>
-          <li>{% trans %}Ensure that your username and password do not contain any trailing characters such as newlines.{% endtrans %}</li>
-        </ol>
-        <p>{% trans %}If you are using an <a href="#apitoken">API Token</a> for uploads:{% endtrans %}</p>
         <ol>
           <li>{% trans %}Ensure that your API Token is valid and has not been revoked.{% endtrans %}</li>
           <li>{% trans %}Ensure that your API Token is <a href="#apitoken">properly formatted</a> and does not contain any trailing characters such as newlines.{% endtrans %}</li>
           <li>{% trans %}Ensure that the username you are using is <code>__token__</code>.{% endtrans %}</li>
         </ol>
-        <p>{% trans %}In both cases, remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
+        <p>{% trans %}Remember that PyPI and TestPyPI each require you to create an account, so your credentials may be different.{% endtrans %}</p>
         <p>
-          {% trans %}
-            If you're using Windows and trying to paste your password or token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
-            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
-          {% endtrans %}
           {% trans href='https://bugs.python.org/issue37426', title=gettext('External link') %}
+            If you're using Windows and trying to paste your token in the Command Prompt or PowerShell, note that Ctrl-V and Shift+Insert won't work.
+            Instead, you can use "Edit > Paste" from the window menu, or enable "Use Ctrl+Shift+C/V as Copy/Paste" in "Properties".
             This is a <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">known issue</a> with Python's <code>getpass</code> module.
           {% endtrans %}
         </p>
@@ -743,7 +756,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="uploading">{{ uploading() }}</h3>
         <p>
-          {% trans href='https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi', title=gettext('External link') %}
+          {% trans href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi', title=gettext('External link') %}
             In a previous version of PyPI, it used to be possible for maintainers
             to upload releases to PyPI using a form in the web browser.
             This feature was deprecated with the new version of PyPI – we instead
@@ -835,7 +848,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% endtrans %}
         </p>
         <p>
-          {% trans href='https://www.pypa.io/en/latest/', title=gettext('External link') %}
+          {% trans href='https://www.pypa.io/', title=gettext('External link') %}
             The <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">PyPA</a> is an independent group of developers whose goal is to improve and maintain many of the core projects related to Python packaging.
           {% endtrans %}
         </p>
@@ -906,12 +919,11 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="upcoming-changes">{{ upcoming_changes() }}</h3>
         <p>
-          {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://pyfound.blogspot.com/search/label/pypi', atom_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi', rss_href='https://pyfound.blogspot.com/feeds/posts/default/-/pypi?alt=rss', title=gettext('External link') %}
+          {% trans mailing_list_href='https://mail.python.org/mailman3/lists/pypi-announce.python.org/', blog_href='https://blog.pypi.org', rss_href='https://blog.pypi.org/feed_rss_created.xml', title=gettext('External link') %}
           Changes to PyPI are generally announced on both the
           <a href="{{ mailing_list_href }}" title="{{ title }}" target="_blank" rel="noopener">pypi-announce mailing list</a>
-          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PSF blog</a> under the label "pypi".
-          The PSF blog also has <a href="{{ atom_href }}" title="{{ title }}" target="_blank" rel="noopener">Atom</a>
-          and <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feeds for the "pypi" label.
+          and the <a href="{{ blog_href }}" title="{{ title }}" target="_blank" rel="noopener">PyPI blog</a>.
+          The PyPI blog also has an <a href="{{ rss_href }}" title="{{ title }}" target="_blank" rel="noopener">RSS</a> feed.
           {% endtrans %}
         </p>
 

@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import re
 
 from email.errors import HeaderParseError
 from email.headerregistry import Address
@@ -24,7 +25,7 @@ import wtforms.fields
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
-from warehouse import forms, recaptcha
+from warehouse import forms
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
     InvalidRecoveryCode,
@@ -33,6 +34,7 @@ from warehouse.accounts.interfaces import (
 )
 from warehouse.accounts.models import DisableReason
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
+from warehouse.captcha import recaptcha
 from warehouse.email import (
     send_password_compromised_email_hibp,
     send_recovery_code_used_email,
@@ -76,10 +78,12 @@ class UsernameMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(message=INVALID_USERNAME_MESSAGE),
-        ]
+        ],
     )
 
     def validate_username(self, field):
+        field.data = field.data.strip()
+
         userid = self.user_service.find_userid(field.data)
 
         if userid is None:
@@ -258,9 +262,7 @@ class NewEmailMixin:
         validators=[
             wtforms.validators.InputRequired(),
             PreventNullBytesValidator(),
-            wtforms.validators.Regexp(
-                r".+@.+\..+", message=_("The email address isn't valid. Try again.")
-            ),
+            wtforms.validators.Email(),
             wtforms.validators.Length(
                 max=254, message=_("The email address is too long. Try again.")
             ),
@@ -307,7 +309,6 @@ class NewEmailMixin:
 
 
 class HoneypotMixin:
-
     """A mixin to catch spammers. This field should always be blank"""
 
     confirm_form = wtforms.StringField()
@@ -342,18 +343,18 @@ class RegistrationForm(  # type: ignore[misc]
     )
     g_recaptcha_response = wtforms.StringField()
 
-    def __init__(self, *args, recaptcha_service, user_service, **kwargs):
+    def __init__(self, *args, captcha_service, user_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.user_id = None
-        self.recaptcha_service = recaptcha_service
+        self.captcha_service = captcha_service
 
     def validate_g_recaptcha_response(self, field):
         # do required data validation here due to enabled flag being required
-        if self.recaptcha_service.enabled and not field.data:
+        if self.captcha_service.enabled and not field.data:
             raise wtforms.validators.ValidationError("Recaptcha error.")
         try:
-            self.recaptcha_service.verify_response(field.data)
+            self.captcha_service.verify_response(field.data)
         except recaptcha.RecaptchaError:
             # TODO: log error
             # don't want to provide the user with any detail
@@ -525,21 +526,32 @@ class RecoveryCodeAuthenticationForm(
 
 class RequestPasswordResetForm(forms.Form):
     username_or_email = wtforms.StringField(
-        validators=[wtforms.validators.InputRequired()]
+        validators=[
+            wtforms.validators.InputRequired(),
+            PreventNullBytesValidator(),
+        ]
     )
 
-    def __init__(self, *args, user_service, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.user_service = user_service
-
     def validate_username_or_email(self, field):
-        username_or_email = self.user_service.get_user_by_username(field.data)
-        if username_or_email is None:
-            username_or_email = self.user_service.get_user_by_email(field.data)
-        if username_or_email is None:
-            raise wtforms.validators.ValidationError(
-                _("No user found with that username or email")
-            )
+        """
+        Check if the input is structurally correct, i.e. either a string or email.
+        Further validation happens in the View.
+        """
+        if "@" in field.data:
+            # Additional checks for the validity of the address
+            try:
+                Address(addr_spec=field.data)
+            except (ValueError, HeaderParseError):
+                raise wtforms.validators.ValidationError(
+                    message=INVALID_PASSWORD_MESSAGE
+                )
+        else:
+            # the regexp below must match the CheckConstraint
+            # for the username field in accounts.models.User
+            if not re.match(r"^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$", field.data):
+                raise wtforms.validators.ValidationError(
+                    message=_("The username isn't valid. Try again.")
+                )
 
 
 class ResetPasswordForm(NewPasswordMixin, forms.Form):

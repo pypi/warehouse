@@ -16,29 +16,64 @@ from dataclasses import dataclass
 
 from pyramid.authorization import Authenticated
 
+from warehouse.admin.flags import AdminFlagValue
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models import (
+    ActiveStatePublisher,
     GitHubPublisher,
+    GitLabPublisher,
     GooglePublisher,
     OIDCPublisher,
+    PendingActiveStatePublisher,
     PendingGitHubPublisher,
+    PendingGitLabPublisher,
     PendingGooglePublisher,
+    PendingOIDCPublisher,
 )
-from warehouse.oidc.models._core import OIDCPublisherMixin
 
 GITHUB_OIDC_ISSUER_URL = "https://token.actions.githubusercontent.com"
+GITLAB_OIDC_ISSUER_URL = "https://gitlab.com"
 GOOGLE_OIDC_ISSUER_URL = "https://accounts.google.com"
+ACTIVESTATE_OIDC_ISSUER_URL = "https://platform.activestate.com/api/v1/oauth/oidc"
 
-OIDC_ISSUER_URLS = {GITHUB_OIDC_ISSUER_URL, GOOGLE_OIDC_ISSUER_URL}
+OIDC_ISSUER_SERVICE_NAMES = {
+    GITHUB_OIDC_ISSUER_URL: "github",
+    GITLAB_OIDC_ISSUER_URL: "gitlab",
+    GOOGLE_OIDC_ISSUER_URL: "google",
+    ACTIVESTATE_OIDC_ISSUER_URL: "activestate",
+}
 
-OIDC_PUBLISHER_CLASSES: dict[str, dict[bool, type[OIDCPublisherMixin]]] = {
+OIDC_ISSUER_ADMIN_FLAGS = {
+    GITHUB_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GITHUB_OIDC,
+    GITLAB_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GITLAB_OIDC,
+    GOOGLE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_GOOGLE_OIDC,
+    ACTIVESTATE_OIDC_ISSUER_URL: AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC,
+}
+
+OIDC_ISSUER_URLS = {
+    GITHUB_OIDC_ISSUER_URL,
+    GITLAB_OIDC_ISSUER_URL,
+    GOOGLE_OIDC_ISSUER_URL,
+    ACTIVESTATE_OIDC_ISSUER_URL,
+}
+
+OIDC_PUBLISHER_CLASSES: dict[
+    str, dict[bool, type[OIDCPublisher | PendingOIDCPublisher]]
+] = {
     GITHUB_OIDC_ISSUER_URL: {False: GitHubPublisher, True: PendingGitHubPublisher},
+    GITLAB_OIDC_ISSUER_URL: {False: GitLabPublisher, True: PendingGitLabPublisher},
     GOOGLE_OIDC_ISSUER_URL: {False: GooglePublisher, True: PendingGooglePublisher},
+    ACTIVESTATE_OIDC_ISSUER_URL: {
+        False: ActiveStatePublisher,
+        True: PendingActiveStatePublisher,
+    },
 }
 
 
-def find_publisher_by_issuer(session, issuer_url, signed_claims, *, pending=False):
+def find_publisher_by_issuer(
+    session, issuer_url: str, signed_claims: SignedClaims, *, pending: bool = False
+) -> OIDCPublisher | PendingOIDCPublisher:
     """
     Given an OIDC issuer URL and a dictionary of claims that have been verified
     for a token from that OIDC issuer, retrieve either an `OIDCPublisher` registered

@@ -807,16 +807,6 @@ class TestCreateOrganizationApplicationForm:
         ]
 
 
-class TestToggle2FARequirementForm:
-    def test_creation(self):
-        # TODO
-        pass
-
-    def test_validate(self):
-        # TODO
-        pass
-
-
 class TestSaveOrganizationNameForm:
     def test_save(self, pyramid_request):
         pyramid_request.POST = MultiDict({"name": "my_org_name"})
