@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   build:
-    if: github.repository_owner == 'pypi'
+    if: github.repository == 'pypi/warehouse'
     runs-on: depot-ubuntu-22.04
     outputs:
       buildId: ${{ steps.build.outputs.build-id}}
