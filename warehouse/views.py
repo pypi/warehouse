@@ -355,7 +355,7 @@ def search(request):
         metrics.increment("warehouse.views.search.error", tags=["error:query_too_long"])
         raise HTTPRequestEntityTooLarge("Query string too long.")
 
-    ordr = request.params.get("o", "")
+    order = request.params.get("o", "")
     classifiers = request.params.getall("c")
     query = get_es_query(request.es, querystring, order, classifiers)
 
