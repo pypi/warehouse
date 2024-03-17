@@ -11,6 +11,8 @@
  * limitations under the License.
  */
 
+import fetchGetText from "warehouse/utils/fetch-gettext";
+
 const enumerateTime = (timestampString) => {
   const now = new Date(),
     timestamp = new Date(timestampString),
@@ -24,21 +26,19 @@ const enumerateTime = (timestampString) => {
   return time;
 };
 
-const convertToReadableText = (time) => {
+const convertToReadableText = async (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return numDays == 1 ? "Yesterday" : `About ${numDays} days ago`;
+    return fetchGetText("Yesterday", "About ${numDays} days ago", numDays, {"numDays": numDays});
   }
 
   if (numHours > 0) {
-    numHours = numHours != 1 ? `${numHours} hours` : "an hour";
-    return `About ${numHours} ago`;
+    return fetchGetText("an hour", "About ${numHours} ago", numHours, {"numHours": numHours});
   } else if (numMinutes > 0) {
-    numMinutes = numMinutes > 1 ? `${numMinutes} minutes` : "a minute";
-    return `About ${numMinutes} ago`;
+    return fetchGetText("a minute", "About ${numMinutes} ago", numMinutes, {"numMinutes": numMinutes});
   } else {
-    return "Just now";
+    return fetchGetText("Just now");
   }
 };
 
@@ -47,6 +47,11 @@ export default () => {
   for (const timeElement of timeElements) {
     const datetime = timeElement.getAttribute("datetime");
     const time = enumerateTime(datetime);
-    if (time.isBeforeCutoff) timeElement.innerText = convertToReadableText(time);
+    if (time.isBeforeCutoff) {
+      convertToReadableText(time)
+        .then((text) => {
+          timeElement.innerText = text.msg;
+        });
+    }
   }
 };
