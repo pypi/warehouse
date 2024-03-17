@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-import fetchGetText from "warehouse/utils/fetch-gettext";
+import _ from "warehouse/utils/fetch-gettext";
 
 const enumerateTime = (timestampString) => {
   const now = new Date(),
@@ -30,15 +30,15 @@ const convertToReadableText = async (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return fetchGetText("Yesterday", "About ${numDays} days ago", numDays, {"numDays": numDays});
+    return _("Yesterday", "About ${numDays} days ago", numDays, {"numDays": numDays});
   }
 
   if (numHours > 0) {
-    return fetchGetText("an hour", "About ${numHours} ago", numHours, {"numHours": numHours});
+    return _("an hour", "About ${numHours} ago", numHours, {"numHours": numHours});
   } else if (numMinutes > 0) {
-    return fetchGetText("a minute", "About ${numMinutes} ago", numMinutes, {"numMinutes": numMinutes});
+    return _("a minute", "About ${numMinutes} ago", numMinutes, {"numMinutes": numMinutes});
   } else {
-    return fetchGetText("Just now");
+    return _("Just now");
   }
 };
 
