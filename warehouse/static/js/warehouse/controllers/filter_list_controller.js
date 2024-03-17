@@ -27,9 +27,10 @@
  * - data-filtered-target-[name of filter group in kebab-case e.g. content-type]="[a list joined by '--;--']" (zero or more)
  */
 import {Controller} from "@hotwired/stimulus";
+import fetchGetText from "warehouse/utils/fetch-gettext";
 
 export default class extends Controller {
-  static targets = ["item", "filter", "total", "shown"];
+  static targets = ["item", "filter", "summary"];
   static values = {
     group: String,
   };
@@ -78,11 +79,15 @@ export default class extends Controller {
     });
 
     // show the number of matches and the total number of items
-    if (this.hasShownTarget) {
-      this.shownTarget.textContent = shown.toString();
-    }
-    if (this.hasTotalTarget) {
-      this.totalTarget.textContent = total.toString();
+    if (this.hasSummaryTarget) {
+      fetchGetText(
+        "Showing ${shown} of ${total} file.",
+        "Showing ${shown} of ${total} files.",
+        total,
+        {"shown": shown, "total": total})
+        .then((text) => {
+          this.summaryTarget.textContent = text.msg;
+        });
     }
   }
 

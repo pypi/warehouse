@@ -436,7 +436,7 @@
               </noscript>
 
               <p class="hidden initial-toggle-visibility">
-                {% trans %}Showing <span data-filter-list-target="shown"></span> of <span data-filter-list-target="total"></span> files.{% endtrans %}
+                <span data-filter-list-target="summary"></span>
               </p>
 
               <div>
@@ -491,7 +491,7 @@
                           id="bdist-tags-platforms" name="bdist-tags-platforms"
                           data-action="filter-list#filter" data-filter-list-target="filter"
                           data-filtered-source="platforms">
-                    <option selected value="">Platform</option>
+                    <option selected value="">{% trans %}Platform{% endtrans %}</option>
                     {% for platform in bdist_tags.platforms %}
                       <option value="{{ platform }}">{{ platform }}</option>
                     {% endfor %}
