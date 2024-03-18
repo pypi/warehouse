@@ -11,21 +11,22 @@
 # Anshu Pal <anshupal246@gmail.com>, 2021, 2022.
 # Aryan 'Ba3a' Kumar <aryan.ak434@gmail.com>, 2022.
 # Aashish Joshi <aashish@aashishjoshi.co.in>, 2024.
+# Bijay Nayak <bijay6779@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-01-10 11:47+0000\n"
-"Last-Translator: Aashish Joshi <aashish@aashishjoshi.co.in>\n"
-"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/"
-">\n"
+"PO-Revision-Date: 2024-03-13 13:45+0000\n"
+"Last-Translator: Bijay Nayak <bijay6779@gmail.com>\n"
+"Language-Team: Hindi <https://hosted.weblate.org/projects/pypa/warehouse/hi/>"
+"\n"
 "Language: hi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -60,7 +61,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:68
 msgid "Null bytes are not allowed."
-msgstr ""
+msgstr "शून्य बाइट्स की अनुमति नहीं है।"
 
 #: warehouse/accounts/forms.py:91
 msgid "No user found with that username"
@@ -409,13 +410,15 @@ msgstr "बहुत से असफल लॉगिन प्रयास ह�
 #: warehouse/manage/views/__init__.py:1486
 #: warehouse/manage/views/__init__.py:1596
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "विश्वसनीय प्रकाशक पंजीकृत नहीं किया जा सका"
 
 #: warehouse/accounts/views.py:1647
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
+"यह विश्वसनीय प्रकाशक पहले ही पंजीकृत हो चुका है। यदि यह जानबूझकर नहीं किया "
+"गया है तो कृपया PyPI के व्यवस्थापकों से संपर्क करें।"
 
 #: warehouse/accounts/views.py:1674
 #, fuzzy
@@ -532,7 +535,7 @@ msgstr "नाम बहुत लंबा है। 100 अक्षरों 
 
 #: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
-msgstr ""
+msgstr "संगठन का यूआरएल http:// या https:// से शुरू होना चाहिए"
 
 #: warehouse/manage/forms.py:606
 #, fuzzy
@@ -557,6 +560,8 @@ msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"टीम का नाम अमान्य है. टीम के नाम किसी स्थान, अवधि, अंडरस्कोर, हाइफ़न या स्लै"
+"श से शुरू या समाप्त नहीं हो सकते। एक अलग टीम का नाम चुनें।"
 
 #: warehouse/manage/forms.py:705
 #, fuzzy
@@ -594,7 +599,7 @@ msgstr "अपने ईमेल को सत्यापित करें �
 
 #: warehouse/manage/views/__init__.py:993
 msgid "API Token does not exist."
-msgstr ""
+msgstr "एपीआई टोकन मौजूद नहीं है।"
 
 #: warehouse/manage/views/__init__.py:1025
 msgid "Invalid credentials. Try again"
@@ -697,7 +702,7 @@ msgstr "भूमिका आमंत्रण नहीं ढूंढ़ स�
 
 #: warehouse/manage/views/__init__.py:2231
 msgid "Could not delete file - "
-msgstr ""
+msgstr "फ़ाइल हटाई नहीं जा सकी - "
 
 #: warehouse/manage/views/__init__.py:2381
 #, fuzzy
@@ -795,22 +800,23 @@ msgstr "पुनर्प्राप्ति कुंजी अमान्�
 msgid ""
 "This project already exists, create an ordinary Trusted Publisher instead"
 msgstr ""
+"यह प्रोजेक्ट पहले से मौजूद है, इसके बजाय एक साधारण विश्वसनीय प्रकाशक बनाएं"
 
 #: warehouse/oidc/forms/_core.py:47
 msgid "Specify a publisher ID"
-msgstr ""
+msgstr "एक प्रकाशक आईडी निर्दिष्ट करें"
 
 #: warehouse/oidc/forms/_core.py:48
 msgid "Publisher must be specified by ID"
-msgstr ""
+msgstr "प्रकाशक को आईडी द्वारा निर्दिष्ट किया जाना चाहिए"
 
 #: warehouse/oidc/forms/activestate.py:48
 msgid "Double dashes are not allowed in the name"
-msgstr ""
+msgstr "नाम में डबल डैश की अनुमति नहीं है"
 
 #: warehouse/oidc/forms/activestate.py:55
 msgid "Leading or trailing dashes are not allowed in the name"
-msgstr ""
+msgstr "नाम में अग्रणी या अनुगामी डैश की अनुमति नहीं है"
 
 #: warehouse/oidc/forms/activestate.py:79
 #: warehouse/oidc/forms/activestate.py:92
