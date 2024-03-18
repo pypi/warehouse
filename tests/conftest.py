@@ -257,7 +257,13 @@ def database(request):
     pg_db = config.get("db", "tests")
     pg_version = config.get("version", 14.11)
 
-    janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
+    janitor = DatabaseJanitor(
+        user=pg_user,
+        host=pg_host,
+        port=pg_port,
+        dbname=pg_db,
+        version=pg_version,
+    )
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating

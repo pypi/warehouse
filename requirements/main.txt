@@ -53,10 +53,6 @@ asn1crypto==1.5.1 \
     --hash=sha256:13ae38502be632115abf8a24cbe5f4da52e3b5231990aff31123c805306ccb9c \
     --hash=sha256:db4e40728b728508912cbb3d44f19ce188f218e9eba635821bb4b68564f8fd67
     # via webauthn
-async-timeout==4.0.3 \
-    --hash=sha256:4640d96be84d82d02ed59ea2b7105a0f7b33abe8703703cd0ab0bf87c427522f \
-    --hash=sha256:7405140ff1230c310e51dc27b3145b9092d659ce68ff733fb0cefe3ee42be028
-    # via redis
 attrs==23.2.0 \
     --hash=sha256:935dc3b529c262f6cf76e50877d35a4bd3c1de194fd41f47a2b7ae8f19971f30 \
     --hash=sha256:99b87a485a5820b23b879f04c2305b44b951b502fd64be915879d77a7e8fc6f1
@@ -175,7 +171,6 @@ celery[sqs]==5.3.1 \
     --hash=sha256:f84d1c21a1520c116c2b7d26593926581191435a03aa74b77c941b93ca1c6210
     # via
     #   -r requirements/main.in
-    #   celery
     #   celery-redbeat
 celery-redbeat==2.2.0 \
     --hash=sha256:71104729380d4eaefd91a9b7d270ba7851bfff9ad55a43ac8365acbb0c608b77
@@ -466,9 +461,9 @@ cssutils==2.9.0 \
     --hash=sha256:89477b3d17d790e97b9fb4def708767061055795aae6f7c82ae32e967c9be4cd \
     --hash=sha256:f8b013169e281c0c6083207366c5005f5dd4549055f7aba840384fb06a78745c
     # via premailer
-datadog==0.48.0 \
-    --hash=sha256:c3f819e2dc632a546a5b4e8d45409e996d4fa18c60df7814c82eda548e0cca59 \
-    --hash=sha256:d4d661358c3e7f801fbfe15118f5ccf08b9bd9b1f45b8b910605965283edad64
+datadog==0.49.0 \
+    --hash=sha256:2f1c79d3f79cfa2266c94fe9539fef3226c6a83afa7bc8367e3d02aec20fffd3 \
+    --hash=sha256:adc1c7fdaea7b66419bf20eab20d9e59c3106caa2e6ae1ec52f26d10240fb22c
     # via -r requirements/main.in
 deprecated==1.2.14 \
     --hash=sha256:6fac8b097794a90302bdbb17b9b815e732d3c4720583ff1b198499d78470466c \
@@ -512,23 +507,24 @@ github-reserved-names==2023.9.1 \
     --hash=sha256:16bb1a8ff505dd082c7167670b4115b31c00b8ffa77e0c1b7676807117c0169a \
     --hash=sha256:707551fd0521a74274c5d3e73810a10b3e72762e3c69a12e0d96f87ce64c845f
     # via -r requirements/main.in
-google-api-core==2.17.1 \
+google-api-core[grpc]==2.17.1 \
     --hash=sha256:610c5b90092c360736baccf17bd3efbcb30dd380e7a6dc28a71059edb8bd0d8e \
     --hash=sha256:9df18a1f87ee0df0bc4eea2770ebc4228392d8cc4066655b320e2cfccb15db95
     # via
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-auth==2.28.1 \
-    --hash=sha256:25141e2d7a14bfcba945f5e9827f98092716e99482562f15306e5b026e21aa72 \
-    --hash=sha256:34fc3046c257cedcf1622fc4b31fc2be7923d9b4d44973d481125ecc50d83885
+google-auth==2.28.2 \
+    --hash=sha256:80b8b4969aa9ed5938c7828308f20f035bc79f9d8fb8120bf9dc8db20b41ba30 \
+    --hash=sha256:9fd67bbcd40f16d9d42f950228e9cf02a2ded4ae49198b27432d0cded5a74c38
     # via
     #   google-api-core
+    #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.18.0 \
-    --hash=sha256:3520552075502c69710d37b1e9600c84e6974ad271914677d16bfafa502857fb \
-    --hash=sha256:74f0fc6f0ba9477f808d25924dc8a052c55f7ca91064e83e16d3ee5fb7ca77ab
+google-cloud-bigquery==3.19.0 \
+    --hash=sha256:8e311dae49768e1501fcdc5e916bff4b7e169471e5707919f4a6f78a02b3b5a6 \
+    --hash=sha256:c6b8850247a4b132066e49f6e45f850c22824482838688d744a4398eea1120ed
     # via -r requirements/main.in
 google-cloud-core==2.4.1 \
     --hash=sha256:9b7749272a812bde58fff28868d0c5e2f585b82f37e09a1f6ed2d4d10f134073 \
@@ -618,10 +614,12 @@ google-resumable-media==2.7.0 \
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
-googleapis-common-protos==1.62.0 \
-    --hash=sha256:4750113612205514f9f6aa4cb00d523a94f3e8c06c5ad2fee466387dc4875f07 \
-    --hash=sha256:83f0ece9f94e5672cced82f592d2a5edf527a96ed1794f0bab36d5735c996277
-    # via google-api-core
+googleapis-common-protos==1.63.0 \
+    --hash=sha256:17ad01b11d5f1d0171c06d3ba5c04c54474e883b66b949722b4938ee2694ef4e \
+    --hash=sha256:ae45f75702f7c08b541f750854a678bd8f534a1a6bace6afe975f1d0a82d6632
+    # via
+    #   google-api-core
+    #   grpcio-status
 greenlet==3.0.3 \
     --hash=sha256:01bc7ea167cf943b4c802068e178bbf70ae2e8c080467070d01bfa02f337ee67 \
     --hash=sha256:0448abc479fab28b00cb472d278828b3ccca164531daab4e970a0458786055d6 \
@@ -682,6 +680,68 @@ greenlet==3.0.3 \
     --hash=sha256:fd096eb7ffef17c456cfa587523c5f92321ae02427ff955bebe9e3c63bc9f0da \
     --hash=sha256:fe754d231288e1e64323cfad462fcee8f0288654c10bdf4f603a39ed923bef33
     # via sqlalchemy
+grpcio==1.62.1 \
+    --hash=sha256:12859468e8918d3bd243d213cd6fd6ab07208195dc140763c00dfe901ce1e1b4 \
+    --hash=sha256:1714e7bc935780bc3de1b3fcbc7674209adf5208ff825799d579ffd6cd0bd505 \
+    --hash=sha256:179bee6f5ed7b5f618844f760b6acf7e910988de77a4f75b95bbfaa8106f3c1e \
+    --hash=sha256:1f1e7b36bdff50103af95a80923bf1853f6823dd62f2d2a2524b66ed74103e49 \
+    --hash=sha256:1faa02530b6c7426404372515fe5ddf66e199c2ee613f88f025c6f3bd816450c \
+    --hash=sha256:22bccdd7b23c420a27fd28540fb5dcbc97dc6be105f7698cb0e7d7a420d0e362 \
+    --hash=sha256:23e2e04b83f347d0aadde0c9b616f4726c3d76db04b438fd3904b289a725267f \
+    --hash=sha256:3227c667dccbe38f2c4d943238b887bac588d97c104815aecc62d2fd976e014b \
+    --hash=sha256:359f821d4578f80f41909b9ee9b76fb249a21035a061a327f91c953493782c31 \
+    --hash=sha256:3952b581eb121324853ce2b191dae08badb75cd493cb4e0243368aa9e61cfd41 \
+    --hash=sha256:407b26b7f7bbd4f4751dbc9767a1f0716f9fe72d3d7e96bb3ccfc4aace07c8de \
+    --hash=sha256:4187201a53f8561c015bc745b81a1b2d278967b8de35f3399b84b0695e281d5f \
+    --hash=sha256:482ae2ae78679ba9ed5752099b32e5fe580443b4f798e1b71df412abf43375db \
+    --hash=sha256:48611e4fa010e823ba2de8fd3f77c1322dd60cb0d180dc6630a7e157b205f7ea \
+    --hash=sha256:48f7135c3de2f298b833be8b4ae20cafe37091634e91f61f5a7eb3d61ec6f660 \
+    --hash=sha256:4b49fd8fe9f9ac23b78437da94c54aa7e9996fbb220bac024a67469ce5d0825f \
+    --hash=sha256:58f6c693d446964e3292425e1d16e21a97a48ba9172f2d0df9d7b640acb99243 \
+    --hash=sha256:5bd90b8c395f39bc82a5fb32a0173e220e3f401ff697840f4003e15b96d1befc \
+    --hash=sha256:60dcd824df166ba266ee0cfaf35a31406cd16ef602b49f5d4dfb21f014b0dedd \
+    --hash=sha256:6696ffe440333a19d8d128e88d440f91fb92c75a80ce4b44d55800e656a3ef1d \
+    --hash=sha256:6c455e008fa86d9e9a9d85bb76da4277c0d7d9668a3bfa70dbe86e9f3c759947 \
+    --hash=sha256:71f11fd63365ade276c9d4a7b7df5c136f9030e3457107e1791b3737a9b9ed6a \
+    --hash=sha256:73db2dc1b201d20ab7083e7041946910bb991e7e9761a0394bbc3c2632326483 \
+    --hash=sha256:77c339403db5a20ef4fed02e4d1a9a3d9866bf9c0afc77a42234677313ea22f3 \
+    --hash=sha256:833379943d1728a005e44103f17ecd73d058d37d95783eb8f0b28ddc1f54d7b2 \
+    --hash=sha256:83a17b303425104d6329c10eb34bba186ffa67161e63fa6cdae7776ff76df73f \
+    --hash=sha256:83e7ccb85a74beaeae2634f10eb858a0ed1a63081172649ff4261f929bacfd22 \
+    --hash=sha256:844d1f3fb11bd1ed362d3fdc495d0770cfab75761836193af166fee113421d66 \
+    --hash=sha256:882020c87999d54667a284c7ddf065b359bd00251fcd70279ac486776dbf84ec \
+    --hash=sha256:8999bf1b57172dbc7c3e4bb3c732658e918f5c333b2942243f10d0d653953ba9 \
+    --hash=sha256:9084086190cc6d628f282e5615f987288b95457292e969b9205e45b442276407 \
+    --hash=sha256:960edebedc6b9ada1ef58e1c71156f28689978188cd8cff3b646b57288a927d9 \
+    --hash=sha256:973c49086cabab773525f6077f95e5a993bfc03ba8fc32e32f2c279497780585 \
+    --hash=sha256:978121758711916d34fe57c1f75b79cdfc73952f1481bb9583399331682d36f7 \
+    --hash=sha256:9bd5c8a1af40ec305d001c60236308a67e25419003e9bb3ebfab5695a8d0b369 \
+    --hash=sha256:a10383035e864f386fe096fed5c47d27a2bf7173c56a6e26cffaaa5a361addb1 \
+    --hash=sha256:a485f0c2010c696be269184bdb5ae72781344cb4e60db976c59d84dd6354fac9 \
+    --hash=sha256:a7f615270fe534548112a74e790cd9d4f5509d744dd718cd442bf016626c22e4 \
+    --hash=sha256:b134d5d71b4e0837fff574c00e49176051a1c532d26c052a1e43231f252d813b \
+    --hash=sha256:b2a0e71b0a2158aa4bce48be9f8f9eb45cbd17c78c7443616d00abbe2a509f6d \
+    --hash=sha256:b50b09b4dc01767163d67e1532f948264167cd27f49e9377e3556c3cba1268e1 \
+    --hash=sha256:b5a4ea906db7dec694098435d84bf2854fe158eb3cd51e1107e571246d4d1d70 \
+    --hash=sha256:b7209117bbeebdfa5d898205cc55153a51285757902dd73c47de498ad4d11332 \
+    --hash=sha256:bba97b8e8883a8038606480d6b6772289f4c907f6ba780fa1f7b7da7dfd76f06 \
+    --hash=sha256:be0477cb31da67846a33b1a75c611f88bfbcd427fe17701b6317aefceee1b96f \
+    --hash=sha256:c7fcc6a32e7b7b58f5a7d27530669337a5d587d4066060bcb9dee7a8c833dfb7 \
+    --hash=sha256:c8842ccbd8c0e253c1f189088228f9b433f7a93b7196b9e5b6f87dba393f5d5d \
+    --hash=sha256:d1f6c96573dc09d50dbcbd91dbf71d5cf97640c9427c32584010fbbd4c0e0037 \
+    --hash=sha256:d9e52558b8b8c2f4ac05ac86344a7417ccdd2b460a59616de49eb6933b07a0bd \
+    --hash=sha256:e3393b0823f938253370ebef033c9fd23d27f3eae8eb9a8f6264900c7ea3fb5a \
+    --hash=sha256:e6c8c8693df718c5ecbc7babb12c69a4e3677fd11de8886f05ab22d4e6b1c43b \
+    --hash=sha256:f8de7c8cef9261a2d0a62edf2ccea3d741a523c6b8a6477a340a1f2e417658de \
+    --hash=sha256:fa7d28eb4d50b7cbe75bb8b45ed0da9a1dc5b219a0af59449676a29c2eed9698 \
+    --hash=sha256:fbe80577c7880911d3ad65e5ecc997416c98f354efeba2f8d0f9112a67ed65a5
+    # via
+    #   google-api-core
+    #   grpcio-status
+grpcio-status==1.62.1 \
+    --hash=sha256:3431c8abbab0054912c41df5c72f03ddf3b7a67be8a287bb3c18a3456f96ff77 \
+    --hash=sha256:af0c3ab85da31669f21749e8d53d669c061ebc6ce5637be49a46edcb7aa8ab17
+    # via google-api-core
 hiredis==2.3.2 \
     --hash=sha256:01b6c24c0840ac7afafbc4db236fd55f56a9a0919a215c25a238f051781f4772 \
     --hash=sha256:02fc71c8333586871602db4774d3a3e403b4ccf6446dc4603ec12df563127cee \
@@ -811,9 +871,9 @@ idna==3.6 \
     # via
     #   email-validator
     #   requests
-importlib-resources==6.1.2 \
-    --hash=sha256:308abf8474e2dba5f867d279237cd4076482c3de7104a40b41426370e891549b \
-    --hash=sha256:9a0a862501dc38b68adebc82970140c9e4209fc99601782925178f8386339938
+importlib-resources==6.3.0 \
+    --hash=sha256:166072a97e86917a9025876f34286f549b9caf1d10b35a1b372bffa1600c6569 \
+    --hash=sha256:783407aa1cd05550e3aa123e8f7cfaebee35ffa9cb0242919e2d1e4172222705
     # via limits
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
@@ -837,10 +897,9 @@ kombu[sqs]==5.3.1 \
     # via
     #   -r requirements/main.in
     #   celery
-    #   kombu
-limits==3.9.0 \
-    --hash=sha256:6dce07d1a4d7bd3361d36f59f3f43c4f39675001daeeae2617c3be42d718daa8 \
-    --hash=sha256:7b44aa4d05c539276928372681190136914958cccbb99c30ecc5df72a179661a
+limits==3.10.0 \
+    --hash=sha256:3e617a580f57a21b39393f833c27ad0378c87b309e908c154ee69e6740041959 \
+    --hash=sha256:6e657dccafce64fd8ee023ebf4593cd47e9eac841fd1dec3448f48673ba10b7c
     # via -r requirements/main.in
 linehaul==1.0.1 \
     --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
@@ -1201,6 +1260,7 @@ protobuf==4.25.3 \
     # via
     #   google-api-core
     #   googleapis-common-protos
+    #   grpcio-status
 psycopg[c]==3.1.18 \
     --hash=sha256:31144d3fb4c17d78094d9e579826f047d4af1da6a10427d91dfcfb6ecdf6f12b \
     --hash=sha256:4d5a0a5a8590906daa58ebd5f3cfc34091377354a1acced269dd10faf55da60e
@@ -1263,12 +1323,10 @@ pycurl==7.45.3 \
     #   -r requirements/main.in
     #   celery
     #   kombu
-pydantic==2.6.3 \
-    --hash=sha256:72c6034df47f46ccdf81869fddb81aade68056003900a8724a4f160700016a2a \
-    --hash=sha256:e07805c4c7f5c6826e33a1d4c9d47950d7eaf34868e2690f8594d2e30241f11f
-    # via
-    #   -r requirements/main.in
-    #   webauthn
+pydantic==2.6.4 \
+    --hash=sha256:b1704e0847db01817624a6b86766967f552dd9dbf3afba4004409f908dcc84e6 \
+    --hash=sha256:cc46fce86607580867bdc3361ad462bab9c222ef042d3da86f2fb333e1d916c5
+    # via -r requirements/main.in
 pydantic-core==2.16.3 \
     --hash=sha256:00ee1c97b5364b84cb0bd82e9bbf645d5e2871fb8c58059d158412fee2d33d8a \
     --hash=sha256:0d32576b1de5a30d9a97f300cc6a3f4694c428d956adbc7e6e2f9cad279e45ed \
@@ -1376,9 +1434,9 @@ pynacl==1.5.0 \
     --hash=sha256:a422368fc821589c228f4c49438a368831cb5bbc0eab5ebe1d7fac9dded6567b \
     --hash=sha256:e46dae94e34b085175f8abb3b0aaa7da40767865ac82c928eeb9e57e1ea8a543
     # via pymacaroons
-pyopenssl==24.0.0 \
-    --hash=sha256:6aa33039a93fffa4563e655b61d11364d01264be8ccb49906101e02a334530bf \
-    --hash=sha256:ba07553fb6fd6a7a2259adb9b84e12302a9a8a75c44046e8bb5d3e5ee887e3c3
+pyopenssl==24.1.0 \
+    --hash=sha256:17ed5be5936449c5418d1cd269a1a9e9081bc54c17aed272b45856a3d3dc86ad \
+    --hash=sha256:cabed4bfaa5df9f1a16c0ef64a0cb65318b5cd077a7eda7d6970131ca2f41a6f
     # via webauthn
 pyparsing==3.1.2 \
     --hash=sha256:a1bac0ce561155ecc3ed78ca94d3c9378656ad4c94c1270de543f621420f94ad \
@@ -1443,12 +1501,10 @@ pytz==2024.1 \
 readme-renderer[md]==43.0 \
     --hash=sha256:1818dd28140813509eeed8d62687f7cd4f7bad90d4db586001c5dc09d4fde311 \
     --hash=sha256:19db308d86ecd60e5affa3b2a98f017af384678c63c88e5d4556a380e674f3f9
-    # via
-    #   -r requirements/main.in
-    #   readme-renderer
-redis==5.0.2 \
-    --hash=sha256:3f82cc80d350e93042c8e6e7a5d0596e4dd68715babffba79492733e1f367037 \
-    --hash=sha256:4caa8e1fcb6f3c0ef28dba99535101d80934b7d4cd541bbb47f4a3826ee472d1
+    # via -r requirements/main.in
+redis==5.0.3 \
+    --hash=sha256:4973bae7444c0fbed64a06b87446f79361cb7e4ec1538c022d696ed7a5015580 \
+    --hash=sha256:5da9b8fe9e1254293756c16c008e8620b3d15fcc6dde6babde9541850e72a32d
     # via
     #   -r requirements/main.in
     #   celery-redbeat
@@ -1486,9 +1542,9 @@ s3transfer==0.7.0 \
     --hash=sha256:10d6923c6359175f264811ef4bf6161a3156ce8e350e705396a7557d6293c33a \
     --hash=sha256:fd3889a66f5fe17299fe75b82eae6cf722554edca744ca5d5fe308b104883d2e
     # via boto3
-sentry-sdk==1.40.6 \
-    --hash=sha256:becda09660df63e55f307570e9817c664392655a7328bbc414b507e9cb874c67 \
-    --hash=sha256:f143f3fb4bb57c90abef6e2ad06b5f6f02b2ca13e4060ec5c0549c7a9ccce3fa
+sentry-sdk==1.42.0 \
+    --hash=sha256:4a8364b8f7edbf47f95f7163e48334c96100d9c098f0ae6606e2e18183c223e6 \
+    --hash=sha256:a654ee7e497a3f5f6368b36d4f04baeab1fe92b3105f7f6965d6ef0de35a9ba4
     # via -r requirements/main.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
@@ -1555,15 +1611,14 @@ sqlalchemy[asyncio]==2.0.28 \
     #   alembic
     #   alembic-postgresql-enum
     #   paginate-sqlalchemy
-    #   sqlalchemy
     #   zope-sqlalchemy
 stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
     --hash=sha256:b3a911bc441d03e0332dd1a9e7d0870ba3bb0a542a74d7524f54fb431256e214
     # via -r requirements/main.in
-stripe==8.5.0 \
-    --hash=sha256:4ba0dfdaa37d20515511da868912064d68979d59a27ab0b074002d0c958e9117 \
-    --hash=sha256:9022b8ae166a1cd83bb88f55a53418f64f67acb6be57504c7c8472dc8a443492
+stripe==8.7.0 \
+    --hash=sha256:698850e1edac8f25972344aa2674b368229d99c3fb571e68033e031378d46120 \
+    --hash=sha256:715baf28fdae5fcec0a14aea7522f5aee1786f08b97537912ad9981fde54d5d5
     # via -r requirements/main.in
 structlog==24.1.0 \
     --hash=sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d \
@@ -1646,9 +1701,9 @@ wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5
     # via prompt-toolkit
-webauthn==1.11.1 \
-    --hash=sha256:13592ee71489b571cb6e4a5d8b3c34f7b040cd3539a9d94b6b7d23fa88df5dfb \
-    --hash=sha256:24eda57903897369797f52a377f8c470e7057e79da5525779d0720a9fcc11926
+webauthn==2.0.0 \
+    --hash=sha256:12cc1759da98668b8242badc37c4129df300f89d89f5c183fac80e7b33c41dfd \
+    --hash=sha256:644dc68af5caaade06be6a2a2278775e85116e92dd755ad7a49d992d51c82033
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
@@ -1804,9 +1859,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==69.1.1 \
-    --hash=sha256:02fa291a0471b3a18b2b2481ed902af520c69e8ae0919c13da936542754b4c56 \
-    --hash=sha256:5c0806c7d9af348e6dd3777b4f4dbb42c7ad85b190104837488eab9a7c945cf8
+setuptools==69.2.0 \
+    --hash=sha256:0ff4183f8f42cd8fa3acea16c45205521a4ef28f73c6391d8a25e92893134f2e \
+    --hash=sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c
     # via
     #   -r requirements/main.in
     #   b2sdk
