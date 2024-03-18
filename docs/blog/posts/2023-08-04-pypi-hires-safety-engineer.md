@@ -1,9 +1,9 @@
 ---
 title: PyPI hires a Safety & Security Engineer
 description: Mike Fiedler joins PSF as inaugural PyPI Safety & Security Engineer
-author: Mike Fiedler
-publish_date: 2023-08-04
-date: "2023-08-05 00:00"
+authors:
+  - miketheman
+date: 2023-08-05
 tags:
   - hiring
 ---
@@ -11,6 +11,8 @@ tags:
 👋 Hi there! I'm Mike Fiedler ([@miketheman](https://github.com/miketheman))
 I've been a Python Package Index ([PyPI](https://pypi.org/)) contributor since early 2021, and became a maintainer in 2022.
 Now I'm joining the [PSF](https://www.python.org/psf-landing/) to work on PyPI full-time as the first PyPI Safety & Security Engineer.
+
+<!-- more -->
 
 What is that, you ask?
 We had [posted about this opening in May](2023-05-09-announcing-pypi-safety-and-security-engr-role.md),

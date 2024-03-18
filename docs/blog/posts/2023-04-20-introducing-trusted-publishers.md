@@ -1,9 +1,9 @@
 ---
 title: Introducing 'Trusted Publishers'
 description: Announcing a new, more secure way to publish to PyPI
-author: Dustin Ingram
-publish_date: 2023-04-20
-date: "2023-04-20 00:00"
+authors:
+  - di
+date: 2023-04-20
 tags:
   - publishing
   - security
@@ -13,6 +13,8 @@ tags:
 Starting today, PyPI package maintainers can adopt a new, more secure
 publishing method that does not require long-lived passwords or API tokens to
 be shared with external systems.
+
+<!-- more -->
 
 ### About trusted publishing
 

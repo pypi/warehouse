@@ -20,7 +20,9 @@ from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
+from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
@@ -35,7 +37,7 @@ UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
 @view_config(
     route_name="admin.project.list",
     renderer="admin/projects/list.html",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -72,7 +74,7 @@ def project_list(request):
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -81,7 +83,7 @@ def project_list(request):
 @view_config(
     route_name="admin.project.detail",
     renderer="admin/projects/detail.html",
-    permission="admin",
+    permission=Permissions.AdminProjectsWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -124,6 +126,13 @@ def project_detail(project, request):
             .limit(30)
         )
     ]
+    observations = list(
+        request.db.query(project.Observation)
+        .options(joinedload(project.Observation.observer))
+        .filter(project.Observation.related == project)
+        .order_by(project.Observation.created.desc())
+        .limit(30)
+    )
 
     return {
         "project": project,
@@ -136,13 +145,102 @@ def project_detail(project, request):
         "ONE_GB": ONE_GB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
+        "observation_kinds": ObservationKind,
+        "observations": observations,
     }
+
+
+@view_config(
+    route_name="admin.project.observations",
+    renderer="admin/projects/project_observations_list.html",
+    permission=Permissions.AdminObservationsRead,
+    request_method="GET",
+    uses_session=True,
+)
+def project_observations_list(project, request):
+    try:
+        page_num = int(request.params.get("page", 1))
+    except ValueError:
+        raise HTTPBadRequest("'page' must be an integer.") from None
+
+    observations_query = (
+        request.db.query(project.Observation)
+        .options(joinedload(project.Observation.observer))
+        .filter(project.Observation.related == project)
+        .order_by(project.Observation.created.desc())
+    )
+
+    # TODO: When implementing DataTables, consider removing server-side pagination.
+    #  DataTables can handle up to about 50,000 rows.
+    observations = SQLAlchemyORMPage(
+        observations_query,
+        page=page_num,
+        items_per_page=25,
+        url_maker=paginate_url_factory(request),
+    )
+
+    return {"observations": observations, "project": project}
+
+
+@view_config(
+    route_name="admin.project.add_project_observation",
+    permission=Permissions.AdminObservationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_project_observation(project, request):
+    kind = request.POST.get("kind")
+    if not kind:
+        request.session.flash("Provide a kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    try:
+        kind = OBSERVATION_KIND_MAP[kind]
+    except KeyError as e:
+        request.session.flash("Invalid kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        ) from e
+
+    summary = request.POST.get("summary")
+    if not summary:
+        request.session.flash("Provide a summary", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.detail", project_name=project.normalized_name
+            )
+        )
+
+    # We allow an empty payload from Admin.
+    payload = {}
+
+    project.record_observation(
+        request=request,
+        kind=kind,
+        actor=request.user,
+        summary=summary,
+        payload=payload,
+    )
+
+    request.session.flash(
+        f"Added '{kind}' observation on '{project.name}'", queue="success"
+    )
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
+    )
 
 
 @view_config(
     route_name="admin.project.releases",
     renderer="admin/projects/releases_list.html",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -192,7 +290,7 @@ def releases_list(project, request):
 @view_config(
     route_name="admin.project.release",
     renderer="admin/projects/release_detail.html",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -205,12 +303,86 @@ def release_detail(release, request):
         .order_by(JournalEntry.submitted_date.desc(), JournalEntry.id.desc())
         .all()
     )
-    return {"release": release, "journals": journals}
+
+    observations = list(
+        request.db.query(release.Observation)
+        .options(joinedload(release.Observation.observer))
+        .filter(release.Observation.related == release)
+        .order_by(release.Observation.created.desc())
+        .all()
+    )
+
+    return {
+        "release": release,
+        "journals": journals,
+        "observation_kinds": ObservationKind,
+        "observations": observations,
+    }
+
+
+@view_config(
+    route_name="admin.project.release.add_release_observation",
+    permission=Permissions.AdminObservationsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def add_release_observation(release, request):
+    kind = request.POST.get("kind")
+    if not kind:
+        request.session.flash("Provide a kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        )
+
+    try:
+        kind = OBSERVATION_KIND_MAP[kind]
+    except KeyError as e:
+        request.session.flash("Invalid kind", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        ) from e
+
+    summary = request.POST.get("summary")
+    if not summary:
+        request.session.flash("Provide a summary", queue="error")
+        raise HTTPSeeOther(
+            request.route_path(
+                "admin.project.release", project_name=release.project.normalized_name
+            )
+        )
+
+    # We allow an empty payload from Admin.
+    payload = {}
+
+    release.record_observation(
+        request=request,
+        kind=kind,
+        actor=request.user,
+        summary=summary,
+        payload=payload,
+    )
+
+    request.session.flash(
+        f"Added '{kind}' observation on '{release.project.name} {release.version}'",
+        queue="success",
+    )
+    return HTTPSeeOther(
+        request.route_path(
+            "admin.project.release",
+            project_name=release.project.normalized_name,
+            version=release.version,
+        )
+    )
 
 
 @view_config(
     route_name="admin.project.release.render",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
     require_methods=False,
@@ -232,7 +404,7 @@ def release_render(release, request):
 @view_config(
     route_name="admin.project.journals",
     renderer="admin/projects/journals_list.html",
-    permission="moderator",
+    permission=Permissions.AdminProjectsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -282,7 +454,7 @@ def journals_list(project, request):
 
 @view_config(
     route_name="admin.project.set_upload_limit",
-    permission="moderator",
+    permission=Permissions.AdminProjectsSetLimit,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -330,7 +502,7 @@ def set_upload_limit(project, request):
 
 @view_config(
     route_name="admin.project.set_total_size_limit",
-    permission="moderator",
+    permission=Permissions.AdminProjectsSetLimit,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -371,7 +543,7 @@ def set_total_size_limit(project, request):
 
 @view_config(
     route_name="admin.project.add_role",
-    permission="moderator",
+    permission=Permissions.AdminRoleAdd,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -441,7 +613,7 @@ def add_role(project, request):
 
 @view_config(
     route_name="admin.project.delete_role",
-    permission="moderator",
+    permission=Permissions.AdminRoleDelete,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -488,7 +660,7 @@ def delete_role(project, request):
 
 @view_config(
     route_name="admin.project.delete",
-    permission="admin",
+    permission=Permissions.AdminProjectsDelete,
     request_method="POST",
     uses_session=True,
     require_methods=False,
@@ -502,7 +674,7 @@ def delete_project(project, request):
 
 @view_config(
     route_name="admin.project.reindex",
-    permission="moderator",
+    permission=Permissions.AdminProjectsWrite,
     request_method="GET",
     uses_session=True,
     require_methods=False,

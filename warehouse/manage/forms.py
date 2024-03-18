@@ -203,7 +203,13 @@ class ProvisionTOTPForm(TOTPValueMixin, forms.Form):
 
     def validate_totp_value(self, field):
         totp_value = field.data.encode("utf8")
-        if not otp.verify_totp(self.totp_secret, totp_value):
+        try:
+            otp.verify_totp(self.totp_secret, totp_value)
+        except otp.OutOfSyncTOTPError:
+            raise wtforms.validators.ValidationError(
+                "Invalid TOTP code. Your device time may be out of sync."
+            )
+        except otp.InvalidTOTPError:
             raise wtforms.validators.ValidationError("Invalid TOTP code. Try again?")
 
 
@@ -371,12 +377,6 @@ class DeleteMacaroonForm(UsernameMixin, PasswordMixin, forms.Form):
         macaroon_id = field.data
         if self.macaroon_service.find_macaroon(macaroon_id) is None:
             raise wtforms.validators.ValidationError("No such macaroon")
-
-
-class Toggle2FARequirementForm(forms.Form):
-    __params__ = ["two_factor_requirement_sentinel"]
-
-    two_factor_requirement_sentinel = wtforms.HiddenField()
 
 
 # /manage/organizations/ forms

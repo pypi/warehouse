@@ -11,28 +11,29 @@
 # limitations under the License.
 
 
-def pypi_action(action):
-    def predicate(info, request):
-        return action == request.params.get(":action", None)
+class PyPIActionPredicate:
+    def __init__(self, action: str, info):
+        self.action_name = action
 
-    return predicate
+    def text(self) -> str:
+        return f"pypi_action = {self.action_name}"
+
+    phash = text
+
+    def __call__(self, context, request) -> bool:
+        return self.action_name == request.params.get(":action", None)
 
 
 def add_pypi_action_route(config, name, action, **kwargs):
-    custom_predicates = kwargs.pop("custom_predicates", [])
-    custom_predicates += [pypi_action(action)]
-
-    config.add_route(name, "/pypi", custom_predicates=custom_predicates, **kwargs)
+    config.add_route(name, "/pypi", pypi_action=action, **kwargs)
 
 
 def add_pypi_action_redirect(config, action, target, **kwargs):
-    custom_predicates = kwargs.pop("custom_predicates", [])
-    custom_predicates += [pypi_action(action)]
-
-    config.add_redirect("/pypi", target, custom_predicates=custom_predicates, **kwargs)
+    config.add_redirect("/pypi", target, pypi_action=action, **kwargs)
 
 
 def includeme(config):
+    config.add_route_predicate("pypi_action", PyPIActionPredicate)
     config.add_directive(
         "add_pypi_action_route", add_pypi_action_route, action_wrap=False
     )

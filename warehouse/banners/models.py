@@ -15,6 +15,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db.types import bool_false
 
 
 class Banner(db.Model):
@@ -31,6 +32,7 @@ class Banner(db.Model):
     link_url: Mapped[str]
     link_label: Mapped[str] = mapped_column(default=DEFAULT_BTN_LABEL)
     fa_icon: Mapped[str] = mapped_column(default=DEFAULT_FA_ICON)
+    dismissable: Mapped[bool_false]
 
     # visibility control
     # TODO: Migrate to `warehouse.utils.db.types.bool_false` - triggers migration

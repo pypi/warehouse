@@ -29,15 +29,13 @@ from warehouse.packaging.models import File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     check_file_cache_tasks_outstanding,
-    compute_2fa_mandate,
     update_description_html,
 )
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 
 @pytest.mark.parametrize("with_bq_sync", [True, False])
-@pytest.mark.parametrize("with_2fa_mandate", [True, False])
-def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
+def test_includeme(monkeypatch, with_bq_sync):
     storage_class = pretend.stub(
         create_service=pretend.call_recorder(lambda *a, **kw: pretend.stub())
     )
@@ -58,8 +56,6 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
     }
     if with_bq_sync:
         settings["warehouse.release_files_table"] = "fizzbuzz"
-    if with_2fa_mandate:
-        settings["warehouse.two_factor_mandate.available"] = True
 
     config = pretend.stub(
         maybe_dotted=lambda dotted: storage_class,
@@ -171,12 +167,6 @@ def test_includeme(monkeypatch, with_bq_sync, with_2fa_mandate):
         #    in config.add_periodic_task.calls
         # )
         pass
-
-    if with_2fa_mandate:
-        assert (
-            pretend.call(crontab(minute=0, hour=3), compute_2fa_mandate)
-            in config.add_periodic_task.calls
-        )
 
     assert (
         pretend.call(crontab(minute="*/1"), check_file_cache_tasks_outstanding)

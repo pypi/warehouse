@@ -232,6 +232,7 @@ class TestJSONProject:
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
+                "dynamic": None,
                 "home_page": None,
                 "keywords": None,
                 "license": None,
@@ -242,6 +243,7 @@ class TestJSONProject:
                 "platform": None,
                 "project_url": "/the/fake/url/",
                 "project_urls": expected_urls,
+                "provides_extra": None,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
@@ -483,6 +485,8 @@ class TestJSONRelease:
                 description=DescriptionFactory.create(
                     content_type=description_content_type
                 ),
+                dynamic=["Platform", "Supported-Platform"],
+                provides_extra=["testing", "plugin"],
             )
         ]
 
@@ -540,6 +544,7 @@ class TestJSONRelease:
                 "docs_url": "/the/fake/url/",
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
+                "dynamic": ["Platform", "Supported-Platform"],
                 "home_page": None,
                 "keywords": None,
                 "license": None,
@@ -550,6 +555,7 @@ class TestJSONRelease:
                 "platform": None,
                 "project_url": "/the/fake/url/",
                 "project_urls": expected_urls,
+                "provides_extra": ["testing", "plugin"],
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,
@@ -630,6 +636,7 @@ class TestJSONRelease:
                 "docs_url": None,
                 "download_url": None,
                 "downloads": {"last_day": -1, "last_week": -1, "last_month": -1},
+                "dynamic": None,
                 "home_page": None,
                 "keywords": None,
                 "license": None,
@@ -640,6 +647,7 @@ class TestJSONRelease:
                 "platform": None,
                 "project_url": "/the/fake/url/",
                 "project_urls": None,
+                "provides_extra": None,
                 "release_url": "/the/fake/url/",
                 "requires_dist": None,
                 "requires_python": None,

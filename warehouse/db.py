@@ -17,11 +17,13 @@ import logging
 from uuid import UUID
 
 import alembic.config
+import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -30,7 +32,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 from warehouse.metrics import IMetricsService
 from warehouse.utils.attrs import make_repr
 
-__all__ = ["includeme", "metadata", "ModelBase"]
+__all__ = ["includeme", "metadata", "ModelBase", "Model"]
 
 
 logger = logging.getLogger(__name__)
@@ -62,8 +64,7 @@ pyramid_retry.mark_error_retryable(IntegrityError)
 
 # A generic wrapper exception that we'll raise when the database isn't available, we
 # use this so we can catch it later and turn it into a generic 5xx error.
-class DatabaseNotAvailableError(Exception):
-    ...
+class DatabaseNotAvailableError(Exception): ...
 
 
 # The Global metadata object.
@@ -188,3 +189,12 @@ def includeme(config):
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
+
+    # Set a custom JSON serializer for psycopg
+    renderer = JSON()
+    renderer_factory = renderer(None)
+
+    def serialize_as_json(obj):
+        return renderer_factory(obj, {})
+
+    psycopg.types.json.set_json_dumps(serialize_as_json)

@@ -39,31 +39,6 @@
               <i class="fa fa-sitemap" aria-hidden="true"></i>{{ project.organization.name }}
             </a>
             {% endif %}
-            {% if (
-              request.registry.settings["warehouse.two_factor_requirement.enabled"]
-              and project.owners_require_2fa
-            ) %}
-            <a href="{{ request.route_path('manage.project.settings', project_name=project.normalized_name) }}" class="badge badge--neutral" title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}">
-              {% trans %}2FA Required{% endtrans %}
-            </a>
-            {% elif (
-              request.registry.settings["warehouse.two_factor_mandate.enabled"]
-              and project.pypi_mandates_2fa
-            ) %}
-            <span class="badge badge--neutral" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
-              {% trans %}Critical Project{% endtrans %}
-            </span>
-            <span class="badge badge--neutral" title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}">
-              {% trans %}2FA Mandated{% endtrans %}
-            </span>
-            {% elif (
-              request.registry.settings["warehouse.two_factor_mandate.available"]
-              and project.pypi_mandates_2fa
-            ) %}
-            <span class="badge badge--neutral" title="{% trans %}This is a critical project for the Python ecosystem{% endtrans %}">
-              {% trans %}Critical Project{% endtrans %}
-            </span>
-            {% endif %}
             {% if project.name in projects_sole_owned %}
             <a href="{{ request.route_path('manage.project.roles', project_name=project.normalized_name) }}" class="badge badge--warning">{% trans %}Sole owner{% endtrans %}</a>
             {% endif %}
@@ -84,38 +59,11 @@
         <div class="package-snippet__buttons">
 
           {% if project.name in projects_owned %}
-            {% if (
-              not user_has_two_factor
-              and project.name in projects_requiring_2fa
-              and project.pypi_mandates_2fa
-              and request.registry.settings["warehouse.two_factor_mandate.enabled"]
-            ) %}
-            {# Show 2FA mandated button #}
-            <a
-              href="{{ request.route_path('manage.account.two-factor') }}"
-              class="button button--danger"
-              title="{% trans %}PyPI requires 2FA to be enabled to manage this project{% endtrans %}"
-            >{% trans %}2FA Mandated{% endtrans %}</a>
-            {% elif (
-              not user_has_two_factor
-              and project.name in projects_requiring_2fa
-              and project.owners_require_2fa
-              and request.registry.settings["warehouse.two_factor_requirement.enabled"]
-            ) %}
-            {# Show 2FA required button #}
-            <a
-              href="{{ request.route_path('manage.account.two-factor') }}"
-              class="button button--danger"
-              title="{% trans %}This project requires 2FA to be enabled to manage{% endtrans %}"
-            >{% trans %}2FA Required{% endtrans %}</a>
-            {% else %}
-            {# Show manage button #}
             <a
             href="{{ request.route_path('manage.project.releases', project_name=project.normalized_name) }}"
             class="button button--primary"
             title="{% trans %}Manage this project{% endtrans %}"
             >{% trans %}Manage{% endtrans %}</a>
-            {% endif %}
           {% else %}
           {# Show disabled button #}
           <button class="button button--primary" disabled title="{% trans %}You are not an owner of this project{% endtrans %}">

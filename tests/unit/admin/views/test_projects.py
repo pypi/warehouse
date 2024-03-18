@@ -17,18 +17,24 @@ from unittest import mock
 import pretend
 import pytest
 
+from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
+from sqlalchemy.orm import joinedload
 
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import Project, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project
+from warehouse.utils.paginate import paginate_url_factory
 
 from ....common.db.accounts import UserFactory
+from ....common.db.observations import ObserverFactory
 from ....common.db.packaging import (
     JournalEntryFactory,
     ProjectFactory,
+    ProjectObservationFactory,
     ReleaseFactory,
     RoleFactory,
 )
@@ -101,6 +107,8 @@ class TestProjectDetail:
             "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
             "ONE_GB": views.ONE_GB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
+            "observation_kinds": ObservationKind,
+            "observations": [],
         }
 
     def test_non_normalized_name(self, db_request):
@@ -128,6 +136,8 @@ class TestReleaseDetail:
         assert views.release_detail(release, db_request) == {
             "release": release,
             "journals": journals,
+            "observation_kinds": ObservationKind,
+            "observations": [],
         }
 
     def test_release_render(self, db_request):
@@ -154,6 +164,80 @@ class TestReleaseDetail:
             pretend.call(
                 f"Task sent to re-render description for {release}", queue="success"
             )
+        ]
+
+
+class TestReleaseAddObservation:
+    def test_add_observation(self, db_request):
+        release = ReleaseFactory.create()
+        user = UserFactory.create()
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.matchdict["project_name"] = release.project.normalized_name
+        db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
+        db_request.POST["summary"] = "This is a summary"
+        db_request.user = user
+
+        views.add_release_observation(release, db_request)
+
+        assert len(release.observations) == 1
+
+    def test_no_kind_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a kind", queue="error")
+        ]
+
+    def test_invalid_kind_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={"kind": "not a valid kind"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid kind", queue="error")
+        ]
+
+    def test_no_summary_errors(self):
+        release = pretend.stub(
+            project=pretend.stub(name="foo", normalized_name="foo"), version="1.0"
+        )
+        request = pretend.stub(
+            POST={"kind": ObservationKind.IsSpam.value[0]},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_release_observation(release, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a summary", queue="error")
         ]
 
 
@@ -345,6 +429,131 @@ class TestProjectJournalsList:
         )
         with pytest.raises(HTTPMovedPermanently):
             views.journals_list(project, db_request)
+
+
+class TestProjectObservationsList:
+    def test_with_page(self, db_request):
+        observer = ObserverFactory.create()
+        UserFactory.create(observer=observer)
+        project = ProjectFactory.create()
+        ProjectObservationFactory.create_batch(
+            size=30, related=project, observer=observer
+        )
+
+        observations_query = (
+            db_request.db.query(project.Observation)
+            .options(joinedload(project.Observation.observer))
+            .filter(project.Observation.related == project)
+            .order_by(project.Observation.created.desc())
+        )
+        observations_page = SqlalchemyOrmPage(
+            observations_query,
+            page=2,
+            items_per_page=25,
+            url_maker=paginate_url_factory(db_request),
+        )
+
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.GET["page"] = "2"
+        result = views.project_observations_list(project, db_request)
+
+        assert result == {
+            "observations": observations_page,
+            "project": project,
+        }
+        assert len(observations_page.items) == 5
+
+    def test_with_invalid_page(self, db_request):
+        project = ProjectFactory.create()
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.GET["page"] = "not an integer"
+
+        with pytest.raises(HTTPBadRequest):
+            views.project_observations_list(project, db_request)
+
+
+class TestProjectAddObservation:
+    def test_add_observation(self, db_request):
+        project = ProjectFactory.create()
+        observer = ObserverFactory.create()
+        user = UserFactory.create(observer=observer)
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
+        db_request.POST["summary"] = "This is a summary"
+        db_request.user = user
+
+        views.add_project_observation(project, db_request)
+
+        assert len(project.observations) == 1
+
+    def test_no_user_observer(self, db_request):
+        project = ProjectFactory.create()
+        user = UserFactory.create()
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.matchdict["project_name"] = project.normalized_name
+        db_request.POST["kind"] = ObservationKind.IsSpam.value[0]
+        db_request.POST["summary"] = "This is a summary"
+        db_request.user = user
+
+        views.add_project_observation(project, db_request)
+
+        assert len(project.observations) == 1
+
+    def test_no_kind_errors(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            POST={},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_project_observation(project, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a kind", queue="error")
+        ]
+
+    def test_invalid_kind_errors(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            POST={"kind": "not a valid kind"},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_project_observation(project, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Invalid kind", queue="error")
+        ]
+
+    def test_no_summary_errors(self):
+        project = pretend.stub(name="foo", normalized_name="foo")
+        request = pretend.stub(
+            POST={"kind": ObservationKind.IsSpam.value[0]},
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            route_path=lambda *a, **kw: "/foo/bar/",
+        )
+
+        with pytest.raises(HTTPSeeOther) as exc:
+            views.add_project_observation(project, request)
+        assert exc.value.status_code == 303
+        assert exc.value.headers["Location"] == "/foo/bar/"
+
+        assert request.session.flash.calls == [
+            pretend.call("Provide a summary", queue="error")
+        ]
 
 
 class TestProjectSetTotalSizeLimit:

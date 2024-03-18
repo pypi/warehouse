@@ -535,17 +535,41 @@
     {{ publisher.publisher_name }}
   </td>
   <td scope="row">
-    <a href="{{ publisher.publisher_url() }}">{{ publisher.repository }}</a>
-  </td>
-  <td scope="row">
-    {{ publisher.workflow_filename }}
-  </td>
-  <td scope="row">
-    {% if publisher.environment %}
-      {{ publisher.environment }}
+    <small>
+    {% if publisher.publisher_name == "GitHub" %}
+      <b>Repository:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.repository }}</a><br>
+      <b>Workflow:</b> {{ publisher.workflow_filename }}<br>
+      <b>Environment name:</b>
+      {% if publisher.environment %}
+        {{ publisher.environment }}
+      {% else %}
+        <i>({% trans %}Any{% endtrans %})</i>
+      {% endif %}
+    {% elif publisher.publisher_name == "GitLab" %}
+      <b>Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project_path }}</a><br>
+      <b>Workflow:</b> {{ publisher.workflow_filepath }}<br>
+      <b>Environment name:</b>
+      {% if publisher.environment %}
+        {{ publisher.environment }}
+      {% else %}
+        <i>({% trans %}Any{% endtrans %})</i>
+      {% endif %}
+    {% elif publisher.publisher_name == "Google" %}
+      <b>Email:</b> {{ publisher.email }}<br>
+      <b>Subject:</b>
+      {% if publisher.sub %}
+        {{ publisher.sub }}
+      {% else %}
+        <i>({% trans %}Any{% endtrans %})</i>
+      {% endif %}
+    {% elif publisher.publisher_name == "ActiveState" %}
+      <b>Organization:</b> {{ publisher.organization }} <br>
+      <b>ActiveState Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project }}</a><br>
+      <b>Actor:</b> {{publisher.actor}} <br>
     {% else %}
-      <i>({% trans %}Any{% endtrans %})</i>
+      -
     {% endif %}
+    </small>
   </td>
   <td scope="row">
     <input form="delete-publisher-{{ publisher.id }}" type="submit" value="{% trans %}Remove{% endtrans %}" class="button button--danger">

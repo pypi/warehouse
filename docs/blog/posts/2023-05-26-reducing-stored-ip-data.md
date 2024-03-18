@@ -1,9 +1,9 @@
 ---
 title: Reducing Stored IP Data in PyPI
 description: PyPI has stopped using IP data when possible, and is continuing to reduce the amount of IP data stored overall.
-author: Mike Fiedler
-publish_date: 2023-05-26
-date: "2023-05-26 15:00"
+authors:
+  - miketheman
+date: 2023-05-26T15:00:00
 tags:
   - security
   - transparency
@@ -15,6 +15,8 @@ Hi there! I'm Mike, the newest member of the PyPI admin team. Nice to meet you!
 
 We've been working on reducing the amount of IP address data we store,
 and we're making progress.
+
+<!-- more -->
 
 ## What's this about?
 

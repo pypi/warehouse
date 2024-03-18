@@ -10,7 +10,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime, timedelta, timezone
+
 from warehouse import tasks
+from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.models import OIDCPublisher
 from warehouse.packaging.models import File, Project, Release
@@ -30,12 +33,6 @@ def compute_oidc_metrics(request):
         projects_configured_oidc.count(),
     )
 
-    # Metric for count of critical projects that have configured OIDC.
-    metrics.gauge(
-        "warehouse.oidc.total_critical_projects_configured_oidc_publishers",
-        projects_configured_oidc.where(Project.pypi_mandates_2fa.is_(True)).count(),
-    )
-
     # Need to check FileEvent.additional['publisher_url'] to determine which
     # projects have successfully published via an OIDC publisher.
     projects_published_with_oidc = (
@@ -51,12 +48,6 @@ def compute_oidc_metrics(request):
     metrics.gauge(
         "warehouse.oidc.total_projects_published_with_oidc_publishers",
         projects_published_with_oidc.count(),
-    )
-
-    # Metric for count of critical projects that have published via OIDC
-    metrics.gauge(
-        "warehouse.oidc.total_critical_projects_published_with_oidc_publishers",
-        projects_published_with_oidc.where(Project.pypi_mandates_2fa.is_(True)).count(),
     )
 
     # Metric for total number of files published via OIDC
@@ -77,3 +68,28 @@ def compute_oidc_metrics(request):
             .count(),
             tags=[f"publisher:{discriminator}"],
         )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def delete_expired_oidc_macaroons(request):
+    """
+    Purge all API tokens minted using OIDC Trusted Publishing with a creation time
+    more than 1 day ago. Since OIDC-minted macaroons expire 15 minutes after
+    creation, this task cleans up tokens that expired several hours ago and that
+    have accumulated since the last time this task was run.
+    """
+    rows_deleted = (
+        request.db.query(Macaroon)
+        .filter(Macaroon.oidc_publisher_id.isnot(None))
+        .filter(
+            # The token has been created at more than 1 day ago
+            Macaroon.created + timedelta(days=1)
+            < datetime.now(tz=timezone.utc)
+        )
+        .delete(synchronize_session=False)
+    )
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.gauge(
+        "warehouse.oidc.expired_oidc_tokens_deleted",
+        rows_deleted,
+    )

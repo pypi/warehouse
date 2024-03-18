@@ -31,7 +31,6 @@ from webob.multidict import MultiDict
 
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
-from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.forklift import legacy, metadata
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
@@ -48,7 +47,6 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
-from warehouse.utils.security_policy import AuthenticationMethod
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -2249,58 +2247,6 @@ class TestFileUpload:
             "See /the/help/url/ for more information."
         ).format(project.name)
 
-    def test_basic_auth_upload_fails_with_2fa_enabled(
-        self, pyramid_config, db_request, metrics, monkeypatch
-    ):
-        user = UserFactory.create(totp_secret=b"secret")
-        EmailFactory.create(user=user)
-        project = ProjectFactory.create()
-        RoleFactory.create(user=user, project=project)
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.user_agent = "warehouse-tests/6.6.6"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": project.name,
-                "version": "1.0.0",
-                "summary": "This is my summary!",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename="{}-{}.tar.gz".format(project.name, "1.0.0"),
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-        db_request.authentication_method = AuthenticationMethod.BASIC_AUTH
-
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_basic_auth_with_two_factor_email", send_email)
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-        }.get(svc)
-
-        with pytest.raises(BasicAuthTwoFactorEnabled) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 401
-        assert resp.status == (
-            f"401 User { user.username } has two factor auth enabled, "
-            "an API Token or Trusted Publisher must be used to upload "
-            "in place of password."
-        )
-        assert send_email.calls == [
-            pretend.call(db_request, user, project_name=project.name)
-        ]
-
     @pytest.mark.parametrize(
         "plat",
         [
@@ -3087,25 +3033,31 @@ class TestFileUpload:
 
         # Ensure that all of our events have been created
         release_event = {
-            "submitted_by": identity.username
-            if test_with_user
-            else "OpenID created token",
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
-            if not test_with_user
-            else None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         fileadd_event = {
             "filename": filename,
-            "submitted_by": identity.username
-            if test_with_user
-            else "OpenID created token",
+            "submitted_by": (
+                identity.username if test_with_user else "OpenID created token"
+            ),
             "canonical_version": release.canonical_version,
-            "publisher_url": f"{identity.publisher.publisher_url()}/commit/somesha"
-            if not test_with_user
-            else None,
+            "publisher_url": (
+                f"{identity.publisher.publisher_url()}/commit/somesha"
+                if not test_with_user
+                else None
+            ),
             "project_id": str(project.id),
+            "uploaded_via_trusted_publisher": not test_with_user,
         }
 
         assert record_event.calls == [
@@ -3120,6 +3072,121 @@ class TestFileUpload:
                 tag=EventTag.File.FileAdd,
                 request=db_request,
                 additional=fileadd_event,
+            ),
+        ]
+
+    @pytest.mark.parametrize(
+        "version, expected_version",
+        [
+            ("1.0", "1.0"),
+            ("v1.0", "1.0"),
+        ],
+    )
+    def test_upload_succeeds_creates_release_metadata_2_3(
+        self, pyramid_config, db_request, metrics, version, expected_version
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "2.3",
+                "name": project.name,
+                "version": version,
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+                "supported_platform": "i386-win32-2791",
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", "Test, https://example.com/"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides_extra", "testing"),
+                ("provides_extra", "plugin"),
+                ("dynamic", "Supported-Platform"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter(
+                (Release.project == project) & (Release.version == expected_version)
+            )
+            .one()
+        )
+        assert release.summary == "This is my summary!"
+        assert release.classifiers == [
+            "Environment :: Other Environment",
+            "Programming Language :: Python",
+        ]
+        assert set(release.requires_dist) == {"foo", "bar (>1.0)"}
+        assert release.project_urls == {"Test": "https://example.com/"}
+        assert set(release.requires_external) == {"Cheese (>1.0)"}
+        assert release.version == expected_version
+        assert release.canonical_version == "1"
+        assert release.uploaded_via == "warehouse-tests/6.6.6"
+        assert set(release.provides_extra) == {"testing", "plugin"}
+        assert set(release.dynamic) == {"Supported-Platform"}
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(
+            (File.release == release) & (File.filename == filename)
+        ).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
+        # Ensure that all of our journal entries have been created
+        journals = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .order_by("submitted_date", "id")
+            .all()
+        )
+        assert [(j.name, j.version, j.action, j.submitted_by) for j in journals] == [
+            (
+                release.project.name,
+                release.version,
+                "new release",
+                user,
+            ),
+            (
+                release.project.name,
+                release.version,
+                f"add source file {filename}",
+                user,
             ),
         ]
 

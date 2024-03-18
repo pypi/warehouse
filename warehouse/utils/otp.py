@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
 import os
 import time
 
@@ -20,6 +21,14 @@ from cryptography.hazmat.primitives.twofactor.totp import TOTP
 
 TOTP_LENGTH = 6
 TOTP_INTERVAL = 30
+
+
+class OutOfSyncTOTPError(Exception):
+    pass
+
+
+class InvalidTOTPError(Exception):
+    pass
 
 
 def _get_totp(secret):
@@ -75,8 +84,25 @@ def verify_totp(secret, value):
     """
     totp = _get_totp(secret)
     now = time.time()
-    return (
+    # Check if the value is valid, +/- one TOTP_INTERVAL
+    valid_in_window = (
         _verify_totp_time(totp, value, now)
         or _verify_totp_time(totp, value, now - TOTP_INTERVAL)
         or _verify_totp_time(totp, value, now + TOTP_INTERVAL)
     )
+    # Check if the value WOULD valid, +/- ten TOTP_INTERVALs (i.e., if there is
+    # significant clock skew)
+    valid_outside_window = any(
+        _verify_totp_time(totp, value, now + step)
+        for step in itertools.chain(
+            range(-TOTP_INTERVAL * 10, -TOTP_INTERVAL, TOTP_INTERVAL),
+            range(TOTP_INTERVAL * 2, TOTP_INTERVAL * 11, TOTP_INTERVAL),
+        )
+    )
+
+    if valid_in_window:
+        return True
+    elif valid_outside_window:
+        raise OutOfSyncTOTPError
+    else:
+        raise InvalidTOTPError

@@ -5,3 +5,4 @@ dev/*
 **/*.pyc
 htmlcov
 warehouse/static/dist
+.venv

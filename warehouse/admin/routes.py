@@ -146,6 +146,34 @@ def includeme(config):
         domain=warehouse,
     )
     config.add_route(
+        "admin.project.observations",
+        "/admin/projects/{project_name}/observations/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.add_project_observation",
+        "/admin/projects/{project_name}/add_project_observation/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.observations",
+        "/admin/projects/{project_name}/release/{version}/observations/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.project.release.add_release_observation",
+        "/admin/projects/{project_name}/release/{version}/add_release_observation/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}/{version}",
+        domain=warehouse,
+    )
+    config.add_route(
         "admin.project.journals",
         "/admin/projects/{project_name}/journals/",
         factory="warehouse.packaging.models:ProjectFactory",
@@ -223,6 +251,11 @@ def includeme(config):
         "admin.prohibited_project_names.release",
         "/admin/prohibited_project_names/release/",
         domain=warehouse,
+    )
+
+    # Observation related Admin pages
+    config.add_route(
+        "admin.observations.list", "/admin/observations/", domain=warehouse
     )
 
     # Email related Admin pages

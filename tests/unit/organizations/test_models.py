@@ -17,6 +17,7 @@ from pyramid.authorization import Allow
 from pyramid.httpexceptions import HTTPPermanentRedirect
 from pyramid.location import lineage
 
+from warehouse.authnz import Permissions
 from warehouse.organizations.models import (
     OrganizationFactory,
     OrganizationRoleType,
@@ -115,34 +116,41 @@ class TestOrganization:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminOrganizationsRead,
+                    Permissions.AdminOrganizationsWrite,
+                ),
+            ),
+            (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
         ] + sorted(
             [
                 (
                     Allow,
                     f"user:{owner1.user.id}",
                     [
-                        "view:organization",
-                        "view:team",
-                        "manage:organization",
-                        "manage:team",
-                        "manage:billing",
-                        "add:project",
-                        "remove:project",
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsManage,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationsBillingManage,
+                        Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationProjectsRemove,
                     ],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
                     [
-                        "view:organization",
-                        "view:team",
-                        "manage:organization",
-                        "manage:team",
-                        "manage:billing",
-                        "add:project",
-                        "remove:project",
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsManage,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationsBillingManage,
+                        Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationProjectsRemove,
                     ],
                 ),
             ],
@@ -152,12 +160,20 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsBillingManage,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsBillingManage,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -166,19 +182,37 @@ class TestOrganization:
                 (
                     Allow,
                     f"user:{account_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationProjectsAdd,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{account_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationProjectsAdd,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{member1.user.id}", ["view:organization", "view:team"]),
-                (Allow, f"user:{member2.user.id}", ["view:organization", "view:team"]),
+                (
+                    Allow,
+                    f"user:{member1.user.id}",
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                ),
+                (
+                    Allow,
+                    f"user:{member2.user.id}",
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                ),
             ],
             key=lambda x: x[1],
         )
@@ -299,34 +333,41 @@ class TestTeam:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminOrganizationsRead,
+                    Permissions.AdminOrganizationsWrite,
+                ),
+            ),
+            (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
         ] + sorted(
             [
                 (
                     Allow,
                     f"user:{owner1.user.id}",
                     [
-                        "view:organization",
-                        "view:team",
-                        "manage:organization",
-                        "manage:team",
-                        "manage:billing",
-                        "add:project",
-                        "remove:project",
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsManage,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationsBillingManage,
+                        Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationProjectsRemove,
                     ],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
                     [
-                        "view:organization",
-                        "view:team",
-                        "manage:organization",
-                        "manage:team",
-                        "manage:billing",
-                        "add:project",
-                        "remove:project",
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsManage,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationsBillingManage,
+                        Permissions.OrganizationProjectsAdd,
+                        Permissions.OrganizationProjectsRemove,
                     ],
                 ),
             ],
@@ -336,12 +377,20 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{billing_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsBillingManage,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{billing_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:billing"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationsBillingManage,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -350,19 +399,37 @@ class TestTeam:
                 (
                     Allow,
                     f"user:{account_mgr1.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationProjectsAdd,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{account_mgr2.user.id}",
-                    ["view:organization", "view:team", "manage:team", "add:project"],
+                    [
+                        Permissions.OrganizationsRead,
+                        Permissions.OrganizationTeamsRead,
+                        Permissions.OrganizationTeamsManage,
+                        Permissions.OrganizationProjectsAdd,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{member1.user.id}", ["view:organization", "view:team"]),
-                (Allow, f"user:{member2.user.id}", ["view:organization", "view:team"]),
+                (
+                    Allow,
+                    f"user:{member1.user.id}",
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                ),
+                (
+                    Allow,
+                    f"user:{member2.user.id}",
+                    [Permissions.OrganizationsRead, Permissions.OrganizationTeamsRead],
+                ),
             ],
             key=lambda x: x[1],
         )

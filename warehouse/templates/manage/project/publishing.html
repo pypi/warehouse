@@ -20,48 +20,7 @@
   {{ oidc_title() }}
 {% endblock %}
 
-{% block main %}
-{% if testPyPI %}
-{% set title = "TestPyPI" %}
-{% else %}
-{% set title = "PyPI" %}
-{% endif %}
-
-<div class="horizontal-section">
-  <div class="site-container">
-    <h1 class="page-title">{{ oidc_title() }}</h1>
-
-    {{ oidc_desc() }}
-
-    <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
-    {% if project.oidc_publishers %}
-    <table class="table table--publisher-list">
-      <caption class="sr-only">
-        {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
-      </caption>
-      <thead>
-        <tr>
-          <th scope="col">{% trans %}Publisher{% endtrans %}</th>
-          <th scope="col">{% trans %}Repository{% endtrans %}</th>
-          <th scope="col">{% trans %}Workflow{% endtrans %}</th>
-          <th scope="col">{% trans %}Environment name{% endtrans %}</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for publisher in project.oidc_publishers %}
-        {{ oidc_publisher_row(publisher) }}
-        {% endfor %}
-      </tbody>
-    </table>
-    {% else %}
-    <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
-    {% endif %}
-
-    <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
-    {% if request.user.has_two_factor %}
-    <h3>GitHub</h3>
-
+{% macro github_form(request, github_publisher_form) %}
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
       Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -94,7 +53,14 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_publisher_form.repository(placeholder=gettext("repository"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"repository-errors"}) }}
+        {{ github_publisher_form.repository(
+          placeholder=gettext("repository"),
+          autocomplete="off",
+          autocapitalize="off",
+          spellcheck="false",
+          class_="form-group__field",
+          aria_describedby="repository-errors",
+        ) }}
         <p class="form-group__help-text">
           {% trans %}The name of the GitHub repository that contains the publishing workflow{% endtrans %}
         </p>
@@ -109,7 +75,12 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_publisher_form.workflow_filename(placeholder=gettext("workflow.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filename-errors"}) }}
+        {{ github_publisher_form.workflow_filename(
+          placeholder=gettext("workflow.yml"),
+          class_="form-group__field",
+          autocomplete="off",
+          aria_describedby="workflow_filename-errors",
+        ) }}
         <p class="form-group__help-text">
           {% trans %}The filename of the publishing workflow. This file should exist in the <code>.github/workflows/</code> directory in the repository configured above.{% endtrans %}
         </p>
@@ -126,7 +97,12 @@
           <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ github_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+        {{ github_publisher_form.environment(
+          placeholder=gettext("release"),
+          class_="form-group__field",
+          autocomplete="off",
+          aria_describedby="environment-errors",
+        ) }}
         <p class="form-group__help-text">
           {% trans href="https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment" %}
           The name of the <a href="{{ href }}">GitHub Actions environment</a>
@@ -146,16 +122,304 @@
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
     </form>
+{% endmacro %}
 
-    {% else %}{# user has not enabled 2FA #}
-    <div class="callout-block callout-block--warning">
-      {% trans href=request.route_path('manage.account.two-factor') %}
-      You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+{% macro gitlab_form(request, gitlab_publisher_form) %}
+    <p>
+      {% trans href="https://docs.gitlab.com/ee/ci/secrets/id_token_authentication.html" %}
+      Read more about GitLab CI/CD OpenID Connect support <a href="{{ href }}">here</a>.
       {% endtrans %}
+    </p>
+
+    {{ form_error_anchor(gitlab_publisher_form) }}
+    <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      {{ form_errors(gitlab_publisher_form) }}
+      <div class="form-group">
+        <label for="namespace" class="form-group__label">
+          {% trans %}Namespace{% endtrans %}
+          {% if gitlab_publisher_form.namespace.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.namespace(placeholder=gettext("namespace"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="namespace-errors") }}
+        <p class="form-group__help-text">
+          {% trans %}The GitLab username or GitLab group/subgroup namespace that the project is under{% endtrans %}
+        </p>
+        <div id="namespace-errors">
+          {{ field_errors(gitlab_publisher_form.namespace) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="project" class="form-group__label">
+          {% trans %}Project name{% endtrans %}
+          {% if gitlab_publisher_form.project.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.project(placeholder=gettext("project"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"project-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans %}The name of the GitLab project that contains the publishing workflow{% endtrans %}
+        </p>
+        <div id="project-errors">
+          {{ field_errors(gitlab_publisher_form.project) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="workflow_filepath" class="form-group__label">
+          {% trans %}Workflow file path{% endtrans %}
+          {% if gitlab_publisher_form.workflow_filepath.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.workflow_filepath(placeholder=gettext(".gitlab-ci.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filepath-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans %}The file path of the publishing workflow, relative to the project's root. This file should exist in the project configured above (external workflows are not supported).{% endtrans %}
+        </p>
+        <div id="workflow_filepath-errors">
+          {{ field_errors(gitlab_publisher_form.workflow_filepath) }}
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="environment" class="form-group__label">
+          {% trans %}Environment name{% endtrans %}
+          {% if gitlab_publisher_form.environment.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+          {% else %}
+          <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+          {% endif %}
+        </label>
+        {{ gitlab_publisher_form.environment(placeholder=gettext("release"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"environment-errors"}) }}
+        <p class="form-group__help-text">
+          {% trans href="https://docs.gitlab.com/ee/ci/environments/" %}
+          The name of the <a href="{{ href }}">GitLab CI/CD environment</a>
+          that the above workflow uses for publishing.  This should be
+          configured under the project's settings. While not required, a
+          dedicated publishing environment is <strong>strongly</strong>
+          encouraged, <strong>especially</strong> if your project has
+          maintainers with commit access who shouldn't have PyPI publishing
+          access.
+          {% endtrans %}
+        </p>
+        <div id="environment-errors">
+          {{ field_errors(gitlab_publisher_form.environment) }}
+        </div>
+      </div>
+      <div>
+        <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+      </div>
+    </form>
+{% endmacro %}
+
+{% macro google_form(request, google_publisher_form) %}
+  <p>
+    {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
+    Read more about Google's OpenID Connect support <a href="{{ href }}">here</a>.
+    {% endtrans %}
+  </p>
+
+  {{ form_error_anchor(google_publisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(google_publisher_form) }}
+    <div class="form-group">
+      <label for="email" class="form-group__label">
+        {% trans %}Email{% endtrans %}
+        {% if google_publisher_form.email.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ google_publisher_form.email(placeholder=gettext("email"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", aria_describedby="email-errors") }}
+      <p class="form-group__help-text">
+        {% trans %}The email address of the account or service account used to publish.{% endtrans %}
+      </p>
+      <div id="email-errors">
+        {{ field_errors(google_publisher_form.email) }}
+      </div>
     </div>
-    {% endif %}
+    <div class="form-group">
+      <label for="subject" class="form-group__label">
+        {% trans %}Subject{% endtrans %}
+        {% if google_publisher_form.sub.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% else %}
+        <span class="form-group__required">{% trans %}(optional){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ google_publisher_form.sub(
+        placeholder=gettext("subject"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="sub-errors",
+      ) }}
+      <p class="form-group__help-text">
+      {% trans href="https://cloud.google.com/docs/authentication/token-types#id-contents" %}The subject is the numeric ID that represents the principal making the request. While not required, providing the subject further restricts the identity which is used for publishing. <a href="{{ href }}">More details here.</a>{% endtrans %}
+      </p>
+      <div id="sub-errors">
+        {{ field_errors(google_publisher_form.sub) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+{% endmacro %}
+
+{% macro activestate_form(request, activestate_pubisher_form) %}
+  {{ form_error_anchor(activestate_pubisher_form) }}
+  <form method="POST" action="{{ request.route_path('manage.project.settings.publishing', project_name=project.name) }}#errors">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    {{ form_errors(activestate_pubisher_form) }}
+    <div class="form-group">
+      <label for="organization" class="form-group__label">
+        {% trans %}Organization{% endtrans %}
+        {% if activestate_pubisher_form.organization.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.organization(
+        placeholder=gettext("my-organization"), 
+        autocomplete="off", 
+        autocapitalize="off", 
+        spellcheck="false", 
+        class_="form-group__field", 
+        aria_describedby="organization-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The ActiveState organization name that owns the project{% endtrans %}
+      </p>
+      <div id="organization-errors">
+        {{ field_errors(activestate_pubisher_form.organization) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="project" class="form-group__label">
+        {% trans %}ActiveState Project name{% endtrans %}
+        {% if activestate_pubisher_form.project.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.project(
+        placeholder=gettext("my-project"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="project-errors")
+      }}
+      <p class="form-group__help-text">
+      {% trans %}The ActiveState project that will build your Python artifact.{% endtrans %}
+      </p>
+      <div id="project-errors">
+        {{ field_errors(activestate_pubisher_form.project) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="actor" class="form-group__label">
+        {% trans %}Actor Username{% endtrans %}
+        {% if activestate_pubisher_form.actor.flags.required %}
+        <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ activestate_pubisher_form.actor(
+        placeholder=gettext("my-username"),
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="actor-errors")
+      }}
+      <p class="form-group__help-text">
+        {% trans %}The username for the ActiveState account that will trigger the build of your Python artifact.{% endtrans %}
+      </p>
+      <div id="actor-errors">
+        {{ field_errors(activestate_pubisher_form.actor) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+{% endmacro %}
+
+{% block main %}
+{% if testPyPI %}
+{% set title = "TestPyPI" %}
+{% else %}
+{% set title = "PyPI" %}
+{% endif %}
+
+<div class="horizontal-section">
+  <div class="site-container">
+    <section>
+      <h1 class="page-title">{{ oidc_title() }}</h1>
+
+      {{ oidc_desc() }}
+
+      <h2>{% trans %}Manage current publishers{% endtrans %}</h2>
+      {% if project.oidc_publishers %}
+      <table class="table table--publisher-list">
+        <caption class="sr-only">
+          {% trans project_name=project.name %}OpenID Connect publishers associated with {{ project_name }}{% endtrans %}
+        </caption>
+        <thead>
+          <tr>
+            <th scope="col">{% trans %}Publisher{% endtrans %}</th>
+            <th scope="col">{% trans %}Details{% endtrans %}</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for publisher in project.oidc_publishers %}
+          {{ oidc_publisher_row(publisher) }}
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="no-bottom-padding">{% trans %}No publishers are currently configured.{% endtrans %}</p>
+      {% endif %}
+    </section>
+
+    <section>
+      <h2 class="no-bottom-padding">{% trans %}Add a new publisher{% endtrans %}</h2>
+
+      {% if request.user.has_two_factor %}
+
+      {% set publishers = [
+           ("GitHub", github_form(request, github_publisher_form)),
+           ("GitLab", gitlab_form(request, gitlab_publisher_form)),
+           ("Google", google_form(request, google_publisher_form)),
+           ("ActiveState", activestate_form(request, activestate_publisher_form)),
+         ]
+      %}
+
+      <div class="horizontal-tabs" data-controller="horizontal-tabs" data-horizontal-tabs-index="0">
+        <div class="horizontal-tabs__tabbar">
+          {% for publisher_name, _ in publishers %}
+          {% if not disabled[publisher_name] %}
+          <button data-horizontal-tabs-target="tab" data-action="horizontal-tabs#change" class="tab {{ "is-active" if loop.first else "" }}">
+            {{ publisher_name }}
+          </button>
+          {% endif %}
+          {% endfor %}
+        </div>
+        {% for publisher_name, publisher_form in publishers %}
+        {% if not disabled[publisher_name] %}
+        <div class="horizontal-tabs__tabcontent {{ "is-hidden" if loop.first else "" }}" data-horizontal-tabs-target="tabPanel">
+          {{ publisher_form }}
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% else %}{# user has not enabled 2FA #}
+      <div class="callout-block callout-block--warning">
+        {% trans href=request.route_path('manage.account.two-factor') %}
+        You must first enable <a href="{{ href }}">two-factor authentication</a> on your account before adding a new publisher.
+        {% endtrans %}
+      </div>
+      {% endif %}
+    </section>
   </div>
 </div>
 
 {% endblock %}
-

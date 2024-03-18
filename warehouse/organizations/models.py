@@ -40,6 +40,7 @@ from sqlalchemy.orm import (
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
@@ -82,8 +83,10 @@ class OrganizationRole(db.Model):
         ForeignKey("organizations.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
 
-    user: Mapped[User] = relationship(lazy=False)
-    organization: Mapped[Organization] = relationship(lazy=False)
+    user: Mapped[User] = relationship(back_populates="organization_roles", lazy=False)
+    organization: Mapped[Organization] = relationship(
+        back_populates="roles", lazy=False
+    )
 
 
 class OrganizationProject(db.Model):
@@ -252,8 +255,7 @@ class OrganizationMixin:
     )
 
 
-# TODO: Determine if this should also utilize SitemapMixin and TwoFactorRequireable
-# class Organization(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+# TODO: Determine if this should also utilize SitemapMixin
 class Organization(OrganizationMixin, HasEvents, db.Model):
     __tablename__ = "organizations"
 
@@ -270,10 +272,16 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         onupdate=func.now(),
         comment="Datetime the organization was approved by administrators.",
     )
+    application: Mapped[OrganizationApplication] = relationship(
+        back_populates="organization"
+    )
 
     users: Mapped[list[User]] = relationship(
-        secondary=OrganizationRole.__table__, backref="organizations", viewonly=True
+        secondary=OrganizationRole.__table__,
+        back_populates="organizations",
+        viewonly=True,
     )
+    roles: Mapped[list[OrganizationRole]] = relationship(back_populates="organization")
     teams: Mapped[list[Team]] = relationship(
         back_populates="organization",
         order_by=lambda: Team.name.asc(),
@@ -327,8 +335,15 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
         session = orm.object_session(self)
 
         acls = [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminOrganizationsRead,
+                    Permissions.AdminOrganizationsWrite,
+                ),
+            ),
+            (Allow, "group:moderators", Permissions.AdminOrganizationsRead),
         ]
 
         # Get all of the users for this organization.
@@ -350,13 +365,13 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
             # Allow write access depending on role.
             if role.role_name == OrganizationRoleType.Owner:
                 # Allowed:
-                # - View organization ("view:organization")
-                # - View team ("view:team")
-                # - Invite/remove organization member ("manage:organization")
-                # - Create/delete team and add/remove team member ("manage:team")
-                # - Manage billing ("manage:billing")
-                # - Add project ("add:project")
-                # - Remove project ("remove:project")
+                # - View organization (Permissions.OrganizationsRead)
+                # - View team (Permissions.OrganizationTeamsRead)
+                # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
+                # - Manage billing (Permissions.OrganizationsBillingManage)
+                # - Add project (Permissions.OrganizationProjectsAdd)
+                # - Remove project (Permissions.OrganizationProjectsRemove)
                 # Disallowed:
                 # - (none)
                 acls.append(
@@ -364,52 +379,56 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                         Allow,
                         f"user:{role.user.id}",
                         [
-                            "view:organization",
-                            "view:team",
-                            "manage:organization",
-                            "manage:team",
-                            "manage:billing",
-                            "add:project",
-                            "remove:project",
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsManage,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationsBillingManage,
+                            Permissions.OrganizationProjectsAdd,
+                            Permissions.OrganizationProjectsRemove,
                         ],
                     )
                 )
             elif role.role_name == OrganizationRoleType.BillingManager:
                 # Allowed:
-                # - View organization ("view:organization")
-                # - View team ("view:team")
-                # - Manage billing ("manage:billing")
+                # - View organization (Permissions.OrganizationsRead)
+                # - View team (Permissions.OrganizationTeamsRead)
+                # - Manage billing (Permissions.OrganizationsBillingManage)
                 # Disallowed:
-                # - Invite/remove organization member ("manage:organization")
-                # - Create/delete team and add/remove team member ("manage:team")
-                # - Add project ("add:project")
-                # - Remove project ("remove:project")
-                acls.append(
-                    (
-                        Allow,
-                        f"user:{role.user.id}",
-                        ["view:organization", "view:team", "manage:billing"],
-                    )
-                )
-            elif role.role_name == OrganizationRoleType.Manager:
-                # Allowed:
-                # - View organization ("view:organization")
-                # - View team ("view:team")
-                # - Create/delete team and add/remove team member ("manage:team")
-                # - Add project ("add:project")
-                # Disallowed:
-                # - Invite/remove organization member ("manage:organization")
-                # - Manage billing ("manage:billing")
-                # - Remove project ("remove:project")
+                # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
+                # - Add project (Permissions.OrganizationProjectsAdd)
+                # - Remove project (Permissions.OrganizationProjectsRemove)
                 acls.append(
                     (
                         Allow,
                         f"user:{role.user.id}",
                         [
-                            "view:organization",
-                            "view:team",
-                            "manage:team",
-                            "add:project",
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationsBillingManage,
+                        ],
+                    )
+                )
+            elif role.role_name == OrganizationRoleType.Manager:
+                # Allowed:
+                # - View organization (Permissions.OrganizationsRead)
+                # - View team (Permissions.OrganizationTeamsRead)
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
+                # - Add project (Permissions.OrganizationProjectsAdd)
+                # Disallowed:
+                # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Manage billing (Permissions.OrganizationsBillingManage)
+                # - Remove project (Permissions.OrganizationProjectsRemove)
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{role.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                            Permissions.OrganizationTeamsManage,
+                            Permissions.OrganizationProjectsAdd,
                         ],
                     )
                 )
@@ -417,16 +436,23 @@ class Organization(OrganizationMixin, HasEvents, db.Model):
                 # No member-specific write access needed for now.
 
                 # Allowed:
-                # - View organization ("view:organization")
-                # - View team ("view:team")
+                # - View organization (Permissions.OrganizationsRead)
+                # - View team (Permissions.OrganizationTeamsRead)
                 # Disallowed:
-                # - Invite/remove organization member ("manage:organization")
-                # - Create/delete team and add/remove team member ("manage:team")
-                # - Manage billing ("manage:billing")
-                # - Add project ("add:project")
-                # - Remove project ("remove:project")
+                # - Invite/remove organization member (Permissions.OrganizationsManage)
+                # - Create/delete team and add/remove members (OrganizationTeamsManage)
+                # - Manage billing (Permissions.OrganizationsBillingManage)
+                # - Add project (Permissions.OrganizationProjectsAdd)
+                # - Remove project (Permissions.OrganizationProjectsRemove)
                 acls.append(
-                    (Allow, f"user:{role.user.id}", ["view:organization", "view:team"])
+                    (
+                        Allow,
+                        f"user:{role.user.id}",
+                        [
+                            Permissions.OrganizationsRead,
+                            Permissions.OrganizationTeamsRead,
+                        ],
+                    )
                 )
         return acls
 
@@ -471,10 +497,15 @@ class OrganizationApplication(OrganizationMixin, db.Model):
         comment="If the request was approved, ID of resulting Organization",
     )
 
-    submitted_by: Mapped[User] = relationship(backref="organization_applications")
-    organization: Mapped[Organization] = relationship(
-        backref="application", viewonly=True
+    submitted_by: Mapped[User] = relationship(
+        back_populates="organization_applications"
     )
+    organization: Mapped[Organization] = relationship(
+        back_populates="application", viewonly=True
+    )
+
+    def __lt__(self, other: OrganizationApplication) -> bool:
+        return self.name < other.name
 
 
 class OrganizationNameCatalog(db.Model):
@@ -644,10 +675,10 @@ class Team(HasEvents, db.Model):
         lazy=False, back_populates="teams"
     )
     members: Mapped[list[User]] = relationship(
-        secondary=TeamRole.__table__, backref="teams", viewonly=True
+        secondary=TeamRole.__table__, back_populates="teams", viewonly=True
     )
     projects: Mapped[list[Project]] = relationship(
-        secondary=TeamProjectRole.__table__, backref="teams", viewonly=True
+        secondary=TeamProjectRole.__table__, back_populates="team", viewonly=True
     )
 
     def record_event(self, *, tag, request: Request = None, additional=None):

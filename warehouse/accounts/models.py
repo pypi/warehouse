@@ -35,7 +35,9 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
+from warehouse.observations.models import HasObserversMixin
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -43,6 +45,12 @@ from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
 if TYPE_CHECKING:
     from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import PendingOIDCPublisher
+    from warehouse.organizations.models import (
+        Organization,
+        OrganizationApplication,
+        OrganizationRole,
+        Team,
+    )
     from warehouse.packaging.models import Project
 
 
@@ -62,7 +70,7 @@ class DisableReason(enum.Enum):
     AccountFrozen = "account frozen"
 
 
-class User(SitemapMixin, HasEvents, db.Model):
+class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -85,6 +93,9 @@ class User(SitemapMixin, HasEvents, db.Model):
     is_superuser: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
+    is_observer: Mapped[bool_false] = mapped_column(
+        comment="Is this user allowed to add Observations?"
+    )
     prohibit_password_reset: Mapped[bool_false]
     hide_avatar: Mapped[bool_false]
     date_joined: Mapped[datetime_now | None]
@@ -97,38 +108,62 @@ class User(SitemapMixin, HasEvents, db.Model):
     last_totp_value: Mapped[str | None]
 
     webauthn: Mapped[list[WebAuthn]] = orm.relationship(
-        "WebAuthn", backref="user", cascade="all, delete-orphan", lazy=True
+        back_populates="user", cascade="all, delete-orphan", lazy=True
     )
 
     recovery_codes: Mapped[list[RecoveryCode]] = orm.relationship(
-        "RecoveryCode", backref="user", cascade="all, delete-orphan", lazy="dynamic"
+        back_populates="user", cascade="all, delete-orphan", lazy="dynamic"
     )
 
     emails: Mapped[list[Email]] = orm.relationship(
-        "Email", backref="user", cascade="all, delete-orphan", lazy=False
+        back_populates="user", cascade="all, delete-orphan", lazy=False
     )
 
     macaroons: Mapped[list[Macaroon]] = orm.relationship(
-        "Macaroon",
         cascade="all, delete-orphan",
         lazy=True,
         order_by="Macaroon.created.desc()",
     )
 
+    organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
+        back_populates="submitted_by",
+    )
+
+    organizations: Mapped[list[Organization]] = orm.relationship(
+        secondary="organization_roles",
+        back_populates="users",
+        lazy=True,
+        order_by="Organization.name",
+        viewonly=True,
+    )
+
     pending_oidc_publishers: Mapped[list[PendingOIDCPublisher]] = orm.relationship(
-        "PendingOIDCPublisher",
-        backref="added_by",
+        back_populates="added_by",
         cascade="all, delete-orphan",
         lazy=True,
     )
 
     projects: Mapped[list[Project]] = orm.relationship(
-        "Project",
         secondary="roles",
         back_populates="users",
         lazy=True,
         viewonly=True,
         order_by="Project.normalized_name",
+    )
+
+    organization_roles: Mapped[list[OrganizationRole]] = orm.relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy=True,
+        viewonly=True,
+    )
+
+    teams: Mapped[list[Team]] = orm.relationship(
+        secondary="team_roles",
+        back_populates="members",
+        lazy=True,
+        viewonly=True,
+        order_by="Team.name",
     )
 
     @property
@@ -218,13 +253,31 @@ class User(SitemapMixin, HasEvents, db.Model):
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
+        if self.is_observer or self.is_superuser:
+            principals.append("group:observers")
 
         return principals
 
     def __acl__(self):
+        # TODO: This ACL is duplicating permissions set in RootFactory.__acl__
+        #   If nothing else, setting the ACL on the model is more restrictive
+        #   than RootFactory.__acl__, which is why we duplicate
+        #   AdminDashboardSidebarRead here, otherwise the sidebar is not displayed.
         return [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
         ]
 
     def __lt__(self, other):
@@ -243,6 +296,7 @@ class WebAuthn(db.Model):
         nullable=False,
         index=True,
     )
+    user: Mapped[User] = orm.relationship(back_populates="webauthn")
     label: Mapped[str]
     credential_id: Mapped[str] = mapped_column(unique=True)
     public_key: Mapped[str | None] = mapped_column(unique=True)
@@ -258,6 +312,7 @@ class RecoveryCode(db.Model):
         nullable=False,
         index=True,
     )
+    user: Mapped[User] = orm.relationship(back_populates="recovery_codes")
     code: Mapped[str] = mapped_column(String(length=128))
     generated: Mapped[datetime_now]
     burned: Mapped[datetime.datetime | None]
@@ -281,6 +336,7 @@ class Email(db.ModelBase):
         PG_UUID(as_uuid=True),
         ForeignKey("users.id", deferrable=True, initially="DEFERRED"),
     )
+    user: Mapped[User] = orm.relationship(back_populates="emails")
     email: Mapped[str] = mapped_column(String(length=254))
     primary: Mapped[bool]
     verified: Mapped[bool]

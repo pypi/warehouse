@@ -34,22 +34,21 @@ from pyramid.httpexceptions import (
     HTTPException,
     HTTPForbidden,
     HTTPGone,
+    HTTPOk,
     HTTPPermanentRedirect,
     HTTPTooManyRequests,
 )
-from pyramid.response import Response
 from pyramid.view import view_config
 from sqlalchemy import func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
-    send_basic_auth_with_two_factor_email,
     send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
-from warehouse.errors import BasicAuthTwoFactorEnabled
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -59,6 +58,7 @@ from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
     Description,
+    DynamicFieldsEnum,
     File,
     Filename,
     JournalEntry,
@@ -67,15 +67,14 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import readme
+from warehouse.utils import http, readme
 from warehouse.utils.project import validate_project_name
-from warehouse.utils.security_policy import AuthenticationMethod
+
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
 
 MAX_FILESIZE = 100 * ONE_MB
-MAX_SIGSIZE = 8 * 1024
 MAX_PROJECT_SIZE = 10 * ONE_GB
 
 PATH_HASHER = "blake2_256"
@@ -567,16 +566,13 @@ def file_upload(request):
             )
 
         # We attempt to create the project.
-        try:
-            validate_project_name(form.name.data, request)
-        except HTTPException as exc:
-            raise _exc_with_message(exc.__class__, exc.detail) from None
-
         project_service = request.find_service(IProjectService)
         try:
             project = project_service.create_project(
                 form.name.data, request.user, request
             )
+        except HTTPException as exc:
+            raise _exc_with_message(exc.__class__, exc.detail) from None
         except RateLimiterException:
             msg = "Too many new projects created"
             raise _exc_with_message(HTTPTooManyRequests, msg)
@@ -584,7 +580,7 @@ def file_upload(request):
     # Check that the identity has permission to do things to this project, if this
     # is a new project this will act as a sanity check for the role we just
     # added above.
-    allowed = request.has_permission("upload", project)
+    allowed = request.has_permission(Permissions.ProjectsUpload, project)
     if not allowed:
         reason = getattr(allowed, "reason", None)
         if request.user:
@@ -613,25 +609,6 @@ def file_upload(request):
                 else allowed.msg
             )
         raise _exc_with_message(HTTPForbidden, msg)
-
-    # Check if the user has 2FA and used basic auth
-    # NOTE: We don't need to guard request.user here because basic auth
-    # can only be used with user identities.
-    if (
-        request.authentication_method == AuthenticationMethod.BASIC_AUTH
-        and request.user.has_two_factor
-    ):
-        send_basic_auth_with_two_factor_email(
-            request, request.user, project_name=project.name
-        )
-        raise _exc_with_message(
-            BasicAuthTwoFactorEnabled,
-            (
-                f"User { request.user.username } has two factor auth enabled, "
-                "an API Token or Trusted Publisher must be used to upload "
-                "in place of password."
-            ),
-        )
 
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
@@ -749,6 +726,9 @@ def file_upload(request):
                     "maintainer_email",
                     "home_page",
                     "download_url",
+                    "requires_python",
+                    "dynamic",
+                    "provides_extra",
                 }
             },
             uploader=request.user if request.user else None,
@@ -762,7 +742,9 @@ def file_upload(request):
                 "provided signature has been discarded."
             )
             send_gpg_signature_uploaded_email(
-                request, request.user, project_name=project.name
+                request,
+                request.user if request.user else project.users,
+                project_name=project.name,
             )
 
         # TODO: This should be handled by some sort of database trigger or
@@ -781,15 +763,16 @@ def file_upload(request):
             tag=EventTag.Project.ReleaseAdd,
             request=request,
             additional={
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
+                "submitted_by": (
+                    request.user.username if request.user else "OpenID created token"
+                ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
@@ -917,7 +900,7 @@ def file_upload(request):
         is_duplicate = _is_duplicate_file(request.db, filename, file_hashes)
         if is_duplicate:
             request.tm.doom()
-            return Response()
+            return HTTPOk()
         elif is_duplicate is not None:
             raise _exc_with_message(
                 HTTPBadRequest,
@@ -1055,16 +1038,17 @@ def file_upload(request):
             request=request,
             additional={
                 "filename": file_.filename,
-                "submitted_by": request.user.username
-                if request.user
-                else "OpenID created token",
+                "submitted_by": (
+                    request.user.username if request.user else "OpenID created token"
+                ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": request.oidc_publisher.publisher_url(
-                    request.oidc_claims
-                )
-                if request.oidc_publisher
-                else None,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "project_id": str(project.id),
+                "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
 
@@ -1166,7 +1150,7 @@ def file_upload(request):
         "uploaded_via": file_data.uploaded_via,
         "upload_time": file_data.upload_time,
     }
-    if not request.registry.settings.get("warehouse.release_files_table") is None:
+    if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)
 
     # Log a successful upload
@@ -1176,7 +1160,7 @@ def file_upload(request):
     request.task(sync_file_to_cache).delay(file_.id)
 
     # Return any warnings that we've accumulated as the response body.
-    return Response("\n".join(warnings))
+    return HTTPOk(body="\n".join(warnings))
 
 
 @view_config(

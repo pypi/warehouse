@@ -38,7 +38,6 @@ packaging_legacy
 paginate>=0.5.2
 paginate_sqlalchemy
 passlib>=1.6.4
-pip-api
 premailer
 psycopg[c]
 pycurl
@@ -70,7 +69,7 @@ transaction
 trove-classifiers
 ua-parser
 urllib3<2  # See https://github.com/pypi/warehouse/issues/14671
-webauthn>=1.0.0,<2.0.0
+webauthn>=1.0.0,<3.0.0
 whitenoise
 WTForms[email]>=2.0.0
 zope.sqlalchemy

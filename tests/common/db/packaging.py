@@ -18,6 +18,7 @@ import factory
 import faker
 import packaging.utils
 
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
@@ -54,6 +55,18 @@ class ProjectEventFactory(WarehouseFactory):
         model = Project.Event
 
     source = factory.SubFactory(ProjectFactory)
+
+
+class ProjectObservationFactory(WarehouseFactory):
+    class Meta:
+        model = Project.Observation
+
+    kind = factory.Faker(
+        "random_element", elements=[kind.value[1] for kind in ObservationKind]
+    )
+    payload = factory.Faker("json")
+    # TODO: add `observer` field
+    summary = factory.Faker("paragraph")
 
 
 class DescriptionFactory(WarehouseFactory):
@@ -128,6 +141,7 @@ class FileEventFactory(WarehouseFactory):
         model = File.Event
 
     source = factory.SubFactory(FileFactory)
+    additional = {"publisher_url": None}
 
 
 class RoleFactory(WarehouseFactory):
@@ -164,7 +178,6 @@ class JournalEntryFactory(WarehouseFactory):
     class Meta:
         model = JournalEntry
 
-    id = factory.Sequence(lambda n: n)
     name = factory.Faker("word")
     version = factory.Sequence(lambda n: str(n) + ".0")
     submitted_date = factory.Faker(

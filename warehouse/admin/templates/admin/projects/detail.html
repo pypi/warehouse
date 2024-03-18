@@ -15,24 +15,6 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
-<div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
-
-  <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder)}}
-
-    {% if field.errors %}
-    <div class="help-block">
-      {% for error in field.errors %}
-      <div>{{ error }}</div>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</div>
-{% endmacro %}
-
 {% block title %}{{ project.name }}{% endblock %}
 
 {% block breadcrumb %}
@@ -133,7 +115,7 @@
             <td><a href="{{ request.route_path('admin.user.detail', username=role.user.username) }}">{{ role.user.username }}</a></td>
             <td>{{ role.role_name }}</td>
             <td>
-              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission('moderator') }}>
+              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteRoleModal-{{ role.id }}" {{ "disabled" if not request.has_permission(Permissions.AdminRoleDelete) }}>
               <i class="fa fa-trash"></i>
               </button>
               <div class="modal fade" id="deleteRoleModal-{{ role.id }}" tabindex="-1" role="dialog">
@@ -173,10 +155,10 @@
             <form method="POST" action="{{ request.route_path('admin.project.add_role', project_name=project.name) }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <td>
-                <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission('moderator') }}>
+                <input name="username" class="form-control" placeholder="Username" required {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
               </td>
               <td>
-                <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission('moderator') }}>
+                <select class="form-control" name="role_name" required {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
                 <option disabled selected>Select a role</option>
                 {% for role_name in ['Maintainer', 'Owner'] %}
                 <option value="{{ role_name }}">
@@ -186,7 +168,7 @@
                 </select>
               </td>
               <td>
-                <button type="submit" class="btn btn-primary" {{ "disabled" if not request.has_permission('moderator') }}>
+                <button type="submit" class="btn btn-primary" {{ "disabled" if not request.has_permission(Permissions.AdminRoleAdd) }}>
                 <i class="fa fa-plus"></i>
                 </button>
               </td>
@@ -209,6 +191,7 @@
             <th>Created</th>
             <th>Uploader</th>
             <th>Author email</th>
+            <th>Observations</th>
           </tr>
         </thead>
         <tbody>
@@ -222,6 +205,7 @@
               {% endif %}
             </td>
             <td>{{ release.author_email }}</td>
+            <td>{{ release.observations|length }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -266,6 +250,97 @@
     {% endif %}
   </div>
 </div> <!-- .card #oidc-publishers -->
+
+<div class="card card-primary card-outline collapsed-card" id="project_observations">
+  <div class="card-header">
+    <h3 class="card-title">Project Observations</h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
+      </button>
+    </div>
+  </div>
+
+  <div class="card-body">
+    {% if observations %}
+    {# TODO: Make this dataTables-enabled for sorting, filtering, etc. See Account Activity for an example. #}
+    <div class="table-responsive p-0">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th>Created</th>
+            <th>Kind</th>
+            <th>Reporter</th>
+            <th>Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for observation in observations %}
+          <tr>
+            <td>{{ observation.created }}</td>
+            {# TODO: There's no exact relationship back to the ObservationKind to get the human-string. Not exactly sure how to get that yet. #}
+            <td>{{ observation.kind }}</td>
+            <td>
+              {# TODO: This won't work yet for non-User Observers #}
+              <a href="{{ request.route_path('admin.user.detail', username=observation.observer.parent.username) }}">{{ observation.observer.parent.username }}</a>
+            </td>
+            <td>{{ observation.summary }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    No observations.
+    {% endif %}
+  </div>
+  <div class="card-footer">
+    <a class="text-center" href="{{ request.route_path('admin.project.observations', project_name=project.name) }}">All observations</a>
+    <button type="button" class="btn btn-outline-primary float-right" data-toggle="modal" data-target="#addObservationModal">
+      Add Observation
+    </button>
+    <div class="modal fade" id="addObservationModal" tabindex="-1" role="dialog">
+      <form method="POST" action="{{ request.route_path('admin.project.add_project_observation', project_name=project.name) }}">
+        <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="exampleModalLabel">Add Observation for {{ project.name }}</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                <span>&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="row">
+                <div class="col-auto">
+                  <div class="form-group">
+                    {% for observation_kind in observation_kinds %}
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="kind" id="{{ observation_kind.value[0] }}" value="{{ observation_kind.value[0] }}">
+                      <label class="form-check-label" for="{{ observation_kind.value[0] }}" >
+                        {{ observation_kind.value[1] }}
+                      </label>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="form-group">
+                    <label class="form-check-label" for="projectObservationText">What do we need to know?</label>
+                    <textarea class="form-control" id="projectObservationText" name="summary" rows="3" placeholder="Enter ..."></textarea>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-info">Submit</button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div> <!-- .modal #addObservationModal -->
+  </div> <!-- .card-footer -->
+</div> <!-- .card #project_observations -->
 
 <div class="card card-primary card-outline collapsed-card" id="journals">
   <div class="card-header">
@@ -381,13 +456,13 @@
     <div class="card-body">
       <div class="form-group col-sm-12">
         <label for="prohibitedComment">Comment</label>
-        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission('admin') }}></textarea>
+        <textarea name="comment" class="form-control" id="prohibitedComment" rows="3" placeholder="Enter comment ..." {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}></textarea>
       </div>
     </div>
 
     <div class="card-footer">
       <div class="float-right">
-        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+        <button type="submit" class="btn btn-primary" title="{{ 'Submitting requires superuser privileges' if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminProhibitedProjectsWrite) }}>Submit</button>
       </div>
     </div>
   </div>

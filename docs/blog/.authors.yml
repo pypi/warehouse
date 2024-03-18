@@ -1,0 +1,21 @@
+authors:
+  di:
+    name: Dustin Ingram
+    description: PyPI Admin
+    avatar: https://github.com/di.png
+  dstufft:
+    name: Donald Stufft
+    description: PyPI Admin
+    avatar: https://github.com/dstufft.png
+  ewdurbin:
+    name: Ee Durbin
+    description: PyPI Admin, Director of Infrastructure (PSF)
+    avatar: https://github.com/ewdurbin.png
+  miketheman:
+    name: Mike Fiedler
+    description: PyPI Admin, Safety & Security Engineer (PSF)
+    avatar: https://github.com/miketheman.png
+  s-mm:
+    name: Shamika Monahan
+    description: Packaging Project Manager (PSF) (alum)
+    avatar: https://github.com/s-mm.png

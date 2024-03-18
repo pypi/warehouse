@@ -11,5 +11,4 @@
 # limitations under the License.
 
 
-class InvalidMacaroonError(Exception):
-    ...
+class InvalidMacaroonError(Exception): ...

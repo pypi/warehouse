@@ -141,7 +141,7 @@
     <h3>{% trans %}No files found{% endtrans %}</h3>
     {% endif %}
     <button type="button" title="{% trans %}Dismiss{% endtrans %}" data-action="click->dismissable#dismiss" class="callout-block__dismiss" aria-label="{% trans %}Close{% endtrans %}"><i class="fa fa-times" aria-hidden="true"></i></button>
-    <p>{% trans href='https://packaging.python.org/tutorials/distributing-packages/#uploading-your-project-to-pypi', title=gettext('External link') %}Learn how to upload files on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
+    <p>{% trans href='https://packaging.python.org/guides/distributing-packages-using-setuptools/#uploading-your-project-to-pypi', title=gettext('External link') %}Learn how to upload files on the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>{% endtrans %}</p>
   </div>
 
   <h3>{% trans %}Release settings{% endtrans %}</h3>
@@ -204,7 +204,7 @@
         <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> {% trans href="https://pypi.org/help/#file-name-reuse" %}I understand that I will <a href="{{ href }}" target="_blank" rel="noopener">not be able to re-upload any deleted files using the same file names</a>.{% endtrans %}</li>
         <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> {% trans %}I understand that I will not be able to undo this.{% endtrans %}</li>
         <li><input type="checkbox" data-action="input->delete-confirm#check" data-delete-confirm-target="input"> {% trans %}I understand that the PyPI administrators will not be able to undo this.{% endtrans %}</li>
-      </ul> 
+      </ul>
     </p>
     {{ confirm_button(gettext("Delete release"), gettext("Version"), "delete_version", release.version, additional_attributes="data-delete-confirm-target=button") }}
   </div>

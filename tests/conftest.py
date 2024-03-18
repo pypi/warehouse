@@ -50,7 +50,7 @@ from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 from warehouse.oidc import services as oidc_services
 from warehouse.oidc.interfaces import IOIDCPublisherService
-from warehouse.oidc.utils import GITHUB_OIDC_ISSUER_URL
+from warehouse.oidc.utils import ACTIVESTATE_OIDC_ISSUER_URL, GITHUB_OIDC_ISSUER_URL
 from warehouse.organizations import services as organization_services
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.packaging import services as packaging_services
@@ -168,7 +168,8 @@ def pyramid_services(
     token_service,
     user_service,
     project_service,
-    oidc_service,
+    github_oidc_service,
+    activestate_oidc_service,
     macaroon_service,
 ):
     services = _Services()
@@ -183,7 +184,12 @@ def pyramid_services(
     services.register_service(token_service, ITokenService, None, name="email")
     services.register_service(user_service, IUserService, None, name="")
     services.register_service(project_service, IProjectService, None, name="")
-    services.register_service(oidc_service, IOIDCPublisherService, None, name="github")
+    services.register_service(
+        github_oidc_service, IOIDCPublisherService, None, name="github"
+    )
+    services.register_service(
+        activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
+    )
     services.register_service(macaroon_service, IMacaroonService, None, name="")
 
     return services
@@ -198,6 +204,7 @@ def pyramid_request(pyramid_services, jinja, remote_addr, remote_addr_hashed):
     dummy_request.remote_addr_hashed = remote_addr_hashed
     dummy_request.authentication_method = pretend.stub()
     dummy_request._unauthenticated_userid = None
+    dummy_request.user = None
     dummy_request.oidc_publisher = None
 
     dummy_request.registry.registerUtility(jinja, IJinja2Environment, name=".jinja2")
@@ -248,9 +255,15 @@ def database(request):
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 14.4)
+    pg_version = config.get("version", 14.11)
 
-    janitor = DatabaseJanitor(pg_user, pg_host, pg_port, pg_db, pg_version)
+    janitor = DatabaseJanitor(
+        user=pg_user,
+        host=pg_host,
+        port=pg_port,
+        dbname=pg_db,
+        version=pg_version,
+    )
 
     # In case the database already exists, possibly due to an aborted test run,
     # attempt to drop it before creating
@@ -306,6 +319,8 @@ def app_config(database):
         "docs.backend": "warehouse.packaging.services.LocalDocsStorage",
         "sponsorlogos.backend": "warehouse.admin.services.LocalSponsorLogoStorage",
         "billing.backend": "warehouse.subscriptions.services.MockStripeBillingService",
+        "billing.api_base": "http://stripe:12111",
+        "billing.api_version": "2020-08-27",
         "mail.backend": "warehouse.email.services.SMTPEmailSender",
         "files.url": "http://localhost:7000/",
         "archive_files.url": "http://localhost:7000/archive",
@@ -366,12 +381,110 @@ def project_service(db_session, metrics, ratelimiters=None):
 
 
 @pytest.fixture
-def oidc_service(db_session):
+def github_oidc_service(db_session):
     # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
     return oidc_services.NullOIDCPublisherService(
         db_session,
         pretend.stub(),
         GITHUB_OIDC_ISSUER_URL,
+        pretend.stub(),
+        pretend.stub(),
+        pretend.stub(),
+    )
+
+
+@pytest.fixture
+def dummy_github_oidc_jwt():
+    # {
+    #  "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #  "sub": "repo:foo/bar",
+    #  "aud": "pypi",
+    #  "ref": "fake",
+    #  "sha": "fake",
+    #  "repository": "foo/bar",
+    #  "repository_owner": "foo",
+    #  "repository_owner_id": "123",
+    #  "run_id": "fake",
+    #  "run_number": "fake",
+    #  "run_attempt": "1",
+    #  "repository_id": "fake",
+    #  "actor_id": "fake",
+    #  "actor": "foo",
+    #  "workflow": "fake",
+    #  "head_ref": "fake",
+    #  "base_ref": "fake",
+    #  "event_name": "fake",
+    #  "ref_type": "fake",
+    #  "environment": "fake",
+    #  "job_workflow_ref": "foo/bar/.github/workflows/example.yml@fake",
+    #  "iss": "https://token.actions.githubusercontent.com",
+    #  "nbf": 1650663265,
+    #  "exp": 1650664165,
+    #  "iat": 1650663865
+    # }
+    return (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRiZ"
+        "TUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJyZXBvOmZvby9iYXIiLCJhdWQiOiJweXB"
+        "pIiwicmVmIjoiZmFrZSIsInNoYSI6ImZha2UiLCJyZXBvc2l0b3J5IjoiZm9vL2JhciIsI"
+        "nJlcG9zaXRvcnlfb3duZXIiOiJmb28iLCJyZXBvc2l0b3J5X293bmVyX2lkIjoiMTIzIiw"
+        "icnVuX2lkIjoiZmFrZSIsInJ1bl9udW1iZXIiOiJmYWtlIiwicnVuX2F0dGVtcHQiOiIxI"
+        "iwicmVwb3NpdG9yeV9pZCI6ImZha2UiLCJhY3Rvcl9pZCI6ImZha2UiLCJhY3RvciI6ImZ"
+        "vbyIsIndvcmtmbG93IjoiZmFrZSIsImhlYWRfcmVmIjoiZmFrZSIsImJhc2VfcmVmIjoiZ"
+        "mFrZSIsImV2ZW50X25hbWUiOiJmYWtlIiwicmVmX3R5cGUiOiJmYWtlIiwiZW52aXJvbm1"
+        "lbnQiOiJmYWtlIiwiam9iX3dvcmtmbG93X3JlZiI6ImZvby9iYXIvLmdpdGh1Yi93b3JrZ"
+        "mxvd3MvZXhhbXBsZS55bWxAZmFrZSIsImlzcyI6Imh0dHBzOi8vdG9rZW4uYWN0aW9ucy5"
+        "naXRodWJ1c2VyY29udGVudC5jb20iLCJuYmYiOjE2NTA2NjMyNjUsImV4cCI6MTY1MDY2N"
+        "DE2NSwiaWF0IjoxNjUwNjYzODY1fQ.f-FMv5FF5sdxAWeUilYDt9NoE7Et0vbdNhK32c2o"
+        "C-E"
+    )
+
+
+@pytest.fixture
+def dummy_activestate_oidc_jwt():
+    # {
+    #   "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "sub": "org:fakeorg:project:fakeproject",
+    #   "aud": "pypi",
+    #   "actor_id": "fake",
+    #   "actor": "foo",
+    #   "oraganization_id": "7e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "organization": "fakeorg",
+    #   "project_visibility": "private",
+    #   "project_id": "8e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "project_path": "fakeorg/fakeproject",
+    #   "project": "fakeproject",
+    #   "builder": "pypi_builder",
+    #   "ingredient_name": "fakeingredient",
+    #   "artifact_id": "9e67b1cb-2b8d-4be5-91cb-757edb2ec970",
+    #   "iss":"https://platform.activestate.com/api/v1/oauth/oidc",
+    #   "nbf": 1650663265,
+    #   "exp": 1650664165,
+    #   "iat": 1650663865
+    # }
+    return (
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI2ZTY3YjFjYi0yYjhkLTRi"
+        "ZTUtOTFjYi03NTdlZGIyZWM5NzAiLCJzdWIiOiJvcmc6ZmFrZW9yZzpwcm9qZWN0OmZha"
+        "2Vwcm9qZWN0IiwiYXVkIjoicHlwaSIsImFjdG9yX2lkIjoiZmFrZSIsImFjdG9yIjoiZm"
+        "9vIiwib3JhZ2FuaXphdGlvbl9pZCI6IjdlNjdiMWNiLTJiOGQtNGJlNS05MWNiLTc1N2V"
+        "kYjJlYzk3MCIsIm9yZ2FuaXphdGlvbiI6ImZha2VvcmciLCJwcm9qZWN0X3Zpc2liaWxp"
+        "dHkiOiJwcml2YXRlIiwicHJvamVjdF9pZCI6IjhlNjdiMWNiLTJiOGQtNGJlNS05MWNiL"
+        "Tc1N2VkYjJlYzk3MCIsInByb2plY3RfcGF0aCI6ImZha2VvcmcvZmFrZXByb2plY3QiLC"
+        "Jwcm9qZWN0IjoiZmFrZXByb2plY3QiLCJidWlsZGVyIjoicHlwaV9idWlsZGVyIiwiaW5"
+        "ncmVkaWVudF9uYW1lIjoiZmFrZWluZ3JlZGllbnQiLCJhcnRpZmFjdF9pZCI6IjllNjdi"
+        "MWNiLTJiOGQtNGJlNS05MWNiLTc1N2VkYjJlYzk3MCIsImlzcyI6Imh0dHBzOi8vcGxhd"
+        "GZvcm0uYWN0aXZlc3RhdGUuY29tL2FwaS92MS9vYXV0aC9vaWRjIiwibmJmIjoxNjUwNj"
+        "YzMjY1LCJleHAiOjE2NTA2NjQxNjUsImlhdCI6MTY1MDY2Mzg2NX0.R4q-vWAFXHrBSBK"
+        "AZuHHIsGOkqlirPxEtLfjLIDiLr0"
+    )
+
+
+@pytest.fixture
+def activestate_oidc_service(db_session):
+    # We pretend to be a verifier for GitHub OIDC JWTs, for the purposes of testing.
+    return oidc_services.NullOIDCPublisherService(
+        db_session,
+        pretend.stub(),
+        ACTIVESTATE_OIDC_ISSUER_URL,
         pretend.stub(),
         pretend.stub(),
         pretend.stub(),

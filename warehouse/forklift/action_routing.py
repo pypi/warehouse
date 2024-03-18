@@ -10,14 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.legacy.action_routing import pypi_action
-
 
 def add_legacy_action_route(config, name, action, **kwargs):
-    custom_predicates = kwargs.pop("custom_predicates", [])
-    custom_predicates += [pypi_action(action)]
-
-    config.add_route(name, "/legacy/", custom_predicates=custom_predicates, **kwargs)
+    config.add_route(name, "/legacy/", pypi_action=action, **kwargs)
 
 
 def includeme(config):

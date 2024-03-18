@@ -209,23 +209,16 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
-    make initdb
+    make serve
 
 This command will:
 
-* create a new Postgres database,
-* install example data to the Postgres database,
+* ensure the db is prepared,
 * run migrations,
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
+* start up the containers needed to run Warehouse
 
-Once the ``make initdb`` command has finished, you are ready to continue:
-
-.. code-block:: console
-
-    make serve
-
-This command starts the containers that run Warehouse on your local machine.
 After the initial build process, you will only need this command each time you
 want to startup Warehouse locally.
 
@@ -248,6 +241,16 @@ or that the ``static`` container has finished compiling the static assets:
     warehouse-static-1  | webpack 5.75.0 compiled with 1 warning in 6610 ms
 
 or maybe something else.
+
+
+Resetting the development database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    make resetdb
+
+This command will fully reset the development database.
 
 
 Viewing Warehouse in a browser
@@ -543,6 +546,21 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
+You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. code-block:: console
+
+    TESTARGS="-vvv -x" make tests
+
+This will pass the arguments ``-vvv`` and ``-x`` down to ``pytest``.
+
+This is useful in scenarios like passing a
+`random seed <https://pypi.org/project/pytest-randomly/>`_ to the test runner:
+
+.. code-block:: console
+
+    TESTARGS="--randomly-seed=1234" make tests
+
 You can run linters, programs that check the code, with:
 
 .. code-block:: console
@@ -568,10 +586,11 @@ Use :command:`make` to build the documentation. For example:
 
 .. code-block:: console
 
-    make docs
+    make user-docs dev-docs
 
-The HTML documentation index can now be found at
-:file:`docs/_build/html/index.html`.
+The HTML index for the user documentation can now be found at
+:file:`docs/user-site/index.html`, and the index for the developer
+documentation at :file:`docs/dev/_build/html/index.html`.
 
 Building the docs requires Python 3.8. If it is not installed, the
 :command:`make` command will give the following error message:
