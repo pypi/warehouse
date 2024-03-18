@@ -63,9 +63,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==1.32.0 \
-    --hash=sha256:46321bccdd9a295af52cb05d98b5df9771bddf8dcdf68afe3a9fdf7dda156b32 \
-    --hash=sha256:84b6f7f01b6fc74f982944d40260df695f1fdeae9fcee0b49afd053a7ad75501
+b2sdk==1.33.0 \
+    --hash=sha256:bb4b52081491146776326dced464f14fafc54853a062d2acc326159dddb7d76e \
+    --hash=sha256:e7eeb8e95694ad8f9495a4ed4d39d011db865adfe9a6c9a6852245d703ebd476
     # via -r requirements/main.in
 babel==2.14.0 \
     --hash=sha256:6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363 \
@@ -1866,7 +1866,6 @@ setuptools==69.2.0 \
     --hash=sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c
     # via
     #   -r requirements/main.in
-    #   b2sdk
     #   pyramid
     #   repoze-sendmail
     #   zope-deprecation
