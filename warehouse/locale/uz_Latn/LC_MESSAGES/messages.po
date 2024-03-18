@@ -2,13 +2,14 @@
 # Beck Jacob <jp-beck@outlook.com>, 2021, 2022.
 # behzod musurmonqulov <behzodmusurmonqulov@gmail.com>, 2021, 2022.
 # Kamoldinov Farohiddin <Kfldm2255@gmail.com>, 2022.
+# Shahobiddin Anorboyev <anorprogrammer1127@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-09-09 20:34+0200\n"
-"PO-Revision-Date: 2022-06-28 19:52+0000\n"
-"Last-Translator: Beck Jacob <jp-beck@outlook.com>\n"
+"PO-Revision-Date: 2024-03-18 12:45+0000\n"
+"Last-Translator: Shahobiddin Anorboyev <anorprogrammer1127@gmail.com>\n"
 "Language-Team: Uzbek (latin) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/uz_Latn/>\n"
 "Language: uz_Latn\n"
@@ -16,16 +17,17 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.13.1-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 
 #: warehouse/views.py:142
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Bu amalni bajarishdan oldin **asosiy** elektron pochta manzilingizni "
+"tasdiqlashingiz kerak."
 
 #: warehouse/views.py:158
-#, fuzzy
 msgid ""
 "Two-factor authentication must be enabled on your account to perform this "
 "action."
@@ -67,6 +69,7 @@ msgstr "TOTP kodi ${totp_length} shaklida bo'lishi kerak."
 #: warehouse/accounts/forms.py:122
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
+"Qayta tiklash kodlari ${recovery_code_length} belgidan iborat bo‘lishi kerak."
 
 #: warehouse/accounts/forms.py:137
 msgid "Choose a username with 50 characters or less."
@@ -82,31 +85,24 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
 #: warehouse/accounts/forms.py:230
-#, fuzzy
-#| msgid "Password strength:"
 msgid "Password too long."
-msgstr "Kalit so'z mustahkamligi:"
+msgstr "Parol juda uzun."
 
 #: warehouse/accounts/forms.py:204
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
-"ko'ring."
+"Kirish uchun juda koʻp muvaffaqiyatsiz urinishlar boʻldi. Siz ${time}ga "
+"bloklangansiz. Iltimos keyinroq qayta urinib ko'ring."
 
 #: warehouse/accounts/forms.py:233
 msgid "Your passwords don't match. Try again."
 msgstr "Parolingiz mosh tushmadi. Qaytadan urinib ko'ring."
 
 #: warehouse/accounts/forms.py:267
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
+msgstr "Elektron pochta manzili juda uzun. Qayta urinib ko'ring."
 
 #: warehouse/accounts/forms.py:278
 msgid "The email address isn't valid. Try again."
@@ -154,24 +150,19 @@ msgstr "Qayta tiklash kodi yaroqsiz."
 
 #: warehouse/accounts/forms.py:523
 msgid "Recovery code has been previously used."
-msgstr ""
+msgstr "Qayta tiklash kodi ilgari ishlatilgan."
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "Email manzili mavjud emas. Qaytadan urinib ko'ring."
+msgstr "Foydalanuvchi nomi yaroqsiz. Qayta urinib ko'ring."
 
 #: warehouse/accounts/views.py:120
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"Kirishga urinishlar belgilangan miqdordan oshdi. Iltimos, keyinroq urinib "
-"ko'ring."
+"Kirish uchun juda koʻp muvaffaqiyatsiz urinishlar boʻldi. Siz {} uchun "
+"bloklangansiz. Iltimos keyinroq qayta urinib ko'ring."
 
 #: warehouse/accounts/views.py:137
 msgid ""
@@ -182,17 +173,14 @@ msgstr ""
 "Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:149
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"Bu hisobga tasdiqlanmagan juda ko'p elektron pochta xabarlari qo'shilgan. "
-"Kirish qutisini tekshiring va havolalarni tekshiring. (IP: ${ip})"
+"Bu hisob uchun juda koʻp parolni oʻzgartirish soʻrovi bajarilmasdan turib "
+"amalga oshirildi. Pochtangizni tekshiring va quydagi havolalarga amal "
+"qiling. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
@@ -314,28 +302,20 @@ msgid "Invalid token: not an organization invitation token"
 msgstr "Noto'g'ri token: hamkorlik taklifnomasi emas"
 
 #: warehouse/accounts/views.py:1028
-#, fuzzy
-#| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
-msgstr "Rol taklifi haqiqiy emas."
+msgstr "Tashkilot taklifi haqiqiy emas."
 
 #: warehouse/accounts/views.py:1037
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
-msgstr "Rol taklifnomasi endi yo'q."
+msgstr "Tashkilot taklifi endi mavjud emas."
 
 #: warehouse/accounts/views.py:1088
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "\"$ {Project_name}\" taklifi rad etildi."
+msgstr "'${organization_name}' taklifi rad etildi."
 
 #: warehouse/accounts/views.py:1151
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
+msgstr "Siz hozir “${organization_name}” tashkilotining ${role}isiz."
 
 #: warehouse/accounts/views.py:1185
 #, fuzzy
@@ -371,26 +351,18 @@ msgstr "Siz hozir \"$ {project_name}\" loyihasining $ {role} a'zosisiz."
 
 #: warehouse/accounts/views.py:1556 warehouse/accounts/views.py:1799
 #: warehouse/manage/views/__init__.py:1212
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
+"Ishonchli chop etish vaqtincha o‘chirib qo‘yilgan. Tafsilotlar uchun "
+"https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/accounts/views.py:1577
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
+"faolsizlantirilgan. Tafsilotlar uchun https://pypi.org/help#admin-"
+"intervention ga qarang."
 
 #: warehouse/accounts/views.py:1593
 msgid ""
@@ -431,12 +403,12 @@ msgstr ""
 
 #: warehouse/accounts/views.py:1674
 msgid "Registered a new pending publisher to create "
-msgstr ""
+msgstr "Yaratish kutilayotgan yangi noshir ro‘yxatdan o‘tkazildi "
 
 #: warehouse/accounts/views.py:1813 warehouse/accounts/views.py:1826
 #: warehouse/accounts/views.py:1833
 msgid "Invalid publisher ID"
-msgstr ""
+msgstr "Noshir identifikatori (ID) noto‘g‘ri"
 
 #: warehouse/accounts/views.py:1839
 msgid "Removed trusted publisher for project "
@@ -447,145 +419,113 @@ msgid "Banner Preview"
 msgstr "Bannerni oldindan ko'rish"
 
 #: warehouse/manage/forms.py:408
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr "50 yoki undan kam belgidan iborat tashkilot hisobi nomini tanlang."
 
 #: warehouse/manage/forms.py:416
-#, fuzzy
-#| msgid ""
-#| "The username is invalid. Usernames must be composed of letters, numbers, "
-#| "dots, hyphens and underscores. And must also start and finish with a "
-#| "letter or number. Choose a different username."
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
 msgstr ""
-"Foydalanuvchi ismi ma'qullanmadi. Foydalanuvchi ismi harflar, raqamlar, "
-"nuqtalar, chiqiqchalar va tagchiziqlardan tuzilgan bo'lishi kerak. Va, "
-"albatta, harf yoki raqam bilan yakunlangan bo'lishi kerak. Boshqa "
-"foydalanuvchi ismini tanlang."
+"Tashkilot hisob nomi yaroqsiz. Tashkilot hisob nomi harflar, raqamlar, "
+"nuqtalar, chiqiqchalar va tagchiziqlar to'plamidan iborat bo'lishi kerak. "
+"Va, albatta, harf yoki raqam bilan yakunlangan bo'lishi kerak. Boshqa "
+"tashkilot nomini tanlang."
 
 #: warehouse/manage/forms.py:439
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
+"Bu tashkilot hisobi nomi allaqachon ishlatilgan. Boshqa tashkilot hisobi "
+"nomini tanlang."
 
 #: warehouse/manage/forms.py:454
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
 msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
+"Siz allaqachon bu nom uchun ariza topshirgansiz. Boshqa tashkilot hisobi "
+"nomini tanlang."
 
 #: warehouse/manage/forms.py:490
-#, fuzzy
-#| msgid "Search projects"
 msgid "Select project"
-msgstr "Loyihalarni qidirish"
+msgstr "Loyihani tanlash"
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:44
 #, fuzzy
 #| msgid "Search projects"
 msgid "Specify project name"
-msgstr "Loyihalarni qidirish"
+msgstr "Loyiha nomini belgilash"
 
 #: warehouse/manage/forms.py:498
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
 msgstr ""
+"Faqat ASCII raqamli va '.', '_' va '-' ni o'z ichiga olgan harf yoki raqam "
+"bilan boshlang va tugating."
 
 #: warehouse/manage/forms.py:505
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This project name has already been used. Choose a different project name."
-msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
+msgstr "Bu loyiha nomi allaqachon ishlatilgan. Boshqa loyiha nomini tanlang."
 
 #: warehouse/manage/forms.py:576
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization name is too long. Choose a organization name with 100 "
 "characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
+"Tashkilot nomi juda uzun. 100 yoki undan kam belgidan iborat tashkilot "
+"nomini tanlang."
 
 #: warehouse/manage/forms.py:588
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization URL is too long. Choose a organization URL with 400 "
 "characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
+"Tashkilot URL manzili juda uzun. 400 yoki undan kam belgidan iborat "
+"tashkilot URL manzilini tanlang."
 
 #: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
-msgstr ""
+msgstr "Tashkilot URL manzili http:// yoki https:// bilan boshlanishi kerak"
 
 #: warehouse/manage/forms.py:606
-#, fuzzy
-#| msgid "The name is too long. Choose a name with 100 characters or less."
 msgid ""
 "The organization description is too long. Choose a organization description "
 "with 400 characters or less."
 msgstr ""
-"Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
-"miqdordagi ism tanlang."
+"Tashkilot tavsifi juda uzun. 400 yoki undan kam belgidan iborat tashkilot "
+"tavsifini tanlang."
 
 #: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
 msgstr ""
 
 #: warehouse/manage/forms.py:671
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "50 ta harfdan oshmaydigan foydalanuvchi ismni tanlang."
+msgstr "50 yoki undan kam belgidan iborat jamoa nomini tanlang."
 
 #: warehouse/manage/forms.py:677
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"Jamoa nomi yaroqsiz. Jamoa nomlari bo'sh joy, nuqta, pastki chiziq, tire "
+"yoki qiyshiq chiziq bilan boshlanmasligi yoki tugamasligi mumkin. Boshqa "
+"jamoa nomini tanlang."
 
 #: warehouse/manage/forms.py:705
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
-msgstr ""
-"Bu foydalanuvchi ismi boshqa foydalanuvchi tomonidan tanlab bo'lingan. "
-"Boshqa foydalanuvchi ismini tanlab ko'ring."
+msgstr "Bu jamoa nomi allaqachon ishlatilgan. Boshqa jamoa nomini tanlang."
 
 #: warehouse/manage/views/__init__.py:203
 msgid "Account details updated"
-msgstr ""
+msgstr "Hisob tafsilotlari yangilandi"
 
 #: warehouse/manage/views/__init__.py:232
 msgid "Email ${email_address} added - check your email for a verification link"
@@ -603,27 +543,23 @@ msgstr "Yangi qutqaruv kodlarini yaratish mavjud kodlarni bekor qiladi."
 
 #: warehouse/manage/views/__init__.py:893
 msgid "Verify your email to create an API token."
-msgstr ""
+msgstr "API tokenini yaratish uchun elektron pochtangizni tasdiqlang."
 
 #: warehouse/manage/views/__init__.py:993
 msgid "API Token does not exist."
-msgstr ""
+msgstr "API tokeni mavjud emas."
 
 #: warehouse/manage/views/__init__.py:1025
 msgid "Invalid credentials. Try again"
 msgstr "Hisob ma'lumotlari noto'g'ri. Qayta urinib ko'ring"
 
 #: warehouse/manage/views/__init__.py:1228
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"Yangi foydalanuvchilarni ro'yxatga olish vaqtincha o'chirilgan. Tafsilotlar "
-"uchun https://pypi.org/help#admin-intervention ga qarang."
+"GitHub-ga asoslangan ishonchli nashriyot vaqtincha o'chirib qo'yilgan. "
+"Tafsilotlar uchun https://pypi.org/help#admin-intervention ga qarang."
 
 #: warehouse/manage/views/__init__.py:1341
 #, fuzzy
