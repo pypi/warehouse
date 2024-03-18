@@ -723,7 +723,6 @@ def file_upload(request):
                     "maintainer_email",
                     "home_page",
                     "download_url",
-                    "requires_python",
                     "dynamic",
                     "provides_extra",
                 }
