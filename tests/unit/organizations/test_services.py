@@ -93,10 +93,14 @@ class TestDatabaseOrganizationService:
     def test_get_organization_applications_by_name(self, organization_service):
         app0 = OrganizationApplicationFactory.create(name="pypi")
         app1 = OrganizationApplicationFactory.create(name="PyPI")
-        assert organization_service.get_organization_applications_by_name("pypi") == [
-            app0,
-            app1,
-        ]
+        assert sorted(
+            organization_service.get_organization_applications_by_name("pypi")
+        ) == sorted(
+            [
+                app0,
+                app1,
+            ]
+        )
 
     def test_get_organization_applications_by_name_and_submitter(
         self, organization_service
@@ -134,11 +138,15 @@ class TestDatabaseOrganizationService:
         assert organization_application.is_approved is None
         assert competing_organization_application.is_approved is None
 
-        assert organization_service.get_organization_applications_by_name(
-            organization_application.name
+        assert sorted(
+            organization_service.get_organization_applications_by_name(
+                organization_application.name
+            )
         ) == sorted([organization_application, competing_organization_application])
-        assert organization_service.get_organization_applications_by_name(
-            organization_application.name, undecided=True
+        assert sorted(
+            organization_service.get_organization_applications_by_name(
+                organization_application.name, undecided=True
+            )
         ) == sorted([organization_application, competing_organization_application])
 
         assert (
