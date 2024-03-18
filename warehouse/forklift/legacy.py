@@ -58,7 +58,6 @@ from warehouse.packaging.models import (
     Dependency,
     DependencyKind,
     Description,
-    DynamicFieldsEnum,
     File,
     Filename,
     JournalEntry,
@@ -67,9 +66,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
-from warehouse.utils import http, readme
-from warehouse.utils.project import validate_project_name
-
+from warehouse.utils import readme
 
 ONE_MB = 1 * 1024 * 1024
 ONE_GB = 1 * 1024 * 1024 * 1024
@@ -1119,24 +1116,26 @@ def file_upload(request):
         "platform": meta.platforms[0] if meta.platforms else None,
         "home_page": meta.home_page,
         "download_url": meta.download_url,
-        "requires_python": str(meta.requires_python)
-        if meta.requires_python is not None
-        else None,
+        "requires_python": (
+            str(meta.requires_python) if meta.requires_python is not None else None
+        ),
         "pyversion": form["pyversion"].data,
         "filetype": form["filetype"].data,
         "comment": form["comment"].data,
         "requires": meta.requires,
         "provides": meta.provides,
         "obsoletes": meta.obsoletes,
-        "requires_dist": [str(r) for r in meta.requires_dist]
-        if meta.requires_dist
-        else None,
+        "requires_dist": (
+            [str(r) for r in meta.requires_dist] if meta.requires_dist else None
+        ),
         "provides_dist": meta.provides_dist,
         "obsoletes_dist": meta.obsoletes_dist,
         "requires_external": meta.requires_external,
-        "project_urls": [", ".join([k, v]) for k, v in meta.project_urls.items()]
-        if meta.project_urls is not None
-        else None,
+        "project_urls": (
+            [", ".join([k, v]) for k, v in meta.project_urls.items()]
+            if meta.project_urls is not None
+            else None
+        ),
         "filename": file_data.filename,
         "python_version": file_data.python_version,
         "packagetype": file_data.packagetype,
