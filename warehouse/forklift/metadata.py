@@ -239,34 +239,11 @@ def _validate_metadata(metadata: Metadata, *, backfill: bool = False):
 
 
 # Map Form fields to RawMetadata
-_FORM_TO_RAW_MAPPING = {
-    "author": "author",
-    "author_email": "author_email",
-    "classifiers": "classifiers",
-    "description": "description",
-    "description_content_type": "description_content_type",
-    "download_url": "download_url",
-    "home_page": "home_page",
-    "keywords": "keywords",
-    "license": "license",
-    "maintainer": "maintainer",
-    "maintainer_email": "maintainer_email",
-    "metadata_version": "metadata_version",
-    "name": "name",
-    "obsoletes": "obsoletes",
-    "obsoletes_dist": "obsoletes_dist",
-    "platform": "platforms",
-    "project_urls": "project_urls",
-    "provides": "provides",
-    "provides_dist": "provides_dist",
-    "requires": "requires",
-    "requires_dist": "requires_dist",
-    "requires_external": "requires_external",
-    "requires_python": "requires_python",
-    "summary": "summary",
-    "supported_platform": "supported_platforms",
-    "version": "version",
+_override = {
+    "platforms": "platform",
+    "supported_platforms": "supported_platform",
 }
+_FORM_TO_RAW_MAPPING = {_override.get(k, k): k for k in _RAW_TO_EMAIL_MAPPING}
 
 
 def parse_form_metadata(data: MultiDict) -> Metadata:
