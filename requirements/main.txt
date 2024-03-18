@@ -63,9 +63,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==1.32.0 \
-    --hash=sha256:46321bccdd9a295af52cb05d98b5df9771bddf8dcdf68afe3a9fdf7dda156b32 \
-    --hash=sha256:84b6f7f01b6fc74f982944d40260df695f1fdeae9fcee0b49afd053a7ad75501
+b2sdk==1.33.0 \
+    --hash=sha256:bb4b52081491146776326dced464f14fafc54853a062d2acc326159dddb7d76e \
+    --hash=sha256:e7eeb8e95694ad8f9495a4ed4d39d011db865adfe9a6c9a6852245d703ebd476
     # via -r requirements/main.in
 babel==2.14.0 \
     --hash=sha256:6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363 \
@@ -871,9 +871,9 @@ idna==3.6 \
     # via
     #   email-validator
     #   requests
-importlib-resources==6.3.0 \
-    --hash=sha256:166072a97e86917a9025876f34286f549b9caf1d10b35a1b372bffa1600c6569 \
-    --hash=sha256:783407aa1cd05550e3aa123e8f7cfaebee35ffa9cb0242919e2d1e4172222705
+importlib-resources==6.3.1 \
+    --hash=sha256:29a3d16556e330c3c8fb8202118c5ff41241cc34cbfb25989bbad226d99b7995 \
+    --hash=sha256:4811639ca7fa830abdb8e9ca0a104dc6ad13de691d9fe0d3173a71304f068159
     # via limits
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
@@ -897,9 +897,9 @@ kombu[sqs]==5.3.1 \
     # via
     #   -r requirements/main.in
     #   celery
-limits==3.10.0 \
-    --hash=sha256:3e617a580f57a21b39393f833c27ad0378c87b309e908c154ee69e6740041959 \
-    --hash=sha256:6e657dccafce64fd8ee023ebf4593cd47e9eac841fd1dec3448f48673ba10b7c
+limits==3.10.1 \
+    --hash=sha256:1ee31d169d498da267a1b72183ae5940afc64b17b4ed4dfd977f6ea5607c2cfb \
+    --hash=sha256:446242f5a6f7b8c7744e286a70793264ed81bca97860f94b821347284d14fbe9
     # via -r requirements/main.in
 linehaul==1.0.1 \
     --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
@@ -1864,7 +1864,6 @@ setuptools==69.2.0 \
     --hash=sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c
     # via
     #   -r requirements/main.in
-    #   b2sdk
     #   pyramid
     #   repoze-sendmail
     #   zope-deprecation
