@@ -710,6 +710,11 @@ def file_upload(request):
             #       this and store this as a list.
             keywords=", ".join(meta.keywords) if meta.keywords else None,
             requires_python=str(meta.requires_python) if meta.requires_python else None,
+            # Since dynamic field values are RFC 822 email headers, which are
+            # case-insensitive, normalize them to title-case so we don't have
+            # to store every possible variation, and can use an enum to restrict them
+            # in the database
+            dynamic=[x.title() for x in meta.dynamic] if meta.dynamic else None,
             **{
                 k: getattr(meta, k)
                 for k in {
@@ -723,7 +728,6 @@ def file_upload(request):
                     "maintainer_email",
                     "home_page",
                     "download_url",
-                    "dynamic",
                     "provides_extra",
                 }
             },
