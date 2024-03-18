@@ -298,9 +298,9 @@ mkdocs-rss-plugin==1.12.1 \
     --hash=sha256:5df9bddfdc1465623def1b14c2656c5e8f62fa7c8bd1c0c667e01fc86105d415 \
     --hash=sha256:acfb8eec95f1db389b36770baf99af3b87e38484cc37993194a35aa173eb3fe8
     # via -r requirements/docs-blog.in
-packaging==23.2 \
-    --hash=sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5 \
-    --hash=sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7
+packaging==24.0 \
+    --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
+    --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
     # via mkdocs
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d
