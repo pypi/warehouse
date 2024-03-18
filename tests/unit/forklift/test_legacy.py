@@ -3151,7 +3151,7 @@ class TestFileUpload:
             "Environment :: Other Environment",
             "Programming Language :: Python",
         ]
-        assert set(release.requires_dist) == {"foo", "bar (>1.0)"}
+        assert set(release.requires_dist) == {"foo", "bar>1.0"}
         assert release.project_urls == {"Test": "https://example.com/"}
         assert set(release.requires_external) == {"Cheese (>1.0)"}
         assert release.version == expected_version
