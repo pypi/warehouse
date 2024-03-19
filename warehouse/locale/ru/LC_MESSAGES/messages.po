@@ -29,13 +29,14 @@
 # Syrodil Eventalious <giannis.yalanskyi@gmail.com>, 2023.
 # Tolik106 <beningtonchess@yandex.ru>, 2023.
 # gfbdrgng <hnaofegnp@hldrive.com>, 2023, 2024.
+# Eugene Evstafev <chigwel@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-03-04 20:50+0000\n"
-"Last-Translator: gfbdrgng <hnaofegnp@hldrive.com>\n"
+"PO-Revision-Date: 2024-03-11 03:55+0000\n"
+"Last-Translator: Eugene Evstafev <chigwel@gmail.com>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/pypa/warehouse/"
 "ru/>\n"
 "Language: ru\n"
@@ -743,10 +744,8 @@ msgid "Publisher must be specified by ID"
 msgstr "Издатель должен быть указан через ID"
 
 #: warehouse/oidc/forms/activestate.py:48
-#, fuzzy
-#| msgid "Null bytes are not allowed."
 msgid "Double dashes are not allowed in the name"
-msgstr "Двойные оттенки не допускаются во имя"
+msgstr "Двойные тире не допускаются в имени"
 
 #: warehouse/oidc/forms/activestate.py:55
 msgid "Leading or trailing dashes are not allowed in the name"
@@ -839,29 +838,20 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "Имя файла Workflow должно быть только именем файла, без каталогов"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr ""
-"Укажите владельца репозитория GitHub (имя пользователя или организацию)"
+msgstr "Укажите владельца репозитория GitHub (имя пользователя или организацию)"
 
 #: warehouse/oidc/forms/gitlab.py:37
-#, fuzzy
-#| msgid "Invalid GitHub user or organization name."
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Неверное имя пользователя или организации GitHub."
 
 #: warehouse/oidc/forms/gitlab.py:53
-#, fuzzy
-#| msgid "Specify workflow filename"
 msgid "Specify workflow filepath"
-msgstr "Укажите имя файла рабочего процесса"
+msgstr "Укажите путь к файлу рабочего процесса"
 
 #: warehouse/oidc/forms/gitlab.py:61
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid environment name"
-msgstr "Неверное имя проекта"
+msgstr "Неверное имя окружения"
 
 #: warehouse/oidc/forms/gitlab.py:76
 #, fuzzy

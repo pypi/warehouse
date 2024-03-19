@@ -63,9 +63,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==1.32.0 \
-    --hash=sha256:46321bccdd9a295af52cb05d98b5df9771bddf8dcdf68afe3a9fdf7dda156b32 \
-    --hash=sha256:84b6f7f01b6fc74f982944d40260df695f1fdeae9fcee0b49afd053a7ad75501
+b2sdk==1.33.0 \
+    --hash=sha256:bb4b52081491146776326dced464f14fafc54853a062d2acc326159dddb7d76e \
+    --hash=sha256:e7eeb8e95694ad8f9495a4ed4d39d011db865adfe9a6c9a6852245d703ebd476
     # via -r requirements/main.in
 babel==2.14.0 \
     --hash=sha256:6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363 \
@@ -871,9 +871,9 @@ idna==3.6 \
     # via
     #   email-validator
     #   requests
-importlib-resources==6.3.0 \
-    --hash=sha256:166072a97e86917a9025876f34286f549b9caf1d10b35a1b372bffa1600c6569 \
-    --hash=sha256:783407aa1cd05550e3aa123e8f7cfaebee35ffa9cb0242919e2d1e4172222705
+importlib-resources==6.3.1 \
+    --hash=sha256:29a3d16556e330c3c8fb8202118c5ff41241cc34cbfb25989bbad226d99b7995 \
+    --hash=sha256:4811639ca7fa830abdb8e9ca0a104dc6ad13de691d9fe0d3173a71304f068159
     # via limits
 itsdangerous==2.1.2 \
     --hash=sha256:2c2349112351b88699d8d4b6b075022c0808887cb7ad10069318a8b0bc88db44 \
@@ -897,9 +897,9 @@ kombu[sqs]==5.3.1 \
     # via
     #   -r requirements/main.in
     #   celery
-limits==3.10.0 \
-    --hash=sha256:3e617a580f57a21b39393f833c27ad0378c87b309e908c154ee69e6740041959 \
-    --hash=sha256:6e657dccafce64fd8ee023ebf4593cd47e9eac841fd1dec3448f48673ba10b7c
+limits==3.10.1 \
+    --hash=sha256:1ee31d169d498da267a1b72183ae5940afc64b17b4ed4dfd977f6ea5607c2cfb \
+    --hash=sha256:446242f5a6f7b8c7744e286a70793264ed81bca97860f94b821347284d14fbe9
     # via -r requirements/main.in
 linehaul==1.0.1 \
     --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
@@ -1194,9 +1194,9 @@ orjson==3.9.15 \
     --hash=sha256:fdfa97090e2d6f73dced247a2f2d8004ac6449df6568f30e7fa1a045767c69a6 \
     --hash=sha256:ff0f9913d82e1d1fadbd976424c316fbc4d9c525c81d047bbdd16bd27dd98cfc
     # via -r requirements/main.in
-packaging==23.2 \
-    --hash=sha256:048fb0e9405036518eaaf48a55953c750c11e1a1b68e0dd1a9d62ed0c092cfc5 \
-    --hash=sha256:8c491190033a9af7e1d931d0b5dacc2ef47509b34dd0de67ed209b5203fc88c7
+packaging==24.0 \
+    --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
+    --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
     # via
     #   -r requirements/main.in
     #   b2sdk
@@ -1326,9 +1326,7 @@ pycurl==7.45.3 \
 pydantic==2.6.4 \
     --hash=sha256:b1704e0847db01817624a6b86766967f552dd9dbf3afba4004409f908dcc84e6 \
     --hash=sha256:cc46fce86607580867bdc3361ad462bab9c222ef042d3da86f2fb333e1d916c5
-    # via
-    #   -r requirements/main.in
-    #   webauthn
+    # via -r requirements/main.in
 pydantic-core==2.16.3 \
     --hash=sha256:00ee1c97b5364b84cb0bd82e9bbf645d5e2871fb8c58059d158412fee2d33d8a \
     --hash=sha256:0d32576b1de5a30d9a97f300cc6a3f4694c428d956adbc7e6e2f9cad279e45ed \
@@ -1703,9 +1701,9 @@ wcwidth==0.2.13 \
     --hash=sha256:3da69048e4540d84af32131829ff948f1e022c1c6bdb8d6102117aac784f6859 \
     --hash=sha256:72ea0c06399eb286d978fdedb6923a9eb47e1c486ce63e9b4e64fc18303972b5
     # via prompt-toolkit
-webauthn==1.11.1 \
-    --hash=sha256:13592ee71489b571cb6e4a5d8b3c34f7b040cd3539a9d94b6b7d23fa88df5dfb \
-    --hash=sha256:24eda57903897369797f52a377f8c470e7057e79da5525779d0720a9fcc11926
+webauthn==2.0.0 \
+    --hash=sha256:12cc1759da98668b8242badc37c4129df300f89d89f5c183fac80e7b33c41dfd \
+    --hash=sha256:644dc68af5caaade06be6a2a2278775e85116e92dd755ad7a49d992d51c82033
     # via -r requirements/main.in
 webencodings==0.5.1 \
     --hash=sha256:a0af1213f3c2226497a97e2b3aa01a7e4bee4f403f95be16fc9acd2947514a78 \
@@ -1866,7 +1864,6 @@ setuptools==69.2.0 \
     --hash=sha256:c21c49fb1042386df081cb5d86759792ab89efca84cf114889191cd09aacc80c
     # via
     #   -r requirements/main.in
-    #   b2sdk
     #   pyramid
     #   repoze-sendmail
     #   zope-deprecation

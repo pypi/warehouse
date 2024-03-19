@@ -24,13 +24,14 @@
 # 秋凌烟 <2562042362@qq.com>, 2023.
 # "Wdt@.+_-" <wdt.app.vip.v8@outlook.com>, 2023.
 # 123456789 <15183543555@163.com>, 2023.
+# "Wei-Hsiang (Matt) Wang" <mattwang44@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2023-11-20 12:28+0000\n"
-"Last-Translator: 123456789 <15183543555@163.com>\n"
+"PO-Revision-Date: 2024-03-13 13:45+0000\n"
+"Last-Translator: \"Wei-Hsiang (Matt) Wang\" <mattwang44@gmail.com>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -38,7 +39,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.2\n"
+"X-Generator: Weblate 5.5-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -158,10 +159,8 @@ msgid "Recovery code has been previously used."
 msgstr "重設碼已重新生成。"
 
 #: warehouse/accounts/forms.py:553
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "電子郵件地址無效。 請再試一次。"
+msgstr "使用者名稱無效。 請再試一次。"
 
 #: warehouse/accounts/views.py:120
 msgid ""
@@ -309,8 +308,6 @@ msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "你現在是 '${organization_name}' 組織的 ${role}。"
 
 #: warehouse/accounts/views.py:1185
-#, fuzzy
-#| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "過期密鑰：請求新專案角色邀請"
 
@@ -418,58 +415,38 @@ msgid "Banner Preview"
 msgstr "橫幅預覽"
 
 #: warehouse/manage/forms.py:408
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose an organization account name with 50 characters or less."
-msgstr "選擇一個不超過 50 字的用戶名。"
+msgstr "選擇一個不超過 50 字的組織帳號名稱。"
 
 #: warehouse/manage/forms.py:416
-#, fuzzy
-#| msgid ""
-#| "The username is invalid. Usernames must be composed of letters, numbers, "
-#| "dots, hyphens and underscores. And must also start and finish with a "
-#| "letter or number. Choose a different username."
 msgid ""
 "The organization account name is invalid. Organization account names must be "
 "composed of letters, numbers, dots, hyphens and underscores. And must also "
 "start and finish with a letter or number. Choose a different organization "
 "account name."
-msgstr ""
-"使用者名稱無效。 使用者名稱必須由字母，數字，點，連字符和下劃線組成。 並且還"
-"必須以字母或數字開頭和結尾。 選擇其他使用者名稱。"
+msgstr "組織帳號名稱無效。 組織帳號名稱必須由字母，數字，點，連字符和下劃線組成。 "
+"並且還必須以字母或數字開頭和結尾。 選擇其他組織帳號名稱。"
 
 #: warehouse/manage/forms.py:439
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "This organization account name has already been used. Choose a different "
 "organization account name."
-msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
+msgstr "此組織帳號名稱已被另一個帳戶使用。 選擇其他組織帳號名稱。"
 
 #: warehouse/manage/forms.py:454
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
-msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
+msgstr "你已提交此名稱的申請。 請選擇另一個不同的組織帳號名稱。"
 
 #: warehouse/manage/forms.py:490
-#, fuzzy
-#| msgid "Delete project"
 msgid "Select project"
-msgstr "刪除專案"
+msgstr "選擇專案"
 
 #: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
 #: warehouse/oidc/forms/gitlab.py:44
-#, fuzzy
-#| msgid "Project name"
 msgid "Specify project name"
-msgstr "專案名稱"
+msgstr "指定專案名稱"
 
 #: warehouse/manage/forms.py:498
 msgid ""

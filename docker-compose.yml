@@ -203,6 +203,8 @@ services:
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - ./package.json:/opt/warehouse/src/package.json:z
+      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:
