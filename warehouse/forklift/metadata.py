@@ -274,6 +274,11 @@ def parse_form_metadata(data: MultiDict) -> Metadata:
         # would just silently ignore it rather than doing something about it.
         value = data.getall(name) or []
 
+        # An empty string is invalid for all fields, treat it as if it wasn't
+        # provided in the first place
+        if value == [""]:
+            continue
+
         # If this is one of our string fields, then we'll check to see if our
         # value is a list of a single item. If it is then we'll assume that
         # it was emitted as a single string, and unwrap the str from inside
