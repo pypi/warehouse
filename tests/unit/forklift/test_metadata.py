@@ -302,3 +302,14 @@ class TestFromFormData:
         with pytest.raises(ExceptionGroup) as excinfo:
             metadata.parse_form_metadata(data)
         _assert_invalid_metadata(excinfo.value, "project_urls")
+
+    def test_empty_strings_are_ignored(self):
+        data = MultiDict(
+            metadata_version="2.1",
+            name="spam",
+            version="2.0",
+            description_content_type="",
+        )
+
+        meta = metadata.parse_form_metadata(data)
+        assert meta.description_content_type is None
