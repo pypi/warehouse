@@ -302,7 +302,8 @@ def locale(request):
     renderer="json",
     request_method="GET",
     accept="application/json",
-    has_translations=True)
+    has_translations=True,
+)
 def translation(request):
     singular = request.params.get("s", None)
     plural = request.params.get("p", None)
@@ -311,20 +312,16 @@ def translation(request):
     values = request.params.mixed()
 
     if not singular:
-        request.log.info(f"translation params '${request.params}'")
         raise HTTPBadRequest("Message singular must be provided as 's'.")
 
     localizer = request.localizer
-    localizer_kwargs = {'domain': domain, 'mapping': values}
+    localizer_kwargs = {"domain": domain, "mapping": values}
     if plural is None or num is None:
         msg = localizer.translate(singular, **localizer_kwargs)
     else:
         msg = localizer.pluralize(singular, plural, int(num), **localizer_kwargs)
 
-    request.log.info(f"translation params '${request.params}'; msg '${msg}'; "
-                     f"localizer locale '${localizer.locale_name}'.")
-    return {'msg': msg}
-
+    return {"msg": msg}
 
 
 @view_config(
