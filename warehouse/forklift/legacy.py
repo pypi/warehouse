@@ -1105,7 +1105,7 @@ def file_upload(request):
     dist_metadata = {
         "metadata_version": meta.metadata_version,
         "name": meta.name,
-        "version": meta.version,
+        "version": str(meta.version),
         "summary": meta.summary,
         "description": meta.description,
         "author": meta.author,

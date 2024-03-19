@@ -1026,6 +1026,8 @@ class TestFileUpload:
         db_request.registry.settings = {
             "warehouse.release_files_table": "example.pypi.distributions"
         }
+        delay = pretend.call_recorder(lambda a: None)
+        db_request.task = pretend.call_recorder(lambda a: pretend.stub(delay=delay))
 
         resp = legacy.file_upload(db_request)
 
@@ -1084,6 +1086,53 @@ class TestFileUpload:
         assert db_request.task.calls == [
             pretend.call(update_bigquery_release_files),
             pretend.call(sync_file_to_cache),
+        ]
+        assert delay.calls == [
+            pretend.call(
+                {
+                    "metadata_version": "1.2",
+                    "name": project.name,
+                    "version": release.version,
+                    "summary": None,
+                    "description": "an example description",
+                    "author": None,
+                    "description_content_type": None,
+                    "author_email": None,
+                    "maintainer": None,
+                    "maintainer_email": None,
+                    "license": None,
+                    "keywords": None,
+                    "classifiers": ["Environment :: Other Environment"],
+                    "platform": None,
+                    "home_page": None,
+                    "download_url": None,
+                    "requires_python": None,
+                    "pyversion": "source",
+                    "filetype": "sdist",
+                    "comment": None,
+                    "requires": None,
+                    "provides": None,
+                    "obsoletes": None,
+                    "requires_dist": None,
+                    "provides_dist": None,
+                    "obsoletes_dist": None,
+                    "requires_external": None,
+                    "project_urls": None,
+                    "filename": uploaded_file.filename,
+                    "python_version": "source",
+                    "packagetype": "sdist",
+                    "comment_text": None,
+                    "size": uploaded_file.size,
+                    "has_signature": False,
+                    "md5_digest": uploaded_file.md5_digest,
+                    "sha256_digest": uploaded_file.sha256_digest,
+                    "blake2_256_digest": uploaded_file.blake2_256_digest,
+                    "path": uploaded_file.path,
+                    "uploaded_via": "warehouse-tests/6.6.6",
+                    "upload_time": uploaded_file.upload_time,
+                }
+            ),
+            pretend.call(uploaded_file.id),
         ]
 
         assert metrics.increment.calls == [
