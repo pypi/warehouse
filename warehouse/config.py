@@ -217,6 +217,9 @@ def configure(settings=None):
     if settings is None:
         settings = {}
 
+    # Allow configuring the log level. See `warehouse/logging.py` for more
+    maybe_set(settings, "logging.level", "LOG_LEVEL")
+
     # Add information about the current copy of the code.
     maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
