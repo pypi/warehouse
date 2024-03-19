@@ -18,6 +18,35 @@ const fetchOptions = {
   redirect: "follow",
 };
 
+/**
+ * Get the translation using num to choose the appropriate string.
+ *
+ * When importing this function, it must be named in a particular way to be recognised by babel
+ * and have the translation strings extracted correctly.
+ *
+ * This approach uses the server-side localizer to process the translation strings.
+ *
+ * Any placeholders must be specified as '${placeholderName}' surrounded by single or double quote,
+ * not backticks (template literal).
+ *
+ * @example
+ * // Name the function 'gettext' for singular only extraction.
+ * import gettext from "warehouse/utils/fetch-gettext";
+ * // Name the function ngettext for singular and plural extraction.
+ * import ngettext from "warehouse/utils/fetch-gettext";
+ * // For a singular only string:
+ * gettext("Just now");
+ * // For a singular and plural and placeholder string:
+ * ngettext("About a minute ago", "About ${numMinutes} minutes ago", numMinutes, {"numMinutes": numMinutes});
+
+ * @param singular {string} The default string for the singular translation.
+ * @param plural {string} The default string for the plural translation.
+ * @param num {number} The number to use to select the appropriate translation.
+ * @param values {object} Key value pairs to fill the placeholders.
+ * @returns {Promise<any | string>} The Fetch API promise.
+ * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
+ * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
+ */
 export default (singular, plural, num, values) => {
   const partialMsg = `for singular '${singular}', plural '${plural}', num '${num}', values '${JSON.stringify(values || {})}'`;
   let searchValues = {s: singular};

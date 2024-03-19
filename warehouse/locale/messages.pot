@@ -709,19 +709,25 @@ msgstr ""
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:33
+#: warehouse/static/js/warehouse/utils/timeago.js:34
 msgid "Yesterday"
-msgstr ""
+msgid_plural "About ${numDays} days ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:37
-msgid "an hour"
-msgstr ""
+#: warehouse/static/js/warehouse/utils/timeago.js:38
+msgid "About an hour ago"
+msgid_plural "About ${numHours} hours ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:39
-msgid "a minute"
-msgstr ""
+#: warehouse/static/js/warehouse/utils/timeago.js:40
+msgid "About a minute ago"
+msgid_plural "About ${numMinutes} minutes ago"
+msgstr[0] ""
+msgstr[1] ""
 
-#: warehouse/static/js/warehouse/utils/timeago.js:41
+#: warehouse/static/js/warehouse/utils/timeago.js:42
 msgid "Just now"
 msgstr ""
 

@@ -11,7 +11,8 @@
  * limitations under the License.
  */
 
-import _ from "warehouse/utils/fetch-gettext";
+import gettext from "warehouse/utils/fetch-gettext";
+import ngettext from "warehouse/utils/fetch-gettext";
 
 const enumerateTime = (timestampString) => {
   const now = new Date(),
@@ -30,15 +31,15 @@ const convertToReadableText = async (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return _("Yesterday", "About ${numDays} days ago", numDays, {"numDays": numDays});
+    return ngettext("Yesterday", "About ${numDays} days ago", numDays, {"numDays": numDays});
   }
 
   if (numHours > 0) {
-    return _("an hour", "About ${numHours} ago", numHours, {"numHours": numHours});
+    return ngettext("About an hour ago", "About ${numHours} hours ago", numHours, {"numHours": numHours});
   } else if (numMinutes > 0) {
-    return _("a minute", "About ${numMinutes} ago", numMinutes, {"numMinutes": numMinutes});
+    return ngettext("About a minute ago", "About ${numMinutes} minutes ago", numMinutes, {"numMinutes": numMinutes});
   } else {
-    return _("Just now");
+    return gettext("Just now");
   }
 };
 
