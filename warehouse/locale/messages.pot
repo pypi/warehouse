@@ -1358,10 +1358,10 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:261
 #: warehouse/templates/manage/account/publishing.html:276
 #: warehouse/templates/manage/account/publishing.html:291
-#: warehouse/templates/manage/account/publishing.html:326
-#: warehouse/templates/manage/account/publishing.html:348
-#: warehouse/templates/manage/account/publishing.html:370
-#: warehouse/templates/manage/account/publishing.html:392
+#: warehouse/templates/manage/account/publishing.html:332
+#: warehouse/templates/manage/account/publishing.html:354
+#: warehouse/templates/manage/account/publishing.html:376
+#: warehouse/templates/manage/account/publishing.html:398
 #: warehouse/templates/manage/account/recovery_codes-burn.html:70
 #: warehouse/templates/manage/account/token.html:133
 #: warehouse/templates/manage/account/token.html:150
@@ -1391,9 +1391,9 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:187
 #: warehouse/templates/manage/project/publishing.html:229
 #: warehouse/templates/manage/project/publishing.html:244
-#: warehouse/templates/manage/project/publishing.html:279
-#: warehouse/templates/manage/project/publishing.html:301
-#: warehouse/templates/manage/project/publishing.html:323
+#: warehouse/templates/manage/project/publishing.html:285
+#: warehouse/templates/manage/project/publishing.html:307
+#: warehouse/templates/manage/project/publishing.html:329
 #: warehouse/templates/manage/project/roles.html:273
 #: warehouse/templates/manage/project/roles.html:289
 #: warehouse/templates/manage/project/roles.html:305
@@ -2562,16 +2562,16 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:45
 #: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:346
-#: warehouse/templates/manage/project/publishing.html:277
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
 #: warehouse/templates/organizations/profile.html:30
 msgid "Organization"
 msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:46
 #: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:368
-#: warehouse/templates/manage/project/publishing.html:299
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
 msgid "ActiveState Project name"
 msgstr ""
 
@@ -4317,31 +4317,30 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:27
-#: warehouse/templates/manage/project/publishing.html:25
 #, python-format
 msgid ""
-"Read more about GitHub Actions's OpenID Connect support <a "
+"Read more about GitHub Actions' OpenID Connect support <a "
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:38
 #: warehouse/templates/manage/account/publishing.html:157
 #: warehouse/templates/manage/account/publishing.html:259
-#: warehouse/templates/manage/account/publishing.html:324
+#: warehouse/templates/manage/account/publishing.html:330
 msgid "PyPI Project Name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:43
 #: warehouse/templates/manage/account/publishing.html:162
 #: warehouse/templates/manage/account/publishing.html:264
-#: warehouse/templates/manage/account/publishing.html:330
+#: warehouse/templates/manage/account/publishing.html:336
 msgid "project name"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:45
 #: warehouse/templates/manage/account/publishing.html:164
 #: warehouse/templates/manage/account/publishing.html:266
-#: warehouse/templates/manage/account/publishing.html:338
+#: warehouse/templates/manage/account/publishing.html:344
 msgid "The project (on PyPI) that will be created when this publisher is used"
 msgstr ""
 
@@ -4426,11 +4425,11 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:139
 #: warehouse/templates/manage/account/publishing.html:241
 #: warehouse/templates/manage/account/publishing.html:312
-#: warehouse/templates/manage/account/publishing.html:409
+#: warehouse/templates/manage/account/publishing.html:415
 #: warehouse/templates/manage/project/publishing.html:122
 #: warehouse/templates/manage/project/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:265
-#: warehouse/templates/manage/project/publishing.html:340
+#: warehouse/templates/manage/project/publishing.html:346
 #: warehouse/templates/manage/project/roles.html:341
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
@@ -4540,86 +4539,94 @@ msgid ""
 "identity used for publishing. <a href=\"%(href)s\">More details here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/manage/account/publishing.html:319
+#: warehouse/templates/manage/project/publishing.html:272
+#, python-format
+msgid ""
+"Read more about ActiveState's OpenID Connect support <a "
+"href=\"%(href)s\">here</a>."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:358
+#: warehouse/templates/manage/project/publishing.html:289
 msgid "my-organization"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:360
-#: warehouse/templates/manage/project/publishing.html:291
+#: warehouse/templates/manage/account/publishing.html:366
+#: warehouse/templates/manage/project/publishing.html:297
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
+#: warehouse/templates/manage/account/publishing.html:380
+#: warehouse/templates/manage/project/publishing.html:311
 msgid "my-project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:382
-#: warehouse/templates/manage/project/publishing.html:313
+#: warehouse/templates/manage/account/publishing.html:388
+#: warehouse/templates/manage/project/publishing.html:319
 msgid "The ActiveState project that will build your Python artifact."
-msgstr ""
-
-#: warehouse/templates/manage/account/publishing.html:390
-#: warehouse/templates/manage/project/publishing.html:321
-msgid "Actor Username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:396
 #: warehouse/templates/manage/project/publishing.html:327
-msgid "my-username"
+msgid "Actor Username"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:402
 #: warehouse/templates/manage/project/publishing.html:333
+msgid "my-username"
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:408
+#: warehouse/templates/manage/project/publishing.html:339
 msgid ""
 "The username for the ActiveState account that will trigger the build of "
 "your Python artifact."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:420
+#: warehouse/templates/manage/account/publishing.html:426
 msgid "Manage publishers"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:430
+#: warehouse/templates/manage/account/publishing.html:436
 msgid "Project"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:452
+#: warehouse/templates/manage/account/publishing.html:458
 msgid ""
 "No publishers are currently configured. Publishers for existing projects "
 "can be added in the publishing configuration for each individual project."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:464
+#: warehouse/templates/manage/account/publishing.html:470
 msgid "Pending project name"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:465
-#: warehouse/templates/manage/project/publishing.html:367
+#: warehouse/templates/manage/account/publishing.html:471
+#: warehouse/templates/manage/project/publishing.html:373
 msgid "Publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:466
-#: warehouse/templates/manage/project/publishing.html:368
+#: warehouse/templates/manage/account/publishing.html:472
+#: warehouse/templates/manage/project/publishing.html:374
 msgid "Details"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:478
+#: warehouse/templates/manage/account/publishing.html:484
 msgid ""
 "No pending publishers are currently configured. Publishers for projects "
 "that don't exist yet can be added below."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:486
+#: warehouse/templates/manage/account/publishing.html:492
 msgid "Add a new pending publisher"
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:489
+#: warehouse/templates/manage/account/publishing.html:495
 msgid "You can use this page to register \"pending\" trusted publishers."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:495
+#: warehouse/templates/manage/account/publishing.html:501
 #, python-format
 msgid ""
 "These publishers behave similarly to trusted publishers registered "
@@ -4630,8 +4637,8 @@ msgid ""
 "trusted publishers <a href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:535
-#: warehouse/templates/manage/project/publishing.html:416
+#: warehouse/templates/manage/account/publishing.html:541
+#: warehouse/templates/manage/project/publishing.html:422
 #, python-format
 msgid ""
 "You must first enable <a href=\"%(href)s\">two-factor authentication</a> "
@@ -5845,6 +5852,13 @@ msgstr ""
 msgid "Back to projects"
 msgstr ""
 
+#: warehouse/templates/manage/project/publishing.html:25
+#, python-format
+msgid ""
+"Read more about GitHub Actions's OpenID Connect support <a "
+"href=\"%(href)s\">here</a>."
+msgstr ""
+
 #: warehouse/templates/manage/project/publishing.html:258
 #, python-format
 msgid ""
@@ -5854,20 +5868,20 @@ msgid ""
 "here.</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:359
+#: warehouse/templates/manage/project/publishing.html:365
 msgid "Manage current publishers"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:363
+#: warehouse/templates/manage/project/publishing.html:369
 #, python-format
 msgid "OpenID Connect publishers associated with %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:379
+#: warehouse/templates/manage/project/publishing.html:385
 msgid "No publishers are currently configured."
 msgstr ""
 
-#: warehouse/templates/manage/project/publishing.html:384
+#: warehouse/templates/manage/project/publishing.html:390
 msgid "Add a new publisher"
 msgstr ""
 
