@@ -21,7 +21,7 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
 from pyramid.security import Allowed
 
-from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
     Caveat,
@@ -104,10 +104,10 @@ class RequestUser(Caveat):
     user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        if not isinstance(request.identity, User):
+        if not isinstance(request.identity, UserTokenContext):
             return Failure("token with user restriction without a user")
 
-        if str(request.identity.id) != self.user_id:
+        if str(request.identity.user.id) != self.user_id:
             return Failure("current user does not match user restriction in token")
 
         return Success()
