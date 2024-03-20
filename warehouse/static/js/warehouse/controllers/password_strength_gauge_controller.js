@@ -15,6 +15,7 @@
 /* global zxcvbn */
 
 import { Controller } from "@hotwired/stimulus";
+import { gettext } from "../utils/fetch-gettext";
 
 export default class extends Controller {
   static targets = ["password", "strengthGauge"];
@@ -23,7 +24,9 @@ export default class extends Controller {
     let password = this.passwordTarget.value;
     if (password === "") {
       this.strengthGaugeTarget.setAttribute("class", "password-strength__gauge");
-      this.setScreenReaderMessage("Password field is empty");
+      gettext("Password field is empty").then((text) => {
+        this.setScreenReaderMessage(text);
+      });
     } else {
       // following recommendations on the zxcvbn JS docs
       // the zxcvbn function is available by loading `vendor/zxcvbn.js`
@@ -31,7 +34,16 @@ export default class extends Controller {
       let zxcvbnResult = zxcvbn(password.substring(0, 100));
       this.strengthGaugeTarget.setAttribute("class", `password-strength__gauge password-strength__gauge--${zxcvbnResult.score}`);
       this.strengthGaugeTarget.setAttribute("data-zxcvbn-score", zxcvbnResult.score);
-      this.setScreenReaderMessage(zxcvbnResult.feedback.suggestions.join(" ") || "Password is strong");
+
+      // TODO: how to translate zxcvbn feedback suggestion strings?
+      const feedbackSuggestions = zxcvbnResult.feedback.suggestions.join(" ");
+      if (feedbackSuggestions) {
+        this.setScreenReaderMessage(feedbackSuggestions);
+      } else {
+        gettext("Password is strong").then((text) => {
+          this.setScreenReaderMessage(text);
+        });
+      }
     }
   }
 

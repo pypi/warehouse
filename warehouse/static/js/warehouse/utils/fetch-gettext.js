@@ -23,6 +23,7 @@ const fetchOptions = {
  *
  * When importing this function, it must be named in a particular way to be recognised by babel
  * and have the translation strings extracted correctly.
+ * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
  *
  * This approach uses the server-side localizer to process the translation strings.
  *
@@ -30,10 +31,7 @@ const fetchOptions = {
  * not backticks (template literal).
  *
  * @example
- * // Name the function 'gettext' for singular only extraction.
- * import gettext from "warehouse/utils/fetch-gettext";
- * // Name the function ngettext for singular and plural extraction.
- * import ngettext from "warehouse/utils/fetch-gettext";
+ * import { gettext, ngettext } from "warehouse/utils/fetch-gettext";
  * // For a singular only string:
  * gettext("Just now");
  * // For a singular and plural and placeholder string:
@@ -47,8 +45,7 @@ const fetchOptions = {
  * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
-export default (singular, plural, num, values) => {
-  const partialMsg = `for singular '${singular}', plural '${plural}', num '${num}', values '${JSON.stringify(values || {})}'`;
+export function ngettext(singular, plural, num, values) {
   let searchValues = {s: singular};
   if (plural) {
     searchValues.p = plural;
@@ -63,15 +60,34 @@ export default (singular, plural, num, values) => {
   return fetch("/translation?" + searchParams.toString(), fetchOptions)
     .then(response => {
       if (response.ok) {
-        const responseJson = response.json();
-        console.debug(`Fetch gettext success ${partialMsg}: ${responseJson}.`);
-        return responseJson;
+        return response.json();
       } else {
-        console.warn(`Fetch gettext unexpected response ${partialMsg}: ${response.status}.`);
-        return "";
+        throw new Error(`Unexpected response ${response.status}: ${response.body}.`);
       }
-    }).catch((err) => {
-      console.error(`Fetch gettext failed ${partialMsg}: ${err.message}.`);
+    })
+    .then((json) => {
+      return json.msg;
+    })
+    .catch(() => {
       return "";
     });
-};
+}
+
+/**
+ * Get the singlar translation.
+ *
+ * When importing this function, it must be named in a particular way to be recognised by babel
+ * and have the translation strings extracted correctly.
+ * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
+ *
+ * This approach uses the server-side localizer to process the translation strings.
+ *
+ * Any placeholders must be specified as '${placeholderName}' surrounded by single or double quote,
+ * not backticks (template literal).
+ *
+ * @param singular {string} The default string for the singular translation.
+ * @returns {Promise<any | string>} The Fetch API promise.
+ */
+export function gettext(singular) {
+  return ngettext(singular, undefined, undefined, undefined);
+}

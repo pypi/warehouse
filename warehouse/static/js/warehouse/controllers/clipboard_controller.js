@@ -12,6 +12,7 @@
  * limitations under the License.
  */
 import { Controller } from "@hotwired/stimulus";
+import { gettext } from "../utils/fetch-gettext";
 
 // Copy handler for copy tooltips, e.g.
 //   - the pip command on package detail page
@@ -28,7 +29,9 @@ export default class extends Controller {
     // copy the source text to clipboard
     navigator.clipboard.writeText(this.sourceTarget.textContent);
     // set the tooltip text to "Copied"
-    this.tooltipTarget.dataset.clipboardTooltipValue = "Copied";
+    gettext("Copied").then((text) => {
+      this.tooltipTarget.dataset.clipboardTooltipValue = text;
+    });
 
     // on focusout and mouseout, reset the tooltip text to the original value
     const resetTooltip = () => {

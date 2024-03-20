@@ -11,8 +11,7 @@
  * limitations under the License.
  */
 
-import gettext from "warehouse/utils/fetch-gettext";
-import ngettext from "warehouse/utils/fetch-gettext";
+import { gettext, ngettext } from "./fetch-gettext";
 
 const enumerateTime = (timestampString) => {
   const now = new Date(),
@@ -51,7 +50,7 @@ export default () => {
     if (time.isBeforeCutoff) {
       convertToReadableText(time)
         .then((text) => {
-          timeElement.innerText = text.msg;
+          timeElement.innerText = text;
         });
     }
   }
