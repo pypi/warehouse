@@ -46,7 +46,7 @@ We are very happy to share the news that
 [we are hiring a person](https://pythonsoftwarefoundation.applytojob.com/apply/nyYHuOha9h/PyPI-Support-Specialist)
 to help us manage the increased capacity
 and allow us to keep pace with PyPI’s seemingly unstoppable growth.
-This is a junior role that is 100% remote.
+This is an associate role that is 100% remote.
 Please take a look at
 [this posting for a PyPI Support Specialist](https://pythonsoftwarefoundation.applytojob.com/apply/nyYHuOha9h/PyPI-Support-Specialist)
 and share it with your networks.
