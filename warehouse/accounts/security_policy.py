@@ -171,7 +171,9 @@ class BasicAuthSecurityPolicy:
 
 def _permits_for_user_policy(acl, request, context, permission):
     # It should only be possible for request.identity to be a User object
-    # at this point, and we only a User in these policies.
+    # at this point, and we only allow a User in these policies.
+    # Note that UserTokenContext is not allowed here, since a UserTokenContext
+    # can only appear in an API-token-authenticated request, not a session.
     assert isinstance(request.identity, User)
 
     # Dispatch to our ACL
