@@ -29,7 +29,8 @@ jobs:
         id: build
         uses: depot/build-push-action@v1
         with:
-          save: true
+          pull: true  # attempt to get the image from the registry first
+          save: true  # save the image to the registry for subsequent steps
           build-args: |
             DEVEL=yes
             CI=yes
