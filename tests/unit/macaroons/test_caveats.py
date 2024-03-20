@@ -20,6 +20,7 @@ from pydantic.dataclasses import dataclass
 from pymacaroons import Macaroon
 
 from warehouse.accounts import _oidc_publisher
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.macaroons import caveats
 from warehouse.macaroons.caveats import (
     Caveat,
@@ -36,7 +37,7 @@ from warehouse.macaroons.caveats import (
     verify,
 )
 from warehouse.macaroons.caveats._core import _CaveatRegistry
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 
 from ...common.db.accounts import UserFactory
 from ...common.db.oidc import GitHubPublisherFactory
@@ -280,10 +281,11 @@ class TestRequestUserCaveat:
 
     def test_verify_invalid_user_id(self, db_request):
         user = UserFactory.create()
+        user_token_context = UserTokenContext(user, pretend.stub())
 
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
-            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure(
@@ -292,10 +294,11 @@ class TestRequestUserCaveat:
 
     def test_verify_ok(self, db_request):
         user = UserFactory.create()
+        user_token_context = UserTokenContext(user, pretend.stub())
 
         caveat = RequestUser(user_id=str(user.id))
         result = caveat.verify(
-            pretend.stub(identity=user), pretend.stub(), pretend.stub()
+            pretend.stub(identity=user_token_context), pretend.stub(), pretend.stub()
         )
 
         assert result == Success()
@@ -315,7 +318,7 @@ class TestOIDCPublisherCaveat:
         )
 
     def test_verify_invalid_publisher_id(self, db_request):
-        identity = OIDCContext(GitHubPublisherFactory.create(), None)
+        identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
 
@@ -327,7 +330,7 @@ class TestOIDCPublisherCaveat:
         )
 
     def test_verify_invalid_context(self, db_request):
-        identity = OIDCContext(GitHubPublisherFactory.create(), None)
+        identity = PublisherTokenContext(GitHubPublisherFactory.create(), None)
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
 
@@ -342,7 +345,9 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
+        identity = PublisherTokenContext(
+            GitHubPublisherFactory.create(projects=[foobar]), None
+        )
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
         caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
@@ -356,7 +361,9 @@ class TestOIDCPublisherCaveat:
 
         # This OIDC publisher is only registered to "foobar", so it should
         # not verify a caveat presented for "foobaz".
-        identity = OIDCContext(GitHubPublisherFactory.create(projects=[foobar]), None)
+        identity = PublisherTokenContext(
+            GitHubPublisherFactory.create(projects=[foobar]), None
+        )
         request = pretend.stub(identity=identity)
         request.oidc_publisher = _oidc_publisher(request)
         caveat = OIDCPublisher(oidc_publisher_id=str(request.oidc_publisher.id))
