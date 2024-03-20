@@ -2603,6 +2603,81 @@ class TestFileUpload:
         # Ensure that a Filename object has been created.
         db_request.db.query(Filename).filter(Filename.filename == filename).one()
 
+    @pytest.mark.parametrize(
+        "project_name, filename_prefix, version",
+        [
+            ("flufl.enum", "flufl_enum", "1.0.0"),
+            ("foo-.bar", "foo_bar", "1.0.0"),
+            ("leo", "leo", "6.7.9-9"),
+            ("leo_something", "leo-something", "6.7.9-9"),
+        ],
+    )
+    def test_upload_succeeds_pep625_normalized_filename(
+        self,
+        monkeypatch,
+        db_request,
+        pyramid_config,
+        metrics,
+        project_name,
+        filename_prefix,
+        version,
+    ):
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name=project_name)
+        RoleFactory.create(user=user, project=project)
+
+        filename = f"{filename_prefix}-{version}.tar.gz"
+        filebody = _get_whl_testdata(name=project_name, version=version)
+
+        @pretend.call_recorder
+        def storage_service_store(path, file_path, *, meta):
+            with open(file_path, "rb") as fp:
+                if file_path.endswith(".metadata"):
+                    assert fp.read() == b"Fake metadata"
+                else:
+                    assert fp.read() == filebody
+
+        storage_service = pretend.stub(store=storage_service_store)
+
+        db_request.find_service = pretend.call_recorder(
+            lambda svc, name=None, context=None: {
+                IFileStorage: storage_service,
+                IMetricsService: metrics,
+            }.get(svc)
+        )
+
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": version,
+                "filetype": "sdist",
+                "pyversion": "source",
+                "md5_digest": hashlib.md5(filebody).hexdigest(),
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(filebody),
+                    type="application/zip",
+                ),
+            }
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a File object has been created.
+        db_request.db.query(File).filter(File.filename == filename).one()
+
+        # Ensure that a Filename object has been created.
+        db_request.db.query(Filename).filter(Filename.filename == filename).one()
+
     def test_upload_succeeds_with_wheel_after_sdist(
         self, tmpdir, monkeypatch, pyramid_config, db_request, metrics
     ):
