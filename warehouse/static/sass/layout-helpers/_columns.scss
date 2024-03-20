@@ -15,10 +15,31 @@
 /*
   Column that is 50% wide:
   <div class="col-half"></div>
+
+  Column that is 33% wide:
+  <div class="col-third"></div>
 */
 
 .col-half {
   @include span-columns(6);
+
+  &:last-of-type {
+    margin: 0;
+  }
+
+  @media only screen and (max-width: $tablet) {
+    float: none;
+    margin: 0;
+    width: 100%;
+
+    &:first-of-type {
+      margin-bottom: $spacing-unit;
+    }
+  }
+}
+
+.col-third {
+  @include span-columns(4);
 
   &:last-of-type {
     margin: 0;

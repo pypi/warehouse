@@ -20,7 +20,7 @@ from warehouse.authnz import Permissions
 from warehouse.cache.origin import origin_cache
 from warehouse.observations.models import ObservationKind
 from warehouse.packaging.forms import SubmitMalwareObservationForm
-from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.models import File, Project, Release, Role, bdist_collect_tags
 from warehouse.utils import readme
 
 
@@ -141,6 +141,9 @@ def release_detail(release, request):
         key=lambda f: f.filename,
     )
 
+    # Collect all the available bdist details to enable building filters.
+    bdist_tags = bdist_collect_tags([bdist.bdist_tags for bdist in bdists])
+
     return {
         "project": project,
         "release": release,
@@ -152,6 +155,7 @@ def release_detail(release, request):
         "all_versions": project.all_versions,
         "maintainers": maintainers,
         "license": license,
+        "bdist_tags": bdist_tags,
     }
 
 

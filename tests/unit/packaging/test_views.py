@@ -233,6 +233,7 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
+            "bdist_tags": {"interpreters": [], "abis": [], "platforms": []},
         }
 
     def test_detail_rendered(self, db_request):
@@ -292,6 +293,7 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
+            "bdist_tags": {"interpreters": [], "abis": [], "platforms": []},
         }
 
     def test_detail_renders(self, monkeypatch, db_request):
@@ -355,6 +357,7 @@ class TestReleaseDetail:
             ],
             "maintainers": sorted(users, key=lambda u: u.username.lower()),
             "license": None,
+            "bdist_tags": {"interpreters": [], "abis": [], "platforms": []},
         }
 
         assert render_description.calls == [
@@ -369,17 +372,27 @@ class TestReleaseDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename=f"{project.name}-{release.version}-{py_ver}.whl",
+                filename="-".join(
+                    [project.name, release.version, py_ver, py_abi, py_platform]
+                )
+                + ".whl",
                 python_version="py2.py3",
                 packagetype="bdist_wheel",
             )
             for py_ver in ["cp27", "cp310", "cp39"]  # intentionally out of order
+            for py_abi in ["none"]
+            for py_platform in ["any"]
         ]
         sorted_files = natsorted(files, reverse=True, key=lambda f: f.filename)
 
         result = views.release_detail(release, db_request)
 
         assert result["files"] == sorted_files
+        assert [file.bdist_tags_collected for file in result["files"]] == [
+            (["cp310"], ["none"], ["any"]),
+            (["cp39"], ["none"], ["any"]),
+            (["cp27"], ["none"], ["any"]),
+        ]
 
     def test_license_from_classifier(self, db_request):
         """A license label is added when a license classifier exists."""
