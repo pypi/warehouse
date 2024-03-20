@@ -804,9 +804,25 @@ def file_upload(request):
         # we can split on the first hyphen.
         filename.partition("-")[0]
         if filename.endswith(".whl")
-        # For source releases, we know that the version should not contain any
-        # hyphens, so we can split on the last hyphen to get the project name.
-        else filename.rpartition("-")[0]
+        # For source releases, the version might contain a hyphen as a
+        # post-release separator, so we get the prefix by removing the provided
+        # version.
+        # Per 625, the version should be normalized, but we aren't currently
+        # enforcing this, so we permit a filename with either the exact
+        # provided version if it contains a hyphen, or any version that doesn't
+        # contain a hyphen.
+        else (
+            # A hyphen is being used for a post-release separator, so partition
+            # the prefix twice
+            filename.rpartition("-")[0].rpartition("-")[0]
+            # Check if the provided version contains a hyphen and the same
+            # version is being used in the filename
+            if "-" in form.version.data
+            and filename.endswith(f"-{form.version.data}.tar.gz")
+            # The only hyphen should be between the prefix and the version, so
+            # we only need to partition the prefix once
+            else filename.rpartition("-")[0]
+        )
     )
 
     # Normalize the prefix in the filename. Eventually this should be unnecessary once
