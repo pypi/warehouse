@@ -76,13 +76,21 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
                 if match := prefix_re.match(tag.platform):
                     pretty_tags.add(tmpl(match))
 
-        if tag.interpreter.startswith("pp"):
+        if len(tag.interpreter) < 3 or not tag.interpreter[:2].isalpha():
+            # This tag doesn't fit our format, give up
+            pass
+        elif tag.interpreter.startswith("pp"):
             # PyPy tags are a disaster, give up.
             pretty_tags.add("PyPy")
-        elif tag.interpreter == "py3":
-            pretty_tags.add("Python 3")
-        elif tag.interpreter == "py2":
-            pretty_tags.add("Python 2")
+        elif tag.interpreter.startswith("py"):
+            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
+            pretty_tags.add(f"Python {major}{'.' if minor else ''}{minor}")
+        elif tag.interpreter.startswith("ip"):
+            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
+            pretty_tags.add(f"IronPython {major}{'.' if minor else ''}{minor}")
+        elif tag.interpreter.startswith("jy"):
+            major, minor = tag.interpreter[2:3], tag.interpreter[3:]
+            pretty_tags.add(f"Jython {major}{'.' if minor else ''}{minor}")
         elif tag.abi == "abi3":
             assert tag.interpreter.startswith("cp")
             version = _format_version(tag.interpreter.removeprefix("cp"))
@@ -94,13 +102,8 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
             version = _format_version(tag.interpreter.removeprefix("cp"))
             pretty_tags.add(f"CPython {version}")
         else:
-            pass
-            # Disable until we can cover ~all tags
-            # with sentry_sdk.push_scope() as scope:
-            #     scope.fingerprint = [str(tag)]
-            #     sentry_sdk.capture_message(
-            #         f"wheel has unrecognized interpreter tag: {tag}. "
-            #         f"Filename: {filename}."
-            #     )
+            # There's a lot of cruft from over the years. If we can't identify
+            # the interpreter tag, just add it directly.
+            pretty_tags.add(tag.interpreter)
 
     return sorted(pretty_tags)
