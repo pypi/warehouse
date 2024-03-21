@@ -93,11 +93,13 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
             version = _format_version(tag.interpreter.removeprefix("cp"))
             pretty_tags.add(f"CPython {version}")
         else:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = [str(tag)]
-                sentry_sdk.capture_message(
-                    f"wheel has unrecognized interpreter tag: {tag}. "
-                    f"Filename: {filename}."
-                )
+            pass
+            # Disable until we can cover ~all tags
+            # with sentry_sdk.push_scope() as scope:
+            #     scope.fingerprint = [str(tag)]
+            #     sentry_sdk.capture_message(
+            #         f"wheel has unrecognized interpreter tag: {tag}. "
+            #         f"Filename: {filename}."
+            #     )
 
     return sorted(pretty_tags)
