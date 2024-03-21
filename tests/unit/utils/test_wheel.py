@@ -60,6 +60,15 @@ from warehouse.utils import wheel
             "numpy-1.26.4-lol-lol-musllinux_1_1_x86_64.whl",
             ["musllinux: musl 1.1+ x86-64"],
         ),
+        (
+            (
+                "pydantic_core-2.16.2-pp39-pypy39_pp73-manylinux_2_17_aarch64."
+                "manylinux2014_aarch64.whl"
+            ),
+            ["PyPy", "manylinux: glibc 2.17+ ARM64"],
+        ),
+        ("numpy-1.13.1-cp36-none-win_amd64.whl", ["CPython 3.6", "Windows x86-64"]),
+        ("cryptography-38.0.2-cp36-abi3-win32.whl", ["CPython 3.6+", "Windows x86"]),
     ],
 )
 def test_wheel_to_pretty_tags(filename, expected_tags):

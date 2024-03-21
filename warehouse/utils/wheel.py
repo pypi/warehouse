@@ -17,6 +17,7 @@ import sentry_sdk
 
 _PLATFORMS = [
     (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
+    (re.compile(r"^win32$"), lambda m: "Windows x86"),
     (
         re.compile(r"^manylinux2010_(.*?)$"),
         lambda m: f"manylinux: glibc 2.12+ {_normalize_arch(m.group(1))}",
@@ -42,6 +43,7 @@ _PLATFORMS = [
 
 _ARCHS = {
     "amd64": "x86-64",
+    "aarch64": "ARM64",
     "x86_64": "x86-64",
     "universal2": "universal2 (ARM64, x86-64)",
     "arm64": "ARM64",
@@ -76,8 +78,7 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
         if tag.interpreter.startswith("pp"):
             # PyPy tags are a disaster, give up.
             pretty_tags.add("PyPy")
-
-        if tag.interpreter == "py3":
+        elif tag.interpreter == "py3":
             pretty_tags.add("Python 3")
         elif tag.interpreter == "py2":
             pretty_tags.add("Python 2")
@@ -88,11 +89,15 @@ def filename_to_pretty_tags(filename: str) -> list[str]:
         elif tag.abi.startswith("cp"):
             version = _format_version(tag.abi.removeprefix("cp"))
             pretty_tags.add(f"CPython {version}")
+        elif tag.interpreter.startswith("cp"):
+            version = _format_version(tag.interpreter.removeprefix("cp"))
+            pretty_tags.add(f"CPython {version}")
         else:
             with sentry_sdk.push_scope() as scope:
                 scope.fingerprint = str(tag)
                 sentry_sdk.capture_message(
-                    f"wheel has unrecognized interpreter tag: {tag}"
+                    f"wheel has unrecognized interpreter tag: {tag}. "
+                    f"Filename: {filename}."
                 )
 
     return sorted(pretty_tags)
