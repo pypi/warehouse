@@ -57,8 +57,8 @@ from warehouse.utils import wheel
             ["CPython 3.12", "musllinux: musl 1.1+ x86-64"],
         ),
         (
-            "numpy-1.26.4-lol-lol-musllinux_1_1_x86_64.whl",
-            ["musllinux: musl 1.1+ x86-64"],
+            "numpy-1.26.4-lolinterpreter-lolabi-musllinux_1_1_x86_64.whl",
+            ["lolinterpreter", "musllinux: musl 1.1+ x86-64"],
         ),
         (
             (
@@ -69,6 +69,21 @@ from warehouse.utils import wheel
         ),
         ("numpy-1.13.1-cp36-none-win_amd64.whl", ["CPython 3.6", "Windows x86-64"]),
         ("cryptography-38.0.2-cp36-abi3-win32.whl", ["CPython 3.6+", "Windows x86"]),
+        (
+            "plato_learn-0.4.7-py36.py37.py38.py39-none-any.whl",
+            [
+                "Python 3.6",
+                "Python 3.7",
+                "Python 3.8",
+                "Python 3.9",
+            ],
+        ),
+        ("juriscraper-1.1.11-py27-none-any.whl", ["Python 2.7"]),
+        ("OZI-0.0.291-py312-none-any.whl", ["Python 3.12"]),
+        ("foo-0.0.0-ip27-none-any.whl", ["IronPython 2.7"]),
+        ("foo-0.0.0-jy38-none-any.whl", ["Jython 3.8"]),
+        ("foo-0.0.0-garbage-none-any.whl", ["garbage"]),
+        ("foo-0.0.0-69-none-any.whl", []),
     ],
 )
 def test_wheel_to_pretty_tags(filename, expected_tags):
