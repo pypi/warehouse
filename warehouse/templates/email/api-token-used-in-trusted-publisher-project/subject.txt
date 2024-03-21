@@ -16,6 +16,6 @@
 
 {% block subject %}
 {% trans project_name=project_name %}
-User API token used in project {{ project_name }} with Trusted Publishing enabled
+API token used to upload to project {{ project_name }} despite Trusted Publishing enabled
 {% endtrans %}
 {% endblock %}
