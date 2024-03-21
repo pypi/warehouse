@@ -13,7 +13,8 @@
 import re
 
 import packaging.utils
-import sentry_sdk
+
+# import sentry_sdk
 
 _PLATFORMS = [
     (re.compile(r"^win_(.*?)$"), lambda m: f"Windows {_normalize_arch(m.group(1))}"),
