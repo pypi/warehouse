@@ -23,9 +23,9 @@ support for Trusted Publishing to even more hosted providers.
 
 <!-- more -->
 
-### About trusted publishing
+### About Trusted Publishing
 
-"Trusted publishing" is our term for using the [OpenID Connect (OIDC)] standard
+Trusted Publishing is our term for using the [OpenID Connect (OIDC)] standard
 to exchange short-lived identity tokens between a trusted third-party service
 and PyPI. This method can be used in automated environments and eliminates the
 need to use username/password combinations or long-lived, manually generated
