@@ -47,6 +47,7 @@ pyramid>=2.0
 pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
+pyramid_openapi3>=0.17.1
 pyramid_retry>=0.3
 pyramid_rpc>=0.7
 pyramid_services>=2.1
@@ -69,7 +70,7 @@ transaction
 trove-classifiers
 ua-parser
 urllib3<2  # See https://github.com/pypi/warehouse/issues/14671
-webauthn>=1.0.0,<2.0.0
+webauthn>=1.0.0,<3.0.0
 whitenoise
 WTForms[email]>=2.0.0
 zope.sqlalchemy

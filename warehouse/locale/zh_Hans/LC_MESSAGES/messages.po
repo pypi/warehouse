@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-03-01 16:07+0000\n"
+"PO-Revision-Date: 2024-03-12 15:57+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -818,11 +818,11 @@ msgstr "工作流文件路径不能以 / 开头或结尾"
 
 #: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
-msgstr ""
+msgstr "提供到特定项目行的 Inspector 链接。"
 
 #: warehouse/packaging/views.py:213
 msgid "Your report has been recorded. Thank you for your help."
-msgstr ""
+msgstr "你的报告已被记录。感谢您的帮助。"
 
 #: warehouse/subscriptions/models.py:35
 #: warehouse/templates/manage/project/history.html:230
@@ -3448,7 +3448,7 @@ msgstr "分类"
 
 #: warehouse/templates/includes/packaging/submit-malware-report.html:18
 msgid "Report project as malware"
-msgstr ""
+msgstr "报告项目为恶意软件"
 
 #: warehouse/templates/manage/account.html:33
 msgid "Verified*"
@@ -7272,25 +7272,21 @@ msgstr[0] "构建分发"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:23
 msgid "Submit Malware Report for Project"
-msgstr ""
+msgstr "提交项目的恶意软件报告"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:29
 msgid "Submit Malware Report for Project:"
-msgstr ""
+msgstr "提交项目的恶意软件报告："
 
 #: warehouse/templates/packaging/submit-malware-observation.html:31
-#, fuzzy
-#| msgid ""
-#| "Valid malware reports may include examples of typo-squatting, dependency "
-#| "confusion, data exfiltration, obfustication, command/control, etc."
 msgid ""
 "Use this form to submit reports of malicious projects for review by the PyPI "
 "Administrators. Examples of malicious activity in projects include typo-"
 "squatting, dependency confusion, data exfiltration, obfuscation, command/"
 "control, and other similar behaviors."
 msgstr ""
-"有效的恶意软件报告可能包括拼写错误抢注、依赖关系混淆、数据泄露、混淆、命令/控"
-"制等示例。"
+"使用此表单提交恶意项目报告供 PyPI 管理员审核。项目内恶意活动的例子包括误植域"
+"名、依赖项混淆、数据渗出、模糊代码、命令/控制服务器及其他类似行为。"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:37
 #, python-format
@@ -7300,21 +7296,24 @@ msgid ""
 "reviewed more quickly, so please ensure that the link is to a meaningful "
 "portion of the relevant files."
 msgstr ""
+"您将被要求使用我们的<a href=\"%(href)s\">Inspector</a>服务提供值得注意的源代"
+"码的链接。这可以加速报告审核，因此请确保链接指向相关文件的有意义部分。"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:43
 msgid ""
 "Your summary should include a general description of the malicious behavior "
 "as well as any other pertinent details such as what specific release(s) or "
 "file(s) are involved if it is not an entirely malicious Project."
-msgstr ""
+msgstr "您的总结应包含恶意行为的概述以及其他任何相关的细节，比如，若并非整个项目都是"
+"恶意的，那么恶意行为涉及哪个或哪些特定的发行版或文件。"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:62
 msgid "Fill with a link to the problematic code lines from"
-msgstr ""
+msgstr "填写到有问题代码行的链接"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:70
 msgid "Summary"
-msgstr ""
+msgstr "总结"
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -9405,6 +9404,8 @@ msgid ""
 "bottom of the sidebar, click <strong>Report project as malware</strong>. "
 "Supply the following details in the form:"
 msgstr ""
+"登录你的 PyPI 账户，接着访问项目的 PyPI 页面。在侧栏的地步，单击<strong>报告"
+"项目为恶意软件</strong>。在表单中提供以下详情："
 
 #: warehouse/templates/pages/security.html:44
 msgid "A URL to the project in question"
@@ -9415,28 +9416,19 @@ msgid "An explanation of what makes the project a security issue"
 msgstr "说明是什么使项目成为安全问题"
 
 #: warehouse/templates/pages/security.html:46
-#, fuzzy, python-format
-#| msgid ""
-#| "If applicable: a link to the problematic lines in the project's "
-#| "distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
+#, python-format
 msgid ""
 "A link to the problematic lines in the project's distributions via <a "
 "href=\"%(href)s\">inspector.pypi.io</a>"
-msgstr ""
-"如果适用：通过 <a href=\"%(href)s\">inspector.pypi.io</a> 链接到项目发行版中"
-"存在问题的行"
+msgstr "通过 <a href=\"%(href)s\">inspector.pypi.io</a> "
+"链接到项目发行版中存在问题的行"
 
 #: warehouse/templates/pages/security.html:48
-#, fuzzy
-#| msgid ""
-#| "Valid malware reports may include examples of typo-squatting, dependency "
-#| "confusion, data exfiltration, obfustication, command/control, etc."
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
 "confusion, data exfiltration, obfuscation, command/control, etc."
-msgstr ""
-"有效的恶意软件报告可能包括拼写错误抢注、依赖关系混淆、数据泄露、混淆、命令/控"
-"制等示例。"
+msgstr "有效的恶意软件报告可以包括域名拼写错误抢注、依赖关系混淆、数据泄露、代码混淆"
+"、命令/控制等。"
 
 #: warehouse/templates/pages/security.html:50
 msgid ""
@@ -9470,10 +9462,8 @@ msgid ""
 msgstr "根据采取的行动，你可能会收到进一步的后续电子邮件。"
 
 #: warehouse/templates/pages/security.html:58
-#, fuzzy
-#| msgid "This security policy was last updated on June 2022."
 msgid "This security policy was last updated on March 2024."
-msgstr "本安全政策最近更新于2022年6月。"
+msgstr "本安全政策最近更新于2024年3月。"
 
 #: warehouse/templates/pages/sitemap.html:21
 msgid "PyPI site map"

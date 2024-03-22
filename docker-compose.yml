@@ -21,6 +21,10 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
       start_period: 10s
+    volumes:
+      - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
+      - ./dev/example.sql.xz:/example.sql.xz:z
+      - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
@@ -98,7 +102,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -117,6 +121,8 @@ services:
   tests:
     image: warehouse:docker-compose
     pull_policy: never
+    environment:
+      ENCODING: "C"
     volumes: *base_volumes
     depends_on:
       db:
@@ -197,6 +203,8 @@ services:
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - ./package.json:/opt/warehouse/src/package.json:z
+      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:

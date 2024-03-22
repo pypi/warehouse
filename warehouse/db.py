@@ -17,11 +17,13 @@ import logging
 from uuid import UUID
 
 import alembic.config
+import psycopg.types.json
 import pyramid_retry
 import sqlalchemy
 import venusian
 import zope.sqlalchemy
 
+from pyramid.renderers import JSON
 from sqlalchemy import event, func, inspect
 from sqlalchemy.dialects.postgresql import UUID as PG_UUID
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -187,3 +189,12 @@ def includeme(config):
 
     # Register our request.db property
     config.add_request_method(_create_session, name="db", reify=True)
+
+    # Set a custom JSON serializer for psycopg
+    renderer = JSON()
+    renderer_factory = renderer(None)
+
+    def serialize_as_json(obj):
+        return renderer_factory(obj, {})
+
+    psycopg.types.json.set_json_dumps(serialize_as_json)
