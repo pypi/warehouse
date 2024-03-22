@@ -357,6 +357,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
+            pretend.call(".api.config"),
             pretend.call(".utils.wsgi"),
             pretend.call(".sentry"),
             pretend.call(".csp"),

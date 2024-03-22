@@ -773,6 +773,9 @@ def configure(settings=None):
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
 
+    # Set up API configuration
+    config.include(".api.config")
+
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
     config.add_wsgi_middleware(

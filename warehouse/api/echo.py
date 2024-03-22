@@ -11,9 +11,10 @@
 # limitations under the License.
 from __future__ import annotations
 
+import http
 import typing
 
-from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest
+from pyramid.httpexceptions import HTTPBadRequest
 from pyramid.view import view_config
 
 from warehouse.authnz import Permissions
@@ -51,7 +52,9 @@ def api_v0_view_config(**kwargs):
 
     # Set defaults for API views
     kwargs.update(
+        api_version="api-v0-danger",
         accept="application/vnd.pypi.api-v0-danger+json",
+        openapi=True,
         renderer="json",
         require_csrf=False,
         # TODO: Can we apply a macaroon-based rate limiter here,
@@ -64,10 +67,7 @@ def api_v0_view_config(**kwargs):
     return _wrapper
 
 
-@api_v0_view_config(
-    route_name="api.echo",
-    permission=Permissions.APIEcho,
-)
+@api_v0_view_config(route_name="api.echo", permission=Permissions.APIEcho)
 def api_echo(request: Request):
     return {
         "username": request.user.username,
@@ -79,50 +79,21 @@ def api_echo(request: Request):
     permission=Permissions.APIObservationsAdd,
     require_methods=["POST"],
 )
-def api_projects_observations(
-    project: Project, request: Request
-) -> HTTPAccepted | HTTPBadRequest:
+def api_projects_observations(project: Project, request: Request) -> dict:
     data = request.json_body
 
-    # TODO: Are there better mechanisms for validating the payload?
-    #  Maybe adopt https://github.com/Pylons/pyramid_openapi3 - too big?
-    required_fields = {"kind", "summary"}
-    if not required_fields.issubset(data.keys()):
-        raise HTTPBadRequest(
-            json={
-                "error": "missing required fields",
-                "missing": sorted(list(required_fields - data.keys())),
-            },
-        )
-    try:
-        # get the correct mapping for the `kind` field
-        kind = OBSERVATION_KIND_MAP[data["kind"]]
-    except KeyError:
-        raise HTTPBadRequest(
-            json={
-                "error": "invalid kind",
-                "kind": data["kind"],
-                "project": project.name,
-            }
-        )
+    # We know that this is a valid observation kind, so we can use it directly
+    kind = OBSERVATION_KIND_MAP[data["kind"]]
 
-    # TODO: Another case of needing more complex validation
+    # One case of needing more complex validation that OpenAPI does not yet support.
+    # Here we express a dependency between fields, but the validity of the inspector_url
+    # is handled by the OpenAPI schema.
     if kind == ObservationKind.IsMalware:
         if "inspector_url" not in data:
             raise HTTPBadRequest(
                 json={
                     "error": "missing required fields",
                     "missing": ["inspector_url"],
-                    "project": project.name,
-                },
-            )
-        if "inspector_url" in data and not data["inspector_url"].startswith(
-            "https://inspector.pypi.io/"
-        ):
-            raise HTTPBadRequest(
-                json={
-                    "error": "invalid inspector_url",
-                    "inspector_url": data["inspector_url"],
                     "project": project.name,
                 },
             )
@@ -135,10 +106,10 @@ def api_projects_observations(
         payload=data,
     )
 
-    return HTTPAccepted(
-        json={
-            # TODO: What should we return to the caller?
-            "project": project.name,
-            "thanks": "for the observation",
-        },
-    )
+    # Override the status code, instead returning Response which changes the renderer.
+    request.response.status = http.HTTPStatus.ACCEPTED
+    return {
+        # TODO: What should we return to the caller?
+        "project": project.name,
+        "thanks": "for the observation",
+    }
