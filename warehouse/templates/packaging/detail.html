@@ -108,11 +108,9 @@
         <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
-          {% if file.python_version %}
-          {% for tag in file.python_version.split('.') %}
+          {% for tag in file.pretty_wheel_tags %}
           <code>{{ tag }}</code>
           {% endfor %}
-          {% endif %}
         </p>
       </div>
     </div>
