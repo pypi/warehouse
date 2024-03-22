@@ -57,7 +57,7 @@ contributors [Carey Hoffman] and [Pete Garcin].
 
 _Dustin Ingram is a maintainer of the Python Package Index._
 
-[we announced last year]: https://blog.pypi.org/posts/2023-04-20-introducing-trusted-publishers/
+[we announced last year]: 2023-04-20-introducing-trusted-publishers.md
 [William Woodruff]: https://github.com/woodruffw
 [Facundo Tuesca]: https://github.com/facutuesca
 [Carey Hoffman]: https://github.com/th3coop
