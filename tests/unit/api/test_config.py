@@ -12,6 +12,7 @@
 
 import orjson
 import pretend
+import pytest
 
 from warehouse.api import config
 
@@ -50,7 +51,8 @@ def test_api_set_content_type_no_api_version():
     assert request.response.content_type is None
 
 
-def test_includeme(monkeypatch):
+@pytest.mark.parametrize("env_name", ["development", "production"])
+def test_includeme(monkeypatch, env_name):
     # We use `str(Path(__file__).parent / 'openapi.yaml'` to get the path.
     # In our test, monkeypatch to a known value.
     monkeypatch.setattr(config, "__file__", "/mnt/dummy/config.py")
@@ -63,6 +65,7 @@ def test_includeme(monkeypatch):
         pyramid_openapi3_spec=pretend.call_recorder(lambda *a, **kw: None),
         pyramid_openapi3_add_deserializer=pretend.call_recorder(lambda *a, **kw: None),
         pyramid_openapi3_add_explorer=pretend.call_recorder(lambda *a, **kw: None),
+        registry=pretend.stub(settings={"warehouse.env": env_name}),
     )
 
     config.includeme(conf)
@@ -75,6 +78,9 @@ def test_includeme(monkeypatch):
     assert conf.pyramid_openapi3_add_deserializer.calls == [
         pretend.call("application/vnd.pypi.api-v0-danger+json", orjson.loads)
     ]
-    assert conf.pyramid_openapi3_add_explorer.calls == [
-        pretend.call(route="/api/explorer/")
-    ]
+    if env_name == "development":
+        assert conf.pyramid_openapi3_add_explorer.calls == [
+            pretend.call(route="/api/explorer/")
+        ]
+    else:
+        assert not conf.pyramid_openapi3_add_explorer.calls

@@ -22,6 +22,8 @@ from pathlib import Path
 
 import orjson
 
+from warehouse.config import Environment
+
 if typing.TYPE_CHECKING:
     from pyramid.config import Configurator
 
@@ -66,8 +68,9 @@ def includeme(config: Configurator) -> None:
     config.pyramid_openapi3_add_deserializer(
         "application/vnd.pypi.api-v0-danger+json", orjson.loads
     )
-    # Set up the route for the OpenAPI Web UI
-    config.pyramid_openapi3_add_explorer(route="/api/explorer/")
+    if config.registry.settings["warehouse.env"] == Environment.development:
+        # Set up the route for the OpenAPI Web UI
+        config.pyramid_openapi3_add_explorer(route="/api/explorer/")
 
     # Helpful toggles for development.
     # config.registry.settings["pyramid_openapi3.enable_endpoint_validation"] = False
