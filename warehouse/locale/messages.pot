@@ -1,4 +1,4 @@
-#: warehouse/forms.py:72
+#: warehouse/forms.py:71
 msgid "Password is too easily guessed."
 msgstr ""
 
