@@ -1,0 +1,23 @@
+name: Add comment & close
+on:
+  issues:
+    types:
+      - labeled
+jobs:
+  add-comment:
+    if: github.event.label.name == 'not-this-repo'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - name: Add comment
+        run: gh issue close "$NUMBER" --reason "not planned" --comment "$BODY"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          BODY: >
+            Hi, this issue tracker is for issues with the codebase behind pypi.org itself,
+            not the projects hosted on PyPI.
+            
+            You should report this issue to the tracker for the project in question instead.

@@ -67,7 +67,7 @@ from warehouse.organizations.models import (
     TeamProjectRole,
 )
 from warehouse.sitemap.models import SitemapMixin
-from warehouse.utils import dotted_navigator
+from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
@@ -802,6 +802,10 @@ class File(HasEvents, db.Model):
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
         raise RuntimeError("Cannot set File.requires_python")
+
+    @property
+    def pretty_wheel_tags(self) -> list[str]:
+        return wheel.filename_to_pretty_tags(self.filename)
 
 
 class Filename(db.ModelBase):
