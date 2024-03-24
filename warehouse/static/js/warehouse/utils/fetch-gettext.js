@@ -57,7 +57,7 @@ export function ngettext(singular, plural, num, values) {
     searchValues = {...searchValues, ...values};
   }
   const searchParams = new URLSearchParams(searchValues);
-  return fetch("/translation?" + searchParams.toString(), fetchOptions)
+  return fetch("/translation/?" + searchParams.toString(), fetchOptions)
     .then(response => {
       if (response.ok) {
         return response.json();
