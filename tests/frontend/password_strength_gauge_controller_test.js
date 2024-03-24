@@ -60,7 +60,7 @@ describe("Password strength gauge controller", () => {
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password field is empty");
 
         expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Password+field+is+empty");
+        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Password+field+is+empty");
       });
     });
   });
@@ -116,9 +116,9 @@ describe("Password strength gauge controller", () => {
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password is strong");
 
         expect(fetch.mock.calls.length).toEqual(3);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Password+is+strong");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation?s=Password+is+strong");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation?s=Password+is+strong");
+        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Password+is+strong");
+        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Password+is+strong");
+        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Password+is+strong");
       });
     });
   });

@@ -72,7 +72,7 @@ describe("ClipboardController", () => {
       expect(button.dataset.clipboardTooltipValue).toEqual("Copy to clipboard");
 
       expect(fetch.mock.calls.length).toEqual(1);
-      expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Copied");
+      expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Copied");
     });
   });
 });

@@ -93,10 +93,10 @@ describe("Password match controller", () => {
         expect(submit).toHaveAttribute("disabled", "");
 
         expect(fetch.mock.calls.length).toEqual(4);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[3][0]).toEqual("/translation?s=Passwords+do+not+match");
+        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Passwords+do+not+match");
+        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Passwords+do+not+match");
+        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Passwords+do+not+match");
+        expect(fetch.mock.calls[3][0]).toEqual("/translation/?s=Passwords+do+not+match");
       });
     });
   });
@@ -125,11 +125,11 @@ describe("Password match controller", () => {
         expect(submit).not.toHaveAttribute("disabled");
 
         expect(fetch.mock.calls.length).toEqual(5);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Passwords+match");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation?s=Passwords+match");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation?s=Passwords+match");
-        expect(fetch.mock.calls[3][0]).toEqual("/translation?s=Passwords+match");
-        expect(fetch.mock.calls[4][0]).toEqual("/translation?s=Passwords+match");
+        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Passwords+match");
+        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Passwords+match");
+        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Passwords+match");
+        expect(fetch.mock.calls[3][0]).toEqual("/translation/?s=Passwords+match");
+        expect(fetch.mock.calls[4][0]).toEqual("/translation/?s=Passwords+match");
       });
     });
 

@@ -40,7 +40,7 @@ describe("time ago util", () => {
     expect(element.innerText).toEqual("Just now");
 
     expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Just+now");
+    expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Just+now");
   });
 
   it("shows 'About 5 hours ago' for such a time'", async () => {
@@ -63,7 +63,7 @@ describe("time ago util", () => {
     expect(element.innerText).toEqual("About 5 hours ago");
 
     expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual("/translation?s=About+an+hour+ago&p=About+%24%7BnumHours%7D+hours+ago&n=5&numHours=5");
+    expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=About+an+hour+ago&p=About+%24%7BnumHours%7D+hours+ago&n=5&numHours=5");
   });
 
   it("shows 'About 36 minutes ago' for such a time'", async () => {
@@ -86,7 +86,7 @@ describe("time ago util", () => {
     expect(element.innerText).toEqual("About 36 minutes ago");
 
     expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual("/translation?s=About+a+minute+ago&p=About+%24%7BnumMinutes%7D+minutes+ago&n=36&numMinutes=36");
+    expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=About+a+minute+ago&p=About+%24%7BnumMinutes%7D+minutes+ago&n=36&numMinutes=36");
   });
 
   it("shows provided text for Yesterday'", async () => {
@@ -109,7 +109,7 @@ describe("time ago util", () => {
     expect(element.innerText).toEqual("one day ago");
 
     expect(fetch.mock.calls.length).toEqual(1);
-    expect(fetch.mock.calls[0][0]).toEqual("/translation?s=Yesterday&p=About+%24%7BnumDays%7D+days+ago&n=1&numDays=1");
+    expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Yesterday&p=About+%24%7BnumDays%7D+days+ago&n=1&numDays=1");
   });
 
   it("makes no fetch call when not isBeforeCutoff", async () => {
