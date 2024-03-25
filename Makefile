@@ -125,7 +125,9 @@ resetdb: .state/docker-build-base
 initdb: .state/docker-build-base .state/db-populated
 	$(MAKE) reindex
 
-inittuf: .state/docker-build-base
+inittuf: .state/db-migrated
+	docker compose up -d rstuf-api
+	docker compose up -d rstuf-worker
 	docker compose run --rm web rstuf admin ceremony -b -u -f dev/rstuf/bootstrap.json --api-server http://rstuf-api
 
 runmigrations: .state/docker-build-base
