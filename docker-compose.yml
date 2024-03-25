@@ -35,7 +35,7 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.2
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
