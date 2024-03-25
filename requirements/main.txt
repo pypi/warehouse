@@ -344,9 +344,9 @@ click==8.1.7 \
     #   click-didyoumean
     #   click-plugins
     #   click-repl
-click-didyoumean==0.3.0 \
-    --hash=sha256:a0713dc7a1de3f06bc0df5a9567ad19ead2d3d5689b434768a6145bff77c0667 \
-    --hash=sha256:f184f0d851d96b6d29297354ed981b7dd71df7ff500d82fa6d11f0856bee8035
+click-didyoumean==0.3.1 \
+    --hash=sha256:4f82fdff0dbe64ef8ab2279bd6aa3f6a99c3b28c05aa09cbfc07c9d7fbb5a463 \
+    --hash=sha256:5c4bb6007cfea5f2fd6583a2fb6701a22a41eb98957e63d0fac41c10e7c3117c
     # via celery
 click-plugins==1.1.1 \
     --hash=sha256:46ab999744a9d831159c3411bb0c79346d94a444df9a3a3742e9ed63645f264b \
