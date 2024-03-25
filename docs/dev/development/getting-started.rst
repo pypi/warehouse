@@ -248,8 +248,6 @@ Bootstrapping the TUF Metadata Repository
 To enable PyPI Index Signing (`PEP 458 <https://peps.python.org/pep-0458/>`_),
 you have to first bootstrap the TUF metadata repository.
 
-Wait until ``make serve`` has finished, then run:
-
 .. code-block:: console
 
     make inittuf
