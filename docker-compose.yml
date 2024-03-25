@@ -169,6 +169,9 @@ services:
       - RSTUF_REDIS_SERVER=redis://redis
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+    depends_on:
+      redis:
+        condition: service_started
 
   rstuf-worker:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
@@ -187,6 +190,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   static:
     build:
