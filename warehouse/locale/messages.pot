@@ -1103,7 +1103,7 @@ msgid "About PyPI navigation"
 msgstr ""
 
 #: warehouse/templates/base.html:291
-msgid "PyPI on Twitter"
+msgid "PyPI Blog"
 msgstr ""
 
 #: warehouse/templates/base.html:292
