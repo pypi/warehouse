@@ -63,11 +63,11 @@
 
 {% macro trademarks(long=False) -%}
 {% if long %}
-{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
 "{{ wordmark }}", "{{ name }}", and the blocks logos are registered trademarks of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a> referring to the products and services associated with pypi.org. Any other use by any other party is prohibited.
 {% endtrans %}
 {% else %}
-{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
+{% trans wordmark="PyPI", name="Python Package Index", psf_href="https://www.python.org/psf-landing", trademarks_href=request.route_path('trademarks') %}
 "{{ wordmark }}", "{{ name }}", and the blocks logos are registered <a href="{{ trademarks_href }}">trademarks</a> of the <a href="{{ psf_href }}" target="_blank" rel="noopener">Python Software Foundation</a>.
 {% endtrans %}
 {% endif %}
