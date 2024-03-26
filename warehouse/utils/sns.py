@@ -12,6 +12,7 @@
 
 import base64
 import datetime
+import functools
 import re
 
 import requests
@@ -72,6 +73,7 @@ class MessageVerifier:
         except _InvalidSignature:
             raise InvalidMessageError("Invalid Signature") from None
 
+    @functools.lru_cache(maxsize=1)
     def _get_pubkey(self, cert_url):
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
