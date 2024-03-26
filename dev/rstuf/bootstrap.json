@@ -1,0 +1,92 @@
+{
+    "settings": {
+        "roles": {
+            "root": {
+                "expiration": 365
+            },
+            "targets": {
+                "expiration": 365
+            },
+            "snapshot": {
+                "expiration": 1
+            },
+            "timestamp": {
+                "expiration": 1
+            },
+            "bins": {
+                "expiration": 1,
+                "number_of_delegated_bins": 4
+            }
+        }
+    },
+    "metadata": {
+        "root": {
+            "signatures": [
+                {
+                    "keyid": "c6d8bf2e4f48b41ac2ce8eca21415ca8ef68c133b47fc33df03d4070a7e1e9cc",
+                    "sig": "19dd6b1d5da8149b5a490efc8137beedb85ae036255244b2eba909efe05561636e56c0f9a3fe219601602c142b74cc9d2ab5ba18016cb1f3fb81f16f4cb89100"
+                }
+            ],
+            "signed": {
+                "_type": "root",
+                "version": 1,
+                "spec_version": "1.0.31",
+                "expires": "2025-02-21T13:58:51Z",
+                "consistent_snapshot": true,
+                "keys": {
+                    "50d7e110ad65f3b2dba5c3cfc8c5ca259be9774cc26be3410044ffd4be3aa5f3": {
+                        "keytype": "ecdsa",
+                        "scheme": "ecdsa-sha2-nistp256",
+                        "keyval": {
+                            "public": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEcLYSZyFGeKdWNt5dWFbnv6N9NyHC\noUNLcG6GZIxLwN8Q8MUdHdOOxGkDnyBRSJpIZ/r/oDECSTwfCYhdogweLA==\n-----END PUBLIC KEY-----\n"
+                        },
+                        "x-rstuf-key-name": "my ecdsa root key"
+                    },
+                    "c6d8bf2e4f48b41ac2ce8eca21415ca8ef68c133b47fc33df03d4070a7e1e9cc": {
+                        "keytype": "ed25519",
+                        "scheme": "ed25519",
+                        "keyval": {
+                            "public": "4f66dabebcf30628963786001984c0b75c175cdcf3bc4855933a2628f0cd0a0f"
+                        },
+                        "x-rstuf-key-name": "my ed25519 root key"
+                    },
+                    "2f685fa7546f1856b123223ab086b3def14c89d24eef18f49c32508c2f60e241": {
+                        "keytype": "rsa",
+                        "scheme": "rsassa-pss-sha256",
+                        "keyval": {
+                            "public": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwhX6rioiL/cX5Ys32InF\nU52H8tL14QeX0tacZdb+AwcH6nIh97h3RSHvGD7Xy6uaMRmGldAnSVYwJHqoJ5j2\nynVzU/RFpr+6n8Ps0QFg5GmlEqZboFjLbS0bsRQcXXnqJNsVLEPT3ULvu1rFRbWz\nAMFjNtNNk5W/u0GEzXn3D03jIdhD8IKAdrTRf0VMD9TRCXLdMmEU2vkf1NVUnOTb\n/dRX5QA8TtBylVnouZknbavQ0J/pPlHLfxUgsKzodwDlJmbPG9BWwXqQCmP0DgOG\nNIZ1X281MOBaGbkNVEuntNjCSaQxQjfALVVU5NAfal2cwMINtqaoc7Wa+TWvpFEI\nWwIDAQAB\n-----END PUBLIC KEY-----\n"
+                        },
+                        "x-rstuf-online-key-uri": "fn:2f685fa7546f1856b123223ab086b3def14c89d24eef18f49c32508c2f60e241"
+                    }
+                },
+                "roles": {
+                    "root": {
+                        "keyids": [
+                            "50d7e110ad65f3b2dba5c3cfc8c5ca259be9774cc26be3410044ffd4be3aa5f3",
+                            "c6d8bf2e4f48b41ac2ce8eca21415ca8ef68c133b47fc33df03d4070a7e1e9cc"
+                        ],
+                        "threshold": 1
+                    },
+                    "targets": {
+                        "keyids": [
+                            "2f685fa7546f1856b123223ab086b3def14c89d24eef18f49c32508c2f60e241"
+                        ],
+                        "threshold": 1
+                    },
+                    "timestamp": {
+                        "keyids": [
+                            "2f685fa7546f1856b123223ab086b3def14c89d24eef18f49c32508c2f60e241"
+                        ],
+                        "threshold": 1
+                    },
+                    "snapshot": {
+                        "keyids": [
+                            "2f685fa7546f1856b123223ab086b3def14c89d24eef18f49c32508c2f60e241"
+                        ],
+                        "threshold": 1
+                    }
+                }
+            }
+        }
+    }
+}
