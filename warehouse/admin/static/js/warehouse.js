@@ -26,6 +26,7 @@ import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
 
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
+import { gettext } from "warehouse/utils/fetch-gettext";
 
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
@@ -100,7 +101,11 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
     setTimeout(function () {
       $("#copied_tip").remove();
     }, 1000);
-    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+
+    gettext("Copied").then((text) => {
+      $(target).append(`<div class='tip' id='copied_tip'>${text}</div>`);
+    });
+
     navigator.clipboard.writeText(text);
   }
 
