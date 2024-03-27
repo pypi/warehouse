@@ -839,7 +839,8 @@ msgstr "Имя файла Workflow должно быть только имене
 
 #: warehouse/oidc/forms/gitlab.py:33
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "Укажите владельца репозитория GitHub (имя пользователя или организацию)"
+msgstr ""
+"Укажите владельца репозитория GitHub (имя пользователя или организацию)"
 
 #: warehouse/oidc/forms/gitlab.py:37
 msgid "Invalid GitLab username or group/subgroup name."
@@ -952,8 +953,8 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:378
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:395
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1291,8 +1292,10 @@ msgid "About PyPI navigation"
 msgstr "Навигация по блоку ссылок «О PyPI»"
 
 #: warehouse/templates/base.html:291
-msgid "PyPI on Twitter"
-msgstr "PyPI в Twitter"
+#, fuzzy
+#| msgid "PyPI home"
+msgid "PyPI Blog"
+msgstr "Домашняя страница PyPI"
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
@@ -3342,7 +3345,7 @@ msgstr "Хеш-дайджест"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:158
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Скопировать в буфер обмена"
@@ -7568,125 +7571,125 @@ msgstr "%(org)s еще не загрузил ни одного проекта н
 msgid "view hashes"
 msgstr "просмотр хэшей"
 
-#: warehouse/templates/packaging/detail.html:128
+#: warehouse/templates/packaging/detail.html:126
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: последние выпуски проекта %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 msgid "Copy PIP instructions"
 msgstr "Скопировать инструкции PIP"
 
-#: warehouse/templates/packaging/detail.html:173
+#: warehouse/templates/packaging/detail.html:171
 msgid "This release has been yanked"
 msgstr "Этот выпуск был изъят"
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:177
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Доступна стабильная версия (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Доступна новая версия (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:185
 msgid "Latest version"
 msgstr "Последняя версия"
 
-#: warehouse/templates/packaging/detail.html:192
+#: warehouse/templates/packaging/detail.html:190
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Выпущен: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr "Описание проекта не предоставлено"
 
-#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:217
 msgid "Navigation"
 msgstr "Навигация"
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:252
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Навигация для проекта %(project)s"
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:255
 msgid "Project description. Focus will be moved to the description."
 msgstr "Описание проекта. Фокус будет перенесён на описание."
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:259
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:291
 msgid "Project description"
 msgstr "Описание проекта"
 
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:267
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "История выпусков. Фокус будет перенесён на панель истории."
 
-#: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:271
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:313
 msgid "Release history"
 msgstr "История выпусков"
 
-#: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:234
+#: warehouse/templates/packaging/detail.html:274
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Загрузка файлов. Фокус будет перенесён на файлы проекта."
 
-#: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:377
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:375
 msgid "Download files"
 msgstr "Загрузка файлов"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:261
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 "Подробности проекта. Фокус будет перенесён на подробную информацию о проекте."
 
-#: warehouse/templates/packaging/detail.html:265
-#: warehouse/templates/packaging/detail.html:307
+#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:305
 msgid "Project details"
 msgstr "Подробности проекта"
 
-#: warehouse/templates/packaging/detail.html:289
-#: warehouse/templates/packaging/detail.html:364
+#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:362
 msgid "Reason this release was yanked:"
 msgstr "Причина, по которой этот релиз был удален:"
 
-#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:298
 msgid "The author of this package has not provided a project description"
 msgstr "Автор данного пакета не предоставил описание проекта"
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release notifications"
 msgstr "Уведомления о выпусках"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:316
 msgid "RSS feed"
 msgstr "Лента RSS"
 
-#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:328
 msgid "This version"
 msgstr "Эта версия"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:348
 msgid "pre-release"
 msgstr "предварительный выпуск"
 
-#: warehouse/templates/packaging/detail.html:355
+#: warehouse/templates/packaging/detail.html:353
 msgid "yanked"
 msgstr "изъятый"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:376
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7697,18 +7700,18 @@ msgstr ""
 "узнайте больше об <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">установке пакетов</a>."
 
-#: warehouse/templates/packaging/detail.html:380
+#: warehouse/templates/packaging/detail.html:378
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "Источник распределения"
 msgstr[1] "Распределение источника"
 msgstr[2] "Распределение источников"
 
-#: warehouse/templates/packaging/detail.html:396
+#: warehouse/templates/packaging/detail.html:394
 msgid "No source distribution files available for this release."
 msgstr "Для этого выпуска не доступны файлы дистрибутива исходного кода."
 
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:395
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7717,7 +7720,7 @@ msgstr ""
 "Смотрите руководство по <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">генерированию архивов дистрибутивов</a>."
 
-#: warehouse/templates/packaging/detail.html:404
+#: warehouse/templates/packaging/detail.html:402
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "Построенный дистрибутив"
@@ -10505,6 +10508,9 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Не было результатов для фильтра '%(filters)s'"
 msgstr[1] "Не было результатов для фильтра '%(filters)s'"
 msgstr[2] "Не было результатов для фильтров '%(filters)s'"
+
+#~ msgid "PyPI on Twitter"
+#~ msgstr "PyPI в Twitter"
 
 #, python-format
 #~ msgid ""

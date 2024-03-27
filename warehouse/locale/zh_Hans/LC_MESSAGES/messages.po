@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-03-12 15:57+0000\n"
+"PO-Revision-Date: 2024-03-27 07:39+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -905,8 +905,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:378
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:395
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1240,8 +1240,8 @@ msgid "About PyPI navigation"
 msgstr "关于 PyPI 导航"
 
 #: warehouse/templates/base.html:291
-msgid "PyPI on Twitter"
-msgstr "Twitter 上的 PyPI"
+msgid "PyPI Blog"
+msgstr "PyPI 博客"
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
@@ -3185,7 +3185,7 @@ msgstr "哈希摘要"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:158
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
@@ -7119,124 +7119,124 @@ msgstr "%(org)s 尚未上传任何项目到 PyPI"
 msgid "view hashes"
 msgstr "查看哈希值"
 
-#: warehouse/templates/packaging/detail.html:128
+#: warehouse/templates/packaging/detail.html:126
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: 最新发布的%(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 msgid "Copy PIP instructions"
 msgstr "复制PIP命令"
 
-#: warehouse/templates/packaging/detail.html:173
+#: warehouse/templates/packaging/detail.html:171
 msgid "This release has been yanked"
 msgstr "该版本被执行了 yank 操作"
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:177
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "发布版本 %(version)s"
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:185
 msgid "Latest version"
 msgstr "最新版本"
 
-#: warehouse/templates/packaging/detail.html:192
+#: warehouse/templates/packaging/detail.html:190
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "发布日期： %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr "未提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:217
 msgid "Navigation"
 msgstr "导航栏"
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:252
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "%(project)s 项目的导航"
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:255
 msgid "Project description. Focus will be moved to the description."
 msgstr "项目描述。焦点将移至描述。"
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:259
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:291
 msgid "Project description"
 msgstr "项目描述"
 
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:267
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "发布历史记录。焦点将移到“历史记录”面板。"
 
-#: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:271
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:313
 msgid "Release history"
 msgstr "发行版"
 
-#: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:234
+#: warehouse/templates/packaging/detail.html:274
 msgid "Download files. Focus will be moved to the project files."
 msgstr "下载文件。焦点将移到项目文件。"
 
-#: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:377
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:375
 msgid "Download files"
 msgstr "下载文件"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:261
 msgid "Project details. Focus will be moved to the project details."
 msgstr "项目详细信息。焦点将移到项目详细信息。"
 
-#: warehouse/templates/packaging/detail.html:265
-#: warehouse/templates/packaging/detail.html:307
+#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:305
 msgid "Project details"
 msgstr "项目详情"
 
-#: warehouse/templates/packaging/detail.html:289
-#: warehouse/templates/packaging/detail.html:364
+#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:362
 msgid "Reason this release was yanked:"
 msgstr "对此版本执行 yank 操作的原因："
 
-#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:298
 msgid "The author of this package has not provided a project description"
 msgstr "该软件包的作者没有提供项目描述"
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release notifications"
 msgstr "版本发布设置"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:316
 msgid "RSS feed"
 msgstr "RSS 订阅源"
 
-#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:328
 msgid "This version"
 msgstr "当前版本"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:348
 msgid "pre-release"
 msgstr "预览版"
 
-#: warehouse/templates/packaging/detail.html:355
+#: warehouse/templates/packaging/detail.html:353
 msgid "yanked"
 msgstr "被执行了 yank 操作"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:376
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -7247,16 +7247,16 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">安装"
 "软件包（英文）</a> 的更多信息。"
 
-#: warehouse/templates/packaging/detail.html:380
+#: warehouse/templates/packaging/detail.html:378
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] "源分发"
 
-#: warehouse/templates/packaging/detail.html:396
+#: warehouse/templates/packaging/detail.html:394
 msgid "No source distribution files available for this release."
 msgstr "没有可用于此版本的源代码分发文件。"
 
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:395
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -7265,7 +7265,7 @@ msgstr ""
 "参考<a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">生成分发文件</a>的教程。"
 
-#: warehouse/templates/packaging/detail.html:404
+#: warehouse/templates/packaging/detail.html:402
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] "构建分发"
@@ -7304,7 +7304,8 @@ msgid ""
 "Your summary should include a general description of the malicious behavior "
 "as well as any other pertinent details such as what specific release(s) or "
 "file(s) are involved if it is not an entirely malicious Project."
-msgstr "您的总结应包含恶意行为的概述以及其他任何相关的细节，比如，若并非整个项目都是"
+msgstr ""
+"您的总结应包含恶意行为的概述以及其他任何相关的细节，比如，若并非整个项目都是"
 "恶意的，那么恶意行为涉及哪个或哪些特定的发行版或文件。"
 
 #: warehouse/templates/packaging/submit-malware-observation.html:62
@@ -9420,15 +9421,17 @@ msgstr "说明是什么使项目成为安全问题"
 msgid ""
 "A link to the problematic lines in the project's distributions via <a "
 "href=\"%(href)s\">inspector.pypi.io</a>"
-msgstr "通过 <a href=\"%(href)s\">inspector.pypi.io</a> "
-"链接到项目发行版中存在问题的行"
+msgstr ""
+"通过 <a href=\"%(href)s\">inspector.pypi.io</a> 链接到项目发行版中存在问题的"
+"行"
 
 #: warehouse/templates/pages/security.html:48
 msgid ""
 "Valid malware reports may include examples of typo-squatting, dependency "
 "confusion, data exfiltration, obfuscation, command/control, etc."
-msgstr "有效的恶意软件报告可以包括域名拼写错误抢注、依赖关系混淆、数据泄露、代码混淆"
-"、命令/控制等。"
+msgstr ""
+"有效的恶意软件报告可以包括域名拼写错误抢注、依赖关系混淆、数据泄露、代码混"
+"淆、命令/控制等。"
 
 #: warehouse/templates/pages/security.html:50
 msgid ""
@@ -9847,6 +9850,9 @@ msgstr "“%(term)s”没有结果"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "“%(filters)s”筛选器没有结果"
+
+#~ msgid "PyPI on Twitter"
+#~ msgstr "Twitter 上的 PyPI"
 
 #, python-format
 #~ msgid ""
