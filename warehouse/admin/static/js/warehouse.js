@@ -23,6 +23,8 @@ import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
 import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
 import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
 import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
+import "admin-lte/plugins/datatables-rowgroup/js/dataTables.rowGroup";
+import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
@@ -155,3 +157,24 @@ if (observationsTable.length) {
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
 
+// Malware Reports
+let malwareReportsTable = $("#malware-reports")
+if (malwareReportsTable.length) {
+  let table = malwareReportsTable.DataTable({
+    displayLength: 25,
+    lengthChange: false,
+    order: [[0, "asc"], [2, "desc"]],  // alpha name, recent date
+    responsive: true,
+    rowGroup: {
+      dataSrc: 0,
+      // display row count in group header
+      startRender: function (rows, group) {
+        return group + ' (' + rows.count() + ')';
+      },
+    },
+  });
+  // hide the project name, since it's in the group title
+  table.columns([0]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}

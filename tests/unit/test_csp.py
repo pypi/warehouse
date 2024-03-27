@@ -232,9 +232,10 @@ def test_includeme():
                     "font-src": ["'self'", "fonts.gstatic.com"],
                     "form-action": ["'self'", "https://checkout.stripe.com"],
                     "frame-ancestors": ["'none'"],
-                    "frame-src": ["'none'"],
+                    "frame-src": ["https://inspector.pypi.io"],
                     "img-src": [
                         "'self'",
+                        "data:",
                         "camo.url.value",
                         "https://*.google-analytics.com",
                         "https://*.googletagmanager.com",

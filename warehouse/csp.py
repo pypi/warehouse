@@ -163,9 +163,10 @@ def includeme(config):
                 "font-src": [SELF, "fonts.gstatic.com"],
                 "form-action": [SELF, "https://checkout.stripe.com"],
                 "frame-ancestors": [NONE],
-                "frame-src": [NONE],
+                "frame-src": ["https://inspector.pypi.io"],
                 "img-src": [
                     SELF,
+                    "data:",  # Admin UI/Bootstrap 4 uses inline SVGs for icons
                     config.registry.settings["camo.url"],
                     "https://*.google-analytics.com",
                     "https://*.googletagmanager.com",

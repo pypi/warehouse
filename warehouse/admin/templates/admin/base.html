@@ -114,6 +114,11 @@
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
+            <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
+              <i class="fa-solid fa-dumpster-fire nav-icon"></i> <p>Malware Reports <span class="right badge badge-danger">New</span></p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
             </a>
@@ -130,7 +135,7 @@
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.macaroon.decode_token') }}" class="nav-link">
-              <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons <span class="right badge badge-danger">New</span></p>
+              <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons</p>
             </a>
           </li>
           <li class="nav-item">
