@@ -216,6 +216,7 @@ class ManageAccountViews:
     def add_email(self):
         form = AddEmailForm(
             self.request.POST,
+            request=self.request,
             user_service=self.user_service,
             user_id=self.request.user.id,
         )
