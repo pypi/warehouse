@@ -77,6 +77,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.freeze",
+            "/admin/users/{username}/freeze/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.user.reset_password",
             "/admin/users/{username}/reset_password/",
             domain=warehouse,

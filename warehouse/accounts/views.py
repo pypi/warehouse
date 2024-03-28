@@ -679,6 +679,7 @@ def register(request, _form_class=RegistrationForm):
     )
 
     form = _form_class(
+        request=request,
         formdata=post_body,
         user_service=user_service,
         captcha_service=captcha_service,

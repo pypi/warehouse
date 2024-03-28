@@ -346,6 +346,26 @@ class Email(db.ModelBase):
     unverify_reason: Mapped[UnverifyReasons | None]
     transient_bounces: Mapped[int] = mapped_column(server_default=sql.text("0"))
 
+    @property
+    def domain(self):
+        return self.email.split("@")[-1].lower()
+
+
+class ProhibitedEmailDomain(db.Model):
+    __tablename__ = "prohibited_email_domains"
+    __repr__ = make_repr("domain")
+
+    created: Mapped[datetime_now]
+    domain: Mapped[str] = mapped_column(unique=True)
+    _prohibited_by: Mapped[UUID | None] = mapped_column(
+        "prohibited_by",
+        PG_UUID(as_uuid=True),
+        ForeignKey("users.id"),
+        index=True,
+    )
+    prohibited_by: Mapped[User] = orm.relationship(User)
+    comment: Mapped[str] = mapped_column(server_default="")
+
 
 class ProhibitedUserName(db.Model):
     __tablename__ = "prohibited_user_names"
