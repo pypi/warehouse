@@ -75,6 +75,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.freeze",
+        "/admin/users/{username}/freeze/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.reset_password",
         "/admin/users/{username}/reset_password/",
         domain=warehouse,
