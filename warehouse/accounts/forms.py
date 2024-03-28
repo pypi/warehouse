@@ -22,6 +22,8 @@ import markupsafe
 import wtforms
 import wtforms.fields
 
+from sqlalchemy import exists
+
 import warehouse.utils.otp as otp
 import warehouse.utils.webauthn as webauthn
 
@@ -32,7 +34,7 @@ from warehouse.accounts.interfaces import (
     NoRecoveryCodes,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import DisableReason
+from warehouse.accounts.models import DisableReason, ProhibitedEmailDomain
 from warehouse.accounts.services import RECOVERY_CODE_BYTES
 from warehouse.captcha import recaptcha
 from warehouse.email import (
@@ -269,21 +271,30 @@ class NewEmailMixin:
         ]
     )
 
+    def __init__(self, *args, request, **kwargs):
+        self.request = request
+        super().__init__(*args, **kwargs)
+
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
             Address(addr_spec=field.data)
         except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
-                _("The email address isn't valid. Try again.")
+                self.request._("The email address isn't valid. Try again.")
             )
 
         # Check if the domain is valid
         domain = field.data.split("@")[-1]
 
-        if domain in disposable_email_domains.blocklist:
+        if (
+            domain in disposable_email_domains.blocklist
+            or self.request.db.query(
+                exists().where(ProhibitedEmailDomain.domain == domain)
+            ).scalar()
+        ):
             raise wtforms.validators.ValidationError(
-                _(
+                self.request._(
                     "You can't use an email address from this domain. Use a "
                     "different email."
                 )
@@ -294,14 +305,14 @@ class NewEmailMixin:
 
         if userid and userid == self.user_id:
             raise wtforms.validators.ValidationError(
-                _(
+                self.request._(
                     "This email address is already being used by this account. "
                     "Use a different email."
                 )
             )
         if userid:
             raise wtforms.validators.ValidationError(
-                _(
+                self.request._(
                     "This email address is already being used "
                     "by another account. Use a different email."
                 )

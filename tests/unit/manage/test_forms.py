@@ -173,6 +173,9 @@ class TestAddEmailForm:
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+            ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
             user_service=user_service,
@@ -182,9 +185,13 @@ class TestAddEmailForm:
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_email_exists_error(self, pyramid_config):
+    def test_email_exists_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         user_id = pretend.stub()
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
             user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
@@ -197,8 +204,12 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_email_exists_other_account_error(self, pyramid_config):
+    def test_email_exists_other_account_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=pretend.stub(),
             user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
@@ -211,8 +222,12 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_prohibited_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bearsarefuzzy.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
@@ -227,6 +242,9 @@ class TestAddEmailForm:
 
     def test_email_too_long_error(self, pyramid_config):
         form = forms.AddEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+            ),
             formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
