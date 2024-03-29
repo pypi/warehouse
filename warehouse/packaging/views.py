@@ -184,7 +184,6 @@ def includes_submit_malware_observation(project, request):
     renderer="packaging/submit-malware-observation.html",
     require_csrf=True,
     require_methods=False,
-    require_reauth=True,
     route_name="packaging.project.submit_malware_observation",
     uses_session=True,
 )
