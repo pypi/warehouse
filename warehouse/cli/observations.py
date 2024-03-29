@@ -36,6 +36,8 @@ def generate_random_observations(config):  # pragma: no cover # dev-only tool
     """
     # Imported here because we don't want to trigger an import from anything
     # but warehouse.cli at the module scope.
+    import faker
+
     from sqlalchemy import select
 
     from warehouse.accounts.models import User
@@ -70,7 +72,7 @@ def generate_random_observations(config):  # pragma: no cover # dev-only tool
                 request=request,
                 kind=random.choice(list(ObservationKind)),
                 actor=random.choice(users),
-                summary="CLI Generated",
+                summary="CLI Generated: " + faker.Faker().paragraph(nb_sentences=3),
                 payload={"origin": "CLI"},
             )
             for _ in range(10)

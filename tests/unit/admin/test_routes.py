@@ -256,6 +256,16 @@ def test_includeme():
             "/admin/observations/",
             domain=warehouse,
         ),
+        pretend.call(
+            "admin.malware_reports.list",
+            "/admin/malware_reports/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail",
+            "/admin/malware_reports/{observation_id}/",
+            domain=warehouse,
+        ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),
         pretend.call("admin.emails.mass", "/admin/emails/mass/", domain=warehouse),
         pretend.call(
