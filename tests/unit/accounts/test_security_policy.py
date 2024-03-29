@@ -527,7 +527,7 @@ class TestPermits:
             identity=pretend.stub(
                 __principals__=lambda: principals,
                 has_primary_verified_email=True,
-                has_two_factor=False,
+                has_two_factor=True,
                 date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="random.route"),

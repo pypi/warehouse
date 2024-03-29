@@ -223,15 +223,11 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
             "accounts.verify-email",
         ]
 
-        if (
-            request.matched_route.name.startswith("manage")
-            and request.matched_route.name != "manage.account"
-            and not any(
-                request.matched_route.name.startswith(route) for route in _exempt_routes
-            )
+        if request.matched_route.name != "manage.account" and not any(
+            request.matched_route.name.startswith(route) for route in _exempt_routes
         ):
             return WarehouseDenied(
-                "You must enable two factor authentication to manage other settings",
+                "You must enable two factor authentication.",
                 reason="manage_2fa_required",
             )
 
