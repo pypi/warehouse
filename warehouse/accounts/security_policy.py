@@ -185,7 +185,10 @@ def _permits_for_user_policy(acl, request, context, permission):
         isinstance(res, Allowed)
         and not request.identity.has_primary_verified_email
         and request.matched_route.name.startswith("manage")
-        and request.matched_route.name != "manage.account"
+        and request.matched_route.name != "manage.account.reverify-email"
+        and not (
+            request.matched_route.name == "manage.account" and request.method == "GET"
+        )
     ):
         return WarehouseDenied("unverified", reason="unverified_email")
 
@@ -214,6 +217,7 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         "manage.account.totp-provision",
         "manage.account.two-factor",
         "manage.account.webauthn-provision",
+        "manage.account.reverify-email",
     ]
 
     if (

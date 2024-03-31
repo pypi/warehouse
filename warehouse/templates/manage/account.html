@@ -92,7 +92,7 @@
         <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
           {% if not email.verified %}
           <li>
-            <form method="POST">
+            <form method="POST" action="{{ request.route_path('manage.account.reverify-email') }}">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="{% trans %}Resend verification email{% endtrans %}">
@@ -260,6 +260,18 @@
       </p>
     </div>
 
+    {% if not user.has_primary_verified_email %}
+    <div class="callout-block">
+      <p>
+        {% trans href='#account-emails' %}
+        <a href="{{ href }}">Verify your primary email address</a>
+        before before updating your account.
+        {% endtrans %}
+      </p>
+    </div>
+    {% endif %}
+
+    {% set disabled = not user.has_primary_verified_email %}
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(save_account_form) }}
@@ -309,7 +321,7 @@
           {% endtrans %}
         </p>
       </div>
-      <input value="{% trans %}Update account{% endtrans %}" class="button button--primary" type="submit">
+      <input value="{% trans %}Update account{% endtrans %}" class="button button--primary {{ "button--disabled" if disabled else "" }}" type="submit">
     </form>
   </section>
 
@@ -345,6 +357,18 @@
       </tbody>
     </table>
 
+    {% if not user.has_primary_verified_email %}
+    <div class="callout-block">
+      <p>
+        {% trans href='#account-emails' %}
+        <a href="{{ href }}">Verify your primary email address</a>
+        before before adding or removing addresses from your account.
+        {% endtrans %}
+      </p>
+    </div>
+    {% endif %}
+
+    {% set disabled = not user.has_primary_verified_email %}
     <form method="POST">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       <div class="form-group">
@@ -366,7 +390,7 @@
           {{ field_errors(add_email_form.email) }}
         </div>
       </div>
-      <input value="{% trans %}Add email{% endtrans %}" class="button button--primary" type="submit">
+      <input value="{% trans %}Add email{% endtrans %}" class="button button--primary {{ "button--disabled" if disabled else "" }}" type="submit">
     </form>
   </section>
 
@@ -375,6 +399,19 @@
   <section id="change-password">
     <h2 class="sub-title">{% trans %}Change password{% endtrans %}</h2>
     {{ form_error_anchor(change_password_form) }}
+
+    {% if not user.has_primary_verified_email %}
+    <div class="callout-block">
+      <p>
+        {% trans href='#account-emails' %}
+        <a href="{{ href }}">Verify your primary email address</a>
+        before before changing your password.
+        {% endtrans %}
+      </p>
+    </div>
+    {% endif %}
+
+    {% set disabled = not user.has_primary_verified_email %}
     <form data-controller="password password-match password-strength-gauge" method="POST" action="#errors">
       <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
       {{ form_errors(change_password_form) }}
@@ -459,7 +496,7 @@
         </ul>
       </div>
       <div>
-        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-password-match-target="submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary {{ "button--disabled" if disabled else "" }}" type="submit" data-password-match-target="submit">
       </div>
     </form>
   </section>

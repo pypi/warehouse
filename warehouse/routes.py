@@ -211,6 +211,11 @@ def includeme(config):
     # Management (views for logged-in users)
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
+        "manage.account.reverify-email",
+        "/manage/account/reverify-email",
+        domain=warehouse,
+    )
+    config.add_route(
         "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
     )
     config.add_route(
