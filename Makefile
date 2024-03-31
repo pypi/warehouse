@@ -74,7 +74,7 @@ static_pipeline: .state/docker-build-static
 reformat: .state/docker-build-base
 	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build-base
+lint: .state/docker-build-base .state/docker-build-static
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
