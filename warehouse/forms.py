@@ -14,7 +14,7 @@ from wtforms import Form as BaseForm, StringField
 from wtforms.validators import InputRequired, StopValidation, ValidationError
 from zxcvbn import zxcvbn
 
-from warehouse.i18n import KNOWN_LOCALES, localize as _
+from warehouse.i18n import KNOWN_LOCALES
 from warehouse.utils.http import is_valid_uri
 
 
