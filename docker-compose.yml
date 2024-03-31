@@ -35,7 +35,7 @@ services:
     image: redis:4.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.2
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
@@ -147,7 +147,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages

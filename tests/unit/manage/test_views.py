@@ -147,7 +147,7 @@ class TestManageAccount:
             )
         ]
         assert add_email_cls.calls == [
-            pretend.call(user_id=user_id, user_service=user_service)
+            pretend.call(request=request, user_id=user_id, user_service=user_service)
         ]
         assert change_pass_cls.calls == [
             pretend.call(

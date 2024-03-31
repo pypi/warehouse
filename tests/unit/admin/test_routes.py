@@ -77,6 +77,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.freeze",
+            "/admin/users/{username}/freeze/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.user.reset_password",
             "/admin/users/{username}/reset_password/",
             domain=warehouse,
@@ -247,6 +254,16 @@ def test_includeme():
         pretend.call(
             "admin.observations.list",
             "/admin/observations/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.list",
+            "/admin/malware_reports/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail",
+            "/admin/malware_reports/{observation_id}/",
             domain=warehouse,
         ),
         pretend.call("admin.emails.list", "/admin/emails/", domain=warehouse),

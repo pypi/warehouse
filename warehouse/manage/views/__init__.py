@@ -171,7 +171,9 @@ class ManageAccountViews:
                 user_id=self.request.user.id,
             ),
             "add_email_form": AddEmailForm(
-                user_service=self.user_service, user_id=self.request.user.id
+                request=self.request,
+                user_service=self.user_service,
+                user_id=self.request.user.id,
             ),
             "change_password_form": ChangePasswordForm(
                 request=self.request,
@@ -214,6 +216,7 @@ class ManageAccountViews:
     def add_email(self):
         form = AddEmailForm(
             self.request.POST,
+            request=self.request,
             user_service=self.user_service,
             user_id=self.request.user.id,
         )
