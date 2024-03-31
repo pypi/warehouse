@@ -126,9 +126,11 @@ class TestManageAccount:
         change_pass_cls = pretend.call_recorder(lambda **kw: change_pass_obj)
         monkeypatch.setattr(views, "ChangePasswordForm", change_pass_cls)
 
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
-        monkeypatch.setattr(views.ManageAccountViews, "active_projects", pretend.stub())
+        monkeypatch.setattr(
+            views.ManageVerifiedAccountViews, "active_projects", pretend.stub()
+        )
 
         assert view.default_response == {
             "save_account_form": save_account_obj,
@@ -183,7 +185,7 @@ class TestManageAccount:
         RoleFactory.create(user=user, project=not_an_owner, role_name="Maintainer")
         RoleFactory.create(user=another_user, project=not_an_owner, role_name="Owner")
 
-        view = views.ManageAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(db_request)
 
         assert view.active_projects == [with_sole_owner]
 
@@ -194,9 +196,9 @@ class TestManageAccount:
             find_service=lambda *a, **kw: user_service, user=pretend.stub(name=name)
         )
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.manage_account() == view.default_response
         assert view.request == request
@@ -224,9 +226,9 @@ class TestManageAccount:
         )
         monkeypatch.setattr(views, "SaveAccountForm", lambda *a, **kw: save_account_obj)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(pyramid_request)
+        view = views.ManageVerifiedAccountViews(pyramid_request)
 
         assert isinstance(view.save_account(), HTTPSeeOther)
         assert pyramid_request.session.flash.calls == [
@@ -248,9 +250,9 @@ class TestManageAccount:
         save_account_obj = pretend.stub(validate=lambda: False)
         monkeypatch.setattr(views, "SaveAccountForm", lambda *a, **kw: save_account_obj)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.save_account() == {
             **view.default_response,
@@ -298,9 +300,9 @@ class TestManageAccount:
         )
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(pyramid_request)
+        view = views.ManageVerifiedAccountViews(pyramid_request)
 
         assert isinstance(view.add_email(), HTTPSeeOther)
         assert user_service.add_email.calls == [
@@ -351,9 +353,9 @@ class TestManageAccount:
         monkeypatch.setattr(views, "Email", email_cls)
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.add_email() == {
             **view.default_response,
@@ -388,9 +390,9 @@ class TestManageAccount:
             path="request-path",
         )
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert isinstance(view.delete_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
@@ -423,9 +425,9 @@ class TestManageAccount:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
@@ -448,9 +450,9 @@ class TestManageAccount:
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
         )
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.delete_email() == view.default_response
         assert request.session.flash.calls == [
@@ -471,9 +473,9 @@ class TestManageAccount:
         db_request.POST = {"primary_email_id": str(new_primary.id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(db_request)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
@@ -509,9 +511,9 @@ class TestManageAccount:
         db_request.POST = {"primary_email_id": str(new_primary.id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(db_request)
 
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_primary_email_change_email", send_email)
@@ -542,9 +544,9 @@ class TestManageAccount:
         db_request.POST = {"primary_email_id": str(missing_email_id)}
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(db_request)
 
         assert view.change_primary_email() == view.default_response
         assert db_request.session.flash.calls == [
@@ -582,9 +584,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
@@ -628,9 +630,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
@@ -664,9 +666,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.reverify_email() == view.default_response
         assert request.session.flash.calls == [
@@ -692,9 +694,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
@@ -743,9 +745,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_password_change_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert isinstance(view.change_password(), HTTPSeeOther)
         assert request.session.flash.calls == [
@@ -792,9 +794,9 @@ class TestManageAccount:
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_password_change_email", send_email)
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", {"_": pretend.stub()}
+            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
         )
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.change_password() == {
             **view.default_response,
@@ -820,16 +822,16 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", pretend.stub()
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
-        monkeypatch.setattr(views.ManageAccountViews, "active_projects", [])
+        monkeypatch.setattr(views.ManageVerifiedAccountViews, "active_projects", [])
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_account_deletion_email", send_email)
         logout_response = pretend.stub()
         logout = pretend.call_recorder(lambda *a: logout_response)
         monkeypatch.setattr(views, "logout", logout)
 
-        view = views.ManageAccountViews(db_request)
+        view = views.ManageVerifiedAccountViews(db_request)
 
         assert view.delete_account() == logout_response
 
@@ -853,10 +855,10 @@ class TestManageAccount:
         )
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", pretend.stub()
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
 
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -878,10 +880,10 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", pretend.stub()
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
 
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [
@@ -906,13 +908,13 @@ class TestManageAccount:
         monkeypatch.setattr(views, "ConfirmPasswordForm", confirm_password_cls)
 
         monkeypatch.setattr(
-            views.ManageAccountViews, "default_response", pretend.stub()
+            views.ManageVerifiedAccountViews, "default_response", pretend.stub()
         )
         monkeypatch.setattr(
-            views.ManageAccountViews, "active_projects", [pretend.stub()]
+            views.ManageVerifiedAccountViews, "active_projects", [pretend.stub()]
         )
 
-        view = views.ManageAccountViews(request)
+        view = views.ManageVerifiedAccountViews(request)
 
         assert view.delete_account() == view.default_response
         assert request.session.flash.calls == [

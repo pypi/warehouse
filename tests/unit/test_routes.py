@@ -211,7 +211,20 @@ def test_routes(warehouse):
             "/account/verify-project-role/",
             domain=warehouse,
         ),
+        pretend.call(
+            "manage.unverified-account", "/manage/unverified-account/", domain=warehouse
+        ),
+        pretend.call(
+            "manage.unverified-account.reverify-email",
+            "/manage/unverified-account/reverify-email",
+            domain=warehouse,
+        ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
+        pretend.call(
+            "manage.account.reverify-email",
+            "/manage/account/reverify-email",
+            domain=warehouse,
+        ),
         pretend.call(
             "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
         ),
