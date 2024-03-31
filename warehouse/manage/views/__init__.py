@@ -221,7 +221,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
     has_translations=True,
     require_reauth=True,
 )
-class ManageVerifiedAccountViews:
+class ManageVerifiedAccountViews(ManageAccountMixin):
 
     @property
     def active_projects(self):
