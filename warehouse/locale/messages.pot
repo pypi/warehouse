@@ -1,7 +1,3 @@
-#: warehouse/forms.py:71
-msgid "Password is too easily guessed."
-msgstr ""
-
 #: warehouse/views.py:142
 msgid ""
 "You must verify your **primary** email address before you can perform "
