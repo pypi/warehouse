@@ -25,6 +25,7 @@ import pretend
 import pyramid.testing
 import pytest
 import stripe
+import transaction
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
@@ -631,7 +632,7 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config):
+def webtest(app_config, db_session):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something
     #       between test cases to wipe any committed changes.
@@ -640,8 +641,23 @@ def webtest(app_config):
     app_config.add_settings(enforce_https=False)
 
     try:
-        yield _TestApp(app_config.make_wsgi_app())
+        tm = transaction.TransactionManager(explicit=True)
+        tm.begin()
+        # tm.doom()  # ensure no one can call tm.commit() manually
+
+        # I tried setting the tm.manager_hook to return the given
+        # transaction, but it doesn't appear to be called.  e.g.,
+        # if I change it to return "42", the test still runs.
+        app_config.add_settings({ "tm.manager_hook": lambda request: tm })
+
+        app = app_config.make_wsgi_app()
+        testapp = _TestApp(app, extra_environ={
+            'tm.active': True,    # disable pyramid_tm
+            'tm.manager': tm,    # pass in our own tm for the app to use
+        })
+        yield testapp
     finally:
+        tm.abort()
         app_config.registry["sqlalchemy.engine"].dispose()
 
 
