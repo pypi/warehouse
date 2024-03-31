@@ -139,6 +139,78 @@ from warehouse.utils.paginate import paginate_url_factory
 from warehouse.utils.project import confirm_project, destroy_docs, remove_project
 
 
+class ManageAccountMixin:
+
+    def __init__(self, request):
+        self.request = request
+        self.user_service = request.find_service(IUserService, context=None)
+        self.breach_service = request.find_service(
+            IPasswordBreachedService, context=None
+        )
+
+    @view_config(request_method="POST")
+    def reverify_email(self):
+        try:
+            email = (
+                self.request.db.query(Email)
+                .filter(
+                    Email.id == int(self.request.POST["reverify_email_id"]),
+                    Email.user_id == self.request.user.id,
+                )
+                .one()
+            )
+        except NoResultFound:
+            self.request.session.flash("Email address not found", queue="error")
+            return self.default_response
+
+        if email.verified:
+            self.request.session.flash("Email is already verified", queue="error")
+        else:
+            verify_email_ratelimit = self.request.find_service(
+                IRateLimiter, name="email.verify"
+            )
+            if verify_email_ratelimit.test(self.request.user.id):
+                send_email_verification_email(self.request, (self.request.user, email))
+                verify_email_ratelimit.hit(self.request.user.id)
+                email.user.record_event(
+                    tag=EventTag.Account.EmailReverify,
+                    request=self.request,
+                    additional={"email": email.email},
+                )
+
+                self.request.session.flash(
+                    f"Verification email for {email.email} resent", queue="success"
+                )
+            else:
+                self.request.session.flash(
+                    (
+                        "Too many incomplete attempts to verify email address(es) for "
+                        f"{self.request.user.username}. Complete a pending "
+                        "verification or wait before attempting again."
+                    ),
+                    queue="error",
+                )
+
+        return HTTPSeeOther(self.request.route_path("manage.account"))
+
+
+@view_defaults(
+    route_name="manage.unverified-account",
+    renderer="manage/unverified-account.html",
+    uses_session=True,
+    require_csrf=True,
+    require_methods=False,
+    permission=Permissions.AccountManage,
+    has_translations=True,
+    require_reauth=True,
+)
+class ManageUnverifiedAccountViews(ManageAccountMixin):
+
+    @view_config(request_method="GET")
+    def manage_unverified_account(self):
+        return {}
+
+
 @view_defaults(
     route_name="manage.account",
     renderer="manage/account.html",
@@ -149,13 +221,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
     has_translations=True,
     require_reauth=True,
 )
-class ManageAccountViews:
-    def __init__(self, request):
-        self.request = request
-        self.user_service = request.find_service(IUserService, context=None)
-        self.breach_service = request.find_service(
-            IPasswordBreachedService, context=None
-        )
+class ManageVerifiedAccountViews:
 
     @property
     def active_projects(self):
@@ -420,67 +486,6 @@ class ManageAccountViews:
         self.request.db.delete(self.request.user)
 
         return logout(self.request)
-
-
-@view_defaults(
-    route_name="manage.account.reverify-email",
-    renderer="manage/account.html",
-    uses_session=True,
-    require_csrf=True,
-    require_methods=False,
-    permission=Permissions.AccountManage,
-    has_translations=True,
-    require_reauth=True,
-)
-class ManageAccountReverifyEmailViews:
-    def __init__(self, request):
-        self.request = request
-        self.user_service = request.find_service(IUserService, context=None)
-
-    @view_config(request_method="POST")
-    def reverify_email(self):
-        try:
-            email = (
-                self.request.db.query(Email)
-                .filter(
-                    Email.id == int(self.request.POST["reverify_email_id"]),
-                    Email.user_id == self.request.user.id,
-                )
-                .one()
-            )
-        except NoResultFound:
-            self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
-
-        if email.verified:
-            self.request.session.flash("Email is already verified", queue="error")
-        else:
-            verify_email_ratelimit = self.request.find_service(
-                IRateLimiter, name="email.verify"
-            )
-            if verify_email_ratelimit.test(self.request.user.id):
-                send_email_verification_email(self.request, (self.request.user, email))
-                verify_email_ratelimit.hit(self.request.user.id)
-                email.user.record_event(
-                    tag=EventTag.Account.EmailReverify,
-                    request=self.request,
-                    additional={"email": email.email},
-                )
-
-                self.request.session.flash(
-                    f"Verification email for {email.email} resent", queue="success"
-                )
-            else:
-                self.request.session.flash(
-                    (
-                        "Too many incomplete attempts to verify email address(es) for "
-                        f"{self.request.user.username}. Complete a pending "
-                        "verification or wait before attempting again."
-                    ),
-                    queue="error",
-                )
-
-        return HTTPSeeOther(self.request.route_path("manage.account"))
 
 
 @view_config(
