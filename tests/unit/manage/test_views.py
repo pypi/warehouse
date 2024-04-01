@@ -580,6 +580,7 @@ class TestManageAccount:
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
             remote_addr="0.0.0.0",
             path="request-path",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -626,6 +627,7 @@ class TestManageAccount:
             user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
             remote_addr="0.0.0.0",
             path="request-path",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
@@ -690,6 +692,7 @@ class TestManageAccount:
             find_service=lambda *a, **kw: pretend.stub(),
             user=pretend.stub(id=pretend.stub()),
             path="request-path",
+            route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
