@@ -569,13 +569,27 @@ class TestManageAccount:
         ]
         assert old_primary.primary
 
-    def test_reverify_email(self, monkeypatch):
+    @pytest.mark.parametrize(
+        "has_primary_verified_email, expected_redirect",
+        [
+            (True, "manage.account"),
+            (False, "manage.unverified-account"),
+        ],
+    )
+    def test_reverify_email(
+        self, monkeypatch, has_primary_verified_email, expected_redirect
+    ):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="username",
+            name="Name",
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            has_primary_verified_email=has_primary_verified_email,
+        )
         email = pretend.stub(
             verified=False,
             email="email_address",
-            user=pretend.stub(
-                record_event=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            user=user,
         )
 
         request = pretend.stub(
@@ -592,7 +606,7 @@ class TestManageAccount:
                     hit=pretend.call_recorder(lambda user_id: None),
                 )
             }.get(svc, pretend.stub()),
-            user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            user=user,
             remote_addr="0.0.0.0",
             path="request-path",
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
@@ -609,21 +623,28 @@ class TestManageAccount:
             pretend.call("Verification email for email_address resent", queue="success")
         ]
         assert send_email.calls == [pretend.call(request, (request.user, email))]
-        assert email.user.record_event.calls == [
+        assert user.record_event.calls == [
             pretend.call(
                 tag=EventTag.Account.EmailReverify,
                 request=request,
                 additional={"email": email.email},
             )
         ]
+        assert request.route_path.calls == [pretend.call(expected_redirect)]
 
     def test_reverify_email_ratelimit_exceeded(self, monkeypatch):
+        user = pretend.stub(
+            id=pretend.stub(),
+            username="username",
+            name="Name",
+            record_event=pretend.call_recorder(lambda *a, **kw: None),
+            has_primary_verified_email=True,
+        )
+
         email = pretend.stub(
             verified=False,
             email="email_address",
-            user=pretend.stub(
-                record_event=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            user=user,
         )
 
         request = pretend.stub(
@@ -639,7 +660,7 @@ class TestManageAccount:
                     test=pretend.call_recorder(lambda user_id: False),
                 )
             }.get(svc, pretend.stub()),
-            user=pretend.stub(id=pretend.stub(), username="username", name="Name"),
+            user=user,
             remote_addr="0.0.0.0",
             path="request-path",
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
@@ -705,7 +726,10 @@ class TestManageAccount:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(
+                id=pretend.stub(),
+                has_primary_verified_email=True,
+            ),
             path="request-path",
             route_path=pretend.call_recorder(lambda *a, **kw: "/foo/bar/"),
         )

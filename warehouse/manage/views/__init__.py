@@ -192,7 +192,10 @@ class ManageAccountMixin:
                     queue="error",
                 )
 
-        return HTTPSeeOther(self.request.route_path("manage.account"))
+        if self.request.user.has_primary_verified_email:
+            return HTTPSeeOther(self.request.route_path("manage.account"))
+        else:
+            return HTTPSeeOther(self.request.route_path("manage.unverified-account"))
 
 
 @view_defaults(
