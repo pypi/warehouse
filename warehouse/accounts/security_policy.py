@@ -215,7 +215,7 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         "manage.account.two-factor",
         "manage.account.webauthn-provision",
         "manage.unverified-account",
-        "manage.verify-email",
+        "account.verify-email",
     ]
 
     if (
