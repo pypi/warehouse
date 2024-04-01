@@ -185,7 +185,7 @@ def _permits_for_user_policy(acl, request, context, permission):
         isinstance(res, Allowed)
         and not request.identity.has_primary_verified_email
         and request.matched_route.name
-        not in {"manage.unverified-account", "manage.verify-email"}
+        not in {"manage.unverified-account", "accounts.verify-email"}
     ):
         return WarehouseDenied("unverified", reason="unverified_email")
 
