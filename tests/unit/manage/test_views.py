@@ -95,6 +95,21 @@ from ...common.db.packaging import (
 )
 
 
+class TestManageUnverifiedAccount:
+
+    def test_manage_account(self, monkeypatch):
+        user_service = pretend.stub()
+        name = pretend.stub()
+        request = pretend.stub(
+            find_service=lambda *a, **kw: user_service, user=pretend.stub(name=name)
+        )
+        view = views.ManageUnverifiedAccountViews(request)
+
+        assert view.manage_unverified_account() == {}
+        assert view.request == request
+        assert view.user_service == user_service
+
+
 class TestManageAccount:
     @pytest.mark.parametrize(
         "public_email, expected_public_email",
