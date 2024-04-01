@@ -215,10 +215,14 @@ class TestLogin:
     def test_get_returns_form(self, pyramid_request, pyramid_services, next_url):
         user_service = pretend.stub()
         breach_service = pretend.stub()
+        captcha_service = pretend.stub(csp_policy={})
 
         pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
+        )
+        pyramid_services.register_service(
+            captcha_service, ICaptchaService, name="captcha"
         )
 
         form_obj = pretend.stub()
@@ -239,6 +243,7 @@ class TestLogin:
                 request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
+                captcha_service=captcha_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -249,10 +254,14 @@ class TestLogin:
     ):
         user_service = pretend.stub()
         breach_service = pretend.stub()
+        captcha_service = pretend.stub(csp_policy={})
 
         pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
+        )
+        pyramid_services.register_service(
+            captcha_service, ICaptchaService, name="captcha"
         )
 
         pyramid_request.method = "POST"
@@ -274,6 +283,7 @@ class TestLogin:
                 request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
+                captcha_service=captcha_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -300,10 +310,14 @@ class TestLogin:
             get_password_timestamp=lambda userid: 0,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+        captcha_service = pretend.stub(csp_policy={})
 
         pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
+        )
+        pyramid_services.register_service(
+            captcha_service, ICaptchaService, name="captcha"
         )
 
         pyramid_request.method = "POST"
@@ -351,6 +365,7 @@ class TestLogin:
                 request=pyramid_request,
                 user_service=user_service,
                 breach_service=breach_service,
+                captcha_service=captcha_service,
                 check_password_metrics_tags=["method:auth", "auth_method:login_form"],
             )
         ]
@@ -396,10 +411,14 @@ class TestLogin:
             get_password_timestamp=lambda userid: 0,
         )
         breach_service = pretend.stub(check_password=lambda password, tags=None: False)
+        captcha_service = pretend.stub(csp_policy={})
 
         pyramid_services.register_service(user_service, IUserService, None)
         pyramid_services.register_service(
             breach_service, IPasswordBreachedService, None
+        )
+        pyramid_services.register_service(
+            captcha_service, ICaptchaService, name="captcha"
         )
 
         pyramid_request.method = "POST"
@@ -448,7 +467,12 @@ class TestLogin:
 
     @pytest.mark.parametrize("redirect_url", ["test_redirect_url", None])
     def test_two_factor_auth(
-        self, monkeypatch, pyramid_request, redirect_url, token_service
+        self,
+        monkeypatch,
+        pyramid_request,
+        pyramid_services,
+        redirect_url,
+        token_service,
     ):
         token_service.dumps = lambda d: "fake_token"
 
@@ -464,12 +488,16 @@ class TestLogin:
         )
 
         breach_service = pretend.stub(check_password=lambda pw: False)
+        captcha_service = pretend.stub(csp_policy={})
 
-        pyramid_request.find_service = lambda interface, **kwargs: {
-            ITokenService: token_service,
-            IUserService: user_service,
-            IPasswordBreachedService: breach_service,
-        }[interface]
+        pyramid_services.register_service(
+            token_service, ITokenService, name="two_factor"
+        )
+        pyramid_services.register_service(user_service, IUserService)
+        pyramid_services.register_service(breach_service, IPasswordBreachedService)
+        pyramid_services.register_service(
+            captcha_service, ICaptchaService, name="captcha"
+        )
 
         pyramid_request.method = "POST"
         if redirect_url:

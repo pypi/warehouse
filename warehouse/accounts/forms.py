@@ -373,10 +373,24 @@ class RegistrationForm(  # type: ignore[misc]
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, user_service, breach_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, captcha_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.breach_service = breach_service
+        self.captcha_service = captcha_service
+
+    g_recaptcha_response = wtforms.StringField()
+
+    def validate_g_recaptcha_response(self, field):
+        # do required data validation here due to enabled flag being required
+        if self.captcha_service.enabled and not field.data:
+            raise wtforms.validators.ValidationError("Recaptcha error.")
+        try:
+            self.captcha_service.verify_response(field.data)
+        except recaptcha.RecaptchaError:
+            # TODO: log error
+            # don't want to provide the user with any detail
+            raise wtforms.validators.ValidationError("Recaptcha error.")
 
     def validate_password(self, field):
         # Before we try to validate anything, first check to see if the IP is banned
