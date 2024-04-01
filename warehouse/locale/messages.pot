@@ -147,7 +147,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:859
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:862
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -281,7 +281,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1236
+#: warehouse/manage/views/__init__.py:1239
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -301,19 +301,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1271
-#: warehouse/manage/views/__init__.py:1384
-#: warehouse/manage/views/__init__.py:1496
-#: warehouse/manage/views/__init__.py:1606
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1274
+#: warehouse/manage/views/__init__.py:1387
+#: warehouse/manage/views/__init__.py:1499
+#: warehouse/manage/views/__init__.py:1609
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1285
-#: warehouse/manage/views/__init__.py:1398
-#: warehouse/manage/views/__init__.py:1510
-#: warehouse/manage/views/__init__.py:1620
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1288
+#: warehouse/manage/views/__init__.py:1401
+#: warehouse/manage/views/__init__.py:1513
+#: warehouse/manage/views/__init__.py:1623
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -423,130 +423,130 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:271
+#: warehouse/manage/views/__init__.py:274
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:301
+#: warehouse/manage/views/__init__.py:304
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:807
+#: warehouse/manage/views/__init__.py:810
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:808
+#: warehouse/manage/views/__init__.py:811
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:917
+#: warehouse/manage/views/__init__.py:920
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1017
+#: warehouse/manage/views/__init__.py:1020
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1049
+#: warehouse/manage/views/__init__.py:1052
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1252
+#: warehouse/manage/views/__init__.py:1255
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1365
+#: warehouse/manage/views/__init__.py:1368
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1477
+#: warehouse/manage/views/__init__.py:1480
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1586
+#: warehouse/manage/views/__init__.py:1589
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1821
-#: warehouse/manage/views/__init__.py:2122
-#: warehouse/manage/views/__init__.py:2230
+#: warehouse/manage/views/__init__.py:1824
+#: warehouse/manage/views/__init__.py:2125
+#: warehouse/manage/views/__init__.py:2233
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1953
-#: warehouse/manage/views/__init__.py:2038
-#: warehouse/manage/views/__init__.py:2139
-#: warehouse/manage/views/__init__.py:2239
+#: warehouse/manage/views/__init__.py:1956
+#: warehouse/manage/views/__init__.py:2041
+#: warehouse/manage/views/__init__.py:2142
+#: warehouse/manage/views/__init__.py:2242
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1965
+#: warehouse/manage/views/__init__.py:1968
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2050
+#: warehouse/manage/views/__init__.py:2053
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2151
+#: warehouse/manage/views/__init__.py:2154
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2251
+#: warehouse/manage/views/__init__.py:2254
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2255
+#: warehouse/manage/views/__init__.py:2258
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2405
+#: warehouse/manage/views/__init__.py:2408
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2512
+#: warehouse/manage/views/__init__.py:2515
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2579
+#: warehouse/manage/views/__init__.py:2582
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2611
+#: warehouse/manage/views/__init__.py:2614
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2624
+#: warehouse/manage/views/__init__.py:2627
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2689
+#: warehouse/manage/views/__init__.py:2692
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2722
+#: warehouse/manage/views/__init__.py:2725
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2733
+#: warehouse/manage/views/__init__.py:2736
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2765
+#: warehouse/manage/views/__init__.py:2768
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -1650,7 +1650,7 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:47
 #: warehouse/templates/manage/account.html:139
 #: warehouse/templates/manage/account.html:517
-#: warehouse/templates/manage/unverified-account.html:136
+#: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr ""
 
@@ -1660,6 +1660,7 @@ msgstr ""
 
 #: warehouse/templates/accounts/register.html:73
 #: warehouse/templates/manage/account.html:348
+#: warehouse/templates/manage/unverified-account.html:221
 msgid "Email address"
 msgstr ""
 
@@ -2808,9 +2809,9 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:69
-#: warehouse/templates/manage/unverified-account.html:196
-#: warehouse/templates/manage/unverified-account.html:198
-#: warehouse/templates/manage/unverified-account.html:208
+#: warehouse/templates/manage/unverified-account.html:172
+#: warehouse/templates/manage/unverified-account.html:174
+#: warehouse/templates/manage/unverified-account.html:184
 #: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr ""
@@ -2840,7 +2841,6 @@ msgstr ""
 #: warehouse/templates/manage/account/two-factor.html:17
 #: warehouse/templates/manage/manage_base.html:253
 #: warehouse/templates/manage/manage_base.html:287
-#: warehouse/templates/manage/unverified-account.html:17
 msgid "Account settings"
 msgstr ""
 
@@ -2882,7 +2882,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/manage/unverified-account.html:203
+#: warehouse/templates/manage/unverified-account.html:179
 #: warehouse/templates/packaging/detail.html:158
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
@@ -2894,7 +2894,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
-#: warehouse/templates/manage/unverified-account.html:204
+#: warehouse/templates/manage/unverified-account.html:180
 #: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr ""
@@ -3005,7 +3005,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:23
 #: warehouse/templates/manage/project/history.html:23
 #: warehouse/templates/manage/team/history.html:23
-#: warehouse/templates/manage/unverified-account.html:220
+#: warehouse/templates/manage/unverified-account.html:236
 msgid "Security history"
 msgstr ""
 
@@ -3194,7 +3194,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:86
 #: warehouse/templates/manage/project/releases.html:68
 #: warehouse/templates/manage/unverified-account.html:84
-#: warehouse/templates/manage/unverified-account.html:160
+#: warehouse/templates/manage/unverified-account.html:136
 msgid "Options"
 msgstr ""
 
@@ -3212,67 +3212,63 @@ msgid "Resend verification email"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:110
-#: warehouse/templates/manage/unverified-account.html:107
 msgid "Set this email address as primary"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:112
-#: warehouse/templates/manage/unverified-account.html:109
 msgid "Set as primary"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:122
-#: warehouse/templates/manage/unverified-account.html:119
 msgid "Remove this email address"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:124
-#: warehouse/templates/manage/unverified-account.html:121
 msgid "Remove email"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/account.html:518
 #: warehouse/templates/manage/account/token.html:148
-#: warehouse/templates/manage/unverified-account.html:140
+#: warehouse/templates/manage/unverified-account.html:116
 msgid "Scope"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:145
-#: warehouse/templates/manage/unverified-account.html:142
+#: warehouse/templates/manage/unverified-account.html:118
 msgid "All projects"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:153
 #: warehouse/templates/manage/account.html:519
-#: warehouse/templates/manage/unverified-account.html:150
+#: warehouse/templates/manage/unverified-account.html:126
 msgid "Created"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:157
 #: warehouse/templates/manage/account.html:520
-#: warehouse/templates/manage/unverified-account.html:154
+#: warehouse/templates/manage/unverified-account.html:130
 msgid "Last used"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:158
-#: warehouse/templates/manage/unverified-account.html:155
+#: warehouse/templates/manage/unverified-account.html:131
 msgid "Never"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:162
-#: warehouse/templates/manage/unverified-account.html:159
+#: warehouse/templates/manage/unverified-account.html:135
 msgid "View token options"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/account/token.html:57
-#: warehouse/templates/manage/unverified-account.html:169
+#: warehouse/templates/manage/unverified-account.html:145
 msgid "Remove token"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:178
-#: warehouse/templates/manage/unverified-account.html:175
+#: warehouse/templates/manage/unverified-account.html:151
 msgid "View unique identifier"
 msgstr ""
 
@@ -3280,21 +3276,21 @@ msgstr ""
 #: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/account/token.html:60
 #: warehouse/templates/manage/account/token.html:61
-#: warehouse/templates/manage/unverified-account.html:183
-#: warehouse/templates/manage/unverified-account.html:185
+#: warehouse/templates/manage/unverified-account.html:159
+#: warehouse/templates/manage/unverified-account.html:161
 msgid "Remove API token"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/account/token.html:66
-#: warehouse/templates/manage/unverified-account.html:190
+#: warehouse/templates/manage/unverified-account.html:166
 msgid ""
 "Applications or scripts using this token will no longer have access to "
 "PyPI."
 msgstr ""
 
 #: warehouse/templates/manage/account.html:204
-#: warehouse/templates/manage/unverified-account.html:201
+#: warehouse/templates/manage/unverified-account.html:177
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr ""
@@ -3366,6 +3362,7 @@ msgid "Update account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:332
+#: warehouse/templates/manage/unverified-account.html:205
 msgid "Account emails"
 msgstr ""
 
@@ -3379,10 +3376,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:345
+#: warehouse/templates/manage/unverified-account.html:218
 msgid "Emails associated with your account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:349
+#: warehouse/templates/manage/unverified-account.html:222
 msgid "Status"
 msgstr ""
 
@@ -3462,209 +3461,209 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:550
 #: warehouse/templates/manage/account.html:729
-#: warehouse/templates/manage/unverified-account.html:228
-#: warehouse/templates/manage/unverified-account.html:407
+#: warehouse/templates/manage/unverified-account.html:244
+#: warehouse/templates/manage/unverified-account.html:423
 msgid "Token scope: entire account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/account.html:731
-#: warehouse/templates/manage/unverified-account.html:230
-#: warehouse/templates/manage/unverified-account.html:409
+#: warehouse/templates/manage/unverified-account.html:246
+#: warehouse/templates/manage/unverified-account.html:425
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:555
-#: warehouse/templates/manage/unverified-account.html:233
+#: warehouse/templates/manage/unverified-account.html:249
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:561
-#: warehouse/templates/manage/unverified-account.html:239
+#: warehouse/templates/manage/unverified-account.html:255
 msgid "Account created"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:564
-#: warehouse/templates/manage/unverified-account.html:242
+#: warehouse/templates/manage/unverified-account.html:258
 msgid "Logged in"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:566
-#: warehouse/templates/manage/unverified-account.html:244
+#: warehouse/templates/manage/unverified-account.html:260
 msgid "Two factor method:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:568
 #: warehouse/templates/manage/project/release.html:77
-#: warehouse/templates/manage/unverified-account.html:246
+#: warehouse/templates/manage/unverified-account.html:262
 msgid "None"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:570
 #: warehouse/templates/manage/manage_base.html:92
-#: warehouse/templates/manage/unverified-account.html:248
+#: warehouse/templates/manage/unverified-account.html:264
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:572
 #: warehouse/templates/manage/manage_base.html:70
-#: warehouse/templates/manage/unverified-account.html:250
+#: warehouse/templates/manage/unverified-account.html:266
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:574
-#: warehouse/templates/manage/unverified-account.html:252
+#: warehouse/templates/manage/unverified-account.html:268
 msgid "Recovery code"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:579
-#: warehouse/templates/manage/unverified-account.html:257
+#: warehouse/templates/manage/unverified-account.html:273
 msgid "Login failed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:582
-#: warehouse/templates/manage/unverified-account.html:260
+#: warehouse/templates/manage/unverified-account.html:276
 msgid "- Basic Auth (Upload endpoint)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:587
 #: warehouse/templates/manage/account.html:606
 #: warehouse/templates/manage/project/history.html:272
-#: warehouse/templates/manage/unverified-account.html:265
-#: warehouse/templates/manage/unverified-account.html:284
+#: warehouse/templates/manage/unverified-account.html:281
+#: warehouse/templates/manage/unverified-account.html:300
 msgid "Reason:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:589
 #: warehouse/templates/manage/account.html:608
-#: warehouse/templates/manage/unverified-account.html:267
-#: warehouse/templates/manage/unverified-account.html:286
+#: warehouse/templates/manage/unverified-account.html:283
+#: warehouse/templates/manage/unverified-account.html:302
 msgid "Incorrect Password"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:591
-#: warehouse/templates/manage/unverified-account.html:269
+#: warehouse/templates/manage/unverified-account.html:285
 msgid "Invalid two factor (TOTP)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:593
-#: warehouse/templates/manage/unverified-account.html:271
+#: warehouse/templates/manage/unverified-account.html:287
 msgid "Invalid two factor (WebAuthn)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:595
 #: warehouse/templates/manage/account.html:597
-#: warehouse/templates/manage/unverified-account.html:273
-#: warehouse/templates/manage/unverified-account.html:275
+#: warehouse/templates/manage/unverified-account.html:289
+#: warehouse/templates/manage/unverified-account.html:291
 msgid "Invalid two factor (Recovery code)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:604
-#: warehouse/templates/manage/unverified-account.html:282
+#: warehouse/templates/manage/unverified-account.html:298
 msgid "Session reauthentication failed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:615
-#: warehouse/templates/manage/unverified-account.html:293
+#: warehouse/templates/manage/unverified-account.html:309
 msgid "Email added to account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:618
-#: warehouse/templates/manage/unverified-account.html:296
+#: warehouse/templates/manage/unverified-account.html:312
 msgid "Email removed from account"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:621
-#: warehouse/templates/manage/unverified-account.html:299
+#: warehouse/templates/manage/unverified-account.html:315
 msgid "Email verified"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:624
-#: warehouse/templates/manage/unverified-account.html:302
+#: warehouse/templates/manage/unverified-account.html:318
 msgid "Email reverified"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:628
-#: warehouse/templates/manage/unverified-account.html:306
+#: warehouse/templates/manage/unverified-account.html:322
 msgid "Primary email changed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:630
-#: warehouse/templates/manage/unverified-account.html:308
+#: warehouse/templates/manage/unverified-account.html:324
 msgid "Old primary email:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:631
-#: warehouse/templates/manage/unverified-account.html:309
+#: warehouse/templates/manage/unverified-account.html:325
 msgid "New primary email:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:634
-#: warehouse/templates/manage/unverified-account.html:312
+#: warehouse/templates/manage/unverified-account.html:328
 msgid "Primary email set"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:640
-#: warehouse/templates/manage/unverified-account.html:318
+#: warehouse/templates/manage/unverified-account.html:334
 msgid "Email sent"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:642
-#: warehouse/templates/manage/unverified-account.html:320
+#: warehouse/templates/manage/unverified-account.html:336
 msgid "From:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:643
-#: warehouse/templates/manage/unverified-account.html:321
+#: warehouse/templates/manage/unverified-account.html:337
 msgid "To:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:644
-#: warehouse/templates/manage/unverified-account.html:322
+#: warehouse/templates/manage/unverified-account.html:338
 msgid "Subject:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:648
-#: warehouse/templates/manage/unverified-account.html:326
+#: warehouse/templates/manage/unverified-account.html:342
 msgid "Password reset requested"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:650
-#: warehouse/templates/manage/unverified-account.html:328
+#: warehouse/templates/manage/unverified-account.html:344
 msgid "Password reset attempted"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:652
-#: warehouse/templates/manage/unverified-account.html:330
+#: warehouse/templates/manage/unverified-account.html:346
 msgid "Password successfully reset"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:654
-#: warehouse/templates/manage/unverified-account.html:332
+#: warehouse/templates/manage/unverified-account.html:348
 msgid "Password successfully changed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
 #: warehouse/templates/manage/account.html:663
 #: warehouse/templates/manage/account/token.html:158
-#: warehouse/templates/manage/unverified-account.html:336
-#: warehouse/templates/manage/unverified-account.html:341
+#: warehouse/templates/manage/unverified-account.html:352
+#: warehouse/templates/manage/unverified-account.html:357
 msgid "Project:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:666
-#: warehouse/templates/manage/unverified-account.html:344
+#: warehouse/templates/manage/unverified-account.html:360
 msgid "Two factor authentication added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:669
 #: warehouse/templates/manage/account.html:679
-#: warehouse/templates/manage/unverified-account.html:347
-#: warehouse/templates/manage/unverified-account.html:357
+#: warehouse/templates/manage/unverified-account.html:363
+#: warehouse/templates/manage/unverified-account.html:373
 msgid ""
 "Method: Security device (<abbr title=\"web "
 "authentication\">WebAuthn</abbr>)"
@@ -3672,42 +3671,42 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:670
 #: warehouse/templates/manage/account.html:680
-#: warehouse/templates/manage/unverified-account.html:348
-#: warehouse/templates/manage/unverified-account.html:358
+#: warehouse/templates/manage/unverified-account.html:364
+#: warehouse/templates/manage/unverified-account.html:374
 msgid "Device name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:672
 #: warehouse/templates/manage/account.html:682
-#: warehouse/templates/manage/unverified-account.html:350
-#: warehouse/templates/manage/unverified-account.html:360
+#: warehouse/templates/manage/unverified-account.html:366
+#: warehouse/templates/manage/unverified-account.html:376
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:676
-#: warehouse/templates/manage/unverified-account.html:354
+#: warehouse/templates/manage/unverified-account.html:370
 msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:687
-#: warehouse/templates/manage/unverified-account.html:365
+#: warehouse/templates/manage/unverified-account.html:381
 msgid "Recovery codes generated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:691
-#: warehouse/templates/manage/unverified-account.html:369
+#: warehouse/templates/manage/unverified-account.html:385
 msgid "Recovery codes regenerated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:695
-#: warehouse/templates/manage/unverified-account.html:373
+#: warehouse/templates/manage/unverified-account.html:389
 msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:701
-#: warehouse/templates/manage/unverified-account.html:379
+#: warehouse/templates/manage/unverified-account.html:395
 msgid "API token added"
 msgstr ""
 
@@ -3715,61 +3714,61 @@ msgstr ""
 #: warehouse/templates/manage/account.html:726
 #: warehouse/templates/manage/project/history.html:263
 #: warehouse/templates/manage/project/history.html:270
-#: warehouse/templates/manage/unverified-account.html:381
-#: warehouse/templates/manage/unverified-account.html:404
+#: warehouse/templates/manage/unverified-account.html:397
+#: warehouse/templates/manage/unverified-account.html:420
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:720
 #: warehouse/templates/manage/project/history.html:265
-#: warehouse/templates/manage/unverified-account.html:398
+#: warehouse/templates/manage/unverified-account.html:414
 msgid "API token removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:721
 #: warehouse/templates/manage/account.html:727
-#: warehouse/templates/manage/unverified-account.html:399
-#: warehouse/templates/manage/unverified-account.html:405
+#: warehouse/templates/manage/unverified-account.html:415
+#: warehouse/templates/manage/unverified-account.html:421
 msgid "Unique identifier:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:724
-#: warehouse/templates/manage/unverified-account.html:402
+#: warehouse/templates/manage/unverified-account.html:418
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:733
-#: warehouse/templates/manage/unverified-account.html:411
+#: warehouse/templates/manage/unverified-account.html:427
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:738
-#: warehouse/templates/manage/unverified-account.html:416
+#: warehouse/templates/manage/unverified-account.html:432
 #, python-format
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:742
-#: warehouse/templates/manage/unverified-account.html:420
+#: warehouse/templates/manage/unverified-account.html:436
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> declined"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:746
-#: warehouse/templates/manage/unverified-account.html:424
+#: warehouse/templates/manage/unverified-account.html:440
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> revoked"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:750
-#: warehouse/templates/manage/unverified-account.html:428
+#: warehouse/templates/manage/unverified-account.html:444
 #, python-format
 msgid "Invitation to join <a href=\"%(href)s\">%(organization_name)s</a> expired"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:759
-#: warehouse/templates/manage/unverified-account.html:437
+#: warehouse/templates/manage/unverified-account.html:453
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If "
@@ -3778,7 +3777,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:764
-#: warehouse/templates/manage/unverified-account.html:442
+#: warehouse/templates/manage/unverified-account.html:458
 msgid "Recent account activity"
 msgstr ""
 
@@ -3786,7 +3785,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:201
 #: warehouse/templates/manage/project/history.html:304
 #: warehouse/templates/manage/team/history.html:108
-#: warehouse/templates/manage/unverified-account.html:444
+#: warehouse/templates/manage/unverified-account.html:460
 msgid "Event"
 msgstr ""
 
@@ -3797,25 +3796,25 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
-#: warehouse/templates/manage/unverified-account.html:445
+#: warehouse/templates/manage/unverified-account.html:461
 msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:768
 #: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/team/history.html:110
-#: warehouse/templates/manage/unverified-account.html:446
+#: warehouse/templates/manage/unverified-account.html:462
 msgid "Additional Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:775
-#: warehouse/templates/manage/unverified-account.html:453
+#: warehouse/templates/manage/unverified-account.html:469
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:779
 #: warehouse/templates/manage/organization/history.html:215
-#: warehouse/templates/manage/unverified-account.html:457
+#: warehouse/templates/manage/unverified-account.html:473
 msgid "Location Info"
 msgstr ""
 
@@ -3823,12 +3822,12 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:217
 #: warehouse/templates/manage/project/history.html:320
 #: warehouse/templates/manage/team/history.html:124
-#: warehouse/templates/manage/unverified-account.html:459
+#: warehouse/templates/manage/unverified-account.html:475
 msgid "Device Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:789
-#: warehouse/templates/manage/unverified-account.html:467
+#: warehouse/templates/manage/unverified-account.html:483
 msgid "Events will appear here as security-related actions occur on your account."
 msgstr ""
 
@@ -4449,6 +4448,23 @@ msgid ""
 "You have not uploaded any projects to PyPI, yet. To learn how to get "
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
+msgstr ""
+
+#: warehouse/templates/manage/unverified-account.html:17
+msgid "Activate your account"
+msgstr ""
+
+#: warehouse/templates/manage/unverified-account.html:197
+msgid ""
+"You must verify a primary email address before making any other changes "
+"to your account."
+msgstr ""
+
+#: warehouse/templates/manage/unverified-account.html:207
+msgid ""
+"You must have at least one <span class=\"badge badge--success\"><i "
+"class=\"fa fa-check\" aria-hidden=\"true\"></i> Verified</span> email "
+"address to activate your account."
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:27
