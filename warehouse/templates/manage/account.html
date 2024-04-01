@@ -92,7 +92,7 @@
         <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
           {% if not email.verified %}
           <li>
-            <form method="POST" action="{{ request.route_path('manage.account.reverify-email') }}">
+            <form method="POST">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="{% trans %}Resend verification email{% endtrans %}">

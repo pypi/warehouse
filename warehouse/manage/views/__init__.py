@@ -27,6 +27,7 @@ from pyramid.view import view_config, view_defaults
 from sqlalchemy import func
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
+from venusian import lift
 from webauthn.helpers import bytes_to_base64url
 from webob.multidict import MultiDict
 
@@ -148,7 +149,7 @@ class ManageAccountMixin:
             IPasswordBreachedService, context=None
         )
 
-    @view_config(request_method="POST")
+    @view_config(request_method="POST", request_param=["reverify_email_id"])
     def reverify_email(self):
         try:
             email = (
@@ -204,6 +205,7 @@ class ManageAccountMixin:
     has_translations=True,
     require_reauth=True,
 )
+@lift()
 class ManageUnverifiedAccountViews(ManageAccountMixin):
 
     @view_config(request_method="GET")
@@ -221,6 +223,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
     has_translations=True,
     require_reauth=True,
 )
+@lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
 
     @property
