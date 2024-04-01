@@ -14,7 +14,7 @@
 {% extends "manage_base.html" %}
 
 {% set user = request.user %}
-{% set title = gettext("Account settings") %}
+{% set title = gettext("Activate your account") %}
 
 {% set active_tab = 'account' %}
 
@@ -89,7 +89,7 @@
         <ul class="dropdown__content" aria-hidden="true" aria-label="{% trans email=email.email %}Options for {{ email }}{% endtrans %}">
           {% if not email.verified %}
           <li>
-            <form method="POST" action="{{ request.route_path('manage.account.reverify-email') }}">
+            <form method="POST" action="{{ request.route_path('manage.unverified-account.reverify-email') }}">
               <input hidden name="reverify_email_id" value="{{ email.id }}">
               <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
               <button type="submit" class="dropdown__link" title="{% trans %}Resend verification email{% endtrans %}">
@@ -215,6 +215,46 @@
 
 {% block main %}
   <h1 class="page-title">{{ title }}</h1>
+
+  <div class="callout-block">
+    <p>
+      {% trans %}
+      You must verify a primary email address
+      before making any other changes to your account.
+      {% endtrans %}
+    </p>
+  </div>
+
+  <section id="account-emails">
+    <h2 class="sub-title">{% trans %}Account emails{% endtrans %}</h2>
+    <p>
+      {% trans %}You can associate several emails with your account. You can use any <span class="badge badge--success"><i class="fa fa-check" aria-hidden="true"></i> Verified</span> email to recover your account, but only your <span class="badge">Primary</span> email will receive notifications.{% endtrans %}
+    </p>
+
+    {# Sort the emails as follows:
+      * Primary email
+      * Verified emails, sorted alphabetically
+      * Unverified emails, sorted alphabetically
+    #}
+    {% set sorted_emails = user.emails|sort(attribute="email")|sort(attribute="verified", reverse=true)|sort(attribute="primary", reverse=true) %}
+
+    <table class="table table--emails">
+      <caption class="sr-only">{% trans %}Emails associated with your account{% endtrans %}</caption>
+      <thead>
+        <tr>
+          <th scope="col">{% trans %}Email address{% endtrans %}</th>
+          <th scope="col">{% trans %}Status{% endtrans %}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for email in sorted_emails %}
+          {{ email_row(email) }}
+        {% endfor %}
+      </tbody>
+    </table>
+
+  </section>
 
   <section id="account-events">
     <h2>{% trans %}Security history{% endtrans %}</h2>
