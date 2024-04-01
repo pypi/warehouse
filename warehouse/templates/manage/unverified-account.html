@@ -99,30 +99,6 @@
             </form>
           </li>
           {% endif %}
-          {% if not email.primary and email.verified %}
-          <li>
-            <form method="POST">
-              <input hidden name="primary_email_id" value="{{ email.id }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="dropdown__link" title="{% trans %}Set this email address as primary{% endtrans %}">
-                <i class="fa fa-cog" aria-hidden="true"></i>
-                {% trans %}Set as primary{% endtrans %}
-              </button>
-            </form>
-          </li>
-          {% endif %}
-          {% if user.emails|length > 1 and not email.primary %}
-          <li>
-            <form method="POST">
-              <input hidden name="delete_email_id" value="{{ email.id }}">
-              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-              <button type="submit" class="dropdown__link" title="{% trans %}Remove this email address{% endtrans %}">
-                <i class="fa fa-trash-alt" aria-hidden="true"></i>
-                {% trans %}Remove email{% endtrans %}
-              </button>
-            </form>
-          </li>
-          {% endif %}
         </ul>
       </nav>
       {% endif %}
