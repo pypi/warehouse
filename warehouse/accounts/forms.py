@@ -19,6 +19,7 @@ from email.headerregistry import Address
 import disposable_email_domains
 import humanize
 import markupsafe
+import sentry_sdk
 import wtforms
 import wtforms.fields
 
@@ -366,8 +367,8 @@ class RegistrationForm(  # type: ignore[misc]
             raise wtforms.validators.ValidationError("Recaptcha error.")
         try:
             self.captcha_service.verify_response(field.data)
-        except recaptcha.RecaptchaError:
-            # TODO: log error
+        except recaptcha.RecaptchaError as exc:
+            sentry_sdk.capture_exception(exc)
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
@@ -387,8 +388,8 @@ class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
             raise wtforms.validators.ValidationError("Recaptcha error.")
         try:
             self.captcha_service.verify_response(field.data)
-        except recaptcha.RecaptchaError:
-            # TODO: log error
+        except recaptcha.RecaptchaError as exc:
+            sentry_sdk.capture_exception(exc)
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
