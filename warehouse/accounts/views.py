@@ -233,8 +233,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
     user_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
-    captcha_service = request.find_service(ICaptchaService, name="captcha")
-    request.find_service(name="csp").merge(captcha_service.csp_policy)
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
@@ -245,7 +243,6 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         request=request,
         user_service=user_service,
         breach_service=breach_service,
-        captcha_service=captcha_service,
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
 
