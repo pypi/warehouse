@@ -10,8 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
-
 import pretend
 import pytest
 
@@ -527,8 +525,7 @@ class TestPermits:
             identity=pretend.stub(
                 __principals__=lambda: principals,
                 has_primary_verified_email=True,
-                has_two_factor=False,
-                date_joined=datetime(2022, 8, 1),
+                has_two_factor=True,
             ),
             matched_route=pretend.stub(name="random.route"),
         )
@@ -561,7 +558,6 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=True,
-                date_joined=datetime(2022, 8, 1),
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -579,7 +575,6 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=False,
-                date_joined=datetime(2023, 8, 9),
             ),
             matched_route=pretend.stub(name="manage.projects"),
         )
@@ -597,7 +592,6 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=False,
-                date_joined=datetime(2023, 8, 9),
             ),
             matched_route=pretend.stub(name="forklift.legacy.file_upload"),
         )
@@ -627,7 +621,6 @@ class TestPermits:
                 __principals__=lambda: ["user:5"],
                 has_primary_verified_email=True,
                 has_two_factor=False,
-                date_joined=datetime.now(),
             ),
             matched_route=pretend.stub(name=matched_route),
         )
