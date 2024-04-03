@@ -34,7 +34,7 @@ Building outside of Docker
     Note: building outside of Docker is **not recommended** as it may
     install platform-specific dependencies.
 
-Install `NodeJS 16.x <https://nodejs.org/en/download/releases/>`_,
+Install `NodeJS 20.x <https://nodejs.org/en/download/releases/>`_,
 install the dependencies using ``npm install`` and then run ``npm run
 build``.
 
