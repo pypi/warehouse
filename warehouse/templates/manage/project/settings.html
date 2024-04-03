@@ -71,6 +71,98 @@
 
   <hr>
 
+  <h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
+
+  <table class="table table--alternate-repository-locations">
+    <caption class="sr-only">{% trans project_name=project.name %}Alternate repository locations for {{ project_name }}{% endtrans %}</caption>
+    <thead>
+    <tr>
+      <th scope="col">{% trans %}Name{% endtrans %}</th>
+      <th scope="col">{% trans %}Url{% endtrans %}</th>
+      <th scope="col" class="table__align-right"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for alternate_repository in alternate_repositories|sort(attribute="name") %}
+      <tr>
+      <th scope="row">
+        {{ alternate_repository.name }}
+      </th>
+      <td>
+        <a href="{{ alternate_repository.url }}" rel="nofollow noopener noreferrer" target="_blank">
+          {{ alternate_repository.url }} <i class="fa-solid fa-arrow-up-right-from-square"></i>
+        </a>
+      </td>
+      <td>
+        {% set extra_description %}{% trans name=alternate_repository.name %}Remove {{ name }} from this project.{% endtrans %}{% endset %}
+        {{ confirm_button(
+          gettext("Remove alternate repository location"),
+          gettext("Name"),
+          "alternate_repository_name",
+          alternate_repository.name,
+          extra_description=extra_description,
+          action=request.route_path('manage.project.settings', project_name=project.name),
+          warning=False,
+          modifier="--primary",
+          tooltip=extra_description
+        ) }}
+      </td>
+      </tr>
+
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <h3>
+    {% trans %}Add alternate repository location{% endtrans %}
+  </h3>
+  <form method="POST">
+    <div class="form-group">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <label for="alternate_repository_name" class="form-group__label">
+        {% trans %}Name{% endtrans %}
+        {% if form.name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ form.name(
+        placeholder=gettext("Name"),
+        autocomplete="on",
+        autocapitalize="on",
+        spellcheck="true",
+        class_="form-group__field",
+        aria_describedby="alternate-repository-name-errors",
+      ) }}
+      <div id="alternate-repository-name-errors">
+        {{ field_errors(form.name) }}
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="alternate_repository_url" class="form-group__label">
+        {% trans %}Url{% endtrans %}
+        {% if form.url.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ form.url(
+        placeholder=gettext("Url"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="alternate-repository-url-errors",
+      ) }}
+      <div id="alternate-repository-url-errors">
+        {{ field_errors(form.url) }}
+      </div>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+
+  <hr>
+
   {#
    # To remove project from an organization:
    # 1. User must be organization owner.

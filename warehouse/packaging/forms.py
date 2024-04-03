@@ -37,3 +37,38 @@ class SubmitMalwareObservationForm(forms.Form):
     )
 
     submit = wtforms.SubmitField()
+
+
+class SubmitAddAlternateRepositoryForm(forms.Form):
+    """Form to submit details about an Alternate Repository Location for a Project."""
+
+    name = wtforms.StringField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify your alternate repository name"),
+            wtforms.validators.Length(
+                max=100,
+                message=_(
+                    "The alternate repository is too long. "
+                    "Choose a organization name with 100 characters or less."
+                ),
+            ),
+        ]
+    )
+    url = wtforms.URLField(
+        validators=[
+            wtforms.validators.InputRequired(message="Specify your alternate repository URL"),
+            wtforms.validators.Length(
+                max=400,
+                message=_(
+                    "The alternate repository URL is too long. "
+                    "Choose a organization URL with 400 characters or less."
+                ),
+            ),
+            wtforms.validators.Regexp(
+                r"^https?://",
+                message=_("The alternate repository URL must start with http:// or https://"),
+            ),
+        ]
+    )
+
+    submit = wtforms.SubmitField()
