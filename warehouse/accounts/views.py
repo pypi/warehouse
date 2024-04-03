@@ -240,9 +240,15 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
         redirect_field_name, request.GET.get(redirect_field_name)
     )
 
+    # the form contains an auto-generated field from recaptcha with
+    # hyphens in it. make it play nice with wtforms.
+    post_body = MultiDict(
+        {key.replace("-", "_"): value for key, value in request.POST.items()}
+    )
+
     form = _form_class(
-        request.POST,
         request=request,
+        formdata=post_body,
         user_service=user_service,
         breach_service=breach_service,
         captcha_service=captcha_service,
