@@ -18,7 +18,7 @@ if [ "${READTHEDOCS_PROJECT}" = "docspypiorg" ]; then
   mkdir _readthedocs && mv docs/user-site _readthedocs/html
 fi
 
-if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ]; then
+if [ "${READTHEDOCS_PROJECT}" = "blogpypiorg" ] || [ "${READTHEDOCS_PROJECT}" = "psf-warehouse-private" ]; then
   pip install -r requirements/docs-blog.txt
   asdf reshim
   mkdocs build -f docs/mkdocs-blog.yml
