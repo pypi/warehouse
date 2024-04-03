@@ -33,11 +33,11 @@ msgstr ""
 msgid "Locale updated"
 msgstr "Lokaĵaro ĝisdatigita"
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:51
 msgid "The password is invalid. Try again."
 msgstr "La pasvorto ne estas valida. Bonvolu reprovi."
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -47,40 +47,40 @@ msgstr ""
 "punktoj, streketoj, kaj substrekoj. Ĝi devas komenciĝi kaj finiĝi per litero "
 "aŭ cifero. Elektu alian salutnomon."
 
-#: warehouse/accounts/forms.py:68
+#: warehouse/accounts/forms.py:70
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:91
+#: warehouse/accounts/forms.py:93
 msgid "No user found with that username"
 msgstr "Neniu uzanto trovita kun tiu salutnomo"
 
-#: warehouse/accounts/forms.py:102
+#: warehouse/accounts/forms.py:104
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "TOTP-kodo devas konsisti el ${totp_length} ciferoj."
 
-#: warehouse/accounts/forms.py:122
+#: warehouse/accounts/forms.py:124
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:137
+#: warehouse/accounts/forms.py:139
 msgid "Choose a username with 50 characters or less."
 msgstr "Elektu salutnomon de maksimume 200 skribsignoj."
 
-#: warehouse/accounts/forms.py:154
+#: warehouse/accounts/forms.py:156
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:170 warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:232
 #, fuzzy
 #| msgid "Password strength:"
 msgid "Password too long."
 msgstr "Forto de la pasvorto:"
 
-#: warehouse/accounts/forms.py:204
+#: warehouse/accounts/forms.py:206
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -89,27 +89,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:235
 msgid "Your passwords don't match. Try again."
 msgstr "Viaj pasvortoj ne kongruas. Reprovu."
 
-#: warehouse/accounts/forms.py:267
+#: warehouse/accounts/forms.py:269
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "La retpoŝta adreso ne estas valida. Reprovu."
 
-#: warehouse/accounts/forms.py:278
+#: warehouse/accounts/forms.py:284
 msgid "The email address isn't valid. Try again."
 msgstr "La retpoŝta adreso ne estas valida. Reprovu."
 
-#: warehouse/accounts/forms.py:286
+#: warehouse/accounts/forms.py:297
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "Vi ne rajtas uzi retpoŝtan adreson ĉe tiu retejo. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:297
+#: warehouse/accounts/forms.py:308
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -117,7 +117,7 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de ĉi tiu konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:315
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -125,29 +125,29 @@ msgstr ""
 "Tiu retpoŝta adreso estas jam uzata de alia konto. Uzu alian retpoŝtan "
 "adreson."
 
-#: warehouse/accounts/forms.py:337 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:348 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "La nomo estas tro longa. Elektu nomon de maksimume 100 signoj."
 
-#: warehouse/accounts/forms.py:428
+#: warehouse/accounts/forms.py:439
 msgid "Invalid TOTP code."
 msgstr "Ne valida TOTP-kodo."
 
-#: warehouse/accounts/forms.py:445
+#: warehouse/accounts/forms.py:456
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Ne valida WebAuthn-aserto: Malbona ŝarĝo"
 
-#: warehouse/accounts/forms.py:514
+#: warehouse/accounts/forms.py:525
 msgid "Invalid recovery code."
 msgstr "Ne valida restaŭra kodo."
 
-#: warehouse/accounts/forms.py:523
+#: warehouse/accounts/forms.py:534
 #, fuzzy
 #| msgid "Recovery codes regenerated"
 msgid "Recovery code has been previously used."
 msgstr "Restaŭraj kodoj regeneritaj"
 
-#: warehouse/accounts/forms.py:553
+#: warehouse/accounts/forms.py:564
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
@@ -193,7 +193,7 @@ msgstr "Jam aŭtentigita"
 msgid "Successful WebAuthn assertion"
 msgstr "Sukcesa WebAuthn-aserto"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:835
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "Restaŭra kodo akceptita. La submetita kodo ne estas reuzebla."
 
@@ -205,150 +205,150 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:800
 msgid "Expired token: request a new password reset link"
 msgstr "Eksvalidiĝinta ĵetono: petu novan ligilon por restarigo de pasvorto"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:802
 msgid "Invalid token: request a new password reset link"
 msgstr "Ne valida ĵetono: petu novan ligilon por restarigo de pasvorto"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:916
-#: warehouse/accounts/views.py:1020 warehouse/accounts/views.py:1189
+#: warehouse/accounts/views.py:804 warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:1021 warehouse/accounts/views.py:1190
 msgid "Invalid token: no token supplied"
 msgstr "Ne valida ĵetono: neniu ĵetono donita"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:808
 msgid "Invalid token: not a password reset token"
 msgstr "Ne valida ĵetono: ne estas pasvorto-restariga ĵetono"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:813
 msgid "Invalid token: user not found"
 msgstr "Ne valida ĵetono: uzanto ne trovita"
 
-#: warehouse/accounts/views.py:834
+#: warehouse/accounts/views.py:835
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "Ne valida ĵetono: la uzanto jam ensalutis post peto por ĉi tiu ĵetono"
 
-#: warehouse/accounts/views.py:852
+#: warehouse/accounts/views.py:853
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "Ne valida ĵetono: la pasvorto jam ŝanĝiĝis post peto por ĉi tiu ĵetono"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:885
 msgid "You have reset your password"
 msgstr "Vi restarigis vian pasvorton"
 
-#: warehouse/accounts/views.py:912
+#: warehouse/accounts/views.py:913
 msgid "Expired token: request a new email verification link"
 msgstr "Eksvalidiĝinta ĵetono: petu por nova retpoŝto-kontrola ligilo"
 
-#: warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:915
 msgid "Invalid token: request a new email verification link"
 msgstr "Ne valida ĵetono: petu por nova retpoŝto-kontrola ligilo"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:921
 msgid "Invalid token: not an email verification token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por retpoŝta kontrolo"
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:930
 msgid "Email not found"
 msgstr "Retpoŝta adreso ne troviĝis"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:933
 msgid "Email already verified"
 msgstr "Retpoŝta adreso jam kontrolita"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:950
 msgid "You can now set this email as your primary address"
 msgstr ""
 "Vi povas nun uzi ĉi tiun retpoŝtan adreson kiel vian ĉefan retpoŝtan adreson"
 
-#: warehouse/accounts/views.py:953
+#: warehouse/accounts/views.py:954
 msgid "This is your primary address"
 msgstr "Jen via ĉefa retpoŝta adreso"
 
-#: warehouse/accounts/views.py:958
+#: warehouse/accounts/views.py:959
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr "Retpoŝta adreso ${email_address} kontrolita. ${confirm_message}."
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1017
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new organization invitation"
 msgstr "Eksvalidiĝinta ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1018
+#: warehouse/accounts/views.py:1019
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new organization invitation"
 msgstr "Ne valida ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1024
+#: warehouse/accounts/views.py:1025
 #, fuzzy
 #| msgid "Invalid token: not a collaboration invitation token"
 msgid "Invalid token: not an organization invitation token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por invito al kunlaborado"
 
-#: warehouse/accounts/views.py:1028
+#: warehouse/accounts/views.py:1029
 #, fuzzy
 #| msgid "Role invitation is not valid."
 msgid "Organization invitation is not valid."
 msgstr "Invito al rolo ne estas valida."
 
-#: warehouse/accounts/views.py:1037
+#: warehouse/accounts/views.py:1038
 #, fuzzy
 #| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
 msgstr "Invito al rolo ne plu ekzistas."
 
-#: warehouse/accounts/views.py:1088
+#: warehouse/accounts/views.py:1089
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "Invito al '${project_name}' estas malakceptita."
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1152
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1186
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
 msgstr "Eksvalidiĝinta ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1187
+#: warehouse/accounts/views.py:1188
 #, fuzzy
 #| msgid "Invalid token: request a new project role invite"
 msgid "Invalid token: request a new project role invitation"
 msgstr "Ne valida ĵetono: petu novan inviton al projekta rolo"
 
-#: warehouse/accounts/views.py:1193
+#: warehouse/accounts/views.py:1194
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "Ne valida ĵetono: ne estas ĵetono por invito al kunlaborado"
 
-#: warehouse/accounts/views.py:1197
+#: warehouse/accounts/views.py:1198
 msgid "Role invitation is not valid."
 msgstr "Invito al rolo ne estas valida."
 
-#: warehouse/accounts/views.py:1212
+#: warehouse/accounts/views.py:1213
 msgid "Role invitation no longer exists."
 msgstr "Invito al rolo ne plu ekzistas."
 
-#: warehouse/accounts/views.py:1243
+#: warehouse/accounts/views.py:1244
 msgid "Invitation for '${project_name}' is declined."
 msgstr "Invito al '${project_name}' estas malakceptita."
 
-#: warehouse/accounts/views.py:1309
+#: warehouse/accounts/views.py:1310
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/accounts/views.py:1556 warehouse/accounts/views.py:1799
-#: warehouse/manage/views/__init__.py:1212
+#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
+#: warehouse/manage/views/__init__.py:1242
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -360,7 +360,7 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/accounts/views.py:1577
+#: warehouse/accounts/views.py:1578
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -370,20 +370,20 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/accounts/views.py:1593
+#: warehouse/accounts/views.py:1594
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1606
+#: warehouse/accounts/views.py:1607
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1622 warehouse/manage/views/__init__.py:1247
-#: warehouse/manage/views/__init__.py:1360
-#: warehouse/manage/views/__init__.py:1472
-#: warehouse/manage/views/__init__.py:1582
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
+#: warehouse/manage/views/__init__.py:1390
+#: warehouse/manage/views/__init__.py:1502
+#: warehouse/manage/views/__init__.py:1612
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -392,33 +392,33 @@ msgid ""
 "again later."
 msgstr "Okazis troo da nesukcesaj ensalutaj provoj. Reprovu poste."
 
-#: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
-#: warehouse/manage/views/__init__.py:1374
-#: warehouse/manage/views/__init__.py:1486
-#: warehouse/manage/views/__init__.py:1596
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
+#: warehouse/manage/views/__init__.py:1404
+#: warehouse/manage/views/__init__.py:1516
+#: warehouse/manage/views/__init__.py:1626
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1647
+#: warehouse/accounts/views.py:1648
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1675
 #, fuzzy
 #| msgid "Manage this project"
 msgid "Registered a new pending publisher to create "
 msgstr "Mastrumi ĉi tiun projekton"
 
-#: warehouse/accounts/views.py:1813 warehouse/accounts/views.py:1826
-#: warehouse/accounts/views.py:1833
+#: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
+#: warehouse/accounts/views.py:1834
 #, fuzzy
 #| msgid "Manage version"
 msgid "Invalid publisher ID"
 msgstr "Mastrumi version"
 
-#: warehouse/accounts/views.py:1839
+#: warehouse/accounts/views.py:1840
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -548,41 +548,41 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "Tiu salutnomo jam estas uzata de alia konto. Elektu alian salutnomon."
 
-#: warehouse/manage/views/__init__.py:203
+#: warehouse/manage/views/__init__.py:277
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "Detaloj pri konto"
 
-#: warehouse/manage/views/__init__.py:232
+#: warehouse/manage/views/__init__.py:307
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "Retpoŝta adreso ${email_address} aldonita — kontrolu vian enirkeston pri "
 "ligilo de kontrolado"
 
-#: warehouse/manage/views/__init__.py:783
+#: warehouse/manage/views/__init__.py:813
 msgid "Recovery codes already generated"
 msgstr "Restaŭraj kodoj jam generitaj"
 
-#: warehouse/manage/views/__init__.py:784
+#: warehouse/manage/views/__init__.py:814
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "Generado de novaj restaŭraj kodoj eksvalidigos viajn aktualajn kodojn."
 
-#: warehouse/manage/views/__init__.py:893
+#: warehouse/manage/views/__init__.py:923
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "Kontrolu vian retpoŝtan adreson aŭ aldonu novan retpoŝtan adreson."
 
-#: warehouse/manage/views/__init__.py:993
+#: warehouse/manage/views/__init__.py:1023
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1025
+#: warehouse/manage/views/__init__.py:1055
 msgid "Invalid credentials. Try again"
 msgstr "Ne validaj ensalutiloj. Reprovu"
 
-#: warehouse/manage/views/__init__.py:1228
+#: warehouse/manage/views/__init__.py:1258
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -594,7 +594,7 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1341
+#: warehouse/manage/views/__init__.py:1371
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -606,7 +606,7 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1453
+#: warehouse/manage/views/__init__.py:1483
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -618,7 +618,7 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1562
+#: warehouse/manage/views/__init__.py:1592
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -630,9 +630,9 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1797
-#: warehouse/manage/views/__init__.py:2098
-#: warehouse/manage/views/__init__.py:2206
+#: warehouse/manage/views/__init__.py:1827
+#: warehouse/manage/views/__init__.py:2128
+#: warehouse/manage/views/__init__.py:2236
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -644,62 +644,62 @@ msgstr ""
 "Portempe malebliĝis registrado de novaj uzantoj. Vidu la paĝon https://pypi."
 "org/help#admin-intervention por detaloj."
 
-#: warehouse/manage/views/__init__.py:1929
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2115
-#: warehouse/manage/views/__init__.py:2215
+#: warehouse/manage/views/__init__.py:1959
+#: warehouse/manage/views/__init__.py:2044
+#: warehouse/manage/views/__init__.py:2145
+#: warehouse/manage/views/__init__.py:2245
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "Konfirmi Inviton"
 
-#: warehouse/manage/views/__init__.py:1941
+#: warehouse/manage/views/__init__.py:1971
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "Malfortiri eldonon"
 
-#: warehouse/manage/views/__init__.py:2026
+#: warehouse/manage/views/__init__.py:2056
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "Malfortiri eldonon"
 
-#: warehouse/manage/views/__init__.py:2127
+#: warehouse/manage/views/__init__.py:2157
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Forigi eldonon"
 
-#: warehouse/manage/views/__init__.py:2227
+#: warehouse/manage/views/__init__.py:2257
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/__init__.py:2231
+#: warehouse/manage/views/__init__.py:2261
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2381
+#: warehouse/manage/views/__init__.py:2411
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2488
+#: warehouse/manage/views/__init__.py:2518
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "La uzanto '${username}' jam havas la rolon ${role_name} por la projekto"
 
-#: warehouse/manage/views/__init__.py:2555
+#: warehouse/manage/views/__init__.py:2585
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "Vi estas nun ${role} de la projekto '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2587
+#: warehouse/manage/views/__init__.py:2617
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -707,27 +707,27 @@ msgstr ""
 "Uzanto '${username}' ne havas kontrolitan ĉefan retpoŝtan adreson, kaj tial "
 "ne rajtas esti aldonita kiel ${role_name} de projekto"
 
-#: warehouse/manage/views/__init__.py:2600
+#: warehouse/manage/views/__init__.py:2630
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "La uzanto '${username}' ankoraŭ havas aktivan inviton. Bonvolu reprovi poste."
 
-#: warehouse/manage/views/__init__.py:2665
+#: warehouse/manage/views/__init__.py:2695
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Invito sendita al '${username}'"
 
-#: warehouse/manage/views/__init__.py:2698
+#: warehouse/manage/views/__init__.py:2728
 msgid "Could not find role invitation."
 msgstr "Ne povis trovi inviton al rolo."
 
-#: warehouse/manage/views/__init__.py:2709
+#: warehouse/manage/views/__init__.py:2739
 msgid "Invitation already expired."
 msgstr "Invito jam eksvalidiĝis."
 
-#: warehouse/manage/views/__init__.py:2741
+#: warehouse/manage/views/__init__.py:2771
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Invito de '${username}' eksvalidiĝis."
@@ -916,7 +916,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:213
+#: warehouse/packaging/views.py:212
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -1009,8 +1009,8 @@ msgstr "Monty Python - La Sceno de la Fromaĝobutiko"
 #: warehouse/templates/manage/project/release.html:200
 #: warehouse/templates/manage/project/releases.html:140
 #: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:378
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:395
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1361,8 +1361,10 @@ msgid "About PyPI navigation"
 msgstr "Navigilo por \"Pri PyPI\""
 
 #: warehouse/templates/base.html:291
-msgid "PyPI on Twitter"
-msgstr "PyPI ĉe Twitter"
+#, fuzzy
+#| msgid "PyPI home"
+msgid "PyPI Blog"
+msgstr "Ĉefpaĝo de PyPI"
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
@@ -1965,6 +1967,7 @@ msgstr "Krei konton ĉe %(title)s"
 #: warehouse/templates/accounts/register.html:47
 #: warehouse/templates/manage/account.html:139
 #: warehouse/templates/manage/account.html:480
+#: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr "Nomo"
 
@@ -1974,6 +1977,7 @@ msgstr "Via nomo"
 
 #: warehouse/templates/accounts/register.html:73
 #: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/unverified-account.html:221
 msgid "Email address"
 msgstr "Retpoŝta adreso"
 
@@ -3428,6 +3432,9 @@ msgstr "Fermi ĉi tiun sciigon"
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:69
+#: warehouse/templates/manage/unverified-account.html:172
+#: warehouse/templates/manage/unverified-account.html:174
+#: warehouse/templates/manage/unverified-account.html:184
 #: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr "Fermi"
@@ -3500,7 +3507,8 @@ msgstr "Haketaĵa digesto"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/manage/unverified-account.html:179
+#: warehouse/templates/packaging/detail.html:158
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "Kopii en tondujon"
@@ -3511,6 +3519,7 @@ msgstr "Kopii en tondujon"
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
+#: warehouse/templates/manage/unverified-account.html:180
 #: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr "Kopii"
@@ -3642,6 +3651,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:23
 #: warehouse/templates/manage/project/history.html:23
 #: warehouse/templates/manage/team/history.html:23
+#: warehouse/templates/manage/unverified-account.html:236
 msgid "Security history"
 msgstr "Historio pri sekureco"
 
@@ -3781,44 +3791,56 @@ msgid "Report project as malware"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:33
+#: warehouse/templates/manage/unverified-account.html:30
 msgid "Verified*"
 msgstr "Kontrolita*"
 
 #: warehouse/templates/manage/account.html:35
+#: warehouse/templates/manage/unverified-account.html:32
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr "* Intermitaj problemoj pri liverado povas kaŭzi perdon de kontrolo"
 
 #: warehouse/templates/manage/account.html:39
+#: warehouse/templates/manage/unverified-account.html:36
 msgid "Verified"
 msgstr "Kontrolita"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
 #: warehouse/templates/manage/account.html:58
+#: warehouse/templates/manage/unverified-account.html:43
+#: warehouse/templates/manage/unverified-account.html:49
+#: warehouse/templates/manage/unverified-account.html:55
 msgid "Unverified*"
 msgstr "Ne kontrolita*"
 
 #: warehouse/templates/manage/account.html:48
+#: warehouse/templates/manage/unverified-account.html:45
 msgid "*Email from PyPI being treated as spam"
 msgstr "*Retmesaĝo el PyPI rigardata kiel trudmesaĝo"
 
 #: warehouse/templates/manage/account.html:54
+#: warehouse/templates/manage/unverified-account.html:51
 msgid "*Hard failure during delivery"
 msgstr "*Fiasko dum livero"
 
 #: warehouse/templates/manage/account.html:60
+#: warehouse/templates/manage/unverified-account.html:57
 msgid "*Too many delivery problems"
 msgstr "*Troo da problemoj pri livero"
 
 #: warehouse/templates/manage/account.html:64
+#: warehouse/templates/manage/unverified-account.html:61
 msgid "Unverified"
 msgstr "Ne kontrolita"
 
 #: warehouse/templates/manage/account.html:78
+#: warehouse/templates/manage/unverified-account.html:75
 msgid "Primary"
 msgstr "Ĉefa"
 
 #: warehouse/templates/manage/account.html:86
+#: warehouse/templates/manage/unverified-account.html:83
 msgid "View email options"
 msgstr "Vidi opciojn pri retpoŝto"
 
@@ -3826,16 +3848,21 @@ msgstr "Vidi opciojn pri retpoŝto"
 #: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/project/release.html:86
 #: warehouse/templates/manage/project/releases.html:68
+#: warehouse/templates/manage/unverified-account.html:84
+#: warehouse/templates/manage/unverified-account.html:136
 msgid "Options"
 msgstr "Opcioj"
 
 #: warehouse/templates/manage/account.html:92
+#: warehouse/templates/manage/unverified-account.html:89
 #, python-format
 msgid "Options for %(email)s"
 msgstr "Opcioj pri %(email)s"
 
 #: warehouse/templates/manage/account.html:98
 #: warehouse/templates/manage/account.html:100
+#: warehouse/templates/manage/unverified-account.html:95
+#: warehouse/templates/manage/unverified-account.html:97
 msgid "Resend verification email"
 msgstr "Resendi kontrolan retmesaĝon"
 
@@ -3858,37 +3885,45 @@ msgstr "Forigi retpoŝtan adreson"
 #: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/account.html:481
 #: warehouse/templates/manage/account/token.html:148
+#: warehouse/templates/manage/unverified-account.html:116
 msgid "Scope"
 msgstr "Amplekso"
 
 #: warehouse/templates/manage/account.html:145
+#: warehouse/templates/manage/unverified-account.html:118
 msgid "All projects"
 msgstr "Ĉiuj projektoj"
 
 #: warehouse/templates/manage/account.html:153
 #: warehouse/templates/manage/account.html:482
+#: warehouse/templates/manage/unverified-account.html:126
 msgid "Created"
 msgstr "Kreita"
 
 #: warehouse/templates/manage/account.html:157
 #: warehouse/templates/manage/account.html:483
+#: warehouse/templates/manage/unverified-account.html:130
 msgid "Last used"
 msgstr "Laste uzita"
 
 #: warehouse/templates/manage/account.html:158
+#: warehouse/templates/manage/unverified-account.html:131
 msgid "Never"
 msgstr "Neniam"
 
 #: warehouse/templates/manage/account.html:162
+#: warehouse/templates/manage/unverified-account.html:135
 msgid "View token options"
 msgstr "Vidi opciojn pri ĵetono"
 
 #: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/account/token.html:57
+#: warehouse/templates/manage/unverified-account.html:145
 msgid "Remove token"
 msgstr "Forigi ĵetonon"
 
 #: warehouse/templates/manage/account.html:178
+#: warehouse/templates/manage/unverified-account.html:151
 msgid "View unique identifier"
 msgstr "Vidi unikan identigilon"
 
@@ -3896,16 +3931,20 @@ msgstr "Vidi unikan identigilon"
 #: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/account/token.html:60
 #: warehouse/templates/manage/account/token.html:61
+#: warehouse/templates/manage/unverified-account.html:159
+#: warehouse/templates/manage/unverified-account.html:161
 msgid "Remove API token"
 msgstr "Forigi API-ĵetonon"
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/account/token.html:66
+#: warehouse/templates/manage/unverified-account.html:166
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr "Aplikaĵoj aŭ programoj uzantaj ĉi tiun ĵetonon ne plu povos uzi PyPI."
 
 #: warehouse/templates/manage/account.html:204
+#: warehouse/templates/manage/unverified-account.html:177
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "Unika identigilo de la API-ĵetono \"%(token_description)s\""
@@ -3975,6 +4014,7 @@ msgid "Update account"
 msgstr "Ĝisdatigi konton"
 
 #: warehouse/templates/manage/account.html:320
+#: warehouse/templates/manage/unverified-account.html:205
 msgid "Account emails"
 msgstr "Kontaj retpoŝtaj adresoj"
 
@@ -3992,10 +4032,12 @@ msgstr ""
 "ricevos sciigojn."
 
 #: warehouse/templates/manage/account.html:333
+#: warehouse/templates/manage/unverified-account.html:218
 msgid "Emails associated with your account"
 msgstr "Retpoŝtaj adresoj asociitaj kun via konto"
 
 #: warehouse/templates/manage/account.html:337
+#: warehouse/templates/manage/unverified-account.html:222
 msgid "Status"
 msgstr "Stato"
 
@@ -4064,44 +4106,55 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:513
 #: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/unverified-account.html:244
+#: warehouse/templates/manage/unverified-account.html:423
 msgid "Token scope: entire account"
 msgstr "Amplekso de la ĵetono: tuta konto"
 
 #: warehouse/templates/manage/account.html:515
 #: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/unverified-account.html:246
+#: warehouse/templates/manage/unverified-account.html:425
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "Amplekso de la ĵetono: Projekto %(project_name)s"
 
 #: warehouse/templates/manage/account.html:518
+#: warehouse/templates/manage/unverified-account.html:249
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:524
+#: warehouse/templates/manage/unverified-account.html:255
 msgid "Account created"
 msgstr "Konto kreiĝis"
 
 #: warehouse/templates/manage/account.html:527
+#: warehouse/templates/manage/unverified-account.html:258
 msgid "Logged in"
 msgstr "Ensalutinta"
 
 #: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/unverified-account.html:260
 msgid "Two factor method:"
 msgstr "Dupaŝa metodo:"
 
 #: warehouse/templates/manage/account.html:531
 #: warehouse/templates/manage/project/release.html:77
+#: warehouse/templates/manage/unverified-account.html:262
 msgid "None"
 msgstr "Nenio"
 
 #: warehouse/templates/manage/account.html:533
 #: warehouse/templates/manage/manage_base.html:92
+#: warehouse/templates/manage/unverified-account.html:264
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "Sekuriga aparato (<abbr title=\"reta aŭtentigo\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:535
 #: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/unverified-account.html:266
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -4109,121 +4162,154 @@ msgstr ""
 "Aŭtentiga aplikaĵo (<abbr title=\"tempo-baza unufoja pasvorto\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:537
+#: warehouse/templates/manage/unverified-account.html:268
 msgid "Recovery code"
 msgstr "Restaŭra kodo"
 
 #: warehouse/templates/manage/account.html:542
+#: warehouse/templates/manage/unverified-account.html:273
 msgid "Login failed"
 msgstr "Salutado malsukcesis"
 
 #: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/unverified-account.html:276
 msgid "- Basic Auth (Upload endpoint)"
 msgstr "- Baza aŭtentigo (alŝuta finpunkto)"
 
 #: warehouse/templates/manage/account.html:550
 #: warehouse/templates/manage/account.html:569
 #: warehouse/templates/manage/project/history.html:272
+#: warehouse/templates/manage/unverified-account.html:281
+#: warehouse/templates/manage/unverified-account.html:300
 msgid "Reason:"
 msgstr "Kialo:"
 
 #: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/account.html:571
+#: warehouse/templates/manage/unverified-account.html:283
+#: warehouse/templates/manage/unverified-account.html:302
 msgid "Incorrect Password"
 msgstr "Neĝusta pasvorto"
 
 #: warehouse/templates/manage/account.html:554
+#: warehouse/templates/manage/unverified-account.html:285
 msgid "Invalid two factor (TOTP)"
 msgstr "Nevalida dua faktoro (TOTP)"
 
 #: warehouse/templates/manage/account.html:556
+#: warehouse/templates/manage/unverified-account.html:287
 msgid "Invalid two factor (WebAuthn)"
 msgstr "Nevalida dua faktoro (WebAuthn)"
 
 #: warehouse/templates/manage/account.html:558
 #: warehouse/templates/manage/account.html:560
+#: warehouse/templates/manage/unverified-account.html:289
+#: warehouse/templates/manage/unverified-account.html:291
 msgid "Invalid two factor (Recovery code)"
 msgstr "Nevalida dua faktoro (restaŭra kodo)"
 
 #: warehouse/templates/manage/account.html:567
+#: warehouse/templates/manage/unverified-account.html:298
 msgid "Session reauthentication failed"
 msgstr "Raŭtentigo de seanco malsukcesis"
 
 #: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/unverified-account.html:309
 msgid "Email added to account"
 msgstr "Retpoŝta adreso aldonita al la konto"
 
 #: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/unverified-account.html:312
 msgid "Email removed from account"
 msgstr "Retpoŝta adreso forigita for de la konto"
 
 #: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/unverified-account.html:315
 msgid "Email verified"
 msgstr "Retpoŝta adreso kontrolita"
 
 #: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/unverified-account.html:318
 msgid "Email reverified"
 msgstr "Retpoŝta adreso rekontrolita"
 
 #: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/unverified-account.html:322
 msgid "Primary email changed"
 msgstr "Ĉefa retpoŝta adreso ŝanĝita"
 
 #: warehouse/templates/manage/account.html:593
+#: warehouse/templates/manage/unverified-account.html:324
 msgid "Old primary email:"
 msgstr "Malnova ĉefa retpoŝta adreso:"
 
 #: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/unverified-account.html:325
 msgid "New primary email:"
 msgstr "Nova ĉefa retpoŝta adreso:"
 
 #: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/unverified-account.html:328
 msgid "Primary email set"
 msgstr "Ĉefa retpoŝta adreso donita"
 
 #: warehouse/templates/manage/account.html:603
+#: warehouse/templates/manage/unverified-account.html:334
 msgid "Email sent"
 msgstr "Retmesaĝo sendita"
 
 #: warehouse/templates/manage/account.html:605
+#: warehouse/templates/manage/unverified-account.html:336
 msgid "From:"
 msgstr "De:"
 
 #: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/unverified-account.html:337
 msgid "To:"
 msgstr "Al:"
 
 #: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/unverified-account.html:338
 msgid "Subject:"
 msgstr "Temo:"
 
 #: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/unverified-account.html:342
 msgid "Password reset requested"
 msgstr "Pasvorta restarigo petita"
 
 #: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/unverified-account.html:344
 msgid "Password reset attempted"
 msgstr "Oni provis restarigi la pasvorton"
 
 #: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/unverified-account.html:346
 msgid "Password successfully reset"
 msgstr "Pasvorto sukcese restarigita"
 
 #: warehouse/templates/manage/account.html:617
+#: warehouse/templates/manage/unverified-account.html:348
 msgid "Password successfully changed"
 msgstr "Pasvorto sukcese ŝanĝita"
 
 #: warehouse/templates/manage/account.html:621
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/account/token.html:158
+#: warehouse/templates/manage/unverified-account.html:352
+#: warehouse/templates/manage/unverified-account.html:357
 msgid "Project:"
 msgstr "Projekto:"
 
 #: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/unverified-account.html:360
 msgid "Two factor authentication added"
 msgstr "Dupaŝa aŭtentigo aldonita"
 
 #: warehouse/templates/manage/account.html:632
 #: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/unverified-account.html:363
+#: warehouse/templates/manage/unverified-account.html:373
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
@@ -4231,11 +4317,15 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:633
 #: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/unverified-account.html:364
+#: warehouse/templates/manage/unverified-account.html:374
 msgid "Device name:"
 msgstr "Nomo de la aparato:"
 
 #: warehouse/templates/manage/account.html:635
 #: warehouse/templates/manage/account.html:645
+#: warehouse/templates/manage/unverified-account.html:366
+#: warehouse/templates/manage/unverified-account.html:376
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -4244,22 +4334,27 @@ msgstr ""
 "pasvorto\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/unverified-account.html:370
 msgid "Two factor authentication removed"
 msgstr "Dupaŝa aŭtentigo forigita"
 
 #: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/unverified-account.html:381
 msgid "Recovery codes generated"
 msgstr "Restaŭraj kodoj generitaj"
 
 #: warehouse/templates/manage/account.html:654
+#: warehouse/templates/manage/unverified-account.html:385
 msgid "Recovery codes regenerated"
 msgstr "Restaŭraj kodoj regeneritaj"
 
 #: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/unverified-account.html:389
 msgid "Recovery code used for login"
 msgstr "Restaŭra kodo uzita por ensaluto"
 
 #: warehouse/templates/manage/account.html:664
+#: warehouse/templates/manage/unverified-account.html:395
 msgid "API token added"
 msgstr "API-ĵetono aldonita"
 
@@ -4267,29 +4362,37 @@ msgstr "API-ĵetono aldonita"
 #: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/project/history.html:263
 #: warehouse/templates/manage/project/history.html:270
+#: warehouse/templates/manage/unverified-account.html:397
+#: warehouse/templates/manage/unverified-account.html:420
 msgid "Token name:"
 msgstr "Nomo de ĵetono:"
 
 #: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/project/history.html:265
+#: warehouse/templates/manage/unverified-account.html:414
 msgid "API token removed"
 msgstr "API-ĵetono forigita"
 
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/unverified-account.html:415
+#: warehouse/templates/manage/unverified-account.html:421
 msgid "Unique identifier:"
 msgstr "Unika identigilo:"
 
 #: warehouse/templates/manage/account.html:687
+#: warehouse/templates/manage/unverified-account.html:418
 msgid "API token automatically removed for security reasons"
 msgstr "API-ĵetono aŭtomate forigita por sekureco"
 
 #: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/unverified-account.html:427
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr "Kialo: Ĵetono trovita ĉe <a href=\"%(public_url)s\">publika URL</a>"
 
 #: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/unverified-account.html:432
 #, fuzzy, python-format
 #| msgid ""
 #| "If the owner is unresponsive, see <a href=\"%(href)s\">%(anchor_text)s</a>"
@@ -4299,6 +4402,7 @@ msgstr ""
 "href=\"%(href)s\">%(anchor_text)s</a>"
 
 #: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/unverified-account.html:436
 #, fuzzy, python-format
 #| msgid "Invitation for '${project_name}' is declined."
 msgid ""
@@ -4306,6 +4410,7 @@ msgid ""
 msgstr "Invito al '${project_name}' estas malakceptita."
 
 #: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/unverified-account.html:440
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -4315,6 +4420,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
 #: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/unverified-account.html:444
 #, fuzzy, python-format
 #| msgid ""
 #| "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
@@ -4324,6 +4430,7 @@ msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> forigita kiel projekta %(role_name)s"
 
 #: warehouse/templates/manage/account.html:722
+#: warehouse/templates/manage/unverified-account.html:453
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -4335,6 +4442,7 @@ msgstr ""
 "konton</a> baldaŭ laŭeble."
 
 #: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/unverified-account.html:458
 msgid "Recent account activity"
 msgstr "Ĵusa aktiveco pri la konto"
 
@@ -4342,6 +4450,7 @@ msgstr "Ĵusa aktiveco pri la konto"
 #: warehouse/templates/manage/organization/history.html:201
 #: warehouse/templates/manage/project/history.html:304
 #: warehouse/templates/manage/team/history.html:108
+#: warehouse/templates/manage/unverified-account.html:460
 msgid "Event"
 msgstr "Evento"
 
@@ -4352,21 +4461,25 @@ msgstr "Evento"
 #: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
+#: warehouse/templates/manage/unverified-account.html:461
 msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:731
 #: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/team/history.html:110
+#: warehouse/templates/manage/unverified-account.html:462
 msgid "Additional Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:738
+#: warehouse/templates/manage/unverified-account.html:469
 msgid "Date / time"
 msgstr "Dato / tempo"
 
 #: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/unverified-account.html:473
 msgid "Location Info"
 msgstr ""
 
@@ -4374,12 +4487,14 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:217
 #: warehouse/templates/manage/project/history.html:320
 #: warehouse/templates/manage/team/history.html:124
+#: warehouse/templates/manage/unverified-account.html:475
 #, fuzzy
 #| msgid "Device name"
 msgid "Device Info"
 msgstr "Nomo de la aparato"
 
 #: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr "Eventoj aperos ĉi tie, kiam okazos agoj pri sekureco de via konto."
@@ -5145,6 +5260,43 @@ msgstr ""
 "Vi ankoraŭ alŝutis neniun projekton al PyPI. Por lerni kiel komenci, vizitu "
 "la <a href=\"%(href)s\" target=\"_blank\" rel=\"noopener\">Manlibron por "
 "Python-Uzantoj pri Pakado</a>"
+
+#: warehouse/templates/manage/unverified-account.html:17
+#, fuzzy
+#| msgid "Delete your PyPI account"
+msgid "Activate your account"
+msgstr "Forigi vian PyPI-konton"
+
+#: warehouse/templates/manage/unverified-account.html:197
+#, fuzzy
+#| msgid ""
+#| "<a href=\"%(href)s\">Verify your primary email address</a> to add two "
+#| "factor authentication to your account."
+msgid ""
+"You must verify a primary email address before making any other changes to "
+"your account."
+msgstr ""
+"<a href=\"%(href)s\">Kontrolu vian ĉefan retpoŝtan adreson</a> por aldoni "
+"dupaŝan aŭtentigon al via konto."
+
+#: warehouse/templates/manage/unverified-account.html:207
+#, fuzzy
+#| msgid ""
+#| "You can associate several emails with your account. You can use any <span "
+#| "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
+#| "hidden=\"true\"></i> Verified</span> email to recover your account, but "
+#| "only your <span class=\"badge\">Primary</span> email will receive "
+#| "notifications."
+msgid ""
+"You must have at least one <span class=\"badge badge--success\"><i "
+"class=\"fa fa-check\" aria-hidden=\"true\"></i> Verified</span> email "
+"address to activate your account."
+msgstr ""
+"Vi povas asocii plurajn retpoŝtajn adreson al via konto. Vi povas uzii ajnan "
+"<span class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
+"hidden=\"true\"></i> Kontrolitan</span> retpoŝtan adreson por reakiri vian "
+"konton, sed nur via <span class=\"badge\">Ĉefa</span> retpoŝta adreso "
+"ricevos sciigojn."
 
 #: warehouse/templates/manage/account/publishing.html:27
 #: warehouse/templates/manage/project/publishing.html:25
@@ -8081,126 +8233,126 @@ msgstr "%(user)s ankoraŭ eldonis neniun al PyPI, sed"
 msgid "view hashes"
 msgstr "Vidi Haketaĵojn"
 
-#: warehouse/templates/packaging/detail.html:128
+#: warehouse/templates/packaging/detail.html:126
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr "RSS: plej novaj eldonoj de %(project_name)s"
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 msgid "Copy PIP instructions"
 msgstr "Kopii instrukcion por PIP"
 
-#: warehouse/templates/packaging/detail.html:173
+#: warehouse/templates/packaging/detail.html:171
 msgid "This release has been yanked"
 msgstr "Ĉi tiu eldono estis fortirita"
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:177
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr "Stabila versio havebla (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr "Pli nova versio havebla (%(version)s)"
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:185
 msgid "Latest version"
 msgstr "Plej nova versio"
 
-#: warehouse/templates/packaging/detail.html:192
+#: warehouse/templates/packaging/detail.html:190
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr "Eldonita je: %(release_date)s"
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr "Neniu projekta priskribo donita"
 
-#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:217
 msgid "Navigation"
 msgstr "Navigilo"
 
-#: warehouse/templates/packaging/detail.html:220
-#: warehouse/templates/packaging/detail.html:254
+#: warehouse/templates/packaging/detail.html:218
+#: warehouse/templates/packaging/detail.html:252
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr "Navigilo por %(project)s"
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:221
+#: warehouse/templates/packaging/detail.html:255
 msgid "Project description. Focus will be moved to the description."
 msgstr "La priskribo de la projekto. Fokuso moviĝos al la priskribo."
 
-#: warehouse/templates/packaging/detail.html:225
-#: warehouse/templates/packaging/detail.html:259
-#: warehouse/templates/packaging/detail.html:293
+#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:257
+#: warehouse/templates/packaging/detail.html:291
 msgid "Project description"
 msgstr "Priskribo de la projekto"
 
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:227
+#: warehouse/templates/packaging/detail.html:267
 msgid "Release history. Focus will be moved to the history panel."
 msgstr "La historio de eldonoj. Fokuso moviĝos al la historipanelo."
 
-#: warehouse/templates/packaging/detail.html:231
-#: warehouse/templates/packaging/detail.html:271
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:269
+#: warehouse/templates/packaging/detail.html:313
 msgid "Release history"
 msgstr "Historio de eldonoj"
 
-#: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:234
+#: warehouse/templates/packaging/detail.html:274
 msgid "Download files. Focus will be moved to the project files."
 msgstr "Elŝuti dosierojn. Fokuso moviĝos al la projektaj dosieroj."
 
-#: warehouse/templates/packaging/detail.html:238
-#: warehouse/templates/packaging/detail.html:278
-#: warehouse/templates/packaging/detail.html:377
+#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:276
+#: warehouse/templates/packaging/detail.html:375
 msgid "Download files"
 msgstr "Elŝuti dosierojn"
 
-#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:261
 msgid "Project details. Focus will be moved to the project details."
 msgstr "La detaloj pri la projekto. Fokuso moviĝos al la projektaj detaloj."
 
-#: warehouse/templates/packaging/detail.html:265
-#: warehouse/templates/packaging/detail.html:307
+#: warehouse/templates/packaging/detail.html:263
+#: warehouse/templates/packaging/detail.html:305
 msgid "Project details"
 msgstr "Detaloj pri la projekto"
 
-#: warehouse/templates/packaging/detail.html:289
-#: warehouse/templates/packaging/detail.html:364
+#: warehouse/templates/packaging/detail.html:287
+#: warehouse/templates/packaging/detail.html:362
 #, fuzzy
 #| msgid "This release has been yanked"
 msgid "Reason this release was yanked:"
 msgstr "Ĉi tiu eldono estis fortirita"
 
-#: warehouse/templates/packaging/detail.html:300
+#: warehouse/templates/packaging/detail.html:298
 msgid "The author of this package has not provided a project description"
 msgstr "La aŭtoro de ĉi tiu pako ankoraŭ ne priskribis la projekton"
 
-#: warehouse/templates/packaging/detail.html:317
+#: warehouse/templates/packaging/detail.html:315
 msgid "Release notifications"
 msgstr "Sciigoj pri eldonoj"
 
-#: warehouse/templates/packaging/detail.html:318
+#: warehouse/templates/packaging/detail.html:316
 msgid "RSS feed"
 msgstr "RSS-abonfluo"
 
-#: warehouse/templates/packaging/detail.html:330
+#: warehouse/templates/packaging/detail.html:328
 msgid "This version"
 msgstr "Ĉi tiu versio"
 
-#: warehouse/templates/packaging/detail.html:350
+#: warehouse/templates/packaging/detail.html:348
 msgid "pre-release"
 msgstr "pra-eldono"
 
-#: warehouse/templates/packaging/detail.html:355
+#: warehouse/templates/packaging/detail.html:353
 msgid "yanked"
 msgstr "fortirita"
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:376
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -8211,17 +8363,17 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">instalado de pakoj</a>."
 
-#: warehouse/templates/packaging/detail.html:380
+#: warehouse/templates/packaging/detail.html:378
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:396
+#: warehouse/templates/packaging/detail.html:394
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:397
+#: warehouse/templates/packaging/detail.html:395
 #, fuzzy, python-format
 #| msgid ""
 #| "Learn how to upload files on the <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -8233,7 +8385,7 @@ msgstr ""
 "Lernu kiel alŝuti dosierojn per la <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">Manlibro de Python-Uzanto pri Pakado</a>"
 
-#: warehouse/templates/packaging/detail.html:404
+#: warehouse/templates/packaging/detail.html:402
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
@@ -11184,6 +11336,9 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Troviĝis neniu rezulto pri '%(term)s'"
 msgstr[1] "Troviĝis neniu rezulto pri '%(term)s'"
+
+#~ msgid "PyPI on Twitter"
+#~ msgstr "PyPI ĉe Twitter"
 
 #, fuzzy, python-format
 #~| msgid ""
