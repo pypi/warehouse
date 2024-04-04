@@ -199,6 +199,12 @@
       before making any other changes to your account.
       {% endtrans %}
     </p>
+    <p>
+      {% trans help_url=help_url %}
+      If you cannot verify a primary email address,
+      please see <a href="{{ help_url }}">{{ help_url }}</a>.
+      {% endtrans %}
+    </p>
   </div>
 
   <section id="account-emails">
