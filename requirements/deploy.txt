@@ -18,9 +18,9 @@ cattrs==23.2.3 \
     --hash=sha256:0341994d94971052e9ee70662542699a3162ea1e0c62f7ce1b4a57f563685108 \
     --hash=sha256:a934090d95abaa9e911dac357e3a8699e0b4b14f8529bcc7d2b1ad9d51672b9f
     # via ddtrace
-ddsketch==2.0.4 \
-    --hash=sha256:3227a270fd686a29d3a7128f9352ccf852314410380fc11384356f1ae2a75938 \
-    --hash=sha256:32f7314077fec8747d4faebaec2c854b5ffc399c5f552f73fa94024f48d74d64
+ddsketch==3.0.1 \
+    --hash=sha256:6d047b455fe2837c43d366ff1ae6ba0c3166e15499de8688437a75cea914224e \
+    --hash=sha256:aa8f20b2965e61731ca4fee2ca9c209f397f5bbb23f9d192ec8bd7a2f5bd9824
     # via ddtrace
 ddtrace==2.7.4 \
     --hash=sha256:0253964faa8ae44a2023ffc845ddb500ad8d0e947f8faf7a78f0e16e0e5cda57 \
@@ -120,9 +120,7 @@ protobuf==4.25.3 \
     --hash=sha256:f0700d54bcf45424477e46a9f0944155b46fb0639d69728739c0e47bab83f2b9 \
     --hash=sha256:f1279ab38ecbfae7e456a108c5c0681e4956d5b1090027c1de0f934dfdb4b35c \
     --hash=sha256:f4f118245c4a087776e0a8408be33cf09f6c547442c00395fbfb116fac2f8ac2
-    # via
-    #   ddsketch
-    #   ddtrace
+    # via ddtrace
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
