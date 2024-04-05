@@ -608,7 +608,9 @@ class TestRegistrationForm:
             "different email."
         )
 
-    @pytest.mark.parametrize("email", ["foo@wutang.net", "foo@clan.wutang.net"])
+    @pytest.mark.parametrize(
+        "email", ["foo@wutang.net", "foo@clan.wutang.net", "foo@wUtAnG.net"]
+    )
     def test_prohibited_email_error(self, db_request, email):
         domain = ProhibitedEmailDomain(domain="wutang.net")
         db_request.db.add(domain)
