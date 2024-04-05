@@ -37,6 +37,7 @@
     "@babel/core": "^7.21.3",
     "@babel/eslint-parser": "^7.21.3",
     "@babel/preset-env": "^7.21.4",
+    "@stylistic/eslint-plugin-js": "^1.7.0",
     "@testing-library/dom": "^9.2.0",
     "@testing-library/jest-dom": "^5.16.5",
     "babel-jest": "^29.5.0",
@@ -77,24 +78,27 @@
     "parserOptions": {
       "sourceType": "module"
     },
+    "plugins": [
+      "@stylistic/js"
+    ],
     "rules": {
-      "comma-dangle": [
+      "@stylistic/js/comma-dangle": [
         "error",
         "always-multiline"
       ],
-      "indent": [
+      "@stylistic/js/indent": [
         "error",
         2
       ],
-      "linebreak-style": [
+      "@stylistic/js/linebreak-style": [
         "error",
         "unix"
       ],
-      "quotes": [
+      "@stylistic/js/quotes": [
         "error",
         "double"
       ],
-      "semi": [
+      "@stylistic/js/semi": [
         "error",
         "always"
       ]

@@ -41,7 +41,7 @@ class TestManageAccount:
         db_request.path = "/manage/accounts/"
         db_request.POST = MultiDict({"name": "new name", "public_email": ""})
 
-        views.ManageAccountViews(db_request).save_account()
+        views.ManageVerifiedAccountViews(db_request).save_account()
         user = user_service.get_user(user.id)
 
         assert user.name == "new name"

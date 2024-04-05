@@ -184,8 +184,8 @@ def _permits_for_user_policy(acl, request, context, permission):
     if (
         isinstance(res, Allowed)
         and not request.identity.has_primary_verified_email
-        and request.matched_route.name.startswith("manage")
-        and request.matched_route.name != "manage.account"
+        and request.matched_route.name
+        not in {"manage.unverified-account", "accounts.verify-email"}
     ):
         return WarehouseDenied("unverified", reason="unverified_email")
 
@@ -205,8 +205,16 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
     # at this point, and we only a User in these policies.
     assert isinstance(request.identity, User)
 
-    # If we're in the manage namespace or file uploads, we'll check if the user
-    # has 2FA enabled, and if they don't we'll deny them.
+    if request.identity.has_two_factor:
+        # We're good to go!
+        return None
+
+    # Return a different message for upload endpoint first.
+    if request.matched_route.name == "forklift.legacy.file_upload":
+        return WarehouseDenied(
+            "You must enable two factor authentication to upload",
+            reason="upload_2fa_required",
+        )
 
     # Management routes that don't require 2FA, mostly to set up 2FA.
     _exempt_routes = [
@@ -214,28 +222,17 @@ def _check_for_mfa(request, context) -> WarehouseDenied | None:
         "manage.account.totp-provision",
         "manage.account.two-factor",
         "manage.account.webauthn-provision",
+        "manage.unverified-account",
+        "accounts.verify-email",
     ]
 
-    if (
-        request.matched_route.name.startswith("manage")
-        and request.matched_route.name != "manage.account"
-        and not any(
-            request.matched_route.name.startswith(route) for route in _exempt_routes
-        )
-        and not request.identity.has_two_factor
+    if request.matched_route.name == "manage.account" or any(
+        request.matched_route.name.startswith(route) for route in _exempt_routes
     ):
-        return WarehouseDenied(
-            "You must enable two factor authentication to manage other settings",
-            reason="manage_2fa_required",
-        )
+        return None
 
-    if (
-        request.matched_route.name == "forklift.legacy.file_upload"
-        and not request.identity.has_two_factor
-    ):
-        return WarehouseDenied(
-            "You must enable two factor authentication to upload",
-            reason="upload_2fa_required",
-        )
-
-    return None
+    # No exemptions matched, 2FA is required.
+    return WarehouseDenied(
+        "You must enable two factor authentication.",
+        reason="manage_2fa_required",
+    )
