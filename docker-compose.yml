@@ -164,6 +164,7 @@ services:
     image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
     ports:
       - 8001:80
+    stop_signal: SIGKILL
     environment:
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
@@ -178,6 +179,7 @@ services:
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
       - ./dev/rstuf/keys/online:/keyvault
+    stop_signal: SIGKILL
     environment:
       - RSTUF_STORAGE_BACKEND=LocalStorage
       - RSTUF_ONLINE_KEY_DIR=/keyvault
