@@ -1561,9 +1561,9 @@ pyramid-mailer==0.15.1 \
     --hash=sha256:28d4a7829ebc19dd40e712d8cb1998cec03c296ba675b2c112a503539738bdc1 \
     --hash=sha256:ec0aff54d9179b2aa2922ff82c2016a4dc8d1da5dc3408d6594f0e2096446f9b
     # via -r requirements/main.in
-pyramid-openapi3==0.17.1 \
-    --hash=sha256:240510c794f740a6fd21be68c7626aa99f408beb0e6de855fd5e821836856b9e \
-    --hash=sha256:e0346fe3e86679f5e73377a4c0356273c1435b41b5a1aed56214781857d22699
+pyramid-openapi3==0.18 \
+    --hash=sha256:269830fc16986ae57fd163838baa8ff6a013358ebc34a76a1afa8f294f54175b \
+    --hash=sha256:2811b2a633f630aa666cf21c8feb7fd4af3e0809abe1833df94fdd8d0e47e6ee
     # via -r requirements/main.in
 pyramid-retry==2.1.1 \
     --hash=sha256:b5129a60eb9d7409234ea52839006426d2ae887b4a1f0530c75ec336cabf2476 \
