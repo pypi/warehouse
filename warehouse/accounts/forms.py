@@ -286,7 +286,7 @@ class NewEmailMixin:
             )
 
         # Check if the domain is valid
-        domain = field.data.split("@")[-1]
+        domain = ".".join(field.data.split("@")[-1].split(".")[-2:]).lower()
 
         if (
             domain in disposable_email_domains.blocklist
