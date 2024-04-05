@@ -608,13 +608,22 @@ class TestRegistrationForm:
             "different email."
         )
 
-    def test_prohibited_email_error(self, db_request):
+    @pytest.mark.parametrize(
+        "email",
+        [
+            "foo@wutang.net",
+            "foo@clan.wutang.net",
+            "foo@one.two.wutang.net",
+            "foo@wUtAnG.net",
+        ],
+    )
+    def test_prohibited_email_error(self, db_request, email):
         domain = ProhibitedEmailDomain(domain="wutang.net")
         db_request.db.add(domain)
 
         form = forms.RegistrationForm(
             request=db_request,
-            formdata=MultiDict({"email": "foo@wutang.net"}),
+            formdata=MultiDict({"email": email}),
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
@@ -623,6 +632,7 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
+        assert form.email.errors
         assert (
             str(form.email.errors.pop())
             == "You can't use an email address from this domain. Use a "
