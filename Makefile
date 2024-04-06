@@ -93,8 +93,9 @@ licenses: .state/docker-build-base
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
 
-translations: .state/docker-build-base
+translations: .state/docker-build-base .state/docker-build-static
 	docker compose run --rm base bin/translations
+	docker compose run --rm static node bin/translations-js warehouse/locale
 
 requirements/%.txt: requirements/%.in
 	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<

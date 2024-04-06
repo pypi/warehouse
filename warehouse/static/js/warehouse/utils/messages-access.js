@@ -11,12 +11,17 @@
  * limitations under the License.
  */
 
-const fetchOptions = {
-  mode: "same-origin",
-  credentials: "same-origin",
-  cache: "default",
-  redirect: "follow",
-};
+const i18n = require("gettext.js");
+const messages = require("./messages.json");
+
+function determineLocale() {
+  // check cookie
+  const locale = document.cookie
+    .split("; ")
+    .find((row) => row.startsWith("_LOCALE_="))
+    ?.split("=")[1];
+  return locale ?? "en";
+}
 
 /**
  * Get the translation using num to choose the appropriate string.
@@ -25,52 +30,30 @@ const fetchOptions = {
  * and have the translation strings extracted correctly.
  * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
  *
- * This approach uses the server-side localizer to process the translation strings.
- *
- * Any placeholders must be specified as '${placeholderName}' surrounded by single or double quote,
- * not backticks (template literal).
+ * Any placeholders must be specified as '%1', '%2', etc.
  *
  * @example
- * import { gettext, ngettext } from "warehouse/utils/fetch-gettext";
+ * import { gettext, ngettext } from "warehouse/utils/messages-access";
  * // For a singular only string:
  * gettext("Just now");
  * // For a singular and plural and placeholder string:
- * ngettext("About a minute ago", "About ${numMinutes} minutes ago", numMinutes, {"numMinutes": numMinutes});
+ * ngettext("About a minute ago", "About %1 minutes ago", numMinutes);
 
  * @param singular {string} The default string for the singular translation.
  * @param plural {string} The default string for the plural translation.
  * @param num {number} The number to use to select the appropriate translation.
- * @param values {object} Key value pairs to fill the placeholders.
- * @returns {Promise<any | string>} The Fetch API promise.
+ * @param values {array[string]} Additional values to fill the placeholders.
+ * @returns {Promise<any | string>} The promise.
  * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
-export function ngettext(singular, plural, num, values) {
-  let searchValues = {s: singular};
-  if (plural) {
-    searchValues.p = plural;
+export function ngettext(singular, plural, num, ...values) {
+  const locale = determineLocale();
+  const json = messages.find((element) => element[""].language === locale);
+  if (json) {
+    i18n.loadJSON(json, "messages");
   }
-  if (num !== undefined) {
-    searchValues.n = num;
-  }
-  if (values !== undefined) {
-    searchValues = {...searchValues, ...values};
-  }
-  const searchParams = new URLSearchParams(searchValues);
-  return fetch("/translation/?" + searchParams.toString(), fetchOptions)
-    .then(response => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        throw new Error(`Unexpected response ${response.status}: ${response.body}.`);
-      }
-    })
-    .then((json) => {
-      return json.msg;
-    })
-    .catch(() => {
-      return "";
-    });
+  return Promise.resolve(i18n.ngettext(singular, plural, num, num, ...values));
 }
 
 /**
@@ -80,14 +63,12 @@ export function ngettext(singular, plural, num, values) {
  * and have the translation strings extracted correctly.
  * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
  *
- * This approach uses the server-side localizer to process the translation strings.
- *
- * Any placeholders must be specified as '${placeholderName}' surrounded by single or double quote,
- * not backticks (template literal).
+ * Any placeholders must be specified as '%1', '%2', etc.
  *
  * @param singular {string} The default string for the singular translation.
- * @returns {Promise<any | string>} The Fetch API promise.
+ * @param values {array[string]} Additional values to fill the placeholders.
+ * @returns {Promise<any | string>} The promise.
  */
-export function gettext(singular) {
-  return ngettext(singular, undefined, undefined, undefined);
+export function gettext(singular, ...values) {
+  return Promise.resolve(i18n.gettext(singular, ...values));
 }
