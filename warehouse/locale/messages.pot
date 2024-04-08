@@ -776,7 +776,7 @@ msgstr ""
 #: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:74
+#: warehouse/templates/includes/packaging/project-data.html:106
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -1113,7 +1113,6 @@ msgstr ""
 #: warehouse/templates/base.html:293
 #: warehouse/templates/includes/accounts/profile-actions.html:19
 #: warehouse/templates/includes/accounts/profile-actions.html:28
-#: warehouse/templates/includes/packaging/project-data.html:33
 #: warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
@@ -2517,7 +2516,6 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3052,31 +3050,47 @@ msgstr ""
 msgid "Members"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:17
+#: warehouse/templates/includes/packaging/project-data.html:16
+msgid "Verified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:31
+msgid "Maintainers"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:33
+msgid "Avatar for {username} from gravatar.com"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:49
+msgid "Unverified details"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:52
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:36
-msgid "GitHub statistics:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:42
-msgid "Stars:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:50
-msgid "Forks:"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:58
-msgid "Open issues:"
-msgstr ""
-
 #: warehouse/templates/includes/packaging/project-data.html:66
-msgid "Open PRs:"
+msgid "GitHub Statistics"
 msgstr ""
 
 #: warehouse/templates/includes/packaging/project-data.html:74
+msgid "Stars:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:82
+msgid "Forks:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:90
+msgid "Open issues:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:98
+msgid "Open PRs:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:106
 #, python-format
 msgid ""
 "View statistics for this project via <a href=\"%(libs_io_href)s\" "
@@ -3085,46 +3099,38 @@ msgid ""
 "rel=\"noopener\">our public dataset on Google BigQuery</a>"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:82
+#: warehouse/templates/includes/packaging/project-data.html:113
 msgid "Meta"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:84
+#: warehouse/templates/includes/packaging/project-data.html:115
 msgid "License:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:87
-#: warehouse/templates/includes/packaging/project-data.html:89
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:120
 msgid "Author:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:92
-#: warehouse/templates/includes/packaging/project-data.html:94
+#: warehouse/templates/includes/packaging/project-data.html:123
+#: warehouse/templates/includes/packaging/project-data.html:125
 #: warehouse/templates/pages/help.html:610
 msgid "Maintainer:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:99
+#: warehouse/templates/includes/packaging/project-data.html:130
 msgid "Tags"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:109
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Requires:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:114
+#: warehouse/templates/includes/packaging/project-data.html:145
 msgid "Provides-Extra:"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:135
-msgid "Maintainers"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:137
-msgid "Avatar for {username} from gravatar.com"
-msgstr ""
-
-#: warehouse/templates/includes/packaging/project-data.html:154
+#: warehouse/templates/includes/packaging/project-data.html:153
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
