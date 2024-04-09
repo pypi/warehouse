@@ -13,7 +13,7 @@
 add_project_macaroon_warning_table
 
 Revision ID: 56b3ef8e8af3
-Revises: 93a1ca43e356
+Revises: 1fdecaf73541
 Create Date: 2024-03-11 19:41:22.997939
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "56b3ef8e8af3"
-down_revision = "93a1ca43e356"
+down_revision = "1fdecaf73541"
 
 
 def upgrade():
