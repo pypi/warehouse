@@ -279,14 +279,14 @@ class NewEmailMixin:
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
-            Address(addr_spec=field.data)
+            address = Address(addr_spec=field.data)
         except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
             )
 
         # Check if the domain is valid
-        domain = field.data.split("@")[-1]
+        domain = ".".join(address.domain.split(".")[-2:]).lower()
 
         if (
             domain in disposable_email_domains.blocklist
