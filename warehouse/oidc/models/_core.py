@@ -74,7 +74,10 @@ class OIDCPublisherProjectAssociation(db.Model):
         primary_key=True,
     )
     project_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, primary_key=True
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True,
     )
 
 
