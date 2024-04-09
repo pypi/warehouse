@@ -271,6 +271,7 @@ below describe the setup process for each supported trusted publisher.
 === "ActiveState"
 
     ActiveState's Platform works as a zero-config CI solution for your dependencies to automatically build cross-platform wheels of your PyPI projects. Once you're set up on the Platform and have linked your PyPI project, you're ready to publish. For more information on getting started with ActiveState, go [here](https://docs.activestate.com/platform/start/pypi). To begin:
+
     Publish your package to ActiveState's catalog. This will allow ActiveState's Platform to build it for you.
 
     1. Run the following command using the State Tool CLI:
