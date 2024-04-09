@@ -38,5 +38,6 @@ mkdir -p warehouse/static/dist/
 
 # Actually run our tests.
 python -m coverage run -m pytest --strict-markers $COMMAND_ARGS
+python -m coverage combine
 python -m coverage html --show-contexts
 python -m coverage report -m --fail-under 100
