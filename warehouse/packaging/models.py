@@ -213,7 +213,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     _macaroons_tp_warning: Mapped[list[ProjectMacaroonWarningAssociation]] = (
         orm.relationship(cascade="all, delete")
     )
-    macaroons_tp_warning: AssociationProxy[list[Project]] = association_proxy(
+    macaroons_tp_warning: AssociationProxy[list[Macaroon]] = association_proxy(
         "_macaroons_tp_warning",
         "macaroon",
         creator=lambda macaroon_obj: ProjectMacaroonWarningAssociation(
