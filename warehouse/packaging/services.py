@@ -21,7 +21,7 @@ import warnings
 
 from itertools import chain
 
-import b2sdk
+import b2sdk.v2.exception
 import botocore.exceptions
 import google.api_core.exceptions
 import google.api_core.retry

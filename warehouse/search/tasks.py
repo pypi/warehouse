@@ -92,13 +92,14 @@ def _project_docs(db, project_name=None):
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(db, release_data, Project.id, 25000):
-        p = ProjectDocument.from_db(release)
-        p._index = None
-        p.full_clean()
-        doc = p.to_dict(include_meta=True)
-        doc.pop("_index", None)
-        yield doc
+    for chunk in windowed_query(db, release_data, Project.name, 25000):
+        for release in chunk:
+            p = ProjectDocument.from_db(release)
+            p._index = None
+            p.full_clean()
+            doc = p.to_dict(include_meta=True)
+            doc.pop("_index", None)
+            yield doc
 
 
 class SearchLock(Lock):

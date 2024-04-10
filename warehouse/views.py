@@ -146,7 +146,7 @@ def forbidden(exc, request):
                 queue="error",
             )
             url = request.route_url(
-                "manage.account",
+                "manage.unverified-account",
                 _query={REDIRECT_FIELD_NAME: request.path_qs},
             )
             return HTTPSeeOther(url)

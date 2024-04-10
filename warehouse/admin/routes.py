@@ -75,6 +75,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.freeze",
+        "/admin/users/{username}/freeze/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.reset_password",
         "/admin/users/{username}/reset_password/",
         domain=warehouse,
@@ -256,6 +263,16 @@ def includeme(config):
     # Observation related Admin pages
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
+    )
+    config.add_route(
+        "admin.malware_reports.list",
+        "/admin/malware_reports/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail",
+        "/admin/malware_reports/{observation_id}/",
+        domain=warehouse,
     )
 
     # Email related Admin pages
