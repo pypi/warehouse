@@ -69,7 +69,7 @@ def test_project_docs(db_session):
                 ).description.raw,
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].name)
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].normalized_name)
     ]
 
 
