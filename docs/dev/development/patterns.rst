@@ -64,7 +64,7 @@ To add a new dependency:
 1. Add the project name to the appropriate ``.in`` file
 2. From the repositories root directory, recompile the dependencies for each modified ``.in`` file::
 
-   $ make requirements/{file}.txt
+    make requirements/{file}.txt
 
 3. Commit the changes
 
@@ -77,7 +77,7 @@ process for adding new dependencies:
 1. Remove the project name from the appropriate ``.in`` file
 2. From the repositories root directory, recompile the dependencies for each modified ``.in`` file::
 
-   $ make requirements/{file}.txt
+    make requirements/{file}.txt
 
 3. Commit the changes
 
