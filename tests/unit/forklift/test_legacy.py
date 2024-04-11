@@ -24,6 +24,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
+from sqlalchemy import and_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -45,6 +46,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectMacaroonWarningAssociation,
     Release,
     Role,
 )
@@ -3921,7 +3923,12 @@ class TestFileUpload:
                 oidc_publisher_id=str(publisher.id),
             )
         if warning_already_sent:
-            project.macaroons_tp_warning.append(macaroon)
+            db_request.db.add(
+                ProjectMacaroonWarningAssociation(
+                    macaroon_id=macaroon.id,
+                    project_id=project.id,
+                )
+            )
 
         filename = "{}-{}.tar.gz".format(project.name, "1.0")
 
@@ -3964,6 +3971,14 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
+        warning_exists = db_request.db.query(
+            exists().where(
+                and_(
+                    ProjectMacaroonWarningAssociation.macaroon_id == macaroon.id,
+                    ProjectMacaroonWarningAssociation.project_id == project.id,
+                )
+            )
+        ).scalar()
         if expect_warning:
             assert send_email.calls == [
                 pretend.call(
@@ -3974,11 +3989,11 @@ class TestFileUpload:
                     token_name=macaroon.description,
                 ),
             ]
-            assert project.macaroons_tp_warning == [macaroon]
+            assert warning_exists
         else:
             assert send_email.calls == []
             if not warning_already_sent:
-                assert project.macaroons_tp_warning == []
+                assert not warning_exists
 
 
 def test_submit(pyramid_request):

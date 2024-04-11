@@ -39,7 +39,7 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config
-from sqlalchemy import func, orm
+from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
@@ -64,6 +64,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectMacaroonWarningAssociation,
     Release,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -617,7 +618,15 @@ def file_upload(request):
         macaroon: Macaroon = request.identity.macaroon
         # If we haven't warned about use of this particular API token and project
         # combination, send the warning email
-        if macaroon not in project.macaroons_tp_warning:
+        warning_exists = request.db.query(
+            exists().where(
+                and_(
+                    ProjectMacaroonWarningAssociation.macaroon_id == macaroon.id,
+                    ProjectMacaroonWarningAssociation.project_id == project.id,
+                )
+            )
+        ).scalar()
+        if not warning_exists:
             send_api_token_used_in_trusted_publisher_project_email(
                 request,
                 project.users,
@@ -625,8 +634,12 @@ def file_upload(request):
                 token_owner_username=request.user.username,
                 token_name=macaroon.description,
             )
-            project.macaroons_tp_warning.append(macaroon)
-
+            request.db.add(
+                ProjectMacaroonWarningAssociation(
+                    macaroon_id=macaroon.id,
+                    project_id=project.id,
+                )
+            )
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.

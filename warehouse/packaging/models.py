@@ -39,7 +39,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import (
     Mapped,
@@ -72,7 +72,6 @@ from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
-    from warehouse.macaroons.models import Macaroon
     from warehouse.oidc.models import OIDCPublisher
 
 
@@ -206,19 +205,6 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
-    )
-
-    # Link to association table that keeps track of warnings for API
-    # token usage in projects that have Trusted Publishing configured.
-    _macaroons_tp_warning: Mapped[list[ProjectMacaroonWarningAssociation]] = (
-        orm.relationship(cascade="all, delete")
-    )
-    macaroons_tp_warning: AssociationProxy[list[Macaroon]] = association_proxy(
-        "_macaroons_tp_warning",
-        "macaroon",
-        creator=lambda macaroon_obj: ProjectMacaroonWarningAssociation(
-            macaroon=macaroon_obj
-        ),
     )
 
     __table_args__ = (
@@ -916,5 +902,3 @@ class ProjectMacaroonWarningAssociation(db.Model):
         primary_key=True,
     )
     project_id = mapped_column(ForeignKey("projects.id"), primary_key=True)
-
-    macaroon: Mapped[Macaroon] = orm.relationship()
