@@ -141,6 +141,9 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
         timeout=10,
     )
     resp.raise_for_status()
+    # Add the conversation URL back to the Observation for tracking purposes.
+    model.additional["helpscout_conversation_url"] = resp.headers["Location"]
+    request.db.add(model)
 
 
 def _authenticate_helpscout(request: Request) -> str:  # pragma: no cover (manual test)
