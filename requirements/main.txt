@@ -916,9 +916,9 @@ jsonschema-specifications==2023.12.1 \
     # via
     #   jsonschema
     #   openapi-schema-validator
-kombu[sqs]==5.3.1 \
-    --hash=sha256:48ee589e8833126fd01ceaa08f8a2041334e9f5894e5763c8486a550454551e9 \
-    --hash=sha256:fbd7572d92c0bf71c112a6b45163153dea5a7b6a701ec16b568c27d0fd2370f2
+kombu[sqs]==5.3.6 \
+    --hash=sha256:49f1e62b12369045de2662f62cc584e7df83481a513db83b01f87b5b9785e378 \
+    --hash=sha256:f3da5b570a147a5da8280180aa80b03807283d63ea5081fcdb510d18242431d9
     # via
     #   -r requirements/main.in
     #   celery
