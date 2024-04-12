@@ -156,6 +156,11 @@ class Observation(AbstractConcreteBase, db.Model):
         comment="Additional data for the observation",
         server_default=sql.text("'{}'"),
     )
+    actions: Mapped[dict] = mapped_column(
+        JSONB,
+        comment="Actions taken based on the observation",
+        server_default=sql.text("'{}'"),
+    )
 
     def __repr__(self):
         return f"<{self.__class__.__name__} {self.kind}>"
