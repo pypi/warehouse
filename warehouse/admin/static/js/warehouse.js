@@ -23,6 +23,8 @@ import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
 import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
 import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
 import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
+import "admin-lte/plugins/datatables-rowgroup/js/dataTables.rowGroup";
+import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
@@ -111,35 +113,68 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
 });
 
 // Activate Datatables https://datatables.net/
+// Guard each one to not break execution if the table isn't present
+
 // User Account Activity
-let table = $("#account-activity").DataTable({
-  responsive: true,
-  lengthChange: false,
-});
-// sort by time
-table.column(".time").order("desc").draw();
-// Hide some columns we don't need to see all the time
-table.columns([".ip_address", ".hashed_ip"]).visible(false);
-// add column visibility button
-new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
-table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+let accountActivityTable = $("#account-activity")
+if (accountActivityTable.length) {
+  let table = accountActivityTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  // sort by time
+  table.column(".time").order("desc").draw();
+  // Hide some columns we don't need to see all the time
+  table.columns([".ip_address", ".hashed_ip"]).visible(false);
+  // add column visibility button
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
 
 // User API Tokens
-let token_table = $("#api-tokens").DataTable({
-  responsive: true,
-  lengthChange: false,
-});
-token_table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
-token_table.columns([".permissions_caveat"]).visible(false);
-new $.fn.dataTable.Buttons(token_table, {buttons: ["colvis"]});
-token_table.buttons().container().appendTo($(".col-md-6:eq(0)", token_table.table().container()));
+let tokenTable = $("#api-tokens")
+if (tokenTable.length) {
+  let table = tokenTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
+  table.columns([".permissions_caveat"]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
 
 // Observations
-let obs_table = $("#observations").DataTable({
-  responsive: true,
-  lengthChange: false,
-});
-obs_table.column(".time").order("desc").draw();
-obs_table.columns([".payload"]).visible(false);
-new $.fn.dataTable.Buttons(obs_table, {buttons: ["copy", "csv", "colvis"]});
-obs_table.buttons().container().appendTo($(".col-md-6:eq(0)", obs_table.table().container()));
+let observationsTable = $("#observations")
+if (observationsTable.length) {
+  let table = observationsTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  table.column(".time").order("desc").draw();
+  table.columns([".payload"]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// Malware Reports
+let malwareReportsTable = $("#malware-reports")
+if (malwareReportsTable.length) {
+  let table = malwareReportsTable.DataTable({
+    displayLength: 25,
+    lengthChange: false,
+    order: [[0, "asc"], [2, "desc"]],  // alpha name, recent date
+    responsive: true,
+    rowGroup: {
+      dataSrc: 0,
+      // display row count in group header
+      startRender: function (rows, group) {
+        return group + ' (' + rows.count() + ')';
+      },
+    },
+  });
+  // hide the project name, since it's in the group title
+  table.columns([0]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}

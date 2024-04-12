@@ -15,12 +15,13 @@ from collections import OrderedDict
 import pretend
 import pytest
 
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import TeamProjectRoleType
-from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
+from warehouse.packaging.models import File, Project, ProjectFactory, ReleaseURL
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
@@ -193,6 +194,11 @@ class TestProject:
                 "group:observers",
                 Permissions.APIObservationsAdd,
             ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
         ] + sorted(
             [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
             key=lambda x: x[1],
@@ -255,6 +261,21 @@ class TestProject:
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
+
+    def test_deletion_with_trusted_publisher(self, db_session):
+        """
+        When we remove a Project, ensure that we also remove the related
+        Publisher Association, but not the Publisher itself.
+        """
+        project = DBProjectFactory.create()
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert db_session.query(GitHubPublisher).filter_by(id=publisher.id).count() == 1
 
 
 class TestDependency:
@@ -498,6 +519,11 @@ class TestRelease:
                 Allow,
                 "group:observers",
                 Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
             ),
         ] + sorted(
             [
@@ -796,3 +822,12 @@ class TestFile:
         )
 
         assert rfile.uploaded_via_trusted_publisher
+
+    def test_pretty_wheel_tags(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release, filename=f"{project.name}-{release.version}.tar.gz"
+        )
+
+        assert rfile.pretty_wheel_tags == ["Source"]

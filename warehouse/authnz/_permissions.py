@@ -103,3 +103,6 @@ class Permissions(StrEnum):
     OrganizationProjectsRemove = "organizations:projects:remove"  # TODO: unused?
     OrganizationTeamsManage = "organizations:teams:manage"
     OrganizationTeamsRead = "organizations:teams:read"
+
+    # Observer Permissions
+    SubmitMalwareObservation = "observer:submit-malware-observation"

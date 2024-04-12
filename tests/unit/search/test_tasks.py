@@ -69,7 +69,7 @@ def test_project_docs(db_session):
                 ).description.raw,
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].normalized_name)
     ]
 
 
@@ -268,7 +268,7 @@ class TestReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
+        le = redis.exceptions.LockError("Failed to acquire lock")
         monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
@@ -555,7 +555,7 @@ class TestPartialReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
+        le = redis.exceptions.LockError("Failed to acquire lock")
         monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
@@ -570,7 +570,7 @@ class TestPartialReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
+        le = redis.exceptions.LockError("Failed to acquire lock")
         monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):

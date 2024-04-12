@@ -32,11 +32,11 @@ msgstr "بۆ بەکارهێنانی ئەو کردارە پێویستە دوو ف
 msgid "Locale updated"
 msgstr "Ndnv"
 
-#: warehouse/accounts/forms.py:49
+#: warehouse/accounts/forms.py:51
 msgid "The password is invalid. Try again."
 msgstr "وشەی نهێنیەکەت هەڵەیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:50
+#: warehouse/accounts/forms.py:52
 msgid ""
 "The username is invalid. Usernames must be composed of letters, numbers, "
 "dots, hyphens and underscores. And must also start and finish with a letter "
@@ -46,27 +46,27 @@ msgstr ""
 "ژمارە یاخوود خاڵ بەکاربهێندرێت . وە هەروەها پێویستە دەست پێببکات و کۆتایش پێ "
 "بێت بە پیت یاخوود ژمارە. نازناوی جیاواز بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:68
+#: warehouse/accounts/forms.py:70
 msgid "Null bytes are not allowed."
 msgstr ""
 
-#: warehouse/accounts/forms.py:91
+#: warehouse/accounts/forms.py:93
 msgid "No user found with that username"
 msgstr "هیچ بەکارهێنەرێک نەدۆزراوە بەو نازناوە"
 
-#: warehouse/accounts/forms.py:102
+#: warehouse/accounts/forms.py:104
 msgid "TOTP code must be ${totp_length} digits."
 msgstr "‮fzmg"
 
-#: warehouse/accounts/forms.py:122
+#: warehouse/accounts/forms.py:124
 msgid "Recovery Codes must be ${recovery_code_length} characters."
 msgstr ""
 
-#: warehouse/accounts/forms.py:137
+#: warehouse/accounts/forms.py:139
 msgid "Choose a username with 50 characters or less."
 msgstr "نازناوەکەت دیاری بکە کە ٥٠ پیت بێ یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:154
+#: warehouse/accounts/forms.py:156
 msgid ""
 "This username is already being used by another account. Choose a different "
 "username."
@@ -74,12 +74,12 @@ msgstr ""
 "ئەو نازناوە پێشتر لەلایەن هەژماری ترەوە بەکارهاتووە. نازناوێکی جیاواز "
 "بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:168 warehouse/accounts/forms.py:217
-#: warehouse/accounts/forms.py:230
+#: warehouse/accounts/forms.py:170 warehouse/accounts/forms.py:219
+#: warehouse/accounts/forms.py:232
 msgid "Password too long."
 msgstr "وشەی نهێنیەکەت زۆر درێژە."
 
-#: warehouse/accounts/forms.py:204
+#: warehouse/accounts/forms.py:206
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -88,27 +88,27 @@ msgid ""
 "out for ${time}. Please try again later."
 msgstr "ژمارەیەکی زۆر چونە ژورەوەی هەڵە ئەنجام درا. دواتر دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:233
+#: warehouse/accounts/forms.py:235
 msgid "Your passwords don't match. Try again."
 msgstr "پاسۆردەکانت وەکوو یەک نین. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:267
+#: warehouse/accounts/forms.py:269
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:278
+#: warehouse/accounts/forms.py:284
 msgid "The email address isn't valid. Try again."
 msgstr "ناونیشانی پۆستی ئەلیکترۆنیەکەت ڕەوا نیە. دووبارەی بکەوە."
 
-#: warehouse/accounts/forms.py:286
+#: warehouse/accounts/forms.py:297
 msgid "You can't use an email address from this domain. Use a different email."
 msgstr ""
 "تۆ ناتوانیت ئەو ناونیشانەی پۆستە ئەلیکترۆنیە بەکاربهێنی بەهۆی پاشگرەکەی. "
 "پۆستێکی ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:297
+#: warehouse/accounts/forms.py:308
 msgid ""
 "This email address is already being used by this account. Use a different "
 "email."
@@ -116,7 +116,7 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە پێشووتر بەکارهاتووە لەلایەن هەژماری ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:304
+#: warehouse/accounts/forms.py:315
 msgid ""
 "This email address is already being used by another account. Use a different "
 "email."
@@ -124,27 +124,27 @@ msgstr ""
 "ئەو پۆستە ئەلیکترۆنیە بەکارهاتووە لەلایەن هەژمارێکی ترەوە. پۆستێکی "
 "ئەلیکترۆنی تر بەکاربهێنە."
 
-#: warehouse/accounts/forms.py:337 warehouse/manage/forms.py:139
+#: warehouse/accounts/forms.py:348 warehouse/manage/forms.py:139
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "ناوەکەت زۆر درێژە. ناوێک هەڵبژێرە کە ١٠٠ پیت بێت یاخوود کەمتر."
 
-#: warehouse/accounts/forms.py:428
+#: warehouse/accounts/forms.py:439
 msgid "Invalid TOTP code."
 msgstr "کۆدی TOTP نادروستە."
 
-#: warehouse/accounts/forms.py:445
+#: warehouse/accounts/forms.py:456
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:514
+#: warehouse/accounts/forms.py:525
 msgid "Invalid recovery code."
 msgstr "کۆدی هێنانەوەت نادروستە."
 
-#: warehouse/accounts/forms.py:523
+#: warehouse/accounts/forms.py:534
 msgid "Recovery code has been previously used."
 msgstr "کۆدی ‌هێنانەوەکەت پێشووتر بەکارهاتووە."
 
-#: warehouse/accounts/forms.py:553
+#: warehouse/accounts/forms.py:564
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
@@ -189,7 +189,7 @@ msgstr "پێشووتر ڕەسەنایەتی کراوە"
 msgid "Successful WebAuthn assertion"
 msgstr "جەختکردنەوەیەکی سەرکەوتووی ڕەسەنایەتی پەڕە"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:835
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "کۆدی هێنانەوە وەرگیراوە. کۆدی نێردراو ناتوانرێت دووبارە بەکاربهێندرێتەوە."
@@ -202,132 +202,132 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:799
+#: warehouse/accounts/views.py:800
 msgid "Expired token: request a new password reset link"
 msgstr "پولێكی ‌‌بەسەرچووە: داواکاری بەستەرەیەکی نوێی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:801
+#: warehouse/accounts/views.py:802
 msgid "Invalid token: request a new password reset link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی گۆرینی وشەی نهێنی"
 
-#: warehouse/accounts/views.py:803 warehouse/accounts/views.py:916
-#: warehouse/accounts/views.py:1020 warehouse/accounts/views.py:1189
+#: warehouse/accounts/views.py:804 warehouse/accounts/views.py:917
+#: warehouse/accounts/views.py:1021 warehouse/accounts/views.py:1190
 msgid "Invalid token: no token supplied"
 msgstr "پولێکی ‌هەڵە: هیچ پولێک نەنێردراوە"
 
-#: warehouse/accounts/views.py:807
+#: warehouse/accounts/views.py:808
 msgid "Invalid token: not a password reset token"
 msgstr "پولێکی هەڵە: پولێکی گۆرینی وشەی نهێنی نیە"
 
-#: warehouse/accounts/views.py:812
+#: warehouse/accounts/views.py:813
 msgid "Invalid token: user not found"
 msgstr "پولێکی هەڵە: بەکارهێنەر نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:834
+#: warehouse/accounts/views.py:835
 msgid "Invalid token: user has logged in since this token was requested"
 msgstr "پولێکی هەڵە: بەکارهێنەر چۆتەوە ژوورەوە کاتێک ئەو پولە داواکراوە پێشتر"
 
-#: warehouse/accounts/views.py:852
+#: warehouse/accounts/views.py:853
 msgid ""
 "Invalid token: password has already been changed since this token was "
 "requested"
 msgstr "پولێکی هەڵە: وشەی نهێنی پێشتر گۆردراوە کاتێک ئەو پولە داواکراوە"
 
-#: warehouse/accounts/views.py:884
+#: warehouse/accounts/views.py:885
 msgid "You have reset your password"
 msgstr "وشەی نهێنی خۆتت گۆریوەتەوە"
 
-#: warehouse/accounts/views.py:912
+#: warehouse/accounts/views.py:913
 msgid "Expired token: request a new email verification link"
 msgstr "پولێکی بەسەرچوون: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:914
+#: warehouse/accounts/views.py:915
 msgid "Invalid token: request a new email verification link"
 msgstr "پولێکی هەڵە: داواکاری بەستەریەکی نوێی پۆستی ئەلیکترۆنی سەڵماندن"
 
-#: warehouse/accounts/views.py:920
+#: warehouse/accounts/views.py:921
 msgid "Invalid token: not an email verification token"
 msgstr "پولێکی هەڵە: پولی پۆستی ئەلیکترۆنی سەڵماندن نیە"
 
-#: warehouse/accounts/views.py:929
+#: warehouse/accounts/views.py:930
 msgid "Email not found"
 msgstr "پۆستی ئەلیکترۆنی نەدۆزرایەوە"
 
-#: warehouse/accounts/views.py:932
+#: warehouse/accounts/views.py:933
 msgid "Email already verified"
 msgstr "پۆستی ئەلیکترۆنیەکە پێشووتر پشتراستکراوەتەوە"
 
-#: warehouse/accounts/views.py:949
+#: warehouse/accounts/views.py:950
 msgid "You can now set this email as your primary address"
 msgstr "ئێستا دەتوانیت ئەم ئیمەیڵە وەک ناونیشانی سەرەکی خۆت دابنێیت"
 
-#: warehouse/accounts/views.py:953
+#: warehouse/accounts/views.py:954
 msgid "This is your primary address"
 msgstr "ئەمە ناونیشانی سەرەکی تۆیە"
 
-#: warehouse/accounts/views.py:958
+#: warehouse/accounts/views.py:959
 msgid "Email address ${email_address} verified. ${confirm_message}."
 msgstr ""
 "ناونیشانی ئیمەیڵ ${email_address} پشتڕاستکرایەوە. ${پەیام_دڵنیاکردنەوە}."
 
-#: warehouse/accounts/views.py:1016
+#: warehouse/accounts/views.py:1017
 msgid "Expired token: request a new organization invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1018
+#: warehouse/accounts/views.py:1019
 msgid "Invalid token: request a new organization invitation"
 msgstr "نیشانەیەکی هەڵە: داوای بانگێشتنامەی رێکخراوێکی نوێ بکە"
 
-#: warehouse/accounts/views.py:1024
+#: warehouse/accounts/views.py:1025
 msgid "Invalid token: not an organization invitation token"
 msgstr "نیشانەی هەڵە:نەک نیشانەی بانگهێشتی ڕێکخراو"
 
-#: warehouse/accounts/views.py:1028
+#: warehouse/accounts/views.py:1029
 msgid "Organization invitation is not valid."
 msgstr "بانگهێشتی ڕێکخراوەکە ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1037
+#: warehouse/accounts/views.py:1038
 msgid "Organization invitation no longer exists."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1088
+#: warehouse/accounts/views.py:1089
 msgid "Invitation for '${organization_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${organization_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1151
+#: warehouse/accounts/views.py:1152
 msgid "You are now ${role} of the '${organization_name}' organization."
 msgstr "ئێستا تۆ ${role} ی ڕێکخراوی '${organization_name}'یت."
 
-#: warehouse/accounts/views.py:1185
+#: warehouse/accounts/views.py:1186
 msgid "Expired token: request a new project role invitation"
 msgstr "نیشانەی بەسەرچوو: داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1187
+#: warehouse/accounts/views.py:1188
 msgid "Invalid token: request a new project role invitation"
 msgstr "نیشانەی هەڵە:داوای بانگهێشتی ڕۆڵی پڕۆژەی نوێ بکە"
 
-#: warehouse/accounts/views.py:1193
+#: warehouse/accounts/views.py:1194
 msgid "Invalid token: not a collaboration invitation token"
 msgstr "نیشانەی نادروست: نیشانەی بانگهێشتی هاوکاری نییە"
 
-#: warehouse/accounts/views.py:1197
+#: warehouse/accounts/views.py:1198
 msgid "Role invitation is not valid."
 msgstr "بانگهێشتی ڕۆڵ ڕەوا نییە."
 
-#: warehouse/accounts/views.py:1212
+#: warehouse/accounts/views.py:1213
 msgid "Role invitation no longer exists."
 msgstr "بانگهێشتی ڕۆڵ چیتر بوونی نییە."
 
-#: warehouse/accounts/views.py:1243
+#: warehouse/accounts/views.py:1244
 msgid "Invitation for '${project_name}' is declined."
 msgstr "بانگهێشتنامە بۆ '${project_name}' ڕەتکراوەتەوە."
 
-#: warehouse/accounts/views.py:1309
+#: warehouse/accounts/views.py:1310
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/accounts/views.py:1556 warehouse/accounts/views.py:1799
-#: warehouse/manage/views/__init__.py:1212
+#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
+#: warehouse/manage/views/__init__.py:1242
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -339,7 +339,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1577
+#: warehouse/accounts/views.py:1578
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -349,20 +349,20 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/accounts/views.py:1593
+#: warehouse/accounts/views.py:1594
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1606
+#: warehouse/accounts/views.py:1607
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1622 warehouse/manage/views/__init__.py:1247
-#: warehouse/manage/views/__init__.py:1360
-#: warehouse/manage/views/__init__.py:1472
-#: warehouse/manage/views/__init__.py:1582
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
+#: warehouse/manage/views/__init__.py:1390
+#: warehouse/manage/views/__init__.py:1502
+#: warehouse/manage/views/__init__.py:1612
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -372,29 +372,29 @@ msgid ""
 "again later."
 msgstr "زۆر هەوڵی تۆمارکردنی OpenID Connect دراوە. دواتر هه ولٓبه ره وه."
 
-#: warehouse/accounts/views.py:1633 warehouse/manage/views/__init__.py:1261
-#: warehouse/manage/views/__init__.py:1374
-#: warehouse/manage/views/__init__.py:1486
-#: warehouse/manage/views/__init__.py:1596
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
+#: warehouse/manage/views/__init__.py:1404
+#: warehouse/manage/views/__init__.py:1516
+#: warehouse/manage/views/__init__.py:1626
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1647
+#: warehouse/accounts/views.py:1648
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1674
+#: warehouse/accounts/views.py:1675
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1813 warehouse/accounts/views.py:1826
-#: warehouse/accounts/views.py:1833
+#: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
+#: warehouse/accounts/views.py:1834
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1839
+#: warehouse/accounts/views.py:1840
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -509,40 +509,40 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "ئەم ناوی پڕۆژەیە پێشتر بەکارهاتووە. ناوی پڕۆژەیەکی جیاواز هەڵبژێرە."
 
-#: warehouse/manage/views/__init__.py:203
+#: warehouse/manage/views/__init__.py:277
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "وردەکاری هەژمار"
 
-#: warehouse/manage/views/__init__.py:232
+#: warehouse/manage/views/__init__.py:307
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "ئیمەیڵ ${email_address} زیادکرا - ئیمەیڵەکەت بپشکنە بۆ بەستەری پشتڕاستکردنەوە"
 
-#: warehouse/manage/views/__init__.py:783
+#: warehouse/manage/views/__init__.py:813
 msgid "Recovery codes already generated"
 msgstr "کۆدەکانی گەڕانەوە کە پێشتر دروستکراون"
 
-#: warehouse/manage/views/__init__.py:784
+#: warehouse/manage/views/__init__.py:814
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "دروستکردنی کۆدی نوێی گەڕانەوە کۆدەکانی ئێستات هەڵدەوەشێنێتەوە."
 
-#: warehouse/manage/views/__init__.py:893
+#: warehouse/manage/views/__init__.py:923
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "ئیمەیڵەکەت پشتڕاست بکەرەوە یان ناونیشانێکی نوێ زیاد بکە."
 
-#: warehouse/manage/views/__init__.py:993
+#: warehouse/manage/views/__init__.py:1023
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1025
+#: warehouse/manage/views/__init__.py:1055
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1228
+#: warehouse/manage/views/__init__.py:1258
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -554,7 +554,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1341
+#: warehouse/manage/views/__init__.py:1371
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -566,7 +566,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1453
+#: warehouse/manage/views/__init__.py:1483
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -578,7 +578,7 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1562
+#: warehouse/manage/views/__init__.py:1592
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -590,9 +590,9 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1797
-#: warehouse/manage/views/__init__.py:2098
-#: warehouse/manage/views/__init__.py:2206
+#: warehouse/manage/views/__init__.py:1827
+#: warehouse/manage/views/__init__.py:2128
+#: warehouse/manage/views/__init__.py:2236
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -604,54 +604,54 @@ msgstr ""
 "تۆمارکردنی بەکارهێنەری نوێ بۆ ماوەیەکی کاتی راگیراوە. بڕوانە https://pypi."
 "org/help#admin-intervention بۆ وردەکاریەکان."
 
-#: warehouse/manage/views/__init__.py:1929
-#: warehouse/manage/views/__init__.py:2014
-#: warehouse/manage/views/__init__.py:2115
-#: warehouse/manage/views/__init__.py:2215
+#: warehouse/manage/views/__init__.py:1959
+#: warehouse/manage/views/__init__.py:2044
+#: warehouse/manage/views/__init__.py:2145
+#: warehouse/manage/views/__init__.py:2245
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "بانگێشتنامەکە پەسەند بکە"
 
-#: warehouse/manage/views/__init__.py:1941
+#: warehouse/manage/views/__init__.py:1971
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2026
+#: warehouse/manage/views/__init__.py:2056
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2127
+#: warehouse/manage/views/__init__.py:2157
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2227
+#: warehouse/manage/views/__init__.py:2257
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2231
+#: warehouse/manage/views/__init__.py:2261
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2381
+#: warehouse/manage/views/__init__.py:2411
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2488
+#: warehouse/manage/views/__init__.py:2518
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ پڕۆژە"
 
-#: warehouse/manage/views/__init__.py:2555
+#: warehouse/manage/views/__init__.py:2585
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "ئێستا تۆ ${role} ی پڕۆژەی '${project_name}' ی."
 
-#: warehouse/manage/views/__init__.py:2587
+#: warehouse/manage/views/__init__.py:2617
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -659,37 +659,37 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ پڕۆژە زیاد بکرێت"
 
-#: warehouse/manage/views/__init__.py:2600
-#: warehouse/manage/views/organizations.py:881
+#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 "بەکارهێنەر '${username}' پێشتر بانگهێشتێکی چالاکی هەیە. تکایە دووبارە "
 "هەوڵبدەرەوە."
 
-#: warehouse/manage/views/__init__.py:2665
-#: warehouse/manage/views/organizations.py:946
+#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "بانگهێشتنامە نێردراوە بۆ '${username}'."
 
-#: warehouse/manage/views/__init__.py:2698
+#: warehouse/manage/views/__init__.py:2728
 msgid "Could not find role invitation."
 msgstr "نەتوانرا بانگهێشتی ڕۆڵ بدۆزرێتەوە."
 
-#: warehouse/manage/views/__init__.py:2709
+#: warehouse/manage/views/__init__.py:2739
 msgid "Invitation already expired."
 msgstr "بانگێشتنامە پێشتر بەسەرچووە."
 
-#: warehouse/manage/views/__init__.py:2741
-#: warehouse/manage/views/organizations.py:1133
+#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "بانگهێشتنامە لە '${username}' هەڵوەشایەوە."
 
-#: warehouse/manage/views/organizations.py:857
+#: warehouse/manage/views/organizations.py:854
 msgid "User '${username}' already has ${role_name} role for organization"
 msgstr "بەکارهێنەر '${username}' پێشتر ڕۆڵی ${role_name}ی هەیە بۆ ڕێکخستن"
 
-#: warehouse/manage/views/organizations.py:868
+#: warehouse/manage/views/organizations.py:865
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for organization"
@@ -697,18 +697,18 @@ msgstr ""
 "بەکارهێنەر '${username}' ناونیشانی ئیمەیڵی سەرەکی پشتڕاستکراوەی نییە و "
 "ناتوانرێت وەک ${role_name} بۆ ڕێکخراو زیاد بکرێت"
 
-#: warehouse/manage/views/organizations.py:1029
-#: warehouse/manage/views/organizations.py:1071
+#: warehouse/manage/views/organizations.py:1026
+#: warehouse/manage/views/organizations.py:1068
 msgid "Could not find organization invitation."
 msgstr "نەتوانرا بانگهێشتی ڕێکخراو بدۆزرێتەوە."
 
-#: warehouse/manage/views/organizations.py:1039
+#: warehouse/manage/views/organizations.py:1036
 #, fuzzy
 #| msgid "Organization invitation no longer exists."
 msgid "Organization invitation could not be re-sent."
 msgstr "بانگهێشتی ڕێکخراو چیتر بوونی نییە."
 
-#: warehouse/manage/views/organizations.py:1086
+#: warehouse/manage/views/organizations.py:1083
 #, fuzzy
 #| msgid "Invitation for '${project_name}' is declined."
 msgid "Expired invitation for '${username}' deleted."
@@ -873,6 +873,14 @@ msgstr "ناوی وەرکفڵۆ دەبێت بە .yml یان .yaml کۆتایی �
 
 #: warehouse/oidc/forms/gitlab.py:80
 msgid "Workflow file path cannot start or end with /"
+msgstr ""
+
+#: warehouse/packaging/forms.py:27
+msgid "Provide an Inspector link to specific lines of code."
+msgstr ""
+
+#: warehouse/packaging/views.py:212
+msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
 #: warehouse/subscriptions/models.py:35
@@ -1297,8 +1305,8 @@ msgid "About PyPI navigation"
 msgstr "دەربارەی گەشتکردن بە PyPI"
 
 #: warehouse/templates/base.html:291
-msgid "PyPI on Twitter"
-msgstr "PyPI لە تویتەر"
+msgid "PyPI Blog"
+msgstr ""
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
@@ -1506,6 +1514,7 @@ msgstr "فێربە چۆن کۆدی پایتۆنەکەت بۆ PyPI پاکەت ب�
 #: warehouse/templates/manage/account.html:23
 #: warehouse/templates/manage/account/token.html:22
 #: warehouse/templates/manage/account/totp-provision.html:22
+#: warehouse/templates/packaging/submit-malware-observation.html:21
 #: warehouse/templates/re-auth.html:17
 msgid "Error processing form"
 msgstr "فۆڕمی پرۆسێسکردنی هەڵە"
@@ -1606,6 +1615,8 @@ msgstr "وشەی نهێنی"
 #: warehouse/templates/manage/project/roles.html:380
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
+#: warehouse/templates/packaging/submit-malware-observation.html:58
+#: warehouse/templates/packaging/submit-malware-observation.html:71
 #: warehouse/templates/re-auth.html:52
 msgid "(required)"
 msgstr "(داوکراو)"
@@ -1895,6 +1906,7 @@ msgstr "ئەکاونتێک لەسەر %(title)s دروست بکە"
 #: warehouse/templates/accounts/register.html:47
 #: warehouse/templates/manage/account.html:139
 #: warehouse/templates/manage/account.html:480
+#: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr "ناو"
 
@@ -1904,6 +1916,7 @@ msgstr "ناوی تۆ"
 
 #: warehouse/templates/accounts/register.html:73
 #: warehouse/templates/manage/account.html:336
+#: warehouse/templates/manage/unverified-account.html:221
 msgid "Email address"
 msgstr "ناونیشانی بەستەرەی ئەلیکترۆنی"
 
@@ -2729,47 +2742,6 @@ msgid "If you did not make this request, you can safely ignore this email."
 msgstr ""
 "ئەگەر ئەم داواکاریەت نەکرد، دەتوانیت بە سەلامەتی ئەم ئیمەیڵە پشتگوێ بخەیت."
 
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
-#| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
-#| "manage.\n"
-#| "  OpenID Connect publishers act as trusted users and can create project "
-#| "releases\n"
-#| "  automatically.\n"
-#| "  "
-msgid ""
-"You registered an pending OpenID Connect publisher for a project "
-"(<strong>%(project_name)s</strong>), but someone else has invalidated your "
-"pending publisher by creating the project before you did."
-msgstr ""
-"\n"
-"  بەکارهێنەری PyPI <strong>%(username)s</strong> پەیوەندییەکی نوێی OpenID "
-"زیاد کردووە\n"
-"   بڵاوکەرەوە بۆ پڕۆژەیەک (<strong>%(project_name)s</strong>) کە تۆ بەڕێوەی "
-"دەبەیت.\n"
-"   بڵاوکەرەوەکانی OpenID Connect وەک بەکارهێنەری متمانەپێکراو کاردەکەن و "
-"دەتوانن بڵاوکراوەکانی پڕۆژە دروست بکەن\n"
-"   بە شێوەیەکی ئۆتۆماتیکی.\n"
-"  "
-
-#: warehouse/templates/email/pending-trusted-publisher-invalidated/body.html:27
-#, fuzzy, python-format
-#| msgid ""
-#| "If you did not make this change, you can email <a "
-#| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#| "administrators."
-msgid ""
-"If you believe this was done in error, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a "
-"href=\"%(href)s\">%(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
-"بەڕێوەبەرانی PyPI."
-
 #: warehouse/templates/email/primary-email-change/body.html:18
 #, python-format
 msgid ""
@@ -3110,7 +3082,7 @@ msgstr ""
 
 #: warehouse/templates/email/trusted-publisher-added/body.html:33
 #: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/includes/packaging/project-data.html:117
+#: warehouse/templates/includes/packaging/project-data.html:122
 #: warehouse/templates/manage/account/publishing.html:53
 #: warehouse/templates/manage/organization/roles.html:53
 #: warehouse/templates/manage/organization/roles.html:172
@@ -3470,6 +3442,9 @@ msgstr "ئەم ئاگادارکردنەوە ڕەت بکەرەوە"
 #: warehouse/templates/manage/project/release.html:143
 #: warehouse/templates/manage/project/releases.html:178
 #: warehouse/templates/manage/project/settings.html:69
+#: warehouse/templates/manage/unverified-account.html:172
+#: warehouse/templates/manage/unverified-account.html:174
+#: warehouse/templates/manage/unverified-account.html:184
 #: warehouse/templates/search/results.html:198
 msgid "Close"
 msgstr "داخستن"
@@ -3542,7 +3517,8 @@ msgstr "هاش دایجست"
 #: warehouse/templates/manage/account.html:206
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/manage/unverified-account.html:179
+#: warehouse/templates/packaging/detail.html:158
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr "کۆپی بکە بۆ کلیپبۆرد"
@@ -3553,6 +3529,7 @@ msgstr "کۆپی بکە بۆ کلیپبۆرد"
 #: warehouse/templates/manage/account.html:207
 #: warehouse/templates/manage/account/recovery_codes-provision.html:59
 #: warehouse/templates/manage/account/totp-provision.html:58
+#: warehouse/templates/manage/unverified-account.html:180
 #: warehouse/templates/pages/classifiers.html:39
 msgid "Copy"
 msgstr "کۆپی بکە"
@@ -3678,6 +3655,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:23
 #: warehouse/templates/manage/project/history.html:23
 #: warehouse/templates/manage/team/history.html:23
+#: warehouse/templates/manage/unverified-account.html:236
 msgid "Security history"
 msgstr "مێژووی ئاسایش"
 
@@ -3795,60 +3773,80 @@ msgstr "تاگەکان"
 msgid "Requires:"
 msgstr "پێویستی بە:"
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:114
+msgid "Provides-Extra:"
+msgstr ""
+
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Maintainers"
 msgstr "چاککەرەوەکان"
 
-#: warehouse/templates/includes/packaging/project-data.html:132
+#: warehouse/templates/includes/packaging/project-data.html:137
 msgid "Avatar for {username} from gravatar.com"
 msgstr "ئاڤاتاری بۆ {ناوی بەکارهێنەر} لە gravatar.com"
 
-#: warehouse/templates/includes/packaging/project-data.html:149
+#: warehouse/templates/includes/packaging/project-data.html:154
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
 msgid "Classifiers"
 msgstr "پۆلێنکەرەکان"
 
+#: warehouse/templates/includes/packaging/submit-malware-report.html:18
+msgid "Report project as malware"
+msgstr ""
+
 #: warehouse/templates/manage/account.html:33
+#: warehouse/templates/manage/unverified-account.html:30
 msgid "Verified*"
 msgstr "پشتڕاستکراوەتەوە*"
 
 #: warehouse/templates/manage/account.html:35
+#: warehouse/templates/manage/unverified-account.html:32
 msgid "*Intermittent delivery problems may lead to verification loss"
 msgstr "*کێشەی گەیاندنی پچڕپچڕ لەوانەیە ببێتە هۆی لەدەستدانی پشتڕاستکردنەوە"
 
 #: warehouse/templates/manage/account.html:39
+#: warehouse/templates/manage/unverified-account.html:36
 msgid "Verified"
 msgstr "پشتراستکراوە"
 
 #: warehouse/templates/manage/account.html:46
 #: warehouse/templates/manage/account.html:52
 #: warehouse/templates/manage/account.html:58
+#: warehouse/templates/manage/unverified-account.html:43
+#: warehouse/templates/manage/unverified-account.html:49
+#: warehouse/templates/manage/unverified-account.html:55
 msgid "Unverified*"
 msgstr "*پشت راستنەکراوە"
 
 #: warehouse/templates/manage/account.html:48
+#: warehouse/templates/manage/unverified-account.html:45
 msgid "*Email from PyPI being treated as spam"
 msgstr "*ئیمەیڵ لە PyPI وەک سپام مامەڵەی لەگەڵ دەکرێت"
 
 #: warehouse/templates/manage/account.html:54
+#: warehouse/templates/manage/unverified-account.html:51
 msgid "*Hard failure during delivery"
 msgstr "*شکستی سەخت لە کاتی گەیاندن"
 
 #: warehouse/templates/manage/account.html:60
+#: warehouse/templates/manage/unverified-account.html:57
 msgid "*Too many delivery problems"
 msgstr "*ژمارەیەکی زۆر کێشەی گەیاندن"
 
 #: warehouse/templates/manage/account.html:64
+#: warehouse/templates/manage/unverified-account.html:61
 msgid "Unverified"
 msgstr "‌پشتڕاست نەکراوەتەوە"
 
 #: warehouse/templates/manage/account.html:78
+#: warehouse/templates/manage/unverified-account.html:75
 msgid "Primary"
 msgstr "سەرەکی"
 
 #: warehouse/templates/manage/account.html:86
+#: warehouse/templates/manage/unverified-account.html:83
 msgid "View email options"
 msgstr "بینینی هەڵبژاردەکانی ئیمەیڵ"
 
@@ -3856,16 +3854,21 @@ msgstr "بینینی هەڵبژاردەکانی ئیمەیڵ"
 #: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/project/release.html:86
 #: warehouse/templates/manage/project/releases.html:68
+#: warehouse/templates/manage/unverified-account.html:84
+#: warehouse/templates/manage/unverified-account.html:136
 msgid "Options"
 msgstr "بژاردەکان"
 
 #: warehouse/templates/manage/account.html:92
+#: warehouse/templates/manage/unverified-account.html:89
 #, python-format
 msgid "Options for %(email)s"
 msgstr "بژاردەکان بۆ %(email)s"
 
 #: warehouse/templates/manage/account.html:98
 #: warehouse/templates/manage/account.html:100
+#: warehouse/templates/manage/unverified-account.html:95
+#: warehouse/templates/manage/unverified-account.html:97
 msgid "Resend verification email"
 msgstr "ناردنه‌وه‌ی دڵنیایی ئیمه‌یڵ"
 
@@ -3888,37 +3891,45 @@ msgstr "ڕەشکردنەوەی بەستەرەی ئەلیکترۆنی"
 #: warehouse/templates/manage/account.html:143
 #: warehouse/templates/manage/account.html:481
 #: warehouse/templates/manage/account/token.html:148
+#: warehouse/templates/manage/unverified-account.html:116
 msgid "Scope"
 msgstr "مەودا"
 
 #: warehouse/templates/manage/account.html:145
+#: warehouse/templates/manage/unverified-account.html:118
 msgid "All projects"
 msgstr "هەموو پرۆژەکان"
 
 #: warehouse/templates/manage/account.html:153
 #: warehouse/templates/manage/account.html:482
+#: warehouse/templates/manage/unverified-account.html:126
 msgid "Created"
 msgstr "دروست کراوە"
 
 #: warehouse/templates/manage/account.html:157
 #: warehouse/templates/manage/account.html:483
+#: warehouse/templates/manage/unverified-account.html:130
 msgid "Last used"
 msgstr "دواین بەرکارهێنان"
 
 #: warehouse/templates/manage/account.html:158
+#: warehouse/templates/manage/unverified-account.html:131
 msgid "Never"
 msgstr "هەرگیز"
 
 #: warehouse/templates/manage/account.html:162
+#: warehouse/templates/manage/unverified-account.html:135
 msgid "View token options"
 msgstr "بینینی هەڵبژاردەکانی نیشانە"
 
 #: warehouse/templates/manage/account.html:172
 #: warehouse/templates/manage/account/token.html:57
+#: warehouse/templates/manage/unverified-account.html:145
 msgid "Remove token"
 msgstr "لابردنی نیشانە"
 
 #: warehouse/templates/manage/account.html:178
+#: warehouse/templates/manage/unverified-account.html:151
 msgid "View unique identifier"
 msgstr "بینینی ناسێنەری تایبەت"
 
@@ -3926,11 +3937,14 @@ msgstr "بینینی ناسێنەری تایبەت"
 #: warehouse/templates/manage/account.html:188
 #: warehouse/templates/manage/account/token.html:60
 #: warehouse/templates/manage/account/token.html:61
+#: warehouse/templates/manage/unverified-account.html:159
+#: warehouse/templates/manage/unverified-account.html:161
 msgid "Remove API token"
 msgstr "نیشانەی API لاببە"
 
 #: warehouse/templates/manage/account.html:193
 #: warehouse/templates/manage/account/token.html:66
+#: warehouse/templates/manage/unverified-account.html:166
 msgid ""
 "Applications or scripts using this token will no longer have access to PyPI."
 msgstr ""
@@ -3938,6 +3952,7 @@ msgstr ""
 "ناگات."
 
 #: warehouse/templates/manage/account.html:204
+#: warehouse/templates/manage/unverified-account.html:177
 #, python-format
 msgid "Unique identifier for API token \"%(token_description)s\""
 msgstr "ناسێنەرێکی ناوازە بۆ نیشانەی API%(token_description)s"
@@ -4007,6 +4022,7 @@ msgid "Update account"
 msgstr "ئەکاونت نوێ بکەرەوە"
 
 #: warehouse/templates/manage/account.html:320
+#: warehouse/templates/manage/unverified-account.html:205
 msgid "Account emails"
 msgstr "ئیمەیڵی ئەکاونت"
 
@@ -4024,10 +4040,12 @@ msgstr ""
 "ئاگادارکردنەوە وەردەگرێت."
 
 #: warehouse/templates/manage/account.html:333
+#: warehouse/templates/manage/unverified-account.html:218
 msgid "Emails associated with your account"
 msgstr "ئەو پۆستە ئەلیکترۆنیانەی کە پەیوەندییان بە هەژمارەکەتەوە هەیە"
 
 #: warehouse/templates/manage/account.html:337
+#: warehouse/templates/manage/unverified-account.html:222
 msgid "Status"
 msgstr "دۆخ"
 
@@ -4097,44 +4115,55 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:513
 #: warehouse/templates/manage/account.html:692
+#: warehouse/templates/manage/unverified-account.html:244
+#: warehouse/templates/manage/unverified-account.html:423
 msgid "Token scope: entire account"
 msgstr "نیشانەی مەودای: تەواوی ئەکاونت"
 
 #: warehouse/templates/manage/account.html:515
 #: warehouse/templates/manage/account.html:694
+#: warehouse/templates/manage/unverified-account.html:246
+#: warehouse/templates/manage/unverified-account.html:425
 #, python-format
 msgid "Token scope: Project %(project_name)s"
 msgstr "مەودای نیشانە: پڕۆژە %(project_name)s"
 
 #: warehouse/templates/manage/account.html:518
+#: warehouse/templates/manage/unverified-account.html:249
 #, python-format
 msgid "Expires: %(exp)s"
 msgstr "بەسەر دەچێت: %(exp)s"
 
 #: warehouse/templates/manage/account.html:524
+#: warehouse/templates/manage/unverified-account.html:255
 msgid "Account created"
 msgstr "ئەکاونت دروست کراوە"
 
 #: warehouse/templates/manage/account.html:527
+#: warehouse/templates/manage/unverified-account.html:258
 msgid "Logged in"
 msgstr "چوونەژوورەوە"
 
 #: warehouse/templates/manage/account.html:529
+#: warehouse/templates/manage/unverified-account.html:260
 msgid "Two factor method:"
 msgstr "شێوازی دوو فاکتەری:"
 
 #: warehouse/templates/manage/account.html:531
 #: warehouse/templates/manage/project/release.html:77
+#: warehouse/templates/manage/unverified-account.html:262
 msgid "None"
 msgstr "هیچ"
 
 #: warehouse/templates/manage/account.html:533
 #: warehouse/templates/manage/manage_base.html:92
+#: warehouse/templates/manage/unverified-account.html:264
 msgid "Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr "ئامێری ئاسایش (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 
 #: warehouse/templates/manage/account.html:535
 #: warehouse/templates/manage/manage_base.html:70
+#: warehouse/templates/manage/unverified-account.html:266
 msgid ""
 "Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
@@ -4143,121 +4172,154 @@ msgstr ""
 "password\">TOTP</abbr>)"
 
 #: warehouse/templates/manage/account.html:537
+#: warehouse/templates/manage/unverified-account.html:268
 msgid "Recovery code"
 msgstr "کۆدی گەڕانەوە"
 
 #: warehouse/templates/manage/account.html:542
+#: warehouse/templates/manage/unverified-account.html:273
 msgid "Login failed"
 msgstr "چوونەژوورەوە شکستی هێنا"
 
 #: warehouse/templates/manage/account.html:545
+#: warehouse/templates/manage/unverified-account.html:276
 msgid "- Basic Auth (Upload endpoint)"
 msgstr "- ڕەسەنایەتی بنەڕەتی (خاڵی کۆتایی بارکردن)"
 
 #: warehouse/templates/manage/account.html:550
 #: warehouse/templates/manage/account.html:569
 #: warehouse/templates/manage/project/history.html:272
+#: warehouse/templates/manage/unverified-account.html:281
+#: warehouse/templates/manage/unverified-account.html:300
 msgid "Reason:"
 msgstr "هۆکار:"
 
 #: warehouse/templates/manage/account.html:552
 #: warehouse/templates/manage/account.html:571
+#: warehouse/templates/manage/unverified-account.html:283
+#: warehouse/templates/manage/unverified-account.html:302
 msgid "Incorrect Password"
 msgstr "وشەی نهێنی هەڵەیە"
 
 #: warehouse/templates/manage/account.html:554
+#: warehouse/templates/manage/unverified-account.html:285
 msgid "Invalid two factor (TOTP)"
 msgstr "دوو فاکتەری نادروست (TOTP)"
 
 #: warehouse/templates/manage/account.html:556
+#: warehouse/templates/manage/unverified-account.html:287
 msgid "Invalid two factor (WebAuthn)"
 msgstr "دوو فاکتەری نادروست (WebAuthn)"
 
 #: warehouse/templates/manage/account.html:558
 #: warehouse/templates/manage/account.html:560
+#: warehouse/templates/manage/unverified-account.html:289
+#: warehouse/templates/manage/unverified-account.html:291
 msgid "Invalid two factor (Recovery code)"
 msgstr "دوو فاکتەری نادروست (کۆدی گەڕانەوە)"
 
 #: warehouse/templates/manage/account.html:567
+#: warehouse/templates/manage/unverified-account.html:298
 msgid "Session reauthentication failed"
 msgstr "دووبارە ڕەسەنایەتی دانیشتنەکە شکستی هێنا"
 
 #: warehouse/templates/manage/account.html:578
+#: warehouse/templates/manage/unverified-account.html:309
 msgid "Email added to account"
 msgstr "ئیمەیڵ زیاد کرا بۆ ئەکاونت"
 
 #: warehouse/templates/manage/account.html:581
+#: warehouse/templates/manage/unverified-account.html:312
 msgid "Email removed from account"
 msgstr "پۆستی ئەلیکترۆنی لە هەژمارەکەت لابرا"
 
 #: warehouse/templates/manage/account.html:584
+#: warehouse/templates/manage/unverified-account.html:315
 msgid "Email verified"
 msgstr "ئیمەیڵ پشتڕاستکراوەتەوە"
 
 #: warehouse/templates/manage/account.html:587
+#: warehouse/templates/manage/unverified-account.html:318
 msgid "Email reverified"
 msgstr "ئیمەیڵ پشتڕاستکرایەوە"
 
 #: warehouse/templates/manage/account.html:591
+#: warehouse/templates/manage/unverified-account.html:322
 msgid "Primary email changed"
 msgstr "ئیمەیڵی سەرەتایی گۆڕدرا"
 
 #: warehouse/templates/manage/account.html:593
+#: warehouse/templates/manage/unverified-account.html:324
 msgid "Old primary email:"
 msgstr "ئیمەیڵی سەرەتایی کۆن:"
 
 #: warehouse/templates/manage/account.html:594
+#: warehouse/templates/manage/unverified-account.html:325
 msgid "New primary email:"
 msgstr "ئیمەیڵی سەرەتایی نوێ:"
 
 #: warehouse/templates/manage/account.html:597
+#: warehouse/templates/manage/unverified-account.html:328
 msgid "Primary email set"
 msgstr "کۆمەڵە ئیمەیڵی سەرەتایی"
 
 #: warehouse/templates/manage/account.html:603
+#: warehouse/templates/manage/unverified-account.html:334
 msgid "Email sent"
 msgstr "پۆستی ئەلیکترۆنی نێردراوە"
 
 #: warehouse/templates/manage/account.html:605
+#: warehouse/templates/manage/unverified-account.html:336
 msgid "From:"
 msgstr "لەلایەن:"
 
 #: warehouse/templates/manage/account.html:606
+#: warehouse/templates/manage/unverified-account.html:337
 msgid "To:"
 msgstr "بۆ:"
 
 #: warehouse/templates/manage/account.html:607
+#: warehouse/templates/manage/unverified-account.html:338
 msgid "Subject:"
 msgstr "بابەت:"
 
 #: warehouse/templates/manage/account.html:611
+#: warehouse/templates/manage/unverified-account.html:342
 msgid "Password reset requested"
 msgstr "داوای دووبارە دانانەوەی وشەی نهێنی دەکرێت"
 
 #: warehouse/templates/manage/account.html:613
+#: warehouse/templates/manage/unverified-account.html:344
 msgid "Password reset attempted"
 msgstr "هەوڵی دووبارە دانانەوەی وشەی نهێنی درا"
 
 #: warehouse/templates/manage/account.html:615
+#: warehouse/templates/manage/unverified-account.html:346
 msgid "Password successfully reset"
 msgstr "وشەی نهێنیەکە بە سەرکەوتووی نوێکرایەوە"
 
 #: warehouse/templates/manage/account.html:617
+#: warehouse/templates/manage/unverified-account.html:348
 msgid "Password successfully changed"
 msgstr "وشەی نهێنیەکە بە سەرکەوتووی گۆڕدرا"
 
 #: warehouse/templates/manage/account.html:621
 #: warehouse/templates/manage/account.html:626
 #: warehouse/templates/manage/account/token.html:158
+#: warehouse/templates/manage/unverified-account.html:352
+#: warehouse/templates/manage/unverified-account.html:357
 msgid "Project:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:629
+#: warehouse/templates/manage/unverified-account.html:360
 msgid "Two factor authentication added"
 msgstr "دوو فاکتەری ڕەسەنایەتی زیادکرا"
 
 #: warehouse/templates/manage/account.html:632
 #: warehouse/templates/manage/account.html:642
+#: warehouse/templates/manage/unverified-account.html:363
+#: warehouse/templates/manage/unverified-account.html:373
 msgid ""
 "Method: Security device (<abbr title=\"web authentication\">WebAuthn</abbr>)"
 msgstr ""
@@ -4265,33 +4327,42 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:633
 #: warehouse/templates/manage/account.html:643
+#: warehouse/templates/manage/unverified-account.html:364
+#: warehouse/templates/manage/unverified-account.html:374
 msgid "Device name:"
 msgstr "ناوی ئامێر:"
 
 #: warehouse/templates/manage/account.html:635
 #: warehouse/templates/manage/account.html:645
+#: warehouse/templates/manage/unverified-account.html:366
+#: warehouse/templates/manage/unverified-account.html:376
 msgid ""
 "Method: Authentication application (<abbr title=\"time-based one-time "
 "password\">TOTP</abbr>)"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:639
+#: warehouse/templates/manage/unverified-account.html:370
 msgid "Two factor authentication removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:650
+#: warehouse/templates/manage/unverified-account.html:381
 msgid "Recovery codes generated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:654
+#: warehouse/templates/manage/unverified-account.html:385
 msgid "Recovery codes regenerated"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:658
+#: warehouse/templates/manage/unverified-account.html:389
 msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:664
+#: warehouse/templates/manage/unverified-account.html:395
 msgid "API token added"
 msgstr ""
 
@@ -4299,35 +4370,44 @@ msgstr ""
 #: warehouse/templates/manage/account.html:689
 #: warehouse/templates/manage/project/history.html:263
 #: warehouse/templates/manage/project/history.html:270
+#: warehouse/templates/manage/unverified-account.html:397
+#: warehouse/templates/manage/unverified-account.html:420
 msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:683
 #: warehouse/templates/manage/project/history.html:265
+#: warehouse/templates/manage/unverified-account.html:414
 msgid "API token removed"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/account.html:690
+#: warehouse/templates/manage/unverified-account.html:415
+#: warehouse/templates/manage/unverified-account.html:421
 msgid "Unique identifier:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:687
+#: warehouse/templates/manage/unverified-account.html:418
 msgid "API token automatically removed for security reasons"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:696
+#: warehouse/templates/manage/unverified-account.html:427
 #, python-format
 msgid "Reason: Token found at <a href=\"%(public_url)s\">public url</a>"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/unverified-account.html:432
 #, fuzzy, python-format
 #| msgid "Or <a href=\"%(href)s\">browse projects</a>"
 msgid "Invited to join <a href=\"%(href)s\">%(organization_name)s</a>"
 msgstr "یان <a href=\"%(href)s\">گەڕان بە پڕۆژەکان</a>"
 
 #: warehouse/templates/manage/account.html:705
+#: warehouse/templates/manage/unverified-account.html:436
 #, fuzzy, python-format
 #| msgid "Invitation for '${organization_name}' is declined."
 msgid ""
@@ -4335,6 +4415,7 @@ msgid ""
 msgstr "بانگهێشتنامە بۆ '${organization_name}' ڕەتکراوەتەوە."
 
 #: warehouse/templates/manage/account.html:709
+#: warehouse/templates/manage/unverified-account.html:440
 #, fuzzy, python-format
 #| msgid ""
 #| "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join "
@@ -4346,6 +4427,7 @@ msgstr ""
 "بەشداریکردن لە ڕێکخراوی \"%(organization_name)s\" هەڵوەشاوەتەوە"
 
 #: warehouse/templates/manage/account.html:713
+#: warehouse/templates/manage/unverified-account.html:444
 #, fuzzy, python-format
 #| msgid ""
 #| "An invitation for <a href=\"%(user_profile)s\">%(username)s</a> to join "
@@ -4357,6 +4439,7 @@ msgstr ""
 "بەشداریکردن لە ڕێکخراوی \"%(organization_name)s\" هەڵوەشاوەتەوە"
 
 #: warehouse/templates/manage/account.html:722
+#: warehouse/templates/manage/unverified-account.html:453
 #, python-format
 msgid ""
 "Events appear here as security-related actions occur on your account. If you "
@@ -4365,6 +4448,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account.html:727
+#: warehouse/templates/manage/unverified-account.html:458
 msgid "Recent account activity"
 msgstr ""
 
@@ -4372,6 +4456,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:201
 #: warehouse/templates/manage/project/history.html:304
 #: warehouse/templates/manage/team/history.html:108
+#: warehouse/templates/manage/unverified-account.html:460
 msgid "Event"
 msgstr ""
 
@@ -4382,21 +4467,25 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:314
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
+#: warehouse/templates/manage/unverified-account.html:461
 msgid "Time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:731
 #: warehouse/templates/manage/organization/history.html:203
 #: warehouse/templates/manage/team/history.html:110
+#: warehouse/templates/manage/unverified-account.html:462
 msgid "Additional Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:738
+#: warehouse/templates/manage/unverified-account.html:469
 msgid "Date / time"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:742
 #: warehouse/templates/manage/organization/history.html:215
+#: warehouse/templates/manage/unverified-account.html:473
 msgid "Location Info"
 msgstr ""
 
@@ -4404,12 +4493,14 @@ msgstr ""
 #: warehouse/templates/manage/organization/history.html:217
 #: warehouse/templates/manage/project/history.html:320
 #: warehouse/templates/manage/team/history.html:124
+#: warehouse/templates/manage/unverified-account.html:475
 #, fuzzy
 #| msgid "Device name:"
 msgid "Device Info"
 msgstr "ناوی ئامێر:"
 
 #: warehouse/templates/manage/account.html:752
+#: warehouse/templates/manage/unverified-account.html:483
 msgid ""
 "Events will appear here as security-related actions occur on your account."
 msgstr ""
@@ -5083,6 +5174,43 @@ msgid ""
 "started, visit the <a href=\"%(href)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a>"
 msgstr ""
+
+#: warehouse/templates/manage/unverified-account.html:17
+#, fuzzy
+#| msgid "Active API tokens for this account"
+msgid "Activate your account"
+msgstr "نیشانەکانی API چالاک بۆ ئەم ئەکاونتە"
+
+#: warehouse/templates/manage/unverified-account.html:197
+#, fuzzy
+#| msgid ""
+#| "<a href=\"%(href)s\">Verify your primary email address</a> to add API "
+#| "tokens to your account."
+msgid ""
+"You must verify a primary email address before making any other changes to "
+"your account."
+msgstr ""
+"<a href=\"%(href)s\">ناونیشانی ئیمەیڵی سەرەکی خۆت پشتڕاست بکەرەوە</a> بۆ "
+"زیادکردنی نیشانەکانی API بۆ ئەکاونتەکەت."
+
+#: warehouse/templates/manage/unverified-account.html:207
+#, fuzzy
+#| msgid ""
+#| "You can associate several emails with your account. You can use any <span "
+#| "class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
+#| "hidden=\"true\"></i> Verified</span> email to recover your account, but "
+#| "only your <span class=\"badge\">Primary</span> email will receive "
+#| "notifications."
+msgid ""
+"You must have at least one <span class=\"badge badge--success\"><i "
+"class=\"fa fa-check\" aria-hidden=\"true\"></i> Verified</span> email "
+"address to activate your account."
+msgstr ""
+"دەتوانیت چەند ئیمەیڵێک بە ئەکاونتەکەتەوە ببەستیتەوە. دەتوانیت هەر ئیمەیڵێکی "
+"<span class=\"badge badge--success\"><i class=\"fa fa-check\" aria-"
+"hidden=\"true\"></i> پشتڕاستکراوە</span> بەکاربهێنیت بۆ گەڕاندنەوەی "
+"ئەکاونتەکەت، بەڵام تەنها ئیمەیڵی <span class=\"badge\">سەرەتایی</span>ت "
+"ئاگادارکردنەوە وەردەگرێت."
 
 #: warehouse/templates/manage/account/publishing.html:27
 #: warehouse/templates/manage/project/publishing.html:25
@@ -7663,80 +7791,80 @@ msgstr "%(user)s هیچ پڕۆژەیەکی بۆ PyPI بار نەکردووە، �
 msgid "view hashes"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:128
+#: warehouse/templates/packaging/detail.html:126
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:162
+#: warehouse/templates/packaging/detail.html:160
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:173
+#: warehouse/templates/packaging/detail.html:171
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:179
+#: warehouse/templates/packaging/detail.html:177
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:183
+#: warehouse/templates/packaging/detail.html:181
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:187
+#: warehouse/templates/packaging/detail.html:185
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:192
+#: warehouse/templates/packaging/detail.html:190
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:206
+#: warehouse/templates/packaging/detail.html:204
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:219
+#: warehouse/templates/packaging/detail.html:217
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:220
+#: warehouse/templates/packaging/detail.html:218
 #: warehouse/templates/packaging/detail.html:252
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:223
+#: warehouse/templates/packaging/detail.html:221
 #: warehouse/templates/packaging/detail.html:255
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:225
+#: warehouse/templates/packaging/detail.html:223
 #: warehouse/templates/packaging/detail.html:257
 #: warehouse/templates/packaging/detail.html:291
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:229
+#: warehouse/templates/packaging/detail.html:227
 #: warehouse/templates/packaging/detail.html:267
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:231
+#: warehouse/templates/packaging/detail.html:229
 #: warehouse/templates/packaging/detail.html:269
 #: warehouse/templates/packaging/detail.html:313
 msgid "Release history"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:236
+#: warehouse/templates/packaging/detail.html:234
 #: warehouse/templates/packaging/detail.html:274
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:238
+#: warehouse/templates/packaging/detail.html:236
 #: warehouse/templates/packaging/detail.html:276
 #: warehouse/templates/packaging/detail.html:375
 msgid "Download files"
@@ -7815,6 +7943,46 @@ msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
 msgstr[1] ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:23
+msgid "Submit Malware Report for Project"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:29
+msgid "Submit Malware Report for Project:"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:31
+msgid ""
+"Use this form to submit reports of malicious projects for review by the PyPI "
+"Administrators. Examples of malicious activity in projects include typo-"
+"squatting, dependency confusion, data exfiltration, obfuscation, command/"
+"control, and other similar behaviors."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:37
+#, python-format
+msgid ""
+"You'll be required to provide a link to notable source code using our <a "
+"href=\"%(href)s\">Inspector</a> service. This allows for reports to be "
+"reviewed more quickly, so please ensure that the link is to a meaningful "
+"portion of the relevant files."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:43
+msgid ""
+"Your summary should include a general description of the malicious behavior "
+"as well as any other pertinent details such as what specific release(s) or "
+"file(s) are involved if it is not an entirely malicious Project."
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:62
+msgid "Fill with a link to the problematic code lines from"
+msgstr ""
+
+#: warehouse/templates/packaging/submit-malware-observation.html:70
+msgid "Summary"
+msgstr ""
 
 #: warehouse/templates/pages/classifiers.html:22
 msgid ""
@@ -9485,65 +9653,65 @@ msgstr ""
 msgid "If you've identified a security issue with a project hosted on PyPI"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:36
-#, python-format
+#: warehouse/templates/pages/security.html:37
 msgid ""
-"Email <a href=\"%(href)s\">security@pypi.org</a>, providing the following "
-"details:"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:38
-msgid "A URL to the project in question"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:39
-msgid "An explanation of what makes the project a security issue"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:40
-#, python-format
-msgid ""
-"If applicable: a link to the problematic lines in the project's "
-"distributions via <a href=\"%(href)s\">inspector.pypi.io</a>"
-msgstr ""
-
-#: warehouse/templates/pages/security.html:42
-msgid ""
-"Valid malware reports may include examples of typo-squatting, dependency "
-"confusion, data exfiltration, obfustication, command/control, etc."
+"Login to your PyPI account, then visit the project's page on PyPI. At the "
+"bottom of the sidebar, click <strong>Report project as malware</strong>. "
+"Supply the following details in the form:"
 msgstr ""
 
 #: warehouse/templates/pages/security.html:44
+msgid "A URL to the project in question"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:45
+msgid "An explanation of what makes the project a security issue"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:46
+#, python-format
+msgid ""
+"A link to the problematic lines in the project's distributions via <a "
+"href=\"%(href)s\">inspector.pypi.io</a>"
+msgstr ""
+
+#: warehouse/templates/pages/security.html:48
+msgid ""
+"Valid malware reports may include examples of typo-squatting, dependency "
+"confusion, data exfiltration, obfuscation, command/control, etc."
+msgstr ""
+
+#: warehouse/templates/pages/security.html:50
 msgid ""
 "If you've identified a security issue with PyPI itself (not a project hosted "
 "on PyPI)"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:45
+#: warehouse/templates/pages/security.html:51
 #, python-format
 msgid ""
 "Email <a href=\"%(href)s\">security@pypi.org</a>, providing as much relevant "
 "information as possible, including reproducing steps."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:47
+#: warehouse/templates/pages/security.html:53
 msgid "What happens next?"
 msgstr ""
 
-#: warehouse/templates/pages/security.html:48
+#: warehouse/templates/pages/security.html:54
 msgid ""
 "Once you've submitted an issue via email, you should receive an "
 "acknowledgment within 48 hours."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:49
+#: warehouse/templates/pages/security.html:55
 msgid ""
 "Depending on the action to be taken, you may receive further follow-up "
 "emails."
 msgstr ""
 
-#: warehouse/templates/pages/security.html:52
-msgid "This security policy was last updated on June 2022."
+#: warehouse/templates/pages/security.html:58
+msgid "This security policy was last updated on March 2024."
 msgstr ""
 
 #: warehouse/templates/pages/sitemap.html:21
@@ -9869,6 +10037,49 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#~ msgid "PyPI on Twitter"
+#~ msgstr "PyPI لە تویتەر"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "  PyPI user <strong>%(username)s</strong> has added a new OpenID "
+#~| "Connect\n"
+#~| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
+#~| "manage.\n"
+#~| "  OpenID Connect publishers act as trusted users and can create project "
+#~| "releases\n"
+#~| "  automatically.\n"
+#~| "  "
+#~ msgid ""
+#~ "You registered an pending OpenID Connect publisher for a project "
+#~ "(<strong>%(project_name)s</strong>), but someone else has invalidated "
+#~ "your pending publisher by creating the project before you did."
+#~ msgstr ""
+#~ "\n"
+#~ "  بەکارهێنەری PyPI <strong>%(username)s</strong> پەیوەندییەکی نوێی OpenID "
+#~ "زیاد کردووە\n"
+#~ "   بڵاوکەرەوە بۆ پڕۆژەیەک (<strong>%(project_name)s</strong>) کە تۆ "
+#~ "بەڕێوەی دەبەیت.\n"
+#~ "   بڵاوکەرەوەکانی OpenID Connect وەک بەکارهێنەری متمانەپێکراو کاردەکەن و "
+#~ "دەتوانن بڵاوکراوەکانی پڕۆژە دروست بکەن\n"
+#~ "   بە شێوەیەکی ئۆتۆماتیکی.\n"
+#~ "  "
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "If you did not make this change, you can email <a "
+#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~| "administrators."
+#~ msgid ""
+#~ "If you believe this was done in error, you can email <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "ئەگەر ئەم گۆڕانکاریەت نەکرد، دەتوانیت ئیمەیڵ بۆ <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> بنێری بۆ پەیوەندیکردن لەگەڵ "
+#~ "بەڕێوەبەرانی PyPI."
 
 #~ msgid "No user found with that username or email"
 #~ msgstr "هیچ بەکارهێنەرێک نەدۆزرایەوە بەو نازناوەو و پۆستی ئەلیکترۆنیە"

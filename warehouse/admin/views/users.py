@@ -24,7 +24,13 @@ from sqlalchemy.orm import joinedload
 
 from warehouse import forms
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
-from warehouse.accounts.models import DisableReason, Email, ProhibitedUserName, User
+from warehouse.accounts.models import (
+    DisableReason,
+    Email,
+    ProhibitedEmailDomain,
+    ProhibitedUserName,
+    User,
+)
 from warehouse.authnz import Permissions
 from warehouse.email import send_password_compromised_email
 from warehouse.packaging.models import JournalEntry, Project, Role
@@ -265,6 +271,40 @@ def user_delete(user, request):
     _nuke_user(user, request)
 
     request.session.flash(f"Nuked user {user.username!r}", queue="success")
+    return HTTPSeeOther(request.route_path("admin.user.list"))
+
+
+@view_config(
+    route_name="admin.user.freeze",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_freeze(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(request.current_route_path(username=user.username))
+
+    if user.username != request.params.get("username"):
+        request.session.flash("Wrong confirmation input", queue="error")
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    user.is_frozen = True
+
+    for email in user.emails:
+        if email.verified:
+            request.db.add(
+                ProhibitedEmailDomain(
+                    domain=email.domain,
+                    comment="frozen",
+                    prohibited_by=request.user,
+                )
+            )
+
+    request.session.flash(f"Froze user {user.username!r}", queue="success")
     return HTTPSeeOther(request.route_path("admin.user.list"))
 
 

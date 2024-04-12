@@ -55,6 +55,8 @@ build:
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
+	$(MAKE) .state/db-populated
+	$(MAKE) .state/search-indexed
 	docker compose up --remove-orphans
 
 debug: .state/docker-build-base
@@ -72,7 +74,7 @@ static_pipeline: .state/docker-build-static
 reformat: .state/docker-build-base
 	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build-base
+lint: .state/docker-build-base .state/docker-build-static
 	docker compose run --rm base bin/lint
 	docker compose run --rm static bin/static_lint
 
@@ -95,20 +97,38 @@ translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm base bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
 
-initdb: .state/docker-build-base
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS rstuf"
-	docker compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE rstuf ENCODING 'UTF8'"
-	docker compose run --rm web bash -c "xz -d -f -k dev/$(DB).sql.xz --stdout | psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -"
-	docker compose run --rm web psql -h db -d warehouse -U postgres -c "UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'"
-	$(MAKE) runmigrations
+resetdb: .state/docker-build-base
+	docker compose pause web worker
+	docker compose up -d db
+	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
+	rm -f .state/db-populated .state/db-migrated
+	$(MAKE) initdb
+	docker compose unpause web worker
+
+.state/search-indexed: .state/db-populated
+	$(MAKE) reindex
+	mkdir -p .state && touch .state/search-indexed
+
+.state/db-populated: .state/db-migrated
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
+	mkdir -p .state && touch .state/db-populated
+
+.state/db-migrated: .state/docker-build-base
+	docker compose up -d db
+	docker compose exec db /usr/local/bin/wait-for-db
+	$(MAKE) runmigrations
+	mkdir -p .state && touch .state/db-migrated
+
+initdb: .state/docker-build-base .state/db-populated
 	$(MAKE) reindex
+
+inittuf: .state/db-migrated
+	docker compose up -d rstuf-api
+	docker compose up -d rstuf-worker
+	docker compose run --rm web rstuf admin ceremony -b -u -f dev/rstuf/bootstrap.json --api-server http://rstuf-api
 
 runmigrations: .state/docker-build-base
 	docker compose run --rm web python -m warehouse db upgrade head
@@ -126,11 +146,11 @@ clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache
-	docker compose down -v
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
+	docker compose down -v --remove-orphans
 	docker compose rm --force
 
 stop:
 	docker compose stop
 
-.PHONY: default build serve initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations

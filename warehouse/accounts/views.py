@@ -233,16 +233,25 @@ def login(request, redirect_field_name=REDIRECT_FIELD_NAME, _form_class=LoginFor
 
     user_service = request.find_service(IUserService, context=None)
     breach_service = request.find_service(IPasswordBreachedService, context=None)
+    captcha_service = request.find_service(ICaptchaService, name="captcha")
+    request.find_service(name="csp").merge(captcha_service.csp_policy)
 
     redirect_to = request.POST.get(
         redirect_field_name, request.GET.get(redirect_field_name)
     )
 
+    # the form contains an auto-generated field from recaptcha with
+    # hyphens in it. make it play nice with wtforms.
+    post_body = MultiDict(
+        {key.replace("-", "_"): value for key, value in request.POST.items()}
+    )
+
     form = _form_class(
-        request.POST,
         request=request,
+        formdata=post_body,
         user_service=user_service,
         breach_service=breach_service,
+        captcha_service=captcha_service,
         check_password_metrics_tags=["method:auth", "auth_method:login_form"],
     )
 
@@ -679,6 +688,7 @@ def register(request, _form_class=RegistrationForm):
     )
 
     form = _form_class(
+        request=request,
         formdata=post_body,
         user_service=user_service,
         captcha_service=captcha_service,

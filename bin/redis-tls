@@ -14,5 +14,6 @@ REDIS_URL="$(echo $REDIS_URL | sed "s/:[0-9][0-9]*$/:$REDIS_PORT/g" )"
 # REDIS_URL.
 unset REDIS_PORT
 
+# Ensure all clients have a 5-second timeout.
 # Configure the TLS settings for our Redis connection
-REDIS_URL="$REDIS_URL?ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"
+REDIS_URL="$REDIS_URL?socket_timeout=5&ssl_cert_reqs=required&ssl_ca_certs=$(python -m certifi)"

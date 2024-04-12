@@ -108,11 +108,9 @@
         <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
-          {% if file.python_version %}
-          {% for tag in file.python_version.split('.') %}
+          {% for tag in file.pretty_wheel_tags %}
           <code>{{ tag }}</code>
           {% endfor %}
-          {% endif %}
         </p>
       </div>
     </div>
@@ -245,6 +243,8 @@
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
         {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+        {% csi request.route_url("includes.submit_malware_report", project_name=project.name) %}
+        {% endcsi %}
 
       </div>
       <div class="vertical-tabs__panel">

@@ -202,7 +202,6 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject1",
         actor_id="00000000-1000-8000-0000-000000000003",
         actor="fakeuser1",
-        ingredient="fakeingredient1",
     )
     ActiveStatePublisherFactory(
         id="bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -210,7 +209,6 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject2",
         actor_id="00000000-1000-8000-0000-000000000006",
         actor="fakeuser2",
-        ingredient="fakeingredient2",
     )
     ActiveStatePublisherFactory(
         id="cccccccc-cccc-cccc-cccc-cccccccccccc",
@@ -218,7 +216,6 @@ def test_find_publisher_by_issuer_activestate(
         activestate_project_name="fakeproject3",
         actor_id="00000000-1000-8000-0000-000000000009",
         actor="fakeuser3",
-        ingredient="fakeingredient3",
     )
 
     signed_claims = {
@@ -227,7 +224,6 @@ def test_find_publisher_by_issuer_activestate(
         "project": project,
         "actor_id": actor_id,
         "actor": actor,
-        "ingredient_name": ingredient_name,
     }
 
     assert (
@@ -242,7 +238,7 @@ def test_find_publisher_by_issuer_activestate(
 
 def test_oidc_context_principals():
     assert principals_for(
-        utils.OIDCContext(publisher=pretend.stub(id=17), claims=None)
+        utils.PublisherTokenContext(publisher=pretend.stub(id=17), claims=None)
     ) == [
         Authenticated,
         "oidc:17",

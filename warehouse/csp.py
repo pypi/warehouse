@@ -45,11 +45,22 @@ def content_security_policy_tween_factory(handler, registry):
             policy["sandbox"] = ["allow-top-navigation"]
             policy["default-src"] = [NONE]
 
+        # Specific enables for Admin UI
+        if request.path.startswith("/admin/"):
+            policy["frame-src"] = ["https://inspector.pypi.io"]
+            # Admin UI/Bootstrap 4 uses inline SVGs for icons
+            policy["img-src"].extend(["data:"])
+
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with
         # our restrictive CSP.
+        # We also want to exclude `/api/explorer` from the CSP, as it uses
+        # `unsafe-eval` and `unsafe-inline` for the Swagger UI.
         policy = _serialize(policy).format(request=request)
-        if not request.path.startswith("/_debug_toolbar/") and policy:
+        if (
+            not request.path.startswith("/_debug_toolbar/")
+            and not request.path.startswith("/api/explorer")
+        ) and policy:
             resp.headers["Content-Security-Policy"] = policy
 
         return resp

@@ -139,6 +139,13 @@ def test_routes(warehouse):
             traverse="/{user_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.submit_malware_report",
+            "/_includes/submit-malware-report/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -203,6 +210,9 @@ def test_routes(warehouse):
             "accounts.verify-project-role",
             "/account/verify-project-role/",
             domain=warehouse,
+        ),
+        pretend.call(
+            "manage.unverified-account", "/manage/unverified-account/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
@@ -492,6 +502,13 @@ def test_routes(warehouse):
         pretend.call(
             "packaging.project",
             "/project/{name}/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "packaging.project.submit_malware_observation",
+            "/project/{name}/submit-malware-report/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}",
             domain=warehouse,

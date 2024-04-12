@@ -74,7 +74,10 @@ class OIDCPublisherProjectAssociation(db.Model):
         primary_key=True,
     )
     project_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, primary_key=True
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True,
     )
 
 
@@ -185,7 +188,7 @@ class OIDCPublisherMixin:
                 )
 
         # Finally, perform the actual claim verification. First, verify that
-        # all requred claims are present.
+        # all required claims are present.
         for claim_name in (
             self.__required_verifiable_claims__.keys()
             | self.__required_unverifiable_claims__

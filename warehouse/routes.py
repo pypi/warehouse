@@ -124,6 +124,13 @@ def includeme(config):
         traverse="/{user_name}",
         domain=warehouse,
     )
+    config.add_route(
+        "includes.submit_malware_report",
+        "/_includes/submit-malware-report/{project_name}",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
 
     # Classifier Routes
     config.add_route("classifiers", "/classifiers/", domain=warehouse)
@@ -202,6 +209,9 @@ def includeme(config):
     )
 
     # Management (views for logged-in users)
+    config.add_route(
+        "manage.unverified-account", "/manage/unverified-account/", domain=warehouse
+    )
     config.add_route("manage.account", "/manage/account/", domain=warehouse)
     config.add_route(
         "manage.account.publishing", "/manage/account/publishing/", domain=warehouse
@@ -488,6 +498,13 @@ def includeme(config):
     config.add_route(
         "packaging.project",
         "/project/{name}/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "packaging.project.submit_malware_observation",
+        "/project/{name}/submit-malware-report/",
         factory="warehouse.packaging.models:ProjectFactory",
         traverse="/{name}",
         domain=warehouse,

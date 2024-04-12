@@ -209,23 +209,16 @@ Once ``make build`` has finished,  run the command:
 
 .. code-block:: console
 
-    make initdb
+    make serve
 
 This command will:
 
-* create a new Postgres database,
-* install example data to the Postgres database,
+* ensure the db is prepared,
 * run migrations,
 * load some example data from `Test PyPI`_, and
 * index all the data for the search database.
+* start up the containers needed to run Warehouse
 
-Once the ``make initdb`` command has finished, you are ready to continue:
-
-.. code-block:: console
-
-    make serve
-
-This command starts the containers that run Warehouse on your local machine.
 After the initial build process, you will only need this command each time you
 want to startup Warehouse locally.
 
@@ -248,6 +241,53 @@ or that the ``static`` container has finished compiling the static assets:
     warehouse-static-1  | webpack 5.75.0 compiled with 1 warning in 6610 ms
 
 or maybe something else.
+
+Bootstrapping the TUF Metadata Repository
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To enable PyPI Index Signing (`PEP 458 <https://peps.python.org/pep-0458/>`_),
+you have to first bootstrap the TUF metadata repository.
+
+.. code-block:: console
+
+    make inittuf
+
+You should see the following line at the bottom of the output:
+
+.. code-block:: console
+
+    Bootstrap completed using `dev/rstuf/bootstrap.json`. 🔐 🎉
+
+
+This command sends a static *bootstrap payload* to the RSTUF API. The payload
+includes the TUF trust root for development and other configuration.
+
+By calling this API, RSTUF creates the TUF metadata repository, installs the
+TUF trust root for development, and creates the initial set of TUF metadata.
+
+.. note::
+
+    The RSTUF API is exposed only for development purposes and will not be
+    available in production. Currently, no upload hooks or automatic metadata
+    update tasks are configured to interact with RSTUF.
+
+    Take a look at the `RSTUF API documentation
+    <https://repository-service-tuf.readthedocs.io/en/stable/guide/general/usage.html#adding-artifacts>`_
+    to see how you can simulate artifact upload or removal, and how they affect
+    the TUF metadata repository:
+
+    * RSTUF API: http://localhost:8001
+    * TUF Metadata Repository: http://localhost:9001/tuf-metadata/
+
+
+Resetting the development database
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    make resetdb
+
+This command will fully reset the development database.
 
 
 Viewing Warehouse in a browser

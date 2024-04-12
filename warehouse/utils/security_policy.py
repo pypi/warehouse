@@ -18,6 +18,7 @@ from pyramid.security import Denied
 from zope.interface import implementer
 
 from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserTokenContext
 
 
 # NOTE: Is there a better place for this to live? It may not even need to exist
@@ -84,6 +85,8 @@ class MultiSecurityPolicy:
             #       more correct pattern before fixing this.
             if isinstance(ident, User):
                 return str(ident.id)
+            elif isinstance(ident, UserTokenContext):
+                return str(ident.user.id)
         return None
 
     def forget(self, request, **kw):

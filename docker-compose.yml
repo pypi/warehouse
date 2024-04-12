@@ -21,6 +21,10 @@ services:
       test: ["CMD", "pg_isready", "-U", "postgres", "-d", "postgres"]
       interval: 1s
       start_period: 10s
+    volumes:
+      - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
+      - ./dev/example.sql.xz:/example.sql.xz:z
+      - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
 
   stripe:
     image: stripe/stripe-mock:v0.162.0
@@ -98,7 +102,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -117,6 +121,8 @@ services:
   tests:
     image: warehouse:docker-compose
     pull_policy: never
+    environment:
+      ENCODING: "C"
     volumes: *base_volumes
     depends_on:
       db:
@@ -135,13 +141,14 @@ services:
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - rstuf-metadata:/var/opt/warehouse/tuf-metadata
     ports:
       - "9001:9001"
 
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages
@@ -154,21 +161,28 @@ services:
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   rstuf-api:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.9.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
     ports:
       - 8001:80
+    stop_signal: SIGKILL
     environment:
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+    depends_on:
+      redis:
+        condition: service_started
 
   rstuf-worker:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.11.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/rstuf/keys/online:/keyvault
+    stop_signal: SIGKILL
     environment:
       - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
@@ -178,6 +192,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   static:
     build:
@@ -197,6 +213,8 @@ services:
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - ./package.json:/opt/warehouse/src/package.json:z
+      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:

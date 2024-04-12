@@ -32,9 +32,10 @@ from warehouse.accounts.services import (
     database_login_factory,
 )
 from warehouse.accounts.tasks import compute_user_metrics
+from warehouse.accounts.utils import UserTokenContext
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.macaroons.security_policy import MacaroonSecurityPolicy
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 from warehouse.organizations.services import IOrganizationService
 from warehouse.rate_limiting import IRateLimiter, RateLimit
 from warehouse.utils.security_policy import MultiSecurityPolicy
@@ -54,23 +55,29 @@ def _user(request):
     if request.identity is None:
         return None
 
-    if not isinstance(request.identity, User):
+    if isinstance(request.identity, UserTokenContext):
+        # A UserTokenContext signals a user-created API token;
+        # take the underlying user.
+        return request.identity.user
+    elif isinstance(request.identity, User):
+        return request.identity
+    else:
         return None
-
-    return request.identity
 
 
 def _oidc_publisher(request):
     return (
         request.identity.publisher
-        if isinstance(request.identity, OIDCContext)
+        if isinstance(request.identity, PublisherTokenContext)
         else None
     )
 
 
 def _oidc_claims(request):
     return (
-        request.identity.claims if isinstance(request.identity, OIDCContext) else None
+        request.identity.claims
+        if isinstance(request.identity, PublisherTokenContext)
+        else None
     )
 
 
