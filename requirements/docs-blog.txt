@@ -15,7 +15,7 @@ cairocffi==1.6.1 \
 cairosvg==2.7.1 \
     --hash=sha256:432531d72347291b9a9ebfb6777026b607563fd8719c46ee742db0aef7271ba0 \
     --hash=sha256:8a5222d4e6c3f86f1f7046b63246877a63b49923a1cd202184c3a634ef546b3b
-    # via -r docs-blog.in
+    # via -r requirements/docs-blog.in
 certifi==2024.2.2 \
     --hash=sha256:0569859f95fc761b18b45ef421b1290a0f65f147e92a1e5eb3e635f9a5e4e66f \
     --hash=sha256:dc383c07b76109f368f6106eee2b593b04a011ea4d55f652c6ca24a754d1cdd1
@@ -283,13 +283,13 @@ mkdocs==1.5.3 \
     --hash=sha256:3b3a78e736b31158d64dbb2f8ba29bd46a379d0c6e324c2246c3bc3d2189cfc1 \
     --hash=sha256:eb7c99214dcb945313ba30426c2451b735992c73c2e10838f76d09e39ff4d0e2
     # via
-    #   -r docs-blog.in
+    #   -r requirements/docs-blog.in
     #   mkdocs-material
     #   mkdocs-rss-plugin
 mkdocs-material==9.5.17 \
     --hash=sha256:06ae1275a72db1989cf6209de9e9ecdfbcfdbc24c58353877b2bb927dbe413e4 \
     --hash=sha256:14a2a60119a785e70e765dd033e6211367aca9fc70230e577c1cf6a326949571
-    # via -r docs-blog.in
+    # via -r requirements/docs-blog.in
 mkdocs-material-extensions==1.3.1 \
     --hash=sha256:10c9511cea88f568257f960358a467d12b970e1f7b2c0e5fb2bb48cab1928443 \
     --hash=sha256:adff8b62700b25cb77b53358dad940f3ef973dd6db797907c49e3c2ef3ab4e31
@@ -297,7 +297,7 @@ mkdocs-material-extensions==1.3.1 \
 mkdocs-rss-plugin==1.12.1 \
     --hash=sha256:5df9bddfdc1465623def1b14c2656c5e8f62fa7c8bd1c0c667e01fc86105d415 \
     --hash=sha256:acfb8eec95f1db389b36770baf99af3b87e38484cc37993194a35aa173eb3fe8
-    # via -r docs-blog.in
+    # via -r requirements/docs-blog.in
 packaging==24.0 \
     --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
     --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
@@ -380,7 +380,7 @@ pillow==10.3.0 \
     --hash=sha256:fdcbb4068117dfd9ce0138d068ac512843c52295ed996ae6dd1faf537b6dbc27 \
     --hash=sha256:ff61bfd9253c3915e6d41c651d5f962da23eda633cf02262990094a18a55371a
     # via
-    #   -r docs-blog.in
+    #   -r requirements/docs-blog.in
     #   cairosvg
 platformdirs==4.2.0 \
     --hash=sha256:0614df2a2f37e1a662acbd8e2b25b92ccf8632929bc6d43467e17fe89c75e068 \
