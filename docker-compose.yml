@@ -141,6 +141,7 @@ services:
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - rstuf-metadata:/var/opt/warehouse/tuf-metadata
     ports:
       - "9001:9001"
 
@@ -160,21 +161,28 @@ services:
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   rstuf-api:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.9.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
     ports:
       - 8001:80
+    stop_signal: SIGKILL
     environment:
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+    depends_on:
+      redis:
+        condition: service_started
 
   rstuf-worker:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.11.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/rstuf/keys/online:/keyvault
+    stop_signal: SIGKILL
     environment:
       - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
@@ -184,6 +192,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   static:
     build:

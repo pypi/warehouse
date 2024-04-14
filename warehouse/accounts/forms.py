@@ -19,6 +19,7 @@ from email.headerregistry import Address
 import disposable_email_domains
 import humanize
 import markupsafe
+import sentry_sdk
 import wtforms
 import wtforms.fields
 
@@ -278,14 +279,14 @@ class NewEmailMixin:
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
-            Address(addr_spec=field.data)
+            address = Address(addr_spec=field.data)
         except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
             )
 
         # Check if the domain is valid
-        domain = field.data.split("@")[-1]
+        domain = ".".join(address.domain.split(".")[-2:]).lower()
 
         if (
             domain in disposable_email_domains.blocklist
@@ -366,17 +367,31 @@ class RegistrationForm(  # type: ignore[misc]
             raise wtforms.validators.ValidationError("Recaptcha error.")
         try:
             self.captcha_service.verify_response(field.data)
-        except recaptcha.RecaptchaError:
-            # TODO: log error
+        except recaptcha.RecaptchaError as exc:
+            sentry_sdk.capture_exception(exc)
             # don't want to provide the user with any detail
             raise wtforms.validators.ValidationError("Recaptcha error.")
 
 
 class LoginForm(PasswordMixin, UsernameMixin, forms.Form):
-    def __init__(self, *args, user_service, breach_service, **kwargs):
+    def __init__(self, *args, user_service, breach_service, captcha_service, **kwargs):
         super().__init__(*args, **kwargs)
         self.user_service = user_service
         self.breach_service = breach_service
+        self.captcha_service = captcha_service
+
+    g_recaptcha_response = wtforms.StringField()
+
+    def validate_g_recaptcha_response(self, field):
+        # do required data validation here due to enabled flag being required
+        if self.captcha_service.enabled and not field.data:
+            raise wtforms.validators.ValidationError("Recaptcha error.")
+        try:
+            self.captcha_service.verify_response(field.data)
+        except recaptcha.RecaptchaError as exc:
+            sentry_sdk.capture_exception(exc)
+            # don't want to provide the user with any detail
+            raise wtforms.validators.ValidationError("Recaptcha error.")
 
     def validate_password(self, field):
         # Before we try to validate anything, first check to see if the IP is banned

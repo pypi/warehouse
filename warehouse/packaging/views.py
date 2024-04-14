@@ -206,7 +206,11 @@ def submit_malware_observation(
                 kind=ObservationKind.IsMalware,
                 actor=request.user,
                 summary=form.summary.data,
-                payload={"origin": "web", "inspector_url": form.inspector_link.data},
+                payload={
+                    "inspector_url": form.inspector_link.data,
+                    "origin": "web",
+                    "summary": form.summary.data,
+                },
             )
             request.session.flash(
                 request._("Your report has been recorded. Thank you for your help."),

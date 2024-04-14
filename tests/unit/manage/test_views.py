@@ -101,11 +101,16 @@ class TestManageUnverifiedAccount:
         user_service = pretend.stub()
         name = pretend.stub()
         request = pretend.stub(
-            find_service=lambda *a, **kw: user_service, user=pretend.stub(name=name)
+            find_service=lambda *a, **kw: user_service,
+            user=pretend.stub(name=name),
+            help_url=pretend.call_recorder(lambda *a, **kw: "/the/url"),
         )
         view = views.ManageUnverifiedAccountViews(request)
 
-        assert view.manage_unverified_account() == {}
+        assert view.manage_unverified_account() == {
+            "help_url": "/the/url",
+        }
+        assert request.help_url.calls == [pretend.call(_anchor="account-recovery")]
         assert view.request == request
         assert view.user_service == user_service
 

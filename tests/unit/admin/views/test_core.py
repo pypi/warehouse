@@ -31,6 +31,8 @@ class TestDashboard:
 
     def test_dashboard_with_permission_and_observation(self, db_request):
         ProjectObservationFactory.create(kind="is_malware")
+        ProjectObservationFactory.create(kind="is_malware", actions={"foo": "bar"})
+        ProjectObservationFactory.create(kind="something_else")
         db_request.user = pretend.stub()
         db_request.has_permission = pretend.call_recorder(lambda perm: True)
 

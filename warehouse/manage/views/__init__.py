@@ -212,7 +212,7 @@ class ManageAccountMixin:
 class ManageUnverifiedAccountViews(ManageAccountMixin):
     @view_config(request_method="GET")
     def manage_unverified_account(self):
-        return {}
+        return {"help_url": self.request.help_url(_anchor="account-recovery")}
 
 
 @view_defaults(
