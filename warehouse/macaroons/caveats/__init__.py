@@ -107,6 +107,9 @@ class RequestUser(Caveat):
         if not isinstance(request.identity, UserContext):
             return Failure("token with user restriction without a user")
 
+        if request.identity.macaroon is None:
+            return Failure("token with user restriction without a macaroon")
+
         if str(request.identity.user.id) != self.user_id:
             return Failure("current user does not match user restriction in token")
 

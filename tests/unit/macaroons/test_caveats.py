@@ -271,13 +271,24 @@ class TestRequestUserCaveat:
 
         assert result == Failure("token with user restriction without a user")
 
-    def test_verify_invalid_identity(self):
+    def test_verify_invalid_identity_no_user(self):
         caveat = RequestUser(user_id="invalid")
         result = caveat.verify(
             pretend.stub(identity=pretend.stub()), pretend.stub(), pretend.stub()
         )
 
         assert result == Failure("token with user restriction without a user")
+
+    def test_verify_invalid_identity_no_macaroon(self, db_request):
+        user = UserFactory.create()
+        user_context = UserContext(user, None)
+
+        caveat = RequestUser(user_id=str(user.id))
+        result = caveat.verify(
+            pretend.stub(identity=user_context), pretend.stub(), pretend.stub()
+        )
+
+        assert result == Failure("token with user restriction without a macaroon")
 
     def test_verify_invalid_user_id(self, db_request):
         user = UserFactory.create()
