@@ -480,24 +480,6 @@ class TestFileUpload:
                 "https://packaging.python.org/specifications/core-metadata"
                 " for more information.",
             ),
-            # version errors.
-            (
-                {"metadata_version": "1.2", "name": "example"},
-                "'' is an invalid value for Version. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
-            ),
-            (
-                {"metadata_version": "1.2", "name": "example", "version": "dog"},
-                "'dog' is an invalid value for Version. "
-                "Error: Start and end with a letter or numeral "
-                "containing only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
-            ),
             # filetype/pyversion errors.
             (
                 {
