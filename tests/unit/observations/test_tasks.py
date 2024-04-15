@@ -69,6 +69,7 @@ def test_report_observation_to_helpscout(kind, payload, db_request, monkeypatch)
         responses.POST,
         "https://api.helpscout.net/v2/conversations",
         json={"id": 123},
+        headers={"Location": "https://api.helpscout.net/v2/conversations/123"},
     )
 
     report_observation_to_helpscout(None, db_request, observation.id)
@@ -76,4 +77,8 @@ def test_report_observation_to_helpscout(kind, payload, db_request, monkeypatch)
     assert len(responses.calls) == 1
     assert (
         responses.calls[0].request.url == "https://api.helpscout.net/v2/conversations"
+    )
+    assert (
+        observation.additional["helpscout_conversation_url"]
+        == "https://api.helpscout.net/v2/conversations/123"
     )
