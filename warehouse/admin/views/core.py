@@ -28,7 +28,8 @@ def dashboard(request):
         # Count how many Malware Project Observations are in the database
         malware_reports_count = (
             request.db.query(func.count(Observation.id)).filter(
-                Observation.kind == ObservationKind.IsMalware.value[0]
+                Observation.kind == ObservationKind.IsMalware.value[0],
+                Observation.actions == {},  # No actions have been taken
             )
         ).scalar()
     else:

@@ -285,5 +285,5 @@ class Event(db.Model):
     )
 
     data: Mapped[dict] = mapped_column(
-        MutableDict.as_mutable(JSONB), server_default=sql.text("'{}'")  # type: ignore[arg-type] # noqa: E501
+        MutableDict.as_mutable(JSONB()), server_default=sql.text("'{}'")
     )
