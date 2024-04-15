@@ -554,9 +554,7 @@ class ManageOrganizationBillingViews:
         renderer="manage/organization/activate_subscription.html",
     )
     def activate_subscription(self):
-        # We're not ready for companies to activate their own subscriptions yet.
-        raise HTTPNotFound()
-        # return {"organization": self.organization}
+        return {"organization": self.organization}
 
     @view_config(route_name="manage.organization.subscription")
     def create_or_manage_subscription(self):
