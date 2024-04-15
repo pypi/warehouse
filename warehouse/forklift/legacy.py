@@ -629,7 +629,7 @@ def file_upload(request):
         if not warning_exists:
             send_api_token_used_in_trusted_publisher_project_email(
                 request,
-                project.users,
+                set(project.users),
                 project_name=project.name,
                 token_owner_username=request.user.username,
                 token_name=macaroon.description,
