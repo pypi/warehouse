@@ -39,19 +39,21 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config
-from sqlalchemy import func, orm
+from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
+    send_api_token_used_in_trusted_publisher_project_email,
     send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
+from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
@@ -62,6 +64,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectMacaroonWarningAssociation,
     Release,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -607,6 +610,36 @@ def file_upload(request):
             )
         raise _exc_with_message(HTTPForbidden, msg)
 
+    # If this is a user identity (i.e: API token) but there exists
+    # a trusted publisher for this project, send an email warning that an
+    # API token was used to upload a project where Trusted Publishing is configured.
+    # Only do this once per (API token, project) combination.
+    if request.user and project.oidc_publishers:
+        macaroon: Macaroon = request.identity.macaroon
+        # If we haven't warned about use of this particular API token and project
+        # combination, send the warning email
+        warning_exists = request.db.query(
+            exists().where(
+                and_(
+                    ProjectMacaroonWarningAssociation.macaroon_id == macaroon.id,
+                    ProjectMacaroonWarningAssociation.project_id == project.id,
+                )
+            )
+        ).scalar()
+        if not warning_exists:
+            send_api_token_used_in_trusted_publisher_project_email(
+                request,
+                project.users,
+                project_name=project.name,
+                token_owner_username=request.user.username,
+                token_name=macaroon.description,
+            )
+            request.db.add(
+                ProjectMacaroonWarningAssociation(
+                    macaroon_id=macaroon.id,
+                    project_id=project.id,
+                )
+            )
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
