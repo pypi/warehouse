@@ -12,9 +12,44 @@
  # limitations under the License.
 -#}
 
+<div class="sidebar-section verified">
+  <h3 class="sidebar-section__title">{% trans %}Verified details{% endtrans %}</h3>
+  <small><i>These details have been verified by PyPI</i></small>
+  {% if project.organization %}
+  <h6>Owner</h6>
+    <span class="sidebar-section__maintainer">
+      <a href="/org/pypa/" aria-label="pypa">
+        <span class="sidebar-section__user-gravatar">
+          <img src="{{ request.static_path('warehouse:static/dist/images/blue-sitemap.png') }}" height="43" alt="organization icon" title="organization icon">        </span>
+        <span class="sidebar-section__user-gravatar-text">
+          {{ project.organization.display_name }}
+        </span>
+      </a>
+    </span>
+  {% endif %}
+  {% if maintainers %}
+    <h6>{% trans %}Maintainers{% endtrans %}</h6>
+    {% for maintainer in maintainers %}
+      {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
+      <span class="sidebar-section__maintainer">
+        <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ username}}">
+          <span class="sidebar-section__user-gravatar">
+            <img src="{{ gravatar(request, maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
+          </span>
+          <span class="sidebar-section__user-gravatar-text">
+            {{ maintainer.username}}
+          </span>
+        </a>
+      </span>
+    {% endfor %}
+  {% endif %}
+</div>
+
+<div class="sidebar-section verified">
+  <h3 class="sidebar-section__title">{% trans %}Unverified details{% endtrans %}</h3>
+  <small><i>These details have <b>not</b> been verified by PyPI</i></small>
 {% if release.urls.values() | contains_valid_uris %}
-<div class="sidebar-section">
-  <h3 class="sidebar-section__title">{% trans %}Project links{% endtrans %}</h3>
+  <h6>{% trans %}Project links{% endtrans %}</h6>
   <ul class="vertical-tabs__list">
     {% for name, url in release.urls.items() %}
     {% if is_valid_uri(url) %}
@@ -26,14 +61,11 @@
     {% endif %}
     {% endfor %}
   </ul>
-</div>
 {% endif %}
 
-<div class="sidebar-section">
-  <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
+  <h6>{% trans %}GitHub Statistics{% endtrans %}</h6>
   {% if release.github_repo_info_url and release.github_open_issue_info_url %}
   <div class="hidden github-repo-info" data-controller="github-repo-info">
-    {% trans %}GitHub statistics:{% endtrans %}
     <ul class="vertical-tabs__list">
       <li>
         <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed"
@@ -75,11 +107,10 @@
       View statistics for this project via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
     {% endtrans %}
   </p>
-</div>
 
 {% if release.has_meta %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">{% trans %}Meta{% endtrans %}</h3>
+  <h6>{% trans %}Meta{% endtrans %}</h6>
   {% if license %}
   <p><strong>{% trans %}License:{% endtrans %}</strong> {{ license }}</p>
   {% endif %}
@@ -117,41 +148,9 @@
 </div>
 {% endif %}
 
-<div class="sidebar-section">
-  {% if project.organization %}
-    <h3 class="sidebar-section__title">{% trans %}Owner{% endtrans %}</h3>
-      <span class="sidebar-section__maintainer">
-        <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}" aria-label="{{ project.organization.name }}">
-          <span class="sidebar-section__user-gravatar">
-            <img src="{{ request.static_path('warehouse:static/dist/images/blue-sitemap.png') }}" height="43" alt="organization icon" title="organization icon">
-          </span>
-          <span class="sidebar-section__user-gravatar-text">
-            {{ project.organization.display_name }}
-          </span>
-        </a>
-      </span>
-  {% endif %}
-  {% if maintainers %}
-    <h3 class="sidebar-section__title">{% trans %}Maintainers{% endtrans %}</h3>
-    {% for maintainer in maintainers %}
-      {% set alt = gettext("Avatar for {username} from gravatar.com").format(username=maintainer.username) %}
-      <span class="sidebar-section__maintainer">
-        <a href="{{ request.route_path('accounts.profile', username=maintainer.username) }}" aria-label="{{ maintainer.username}}">
-          <span class="sidebar-section__user-gravatar">
-            <img src="{{ gravatar(request, maintainer.email, size=50) }}" height="50" width="50" alt="{{ alt }}" title="{{ alt }}">
-          </span>
-          <span class="sidebar-section__user-gravatar-text">
-            {{ maintainer.username}}
-          </span>
-        </a>
-      </span>
-    {% endfor %}
-  {% endif %}
-</div>
-
 {% if release.classifiers %}
 <div class="sidebar-section">
-  <h3 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h3>
+  <h6 class="sidebar-section__title">{% trans %}Classifiers{% endtrans %}</h6>
   <ul class="sidebar-section__classifiers">
     {% for classifier_head, classifier_tails in (release.classifiers|format_classifiers()).items() %}
     <li>
@@ -170,3 +169,4 @@
   </ul>
 </div>
 {% endif %}
+</div>
