@@ -832,7 +832,7 @@ class TestRequestPasswordResetForm:
         form = forms.RequestPasswordResetForm()
         assert "password" not in form._fields
 
-    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net"])
+    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net", "foo@"])
     def test_validate_with_invalid_inputs(self, form_input):
         form = forms.RequestPasswordResetForm()
         field = pretend.stub(data=form_input)

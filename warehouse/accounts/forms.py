@@ -567,7 +567,7 @@ class RequestPasswordResetForm(forms.Form):
             # Additional checks for the validity of the address
             try:
                 Address(addr_spec=field.data)
-            except (ValueError, HeaderParseError):
+            except (IndexError, ValueError, HeaderParseError):
                 raise wtforms.validators.ValidationError(
                     message=INVALID_PASSWORD_MESSAGE
                 )
