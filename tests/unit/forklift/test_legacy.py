@@ -3983,7 +3983,7 @@ class TestFileUpload:
             assert send_email.calls == [
                 pretend.call(
                     db_request,
-                    [owner, maintainer],
+                    {owner, maintainer},
                     project_name=project.name,
                     token_owner_username=maintainer.username,
                     token_name=macaroon.description,
