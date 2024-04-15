@@ -693,7 +693,7 @@ def file_upload(request):
         release = (
             request.db.query(Release)
             .filter(
-                (Release.project == project) & (Release.version == form.version.data)
+                (Release.project == project) & (Release.version == str(meta.version))
             )
             .one()
         )
@@ -831,32 +831,34 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename, filetype=form.filetype.data)
 
+    def _extract_project_name_from_filename(filename, meta):
+        if filename.endswith(".whl"):
+            # This is a wheel, so we can split on the first hyphen.
+            return filename.partition("-")[0]
+
+        # For source distributions, try splitting on the last hyphen
+        possible_project_name = filename.rpartition("-")[0]
+
+        if (
+            meta.version.is_postrelease
+            and packaging.utils.canonicalize_name(possible_project_name) != meta.name
+        ):
+            # The distribution is a source distribution, the version is a
+            # postrelease, and the project name doesn't match the remainder, so
+            # there may be a hyphen in the version. Split the filename on the
+            # second to last hyphen instead.
+            return possible_project_name.rpartition("-")[0]
+
+        else:
+            # For all other cases, we can split on the last hyphen.
+            return possible_project_name
+
     # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, the version might contain a hyphen as a
-        # post-release separator, so we get the prefix by removing the provided
-        # version.
-        # Per 625, the version should be normalized, but we aren't currently
-        # enforcing this, so we permit a filename with either the exact
-        # provided version if it contains a hyphen, or any version that doesn't
-        # contain a hyphen.
-        else (
-            # A hyphen is being used for a post-release separator, so partition
-            # the prefix twice
-            filename.rpartition("-")[0].rpartition("-")[0]
-            # Check if the provided version contains a hyphen and the same
-            # version is being used in the filename
-            if "-" in form.version.data
-            and filename.endswith(f"-{form.version.data}.tar.gz")
-            # The only hyphen should be between the prefix and the version, so
-            # we only need to partition the prefix once
-            else filename.rpartition("-")[0]
-        )
-    )
+    # Per PEP 625, the version should be normalized, but we aren't currently
+    # enforcing this, so we permit a filename with either the exact provided
+    # version if it contains a hyphen, or any version that doesn't contain a
+    # hyphen.
+    filename_prefix = _extract_project_name_from_filename(filename, meta)
 
     # Normalize the prefix in the filename. Eventually this should be unnecessary once
     # we become more restrictive in what we permit
