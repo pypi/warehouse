@@ -1911,6 +1911,33 @@ msgid ""
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#, python-format
+msgid ""
+"An API token belonging to user <a "
+"href=\"%(account_href)s\">%(token_owner_username)s</a> was used to upload"
+" files to the project <a href=\"%(project_href)s\">%(project_name)s</a>, "
+"even though the project has a Trusted Publisher configured. This may have"
+" been in error. We recommend removing the API token and only using the "
+"Trusted Publisher to publish."
+msgstr ""
+
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#, python-format
+msgid ""
+"If you are the owner of this token, you can delete it by going to your <a"
+" href=\"%(href)s#api-tokens\">API tokens configuration</a> and deleting "
+"the token named <strong>%(token_name)s</strong>."
+msgstr ""
+
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#, python-format
+msgid ""
+"If you believe this was done in error, you can email <a "
+"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+"administrators."
+msgstr ""
+
 #: warehouse/templates/email/canceled-as-invited-organization-member/body.html:19
 #, python-format
 msgid ""
