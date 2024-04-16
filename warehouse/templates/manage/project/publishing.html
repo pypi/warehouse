@@ -23,7 +23,7 @@
 {% macro github_form(request, github_publisher_form) %}
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
-      Read more about GitHub Actions's OpenID Connect support <a href="{{ href }}">here</a>.
+      Read more about GitHub Actions' OpenID Connect support <a href="{{ href }}">here</a>.
       {% endtrans %}
     </p>
 
@@ -286,11 +286,11 @@
         {% endif %}
       </label>
       {{ activestate_pubisher_form.organization(
-        placeholder=gettext("my-organization"), 
-        autocomplete="off", 
-        autocapitalize="off", 
-        spellcheck="false", 
-        class_="form-group__field", 
+        placeholder=gettext("my-organization"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
         aria_describedby="organization-errors")
       }}
       <p class="form-group__help-text">
