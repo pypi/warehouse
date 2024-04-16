@@ -274,7 +274,7 @@ below describe the setup process for each supported trusted publisher.
     dependencies to automatically build cross-platform wheels of your PyPI
     projects. Once you're set up on the Platform and have linked your PyPI project,
     you're ready to publish. For more information on getting started with
-    ActiveState, go [here](https://docs.activestate.com/platform/start/pypi). To
+    ActiveState, go [here](https://docs.activestate.com/platform/start/pypi/). To
     begin:
 
     Publish your package to ActiveState's catalog. This will allow

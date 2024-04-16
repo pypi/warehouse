@@ -170,7 +170,7 @@ own security model and considerations.
     * The ActiveState Platform project must be private.
 
     For more information about Trusted Publishing using the ActiveState Platform please
-    see the [PyPI configuration documentation](https://docs.activestate.com/platform/start/pypi) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
+    see the [PyPI configuration documentation](https://docs.activestate.com/platform/start/pypi/) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
 
 === "GitLab CI/CD"
 
