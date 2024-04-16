@@ -2,4 +2,20 @@
   --md-primary-fg-color: #0073b7;
 }
 
+/* For light mode */
+.md-content img {
+  padding: 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  background: white;
+}
+
+/* For dark mode */
+@media (prefers-color-scheme: dark) {
+  .md-content img {
+    border-color: white;
+  }
+}
+
 readthedocs-flyout { display: none; }
