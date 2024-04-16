@@ -380,7 +380,8 @@ def sync_bigquery_release_files(request):
                 elif hasattr(release, sch.name):
                     field_data = getattr(release, sch.name)
                 elif hasattr(project, sch.name):
-                    field_data = getattr(project, sch.name)
+                    # releases have names now, `elif` doesn't execute
+                    field_data = getattr(project, sch.name)  # pragma: no cover
                 else:
                     field_data = None
 
