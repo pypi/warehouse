@@ -110,7 +110,7 @@ own security model and considerations.
         For example, here is how `pypa/pip-audit`'s `release` environment
         restricts reviews to members of the maintenance and admin teams:
 
-        ![](/assets/trusted-publishing/github/required-reviewers.png)
+        ![Screenshot of an example configuring an environment on GitHub](/assets/trusted-publishing/github/required-reviewers.png)
 
     * **[Use tag protection rules]**: if you use a tag-based publishing workflow
       (e.g. triggering on tags pushed), then you can limit tag creation and

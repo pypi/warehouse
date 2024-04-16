@@ -3,7 +3,7 @@ title: Expanding Trusted Publisher Support
 description: Announcing additional Trusted Publishing providers
 authors:
   - di
-date: 2024-04-15
+date: 2024-04-17
 tags:
   - publishing
   - security
