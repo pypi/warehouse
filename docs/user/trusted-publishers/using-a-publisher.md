@@ -221,14 +221,14 @@ below describe the setup process for each supported trusted publisher.
     plan to publish from:
 
     ```
-    $ python -m pip install -U id twine
+    python -m pip install -U id twine
     ```
 
     If you're unsure what the email address is for the service account your
     service is using, you can verify it with:
 
     ```
-    $ python -m id pypi -d | jq 'select(.email) | .email'
+    python -m id pypi -d | jq 'select(.email) | .email'
     ```
 
     Generate an OIDC token from within the environment and store it. The
@@ -236,7 +236,7 @@ below describe the setup process for each supported trusted publisher.
     publishing to:
 
     ```
-    $ oidc_token=$(python -m id pypi)
+    oidc_token=$(python -m id pypi)
     ```
 
     !!! note
