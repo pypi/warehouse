@@ -43,6 +43,17 @@
       </span>
     {% endfor %}
   {% endif %}
+  {% if release.github_repo_info_url and release.github_open_issue_info_url and release.is_source_verified %}
+    <h6>{% trans %}Project links{% endtrans %}</h6>
+    {% set url = release.urls["Homepage"] %}
+    {% if is_valid_uri(url) %}
+    <li>
+      <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
+        {{ url_icon("github.com", "github.com") }}Source <i class="fa fa-circle-check check"></i>
+      </a>
+    </li>
+    {% endif %}
+  {% endif %}
 </div>
 
 <div class="sidebar-section verified">

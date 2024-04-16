@@ -702,6 +702,20 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
+    @property
+    def is_source_verified(self) -> bool:
+        """
+        A Release can be considered source verified if it is trusted published
+        and the source URL is the same of the trusted publisher.
+        """
+        
+        urls = self.urls
+        if not self.trusted_published or "Homepage" not in urls:
+            return False
+
+        return self.files.first().publisher_url == urls["Homepage"]
+
+
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
@@ -777,8 +791,10 @@ class File(HasEvents, db.Model):
     @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
-        return (
-            self.events.where(
+        return (self._get_trusted_publisher_events().count() > 0)
+
+    def _get_trusted_publisher_events(self):
+        return self.events.where(
                 or_(
                     self.Event.additional[  # type: ignore[attr-defined]
                         "uploaded_via_trusted_publisher"
@@ -787,9 +803,12 @@ class File(HasEvents, db.Model):
                     .as_string()
                     .is_not(None),
                 )
-            ).count()
-            > 0
-        )
+            )
+    
+    @property
+    def publisher_url(self) -> str:
+        events = self._get_trusted_publisher_events()
+        return events.first().additional["publisher_url"] if events.count() > 0 else None
 
     @hybrid_property
     def metadata_path(self):

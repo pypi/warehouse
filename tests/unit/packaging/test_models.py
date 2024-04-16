@@ -668,6 +668,33 @@ class TestRelease:
 
         assert release.trusted_published
 
+    def test_is_source_verified(self, db_session):
+        release = DBReleaseFactory.create()
+        release_file = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+        )
+        assert not release.is_source_verified
+
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+        assert not release.is_source_verified
+
+        release.home_page = "xpto.com"
+        assert not release.is_source_verified
+
+        release.home_page = "https://fake/url"
+        assert release.is_source_verified
+
+
     def test_trusted_published_mixed(self, db_session):
         release = DBReleaseFactory.create()
         rfile_1 = DBFileFactory.create(
