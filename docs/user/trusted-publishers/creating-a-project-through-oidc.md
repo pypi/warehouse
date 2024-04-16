@@ -18,7 +18,7 @@ The steps for configuring a "pending" publisher are similar to those for
 a normal publisher, except that the page is under your account sidebar
 instead of any project's sidebar (since the project doesn't exist yet):
 
-![](/assets/trusted-publishing/publishing-link.png)
+![Image showing the 'Publishing' link in the account sidebar](/assets/trusted-publishing/publishing-link.png)
 
 Clicking on "publishing" will bring you to a page with different potential
 trusted publishers. The forms on this page behave
@@ -32,7 +32,7 @@ provide the name of the PyPI project that will be created.
     `release.yml` and an environment named `release` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
-    ![](/assets/trusted-publishing/github/pending-publisher-form-filled.png)
+    ![Image showing adding a new GitHub publisher](/assets/trusted-publishing/github/pending-publisher-form-filled.png)
 
     !!! note
 
@@ -41,7 +41,7 @@ provide the name of the PyPI project that will be created.
 
     Clicking "Add" will register the "pending" publisher, and show it to you:
 
-    ![](/assets/trusted-publishing/github/pending-publisher-registered.png)
+    ![Image showing a newly added GitHub publisher](/assets/trusted-publishing/github/pending-publisher-registered.png)
 
 === "Google Cloud"
 
@@ -50,7 +50,7 @@ provide the name of the PyPI project that will be created.
     the environment where you would like to publish to PyPI from, then you would do
     the following:
 
-    ![](/assets/trusted-publishing/google/pending-publisher-form-filled.png)
+    ![Image showing adding a new Google Cloud publisher](/assets/trusted-publishing/google/pending-publisher-form-filled.png)
 
     !!! note
 
@@ -58,7 +58,7 @@ provide the name of the PyPI project that will be created.
 
     Clicking "Add" will register the "pending" publisher, and show it to you:
 
-    ![](/assets/trusted-publishing/google/pending-publisher-registered.png)
+    ![Image showing a newly added Google Cloud publisher](/assets/trusted-publishing/google/pending-publisher-registered.png)
 
 === "ActiveState"
 
@@ -67,11 +67,11 @@ provide the name of the PyPI project that will be created.
     the ActiveState organization that project belongs to, and the ActiveState user who will be performing
     the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
 
-    ![](/assets/trusted-publishing/activestate/pending-publisher-form-filled.png)
+    ![Image showing adding a new ActiveState publisher](/assets/trusted-publishing/activestate/pending-publisher-form-filled.png)
 
     Clicking "Add" will register the "pending" publisher, and show it to you:
-    
-    ![](/assets/trusted-publishing/activestate/pending-publisher-registered.png)
+
+    ![Image showing a newly added ActiveState publisher](/assets/trusted-publishing/activestate/pending-publisher-registered.png)
 
 === "GitLab CI/CD"
 
@@ -80,7 +80,7 @@ provide the name of the PyPI project that will be created.
     `release.yml` and an environment named `release` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
-    ![](/assets/trusted-publishing/gitlab/pending-publisher-form-filled.png)
+    ![Image showing adding a new GitLab publisher](/assets/trusted-publishing/gitlab/pending-publisher-form-filled.png)
 
     !!! note
 
@@ -89,7 +89,7 @@ provide the name of the PyPI project that will be created.
 
     Clicking "Add" will register the "pending" publisher, and show it to you:
 
-    ![](/assets/trusted-publishing/gitlab/pending-publisher-registered.png)
+    ![Image showing a newly added GitLab publisher](/assets/trusted-publishing/gitlab/pending-publisher-registered.png)
 
 
 

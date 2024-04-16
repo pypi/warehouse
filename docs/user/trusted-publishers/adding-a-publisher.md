@@ -9,11 +9,11 @@ Adding a trusted publisher to a PyPI project only requires a single setup step.
 On the ["Your projects" page](https://pypi.org/manage/projects/), click "Manage" on any project you'd like to
 configure:
 
-![](/assets/trusted-publishing/manage-link.png)
+![Image showing the 'Your Projects' page](/assets/trusted-publishing/manage-link.png)
 
 Then, click on "Publishing" in the project's sidebar:
 
-![](/assets/trusted-publishing/project-publishing-link.png)
+![Image showing the 'Publishing' link in the project sidebar](/assets/trusted-publishing/project-publishing-link.png)
 
 That link will take you to the publisher configuration page for the project,
 which will allow you to configure trusted publishers for the different
@@ -34,7 +34,7 @@ each.
     that uses a publishing workflow defined in `.github/workflows/release.yml`
     and a custom environment named `release`, then you'd do the following:
 
-    ![](/assets/trusted-publishing/github/project-publishing-form.png)
+    ![Image showing adding a new GitHub publisher](/assets/trusted-publishing/github/project-publishing-form.png)
 
     !!! note
 
@@ -46,7 +46,7 @@ each.
     Once you click "Add", your publisher will be registered and will appear
     at the top of the page:
 
-    ![](/assets/trusted-publishing/github/project-publisher-registered.png)
+    ![Image showing a newly added GitHub publisher](/assets/trusted-publishing/github/project-publisher-registered.png)
 
     From this point onwards, the `release.yml` workflow on `octo-org/sampleproject` will
     be able to generate short-lived API tokens from PyPI for the project you've registered
@@ -66,7 +66,7 @@ each.
     `SERVICE_ACCOUNT_NAME@PROJECT_NAME.iam.gserviceaccount.com`, and you would do
     the following:
 
-    ![](/assets/trusted-publishing/google/project-publishing-form.png)
+    ![Image showing adding a new Google Cloud publisher](/assets/trusted-publishing/google/project-publishing-form.png)
 
     !!! warning
 
@@ -93,16 +93,16 @@ each.
     Once you click "Add", your publisher will be registered and will appear
     at the top of the page:
 
-    ![](/assets/trusted-publishing/google/project-publisher-registered.png)
+    ![Image showing a newly added Google Cloud publisher](/assets/trusted-publishing/google/project-publisher-registered.png)
 
 === "ActiveState"
 
     For ActiveState, you must provide the name of the ActiveState project,
     the ActiveState organization that project belongs to, and the ActiveState user performing
     the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
-    ![](/assets/trusted-publishing/activestate/project-publishing-form.png)
+    ![Image showing adding a new ActiveState publisher](/assets/trusted-publishing/activestate/project-publishing-form.png)
     Once you click "Add", your publisher will be registered and will appear at the top of the page:
-    ![](/assets/trusted-publishing/activestate/project-publisher-registered.png)
+    ![Image showing a newly added ActiveState publisher](/assets/trusted-publishing/activestate/project-publisher-registered.png)
 
 === "GitLab CI/CD"
 
@@ -116,7 +116,7 @@ each.
     that uses a publishing workflow defined in `release.yml` and a custom
     environment named `release`, then you'd do the following:
 
-    ![](/assets/trusted-publishing/gitlab/project-publishing-form.png)
+    ![Image showing adding a new GitLab publisher](/assets/trusted-publishing/gitlab/project-publishing-form.png)
 
     !!! note
 
@@ -128,7 +128,7 @@ each.
     Once you click "Add", your publisher will be registered and will appear
     at the top of the page:
 
-    ![](/assets/trusted-publishing/gitlab/project-publisher-registered.png)
+    ![Image showing a newly added GitLab publisher](/assets/trusted-publishing/gitlab/project-publisher-registered.png)
 
     From this point onwards, the `release.yml` workflow on `namespace/sampleproject`
     will be able to generate short-lived API tokens from PyPI for the project you've
