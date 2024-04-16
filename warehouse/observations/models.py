@@ -18,10 +18,11 @@ import typing
 
 from uuid import UUID
 
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
+from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm import Mapped, declared_attr, mapped_column, relationship
 
 from warehouse import db
@@ -150,6 +151,16 @@ class Observation(AbstractConcreteBase, db.Model):
     summary: Mapped[str] = mapped_column(comment="A short summary of the observation")
     payload: Mapped[dict] = mapped_column(
         JSONB, comment="The observation payload we received"
+    )
+    additional: Mapped[dict] = mapped_column(
+        MutableDict.as_mutable(JSONB()),
+        comment="Additional data for the observation",
+        server_default=sql.text("'{}'"),
+    )
+    actions: Mapped[dict] = mapped_column(
+        MutableDict.as_mutable(JSONB()),
+        comment="Actions taken based on the observation",
+        server_default=sql.text("'{}'"),
     )
 
     def __repr__(self):
