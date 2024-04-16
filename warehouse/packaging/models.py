@@ -623,6 +623,16 @@ class Release(HasObservations, db.Model):
     uploaded_via: Mapped[str | None]
 
     @property
+    def name(self) -> str:
+        """
+        Release doesn't have a name column, inherit from its Project.
+
+        NOTE: `name` is used in `warehouse.packaging.tasks.sync_bigquery_release_files`
+        If changed here and not there, may have implications on downstream data.
+        """
+        return self.project.name
+
+    @property
     def urls(self):
         _urls = OrderedDict()
 
