@@ -708,13 +708,11 @@ class Release(HasObservations, db.Model):
         A Release can be considered source verified if it is trusted published
         and the source URL is the same of the trusted publisher.
         """
-        
         urls = self.urls
-        if not self.trusted_published or "Homepage" not in urls:
+        if not self.trusted_published or "Homepage" not in urls or urls["Homepage"] is None:
             return False
 
         return self.files.first().publisher_url == urls["Homepage"]
-
 
 
 class PackageType(str, enum.Enum):
