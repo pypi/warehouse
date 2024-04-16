@@ -10,7 +10,7 @@ below describe the setup process for each supported trusted publisher.
 
 === "GitHub Actions"
 
-    ## The easy way
+    <h3>The easy way</h3>
 
     You can use the PyPA's
     [`pypi-publish`](https://github.com/marketplace/actions/pypi-publish)
@@ -70,7 +70,7 @@ below describe the setup process for each supported trusted publisher.
         Using the permission at the job level is **strongly** encouraged, as
         it reduces unnecessary credential exposure.
 
-    ### Publishing to indices other than PyPI
+    <h3>Publishing to indices other than PyPI</h3>
     The PyPA's [`pypi-publish`](https://github.com/marketplace/actions/pypi-publish)
     action also supports trusted publishing with other (non-PyPI) indices, provided
     they have trusted publishing enabled (and you've configured your trusted
@@ -84,7 +84,7 @@ below describe the setup process for each supported trusted publisher.
         repository-url: https://test.pypi.org/legacy/
     ```
 
-    ## The manual way
+    <h3>The manual way</h3>
 
     !!! warning
 
@@ -258,7 +258,7 @@ below describe the setup process for each supported trusted publisher.
     ```
 
     !!! note
-    
+
         This is the URL for PyPI. For TestPyPI, the correct
         domain should be is `test.pypi.org`.
 
@@ -280,7 +280,7 @@ below describe the setup process for each supported trusted publisher.
         ```
         Replace the placeholder values in the block above with your ActiveState organization name--this will usually be `USERNAME-org` (ORGNAME), package name (PKG_NAME), and the filename of your sdist or source tarball (PKG_FILENAME) and run the command. Take note of the TIMESTAMP in the output.
 
-        *Note: The namespace must start with `private/` followed by your organization name. You can also append additional 'folder' names if desired.* 
+        *Note: The namespace must start with `private/` followed by your organization name. You can also append additional 'folder' names if desired.*
 
     2. After publishing your package to ActiveState, you'll need to create a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Create a new build script file in the same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste the code below, substituting the placeholder values with those from your project: the timestamp of the package you just published (PUBLISHED_TIMESTAMP), the name of the namespace (ie. folder where you published the ingredient, which will look something like `private/USERNAME-org`) (NAMESPACE), the name of your package (PKG_NAME) and the version (VERSION) you're publishing. Save the changes to the file.
         ```python
@@ -329,7 +329,7 @@ below describe the setup process for each supported trusted publisher.
 
     !!! note
         Buildscript tips:
-        
+
         You can leave `pypi_uri` and `audience` fields blank to publish directly to the main PyPI repository.
 
         If you experience a network timeout or another transient error, you can increment the `attempt` parameter to retry.
@@ -337,9 +337,9 @@ below describe the setup process for each supported trusted publisher.
         The strings after `platforms = [` are the UUIDs of the supported platforms you want to build a wheel for. A list of all supported platforms can be found [here](https://docs.activestate.com/platform/updates/supported-platforms). Select all applicable to your project from the list provided.
 
     !!! note
-        If you want to test your wheel before publishing it, you follow these steps before running `state eval publish_receipt`:  
-        1. To build your wheel on its own, run `state eval wheels`  
-        2. After building your wheel, run `state builds --all` to view all of the builds available. Take note of the `HASH_ID` of your new wheel.  
+        If you want to test your wheel before publishing it, you follow these steps before running `state eval publish_receipt`:
+        1. To build your wheel on its own, run `state eval wheels`
+        2. After building your wheel, run `state builds --all` to view all of the builds available. Take note of the `HASH_ID` of your new wheel.
         3. Run `state builds dl <HASH_ID>` to download and test the wheel you've built.
 
 === "GitLab CI/CD"
@@ -367,7 +367,7 @@ below describe the setup process for each supported trusted publisher.
       artifacts:
         paths:
           - "python_pkg/dist/"
-    
+
     publish-job:
       stage: deploy
       image: python:3-bookworm
@@ -381,13 +381,13 @@ below describe the setup process for each supported trusted publisher.
         # Install dependencies
         - apt update && apt install -y jq
         - python -m pip install -U twine id
-    
+
         # Retrieve the OIDC token from GitLab CI/CD, and exchange it for a PyPI API token
         - oidc_token=$(python -m id PYPI)
         # Replace "https://pypi.org/*" with "https://test.pypi.org/*" if uploading to TestPyPI
         - resp=$(curl -X POST https://pypi.org/_/oidc/mint-token -d "{\"token\":\"${oidc_token}\"}")
         - api_token=$(jq --raw-output '.token' <<< "${resp}")
-    
+
         # Upload to PyPI authenticating via the newly-minted token
         # Add "--repository testpypi" if uploading to TestPyPI
         - twine upload -u __token__ -p "${api_token}" python_pkg/dist/*
