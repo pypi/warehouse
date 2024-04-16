@@ -65,7 +65,7 @@ provide the name of the PyPI project that will be created.
     Setting up ActiveState to create a PyPI project is the same as
     updating a project. You need to provide the name of the ActiveState project,
     the ActiveState organization that project belongs to, and the ActiveState user who will be performing
-    the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/PYPI).
+    the publish action. Learn more about getting set up on the ActiveState Platform [here](https://docs.activestate.com/platform/start/pypi).
 
     ![](/assets/trusted-publishing/activestate/pending-publisher-form-filled.png)
 
