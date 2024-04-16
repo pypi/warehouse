@@ -295,8 +295,9 @@ below describe the setup process for each supported trusted publisher.
         (PKG_NAME), and the filename of your sdist or source tarball (PKG_FILENAME) and
         run the command. Take note of the TIMESTAMP in the output.
 
-        *Note: The namespace must start with `private/` followed by your
-        organization name. You can also append additional 'folder' names if desired.*
+    !!! note
+        The namespace must start with `private/` followed by your
+        organization name. You can also append additional 'folder' names if desired.
 
     2. After publishing your package to ActiveState, you'll need to create a
         build script file (`buildscript.as`) to build it into a wheel and publish it to
