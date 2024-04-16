@@ -168,6 +168,7 @@ own security model and considerations.
       build in the ActiveState Platform.  This user will need editing privileges in the
       ActiveState organization associated with the project.
     * The ActiveState Platform project must be private.
+
     For more information about Trusted Publishing using the ActiveState Platform please
     see the [PyPI configuration documentation](https://docs.activestate.com/platform/start/PYPI) and the [ActiveState Platform documentation](https://docs.activestate.com/platform).
 
