@@ -18,7 +18,7 @@
   {% if project.organization %}
   <h6>Owner</h6>
     <span class="sidebar-section__maintainer">
-      <a href="/org/pypa/" aria-label="pypa">
+      <a href="{{ request.route_path('organizations.profile', organization=project.organization.name) }}" aria-label="{{ project.organization.name }}">
         <span class="sidebar-section__user-gravatar">
           <img src="{{ request.static_path('warehouse:static/dist/images/blue-sitemap.png') }}" height="43" alt="organization icon" title="organization icon">        </span>
         <span class="sidebar-section__user-gravatar-text">
