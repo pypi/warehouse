@@ -981,11 +981,12 @@ def file_upload(request):
                     filename[len(name) + 1 : -len(".tar.gz")]
                 )
 
-            # Normalize the prefix in the filename. Eventually this should be unnecessary once
-            # we become more restrictive in what we permit
+            # Normalize the prefix in the filename. Eventually this should be
+            # unnecessary once we become more restrictive in what we permit
             filename_prefix = name.lower().replace(".", "_").replace("-", "_")
 
-            # Make sure that our filename matches the project that it is being uploaded to.
+            # Make sure that our filename matches the project that it is being
+            # uploaded to.
             if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
                 raise _exc_with_message(
                     HTTPBadRequest,
