@@ -270,19 +270,44 @@ below describe the setup process for each supported trusted publisher.
 
 === "ActiveState"
 
-    ActiveState's Platform works as a zero-config CI solution for your dependencies to automatically build cross-platform wheels of your PyPI projects. Once you're set up on the Platform and have linked your PyPI project, you're ready to publish. For more information on getting started with ActiveState, go [here](https://docs.activestate.com/platform/start/pypi). To begin:
+    ActiveState's Platform works as a zero-config CI solution for your
+    dependencies to automatically build cross-platform wheels of your PyPI
+    projects. Once you're set up on the Platform and have linked your PyPI project,
+    you're ready to publish. For more information on getting started with
+    ActiveState, go [here](https://docs.activestate.com/platform/start/pypi). To
+    begin:
 
-    Publish your package to ActiveState's catalog. This will allow ActiveState's Platform to build it for you.
+    Publish your package to ActiveState's catalog. This will allow
+    ActiveState's Platform to build it for you.
 
     1. Run the following command using the State Tool CLI:
         ```
-        state publish --namespace private/ORGNAME --name PKG_NAME PKG_FILENAME --depend "builder/python-module-builder@>=0" --depend "language/python@>=3" --depend "language/python/setuptools@>=43.0.0" --depend "language/python/wheel@>=0"
+        state publish \
+          --namespace private/ORGNAME \
+          --name PKG_NAME PKG_FILENAME \
+          --depend "builder/python-module-builder@>=0" \
+          --depend "language/python@>=3" \
+          --depend "language/python/setuptools@>=43.0.0" \
+          --depend "language/python/wheel@>=0"
         ```
-        Replace the placeholder values in the block above with your ActiveState organization name--this will usually be `USERNAME-org` (ORGNAME), package name (PKG_NAME), and the filename of your sdist or source tarball (PKG_FILENAME) and run the command. Take note of the TIMESTAMP in the output.
+        Replace the placeholder values in the block above with your ActiveState
+        organization name--this will usually be `USERNAME-org` (ORGNAME), package name
+        (PKG_NAME), and the filename of your sdist or source tarball (PKG_FILENAME) and
+        run the command. Take note of the TIMESTAMP in the output.
 
-        *Note: The namespace must start with `private/` followed by your organization name. You can also append additional 'folder' names if desired.*
+        *Note: The namespace must start with `private/` followed by your
+        organization name. You can also append additional 'folder' names if desired.*
 
-    2. After publishing your package to ActiveState, you'll need to create a build script file (`buildscript.as`) to build it into a wheel and publish it to PyPI. An example script is shown below. Create a new build script file in the same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste the code below, substituting the placeholder values with those from your project: the timestamp of the package you just published (PUBLISHED_TIMESTAMP), the name of the namespace (ie. folder where you published the ingredient, which will look something like `private/USERNAME-org`) (NAMESPACE), the name of your package (PKG_NAME) and the version (VERSION) you're publishing. Save the changes to the file.
+    2. After publishing your package to ActiveState, you'll need to create a
+        build script file (`buildscript.as`) to build it into a wheel and publish it to
+        PyPI. An example script is shown below. Create a new build script file in the
+        same folder as your `activestate.yaml` file and name it `buildscript.as`. Paste
+        the code below, substituting the placeholder values with those from your
+        project: the timestamp of the package you just published (PUBLISHED_TIMESTAMP),
+        the name of the namespace (ie. folder where you published the ingredient, which
+        will look something like `private/USERNAME-org`) (NAMESPACE), the name of your
+        package (PKG_NAME) and the version (VERSION) you're publishing. Save the
+        changes to the file.
         ```python
         at_time = "PUBLISHED_TIMESTAMP"
 
@@ -321,7 +346,8 @@ below describe the setup process for each supported trusted publisher.
 
         main = runtime
         ```
-    3. Then, "commit" this build script to the system by running `state commit` in your terminal. Now you're ready to publish to PyPI!
+    3. Then, "commit" this build script to the system by running `state commit`
+    in your terminal. Now you're ready to publish to PyPI!
     4. To publish your wheel to PyPI, run: `state eval publish_receipt`.
     That's it!
 
@@ -330,16 +356,24 @@ below describe the setup process for each supported trusted publisher.
     !!! note
         Buildscript tips:
 
-        You can leave `pypi_uri` and `audience` fields blank to publish directly to the main PyPI repository.
+        You can leave `pypi_uri` and `audience` fields blank to publish
+        directly to the main PyPI repository.
 
-        If you experience a network timeout or another transient error, you can increment the `attempt` parameter to retry.
+        If you experience a network timeout or another transient error, you can
+        increment the `attempt` parameter to retry.
 
-        The strings after `platforms = [` are the UUIDs of the supported platforms you want to build a wheel for. A list of all supported platforms can be found [here](https://docs.activestate.com/platform/updates/supported-platforms). Select all applicable to your project from the list provided.
+        The strings after `platforms = [` are the UUIDs of the supported
+        platforms you want to build a wheel for. A list of all supported platforms can
+        be found
+        [here](https://docs.activestate.com/platform/updates/supported-platforms).
+        Select all applicable to your project from the list provided.
 
     !!! note
-        If you want to test your wheel before publishing it, you follow these steps before running `state eval publish_receipt`:
+        If you want to test your wheel before publishing it, you follow these
+        steps before running `state eval publish_receipt`:
         1. To build your wheel on its own, run `state eval wheels`
-        2. After building your wheel, run `state builds --all` to view all of the builds available. Take note of the `HASH_ID` of your new wheel.
+        2. After building your wheel, run `state builds --all` to view all of
+          the builds available. Take note of the `HASH_ID` of your new wheel.
         3. Run `state builds dl <HASH_ID>` to download and test the wheel you've built.
 
 === "GitLab CI/CD"
