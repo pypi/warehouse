@@ -4454,6 +4454,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:27
+#: warehouse/templates/manage/project/publishing.html:25
 #, python-format
 msgid ""
 "Read more about GitHub Actions' OpenID Connect support <a "
@@ -5987,13 +5988,6 @@ msgstr ""
 
 #: warehouse/templates/manage/project/manage_project_base.html:65
 msgid "Back to projects"
-msgstr ""
-
-#: warehouse/templates/manage/project/publishing.html:25
-#, python-format
-msgid ""
-"Read more about GitHub Actions's OpenID Connect support <a "
-"href=\"%(href)s\">here</a>."
 msgstr ""
 
 #: warehouse/templates/manage/project/publishing.html:258
