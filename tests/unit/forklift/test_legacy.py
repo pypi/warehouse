@@ -2000,11 +2000,18 @@ class TestFileUpload:
             ("no-way-{version}.tar.gz", "sdist", "no"),
             ("no_way-{version}-py3-none-any.whl", "bdist_wheel", "no"),
             # multiple delimiters
-            ("foo__bar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
+            ("foobar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
         ],
     )
-    def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, filename, filetype, project_name
+    def test_upload_fails_with_wrong_filename_project_name(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        filename,
+        filetype,
+        project_name,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2020,6 +2027,7 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
         db_request.POST = MultiDict(
             {
