@@ -2064,6 +2064,57 @@ class TestFileUpload:
         )
 
     @pytest.mark.parametrize(
+        "filename", ["wutang-6.6.6.tar.gz", "wutang-6.6.6-py3-none-any.whl"]
+    )
+    def test_upload_fails_with_wrong_filename_version(
+        self, monkeypatch, pyramid_config, db_request, metrics, filename
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="wutang")
+        RoleFactory.create(user=user, project=project)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        filetype = "sdist" if filename.endswith(".tar.gz") else "bdist_wheel"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.2.3",
+                "filetype": filetype,
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "pyversion": {
+                    "bdist_wheel": "1.0",
+                    "bdist_egg": "1.0",
+                    "sdist": "source",
+                }[filetype],
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = lambda **kw: "/the/help/url/"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
+
+    @pytest.mark.parametrize(
         "filetype, extension",
         [
             ("sdist", ".whl"),
