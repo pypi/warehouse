@@ -18,8 +18,6 @@
   {% trans %}Log in{% endtrans %}
 {% endblock %}
 
-{%- from "warehouse:templates/includes/input-captcha.html" import captcha_html, captcha_src %}
-
 {% block content %}
   {% if testPyPI %}
     {% set title = "TestPyPI" %}
@@ -74,16 +72,12 @@
         </div>
 
         <div data-controller="password" class="form-group">
-          <div class="split-layout">
+          <div>
             <label for="password" class="form-group__label">
               {% trans %}Password{% endtrans %}
               {% if form.password.flags.required %}
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
-            </label>
-            <label for="show-password">
-              <input data-action="change->password#togglePasswords" data-password-target="showPassword"
-                id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
             </label>
           </div>
           {{ form.password(
@@ -103,30 +97,22 @@
             </ul>
             {% endif %}
           </div>
-
-        {# TODO: This is an empty div set used for consistent visual layout. #}
-        <div class="form-group"><div class="form-errors"></div></div>
-
-        <div class="form-group">
-          {{ captcha_html(request, form) }}
-        </div>
-
           <div class="form-group">
             <div class="split-layout margin-top--large margin-bottom--large">
               <div>
                 <input type="submit" value="{% trans %}Log in{% endtrans %}" class="button button--primary">
               </div>
-              <span>
-                <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
-              </span>
+              <label for="show-password">
+                <input data-action="change->password#togglePasswords" data-password-target="showPassword"
+                  id="show-password" type="checkbox">&nbsp;{% trans %}Show password{% endtrans %}
+              </label>
             </div>
+            <span>
+              <a href="{{request.route_url('accounts.request-password-reset')}}">{% trans %}Forgot password?{% endtrans %}</a>
+            </span>
           </div>
         </div>
       </form>
     </div>
   </div>
-{% endblock %}
-
-{% block extra_js %}
-  {{ captcha_src(request) }}
 {% endblock %}

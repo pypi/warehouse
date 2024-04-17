@@ -352,6 +352,10 @@ types-certifi==2021.10.8.3 \
     --hash=sha256:72cf7798d165bc0b76e1c10dd1ea3097c7063c42c21d664523b928e88b554a4f \
     --hash=sha256:b2d1e325e69f71f7c78e5943d410e650b4707bb0ef32e4ddf3da37f54176e88a
     # via -r requirements/lint.in
+types-cffi==1.16.0.20240331 \
+    --hash=sha256:a363e5ea54a4eb6a4a105d800685fde596bc318089b025b27dee09849fe41ff0 \
+    --hash=sha256:b8b20d23a2b89cfed5f8c5bc53b0cb8677c3aac6d970dbc771e28b9c698f5dee
+    # via types-pyopenssl
 types-first==2.0.5.2 \
     --hash=sha256:342c2d99d3a2bf43c281b2de5d08f83c65ac1b2320af04b0f878ea2bc8ba390c \
     --hash=sha256:4115d28bdb52542531f70ccb1a044802f597d8fb3e4e55f65c23f522e1086d1f
@@ -368,9 +372,9 @@ types-passlib==1.7.7.20240327 \
     --hash=sha256:3a3b7f4258b71034d2e2f4f307d6810f9904f906cdf375514c8bdbdb28a4ad23 \
     --hash=sha256:4cce6a1a3a6afee9fc4728b4d9784300764ac2be747f5bcc01646d904b85f4bb
     # via -r requirements/lint.in
-types-pyopenssl==24.0.0.20240311 \
-    --hash=sha256:6e8e8bfad34924067333232c93f7fc4b369856d8bea0d5c9d1808cb290ab1972 \
-    --hash=sha256:7bca00cfc4e7ef9c5d2663c6a1c068c35798e59670595439f6296e7ba3d58083
+types-pyopenssl==24.0.0.20240417 \
+    --hash=sha256:38e75fb828d2717be173770bbae8c22811fdec68e2bc3f5833954113eb84237d \
+    --hash=sha256:4ce41ddaf383815168b6e21d542fd92135f10a5e82adb3e593a6b79638b0b511
     # via types-redis
 types-python-slugify==8.0.2.20240310 \
     --hash=sha256:0efec18b802c69ebd22dcee55c91afaeaa80e1e40ddd66ccabf69fd42ce87b74 \
@@ -400,6 +404,7 @@ types-setuptools==69.2.0.20240317 \
     # via
     #   -r requirements/lint.in
     #   types-babel
+    #   types-cffi
 types-stripe==3.5.2.20240106 \
     --hash=sha256:63a36958f0dc4a71685b027f0b6d807ff197ee337135ac19a0f8b6132365ca52 \
     --hash=sha256:9ea7bc9b9889a3d8606114c52dcc70a8fc62d44a46da4bc5ee19f0d463674bb8
