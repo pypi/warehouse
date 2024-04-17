@@ -68,7 +68,7 @@ def upgrade():
     # For each, set the `related_name` to the related Project's model name
     for project in session.scalars(projects_query):
         for observation in project.observations:
-            observation.related_name = project.name
+            observation.related_name = repr(project)
             session.add(observation)
     session.commit()
 

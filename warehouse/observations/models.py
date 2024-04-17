@@ -249,7 +249,7 @@ class HasObservations:
             observer=actor.observer,
             payload=payload,
             related=self,
-            related_name=self.name,  # type: ignore[attr-defined]
+            related_name=repr(self),
             summary=summary,
         )
 
