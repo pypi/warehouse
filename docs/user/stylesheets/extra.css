@@ -2,4 +2,12 @@
   --md-primary-fg-color: #0073b7;
 }
 
+.md-content img {
+  padding: 10px;
+  border-width: 1px;
+  border-style: solid;
+  border-color: black;
+  background: white;
+}
+
 readthedocs-flyout { display: none; }
