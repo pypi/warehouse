@@ -18,7 +18,7 @@ import typing
 
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, sql
+from sqlalchemy import ForeignKey, String, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
@@ -213,6 +213,11 @@ class HasObservations:
                     index=True,
                 ),
                 related=relationship(cls, back_populates="observations"),
+                related_name=mapped_column(
+                    String,
+                    comment="The name of the related model",
+                    nullable=False,
+                ),
                 observer_id=mapped_column(
                     PG_UUID,
                     ForeignKey("observers.id"),
@@ -244,6 +249,7 @@ class HasObservations:
             observer=actor.observer,
             payload=payload,
             related=self,
+            related_name=repr(self),
             summary=summary,
         )
 
