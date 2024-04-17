@@ -1445,9 +1445,9 @@ psycopg[c]==3.1.18 \
 psycopg-c==3.1.18 \
     --hash=sha256:ffff0c4a9c0e0b7aadb1acb7b61eb8f886365dd8ef00120ce14676235846ba73
     # via psycopg
-pyasn1==0.5.1 \
-    --hash=sha256:4439847c58d40b1d0a573d07e3856e95333f1976294494c325775aeca506eb58 \
-    --hash=sha256:6d391a96e59b23130a5cfa74d6fd7f388dbbe26cc8f1edf39fdddf08d9d6676c
+pyasn1==0.6.0 \
+    --hash=sha256:3a35ab2c4b5ef98e17dfdec8ab074046fbda76e281c5a706ccd82328cfc8f64c \
+    --hash=sha256:cca4bb0f2df5504f02f6f8a775b6e416ff9b0b3b16f7ee80b5a3153d9b804473
     # via
     #   pyasn1-modules
     #   rsa
