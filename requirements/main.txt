@@ -1132,9 +1132,9 @@ lxml==5.2.1 \
     # via
     #   -r requirements/main.in
     #   premailer
-mako==1.3.2 \
-    --hash=sha256:2a0c8ad7f6274271b3bb7467dd37cf9cc6dab4bc19cb69a4ef10669402de698e \
-    --hash=sha256:32a99d70754dfce237019d17ffe4a282d2d3351b9c476e90d8a60e63f133b80c
+mako==1.3.3 \
+    --hash=sha256:5324b88089a8978bf76d1629774fcc2f1c07b82acdf00f4c5dd8ceadfffc4b40 \
+    --hash=sha256:e16c01d9ab9c11f7290eef1cfefc093fb5a45ee4a3da09e2fec2e4d1bae54e73
     # via alembic
 markupsafe==2.1.5 \
     --hash=sha256:00e046b6dd71aa03a41079792f8473dc494d564611a8f89bbbd7cb93295ebdcf \
