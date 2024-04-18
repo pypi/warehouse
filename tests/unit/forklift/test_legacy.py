@@ -482,21 +482,40 @@ class TestFileUpload:
             ),
             # version errors.
             (
-                {"metadata_version": "1.2", "name": "example"},
-                "'' is an invalid value for Version. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'version' is a required field. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
             ),
             (
-                {"metadata_version": "1.2", "name": "example", "version": "dog"},
-                "'dog' is an invalid value for Version. "
-                "Error: Start and end with a letter or numeral "
-                "containing only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "dog",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'dog' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0.dev.a1",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'1.0.dev.a1' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
             ),
             # filetype/pyversion errors.
             (
@@ -2000,11 +2019,18 @@ class TestFileUpload:
             ("no-way-{version}.tar.gz", "sdist", "no"),
             ("no_way-{version}-py3-none-any.whl", "bdist_wheel", "no"),
             # multiple delimiters
-            ("foo__bar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
+            ("foobar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
         ],
     )
-    def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, filename, filetype, project_name
+    def test_upload_fails_with_wrong_filename_project_name(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        filename,
+        filetype,
+        project_name,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2020,6 +2046,7 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
         db_request.POST = MultiDict(
             {
@@ -2054,6 +2081,57 @@ class TestFileUpload:
                 project.normalized_name.replace("-", "_"),
             )
         )
+
+    @pytest.mark.parametrize(
+        "filename", ["wutang-6.6.6.tar.gz", "wutang-6.6.6-py3-none-any.whl"]
+    )
+    def test_upload_fails_with_wrong_filename_version(
+        self, monkeypatch, pyramid_config, db_request, metrics, filename
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="wutang")
+        RoleFactory.create(user=user, project=project)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        filetype = "sdist" if filename.endswith(".tar.gz") else "bdist_wheel"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.2.3",
+                "filetype": filetype,
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "pyversion": {
+                    "bdist_wheel": "1.0",
+                    "bdist_egg": "1.0",
+                    "sdist": "source",
+                }[filetype],
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = lambda **kw: "/the/help/url/"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
 
     @pytest.mark.parametrize(
         "filetype, extension",
