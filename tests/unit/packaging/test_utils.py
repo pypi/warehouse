@@ -58,7 +58,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
     context = _valid_simple_detail_context(context)
     expected_content = template.render(**context, request=db_request).encode("utf-8")
 
-    content_hash, path = render_simple_detail(project, db_request)
+    content_hash, path, size = render_simple_detail(project, db_request)
 
     assert fakeblake2b.calls == [pretend.call(digest_size=32)]
     assert fake_hasher.update.calls == [pretend.call(expected_content)]
@@ -69,6 +69,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
         f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
         + f".{project.normalized_name}.html"
     )
+    assert size == len(expected_content)
 
 
 def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
@@ -94,7 +95,7 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
 
     fake_named_temporary_file = pretend.stub(
         name="/tmp/wutang",
-        write=pretend.call_recorder(lambda data: None),
+        write=pretend.call_recorder(lambda data: 42),
         flush=pretend.call_recorder(lambda: None),
     )
 
@@ -115,7 +116,7 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     context = _valid_simple_detail_context(context)
     expected_content = template.render(**context, request=db_request).encode("utf-8")
 
-    content_hash, path = render_simple_detail(project, db_request, store=True)
+    content_hash, path, size = render_simple_detail(project, db_request, store=True)
 
     assert fake_named_temporary_file.write.calls == [pretend.call(expected_content)]
     assert fake_named_temporary_file.flush.calls == [pretend.call()]
@@ -153,3 +154,4 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
         f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
         + f".{project.normalized_name}.html"
     )
+    assert size == 42
