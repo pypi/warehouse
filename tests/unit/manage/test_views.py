@@ -2599,6 +2599,7 @@ class TestManageProjects:
         }
 
 
+@pytest.mark.usefixtures("disable_tuf")
 class TestManageProjectSettings:
     @pytest.mark.parametrize("enabled", [False, True])
     def test_manage_project_settings(self, enabled, monkeypatch):
@@ -3760,6 +3761,7 @@ class TestManageProjectReleases:
         }
 
 
+@pytest.mark.usefixtures("disable_tuf")
 class TestManageProjectRelease:
     def test_manage_project_release(self):
         files = pretend.stub()

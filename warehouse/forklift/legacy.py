@@ -42,6 +42,7 @@ from pyramid.view import view_config
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
+from warehouse import tuf
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -1167,6 +1168,8 @@ def file_upload(request):
         send_two_factor_not_yet_enabled_email(request, request.user)
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    tuf.update_metadata(request, release.project)
 
     # Push updates to BigQuery
     dist_metadata = {
