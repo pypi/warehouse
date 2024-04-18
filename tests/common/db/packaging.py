@@ -63,6 +63,7 @@ class ProjectObservationFactory(WarehouseFactory):
         model = Project.Observation
 
     related = factory.SubFactory(ProjectFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
     observer = factory.SubFactory(ObserverFactory)
 
     kind = factory.Faker(
