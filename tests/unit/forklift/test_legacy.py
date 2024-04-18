@@ -480,6 +480,43 @@ class TestFileUpload:
                 "https://packaging.python.org/specifications/core-metadata"
                 " for more information.",
             ),
+            # version errors.
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'version' is a required field. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "dog",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'dog' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0.dev.a1",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'1.0.dev.a1' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
+            ),
             # filetype/pyversion errors.
             (
                 {
