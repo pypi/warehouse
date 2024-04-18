@@ -18,7 +18,7 @@ import typing
 
 from uuid import UUID
 
-from sqlalchemy import ForeignKey, sql
+from sqlalchemy import ForeignKey, String, sql
 from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.associationproxy import AssociationProxy, association_proxy
 from sqlalchemy.ext.declarative import AbstractConcreteBase
@@ -203,16 +203,17 @@ class HasObservations:
                 },
                 related_id=mapped_column(
                     PG_UUID,
-                    ForeignKey(
-                        f"{cls.__tablename__}.id",
-                        onupdate="CASCADE",
-                        ondelete="CASCADE",
-                    ),
+                    ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
-                    nullable=False,
+                    nullable=True,
                     index=True,
                 ),
                 related=relationship(cls, back_populates="observations"),
+                related_name=mapped_column(
+                    String,
+                    comment="The name of the related model",
+                    nullable=False,
+                ),
                 observer_id=mapped_column(
                     PG_UUID,
                     ForeignKey("observers.id"),
@@ -222,7 +223,7 @@ class HasObservations:
                 observer=relationship(Observer),
             ),
         )
-        return relationship(cls.Observation, cascade="all, delete-orphan")
+        return relationship(cls.Observation)
 
     def record_observation(
         self,
@@ -244,6 +245,7 @@ class HasObservations:
             observer=actor.observer,
             payload=payload,
             related=self,
+            related_name=repr(self),
             summary=summary,
         )
 
