@@ -34,6 +34,7 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
+from warehouse import tuf
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -2051,6 +2052,8 @@ def delete_project(project, request):
 
     remove_project(project, request)
 
+    tuf.update_metadata(request, project)
+
     return HTTPSeeOther(request.route_path("manage.projects"))
 
 
@@ -2221,6 +2224,7 @@ class ManageProjectRelease:
                 recipient_role=contributor_role,
             )
 
+        tuf.update_metadata(self.request, self.release.project)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2305,7 +2309,7 @@ class ManageProjectRelease:
                 submitter_role=submitter_role,
                 recipient_role=contributor_role,
             )
-
+        tuf.update_metadata(self.request, self.release.project)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2405,6 +2409,7 @@ class ManageProjectRelease:
                 recipient_role=contributor_role,
             )
 
+        tuf.update_metadata(self.request, self.release.project)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2503,7 +2508,7 @@ class ManageProjectRelease:
         self.request.session.flash(
             f"Deleted file {release_file.filename!r}", queue="success"
         )
-
+        tuf.update_metadata(self.request, self.release.project)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.release",
