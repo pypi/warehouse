@@ -116,7 +116,7 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
 // Guard each one to not break execution if the table isn't present
 
 // User Account Activity
-let accountActivityTable = $("#account-activity")
+let accountActivityTable = $("#account-activity");
 if (accountActivityTable.length) {
   let table = accountActivityTable.DataTable({
     responsive: true,
@@ -132,7 +132,7 @@ if (accountActivityTable.length) {
 }
 
 // User API Tokens
-let tokenTable = $("#api-tokens")
+let tokenTable = $("#api-tokens");
 if (tokenTable.length) {
   let table = tokenTable.DataTable({
     responsive: true,
@@ -145,7 +145,7 @@ if (tokenTable.length) {
 }
 
 // Observations
-let observationsTable = $("#observations")
+let observationsTable = $("#observations");
 if (observationsTable.length) {
   let table = observationsTable.DataTable({
     responsive: true,
@@ -158,7 +158,7 @@ if (observationsTable.length) {
 }
 
 // Malware Reports
-let malwareReportsTable = $("#malware-reports")
+let malwareReportsTable = $("#malware-reports");
 if (malwareReportsTable.length) {
   let table = malwareReportsTable.DataTable({
     displayLength: 25,
@@ -169,7 +169,7 @@ if (malwareReportsTable.length) {
       dataSrc: 0,
       // display row count in group header
       startRender: function (rows, group) {
-        return group + ' (' + rows.count() + ')';
+        return group + " (" + rows.count() + ")";
       },
     },
   });
