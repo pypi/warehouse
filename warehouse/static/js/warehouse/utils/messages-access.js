@@ -11,26 +11,15 @@
  * limitations under the License.
  */
 
-const i18n = require("gettext.js");
-const messages = require("./messages.json");
-
-function determineLocale() {
-  // check cookie
-  const locale = document.cookie
-    .split("; ")
-    .find((row) => row.startsWith("_LOCALE_="))
-    ?.split("=")[1];
-  return locale ?? "en";
-}
 
 /**
  * Get the translation using num to choose the appropriate string.
  *
  * When importing this function, it must be named in a particular way to be recognised by babel
  * and have the translation strings extracted correctly.
- * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
+ * Function 'ngettext' for plural extraction.
  *
- * Any placeholders must be specified as '%1', '%2', etc.
+ * Any placeholders must be specified as
  *
  * @example
  * import { gettext, ngettext } from "warehouse/utils/messages-access";
@@ -42,33 +31,38 @@ function determineLocale() {
  * @param singular {string} The default string for the singular translation.
  * @param plural {string} The default string for the plural translation.
  * @param num {number} The number to use to select the appropriate translation.
- * @param values {array[string]} Additional values to fill the placeholders.
- * @returns {Promise<any | string>} The promise.
+ * @returns {string} The translated text.
  * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
-export function ngettext(singular, plural, num, ...values) {
-  const locale = determineLocale();
-  const json = messages.find((element) => element[""].language === locale);
-  if (json) {
-    i18n.loadJSON(json, "messages");
-  }
-  return Promise.resolve(i18n.ngettext(singular, plural, num, num, ...values));
+export function ngettext(singular, plural, num) {
+  return JSON.stringify({singular: singular, plural: plural, num: num});
 }
 
 /**
- * Get the singlar translation.
+ * Get the singular translation.
  *
  * When importing this function, it must be named in a particular way to be recognised by babel
  * and have the translation strings extracted correctly.
- * Function 'gettext' for singular only extraction, function ngettext for singular and plural extraction.
+ * Function 'gettext' for singular extraction.
  *
- * Any placeholders must be specified as '%1', '%2', etc.
+ * Any placeholders must be specified as
  *
  * @param singular {string} The default string for the singular translation.
- * @param values {array[string]} Additional values to fill the placeholders.
- * @returns {Promise<any | string>} The promise.
+ * @returns {string} The translated text.
  */
-export function gettext(singular, ...values) {
-  return Promise.resolve(i18n.gettext(singular, ...values));
+export function gettext(singular) {
+  return JSON.stringify({singular: singular});
+}
+
+export function templateMessage(strings, ...keys) {
+  return (...values) => {
+    const dict = values[values.length - 1] || {};
+    const result = [strings[0]];
+    keys.forEach((key, i) => {
+      const value = Number.isInteger(key) ? values[key] : dict[key];
+      result.push(value, strings[i + 1]);
+    });
+    return result.join("");
+  };
 }

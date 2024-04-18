@@ -15,6 +15,7 @@
 // See: https://webpack.js.org/configuration/
 
 const path = require("path");
+const fs = require("fs");
 const zlib = require("zlib");
 const glob = require("glob");
 const rtlcss = require("rtlcss");
@@ -22,11 +23,12 @@ const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
-const LiveReloadPlugin = require('webpack-livereload-plugin');
+const LiveReloadPlugin = require("webpack-livereload-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ProvidePlugin = require("webpack").ProvidePlugin;
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
+const LocalizeAssetsPlugin = require("webpack-localize-assets-plugin");
 
 /* Shared Plugins */
 
@@ -84,6 +86,50 @@ const sharedWebpackManifestPlugins = [
   }),
 ];
 
+// The translations here must match the KNOWN_LOCALES in warehouse/i18n/__init__.py
+// Without 'en', as that is the default language.
+const KNOWN_LOCALES = [
+  "es",
+  "fr",
+  "ja",
+  "pt_BR",
+  "uk",
+  "el",
+  "de",
+  "zh_Hans",
+  "zh_Hant",
+  "ru",
+  "he",
+  "eo",
+];
+const translations = {};
+const plural_forms = {};
+KNOWN_LOCALES.forEach((locale) => {
+  const messages = path.resolve(__dirname, `warehouse/locale/${locale}/LC_MESSAGES/messages.json`);
+  translations[locale] = messages.entries;
+  plural_forms[locale] = messages["plural-forms"];
+});
+const sharedTranslationPlugins = [
+  new LocalizeAssetsPlugin({
+    locales: translations,
+    sourceMapForLocales: KNOWN_LOCALES,
+    throwOnMissing: true,
+    warnOnUnusedString: true,
+    localizeCompiler: {
+      gettext(callArguments, localeName) {
+        const [singular] = callArguments;
+        const availableForms = this.resolveKey(singular);
+        return `gettext("${availableForms[0]}")/*${localeName}*/`;
+      },
+      ngettext(callArguments, localeName) {
+        const [singular, plural, num] = callArguments;
+        const availableForms = this.resolveKey(singular);
+        return `ngettext("${availableForms[0]}","${JSON.stringify(availableForms)}",${num})/*${localeName},plural:${plural}*/`;
+      },
+    },
+  }),
+];
+
 /* End Shared Plugins */
 
 const sharedResolve = {
@@ -95,6 +141,12 @@ const sharedResolve = {
 
 module.exports = [
   {
+    stats: {
+      errors: true,
+      children: true,
+      logging: "verbose",
+      loggingDebug: ["LocalizeAssetsPlugin"],
+    },
     name: "warehouse",
     experiments: {
     // allow us to manage RTL CSS as a separate file
@@ -115,6 +167,7 @@ module.exports = [
           },
         ],
       }),
+      ...sharedTranslationPlugins,
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
       ...sharedWebpackManifestPlugins,
@@ -128,7 +181,7 @@ module.exports = [
       warehouse: {
         import: "./warehouse/static/js/warehouse/index.js",
         // override the filename from `index` to `warehouse`
-        filename: "js/warehouse.[contenthash].js",
+        filename: "js/warehouse.[locale].[contenthash].js",
       },
 
       /* CSS */
@@ -155,7 +208,7 @@ module.exports = [
       // Matches current behavior. Defaults to 20. 16 in the future.
       hashDigestLength: 8,
       // Global filename template for all assets. Other assets MUST override.
-      filename: "[name].[contenthash].js",
+      filename: "[name].[locale].[contenthash].js",
       // Global output path for all assets.
       path: path.resolve(__dirname, "warehouse/static/dist"),
     },
@@ -274,8 +327,15 @@ module.exports = [
     },
   },
   {
+    stats: {
+      errors: true,
+      children: true,
+      logging: "verbose",
+      loggingDebug: ["LocalizeAssetsPlugin"],
+    },
     name: "admin",
     plugins: [
+      ...sharedTranslationPlugins,
       ...sharedCompressionPlugins,
       ...sharedCSSPlugins,
       ...sharedWebpackManifestPlugins,
@@ -290,7 +350,7 @@ module.exports = [
     entry: {
       admin: {
         import: "./warehouse/admin/static/js/warehouse.js",
-        filename: "js/admin.[contenthash].js",
+        filename: "js/admin.[locale].[contenthash].js",
       },
       all: {
         import: "./warehouse/admin/static/css/admin.scss",
@@ -300,7 +360,7 @@ module.exports = [
     output: {
       clean: true,
       hashDigestLength: 8,
-      filename: "[name].[contenthash].js",
+      filename: "[name].[locale].[contenthash].js",
       path: path.resolve(__dirname, "warehouse/admin/static/dist"),
     },
     module: {

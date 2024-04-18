@@ -11,3 +11,4 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 set -x
 
 make -C warehouse/locale/ translations
+python bin/translations_json.py

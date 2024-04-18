@@ -16,7 +16,6 @@
 import { getByPlaceholderText, fireEvent } from "@testing-library/dom";
 import { Application } from "@hotwired/stimulus";
 import PasswordMatchController from "../../warehouse/static/js/warehouse/controllers/password_match_controller";
-import { delay } from "./utils";
 
 describe("Password match controller", () => {
   beforeEach(() => {
@@ -31,8 +30,6 @@ describe("Password match controller", () => {
 
     const application = Application.start();
     application.register("password-match", PasswordMatchController);
-
-    fetch.resetMocks();
   });
 
   describe("initial state", function() {
@@ -72,18 +69,9 @@ describe("Password match controller", () => {
     });
 
     describe("adding different text on each field", function() {
-      it("shows text warning of mismatch and disables submit", async function() {
-        fetch.mockResponses(
-          [JSON.stringify({"msg": "Passwords do not match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords do not match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords do not match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords do not match"}),{ status: 200 }],
-        );
-
+      it("shows text warning of mismatch and disables submit", function() {
         fireEvent.input(getByPlaceholderText(document.body, "Your password"), { target: { value: "foo" } });
         fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), { target: { value: "bar" } });
-
-        await delay(25);
 
         const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveTextContent("Passwords do not match");
@@ -91,31 +79,15 @@ describe("Password match controller", () => {
         expect(message).not.toHaveClass("form-error--valid");
         const submit = document.getElementsByTagName("input")[2];
         expect(submit).toHaveAttribute("disabled", "");
-
-        expect(fetch.mock.calls.length).toEqual(4);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Passwords+do+not+match");
-        expect(fetch.mock.calls[3][0]).toEqual("/translation/?s=Passwords+do+not+match");
       });
     });
   });
 
   describe("correct inputs", function() {
     describe("adding the same text on each field", function() {
-      it("shows success text and enables submit", async function() {
-        fetch.mockResponses(
-          [JSON.stringify({"msg": "Passwords do not match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords match"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Passwords match"}),{ status: 200 }],
-        );
-
+      it("shows success text and enables submit", function() {
         fireEvent.input(getByPlaceholderText(document.body, "Your password"), { target: { value: "foo" } });
         fireEvent.input(getByPlaceholderText(document.body, "Confirm password"), { target: { value: "foo" } });
-
-        await delay(25);
 
         const message = document.getElementsByTagName("p")[0];
         expect(message).toHaveTextContent("Passwords match");
@@ -123,13 +95,6 @@ describe("Password match controller", () => {
         expect(message).toHaveClass("form-error--valid");
         const submit = document.getElementsByTagName("input")[2];
         expect(submit).not.toHaveAttribute("disabled");
-
-        expect(fetch.mock.calls.length).toEqual(5);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Passwords+match");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Passwords+match");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Passwords+match");
-        expect(fetch.mock.calls[3][0]).toEqual("/translation/?s=Passwords+match");
-        expect(fetch.mock.calls[4][0]).toEqual("/translation/?s=Passwords+match");
       });
     });
 

@@ -298,33 +298,6 @@ def locale(request):
 
 
 @view_config(
-    route_name="translation",
-    renderer="json",
-    request_method="GET",
-    accept="application/json",
-    has_translations=True,
-)
-def translation(request):
-    singular = request.params.get("s", None)
-    plural = request.params.get("p", None)
-    num = request.params.get("n", None)
-    domain = "messages"
-    values = request.params.mixed()
-
-    if not singular:
-        raise HTTPBadRequest("Message singular must be provided as 's'.")
-
-    localizer = request.localizer
-    localizer_kwargs = {"domain": domain, "mapping": values}
-    if plural is None or num is None:
-        msg = localizer.translate(singular, **localizer_kwargs)
-    else:
-        msg = localizer.pluralize(singular, plural, int(num), **localizer_kwargs)
-
-    return {"msg": msg}
-
-
-@view_config(
     route_name="classifiers", renderer="pages/classifiers.html", has_translations=True
 )
 def list_classifiers(request):

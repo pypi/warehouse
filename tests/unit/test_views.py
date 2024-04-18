@@ -11,7 +11,6 @@
 # limitations under the License.
 
 import datetime
-import json
 
 import elasticsearch
 import pretend
@@ -51,7 +50,6 @@ from warehouse.views import (
     session_notifications,
     sidebar_sponsor_logo,
     stats,
-    translation,
 )
 
 from ..common.db.accounts import UserFactory
@@ -436,129 +434,6 @@ class TestLocale:
 
         with pytest.raises(HTTPBadRequest):
             locale(request)
-
-
-class TestTranslation:
-    @pytest.mark.parametrize(
-        ("referer", "redirect", "params"),
-        [
-            (None, "/fake-route", MultiDict({"s": "Test text string"})),
-            ("/robots.txt", "/robots.txt", MultiDict({"s": "Test text string"})),
-        ],
-    )
-    def test_translation_singular(self, referer, redirect, params):
-        def _translate(tstring, domain, mapping):
-            return json.dumps(
-                {
-                    "tstring": tstring,
-                    "domain": "messages",
-                    "val": "test value",
-                }
-            )
-
-        localizer = pretend.stub(translate=_translate)
-        request = pretend.stub(
-            params=params,
-            referer=referer,
-            route_path=pretend.call_recorder(lambda r: "/fake-route"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            host=None,
-            localizer=localizer,
-        )
-        result = translation(request)
-        assert result == {
-            "msg": json.dumps(
-                {
-                    "tstring": "Test text string",
-                    "domain": "messages",
-                    "val": "test value",
-                }
-            )
-        }
-
-    @pytest.mark.parametrize(
-        ("referer", "redirect", "params"),
-        [
-            (
-                None,
-                "/fake-route",
-                MultiDict(
-                    {
-                        "s": "Test text string ${va}",
-                        "p": "Test text strings ${val}",
-                        "n": 3,
-                        "val": "test value",
-                    }
-                ),
-            ),
-            (
-                "/robots.txt",
-                "/robots.txt",
-                MultiDict(
-                    {
-                        "s": "Test text string ${va}",
-                        "p": "Test text strings ${val}",
-                        "n": 3,
-                        "val": "test value",
-                    }
-                ),
-            ),
-        ],
-    )
-    def test_translation_plural(self, referer, redirect, params):
-        def _pluralize(singular, plural, n, domain, mapping):
-            return json.dumps(
-                {
-                    "singular": singular,
-                    "plural": plural,
-                    "n": n,
-                    "domain": "messages",
-                    "val": "test value",
-                }
-            )
-
-        localizer = pretend.stub(pluralize=_pluralize)
-        request = pretend.stub(
-            params=params,
-            referer=referer,
-            route_path=pretend.call_recorder(lambda r: "/fake-route"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            host=None,
-            localizer=localizer,
-        )
-        result = translation(request)
-        assert result == {
-            "msg": json.dumps(
-                {
-                    "singular": "Test text string ${va}",
-                    "plural": "Test text strings ${val}",
-                    "n": 3,
-                    "domain": "messages",
-                    "val": "test value",
-                }
-            )
-        }
-
-    @pytest.mark.parametrize(
-        "params",
-        [
-            MultiDict({"nonsense": "arguments"}),
-            MultiDict({"n": "2"}),
-            MultiDict({"n": "2", "p": "plural strings ${val}", "val": "the value"}),
-        ],
-    )
-    def test_translation_bad_request(self, params):
-        request = pretend.stub(
-            params=params,
-            route_path=pretend.call_recorder(lambda r: "/fake-route"),
-            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
-            host=None,
-        )
-
-        with pytest.raises(
-            HTTPBadRequest, match="Message singular must be provided as 's'."
-        ):
-            translation(request)
 
 
 def test_csi_current_user_indicator():

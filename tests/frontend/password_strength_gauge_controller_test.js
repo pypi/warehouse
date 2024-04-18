@@ -16,7 +16,6 @@
 import { getByPlaceholderText, fireEvent } from "@testing-library/dom";
 import { Application } from "@hotwired/stimulus";
 import PasswordStrengthGaugeController from "../../warehouse/static/js/warehouse/controllers/password_strength_gauge_controller";
-import {delay} from "./utils";
 
 describe("Password strength gauge controller", () => {
   beforeEach(() => {
@@ -36,17 +35,11 @@ describe("Password strength gauge controller", () => {
 
     const application = Application.start();
     application.register("password-strength-gauge", PasswordStrengthGaugeController);
-
-    fetch.resetMocks();
   });
-
 
   describe("initial state", () => {
     describe("the password strength gauge and screen reader text", () => {
       it("are at 0 level and reading a password empty text", async () => {
-        fetch.mockResponses(
-          [JSON.stringify({"msg": "Password field is empty"}),{ status: 200 }],
-        );
 
         const passwordTarget = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordTarget, { target: { value: "" } });
@@ -58,9 +51,6 @@ describe("Password strength gauge controller", () => {
         );
         expect(gauge).not.toHaveAttribute("data-zxcvbn-score");
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password field is empty");
-
-        expect(fetch.mock.calls.length).toEqual(1);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Password+field+is+empty");
       });
     });
   });
@@ -76,8 +66,6 @@ describe("Password strength gauge controller", () => {
             },
           };
         });
-
-
         const passwordTarget = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordTarget, { target: { value: "foo" } });
 
@@ -99,26 +87,13 @@ describe("Password strength gauge controller", () => {
           };
         });
 
-        fetch.mockResponses(
-          [JSON.stringify({"msg": "Password is strong"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Password is strong"}),{ status: 200 }],
-          [JSON.stringify({"msg": "Password is strong"}),{ status: 200 }],
-        );
-
         const passwordTarget = getByPlaceholderText(document.body, "Your password");
         fireEvent.input(passwordTarget, { target: { value: "the strongest password ever" } });
-
-        await delay(25);
 
         const gauge = document.getElementById("gauge");
         expect(gauge).toHaveClass("password-strength__gauge--5");
         expect(gauge).toHaveAttribute("data-zxcvbn-score", "5");
         expect(gauge.querySelector(".sr-only")).toHaveTextContent("Password is strong");
-
-        expect(fetch.mock.calls.length).toEqual(3);
-        expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Password+is+strong");
-        expect(fetch.mock.calls[1][0]).toEqual("/translation/?s=Password+is+strong");
-        expect(fetch.mock.calls[2][0]).toEqual("/translation/?s=Password+is+strong");
       });
     });
   });

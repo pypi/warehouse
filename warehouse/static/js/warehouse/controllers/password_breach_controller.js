@@ -14,7 +14,7 @@
 
 import { Controller } from "@hotwired/stimulus";
 import { debounce } from "debounce";
-import { gettext } from "../utils/fetch-gettext";
+import { gettext } from "../utils/messages-access";
 
 export default class extends Controller {
   static targets = ["password", "message"];
@@ -45,9 +45,8 @@ export default class extends Controller {
     let hex = this.hexString(digest);
     let response = await fetch(this.getURL(hex));
     if (response.ok === false) {
-      gettext("Error while validating hashed password, disregard on development").then((text) => {
-        console.error(`${text}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
-      });
+      const msgText = gettext("Error while validating hashed password, disregard on development");
+      console.error(`${msgText}: ${response.status} ${response.statusText}`);  // eslint-disable-line no-console
     } else {
       let text = await response.text();
       this.parseResponse(text, hex);

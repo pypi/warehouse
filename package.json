@@ -26,7 +26,6 @@
     "cookie": "^0.5.0",
     "date-fns": "^2.30.0",
     "debounce": "^1.2.1",
-    "gettext.js": "^2.0.2",
     "jquery": "^3.7.0",
     "normalize.css": "^8.0.1",
     "stimulus-autocomplete": "^3.1.0"
@@ -65,6 +64,7 @@
     "webpack": "^5.80.0",
     "webpack-cli": "^5.0.2",
     "webpack-livereload-plugin": "^3.0.2",
+    "webpack-localize-assets-plugin": "^1.5.4",
     "webpack-manifest-plugin": "^5.0.0",
     "webpack-remove-empty-scripts": "^1.0.3"
   },

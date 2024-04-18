@@ -13,7 +13,7 @@
  */
 
 import { Controller } from "@hotwired/stimulus";
-import { gettext } from "../utils/fetch-gettext";
+import { gettext } from "../utils/messages-access";
 
 export default class extends Controller {
   static targets = ["passwordMatch", "matchMessage", "submit"];
@@ -29,15 +29,11 @@ export default class extends Controller {
     } else {
       this.matchMessageTarget.classList.remove("hidden");
       if (this.passwordMatchTargets.every((field, i, arr) => field.value === arr[0].value)) {
-        gettext("Passwords match").then((text) => {
-          this.matchMessageTarget.textContent = text;
-        });
+        this.matchMessageTarget.textContent = gettext("Passwords match");
         this.matchMessageTarget.classList.add("form-error--valid");
         this.submitTarget.removeAttribute("disabled");
       } else {
-        gettext("Passwords do not match").then((text) => {
-          this.matchMessageTarget.textContent = text;
-        });
+        this.matchMessageTarget.textContent = gettext("Passwords do not match");
         this.matchMessageTarget.classList.remove("form-error--valid");
         this.submitTarget.setAttribute("disabled", "");
       }

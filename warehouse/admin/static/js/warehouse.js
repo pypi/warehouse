@@ -28,7 +28,7 @@ import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
-import { gettext } from "warehouse/utils/fetch-gettext";
+import {gettext} from "warehouse/utils/messages-access";
 
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
@@ -104,9 +104,8 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
       $("#copied_tip").remove();
     }, 1000);
 
-    gettext("Copied").then((text) => {
-      $(target).append(`<div class='tip' id='copied_tip'>${text}</div>`);
-    });
+    const copiedText = gettext("Copied");
+    $(target).append(`<div class='tip' id='copied_tip'>${copiedText}</div>`);
 
     navigator.clipboard.writeText(text);
   }

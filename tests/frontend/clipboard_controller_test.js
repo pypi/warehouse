@@ -15,7 +15,6 @@
 
 import { Application } from "@hotwired/stimulus";
 import ClipboardController from "../../warehouse/static/js/warehouse/controllers/clipboard_controller";
-import {delay} from "./utils";
 
 // Create a mock clipboard object, since jsdom doesn't support the clipboard API
 // See https://github.com/jsdom/jsdom/issues/1568
@@ -47,14 +46,10 @@ describe("ClipboardController", () => {
     document.body.innerHTML = clipboardContent;
     const application = Application.start();
     application.register("clipboard", ClipboardController);
-
-    fetch.resetMocks();
   });
 
   describe("copy", () => {
-    it("copies text to clipboard and resets", async () => {
-      fetch.mockResponseOnce(JSON.stringify({"msg": "Copied"}));
-
+    it("copies text to clipboard and resets", () => {
       const button = document.querySelector(".copy-tooltip");
       expect(button.dataset.clipboardTooltipValue).toEqual("Copy to clipboard");
 
@@ -63,16 +58,12 @@ describe("ClipboardController", () => {
       // Check that the text was copied to the clipboard
       expect(navigator.clipboard.writeText).toHaveBeenCalledWith("Copyable Thing");
       // Check that the tooltip text was changed
-      await delay(25);
       expect(button.dataset.clipboardTooltipValue).toEqual("Copied");
 
       button.dispatchEvent(new FocusEvent("focusout"));
 
       // Check that the tooltip text was reset
       expect(button.dataset.clipboardTooltipValue).toEqual("Copy to clipboard");
-
-      expect(fetch.mock.calls.length).toEqual(1);
-      expect(fetch.mock.calls[0][0]).toEqual("/translation/?s=Copied");
     });
   });
 });

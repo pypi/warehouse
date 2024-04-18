@@ -1,10 +1,9 @@
 #!/usr/bin/env node
 
 /*
-  po2json wrapper for gettext.js
-  https://github.com/mikeedwards/po2json
-
-  based on https://github.com/guillaumepotier/gettext.js/blob/v2.0.2/bin/po2json
+  based on:
+  - po2json wrapper for gettext.js https://github.com/mikeedwards/po2json
+  - based on https://github.com/guillaumepotier/gettext.js/blob/v2.0.2/bin/po2json
 
   Dump all .po files in one json file containing an array with entries like this one:
 
@@ -25,15 +24,17 @@
 
 */
 
-const {readFile, writeFile, readdir, stat} = require("node:fs/promises");
-const {resolve} = require("node:path");
-const gettextParser = require("gettext-parser");
+
+import {readdir, readFile, stat, writeFile} from "node:fs/promises";
+import {resolve} from "node:path";
+import {po} from "gettext-parser";
+
 
 const argv = process.argv;
 
 const runPo2Json = async function (filePath) {
   const buffer = await readFile(filePath);
-  const jsonData = gettextParser.po.parse(buffer, "utf-8");
+  const jsonData = po.parse(buffer, {defaultCharset:"utf-8", validation: false });
 
   // Build the format expected by gettext.js.
   // Includes only translations from .js files.

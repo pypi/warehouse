@@ -62,6 +62,7 @@ In Python, given a request context, call :code:`request._(message)` to mark
    from warehouse.i18n import localize as _
    message = _("Your message here.")
 
+In javascript,
 
 Passing non-translatable values to translated strings
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

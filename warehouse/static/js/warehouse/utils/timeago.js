@@ -11,7 +11,7 @@
  * limitations under the License.
  */
 
-import { gettext, ngettext } from "./messages-access";
+import { gettext, ngettext } from "../utils/messages-access";
 
 const enumerateTime = (timestampString) => {
   const now = new Date(),
@@ -26,17 +26,17 @@ const enumerateTime = (timestampString) => {
   return time;
 };
 
-const convertToReadableText = async (time) => {
+const convertToReadableText = (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return ngettext("Yesterday", "About %1 days ago", numDays, {"numDays": numDays});
+    return ngettext("Yesterday", "About ${numDays} days ago", numDays);
   }
 
   if (numHours > 0) {
-    return ngettext("About an hour ago", "About %1 hours ago", numHours, {"numHours": numHours});
+    return ngettext("About an hour ago", "About ${numHours} hours ago", numHours);
   } else if (numMinutes > 0) {
-    return ngettext("About a minute ago", "About %1 minutes ago", numMinutes, {"numMinutes": numMinutes});
+    return ngettext("About a minute ago", "About ${numMinutes} minutes ago", numMinutes);
   } else {
     return gettext("Just now");
   }
@@ -48,10 +48,7 @@ export default () => {
     const datetime = timeElement.getAttribute("datetime");
     const time = enumerateTime(datetime);
     if (time.isBeforeCutoff) {
-      convertToReadableText(time)
-        .then((text) => {
-          timeElement.innerText = text;
-        });
+      timeElement.innerText = convertToReadableText(time);
     }
   }
 };
