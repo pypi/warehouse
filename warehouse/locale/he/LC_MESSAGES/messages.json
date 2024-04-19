@@ -1,1 +1,1 @@
-{"plural-forms": "nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && n % 10 == 0) ? 2 : 3));", "entries": []}
+{"locale": "he", "plural-forms": "nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && n % 10 == 0) ? 2 : 3));", "entries": {}}

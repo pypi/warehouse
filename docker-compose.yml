@@ -209,6 +209,7 @@ services:
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - ./webpack.config.js:/opt/warehouse/src/webpack.config.js:z
+      - ./webpack.plugin.localize.js:/opt/warehouse/src/webpack.plugin.localize.js:z
       - ./.babelrc:/opt/warehouse/src/.babelrc:z
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z

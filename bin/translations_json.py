@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import gettext
 import json
 import pathlib
 
 import polib
+
+from warehouse.i18n import KNOWN_LOCALES
 
 """
 
@@ -24,20 +25,9 @@ import polib
 
 domain = "messages"
 localedir = "warehouse/locale"
-languages = [
-    "es",
-    "fr",
-    "ja",
-    "pt_BR",
-    "uk",
-    "el",
-    "de",
-    "zh_Hans",
-    "zh_Hant",
-    "ru",
-    "he",
-    "eo",
-]
+languages = [locale for locale in KNOWN_LOCALES]
+cwd = pathlib.Path().cwd()
+print("\nCreating messages.json files\n")
 
 # look in each language file that is used by the app
 for lang in languages:
@@ -45,8 +35,9 @@ for lang in languages:
     entries = []
     include_next = False
 
-    mo_file = gettext.find(domain, localedir=localedir, languages=[lang])
-    po_path = pathlib.Path(mo_file).with_suffix('.po')
+    po_path = cwd.joinpath(localedir, lang, 'LC_MESSAGES', 'messages.po')
+    if not po_path.exists():
+        continue
     po = polib.pofile(po_path)
     for entry in po.translated_entries():
         occurs_in_js = any(o.endswith('.js') for o, _ in entry.occurrences)
@@ -56,8 +47,9 @@ for lang in languages:
     # if one or more translation messages from javascript files were found,
     # then write the json file to the same folder.
     result = {
+        "locale": lang,
         "plural-forms": po.metadata['Plural-Forms'],
-        "entries": {((e.msgid),{
+        "entries": {e.msgid: {
             "flags": e.flags,
             "msgctxt": e.msgctxt,
             "msgid": e.msgid,
@@ -68,7 +60,7 @@ for lang in languages:
             "prev_msgctxt": e.previous_msgctxt,
             "prev_msgid": e.previous_msgid,
             "prev_msgid_plural": e.previous_msgid_plural,
-        }) for e in entries},
+        } for e in entries},
     }
     json_path = po_path.with_suffix('.json')
     with json_path.open('w') as f:

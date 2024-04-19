@@ -11,6 +11,7 @@
  * limitations under the License.
  */
 
+const i18n = require("gettext.js/dist/gettext.cjs.js");
 
 /**
  * Get the translation using num to choose the appropriate string.
@@ -31,12 +32,23 @@
  * @param singular {string} The default string for the singular translation.
  * @param plural {string} The default string for the plural translation.
  * @param num {number} The number to use to select the appropriate translation.
+ * @param extras {string} Additional values to put in placeholders.
  * @returns {string} The translated text.
  * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
-export function ngettext(singular, plural, num) {
-  return JSON.stringify({singular: singular, plural: plural, num: num});
+export function ngettext(singular, plural, num, ...extras) {
+  const singularIsString = typeof singular === "string" || singular instanceof String;
+  if(singularIsString) {
+    // construct the translation using the fallback language (english)
+    i18n.setMessages("messages", "en", {[singular]:[singular, plural]}, "nplurals = 2; plural = (n != 1)");
+  } else {
+    // After the webpack localizer processing,
+    // the non-string 'singular' is the translation data.
+    i18n.loadJSON(singular.data, "messages");
+  }
+
+  return i18n.ngettext(singular.singular, plural, num, ...extras);
 }
 
 /**
@@ -49,20 +61,19 @@ export function ngettext(singular, plural, num) {
  * Any placeholders must be specified as
  *
  * @param singular {string} The default string for the singular translation.
+ * @param extras {string} Additional values to put in placeholders.
  * @returns {string} The translated text.
  */
-export function gettext(singular) {
-  return JSON.stringify({singular: singular});
-}
+export function gettext(singular, ...extras) {
+  const singularIsString = typeof singular === "string" || singular instanceof String;
+  if(singularIsString) {
+    // construct the translation using the fallback language (english)
+    i18n.setMessages("messages", "en", {[singular]:[singular]}, "nplurals = 2; plural = (n != 1)");
+  } else {
+    // After the webpack localizer processing,
+    // the non-string 'singular' is the translation data.
+    i18n.loadJSON(singular.data, "messages");
+  }
 
-export function templateMessage(strings, ...keys) {
-  return (...values) => {
-    const dict = values[values.length - 1] || {};
-    const result = [strings[0]];
-    keys.forEach((key, i) => {
-      const value = Number.isInteger(key) ? values[key] : dict[key];
-      result.push(value, strings[i + 1]);
-    });
-    return result.join("");
-  };
+  return i18n.gettext(singular.singular,  ...extras);
 }
