@@ -2699,6 +2699,7 @@ class TestFileUpload:
             ("foo-.bar", "foo_bar", "1.0.0"),
             ("leo", "leo", "6.7.9-9"),
             ("leo_something", "leo-something", "6.7.9-9"),
+            ("PyAlgoEngine", "PyAlgoEngine", "0.3.12.post4"),
         ],
     )
     def test_upload_succeeds_pep625_normalized_filename(
