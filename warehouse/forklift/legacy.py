@@ -970,7 +970,7 @@ def file_upload(request):
             # what we were expecting
             if (
                 meta.version.is_postrelease
-                and packaging.utils.canonicalize_name(name) != meta.name
+                and name != packaging.utils.canonicalize_name(meta.name)
             ):
                 # The distribution is a source distribution, the version is a
                 # postrelease, and the project name doesn't match, so
