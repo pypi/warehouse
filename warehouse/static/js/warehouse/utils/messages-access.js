@@ -11,13 +11,18 @@
  * limitations under the License.
  */
 
-import i18n from "gettext.js/dist/gettext.esm";
-
-const i18nInst = i18n();
-
 // the value for 'messagesAccessLocaleData' is set by webpack.plugin.localize.js
+// default is en
 var messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
-i18nInst.loadJSON(messagesAccessLocaleData, "messages");
+
+// the value for 'messagesAccessPluralFormFunction' is set by webpack.plugin.localize.js
+// default is en
+var messagesAccessPluralFormFunction = function (n) {
+  let nplurals, plural;
+  nplurals = 2;
+  plural = (n != 1);
+  return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
+};
 
 /**
  * Get the translation using num to choose the appropriate string.
@@ -43,7 +48,18 @@ i18nInst.loadJSON(messagesAccessLocaleData, "messages");
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
 export function ngettext(singular, plural, num, ...extras) {
-  return i18nInst.ngettext(singular, plural, num, ...extras);
+  let result = singular;
+  const data = getTranslationData(singular);
+
+  try {
+    const pluralForms = messagesAccessPluralFormFunction(num);
+    result = data[pluralForms.index];
+  } catch (err) {
+    console.log(err);
+  }
+
+  result = insertPlaceholderValues(result, extras);
+  return result;
 }
 
 /**
@@ -65,5 +81,37 @@ export function ngettext(singular, plural, num, ...extras) {
  * @returns {string} The translated text.
  */
 export function gettext(singular, ...extras) {
-  return i18nInst.gettext(singular, ...extras);
+  let result;
+  result = getTranslationData(singular);
+  result = insertPlaceholderValues(result, extras);
+  return result;
+}
+
+function getTranslationData(value) {
+  if (!value) {
+    return "";
+  }
+  try {
+    return messagesAccessLocaleData[value];
+  } catch (err) {
+    console.log(err);
+    return value;
+  }
+}
+
+function insertPlaceholderValues(value, extras) {
+  if (!value) {
+    return "";
+  }
+  if (!extras) {
+    return value;
+  }
+  try {
+    extras.forEach((extra, index) => {
+      value = value.replaceAll(`%${index + 1}`, extra);
+    });
+  } catch (err) {
+    console.log(err);
+  }
+  return value;
 }

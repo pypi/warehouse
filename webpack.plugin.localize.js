@@ -16,7 +16,7 @@
  * This plugin generates one javascript bundle per locale.
  * It replaces the javascript translation function arguments with the locale-specific data.
  *
- * gettext.js is then used to determine the translation to use and replace placeholders.
+ * The translation to use is then determined and placeholders are replaced with values.
  * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
  *
  * Run 'make translations' to generate the 'messages.json' files for the KNOWN_LOCALES.
@@ -79,6 +79,28 @@ class WebpackLocalisationPlugin {
           dep.loc = initData.loc;
           parser.state.current.addDependency(dep);
           return true;
+
+        } else if (statement.type === "VariableDeclaration" &&
+          statement.declarations.length === 1 &&
+          statement.declarations[0].id.name === "messagesAccessPluralFormFunction") {
+          const initData = statement.declarations[0].init;
+          const pluralForms = self.localeData[""]["plural-forms"];
+          const denied = new RegExp(
+            "[~`^$_\\[\\]{}\\\\'\"\\.#@\\f\\n\\r\\t\\v\\u00a0\\u1680\\u2000-\\u200a\\u2028\\u2029\\u202f\\u205f\\u3000\\ufeff]+");
+          const required = new RegExp("^ *nplurals *= *[0-9]+ *; *plural *= *.+$");
+          if (denied.test(pluralForms) || !required.test(pluralForms)) {
+            throw new Error(`Invalid plural forms for ${self.localeData[""].language}.`);
+          }
+          const newValue = `function (n) {
+  let nplurals, plural;
+  ${pluralForms}
+  return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
+}`;
+          const dep = new ConstDependency(newValue, initData.range);
+          dep.loc = initData.loc;
+          parser.state.current.addDependency(dep);
+          return true;
+
         }
       });
     };
