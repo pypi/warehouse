@@ -15,9 +15,7 @@
 // See: https://webpack.js.org/configuration/
 
 const path = require("path");
-const fs = require("fs");
 const zlib = require("zlib");
-const glob = require("glob");
 const rtlcss = require("rtlcss");
 const CompressionPlugin = require("compression-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
@@ -28,7 +26,7 @@ const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const ProvidePlugin = require("webpack").ProvidePlugin;
 const RemoveEmptyScriptsPlugin = require("webpack-remove-empty-scripts");
 const {WebpackManifestPlugin} = require("webpack-manifest-plugin");
-const {WebpackLocalisationPlugin, localeData} = require("./webpack.plugin.localize.js");
+const {WebpackLocalisationPlugin, allLocaleData} = require("./webpack.plugin.localize.js");
 
 /* Shared Plugins */
 
@@ -93,24 +91,36 @@ const sharedResolve = {
   },
 };
 
-// for each language locale, generate config for warehouse
-const modulesLocales = localeData.map(function (data) {
-  const name = `warehouse.${data.locale}`;
-  return {
-    // stats: {
-    //   errors: true,
-    //   children: true,
-    //   logging: "verbose",
-    // },
-    name: name,
+
+module.exports = [
+  {
+    name: "warehouse",
+    experiments: {
+      // allow us to manage RTL CSS as a separate file
+      layers: true,
+    },
     plugins: [
-      new WebpackLocalisationPlugin({localeData:data}),
+      new CopyPlugin({
+        patterns: [
+          {
+            // Most images are not referenced in JS/CSS, copy them manually.
+            from: path.resolve(__dirname, "warehouse/static/images/*"),
+            to: "images/[name].[contenthash][ext]",
+          },
+          {
+            // Copy vendored zxcvbn code
+            from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
+            to: "js/vendor/[name].[contenthash][ext]",
+          },
+        ],
+      }),
       ...sharedCompressionPlugins,
+      ...sharedCSSPlugins,
       new WebpackManifestPlugin({
         removeKeyHash: /([a-f0-9]{8}\.?)/gi,
         publicPath: "",
         seed: sharedWebpackManifestData,
-        map: sharedWebpackManifestMap,
+        map: sharedWebpackManifestMap
       }),
       new LiveReloadPlugin(),
     ],
@@ -119,16 +129,33 @@ const modulesLocales = localeData.map(function (data) {
       // Webpack will create a bundle for each entry point.
 
       /* JavaScript */
-      [name]: {
+      warehouse: {
         import: "./warehouse/static/js/warehouse/index.js",
         // override the filename from `index` to `warehouse`
-        filename: `js/${name}.[contenthash].js`,
+        filename: "js/warehouse.[contenthash].js",
       },
+
+      /* CSS */
+      noscript: "./warehouse/static/sass/noscript.scss",
+
+      // Default CSS
+      "warehouse-ltr": "./warehouse/static/sass/warehouse.scss",
+      // NOTE: Duplicate RTL CSS target. There's no clean way to generate both
+      //       without duplicating the entry point right now.
+      "warehouse-rtl": {
+        import: "./warehouse/static/sass/warehouse.scss",
+        layer: "rtl",
+      },
+
+      /* Vendor Stuff */
+      fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
     },
     // The default source map. Slowest, but best production-build optimizations.
     // See: https://webpack.js.org/configuration/devtool
     devtool: "source-map",
     output: {
+      // remove old files
+      clean: true,
       // Matches current behavior. Defaults to 20. 16 in the future.
       hashDigestLength: 8,
       // Global filename template for all assets. Other assets MUST override.
@@ -136,267 +163,224 @@ const modulesLocales = localeData.map(function (data) {
       // Global output path for all assets.
       path: path.resolve(__dirname, "warehouse/static/dist"),
     },
-    dependencies: ["warehouse"],
-  };
-
-});
-const moduleWarehouse = {
-  // stats: {
-  //   errors: true,
-  //   children: true,
-  //   logging: "verbose",
-  // },
-  name: "warehouse",
-  experiments: {
-    // allow us to manage RTL CSS as a separate file
-    layers: true,
-  },
-  plugins: [
-    new CopyPlugin({
-      patterns: [
+    module: {
+      rules: [
         {
-          // Most images are not referenced in JS/CSS, copy them manually.
-          from: path.resolve(__dirname, "warehouse/static/images/*"),
-          to: "images/[name].[contenthash][ext]",
-        },
-        {
-          // Copy vendored zxcvbn code
-          from: path.resolve(__dirname, "warehouse/static/js/vendor/zxcvbn.js"),
-          to: "js/vendor/[name].[contenthash][ext]",
-        },
-      ],
-    }),
-    ...sharedCompressionPlugins,
-    ...sharedCSSPlugins,
-    new WebpackManifestPlugin({
-      removeKeyHash: /([a-f0-9]{8}\.?)/gi,
-      publicPath: "",
-      seed: sharedWebpackManifestData,
-      map: sharedWebpackManifestMap
-    }),
-    new LiveReloadPlugin(),
-  ],
-  resolve: sharedResolve,
-  entry: {
-    // Webpack will create a bundle for each entry point.
-
-    /* JavaScript */
-    warehouse: {
-      import: "./warehouse/static/js/warehouse/index.js",
-      // override the filename from `index` to `warehouse`
-      filename: "js/warehouse.[contenthash].js",
-    },
-
-    /* CSS */
-    noscript: "./warehouse/static/sass/noscript.scss",
-
-    // Default CSS
-    "warehouse-ltr": "./warehouse/static/sass/warehouse.scss",
-    // NOTE: Duplicate RTL CSS target. There's no clean way to generate both
-    //       without duplicating the entry point right now.
-    "warehouse-rtl": {
-      import: "./warehouse/static/sass/warehouse.scss",
-      layer: "rtl",
-    },
-
-    /* Vendor Stuff */
-    fontawesome: "./warehouse/static/sass/vendor/fontawesome.scss",
-  },
-  // The default source map. Slowest, but best production-build optimizations.
-  // See: https://webpack.js.org/configuration/devtool
-  devtool: "source-map",
-  output: {
-    // remove old files
-    clean: true,
-    // Matches current behavior. Defaults to 20. 16 in the future.
-    hashDigestLength: 8,
-    // Global filename template for all assets. Other assets MUST override.
-    filename: "[name].[contenthash].js",
-    // Global output path for all assets.
-    path: path.resolve(__dirname, "warehouse/static/dist"),
-  },
-  module: {
-    rules: [
-      {
-        // Handle SASS/SCSS/CSS files
-        test: /\.(sa|sc|c)ss$/,
-        // NOTE: Order is important here, as the first match wins
-        oneOf: [
-          {
-            // For the `rtl` file, needs postcss processing
-            layer: "rtl",
-            issuerLayer: "rtl",
-            use: [
-              MiniCssExtractPlugin.loader,
-              "css-loader",
-              {
-                loader: "postcss-loader",
-                options: {
-                  postcssOptions: {
-                    plugins: [rtlcss()],
+          // Handle SASS/SCSS/CSS files
+          test: /\.(sa|sc|c)ss$/,
+          // NOTE: Order is important here, as the first match wins
+          oneOf: [
+            {
+              // For the `rtl` file, needs postcss processing
+              layer: "rtl",
+              issuerLayer: "rtl",
+              use: [
+                MiniCssExtractPlugin.loader,
+                "css-loader",
+                {
+                  loader: "postcss-loader",
+                  options: {
+                    postcssOptions: {
+                      plugins: [rtlcss()],
+                    },
                   },
                 },
-              },
-              "sass-loader",
-            ],
-          },
-          {
-            // All other CSS files
-            use: [
-              // Extracts CSS into separate files
-              MiniCssExtractPlugin.loader,
-              // Translates CSS into CommonJS
-              "css-loader",
-              // Translate SCSS to CSS
-              "sass-loader",
-            ],
-          },
-        ],
-      },
-      {
-        // Handle image files
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        // disables data URL inline encoding images into CSS,
-        // since it violates our CSP settings.
-        type: "asset/resource",
-        generator: {
-          filename: "images/[name].[contenthash][ext]",
-        },
-      },
-      {
-        // Handle font files
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: "asset/resource",
-        generator: {
-          filename: "webfonts/[name].[contenthash][ext]",
-        },
-      },
-    ],
-  },
-  optimization: {
-    minimizer: [
-      // default minimizer is Terser for JS. Extend here vs overriding.
-      "...",
-      // Minimize CSS
-      new CssMinimizerPlugin({
-        minimizerOptions: {
-          preset: [
-            "default",
+                "sass-loader",
+              ],
+            },
             {
-              discardComments: {removeAll: true},
+              // All other CSS files
+              use: [
+                // Extracts CSS into separate files
+                MiniCssExtractPlugin.loader,
+                // Translates CSS into CommonJS
+                "css-loader",
+                // Translate SCSS to CSS
+                "sass-loader",
+              ],
             },
           ],
         },
-      }),
-      // Minimize Images when `mode` is `production`
-      new ImageMinimizerPlugin({
-        test: /\.(png|jpg|jpeg|gif)$/i,
-        minimizer: {
-          implementation: ImageMinimizerPlugin.sharpMinify,
+        {
+          // Handle image files
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          // disables data URL inline encoding images into CSS,
+          // since it violates our CSP settings.
+          type: "asset/resource",
+          generator: {
+            filename: "images/[name].[contenthash][ext]",
+          },
         },
-        generator: [
-          {
-            // Apply generator for copied assets
-            type: "asset",
-            implementation: ImageMinimizerPlugin.sharpGenerate,
-            options: {
-              encodeOptions: {
-                webp: {
-                  quality: 90,
+        {
+          // Handle font files
+          test: /\.(woff|woff2|eot|ttf|otf)$/i,
+          type: "asset/resource",
+          generator: {
+            filename: "webfonts/[name].[contenthash][ext]",
+          },
+        },
+      ],
+    },
+    optimization: {
+      minimizer: [
+        // default minimizer is Terser for JS. Extend here vs overriding.
+        "...",
+        // Minimize CSS
+        new CssMinimizerPlugin({
+          minimizerOptions: {
+            preset: [
+              "default",
+              {
+                discardComments: {removeAll: true},
+              },
+            ],
+          },
+        }),
+        // Minimize Images when `mode` is `production`
+        new ImageMinimizerPlugin({
+          test: /\.(png|jpg|jpeg|gif)$/i,
+          minimizer: {
+            implementation: ImageMinimizerPlugin.sharpMinify,
+          },
+          generator: [
+            {
+              // Apply generator for copied assets
+              type: "asset",
+              implementation: ImageMinimizerPlugin.sharpGenerate,
+              options: {
+                encodeOptions: {
+                  webp: {
+                    quality: 90,
+                  },
                 },
               },
             },
-          },
-        ],
-      }),
-      new ImageMinimizerPlugin({
-        test: /\.(svg)$/i,
-        minimizer: {
-          implementation: ImageMinimizerPlugin.svgoMinify,
-          options: {
-            encodeOptions: {
-              // Pass over SVGs multiple times to ensure all optimizations are applied. False by default
-              multipass: true,
-              plugins: [
-                // set of built-in plugins enabled by default
-                // see: https://github.com/svg/svgo#default-preset
-                "preset-default",
-              ],
+          ],
+        }),
+        new ImageMinimizerPlugin({
+          test: /\.(svg)$/i,
+          minimizer: {
+            implementation: ImageMinimizerPlugin.svgoMinify,
+            options: {
+              encodeOptions: {
+                // Pass over SVGs multiple times to ensure all optimizations are applied. False by default
+                multipass: true,
+                plugins: [
+                  // set of built-in plugins enabled by default
+                  // see: https://github.com/svg/svgo#default-preset
+                  "preset-default",
+                ],
+              },
             },
           },
-        },
+        }),
+      ],
+    },
+  },
+  {
+    name: "admin",
+    plugins: [
+      ...sharedCompressionPlugins,
+      ...sharedCSSPlugins,
+      new WebpackManifestPlugin({
+        removeKeyHash: /([a-f0-9]{8}\.?)/gi,
+        publicPath: "",
+        map: sharedWebpackManifestMap,
       }),
+      // admin site dependencies use jQuery
+      new ProvidePlugin({
+        $: "jquery",
+        jQuery: "jquery",
+      }),
+      new LiveReloadPlugin(),
     ],
-  },
-};
-
-const moduleAdmin = {
-  name: "admin",
-  plugins: [
-    ...sharedCompressionPlugins,
-    ...sharedCSSPlugins,
-    new WebpackManifestPlugin({
-      removeKeyHash: /([a-f0-9]{8}\.?)/gi,
-      publicPath: "",
-      map: sharedWebpackManifestMap,
-    }),
-    // admin site dependencies use jQuery
-    new ProvidePlugin({
-      $: "jquery",
-      jQuery: "jquery",
-    }),
-    new LiveReloadPlugin(),
-  ],
-  resolve: sharedResolve,
-  entry: {
-    admin: {
-      import: "./warehouse/admin/static/js/warehouse.js",
-      filename: "js/admin.[contenthash].js",
-    },
-    all: {
-      import: "./warehouse/admin/static/css/admin.scss",
-    },
-  },
-  devtool: "source-map",
-  output: {
-    clean: true,
-    hashDigestLength: 8,
-    filename: "[name].[contenthash].js",
-    path: path.resolve(__dirname, "warehouse/admin/static/dist"),
-  },
-  module: {
-    rules: [
-      {
-        test: /\.(sa|sc|c)ss$/,
-        use: [
-          MiniCssExtractPlugin.loader,
-          "css-loader",
-          "sass-loader",
-        ],
+    resolve: sharedResolve,
+    entry: {
+      admin: {
+        import: "./warehouse/admin/static/js/warehouse.js",
+        filename: "js/admin.[contenthash].js",
       },
-      {
-        // Handle image files
-        test: /\.(png|svg|jpg|jpeg|gif)$/i,
-        // disables data URL inline encoding images into CSS,
-        // since it violates our CSP settings.
-        type: "asset/resource",
-        generator: {
-          filename: "images/[name].[contenthash][ext]",
+      all: {
+        import: "./warehouse/admin/static/css/admin.scss",
+      },
+    },
+    devtool: "source-map",
+    output: {
+      clean: true,
+      hashDigestLength: 8,
+      filename: "[name].[contenthash].js",
+      path: path.resolve(__dirname, "warehouse/admin/static/dist"),
+    },
+    module: {
+      rules: [
+        {
+          test: /\.(sa|sc|c)ss$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            "css-loader",
+            "sass-loader",
+          ],
+        },
+        {
+          // Handle image files
+          test: /\.(png|svg|jpg|jpeg|gif)$/i,
+          // disables data URL inline encoding images into CSS,
+          // since it violates our CSP settings.
+          type: "asset/resource",
+          generator: {
+            filename: "images/[name].[contenthash][ext]",
+          },
+        },
+        {
+          test: /\.(woff|woff2|eot|ttf|otf)$/i,
+          type: "asset/resource",
+          generator: {
+            filename: "fonts/[name].[contenthash][ext]",
+          },
+        },
+      ],
+    },
+  },
+  // for each language locale, generate config for warehouse
+  ...allLocaleData.map(function (localeData) {
+    const name = `warehouse.${localeData[""].language}`;
+    return {
+      name: name,
+      plugins: [
+        new WebpackLocalisationPlugin(localeData),
+        ...sharedCompressionPlugins,
+        new WebpackManifestPlugin({
+          removeKeyHash: /([a-f0-9]{8}\.?)/gi,
+          publicPath: "",
+          seed: sharedWebpackManifestData,
+          map: sharedWebpackManifestMap,
+        }),
+        new LiveReloadPlugin(),
+      ],
+      resolve: sharedResolve,
+      entry: {
+        // Webpack will create a bundle for each entry point.
+
+        /* JavaScript */
+        [name]: {
+          import: "./warehouse/static/js/warehouse/index.js",
+          // override the filename from `index` to `warehouse`
+          filename: `js/${name}.[contenthash].js`,
         },
       },
-      {
-        test: /\.(woff|woff2|eot|ttf|otf)$/i,
-        type: "asset/resource",
-        generator: {
-          filename: "fonts/[name].[contenthash][ext]",
-        },
+      // The default source map. Slowest, but best production-build optimizations.
+      // See: https://webpack.js.org/configuration/devtool
+      devtool: "source-map",
+      output: {
+        // Matches current behavior. Defaults to 20. 16 in the future.
+        hashDigestLength: 8,
+        // Global filename template for all assets. Other assets MUST override.
+        filename: "[name].[contenthash].js",
+        // Global output path for all assets.
+        path: path.resolve(__dirname, "warehouse/static/dist"),
       },
-    ],
-  },
-};
+      dependencies: ["warehouse"],
+    };
 
-module.exports = [
-  moduleWarehouse,
-  moduleAdmin,
-  ...modulesLocales,
+  })
 ];

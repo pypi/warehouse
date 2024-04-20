@@ -148,8 +148,8 @@ Merge requirements
   backwards incompatible release of a dependency) no pull requests may be
   merged until this is rectified.
 * All merged patches must have 100% test coverage.
-* All user facing strings must be marked for translation and the ``.pot`` and
-  ``.po`` files must be updated.
+* All user facing strings must be marked for translation and the ``.pot``,
+  ``.po``, and ``.json`` files must be updated.
 
 .. _`excellent to one another`: https://speakerdeck.com/ohrite/better-code-review
 

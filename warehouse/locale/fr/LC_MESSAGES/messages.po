@@ -12220,42 +12220,42 @@ msgstr[1] "Aucun résultat pour les filtres « %(filters)s »"
 
 #: warehouse/static/js/warehouse/controllers/password_breach_controller.js:48
 msgid "Error while validating hashed password, disregard on development"
-msgstr "FR: Error while validating hashed password, disregard on development"
+msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:32
 msgid "Passwords match"
-msgstr "FR: Passwords match"
+msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_match_controller.js:38
 msgid "Passwords do not match"
-msgstr "FR: Passwords do not match"
+msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:27
 #: warehouse/templates/base.html:30
 msgid "Password field is empty"
-msgstr "FR: Password field is empty"
+msgstr ""
 
 #: warehouse/static/js/warehouse/controllers/password_strength_gauge_controller.js:43
 msgid "Password is strong"
-msgstr "FR: Password is strong"
+msgstr ""
 
 #: warehouse/static/js/warehouse/utils/timeago.js:33
 msgid "Yesterday"
 msgid_plural "About %1 days ago"
-msgstr[0] "FR: Yesterday"
-msgstr[1] "FR: About %1 days ago"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/static/js/warehouse/utils/timeago.js:37
 msgid "About an hour ago"
 msgid_plural "About %1 hours ago"
-msgstr[0] "FR: About an hour ago"
-msgstr[1] "FR: About %1 hours ago"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/static/js/warehouse/utils/timeago.js:39
 msgid "About a minute ago"
 msgid_plural "About %1 minutes ago"
-msgstr[0] "FR: About a minute ago"
-msgstr[1] "FR: About %1 minutes ago"
+msgstr[0] ""
+msgstr[1] ""
 
 #: warehouse/static/js/warehouse/utils/timeago.js:41
 msgid "Just now"

@@ -22,16 +22,10 @@ msgstr ""
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
-#: warehouse/views.js:142
 msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
-msgstr "some translation"
-
-#: warehouse/admin/static/js/warehouse.js:107
-#: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
-msgid "Copied"
-msgstr "Copied translation"
+msgstr ""
 
 #: warehouse/views.py:158
 msgid ""

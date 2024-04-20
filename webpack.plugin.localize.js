@@ -20,6 +20,9 @@
  * The javascript functions are in `warehouse/static/js/warehouse/utils/messages-access.js`.
  *
  * Run 'make translations' to generate the 'messages.json' files for the KNOWN_LOCALES.
+ * Run `make static_pipeline` to generate the js bundle for each locale.
+ *
+ * Currently only for 'warehouse', but can be extended to 'admin' if needed.
  */
 
 // ref: https://webpack.js.org/contribute/writing-a-plugin/
@@ -33,122 +36,61 @@ const {resolve} = require("node:path");
 const path = require("path");
 
 // load the locale translation data
-const baseDir = path.resolve(__dirname, "warehouse/locale");
-const localeData = fs.readdirSync(baseDir)
-  .map((file) => resolve(baseDir, file, "LC_MESSAGES/messages.json"))
+const baseDir = __dirname;
+const localeDir = path.resolve(baseDir, "warehouse/locale");
+const allLocaleData = fs
+  .readdirSync(localeDir)
+  .map((file) => resolve(localeDir, file, "LC_MESSAGES/messages.json"))
   .filter((file) => {
     try {
       return fs.statSync(file).isFile();
     } catch {
+      // ignore error
     }
   })
   .map((file) => {
-    console.log(`Translations from ${path.relative(__dirname, file)}`);
+    console.log(`Translations from ${path.relative(baseDir, file)}`);
     return fs.readFileSync(file, "utf8");
   })
   .map((data) => JSON.parse(data));
 
-// TODO: don't allow changing the WebpackLocalisationPlugin.functions - just do what is needed
-const defaultFunctionGetTextJs = function (data, singular) {
-  let value;
-  if (Object.hasOwn(data.entries, singular)) {
-    value = JSON.stringify({
-      "singular": singular,
-      "data": {
-        "": {
-          "locale": data.locale,
-          "plural-forms": data["plural-forms"],
-        },
-        [singular]: Object.entries(data.entries[singular].msgstr_plural).map((entry) => entry[1]),
-      },
-    });
-  } else {
-    value = `"${singular}"`;
-  }
-  return value;
-};
-const defaultFunctionExtras = function (extras) {
-  let extrasString = "";
-  if (extras.length > 0) {
-    extrasString = `, "${extras.join("\", \"")}"`;
-  }
-  return extrasString;
-};
-const defaultFunctions = {
-  gettext: (data, singular, ...extras) => {
-    const value = defaultFunctionGetTextJs(data, singular);
-    const extrasString = defaultFunctionExtras(extras);
-    return `gettext(${value} ${extrasString})`;
-  },
-  ngettext: (data, singular, plural, num, ...extras) => {
-    const value = defaultFunctionGetTextJs(data, singular);
-    const extrasString = defaultFunctionExtras(extras);
-    return `ngettext(${value}, "${plural}", ${num} ${extrasString})`;
-  },
-};
+
+const pluginName = "WebpackLocalisationPlugin";
 
 class WebpackLocalisationPlugin {
-  constructor(options) {
-    const opts = options || {};
-    this.localeData = opts.localeData || {};
-    this.functions = opts.functions || defaultFunctions;
+  constructor(localeData) {
+    this.localeData = localeData || {};
   }
 
   apply(compiler) {
-    const pluginName = "WebpackLocalisationPlugin";
     const self = this;
+
+    // TODO: how to replace one argument of a function, and keep everything else the same?
 
     // create a handler for each factory.hooks.parser
     const handler = function (parser) {
 
-      // for each function name and processing function
-      Object.keys(self.functions).forEach(function (findFuncName) {
-        const pluginTagImport = Symbol(`${pluginName}-import-tag-${findFuncName}`);
-        const replacementFunction = self.functions[findFuncName];
-
-        // tag imports so can later hook into their usages
-        parser.hooks.importSpecifier.tap(pluginName, (statement, source, exportName, identifierName) => {
-          if (exportName === findFuncName && identifierName === findFuncName) {
-            parser.tagVariable(identifierName, pluginTagImport, {});
-            return true;
-          }
-        });
-
-        // hook into calls of the tagged imported function
-        parser.hooks.call.for(pluginTagImport).tap(pluginName, expr => {
-          try {
-            // pass the appropriate information for each type of argument
-            // TODO: pass expr.arguments directly so the information is available
-            let replacementValue = replacementFunction(self.localeData, ...expr.arguments.map((argument) => {
-              if (argument.type === "Literal") {
-                return argument.value;
-              } else if (argument.type === "Identifier") {
-                return argument.name;
-              } else {
-                throw new Error(`Unknown argument type '${argument.type}'.`);
-              }
-            }));
-            const dep = new ConstDependency(replacementValue, expr.range);
-            dep.loc = expr.loc;
-            parser.state.current.addDependency(dep);
-            return true;
-          } catch (err) {
-            parser.state.module.errors.push(err);
-          }
-        });
-
+      parser.hooks.statement.tap(pluginName, (statement) => {
+        if (statement.type === "VariableDeclaration" &&
+          statement.declarations.length === 1 &&
+          statement.declarations[0].id.name === "messagesAccessLocaleData") {
+          const initData = statement.declarations[0].init;
+          const dep = new ConstDependency(JSON.stringify(self.localeData), initData.range);
+          dep.loc = initData.loc;
+          parser.state.current.addDependency(dep);
+          return true;
+        }
       });
     };
 
-    // place the hooks into the webpack compiler, factories
+    // place the handler into the hooks for the webpack compiler module factories
     compiler.hooks.normalModuleFactory.tap(pluginName, factory => {
       factory.hooks.parser.for("javascript/auto").tap(pluginName, handler);
       factory.hooks.parser.for("javascript/dynamic").tap(pluginName, handler);
       factory.hooks.parser.for("javascript/esm").tap(pluginName, handler);
     });
-
   }
 }
 
 module.exports.WebpackLocalisationPlugin = WebpackLocalisationPlugin;
-module.exports.localeData = localeData;
+module.exports.allLocaleData = allLocaleData;

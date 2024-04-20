@@ -14,7 +14,7 @@
 
 import json
 import pathlib
-
+import json
 import polib
 
 from warehouse.i18n import KNOWN_LOCALES
@@ -47,21 +47,19 @@ for lang in languages:
     # if one or more translation messages from javascript files were found,
     # then write the json file to the same folder.
     result = {
-        "locale": lang,
-        "plural-forms": po.metadata['Plural-Forms'],
-        "entries": {e.msgid: {
-            "flags": e.flags,
-            "msgctxt": e.msgctxt,
-            "msgid": e.msgid,
-            "msgid_plural": e.msgid_plural,
-            "msgid_with_context": e.msgid_with_context,
-            "msgstr": e.msgstr,
-            "msgstr_plural": e.msgstr_plural,
-            "prev_msgctxt": e.previous_msgctxt,
-            "prev_msgid": e.previous_msgid,
-            "prev_msgid_plural": e.previous_msgid_plural,
-        } for e in entries},
+        "": {
+            "language": lang,
+            "plural-forms": po.metadata['Plural-Forms'],
+        }
     }
+    for e in entries:
+        if e.msgid_plural:
+            result[e.msgid] = list(e.msgstr_plural.values())
+        elif e.msgstr:
+            result[e.msgid] = e.msgstr
+        else:
+            raise ValueError(f"No value available for ${e}")
+
     json_path = po_path.with_suffix('.json')
     with json_path.open('w') as f:
         print(f"Writing messages to {json_path}")

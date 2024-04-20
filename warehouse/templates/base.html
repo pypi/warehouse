@@ -131,7 +131,7 @@
             {% if request.registry.settings.get("ga4.tracking_id") -%}
             data-ga4-id="{{ request.registry.settings['ga4.tracking_id'] }}"
             {% endif %}
-            src="{{ request.static_path('warehouse:static/dist/js/warehouse' + request.localizer.locale_name + '.js') }}">
+            src="{{ request.static_path('warehouse:static/dist/js/warehouse' + ('' if request.localizer.locale_name == 'en' else '.' + request.localizer.locale_name) + '.js') }}">
     </script>
     {% block extra_js %}
     {% endblock %}

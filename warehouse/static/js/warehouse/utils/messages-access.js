@@ -11,7 +11,13 @@
  * limitations under the License.
  */
 
-const i18n = require("gettext.js/dist/gettext.cjs.js");
+import i18n from "gettext.js/dist/gettext.esm";
+
+const i18nInst = i18n();
+
+// the value for 'messagesAccessLocaleData' is set by webpack.plugin.localize.js
+var messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals = 2; plural = (n != 1)"}};
+i18nInst.loadJSON(messagesAccessLocaleData, "messages");
 
 /**
  * Get the translation using num to choose the appropriate string.
@@ -20,35 +26,24 @@ const i18n = require("gettext.js/dist/gettext.cjs.js");
  * and have the translation strings extracted correctly.
  * Function 'ngettext' for plural extraction.
  *
- * Any placeholders must be specified as
+ * Any placeholders must be specified as %1, %2, etc.
  *
  * @example
- * import { gettext, ngettext } from "warehouse/utils/messages-access";
- * // For a singular only string:
- * gettext("Just now");
+ * import { ngettext } from "warehouse/utils/messages-access";
  * // For a singular and plural and placeholder string:
- * ngettext("About a minute ago", "About %1 minutes ago", numMinutes);
+ * ngettext("About a minute ago", "About %1 minutes ago", numMinutes, numMinutes);
 
  * @param singular {string} The default string for the singular translation.
  * @param plural {string} The default string for the plural translation.
  * @param num {number} The number to use to select the appropriate translation.
  * @param extras {string} Additional values to put in placeholders.
  * @returns {string} The translated text.
+ * @see https://github.com/guillaumepotier/gettext.js
  * @see https://www.gnu.org/software/gettext/manual/gettext.html#Language-specific-options
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
 export function ngettext(singular, plural, num, ...extras) {
-  const singularIsString = typeof singular === "string" || singular instanceof String;
-  if(singularIsString) {
-    // construct the translation using the fallback language (english)
-    i18n.setMessages("messages", "en", {[singular]:[singular, plural]}, "nplurals = 2; plural = (n != 1)");
-  } else {
-    // After the webpack localizer processing,
-    // the non-string 'singular' is the translation data.
-    i18n.loadJSON(singular.data, "messages");
-  }
-
-  return i18n.ngettext(singular.singular, plural, num, ...extras);
+  return i18nInst.ngettext(singular, plural, num, ...extras);
 }
 
 /**
@@ -58,22 +53,17 @@ export function ngettext(singular, plural, num, ...extras) {
  * and have the translation strings extracted correctly.
  * Function 'gettext' for singular extraction.
  *
- * Any placeholders must be specified as
+ * Any placeholders must be specified as %1, %2, etc.
+ *
+ * @example
+ * import { gettext } from "warehouse/utils/messages-access";
+ * // For a singular only string:
+ * gettext("Just now");
  *
  * @param singular {string} The default string for the singular translation.
  * @param extras {string} Additional values to put in placeholders.
  * @returns {string} The translated text.
  */
 export function gettext(singular, ...extras) {
-  const singularIsString = typeof singular === "string" || singular instanceof String;
-  if(singularIsString) {
-    // construct the translation using the fallback language (english)
-    i18n.setMessages("messages", "en", {[singular]:[singular]}, "nplurals = 2; plural = (n != 1)");
-  } else {
-    // After the webpack localizer processing,
-    // the non-string 'singular' is the translation data.
-    i18n.loadJSON(singular.data, "messages");
-  }
-
-  return i18n.gettext(singular.singular,  ...extras);
+  return i18nInst.gettext(singular, ...extras);
 }
