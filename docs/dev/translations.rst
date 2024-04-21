@@ -98,7 +98,8 @@ Instead, define it inside the :code:`{% trans %}` tag:
       Filter by <a href="{{ href }}">classifier</a>
       {% endtrans %}
 
-In javascript, use :code:`%1`, :code:`%2`, etc as placeholders and provide the placeholder values:
+In javascript, use :code:`%1`, :code:`%2`, etc as
+placeholders and provide the placeholder values:
 
 .. code-block:: javascript
 

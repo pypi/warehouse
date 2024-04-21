@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import json
 import pathlib
 import json
 import polib
@@ -20,7 +19,7 @@ import polib
 from warehouse.i18n import KNOWN_LOCALES
 
 """
-
+Extracts the translations required in javascript to per-locale messages.json files.
 """
 
 domain = "messages"

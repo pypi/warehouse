@@ -158,12 +158,15 @@ Javascript localization support
 
 Strings in JS can be translated, see the see the :doc:`../translations` docs.
 
-As part of the webpack build the translation data for each locale in ``KNOWN_LOCALES``
+As part of the webpack build,
+the translation data for each locale in ``KNOWN_LOCALES``
 is placed in |warehouse/static/js/warehouse/utils/messages-access.js|_.
 
-A separate js bundle is generated for each locale, named like this: ``warehouse.[locale].[contenthash].js``.
+A separate js bundle is generated for each locale,
+named like this: ``warehouse.[locale].[contenthash].js``.
 
-The JS bundle to include is selected in |warehouse/templates/base.html|_ using the current :code:`request.localizer.locale_name`.
+The JS bundle to include is selected in |warehouse/templates/base.html|_
+using the current :code:`request.localizer.locale_name`.
 
 .. |warehouse/static/js/warehouse/utils/messages-access.js| replace:: ``warehouse/static/js/warehouse/utils/messages-access.js``
 .. _warehouse/static/js/warehouse/utils/messages-access.js: https://github.com/pypi/warehouse/blob/main/warehouse/static/js/warehouse/utils/messages-access.js
