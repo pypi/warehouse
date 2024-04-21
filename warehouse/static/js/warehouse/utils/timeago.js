@@ -30,13 +30,13 @@ const convertToReadableText = (time) => {
   let { numDays, numMinutes, numHours } = time;
 
   if (numDays >= 1) {
-    return ngettext("Yesterday", "About %1 days ago", numDays, "another");
+    return ngettext("Yesterday", "About %1 days ago", numDays, numDays);
   }
 
   if (numHours > 0) {
-    return ngettext("About an hour ago", "About %1 hours ago", numHours);
+    return ngettext("About an hour ago", "About %1 hours ago", numHours, numHours);
   } else if (numMinutes > 0) {
-    return ngettext("About a minute ago", "About %1 minutes ago", numMinutes);
+    return ngettext("About a minute ago", "About %1 minutes ago", numMinutes, numMinutes);
   } else {
     return gettext("Just now", "another");
   }

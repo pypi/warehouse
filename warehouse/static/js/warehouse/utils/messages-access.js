@@ -19,8 +19,7 @@ var messagesAccessLocaleData = {"": {"language": "en", "plural-forms": "nplurals
 // default is en
 var messagesAccessPluralFormFunction = function (n) {
   let nplurals, plural;
-  nplurals = 2;
-  plural = (n != 1);
+  nplurals = 2; plural = (n != 1);
   return {total: nplurals, index: ((nplurals > 1 && plural === true) ? 1 : (plural ? plural : 0))};
 };
 
@@ -48,18 +47,7 @@ var messagesAccessPluralFormFunction = function (n) {
  * @see https://docs.pylonsproject.org/projects/pyramid/en/latest/api/i18n.html#pyramid.i18n.Localizer.pluralize
  */
 export function ngettext(singular, plural, num, ...extras) {
-  let result = singular;
-  const data = getTranslationData(singular);
-
-  try {
-    const pluralForms = messagesAccessPluralFormFunction(num);
-    result = data[pluralForms.index];
-  } catch (err) {
-    console.log(err);
-  }
-
-  result = insertPlaceholderValues(result, extras);
-  return result;
+  return ngettextCustom(singular, plural, num, extras, messagesAccessLocaleData, messagesAccessPluralFormFunction);
 }
 
 /**
@@ -81,20 +69,28 @@ export function ngettext(singular, plural, num, ...extras) {
  * @returns {string} The translated text.
  */
 export function gettext(singular, ...extras) {
-  let result;
-  result = getTranslationData(singular);
-  result = insertPlaceholderValues(result, extras);
-  return result;
+  return ngettext(singular, null, 1, ...extras);
 }
 
-function getTranslationData(value) {
-  if (!value) {
+export function ngettextCustom(singular, plural, num, extras, data, pluralForms) {
+  // this function allows for testing
+  const pluralFormsData = pluralForms(num);
+  let value = getTranslationData(data, singular);
+  if (Array.isArray(value)) {
+    value = value[pluralFormsData.index];
+  } else if (pluralFormsData.index > 0) {
+    value = plural;
+  }
+  return insertPlaceholderValues(value, extras);
+}
+
+function getTranslationData(data, value) {
+  if (!value || !value.trim()) {
     return "";
   }
-  try {
-    return messagesAccessLocaleData[value];
-  } catch (err) {
-    console.log(err);
+  if (Object.hasOwn(data, value)) {
+    return data[value];
+  } else {
     return value;
   }
 }
@@ -103,15 +99,11 @@ function insertPlaceholderValues(value, extras) {
   if (!value) {
     return "";
   }
-  if (!extras) {
+  if (!extras || extras.length < 1 || !value.includes("%")) {
     return value;
   }
-  try {
-    extras.forEach((extra, index) => {
-      value = value.replaceAll(`%${index + 1}`, extra);
-    });
-  } catch (err) {
-    console.log(err);
-  }
-  return value;
+  return extras.reduce((accumulator, currentValue, currentIndex) => {
+    const regexp = new RegExp(`%${currentIndex + 1}\\b`, "gi");
+    return accumulator.replaceAll(regexp, currentValue);
+  }, value);
 }
