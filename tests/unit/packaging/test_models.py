@@ -668,8 +668,9 @@ class TestRelease:
 
         assert release.trusted_published
 
-    def test_is_source_verified(self, db_session):
-        release = DBReleaseFactory.create()
+    def test_is_url_verified(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         release_file = DBFileFactory.create(
             release=release,
             filename=f"{release.project.name}-{release.version}.tar.gz",
@@ -681,15 +682,10 @@ class TestRelease:
             additional={"publisher_url": "https://fake/url"},
         )
 
-        project = DBProjectFactory.create()
-        release = DBReleaseFactory.create(project=project)
-        assert not release.is_source_verified
-
-        release.home_page = "xpto.com"
-        assert not release.is_source_verified
-
-        release.home_page = "https://fake/url"
-        assert release.is_source_verified
+        assert not project.is_verified_url("xpto.com")
+        assert not project.is_verified_url("https://fake/")
+        assert project.is_verified_url("https://fake/url")
+        assert project.is_verified_url("https://fake/url/something.md")
 
 
     def test_trusted_published_mixed(self, db_session):

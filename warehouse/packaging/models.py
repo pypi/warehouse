@@ -33,6 +33,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    literal,
     or_,
     orm,
     sql,
@@ -398,27 +399,22 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
-    
 
     def is_verified_url(self, url: str) -> bool:
-        session = orm.object_session(self)
         return (
-                session.query(File.Event)
+                orm.object_session(self)
+                .query(File.Event)
                 .join(File)
                 .join(Release)
                 .join(Project)
                 .filter(Project.id == self.id)
                 .filter(
-                    File.Event.additional.op("->>")("publisher_url").like(
-                        f"{url}%"
+                    literal(url).contains(File.Event.additional.op("->>")("publisher_url"))
                     )
-                )
-                .exists()
-        ).scalar()
+                .scalar()
+        )
         
         
-        
-
 class DependencyKind(enum.IntEnum):
     requires = 1
     provides = 2
