@@ -160,7 +160,7 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except NoResultFound:
+        except (NoResultFound, ValueError):
             self.request.session.flash("Email address not found", queue="error")
             return self.default_response
 
