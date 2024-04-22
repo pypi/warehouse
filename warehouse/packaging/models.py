@@ -901,4 +901,7 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("macaroons.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
-    project_id = mapped_column(ForeignKey("projects.id"), primary_key=True)
+    project_id = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
