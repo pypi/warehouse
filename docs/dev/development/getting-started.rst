@@ -265,19 +265,16 @@ includes the TUF trust root for development and other configuration.
 By calling this API, RSTUF creates the TUF metadata repository, installs the
 TUF trust root for development, and creates the initial set of TUF metadata.
 
+Once this process is finished, TUF metadata will update automatically whenever
+distribution files are uploaded, yanked or removed. To disable this behavior,
+you can set the ``TUF_ENABLED`` environment variable to false. TUF metadata
+is hosted at: http://localhost:9001/tuf-metadata/
+
 .. note::
 
-    The RSTUF API is exposed only for development purposes and will not be
-    available in production. Currently, no upload hooks or automatic metadata
-    update tasks are configured to interact with RSTUF.
+    RSTUF and automated TUF metadata updates are currently only available in the
+    Warehouse development environment.
 
-    Take a look at the `RSTUF API documentation
-    <https://repository-service-tuf.readthedocs.io/en/stable/guide/general/usage.html#adding-artifacts>`_
-    to see how you can simulate artifact upload or removal, and how they affect
-    the TUF metadata repository:
-
-    * RSTUF API: http://localhost:8001
-    * TUF Metadata Repository: http://localhost:9001/tuf-metadata/
 
 
 Resetting the development database
