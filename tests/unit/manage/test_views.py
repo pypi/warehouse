@@ -691,12 +691,13 @@ class TestManageAccount:
         assert send_email.calls == []
         assert email.user.record_event.calls == []
 
-    def test_reverify_email_not_found(self, monkeypatch):
+    @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
+    def test_reverify_email_not_found(self, monkeypatch, reverify_email_id):
         def raise_no_result():
             raise NoResultFound
 
         request = pretend.stub(
-            POST={"reverify_email_id": "9999"},
+            POST={"reverify_email_id": reverify_email_id},
             db=pretend.stub(
                 query=lambda *a: pretend.stub(
                     filter=lambda *a: pretend.stub(one=raise_no_result)
