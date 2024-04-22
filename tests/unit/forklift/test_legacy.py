@@ -2909,6 +2909,10 @@ class TestFileUpload:
                 "400 Invalid wheel filename (invalid version): "
                 "foo-0.0.4test1-py3-none-any",
             ),
+            (
+                "something.tar.gz",
+                "400 Invalid source distribution filename: something.tar.gz",
+            ),
         ],
     )
     def test_upload_fails_with_invalid_filename(
@@ -2932,8 +2936,8 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "bdist_wheel",
-                "pyversion": "cp34",
+                "filetype": "bdist_wheel" if filename.endswith(".whl") else "sdist",
+                "pyversion": "cp34" if filename.endswith(".whl") else "source",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
