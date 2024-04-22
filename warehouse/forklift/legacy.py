@@ -963,7 +963,13 @@ def file_upload(request):
             # enforcing this, so we permit a filename with a project name and
             # version that normalizes to be what we expect
 
-            name, version = packaging.utils.parse_sdist_filename(filename)
+            try:
+                name, version = packaging.utils.parse_sdist_filename(filename)
+            except packaging.utils.InvalidSdistFilename:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid source distribution filename: {filename}",
+                )
 
             # The previous function fails to accomodate the edge case where
             # versions may contain hyphens, so we handle that here based on
