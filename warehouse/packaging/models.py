@@ -399,15 +399,24 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .first()
         )
     
-    @property
-    def trusted_published_file(self):
+
+    def is_verified_url(self, url: str) -> bool:
+        session = orm.object_session(self)
         return (
-            orm.object_session(self)
-            .query(Release.files)
-            .filter(Release.project == self, File.uploaded_via_trusted_publisher.is_(True))
-            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
-            .one_or_none()
-        )
+                session.query(File.Event)
+                .join(File)
+                .join(Release)
+                .join(Project)
+                .filter(Project.id == self.id)
+                .filter(
+                    File.Event.additional.op("->>")("publisher_url").like(
+                        f"{url}%"
+                    )
+                )
+                .exists()
+        ).scalar()
+        
+        
         
 
 class DependencyKind(enum.IntEnum):

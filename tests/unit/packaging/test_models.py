@@ -678,14 +678,11 @@ class TestRelease:
         DBFileEventFactory.create(
             source=release_file,
             tag="fake:event",
-        )
-        assert not release.is_source_verified
-
-        DBFileEventFactory.create(
-            source=release_file,
-            tag="fake:event",
             additional={"publisher_url": "https://fake/url"},
         )
+
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
         assert not release.is_source_verified
 
         release.home_page = "xpto.com"
