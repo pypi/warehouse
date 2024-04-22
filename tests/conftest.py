@@ -345,16 +345,7 @@ def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
     trans = conn.begin()
-    session = Session(bind=conn)
-
-    # Start the session in a SAVEPOINT
-    session.begin_nested()
-
-    # Then each time that SAVEPOINT ends, reopen it
-    @event.listens_for(session, "after_transaction_end")
-    def restart_savepoint(session, transaction):
-        if transaction.nested and not transaction._parent.nested:
-            session.begin_nested()
+    session = Session(bind=conn, join_transaction_mode="create_savepoint")
 
     try:
         yield session
