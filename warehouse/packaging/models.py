@@ -398,7 +398,17 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
-
+    
+    @property
+    def trusted_published_file(self):
+        return (
+            orm.object_session(self)
+            .query(Release.files)
+            .filter(Release.project == self, File.uploaded_via_trusted_publisher.is_(True))
+            .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
+            .one_or_none()
+        )
+        
 
 class DependencyKind(enum.IntEnum):
     requires = 1
@@ -702,18 +712,6 @@ class Release(HasObservations, db.Model):
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
 
-    @property
-    def is_source_verified(self) -> bool:
-        """
-        A Release can be considered source verified if it is trusted published
-        and the source URL is the same of the trusted publisher.
-        """
-        urls = self.urls
-        if not self.trusted_published or "Homepage" not in urls or urls["Homepage"] is None:
-            return False
-
-        return self.files.first().publisher_url == urls["Homepage"]
-
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
@@ -805,8 +803,8 @@ class File(HasEvents, db.Model):
     
     @property
     def publisher_url(self) -> str:
-        events = self._get_trusted_publisher_events()
-        return events.first().additional["publisher_url"] if events.count() > 0 else None
+        event = self._get_trusted_publisher_events().one_or_none()
+        return event.additional["publisher_url"] if event else None
 
     @hybrid_property
     def metadata_path(self):
