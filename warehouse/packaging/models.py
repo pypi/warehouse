@@ -409,7 +409,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 .join(Project)
                 .filter(Project.id == self.id)
                 .filter(
-                    literal(url).contains(File.Event.additional.op("->>")("publisher_url"))
+                    literal(url).ilike(File.Event.additional.op("->>")("publisher_url")+"%")
                     )
                 .scalar()
         )
@@ -805,11 +805,6 @@ class File(HasEvents, db.Model):
                     .is_not(None),
                 )
             )
-    
-    @property
-    def publisher_url(self) -> str:
-        event = self._get_trusted_publisher_events().one_or_none()
-        return event.additional["publisher_url"] if event else None
 
     @hybrid_property
     def metadata_path(self):
