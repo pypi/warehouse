@@ -668,7 +668,16 @@ class TestRelease:
 
         assert release.trusted_published
 
-    def test_is_url_verified(self, db_session):
+    @pytest.mark.parametrize(
+      "url, expected",
+      [
+          ("xpto.com", False),
+          ("https://fake/", False),
+          ("https://fake/url", True),
+          ("https://fake/url/something.md", True),
+      ]
+  )
+    def test_is_url_verified(self, db_session, url, expected):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
         release_file = DBFileFactory.create(
@@ -682,11 +691,7 @@ class TestRelease:
             additional={"publisher_url": "https://fake/url"},
         )
 
-        assert not project.is_verified_url("xpto.com")
-        assert not project.is_verified_url("https://fake/")
-        assert project.is_verified_url("https://fake/url")
-        assert project.is_verified_url("https://fake/url/something.md")
-
+        assert project.is_verified_url(url) is expected
 
     def test_trusted_published_mixed(self, db_session):
         release = DBReleaseFactory.create()

@@ -410,9 +410,9 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 .filter(Project.id == self.id)
                 .filter(
                     literal(url).ilike(File.Event.additional.op("->>")("publisher_url")+"%")
-                    )
+                )
                 .scalar()
-        )
+        ) is not None
         
         
 class DependencyKind(enum.IntEnum):
