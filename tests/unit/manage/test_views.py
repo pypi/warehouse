@@ -692,7 +692,16 @@ class TestManageAccount:
         assert email.user.record_event.calls == []
 
     @pytest.mark.parametrize("reverify_email_id", ["9999", "wutang"])
-    def test_reverify_email_not_found(self, monkeypatch, reverify_email_id):
+    @pytest.mark.parametrize(
+        "has_primary_verified_email,expected",
+        [
+            (True, "manage.account"),
+            (False, "manage.unverified-account"),
+        ],
+    )
+    def test_reverify_email_not_found(
+        self, monkeypatch, reverify_email_id, has_primary_verified_email, expected
+    ):
         def raise_no_result():
             raise NoResultFound
 
@@ -705,20 +714,21 @@ class TestManageAccount:
             ),
             session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
             find_service=lambda *a, **kw: pretend.stub(),
-            user=pretend.stub(id=pretend.stub()),
+            user=pretend.stub(
+                id=pretend.stub(), has_primary_verified_email=has_primary_verified_email
+            ),
+            route_path=pretend.call_recorder(lambda *a: "/some/url"),
         )
         send_email = pretend.call_recorder(lambda *a: None)
         monkeypatch.setattr(views, "send_email_verification_email", send_email)
-        monkeypatch.setattr(
-            views.ManageVerifiedAccountViews, "default_response", {"_": pretend.stub()}
-        )
         view = views.ManageVerifiedAccountViews(request)
 
-        assert view.reverify_email() == view.default_response
+        assert isinstance(view.reverify_email(), HTTPSeeOther)
         assert request.session.flash.calls == [
             pretend.call("Email address not found", queue="error")
         ]
         assert send_email.calls == []
+        assert request.route_path.calls == [pretend.call(expected)]
 
     def test_reverify_email_already_verified(self, monkeypatch):
         email = pretend.stub(verified=True, email="email_address")
