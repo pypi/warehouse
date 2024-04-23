@@ -106,6 +106,11 @@ each.
 
 === "GitLab CI/CD"
 
+    !!! note
+
+        Currently, only projects hosted on <https://gitlab.com> are supported. Self-managed
+        instances are not supported.
+
     For GitLab CI/CD, you **must** provide the repository's namespace, the
     repository's name, and the filepath of the GitLab CI/CD workflow that's
     authorized to upload to PyPI. In addition, you may **optionally**
