@@ -43,17 +43,25 @@
       </span>
     {% endfor %}
   {% endif %}
+  {% set verified_urls, unverified_urls = [],[] %}
+  {% for name, url in release.urls.items() %}
+    {% if is_valid_uri(url) %}
+      {% if name in ['Source', 'Homepage'] and project.is_verified_url(url) %}
+        {{ verified_urls.append((name, url)) }}
+      {% else %}
+        {{ unverified_urls.append((name, url)) }}
+      {% endif %}
+    {% endif %}
+  {% endfor %}
   {% if release.github_repo_info_url and release.github_open_issue_info_url %}
     <h6>{% trans %}Project links{% endtrans %}</h6>
-    {% for name, url in release.urls.items() %}
-    {% if name in ['Source', 'Homepage'] and is_valid_uri(url) and project.is_verified_url(url) %}
+    {% for name, url in verified_urls %}
     <li>
       <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
         {{ url_icon(name, url) }}{{ name }} <i class="fa fa-circle-check check"></i>
       </a>
     </li>
-    {% endif %}
-  {% endfor %}
+    {% endfor %}
   {% endif %}
 </div>
 
@@ -63,14 +71,12 @@
 {% if release.urls.values() | contains_valid_uris %}
   <h6>{% trans %}Project links{% endtrans %}</h6>
   <ul class="vertical-tabs__list">
-    {% for name, url in release.urls.items() %}
-    {% if is_valid_uri(url) and not project.is_verified_url(url) %}
+    {% for name, url in unverified_urls %}
     <li>
       <a class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--condensed" href="{{ url }}" rel="nofollow">
         {{ url_icon(name, url) }}{{ name }}
       </a>
     </li>
-    {% endif %}
     {% endfor %}
   </ul>
 {% endif %}

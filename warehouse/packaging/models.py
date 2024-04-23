@@ -792,10 +792,8 @@ class File(HasEvents, db.Model):
     @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
-        return (self._get_trusted_publisher_events().count() > 0)
-
-    def _get_trusted_publisher_events(self):
-        return self.events.where(
+        return (
+            self.events.where(
                 or_(
                     self.Event.additional[  # type: ignore[attr-defined]
                         "uploaded_via_trusted_publisher"
@@ -804,7 +802,9 @@ class File(HasEvents, db.Model):
                     .as_string()
                     .is_not(None),
                 )
-            )
+            ).count()
+            > 0
+        )
 
     @hybrid_property
     def metadata_path(self):
