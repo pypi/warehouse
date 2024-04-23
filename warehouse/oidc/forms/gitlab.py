@@ -20,7 +20,7 @@ from warehouse.oidc.forms._core import PendingPublisherMixin
 
 # https://docs.gitlab.com/ee/user/reserved_names.html#limitations-on-project-and-group-names
 _VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
-_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
+_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./]*$")
 _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
 
