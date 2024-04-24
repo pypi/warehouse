@@ -50,19 +50,11 @@ class TestLoginForm:
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags: False)
         )
-        captcha_service = pretend.stub(enabled=True, verify_response=lambda _: None)
         form = forms.LoginForm(
-            MultiDict(
-                {
-                    "username": "user",
-                    "password": "password",
-                    "g_recaptcha_response": "success",
-                }
-            ),
+            MultiDict({"username": "user", "password": "password"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
 
         assert form.request is request
@@ -76,12 +68,8 @@ class TestLoginForm:
             find_userid=pretend.call_recorder(lambda userid: None)
         )
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
-            request=request,
-            user_service=user_service,
-            breach_service=breach_service,
-            captcha_service=captcha_service,
+            request=request, user_service=user_service, breach_service=breach_service
         )
         field = pretend.stub(data="my_username")
 
@@ -104,12 +92,8 @@ class TestLoginForm:
         request = pretend.stub()
         user_service = pretend.stub(find_userid=pretend.call_recorder(lambda userid: 1))
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
-            request=request,
-            user_service=user_service,
-            breach_service=breach_service,
-            captcha_service=captcha_service,
+            request=request, user_service=user_service, breach_service=breach_service
         )
         field = pretend.stub(data=input_username)
         form.validate_username(field)
@@ -127,13 +111,11 @@ class TestLoginForm:
             find_userid=pretend.call_recorder(lambda userid: None)
         )
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="password")
 
@@ -158,13 +140,11 @@ class TestLoginForm:
             ),
         )
         breach_service = pretend.stub(failure_message="Bad Password!")
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="pw")
 
@@ -194,13 +174,11 @@ class TestLoginForm:
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags: False)
         )
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
             check_password_metrics_tags=["bar"],
         )
         field = pretend.stub(data="pw")
@@ -238,13 +216,11 @@ class TestLoginForm:
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="pw")
 
@@ -281,13 +257,11 @@ class TestLoginForm:
             is_disabled=pretend.call_recorder(lambda userid: (False, None)),
         )
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="pw")
 
@@ -323,14 +297,12 @@ class TestLoginForm:
         breach_service = pretend.stub(
             check_password=lambda pw, tags=None: True, failure_message="Bad Password!"
         )
-        captcha_service = pretend.stub(enabled=False, verify_response=lambda _: None)
 
         form = forms.LoginForm(
             MultiDict({"password": "password"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         assert not form.validate()
         assert form.password.errors.pop() == "Bad Password!"
@@ -360,14 +332,12 @@ class TestLoginForm:
         breach_service = pretend.stub(
             check_password=pretend.call_recorder(lambda pw, tags: False)
         )
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
             check_password_metrics_tags=["bar"],
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="pw")
 
@@ -395,13 +365,11 @@ class TestLoginForm:
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         breach_service = pretend.stub()
-        captcha_service = pretend.stub(enabled=False)
         form = forms.LoginForm(
             formdata=MultiDict({"username": "my_username"}),
             request=request,
             user_service=user_service,
             breach_service=breach_service,
-            captcha_service=captcha_service,
         )
         field = pretend.stub(data="pw")
 
@@ -411,21 +379,6 @@ class TestLoginForm:
         assert user_service.find_userid.calls == []
         assert user_service.is_disabled.calls == []
         assert user_service.check_password.calls == []
-
-    @pytest.mark.parametrize("response_data", ["asd", None])
-    def test_recaptcha_error(self, response_data):
-        form = forms.LoginForm(
-            request=pretend.stub(),
-            formdata=MultiDict({"g_recaptcha_response": response_data}),
-            user_service=pretend.stub(),
-            captcha_service=pretend.stub(
-                verify_response=pretend.raiser(recaptcha.RecaptchaError),
-                enabled=True,
-            ),
-            breach_service=pretend.stub(check_password=lambda pw, tags=None: False),
-        )
-        assert not form.validate()
-        assert form.g_recaptcha_response.errors.pop() == "Recaptcha error."
 
 
 class TestRegistrationForm:
@@ -832,7 +785,7 @@ class TestRequestPasswordResetForm:
         form = forms.RequestPasswordResetForm()
         assert "password" not in form._fields
 
-    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net"])
+    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net", "foo@"])
     def test_validate_with_invalid_inputs(self, form_input):
         form = forms.RequestPasswordResetForm()
         field = pretend.stub(data=form_input)

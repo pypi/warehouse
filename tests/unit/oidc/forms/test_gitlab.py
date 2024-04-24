@@ -48,14 +48,22 @@ class TestPendingGitLabPublisherForm:
 
 
 class TestGitLabPublisherForm:
-    def test_validate(self):
-        data = MultiDict(
+    @pytest.mark.parametrize(
+        "data",
+        [
             {
                 "namespace": "some-owner",
                 "project": "some-repo",
                 "workflow_filepath": "subfolder/some-workflow.yml",
-            }
-        )
+            },
+            {
+                "namespace": "some-group/some-subgroup",
+                "project": "some-repo",
+                "workflow_filepath": "subfolder/some-workflow.yml",
+            },
+        ],
+    )
+    def test_validate(self, data):
         form = gitlab.GitLabPublisherForm(MultiDict(data))
 
         # We're testing only the basic validation here.
@@ -73,6 +81,11 @@ class TestGitLabPublisherForm:
             },
             {
                 "namespace": "invalid_parethen(sis",
+                "project": "some",
+                "workflow_filepath": "some",
+            },
+            {
+                "namespace": "/start_with_slash",
                 "project": "some",
                 "workflow_filepath": "some",
             },

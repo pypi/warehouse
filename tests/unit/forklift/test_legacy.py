@@ -24,6 +24,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPBadRequest, HTTPForbidden, HTTPTooManyRequests
+from sqlalchemy import and_, exists
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
@@ -33,6 +34,7 @@ from warehouse.accounts.utils import UserTokenContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
+from warehouse.macaroons import IMacaroonService, caveats, security_policy
 from warehouse.metrics import IMetricsService
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.utils import PublisherTokenContext
@@ -44,6 +46,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectMacaroonWarningAssociation,
     Release,
     Role,
 )
@@ -479,21 +482,40 @@ class TestFileUpload:
             ),
             # version errors.
             (
-                {"metadata_version": "1.2", "name": "example"},
-                "'' is an invalid value for Version. "
-                "Error: This field is required. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'version' is a required field. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
             ),
             (
-                {"metadata_version": "1.2", "name": "example", "version": "dog"},
-                "'dog' is an invalid value for Version. "
-                "Error: Start and end with a letter or numeral "
-                "containing only ASCII numeric and '.', '_' and '-'. "
-                "See "
-                "https://packaging.python.org/specifications/core-metadata"
-                " for more information.",
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "dog",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'dog' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
+            ),
+            (
+                {
+                    "metadata_version": "1.2",
+                    "name": "example",
+                    "version": "1.0.dev.a1",
+                    "md5_digest": "bad",
+                    "filetype": "sdist",
+                },
+                "'1.0.dev.a1' is invalid for 'version'. See "
+                "https://packaging.python.org/specifications/core-metadata for "
+                "more information.",
             ),
             # filetype/pyversion errors.
             (
@@ -1997,11 +2019,18 @@ class TestFileUpload:
             ("no-way-{version}.tar.gz", "sdist", "no"),
             ("no_way-{version}-py3-none-any.whl", "bdist_wheel", "no"),
             # multiple delimiters
-            ("foo__bar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
+            ("foobar-{version}-py3-none-any.whl", "bdist_wheel", "foo-.bar"),
         ],
     )
-    def test_upload_fails_with_wrong_filename(
-        self, pyramid_config, db_request, metrics, filename, filetype, project_name
+    def test_upload_fails_with_wrong_filename_project_name(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        filename,
+        filetype,
+        project_name,
     ):
         user = UserFactory.create()
         pyramid_config.testing_securitypolicy(identity=user)
@@ -2017,6 +2046,7 @@ class TestFileUpload:
             IFileStorage: storage_service,
             IMetricsService: metrics,
         }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
 
         db_request.POST = MultiDict(
             {
@@ -2051,6 +2081,57 @@ class TestFileUpload:
                 project.normalized_name.replace("-", "_"),
             )
         )
+
+    @pytest.mark.parametrize(
+        "filename", ["wutang-6.6.6.tar.gz", "wutang-6.6.6-py3-none-any.whl"]
+    )
+    def test_upload_fails_with_wrong_filename_version(
+        self, monkeypatch, pyramid_config, db_request, metrics, filename
+    ):
+        user = UserFactory.create()
+        pyramid_config.testing_securitypolicy(identity=user)
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create(name="wutang")
+        RoleFactory.create(user=user, project=project)
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+        monkeypatch.setattr(legacy, "_is_valid_dist_file", lambda *a, **kw: True)
+
+        filetype = "sdist" if filename.endswith(".tar.gz") else "bdist_wheel"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.2.3",
+                "filetype": filetype,
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "pyversion": {
+                    "bdist_wheel": "1.0",
+                    "bdist_egg": "1.0",
+                    "sdist": "source",
+                }[filetype],
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.help_url = lambda **kw: "/the/help/url/"
+
+        with pytest.raises(HTTPBadRequest) as excinfo:
+            legacy.file_upload(db_request)
+
+        resp = excinfo.value
+
+        assert resp.status_code == 400
+        assert resp.status == ("400 Version in filename should be '1.2.3' not '6.6.6'.")
 
     @pytest.mark.parametrize(
         "filetype, extension",
@@ -2618,6 +2699,7 @@ class TestFileUpload:
             ("foo-.bar", "foo_bar", "1.0.0"),
             ("leo", "leo", "6.7.9-9"),
             ("leo_something", "leo-something", "6.7.9-9"),
+            ("PyAlgoEngine", "PyAlgoEngine", "0.3.12.post4"),
         ],
     )
     def test_upload_succeeds_pep625_normalized_filename(
@@ -2827,6 +2909,10 @@ class TestFileUpload:
                 "400 Invalid wheel filename (invalid version): "
                 "foo-0.0.4test1-py3-none-any",
             ),
+            (
+                "something.tar.gz",
+                "400 Invalid source distribution filename: something.tar.gz",
+            ),
         ],
     )
     def test_upload_fails_with_invalid_filename(
@@ -2850,8 +2936,8 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "bdist_wheel",
-                "pyversion": "cp34",
+                "filetype": "bdist_wheel" if filename.endswith(".whl") else "sdist",
+                "pyversion": "cp34" if filename.endswith(".whl") else "source",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
@@ -3845,6 +3931,152 @@ class TestFileUpload:
             "403 Invalid or non-existent authentication information. "
             "See /the/help/url/ for more information."
         )
+
+    @pytest.mark.parametrize(
+        # The only case where we expect the warning email to be sent is the first one:
+        # A project that has a trusted publisher, with an upload authenticated using an
+        # API token, where the warning has not already been sent.
+        (
+            "has_trusted_publisher",
+            "auth_with_api_token",
+            "warning_already_sent",
+            "expect_warning",
+        ),
+        [
+            (True, True, False, True),
+            (True, False, False, False),
+            (False, True, False, False),
+            (True, True, True, False),
+            (True, False, True, False),
+            (False, True, True, False),
+        ],
+    )
+    def test_upload_with_token_api_warns_if_trusted_publisher_configured(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+        project_service,
+        macaroon_service,
+        has_trusted_publisher,
+        auth_with_api_token,
+        warning_already_sent,
+        expect_warning,
+    ):
+        # Sanity check: If we're not authenticating with an API token,
+        # that means we have at least one trusted publisher
+        assert auth_with_api_token or has_trusted_publisher
+
+        project = ProjectFactory.create()
+        publisher = None
+        owner = UserFactory.create()
+        maintainer = UserFactory.create()
+        RoleFactory.create(user=owner, project=project, role_name="Owner")
+        RoleFactory.create(user=maintainer, project=project, role_name="Maintainer")
+
+        if has_trusted_publisher:
+            publisher = GitHubPublisherFactory.create(projects=[project])
+            project.oidc_publishers = [publisher]
+
+        if auth_with_api_token:
+            EmailFactory.create(user=maintainer)
+            db_request.user = maintainer
+            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+                "fake location",
+                "fake description",
+                [caveats.RequestUser(user_id=str(maintainer.id))],
+                user_id=maintainer.id,
+            )
+            identity = UserTokenContext(maintainer, macaroon)
+        else:
+            claims = {"sha": "somesha"}
+            identity = PublisherTokenContext(publisher, SignedClaims(claims))
+            db_request.oidc_publisher = identity.publisher
+            db_request.oidc_claims = identity.claims
+            db_request.user = None
+            raw_macaroon, macaroon = macaroon_service.create_macaroon(
+                "fake location",
+                "fake description",
+                [
+                    caveats.OIDCPublisher(
+                        oidc_publisher_id=str(publisher.id), oidc_claims=identity.claims
+                    )
+                ],
+                oidc_publisher_id=str(publisher.id),
+            )
+        if warning_already_sent:
+            db_request.db.add(
+                ProjectMacaroonWarningAssociation(
+                    macaroon_id=macaroon.id,
+                    project_id=project.id,
+                )
+            )
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        extract_http_macaroon = pretend.call_recorder(lambda r, _: raw_macaroon)
+        monkeypatch.setattr(
+            security_policy, "_extract_http_macaroon", extract_http_macaroon
+        )
+
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMacaroonService: macaroon_service,
+            IMetricsService: metrics,
+            IProjectService: project_service,
+        }.get(svc)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(
+            legacy, "send_api_token_used_in_trusted_publisher_project_email", send_email
+        )
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        warning_exists = db_request.db.query(
+            exists().where(
+                and_(
+                    ProjectMacaroonWarningAssociation.macaroon_id == macaroon.id,
+                    ProjectMacaroonWarningAssociation.project_id == project.id,
+                )
+            )
+        ).scalar()
+        if expect_warning:
+            assert send_email.calls == [
+                pretend.call(
+                    db_request,
+                    {owner, maintainer},
+                    project_name=project.name,
+                    token_owner_username=maintainer.username,
+                    token_name=macaroon.description,
+                ),
+            ]
+            assert warning_exists
+        else:
+            assert send_email.calls == []
+            if not warning_already_sent:
+                assert not warning_exists
 
 
 def test_submit(pyramid_request):

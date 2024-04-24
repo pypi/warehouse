@@ -43,7 +43,6 @@ from warehouse import admin, config, email, static
 from warehouse.accounts import services as account_services
 from warehouse.accounts.interfaces import ITokenService, IUserService
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.csp import CSPPolicy
 from warehouse.email import services as email_services
 from warehouse.email.interfaces import IEmailSender
 from warehouse.macaroons import services as macaroon_services
@@ -155,16 +154,6 @@ class _Services:
     def register_service(self, service_obj, iface=None, context=None, name=""):
         self._services[iface][context][name] = service_obj
 
-    def register_service_factory(
-        self, config_or_request, iface=None, context=None, name=""
-    ):
-        # TODO: This is a bit of a hack, but it's good enough for now.
-        #  It doesn't implement the depth of logic that Pyramid's service
-        #  factories do, but it's good enough for our tests.
-        #  It's functionally equivalent to `register_service()`, but it
-        #  Makes it clear that we're using a factory.
-        self._services[iface][context][name] = config_or_request
-
     def find_service(self, iface=None, context=None, name=""):
         return self._services[iface][context][name]
 
@@ -202,8 +191,6 @@ def pyramid_services(
         activestate_oidc_service, IOIDCPublisherService, None, name="activestate"
     )
     services.register_service(macaroon_service, IMacaroonService, None, name="")
-    # CSP is a special case, as it's a service that's not registered globally.
-    services.register_service_factory(CSPPolicy({}), name="csp")
 
     return services
 
@@ -358,16 +345,7 @@ def db_session(app_config):
     engine = app_config.registry["sqlalchemy.engine"]
     conn = engine.connect()
     trans = conn.begin()
-    session = Session(bind=conn)
-
-    # Start the session in a SAVEPOINT
-    session.begin_nested()
-
-    # Then each time that SAVEPOINT ends, reopen it
-    @event.listens_for(session, "after_transaction_end")
-    def restart_savepoint(session, transaction):
-        if transaction.nested and not transaction._parent.nested:
-            session.begin_nested()
+    session = Session(bind=conn, join_transaction_mode="create_savepoint")
 
     try:
         yield session

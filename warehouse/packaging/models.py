@@ -885,6 +885,33 @@ class ProhibitedProjectName(db.Model):
     comment: Mapped[str] = mapped_column(server_default="")
 
 
+class ProjectMacaroonWarningAssociation(db.Model):
+    """
+    Association table for Projects and Macaroons where a row (P, M) exists in
+    the table iff all of the following statements are true:
+    - M is an API-token Macaroon
+    - M was used to upload a file to project P
+    - P had a Trusted Publisher configured at the time of the upload
+    - An email warning was sent to P's maintainers about the use of M
+
+    In other words, this table tracks if we have warned a project's
+    maintainers about a specific API token being used in spite of a Trusted
+    Publisher being present. This is used in order to only send the warning
+    once per project and API token.
+    """
+
+    __tablename__ = "project_macaroon_warning_association"
+
+    macaroon_id = mapped_column(
+        ForeignKey("macaroons.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    project_id = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+
 class AlternateRepository(db.Model):
     __tablename__ = "alternate_repositories"
     __table_args__ = (
