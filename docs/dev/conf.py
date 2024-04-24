@@ -35,8 +35,8 @@ templates_path = ["_templates"]
 
 # The suffix of source filenames.
 source_suffix = {
-    ".rst": 'restructuredtext',
-    ".md": 'markdown',
+    ".rst": "restructuredtext",
+    ".md": "markdown",
 }
 
 # The master toctree document.
@@ -55,9 +55,9 @@ pygments_style = "sphinx"
 
 # Patterns to during `make linkcheck`
 linkcheck_ignore = [
-    r'http://localhost.*',
-    'http://134.122.111.11',  # example IP
-    'https://web.libera.chat/#pypa,#pypa-dev',  # can't visit anchors
+    r"http://localhost.*",
+    "http://134.122.111.11",  # example IP
+    "https://web.libera.chat/#pypa,#pypa-dev",  # can't visit anchors
 ]
 
 
