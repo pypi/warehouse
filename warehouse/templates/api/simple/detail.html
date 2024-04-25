@@ -15,6 +15,7 @@
 <html>
   <head>
     <meta name="pypi:repository-version" content="{{ meta['api-version'] }}">
+{#    <meta name="pypi:alternate-locations" content="{{ request.route_path('api.simple.detail', name=name|canonicalize_name) }}">#}
     {% for alt_repo in alternate_locations %}
     <meta name="pypi:alternate-locations" content="{{ alt_repo }}">
     {% endfor %}

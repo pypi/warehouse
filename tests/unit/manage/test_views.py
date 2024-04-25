@@ -2607,6 +2607,7 @@ class TestManageProjectSettings:
         view = views.ManageProjectSettingsViews(project, request)
         form = pretend.stub()
         view.transfer_organization_project_form_class = lambda *a, **kw: form
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2622,6 +2623,7 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
 
     def test_manage_project_settings_in_organization_managed(self, monkeypatch):
@@ -2634,6 +2636,7 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2649,6 +2652,7 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={"owned-org"})
@@ -2664,6 +2668,7 @@ class TestManageProjectSettings:
         view.transfer_organization_project_form_class = pretend.call_recorder(
             lambda *a, **kw: form
         )
+        view.add_alternate_repository_form_class = lambda *a, **kw: form
 
         user_organizations = pretend.call_recorder(
             lambda *a, **kw: {
@@ -2679,6 +2684,7 @@ class TestManageProjectSettings:
             "MAX_FILESIZE": MAX_FILESIZE,
             "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
             "transfer_organization_project_form": form,
+            "add_alternate_repository_form_class": form,
         }
         assert view.transfer_organization_project_form_class.calls == [
             pretend.call(organization_choices={"managed-org"})

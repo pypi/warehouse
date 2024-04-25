@@ -22,6 +22,7 @@ from warehouse.packaging.utils import API_VERSION
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
+    AlternateRepositoryFactory,
     FileFactory,
     JournalEntryFactory,
     ProjectFactory,
@@ -203,6 +204,7 @@ class TestSimpleDetail:
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": [],
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
@@ -222,12 +224,17 @@ class TestSimpleDetail:
         db_request.matchdict["name"] = project.normalized_name
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
+        als = [
+            AlternateRepositoryFactory.create(project=project),
+            AlternateRepositoryFactory.create(project=project)
+        ]
 
         assert simple.simple_detail(project, db_request) == {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
+            "alternate-locations": sorted(al.url for al in als),
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -276,6 +283,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
@@ -324,6 +332,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
@@ -417,6 +426,7 @@ class TestSimpleDetail:
                 }
                 for f in files
             ],
+            "alternate-locations": [],
         }
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
