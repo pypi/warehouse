@@ -402,19 +402,21 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
 
     def is_verified_url(self, url: str) -> bool:
         return (
-                orm.object_session(self)
-                .query(File.Event)
-                .join(File)
-                .join(Release)
-                .join(Project)
-                .filter(Project.id == self.id)
-                .filter(
-                    literal(url).ilike(File.Event.additional.op("->>")("publisher_url")+"%")
+            orm.object_session(self)
+            .query(File.Event)
+            .join(File)
+            .join(Release)
+            .join(Project)
+            .filter(Project.id == self.id)
+            .filter(
+                literal(url).ilike(
+                    File.Event.additional.op("->>")("publisher_url") + "%"
                 )
-                .scalar()
+            )
+            .scalar()
         ) is not None
-        
-        
+
+
 class DependencyKind(enum.IntEnum):
     requires = 1
     provides = 2
