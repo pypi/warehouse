@@ -75,6 +75,7 @@ from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.manage.forms import (
+    AddAlternateRepositoryForm,
     AddEmailForm,
     ChangePasswordForm,
     ChangeRoleForm,
@@ -125,8 +126,8 @@ from warehouse.organizations.models import (
     TeamProjectRole,
     TeamRole,
 )
-from warehouse.packaging.forms import SubmitAddAlternateRepositoryForm
 from warehouse.packaging.models import (
+    AlternateRepository,
     File,
     JournalEntry,
     Project,
@@ -142,6 +143,7 @@ from warehouse.utils.project import confirm_project, destroy_docs, remove_projec
 
 
 class ManageAccountMixin:
+
     def __init__(self, request):
         self.request = request
         self.user_service = request.find_service(IUserService, context=None)
@@ -215,6 +217,7 @@ class ManageAccountMixin:
 )
 @lift()
 class ManageUnverifiedAccountViews(ManageAccountMixin):
+
     @view_config(request_method="GET")
     def manage_unverified_account(self):
         return {"help_url": self.request.help_url(_anchor="account-recovery")}
@@ -232,6 +235,7 @@ class ManageUnverifiedAccountViews(ManageAccountMixin):
 )
 @lift()
 class ManageVerifiedAccountViews(ManageAccountMixin):
+
     @property
     def active_projects(self):
         return user_projects(request=self.request)["projects_sole_owned"]
@@ -1121,7 +1125,7 @@ class ManageProjectSettingsViews:
         self.project = project
         self.request = request
         self.transfer_organization_project_form_class = TransferOrganizationProjectForm
-        self.add_alternate_repository_form_class = SubmitAddAlternateRepositoryForm
+        self.add_alternate_repository_form_class = AddAlternateRepositoryForm
 
     @view_config(request_method="GET")
     def manage_project_settings(self):
@@ -1148,6 +1152,8 @@ class ManageProjectSettingsViews:
                 active_organizations_owned | active_organizations_managed
             ) - current_organization
 
+        add_alt_repo_form = self.add_alternate_repository_form_class()
+
         return {
             "project": self.project,
             "MAX_FILESIZE": MAX_FILESIZE,
@@ -1157,34 +1163,13 @@ class ManageProjectSettingsViews:
                     organization_choices=organization_choices,
                 )
             ),
+            "add_alternate_repository_form_class": add_alt_repo_form,
         }
 
     @view_config(
         request_method="POST",
-        request_param=["confirm_alternate_repository_name"],
-        require_reauth=True,
-        permission=Permissions.ProjectsWrite,
-    )
-    def delete_project_alternate_repository(self):
-        alt_repo_name = self.request.POST.get("confirm_alternate_repository_name")
-        if not alt_repo_name:
-            self.request.session.flash(
-                self.request._("Confirm the request"),
-                queue="error",
-            )
-            return HTTPSeeOther(
-                self.request.route_path(
-                    "manage.project.settings",
-                    project_name=self.project.name,
-                )
-            )
-
-        # TODO: delete the alternate repository location entry
-        pass
-
-    @view_config(
-        request_method="POST",
-        request_param=["alternate_repository_id"],
+        request_param=AddAlternateRepositoryForm.__params__
+        + ["alternate_repository_location=add"],
         require_reauth=True,
         permission=Permissions.ProjectsWrite,
     )
@@ -1193,7 +1178,9 @@ class ManageProjectSettingsViews:
 
         if not form.validate():
             self.request.session.flash(
-                self.request._("Invalid alternate repository location details"),
+                self.request._(
+                    "Invalid alternate repository location details",
+                ),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1203,8 +1190,128 @@ class ManageProjectSettingsViews:
                 )
             )
 
-        # TODO: add the alternate repository location entry
-        pass
+        # add the alternate repository location entry
+        alt_repo = AlternateRepository(
+            project=self.project,
+            name=form.display_name.data,
+            url=form.link_url.data,
+            description=form.description.data,
+        )
+        self.request.db.add(alt_repo)
+        self.request.db.add(
+            JournalEntry(
+                name=alt_repo.name,
+                action=f"add alternate repository {alt_repo.name} "
+                f"to project {self.project.name}",
+                submitted_by=self.request.user,
+            )
+        )
+        self.project.record_event(
+            tag=EventTag.Project.AlternateRepositoryAdd,
+            request=self.request,
+            additional={
+                "added_by": self.request.user.username,
+                "display_name": alt_repo.name,
+                "link_url": alt_repo.url,
+            },
+        )
+        self.request.user.record_event(
+            tag=EventTag.Account.AlternateRepositoryAdd,
+            request=self.request,
+            additional={
+                "added_by": self.request.user.username,
+                "display_name": alt_repo.name,
+                "link_url": alt_repo.url,
+            },
+        )
+        self.request.session.flash(
+            self.request._(
+                "Added alternate repository '${name}'",
+                mapping={"name": alt_repo.name},
+            ),
+            queue="success",
+        )
+
+        return HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings",
+                project_name=self.project.name,
+            )
+        )
+
+    @view_config(
+        request_method="POST",
+        request_param=[
+            "alternate_repository_id",
+            "alternate_repository_location=delete",
+        ],
+        require_reauth=True,
+        permission=Permissions.ProjectsWrite,
+    )
+    def delete_project_alternate_repository(self):
+        alt_repo_name = self.request.POST.get("confirm_alternate_repository_name")
+
+        resp_inst = HTTPSeeOther(
+            self.request.route_path(
+                "manage.project.settings", project_name=self.project.name
+            )
+        )
+
+        if not alt_repo_name:
+            self.request.session.flash(
+                self.request._("Confirm the request"), queue="error"
+            )
+            return resp_inst
+
+        alternate_repository_id = self.request.POST.get("alternate_repository_id")
+
+        alt_repo: AlternateRepository = self.request.db.get(
+            AlternateRepository, alternate_repository_id
+        )
+        if alt_repo is None or alt_repo not in self.project.alternate_repositories:
+            self.request.session.flash(
+                "Invalid alternate repository for project",
+                queue="error",
+            )
+            return resp_inst
+
+        # delete the alternate repository location entry
+        self.request.db.delete(alt_repo)
+        self.request.db.add(
+            JournalEntry(
+                name=alt_repo.name,
+                action=f"deleted alternate repository {alt_repo.name} "
+                f"from project {self.project.name}",
+                submitted_by=self.request.user,
+            )
+        )
+        self.project.record_event(
+            tag=EventTag.Project.AlternateRepositoryDelete,
+            request=self.request,
+            additional={
+                "deleted_by": self.request.user.username,
+                "display_name": alt_repo.name,
+                "link_url": alt_repo.url,
+            },
+        )
+        self.request.user.record_event(
+            tag=EventTag.Account.AlternateRepositoryDelete,
+            request=self.request,
+            additional={
+                "deleted_by": self.request.user.username,
+                "display_name": alt_repo.name,
+                "link_url": alt_repo.url,
+            },
+        )
+        self.request.session.flash(
+            self.request._(
+                "Deleted alternate repository '${name}'",
+                mapping={"name": alt_repo.name},
+            ),
+            queue="success",
+        )
+
+        return resp_inst
 
 
 @view_defaults(

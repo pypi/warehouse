@@ -913,12 +913,20 @@ class ProjectMacaroonWarningAssociation(db.Model):
 
 
 class AlternateRepository(db.Model):
+    """
+    Store an alternate repository name, url, description for a project.
+    One project can have zero, one, or more alternate repositories.
+
+    For each project, ensures the url and name are unique.
+    Urls must start with http(s).
+    """
+
     __tablename__ = "alternate_repositories"
     __table_args__ = (
         UniqueConstraint("project_id", "url"),
         UniqueConstraint("project_id", "name"),
         CheckConstraint(
-            "url ~* '^https?://.*'::text",
+            "url ~* '^https?://.+'::text",
             name="alternate_repository_valid_url",
         ),
     )
@@ -932,3 +940,4 @@ class AlternateRepository(db.Model):
 
     name: Mapped[str]
     url: Mapped[str]
+    description: Mapped[str]

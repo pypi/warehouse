@@ -71,98 +71,6 @@
 
   <hr>
 
-  <h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
-
-  <table class="table table--alternate-repository-locations">
-    <caption class="sr-only">{% trans project_name=project.name %}Alternate repository locations for {{ project_name }}{% endtrans %}</caption>
-    <thead>
-    <tr>
-      <th scope="col">{% trans %}Name{% endtrans %}</th>
-      <th scope="col">{% trans %}Url{% endtrans %}</th>
-      <th scope="col" class="table__align-right"></th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for alternate_repository in alternate_repositories|sort(attribute="name") %}
-      <tr>
-      <th scope="row">
-        {{ alternate_repository.name }}
-      </th>
-      <td>
-        <a href="{{ alternate_repository.url }}" rel="nofollow noopener noreferrer" target="_blank">
-          {{ alternate_repository.url }} <i class="fa-solid fa-arrow-up-right-from-square"></i>
-        </a>
-      </td>
-      <td>
-        {% set extra_description %}{% trans name=alternate_repository.name %}Remove {{ name }} from this project.{% endtrans %}{% endset %}
-        {{ confirm_button(
-          gettext("Remove alternate repository location"),
-          gettext("Name"),
-          "alternate_repository_name",
-          alternate_repository.name,
-          extra_description=extra_description,
-          action=request.route_path('manage.project.settings', project_name=project.name),
-          warning=False,
-          modifier="--primary",
-          tooltip=extra_description
-        ) }}
-      </td>
-      </tr>
-
-    {% endfor %}
-    </tbody>
-  </table>
-
-  <h3>
-    {% trans %}Add alternate repository location{% endtrans %}
-  </h3>
-  <form method="POST">
-    <div class="form-group">
-      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-      <label for="alternate_repository_name" class="form-group__label">
-        {% trans %}Name{% endtrans %}
-        {% if form.name.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.name(
-        placeholder=gettext("Name"),
-        autocomplete="on",
-        autocapitalize="on",
-        spellcheck="true",
-        class_="form-group__field",
-        aria_describedby="alternate-repository-name-errors",
-      ) }}
-      <div id="alternate-repository-name-errors">
-        {{ field_errors(form.name) }}
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="alternate_repository_url" class="form-group__label">
-        {% trans %}Url{% endtrans %}
-        {% if form.url.flags.required %}
-          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
-        {% endif %}
-      </label>
-      {{ form.url(
-        placeholder=gettext("Url"),
-        autocomplete="off",
-        autocapitalize="off",
-        spellcheck="false",
-        class_="form-group__field",
-        aria_describedby="alternate-repository-url-errors",
-      ) }}
-      <div id="alternate-repository-url-errors">
-        {{ field_errors(form.url) }}
-      </div>
-    </div>
-    <div>
-      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
-    </div>
-  </form>
-
-  <hr>
-
   {#
    # To remove project from an organization:
    # 1. User must be organization owner.
@@ -290,6 +198,144 @@
 
   <hr>
   {% endif %}
+
+  <h3>{% trans %}Alternate repository locations{% endtrans %}</h3>
+
+  {% if project.alternate_repositories %}
+  <table class="table table--alternate-repository-locations">
+    <caption class="sr-only">{% trans project_name=project.name %}Alternate repository locations for
+      {{ project_name }}{% endtrans %}</caption>
+    <thead>
+    <tr>
+      <th scope="col">{% trans %}Name{% endtrans %}</th>
+      <th scope="col">{% trans %}Url{% endtrans %}</th>
+      <th scope="col">{% trans %}Description{% endtrans %}</th>
+      <th scope="col" class="table__align-right"></th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for alternate_repository in project.alternate_repositories|sort(attribute="name") %}
+    <tr>
+      <th scope="row">
+        {{ alternate_repository.name }}
+      </th>
+      <td>
+        <a href="{{ alternate_repository.url }}" rel="nofollow noopener noreferrer" target="_blank">
+          {{ alternate_repository.url }}
+        </a>
+      </td>
+      <td>
+        {{ alternate_repository.description }}
+      </td>
+      <td>
+        {% set extra_description %}{% trans name=alternate_repository.name %}Delete {{ name }} from this
+          project.{% endtrans %}{% endset %}
+        {% set extra_fields %}
+        <input name="alternate_repository_location" type="hidden" value="delete">
+        <input name="alternate_repository_id" type="hidden" value="{{ alternate_repository.id }}">
+        {% endset %}
+        {{ confirm_button(
+            gettext("Delete"),
+            gettext("Alternate Repository Name"),
+            "alternate_repository_name",
+            alternate_repository.name,
+            extra_description=extra_description,
+            action=request.route_path('manage.project.settings', project_name=project.name),
+            extra_fields=extra_fields,
+            tooltip=extra_description
+          ) }}
+      </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>
+    {% trans %}There are no alternate repositories for this project, yet.{% endtrans %}
+  </p>
+  {% if request.has_permission(Permissions.ProjectsWrite) %}
+    <p>
+    {% trans %}Get started by adding an alternate repository below.{% endtrans %}
+    </p>
+  {% endif %}
+  {% endif %}
+
+  <h3>
+    {% trans %}Add alternate repository location{% endtrans %}
+  </h3>
+  <form method="POST">
+    <div class="form-group">
+      <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+      <input name="alternate_repository_location" type="hidden" value="add">
+      <label for="alternate_repository_name" class="form-group__label">
+        {% trans %}Name{% endtrans %}
+        {% if add_alternate_repository_form_class.display_name.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ add_alternate_repository_form_class.display_name(
+        placeholder=gettext("Name"),
+        autocomplete="on",
+        autocapitalize="on",
+        spellcheck="true",
+        class_="form-group__field",
+        aria_describedby="alternate-repository-name-errors",
+        ) }}
+      <div id="alternate-repository-name-errors">
+        {{ field_errors(add_alternate_repository_form_class.display_name) }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="alternate_repository_url" class="form-group__label">
+        {% trans %}Url{% endtrans %}
+        {% if add_alternate_repository_form_class.link_url.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ add_alternate_repository_form_class.link_url(
+        placeholder=gettext("Url"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="alternate-repository-url-errors",
+        ) }}
+      <div id="alternate-repository-url-errors">
+        {{ field_errors(add_alternate_repository_form_class.link_url) }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description" class="form-group__label">
+        {% trans %}Alternate repository description{% endtrans %}
+        {% if add_alternate_repository_form_class.description.flags.required %}
+          <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+        {% endif %}
+      </label>
+      {{ add_alternate_repository_form_class.description(
+        placeholder=gettext("Description of the purpose or content of the alternate repository."),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="true",
+        class_="form-group__field",
+        aria_describedby="alternate-repository-description-errors",
+        ) }}
+      <div id="alternate-repository-description-errors">
+        {{ field_errors(add_alternate_repository_form_class.description) }}
+      </div>
+      <p class="form-group__help-text">
+        {% trans  %}
+          Description of the purpose or content of the alternate repository.
+        {% endtrans %}
+      </p>
+    </div>
+    <div>
+      <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
+    </div>
+  </form>
+
+  <hr>
 
   <div class="callout-block callout-block--danger" data-controller="delete-confirm">
     <h3>{% trans %}Delete project{% endtrans %}</h3>

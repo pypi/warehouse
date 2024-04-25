@@ -52,11 +52,15 @@ def _simple_detail(project, request):
     versions = sorted(
         {f.release.version for f in files}, key=packaging_legacy.version.parse
     )
+    alternate_repositories = sorted(
+        alt_repo.url for alt_repo in project.alternate_repositories
+    )
 
     return {
         "meta": {"api-version": API_VERSION, "_last-serial": project.last_serial},
         "name": project.normalized_name,
         "versions": versions,
+        "alternate-locations": alternate_repositories,
         "files": [
             {
                 "filename": file.filename,
@@ -94,6 +98,7 @@ def _simple_detail(project, request):
 
 def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
+    context["alternate_locations"] = context.pop("alternate-locations")
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
     template = env.get_template("templates/api/simple/detail.html")
