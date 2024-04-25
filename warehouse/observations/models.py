@@ -203,13 +203,9 @@ class HasObservations:
                 },
                 related_id=mapped_column(
                     PG_UUID,
-                    ForeignKey(
-                        f"{cls.__tablename__}.id",
-                        onupdate="CASCADE",
-                        ondelete="CASCADE",
-                    ),
+                    ForeignKey(f"{cls.__tablename__}.id"),
                     comment="The ID of the related model",
-                    nullable=False,
+                    nullable=True,
                     index=True,
                 ),
                 related=relationship(cls, back_populates="observations"),
@@ -227,7 +223,7 @@ class HasObservations:
                 observer=relationship(Observer),
             ),
         )
-        return relationship(cls.Observation, cascade="all, delete-orphan")
+        return relationship(cls.Observation)
 
     def record_observation(
         self,

@@ -693,7 +693,7 @@ def file_upload(request):
         release = (
             request.db.query(Release)
             .filter(
-                (Release.project == project) & (Release.version == form.version.data)
+                (Release.project == project) & (Release.version == str(meta.version))
             )
             .one()
         )
@@ -831,44 +831,6 @@ def file_upload(request):
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename, filetype=form.filetype.data)
 
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, the version might contain a hyphen as a
-        # post-release separator, so we get the prefix by removing the provided
-        # version.
-        # Per 625, the version should be normalized, but we aren't currently
-        # enforcing this, so we permit a filename with either the exact
-        # provided version if it contains a hyphen, or any version that doesn't
-        # contain a hyphen.
-        else (
-            # A hyphen is being used for a post-release separator, so partition
-            # the prefix twice
-            filename.rpartition("-")[0].rpartition("-")[0]
-            # Check if the provided version contains a hyphen and the same
-            # version is being used in the filename
-            if "-" in form.version.data
-            and filename.endswith(f"-{form.version.data}.tar.gz")
-            # The only hyphen should be between the prefix and the version, so
-            # we only need to partition the prefix once
-            else filename.rpartition("-")[0]
-        )
-    )
-
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
-
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {project.name!r} with {prefix!r}.",
-        )
-
     # Check the content type of what is being uploaded
     if not request.POST["content"].type or request.POST["content"].type.startswith(
         "image/"
@@ -994,10 +956,63 @@ def file_upload(request):
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
             raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+        # Check that the sdist filename is correct
+        if filename.endswith(".tar.gz"):
+            # Extract the project name and version from the filename and check it.
+            # Per PEP 625, both should be normalized, but we aren't currently
+            # enforcing this, so we permit a filename with a project name and
+            # version that normalizes to be what we expect
+
+            try:
+                name, version = packaging.utils.parse_sdist_filename(filename)
+            except packaging.utils.InvalidSdistFilename:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid source distribution filename: {filename}",
+                )
+
+            # The previous function fails to accomodate the edge case where
+            # versions may contain hyphens, so we handle that here based on
+            # what we were expecting
+            if (
+                meta.version.is_postrelease
+                and name != packaging.utils.canonicalize_name(meta.name)
+            ):
+                # The distribution is a source distribution, the version is a
+                # postrelease, and the project name doesn't match, so
+                # there may be a hyphen in the version. Split the filename on the
+                # second to last hyphen instead.
+                name = filename.rpartition("-")[0].rpartition("-")[0]
+                version = packaging.version.Version(
+                    filename[len(name) + 1 : -len(".tar.gz")]
+                )
+
+            # Normalize the prefix in the filename. Eventually this should be
+            # unnecessary once we become more restrictive in what we permit
+            filename_prefix = name.lower().replace(".", "_").replace("-", "_")
+
+            # Make sure that our filename matches the project that it is being
+            # uploaded to.
+            if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Start filename for {project.name!r} with {prefix!r}.",
+                )
+
+            # Make sure that the version in the filename matches the metadata
+            if version != meta.version:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Version in filename should be {str(meta.version)!r} not "
+                    f"{str(version)!r}.",
+                )
+
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
             try:
-                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+                name, version, ___, tags = packaging.utils.parse_wheel_filename(
+                    filename
+                )
             except packaging.utils.InvalidWheelFilename as e:
                 raise _exc_with_message(
                     HTTPBadRequest,
@@ -1011,6 +1026,20 @@ def file_upload(request):
                         f"Binary wheel '{filename}' has an unsupported "
                         f"platform tag '{tag.platform}'.",
                     )
+
+            if (canonical_name := packaging.utils.canonicalize_name(meta.name)) != name:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Start filename for {project.name!r} with "
+                    f"{canonical_name.replace('-', '_')!r}.",
+                )
+
+            if meta.version != version:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Version in filename should be {str(meta.version)!r} not "
+                    f"{str(version)!r}.",
+                )
 
             """
             Extract METADATA file from a wheel and return it as a content.

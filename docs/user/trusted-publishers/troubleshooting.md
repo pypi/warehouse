@@ -43,6 +43,10 @@ endpoint:
 
   No other layouts are supported.
 
+* `invalid-payload` with `unknown trusted publishing issuer` error: the OIDC
+  provider that generated the token is not supported. This can happen when using
+  a self-managed GitLab instance, since currently only projects hosted on
+  <https://gitlab.com> are supported.
 * `invalid-token`: the OIDC token itself is either formatted incorrectly,
   has an invalid signature, is expired, etc. This encompasses pretty much
   any failure mode that can occur with an OIDC token (which is just a JWT)
