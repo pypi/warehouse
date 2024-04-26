@@ -763,7 +763,8 @@ class TestRelease:
         [
             ("xpto.com", "https://pub/url/", False),  # Totally different
             ("https://pub/", "https://pub/url/", False),  # Missing parts
-            ("https://pub/url/", "https://pub/url/", True),  # Exactly the same
+            ("https://pub/url/", "https://pub/url/", True),  # Exactly the same with /
+            ("https://pub/url", "https://pub/url", True),  # The same without /
             ("https://pub/url/blah.md", "https://pub/url/", True),  # Additonal parts
             ("https://pub/url", "https://pub/url/", True),  # Missing trailing slash
             ("https://pub/url/", "https://pub/url", True),  # Extratrailing slash
