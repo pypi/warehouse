@@ -94,6 +94,7 @@ class TestGitLabPublisher:
             assert getattr(publisher, claim_name) is not None
 
         assert str(publisher) == "subfolder/fakeworkflow.yml"
+        assert publisher.base_publisher_url() == "https://gitlab.com/fakeowner/fakerepo"
         assert publisher.publisher_url() == "https://gitlab.com/fakeowner/fakerepo"
         assert (
             publisher.publisher_url({"sha": "somesha"})
