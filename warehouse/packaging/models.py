@@ -411,7 +411,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .filter(Project.id == self.id)
             .filter(
                 literal(url).ilike(
-                    File.Event.additional.op("->>")("publisher_url") + "%"
+                    File.Event.additional.op("->>")("base_publisher_url") + "%"
                 )
             )
             .first()
