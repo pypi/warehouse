@@ -414,7 +414,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                     File.Event.additional.op("->>")("publisher_url") + "%"
                 )
             )
-            .scalar()
+            .first()
         ) is not None
 
 
