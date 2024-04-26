@@ -33,6 +33,7 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     func,
+    literal,
     or_,
     orm,
     sql,
@@ -398,6 +399,23 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
+
+    def is_verified_url(self, url):
+        url = url.rstrip("/") + "/"  # Ensure a single trailing slash
+        return (
+            orm.object_session(self)
+            .query(File.Event)
+            .join(File)
+            .join(Release)
+            .join(Project)
+            .filter(Project.id == self.id)
+            .filter(
+                literal(url).ilike(
+                    File.Event.additional.op("->>")("publisher_url") + "%"
+                )
+            )
+            .scalar()
+        ) is not None
 
 
 class DependencyKind(enum.IntEnum):
