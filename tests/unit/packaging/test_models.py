@@ -762,9 +762,9 @@ class TestRelease:
         "url, expected",
         [
             ("xpto.com", False),
-            ("https://fake/", False),
-            ("https://fake/url", True),
-            ("https://fake/url/something.md", True),
+            ("https://publisher/", False),
+            ("https://publisher/url", True),
+            ("https://publisher/url/something.md", True),
         ],
     )
     def test_is_url_verified(self, db_session, url, expected):
@@ -778,7 +778,7 @@ class TestRelease:
         DBFileEventFactory.create(
             source=release_file,
             tag="fake:event",
-            additional={"publisher_url": "https://fake/url"},
+            additional={"publisher_url": "https://publisher/url"},
         )
 
         assert project.is_verified_url(url) is expected
