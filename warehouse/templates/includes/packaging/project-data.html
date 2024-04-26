@@ -15,7 +15,7 @@
 {% set verified_urls, unverified_urls = [],[] %}
 {% for name, url in release.urls.items() %}
   {% if is_valid_uri(url) %}
-    {% if name in ['Source', 'Homepage'] and project.is_verified_url(url) %}
+    {% if name in ["Source", "Homepage", "Issues"] and project.is_verified_url(url) %}
       {{ verified_urls.append((name, url)) }}
     {% else %}
       {{ unverified_urls.append((name, url)) }}
