@@ -1968,9 +1968,9 @@ stdlib-list==0.10.0 \
     --hash=sha256:6519c50d645513ed287657bfe856d527f277331540691ddeaf77b25459964a14 \
     --hash=sha256:b3a911bc441d03e0332dd1a9e7d0870ba3bb0a542a74d7524f54fb431256e214
     # via -r requirements/main.in
-stripe==9.2.0 \
-    --hash=sha256:bc4f522fe6afa2b9a7cb1820d7ead6d90fdf0a5e6bc6a1a463becfd970a11e22 \
-    --hash=sha256:f5e75709d0271917fbb4c16864d5a33ac1d0ae3d277907aadf6c3e4f7562a706
+stripe==9.4.0 \
+    --hash=sha256:0fde1cbbf45ee0d77bd7fbd8561886dfb6dac0f36e5a9e53fdca4a7386e23ecc \
+    --hash=sha256:d4e8fbae89504b8e51a03619c1aaa2a77e2ee9b1db8d129e18dfe0e2537a0ddd
     # via -r requirements/main.in
 structlog==24.1.0 \
     --hash=sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d \
