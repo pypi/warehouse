@@ -800,6 +800,11 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
+                "base_publisher_url": (
+                    request.oidc_publisher.base_publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "publisher_url": (
                     request.oidc_publisher.publisher_url(request.oidc_claims)
                     if request.oidc_publisher
@@ -1120,6 +1125,11 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
+                "base_publisher_url": (
+                    request.oidc_publisher.base_publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "publisher_url": (
                     request.oidc_publisher.publisher_url(request.oidc_claims)
                     if request.oidc_publisher

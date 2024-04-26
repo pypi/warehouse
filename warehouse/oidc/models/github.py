@@ -227,8 +227,11 @@ class GitHubPublisherMixin:
     def sub(self):
         return f"repo:{self.repository}"
 
+    def base_publisher_url(self, claims=None):
+        return f"https://github.com/{self.repository}"
+
     def publisher_url(self, claims=None):
-        base = f"https://github.com/{self.repository}"
+        base = self.base_publisher_url(claims)
         sha = claims.get("sha") if claims else None
 
         if sha:
