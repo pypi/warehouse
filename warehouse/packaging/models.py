@@ -401,6 +401,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         )
 
     def is_verified_url(self, url):
+        url = url.rstrip("/") + "/"  # Ensure a single trailing slash
         return (
             orm.object_session(self)
             .query(File.Event)
