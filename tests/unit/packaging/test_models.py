@@ -759,15 +759,17 @@ class TestRelease:
         assert release.trusted_published
 
     @pytest.mark.parametrize(
-        "url, expected",
+        "url, publisher_url, expected",
         [
-            ("xpto.com", False),
-            ("https://publisher/", False),
-            ("https://publisher/url", True),
-            ("https://publisher/url/something.md", True),
+            ("xpto.com", "https://pub/url/", False),  # Totally different
+            ("https://pub/", "https://pub/url/", False),  # Missing parts
+            ("https://pub/url/", "https://pub/url/", True),  # Exactly the same
+            ("https://pub/url/blah.md", "https://pub/url/", True),  # Additonal parts
+            ("https://pub/url", "https://pub/url/", True),  # Missing trailing slash
+            ("https://pub/url/", "https://pub/url", True),  # Extratrailing slash
         ],
     )
-    def test_is_url_verified(self, db_session, url, expected):
+    def test_is_url_verified(self, db_session, url, publisher_url, expected):
         project = DBProjectFactory.create()
         release = DBReleaseFactory.create(project=project)
         release_file = DBFileFactory.create(
@@ -778,7 +780,7 @@ class TestRelease:
         DBFileEventFactory.create(
             source=release_file,
             tag="fake:event",
-            additional={"publisher_url": "https://publisher/url"},
+            additional={"publisher_url": publisher_url},
         )
 
         assert project.is_verified_url(url) is expected
