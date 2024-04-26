@@ -400,7 +400,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             .first()
         )
 
-    def is_verified_url(self, url: str) -> bool:
+    def is_verified_url(self, url):
         return (
             orm.object_session(self)
             .query(File.Event)
