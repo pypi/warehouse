@@ -16,9 +16,9 @@
 {% for name, url in release.urls.items() %}
   {% if is_valid_uri(url) %}
     {% if name in ["Source", "Homepage", "Issues"] and project.is_verified_url(url) %}
-      {{ verified_urls.append((name, url)) or "" }}
+      {{ verified_urls.append((name, url)) }}
     {% else %}
-      {{ unverified_urls.append((name, url)) or "" }}
+      {{ unverified_urls.append((name, url)) }}
     {% endif %}
   {% endif %}
 {% endfor %}
