@@ -782,11 +782,6 @@ class TestRelease:
             tag="fake:event",
             additional={"publisher_url": publisher_url},
         )
-        DBFileEventFactory.create(
-            source=release_file,
-            tag="fake:event",
-            additional={"publisher_url": publisher_url},
-        )
 
         assert project.is_verified_url(url) is expected
 
