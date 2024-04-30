@@ -677,22 +677,23 @@ def file_upload(request):
             ) from None
 
     publisher_url = (
-                request.oidc_publisher.publisher_url(request.oidc_claims)
-                if request.oidc_publisher
-                else None
-            )
+        request.oidc_publisher.publisher_url(request.oidc_claims)
+        if request.oidc_publisher
+        else None
+    )
     project_urls = {}
     if meta.project_urls:
-        for name, url in  meta.project_urls.items():
+        for name, url in meta.project_urls.items():
             url = url.rstrip("/") + "/"
 
-            verified = url.lower() == publisher_url[:len(url)].lower() if publisher_url else False
+            verified = (
+                url.lower() == publisher_url[: len(url)].lower()
+                if publisher_url
+                else False
+            )
 
             # Would it be a problem sava the modified url?
-            project_urls[name] = {
-                "url": url,
-                "verified": verified
-            }
+            project_urls[name] = {"url": url, "verified": verified}
 
     try:
         canonical_version = packaging.utils.canonicalize_version(meta.version)
@@ -1128,8 +1129,6 @@ def file_upload(request):
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
-
-
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
