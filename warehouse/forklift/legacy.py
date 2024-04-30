@@ -761,6 +761,22 @@ def file_upload(request):
                 ),
             ) from None
 
+    # Verify any verifiable URLs
+    publisher_base_url = (
+        request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
+    )
+    project_urls = (
+        {}
+        if not meta.project_urls
+        else {
+            name: {
+                "url": url,
+                "verified": publisher_base_url
+                and url.lower().startswith(publisher_base_url.lower()),
+            }
+            for name, url in meta.project_urls.items()
+        }
+    )
     try:
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
@@ -815,7 +831,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=meta.project_urls or {},
+            project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
