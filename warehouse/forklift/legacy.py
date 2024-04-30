@@ -676,6 +676,24 @@ def file_upload(request):
                 ),
             ) from None
 
+    publisher_url = (
+                request.oidc_publisher.publisher_url(request.oidc_claims)
+                if request.oidc_publisher
+                else None
+            )
+    project_urls = {}
+    if meta.project_urls:
+        for name, url in  meta.project_urls.items():
+            url = url.rstrip("/") + "/"
+
+            verified = url.lower() == publisher_url[:len(url)].lower() if publisher_url else False
+
+            # Would it be a problem sava the modified url?
+            project_urls[name] = {
+                "url": url,
+                "verified": verified
+            }
+
     try:
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
@@ -730,7 +748,7 @@ def file_upload(request):
                 html=rendered or "",
                 rendered_by=readme.renderer_version(),
             ),
-            project_urls=meta.project_urls or {},
+            project_urls=project_urls,
             # TODO: Fix this, we currently treat platform as if it is a single
             #       use field, but in reality it is a multi-use field, which the
             #       packaging.metadata library handles correctly.
@@ -789,11 +807,7 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": (
-                    request.oidc_publisher.publisher_url(request.oidc_claims)
-                    if request.oidc_publisher
-                    else None
-                ),
+                "publisher_url": publisher_url,
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
@@ -1109,15 +1123,13 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": (
-                    request.oidc_publisher.publisher_url(request.oidc_claims)
-                    if request.oidc_publisher
-                    else None
-                ),
+                "publisher_url": publisher_url,
                 "project_id": str(project.id),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
+
+
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
