@@ -961,9 +961,9 @@ lazy-object-proxy==1.10.0 \
     --hash=sha256:edb45bb8278574710e68a6b021599a10ce730d156e5b254941754a9cc0b17d03 \
     --hash=sha256:fec03caabbc6b59ea4a638bee5fce7117be8e99a4103d9d5ad77f15d6f81020c
     # via openapi-spec-validator
-limits==3.10.1 \
-    --hash=sha256:1ee31d169d498da267a1b72183ae5940afc64b17b4ed4dfd977f6ea5607c2cfb \
-    --hash=sha256:446242f5a6f7b8c7744e286a70793264ed81bca97860f94b821347284d14fbe9
+limits==3.11.0 \
+    --hash=sha256:2ce80fbf245ea737ade6fe1197c9bbdfc49a6e558f1950e5f722734cb275d781 \
+    --hash=sha256:a19b31b28f692beb6c00de1ea61057dbb31929663e0c9f18d1dbb2f729a5ff6b
     # via -r requirements/main.in
 linehaul==1.0.1 \
     --hash=sha256:09d71b1f6a9ab92dd8c763b3d099e4ae05c2845ee783a02d5fe731e6e2a6a997 \
