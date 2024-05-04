@@ -201,7 +201,7 @@ msgstr "已驗證身份"
 msgid "Successful WebAuthn assertion"
 msgstr "成功的 WebAuthn 斷言"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "重設碼已接受，提供的重設碼將無法再次使用。"
 
@@ -338,7 +338,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1242
+#: warehouse/manage/views/__init__.py:1247
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -368,10 +368,10 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
-#: warehouse/manage/views/__init__.py:1390
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1612
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/manage/views/__init__.py:1395
+#: warehouse/manage/views/__init__.py:1507
+#: warehouse/manage/views/__init__.py:1617
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -380,10 +380,10 @@ msgid ""
 "again later."
 msgstr "登錄嘗試失敗的次數過多，請稍後再試。"
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1404
-#: warehouse/manage/views/__init__.py:1516
-#: warehouse/manage/views/__init__.py:1626
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1521
+#: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -516,39 +516,39 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "此使用者名稱已被另一個帳戶使用。 選擇其他使用者名稱。"
 
-#: warehouse/manage/views/__init__.py:277
+#: warehouse/manage/views/__init__.py:282
 #, fuzzy
 #| msgid "Account details"
 msgid "Account details updated"
 msgstr "帳戶詳情"
 
-#: warehouse/manage/views/__init__.py:307
+#: warehouse/manage/views/__init__.py:312
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr "已添加電子郵件 ${email_address} - 檢查您的電子郵件以查看驗證連結"
 
-#: warehouse/manage/views/__init__.py:813
+#: warehouse/manage/views/__init__.py:818
 msgid "Recovery codes already generated"
 msgstr "重設碼已生成"
 
-#: warehouse/manage/views/__init__.py:814
+#: warehouse/manage/views/__init__.py:819
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "產生新的重置碼會使現有的重置碼失效。"
 
-#: warehouse/manage/views/__init__.py:923
+#: warehouse/manage/views/__init__.py:928
 #, fuzzy
 #| msgid "Verify your email or add a new address."
 msgid "Verify your email to create an API token."
 msgstr "驗證你的電郵地址或新增一個新的電郵地址。"
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1028
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1055
+#: warehouse/manage/views/__init__.py:1060
 msgid "Invalid credentials. Try again"
 msgstr "憑證無效。請再試一次"
 
-#: warehouse/manage/views/__init__.py:1258
+#: warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -559,7 +559,7 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1371
+#: warehouse/manage/views/__init__.py:1376
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -570,7 +570,7 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1483
+#: warehouse/manage/views/__init__.py:1488
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -581,7 +581,7 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1592
+#: warehouse/manage/views/__init__.py:1597
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -592,9 +592,9 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1827
-#: warehouse/manage/views/__init__.py:2128
-#: warehouse/manage/views/__init__.py:2236
+#: warehouse/manage/views/__init__.py:1832
+#: warehouse/manage/views/__init__.py:2133
+#: warehouse/manage/views/__init__.py:2241
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -605,86 +605,86 @@ msgid ""
 msgstr ""
 "暫時不開放新的使用者註冊。詳情請見 https://pypi.org/help#admin-intervention。"
 
-#: warehouse/manage/views/__init__.py:1959
-#: warehouse/manage/views/__init__.py:2044
-#: warehouse/manage/views/__init__.py:2145
-#: warehouse/manage/views/__init__.py:2245
+#: warehouse/manage/views/__init__.py:1964
+#: warehouse/manage/views/__init__.py:2049
+#: warehouse/manage/views/__init__.py:2150
+#: warehouse/manage/views/__init__.py:2250
 #, fuzzy
 #| msgid "Confirm Invite"
 msgid "Confirm the request"
 msgstr "確認邀請"
 
-#: warehouse/manage/views/__init__.py:1971
+#: warehouse/manage/views/__init__.py:1976
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:2056
+#: warehouse/manage/views/__init__.py:2061
 #, fuzzy
 #| msgid "Un-yank release"
 msgid "Could not un-yank release - "
 msgstr "解除撤銷版本"
 
-#: warehouse/manage/views/__init__.py:2157
+#: warehouse/manage/views/__init__.py:2162
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "刪除版本"
 
-#: warehouse/manage/views/__init__.py:2257
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2266
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2416
 #, fuzzy
 #| msgid "User '${username}' already has ${role_name} role for project"
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2518
+#: warehouse/manage/views/__init__.py:2523
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "使用者`${username}` 已經擁用此專案的`${role_name}`權限"
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2590
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "你不是此專案的擁有者。"
 
-#: warehouse/manage/views/__init__.py:2617
+#: warehouse/manage/views/__init__.py:2622
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
 msgstr ""
 "用戶“${username}”沒有經過驗證的主電子郵件地址，無法添加為項目的 ${role_name}"
 
-#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/__init__.py:2635
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
 msgstr "使用者'${username}'已經有一個有效的邀請。請稍後再試。"
 
-#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/__init__.py:2700
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "邀請函已發送至 '${使用者名稱}'"
 
-#: warehouse/manage/views/__init__.py:2728
+#: warehouse/manage/views/__init__.py:2733
 msgid "Could not find role invitation."
 msgstr "找不到角色邀請。"
 
-#: warehouse/manage/views/__init__.py:2739
+#: warehouse/manage/views/__init__.py:2744
 msgid "Invitation already expired."
 msgstr "已驗證的電子郵件。"
 
-#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/__init__.py:2776
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "來自'${username}'的邀請被撤銷了。"
@@ -2254,40 +2254,6 @@ msgid ""
 "organization"
 msgstr ""
 
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr "什麽？"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "During your recent upload or upload attempt to %(site)s, we noticed you "
-#| "used basic authentication (username &amp; password). However, your "
-#| "account has two-factor authentication (2FA) enabled."
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-"在您最近嘗試上傳到%（site）s的過程中，我們注意到您使用了基本身份驗證（用戶名"
-"&amp;amp；密碼）。 但是，您的帳戶啟用了兩步驗證（2FA）。"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr "我應該做甚麼？"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
@@ -2572,6 +2538,11 @@ msgid ""
 msgstr ""
 "有人（可能是你自己）更改了PyPI帳戶<strong>%(username)s</strong>的密碼。"
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr "什麽？"
+
 #: warehouse/templates/email/password-compromised/body.html:20
 #, fuzzy
 #| msgid ""
@@ -2602,6 +2573,11 @@ msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk for PyPI and its users."
 msgstr "PyPI零容忍違規。這是個保護措施，故它和使用者都可以減少風險。"
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr "我應該做甚麼？"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -11007,6 +10983,19 @@ msgstr "There were no results for '%(filters)s' filter"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s' 沒有結果"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "During your recent upload or upload attempt to %(site)s, we noticed you "
+#~| "used basic authentication (username &amp; password). However, your "
+#~| "account has two-factor authentication (2FA) enabled."
+#~ msgid ""
+#~ "During your recent upload of %(project_name)s to %(site)s, we noticed you "
+#~ "uploaded a GPG signature. However, support for GPG signatures has been "
+#~ "removed from %(site)s."
+#~ msgstr ""
+#~ "在您最近嘗試上傳到%（site）s的過程中，我們注意到您使用了基本身份驗證（用戶"
+#~ "名&amp;amp；密碼）。 但是，您的帳戶啟用了兩步驗證（2FA）。"
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "Twitter 上的 PyPI"

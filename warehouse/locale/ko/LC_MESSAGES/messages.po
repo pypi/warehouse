@@ -36,7 +36,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-03-21 15:13+0000\n"
+"PO-Revision-Date: 2024-04-24 16:34+0000\n"
 "Last-Translator: Junwon Lee <cpprhtn@naver.com>\n"
 "Language-Team: Korean <https://hosted.weblate.org/projects/pypa/warehouse/ko/"
 ">\n"
@@ -45,7 +45,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.5.1-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -209,7 +209,7 @@ msgstr "이미 인증됨"
 msgid "Successful WebAuthn assertion"
 msgstr "WebAuthn 승인 성공"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "복구 코드가 승인되었습니다. 주어진 코드는 재사용이 불가능합니다."
 
@@ -345,7 +345,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 역할 입니다."
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1242
+#: warehouse/manage/views/__init__.py:1247
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -372,19 +372,19 @@ msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 "한 번의 3개 이상의 처리되지 않은 신뢰할 수 있는 공급자를 등록할 수 없습니다"
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
-#: warehouse/manage/views/__init__.py:1390
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1612
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/manage/views/__init__.py:1395
+#: warehouse/manage/views/__init__.py:1507
+#: warehouse/manage/views/__init__.py:1617
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr "너무 많은 잘못된 로그인 시도가 있었습니다. 나중에 다시 시도해주세요."
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1404
-#: warehouse/manage/views/__init__.py:1516
-#: warehouse/manage/views/__init__.py:1626
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1521
+#: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr "신뢰할 수 있는 공급자가 등록될 수 없습니다"
 
@@ -505,37 +505,37 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr "이 팀 이름은 이미 사용 중입니다. 다른 이름으로 지정해 주세요."
 
-#: warehouse/manage/views/__init__.py:277
+#: warehouse/manage/views/__init__.py:282
 msgid "Account details updated"
 msgstr "계정 상세 정보 업데이트"
 
-#: warehouse/manage/views/__init__.py:307
+#: warehouse/manage/views/__init__.py:312
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "이메일 주소 ${email_address}가 추가되었습니다 - 이메일에서 확인 링크를 살펴보"
 "세요"
 
-#: warehouse/manage/views/__init__.py:813
+#: warehouse/manage/views/__init__.py:818
 msgid "Recovery codes already generated"
 msgstr "복구 코드가 이미 생성되었습니다"
 
-#: warehouse/manage/views/__init__.py:814
+#: warehouse/manage/views/__init__.py:819
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "복구 코드를 새로 생성하면 기존 코드가 무효화됩니다."
 
-#: warehouse/manage/views/__init__.py:923
+#: warehouse/manage/views/__init__.py:928
 msgid "Verify your email to create an API token."
 msgstr "API 토큰을 만들려면 이메일을 확인하거나 새로운 주소를 추가하세요."
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1028
 msgid "API Token does not exist."
 msgstr "API 토큰이 존재하지 않습니다."
 
-#: warehouse/manage/views/__init__.py:1055
+#: warehouse/manage/views/__init__.py:1060
 msgid "Invalid credentials. Try again"
 msgstr "잘못된 자격 증명입니다. 다시 한 번 시도해 보세요"
 
-#: warehouse/manage/views/__init__.py:1258
+#: warehouse/manage/views/__init__.py:1263
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -543,7 +543,7 @@ msgstr ""
 "GitHub을 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. https://"
 "pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1371
+#: warehouse/manage/views/__init__.py:1376
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -551,7 +551,7 @@ msgstr ""
 "GitLab을 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. https://"
 "pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1483
+#: warehouse/manage/views/__init__.py:1488
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
@@ -559,7 +559,7 @@ msgstr ""
 "Google 을 기반으로 하는 신뢰할 수 있는 게시가 잠시 불가능한 상태입니다. "
 "https://pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1592
+#: warehouse/manage/views/__init__.py:1597
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
@@ -567,9 +567,9 @@ msgstr ""
 "AcitveState를 기반으로 하는 새 사용자 등록이 잠시 불가능한 상태입니다. "
 "https://pypi.org/help#admin-intervention 에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1827
-#: warehouse/manage/views/__init__.py:2128
-#: warehouse/manage/views/__init__.py:2236
+#: warehouse/manage/views/__init__.py:1832
+#: warehouse/manage/views/__init__.py:2133
+#: warehouse/manage/views/__init__.py:2241
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -577,49 +577,49 @@ msgstr ""
 "프로젝트 삭제가 일시적으로 비활성화되었습니다. https://pypi.org/help#admin-"
 "intervention에서 자세한 내용을 확인하세요."
 
-#: warehouse/manage/views/__init__.py:1959
-#: warehouse/manage/views/__init__.py:2044
-#: warehouse/manage/views/__init__.py:2145
-#: warehouse/manage/views/__init__.py:2245
+#: warehouse/manage/views/__init__.py:1964
+#: warehouse/manage/views/__init__.py:2049
+#: warehouse/manage/views/__init__.py:2150
+#: warehouse/manage/views/__init__.py:2250
 msgid "Confirm the request"
 msgstr "요청을 확인하세요"
 
-#: warehouse/manage/views/__init__.py:1971
+#: warehouse/manage/views/__init__.py:1976
 msgid "Could not yank release - "
 msgstr "릴리즈를 제거할 수 없습니다. "
 
-#: warehouse/manage/views/__init__.py:2056
+#: warehouse/manage/views/__init__.py:2061
 msgid "Could not un-yank release - "
 msgstr "릴리즈 버전을 철회할 수 없습니다. "
 
-#: warehouse/manage/views/__init__.py:2157
+#: warehouse/manage/views/__init__.py:2162
 msgid "Could not delete release - "
 msgstr "릴리즈 버전을 삭제할 수 없습니다. "
 
-#: warehouse/manage/views/__init__.py:2257
+#: warehouse/manage/views/__init__.py:2262
 msgid "Could not find file"
 msgstr "파일을 찾을 수 없습니다"
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2266
 msgid "Could not delete file - "
 msgstr "파일을 삭제할 수 없습니다 - "
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2416
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${team_name}'는 이미 ${role_name}(이)라는 역할을 가지고 있습니다"
 
-#: warehouse/manage/views/__init__.py:2518
+#: warehouse/manage/views/__init__.py:2523
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "사용자 '${username}'는 이미 ${role_name}이라는 이 프로젝트의 역할을 가지고 있"
 "습니다"
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2590
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "당신은 이제 '${project_name}' 프로젝트의 ${role} 입니다."
 
-#: warehouse/manage/views/__init__.py:2617
+#: warehouse/manage/views/__init__.py:2622
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -627,7 +627,7 @@ msgstr ""
 "사용자 '${username}'는 인증된 이메일을 가지고 있지 않으므로 이 프로젝트에서 "
 "${role_name}으로 추가될 수 없습니다"
 
-#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/__init__.py:2635
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -635,20 +635,20 @@ msgstr ""
 "사용자 '${username}'는 이미 활성화되어 있는 초대를 가지고 있습니다. 나중에 다"
 "시 시도해보세요."
 
-#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/__init__.py:2700
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "'${username}'에게 초대가 전송되었습니다"
 
-#: warehouse/manage/views/__init__.py:2728
+#: warehouse/manage/views/__init__.py:2733
 msgid "Could not find role invitation."
 msgstr "역할 초대를 찾을 수 없습니다."
 
-#: warehouse/manage/views/__init__.py:2739
+#: warehouse/manage/views/__init__.py:2744
 msgid "Invitation already expired."
 msgstr "초대가 이미 만료되었습니다."
 
-#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/__init__.py:2776
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "'${username}'의 초대가 취소되었습니다."
@@ -717,32 +717,24 @@ msgid "Unexpected error from ActiveState. Try again"
 msgstr "알 수 없는 오류가 ActiveState에서 발생했습니다. 다시 시도하세요."
 
 #: warehouse/oidc/forms/activestate.py:122
-#, fuzzy
-#| msgid "Select an organization account name"
 msgid "Specify ActiveState organization name"
-msgstr "조직 계정 이름 선택"
+msgstr "활성상태의 조직 이름 지정"
 
 #: warehouse/oidc/forms/activestate.py:130
-#, fuzzy
-#| msgid "Specify project name"
 msgid "Specify ActiveState project name"
-msgstr "프로젝트 이름을 적어주세요."
+msgstr "활성 상태 프로젝트 이름 지정"
 
 #: warehouse/oidc/forms/activestate.py:134
-#, fuzzy
-#| msgid "Invalid project name"
 msgid "Invalid ActiveState project name"
-msgstr "잘못된 프로젝트 명입니다."
+msgstr "잘못된 활성 상태 프로젝트 이름"
 
 #: warehouse/oidc/forms/activestate.py:157
-#, fuzzy
-#| msgid "Select an organization account name"
 msgid "ActiveState organization not found"
-msgstr "조직 계정 이름 선택"
+msgstr "활성 상태의 조직을 찾을 수 없습니다"
 
 #: warehouse/oidc/forms/activestate.py:177
 msgid "ActiveState actor not found"
-msgstr ""
+msgstr "활동 상태 액터를 찾을 수 없습니다"
 
 #: warehouse/oidc/forms/github.py:33
 msgid "Specify GitHub repository owner (username or organization)"
@@ -793,10 +785,8 @@ msgid "Workflow filename must be a filename only, without directories"
 msgstr "워크플로우 파일명에는 경로가 포함되지 않고 파일 이름만 가능합니다"
 
 #: warehouse/oidc/forms/gitlab.py:33
-#, fuzzy
-#| msgid "Specify GitHub repository owner (username or organization)"
 msgid "Specify GitLab namespace (username or group/subgroup)"
-msgstr "깃허브 리파지토리 소유자를 입력하세요(이름 혹은 조직)"
+msgstr "GitLab 레파지토리 소유자를 입력하세요(이름 혹은 조직)"
 
 #: warehouse/oidc/forms/gitlab.py:37
 msgid "Invalid GitLab username or group/subgroup name."
@@ -1242,10 +1232,8 @@ msgid "About PyPI navigation"
 msgstr "PyPI에 관한 내비게이션"
 
 #: warehouse/templates/base.html:291
-#, fuzzy
-#| msgid "PyPI home"
 msgid "PyPI Blog"
-msgstr "PyPI 홈"
+msgstr "PyPI 블로그"
 
 #: warehouse/templates/base.html:292
 msgid "Infrastructure dashboard"
@@ -2111,6 +2099,11 @@ msgid ""
 "error. We recommend removing the API token and only using the Trusted "
 "Publisher to publish."
 msgstr ""
+"프로젝트에 Trusted Publisher가 구성되어 있음에도 불구하고 사용자 <a "
+"href=\"%(account_href)s\">%(token_owner_username)s</a>에 속한 API 토큰을 사용"
+"하여 프로젝트 <a href=\"%(project_href)s\">%(project_name)s</a>에 파일을 업로"
+"드했습니다. 이는 오류일 수 있습니다. API 토큰을 제거하고 Trusted Publisher만 "
+"사용하여 게시하는 것이 좋습니다."
 
 #: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
 #, python-format
@@ -2151,38 +2144,6 @@ msgid ""
 "You have declined an invitation to join the \"%(organization_name)s\" "
 "organization"
 msgstr "\"%(organization_name)s\"조직의 초대를 거부했습니다"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr "뭐라고요?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, python-format
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-"%(project_name)s를 %(site)s에 최근 업로드하는 동안 GPG 서명을 업로드한 것을 "
-"알 수 있었습니다. 그러나 %(site)s에서 GPG 서명에 대한 지원이 제거되었습니다."
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr "뭘 해야 하나요?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-"업로드가 계속되는 동안 %(site)s에 업로드된 서명은 모두 폐기됩니다. %(site)s"
-"에 더 이상 서명을 업로드하지 않는 것이 좋습니다."
 
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
@@ -2444,6 +2405,11 @@ msgstr ""
 "누군가 (아마도 당신이) <strong>%(username)s</strong> PyPI 계정의 패스워드를 "
 "변경했습니다."
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr "뭐라고요?"
+
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
 "PyPI administrators have determined that your password is compromised. To "
@@ -2462,6 +2428,11 @@ msgid ""
 msgstr ""
 "PyPI 자체는 보안 문제가 발생하지 않았습니다. 이는 PyPI와 사용자들의 위험을 줄"
 "이기 위한 보호 조치입니다."
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr "뭘 해야 하나요?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -10209,6 +10180,25 @@ msgstr "'%(term)s'의 결과는 없습니다"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s'의 결과는 없습니다"
+
+#, python-format
+#~ msgid ""
+#~ "During your recent upload of %(project_name)s to %(site)s, we noticed you "
+#~ "uploaded a GPG signature. However, support for GPG signatures has been "
+#~ "removed from %(site)s."
+#~ msgstr ""
+#~ "%(project_name)s를 %(site)s에 최근 업로드하는 동안 GPG 서명을 업로드한 것"
+#~ "을 알 수 있었습니다. 그러나 %(site)s에서 GPG 서명에 대한 지원이 제거되었습"
+#~ "니다."
+
+#, python-format
+#~ msgid ""
+#~ "While uploads will continue to work, any signatures uploaded to %(site)s "
+#~ "will be discarded. It is recommended to no longer upload signatures to "
+#~ "%(site)s."
+#~ msgstr ""
+#~ "업로드가 계속되는 동안 %(site)s에 업로드된 서명은 모두 폐기됩니다. "
+#~ "%(site)s에 더 이상 서명을 업로드하지 않는 것이 좋습니다."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "PyPI 트위터"

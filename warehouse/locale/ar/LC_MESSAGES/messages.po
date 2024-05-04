@@ -16,13 +16,14 @@
 # Abdulrahman Alfawal <abdulrahman.hadi4@gmail.com>, 2022.
 # Ahmed Hassan <ah7255703@gmail.com>, 2022.
 # Youcef Guenaoua <youcefguenaoua123@gmail.com>, 2024.
+# Der Marschall <meinkontobasic@outlook.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-01-18 15:37+0000\n"
-"Last-Translator: Youcef Guenaoua <youcefguenaoua123@gmail.com>\n"
+"PO-Revision-Date: 2024-05-01 01:22+0000\n"
+"Last-Translator: Der Marschall <meinkontobasic@outlook.com>\n"
 "Language-Team: Arabic <https://hosted.weblate.org/projects/pypa/warehouse/ar/"
 ">\n"
 "Language: ar\n"
@@ -31,7 +32,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
 "&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5.3-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -98,14 +99,12 @@ msgid "Password too long."
 msgstr "كلمة المرور طويلة للغاية."
 
 #: warehouse/accounts/forms.py:206
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for ${time}. Please try again later."
 msgstr ""
-"كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
+"كانت هناك محاولات عديدة فاشلة لتسجيل الدخول. لقد تم توقيفك حتى ${time}. رجاء "
+"أعد المحاولة لاحقا."
 
 #: warehouse/accounts/forms.py:235
 msgid "Your passwords don't match. Try again."
@@ -161,20 +160,16 @@ msgid "Recovery code has been previously used."
 msgstr "تم استخدام رمز الاسترداد مسبقًا."
 
 #: warehouse/accounts/forms.py:564
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "البريد الالكتروني غير صالح. حاول مرة أخرى."
+msgstr "اسم المستخدم غير صالح. حاول مرة أخرى."
 
 #: warehouse/accounts/views.py:120
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
 msgstr ""
-"كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
+"كانت هناك محاولات تسجيل دخول كثيرة فاشلة. تم توقيفك حتى {}. رجاء أعد "
+"المحاولة لاحقا."
 
 #: warehouse/accounts/views.py:137
 msgid ""
@@ -207,7 +202,7 @@ msgstr "موثق بالفعل"
 msgid "Successful WebAuthn assertion"
 msgstr "توكيد WebAuthn ناجح"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr "تم قبول رمز الاسترداد. لا يمكن استخدام الرمز مرة أخرى."
 
@@ -343,7 +338,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1242
+#: warehouse/manage/views/__init__.py:1247
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -366,15 +361,17 @@ msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
+"يجب أن يكون لديك بريد إلكتروني تم التحقق منه حتى تتمكن من التسجيل كناشر "
+"موثوق قيد المراجعة. إطّلع على https://pypi.org/help#openid-connect للتفاصيل."
 
 #: warehouse/accounts/views.py:1607
 msgid "You can't register more than 3 pending trusted publishers at once."
-msgstr ""
+msgstr "لا يمكنك تسجيل أكثر من 3 ناشرين موثوقين قيد المراجعة مرّة واحدة."
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
-#: warehouse/manage/views/__init__.py:1390
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1612
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/manage/views/__init__.py:1395
+#: warehouse/manage/views/__init__.py:1507
+#: warehouse/manage/views/__init__.py:1617
 #, fuzzy
 #| msgid ""
 #| "There have been too many unsuccessful login attempts. Try again later."
@@ -384,33 +381,33 @@ msgid ""
 msgstr ""
 "كانت هناك محاولات تسجيل دخول فاشلة كثيرة جداً. برجاء المحاولة في وقت لاحق."
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1404
-#: warehouse/manage/views/__init__.py:1516
-#: warehouse/manage/views/__init__.py:1626
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1521
+#: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
-msgstr ""
+msgstr "حساب الناشر الموثوق لا يمكن تسجيله"
 
 #: warehouse/accounts/views.py:1648
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's "
 "admins if this wasn't intentional."
 msgstr ""
+"هذا الناشر الموثوق قد تم تسجيله بالفعل. قم بمراسلة مسؤلي PyPI إن لم يكن هذا "
+"مقصودا."
 
 #: warehouse/accounts/views.py:1675
 msgid "Registered a new pending publisher to create "
-msgstr ""
+msgstr "تم تسجيل حساب ناشر جديد للإنشاء تحت المراجعة. "
 
 #: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
 #: warehouse/accounts/views.py:1834
-#, fuzzy
-#| msgid "Create an account"
 msgid "Invalid publisher ID"
-msgstr "تسجيل مستخدم جديد"
+msgstr "مُعَرّف ناشر غير صالح"
 
 #: warehouse/accounts/views.py:1840
 msgid "Removed trusted publisher for project "
-msgstr ""
+msgstr "تمت إزالة ناشر موثوق لمشروع. "
 
 #: warehouse/admin/templates/admin/banners/preview.html:15
 msgid "Banner Preview"
@@ -438,14 +435,10 @@ msgid ""
 msgstr "اسم حساب المؤسسة هذا قيد الاستخدام. اختر اسم حساب مؤسسةٍ آخر."
 
 #: warehouse/manage/forms.py:454
-#, fuzzy
-#| msgid ""
-#| "This organization account name has already been used. Choose a different "
-#| "organization account name."
 msgid ""
 "You have already submitted an application for that name. Choose a different "
 "organization account name."
-msgstr "اسم حساب المؤسسة هذا قيد الاستخدام. اختر اسم حساب مؤسسةٍ آخر."
+msgstr "لقد قمت بالفعل بتقديم طلب لهذا الاسم. اختر اسمًا مختلفًا لحساب المؤسسة."
 
 #: warehouse/manage/forms.py:490
 msgid "Select project"
@@ -460,7 +453,7 @@ msgstr "حدد اسم المشروع"
 msgid ""
 "Start and end with a letter or numeral containing only ASCII numeric and "
 "'.', '_' and '-'."
-msgstr ""
+msgstr "ابدأ وانتهي فقط بحرف او رقم يحتوي فقط على ترميز ASCII و '.'، '_'، '-'."
 
 #: warehouse/manage/forms.py:505
 msgid ""
@@ -481,7 +474,7 @@ msgstr "رابط المؤسسة هذا طويل للغاية. اختر رابط 
 
 #: warehouse/manage/forms.py:595
 msgid "The organization URL must start with http:// or https://"
-msgstr ""
+msgstr "يجب أن يبدأ رابط المؤسسة ب http:// أو https://"
 
 #: warehouse/manage/forms.py:606
 msgid ""
@@ -491,176 +484,138 @@ msgstr "وصف المؤسسة هذا طويل للغاية. اختر وصف مؤ
 
 #: warehouse/manage/forms.py:641
 msgid "You have already submitted the maximum number of "
-msgstr ""
+msgstr "لقد قمت بالفعل بإرسال الحد الأقصى لعدد. "
 
 #: warehouse/manage/forms.py:671
-#, fuzzy
-#| msgid "Choose a username with 50 characters or less."
 msgid "Choose a team name with 50 characters or less."
-msgstr "الرجاء اختيار اسم مستخدم طوله 50 حرفاً أو أقل."
+msgstr "اختر اسم فريق يتكون من 50 حرفًا أو أقل."
 
 #: warehouse/manage/forms.py:677
 msgid ""
 "The team name is invalid. Team names cannot start or end with a space, "
 "period, underscore, hyphen, or slash. Choose a different team name."
 msgstr ""
+"اسم الفريق غير صالح. لا يمكن أن تبدأ أسماء الفرق أو تنتهي بمسافة أو نقطة أو "
+"شرطة سفلية أو واصلة أو شرطة مائلة. اختر اسمًا مختلفًا للفريق."
 
 #: warehouse/manage/forms.py:705
-#, fuzzy
-#| msgid ""
-#| "This username is already being used by another account. Choose a "
-#| "different username."
 msgid "This team name has already been used. Choose a different team name."
-msgstr "اسم المستخدم هذا يستخدمه حساب آخر. برجاء اختيار اسم مستخدم مختلف."
+msgstr "اسم الفريق هذا مُستخدم بالفعل. قم بإختيار اسم فريق مختلف."
 
-#: warehouse/manage/views/__init__.py:277
-#, fuzzy
-#| msgid "Account settings"
+#: warehouse/manage/views/__init__.py:282
 msgid "Account details updated"
-msgstr "إعدادات الحساب"
+msgstr "تم تحديث تفاصيل الحساب"
 
-#: warehouse/manage/views/__init__.py:307
+#: warehouse/manage/views/__init__.py:312
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "تم إضافة البريد الاليكتروني ${email_address} - برجاء التحقق من بريدك "
 "الايكتروني للحصول على رابط التأكيد"
 
-#: warehouse/manage/views/__init__.py:813
+#: warehouse/manage/views/__init__.py:818
 msgid "Recovery codes already generated"
 msgstr "تم اصدار رمز الأصلاح"
 
-#: warehouse/manage/views/__init__.py:814
+#: warehouse/manage/views/__init__.py:819
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr "اصدار رمز اصلاح جديد سوف يوقف رمز الأصلاح الحالى."
 
-#: warehouse/manage/views/__init__.py:923
-#, fuzzy
-#| msgid "Verify your email or add a new address."
+#: warehouse/manage/views/__init__.py:928
 msgid "Verify your email to create an API token."
-msgstr "قم بتأكيد بريدك الالكتروني أو أضف بريد الكتروني جديد."
+msgstr "تحقق من بريدك الإلكتروني لإنشاء رمز مميز لواجهة برمجة التطبيقات API."
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1028
 msgid "API Token does not exist."
-msgstr ""
+msgstr "رمز API غير موجود."
 
-#: warehouse/manage/views/__init__.py:1055
+#: warehouse/manage/views/__init__.py:1060
 msgid "Invalid credentials. Try again"
 msgstr "خطاء فى الأعتمادات (كلمه السر او الأسم او رمز الأصلاح). جرب مره اخرى"
 
-#: warehouse/manage/views/__init__.py:1258
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1263
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"النشر الموثوق المستند إلى GitHub موقوف مؤقتا. إطّلع على https://pypi.org/"
+"help#admin-intervention للتفاصيل."
 
-#: warehouse/manage/views/__init__.py:1371
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1376
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"النشر الموثوق المستند إلى GitLab موقوف مؤقتا. إطّلع على https://pypi.org/"
+"help#admin-intervention للتفاصيل."
 
-#: warehouse/manage/views/__init__.py:1483
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1488
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See https://pypi."
 "org/help#admin-intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"النشر الموثوق المستند إلى Google موقوف مؤقتا. إطّلع على https://pypi.org/"
+"help#admin-intervention للتفاصيل."
 
-#: warehouse/manage/views/__init__.py:1592
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1597
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See https://"
 "pypi.org/help#admin-intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"النشر الموثوق المستند إلى ActiveState موقوف مؤقتا. إطّلع على https://pypi.org/"
+"help#admin-intervention للتفاصيل."
 
-#: warehouse/manage/views/__init__.py:1827
-#: warehouse/manage/views/__init__.py:2128
-#: warehouse/manage/views/__init__.py:2236
-#, fuzzy
-#| msgid ""
-#| "New user registration temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
+#: warehouse/manage/views/__init__.py:1832
+#: warehouse/manage/views/__init__.py:2133
+#: warehouse/manage/views/__init__.py:2241
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"تسجيل المستخدمين الجدد موقوف مؤقتاً. للتفاصيل: https://pypi.org/help#admin-"
-"intervention."
+"تم تعطيل حذف المشروع مؤقتًا. إطّلع على https://pypi.org/help#admin-"
+"intervention للتفاصيل."
 
-#: warehouse/manage/views/__init__.py:1959
-#: warehouse/manage/views/__init__.py:2044
-#: warehouse/manage/views/__init__.py:2145
-#: warehouse/manage/views/__init__.py:2245
-#, fuzzy
-#| msgid "Confirm Invite"
+#: warehouse/manage/views/__init__.py:1964
+#: warehouse/manage/views/__init__.py:2049
+#: warehouse/manage/views/__init__.py:2150
+#: warehouse/manage/views/__init__.py:2250
 msgid "Confirm the request"
-msgstr "تأكيد الدعوة"
+msgstr "تأكيد الطلب"
 
-#: warehouse/manage/views/__init__.py:1971
-#, fuzzy
-#| msgid "New releases"
+#: warehouse/manage/views/__init__.py:1976
 msgid "Could not yank release - "
-msgstr "الإصدارات الجديدة"
+msgstr "لا يمكن سحب الإصدار - "
 
-#: warehouse/manage/views/__init__.py:2056
-#, fuzzy
-#| msgid "New releases"
+#: warehouse/manage/views/__init__.py:2061
 msgid "Could not un-yank release - "
-msgstr "الإصدارات الجديدة"
+msgstr "تعذر إلغاء الإصدار - "
 
-#: warehouse/manage/views/__init__.py:2157
+#: warehouse/manage/views/__init__.py:2162
 msgid "Could not delete release - "
-msgstr ""
+msgstr "لا يمكن حذف الإصدار - "
 
-#: warehouse/manage/views/__init__.py:2257
-#, fuzzy
-#| msgid "Could not find role invitation."
+#: warehouse/manage/views/__init__.py:2262
 msgid "Could not find file"
-msgstr "لم يتم العثور علي الدعوة."
+msgstr "تعذر العثور على ملف"
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2266
 msgid "Could not delete file - "
-msgstr ""
+msgstr "تعذر حذف ملف - "
 
-#: warehouse/manage/views/__init__.py:2411
-#, fuzzy
-#| msgid "User '${username}' already has ${role_name} role for project"
+#: warehouse/manage/views/__init__.py:2416
 msgid "Team '${team_name}' already has ${role_name} role for project"
-msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
+msgstr "الفريق '${team_name}' لديه بالفعل دور ${role_name} للمشروع"
 
-#: warehouse/manage/views/__init__.py:2518
+#: warehouse/manage/views/__init__.py:2523
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "المستخدم '{username}' له صلاحيات ${rol_name} فى المشروع"
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2590
 #, fuzzy
 #| msgid "You are now ${role} of the '${project_name}' project."
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "تم تحديث صلاحياتك لتكن ${role} فى المشروع ${project_name}."
 
-#: warehouse/manage/views/__init__.py:2617
+#: warehouse/manage/views/__init__.py:2622
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -668,7 +623,7 @@ msgstr ""
 "المستخدم '${username}' ليس لديه بريد إلكتروني أولي صالح ولا يمكن إضافتة "
 "كـ${role_name} للمشروع"
 
-#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/__init__.py:2635
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -676,20 +631,20 @@ msgstr ""
 "دعوة المستخدم '${username}' قد انتهت صلاحيتها. الرجاء المحاولة مرة أخرى "
 "لاحقاً."
 
-#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/__init__.py:2700
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "تم إرسال الدعوة إلي '${username}'"
 
-#: warehouse/manage/views/__init__.py:2728
+#: warehouse/manage/views/__init__.py:2733
 msgid "Could not find role invitation."
 msgstr "لم يتم العثور علي الدعوة."
 
-#: warehouse/manage/views/__init__.py:2739
+#: warehouse/manage/views/__init__.py:2744
 msgid "Invitation already expired."
 msgstr "الدعوه لم تعد صالحه."
 
-#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/__init__.py:2776
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "تم إنهاء الدعوة من خلال '${username}'."
@@ -2257,34 +2212,6 @@ msgid ""
 "organization"
 msgstr ""
 
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr "ماذا؟"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, python-format
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr "ماذا يجب أن أفعل؟"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
@@ -2543,6 +2470,11 @@ msgstr ""
 "أحد ما، ربما أنت، قام بتغيير كلمة المرور لحساب PyPI الخاص بك "
 "<strong>%(username)s</strong>."
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr "ماذا؟"
+
 #: warehouse/templates/email/password-compromised/body.html:20
 #, fuzzy
 #| msgid ""
@@ -2574,6 +2506,11 @@ msgid ""
 msgstr ""
 "لم يتم إختراق PyPI نفسه. هذا إجراء وقائي لتقليل\n"
 "الخطر لPyPI ومستخدمينه."
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr "ماذا يجب أن أفعل؟"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
