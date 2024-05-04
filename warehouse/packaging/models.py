@@ -465,7 +465,7 @@ class ReleaseURL(db.Model):
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
-    verified: Mapped[bool] = False
+    verified: Mapped[bool] = mapped_column(default=False)
 
 
 DynamicFieldsEnum = ENUM(
