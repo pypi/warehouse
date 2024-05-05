@@ -2000,34 +2000,6 @@ msgid ""
 "organization"
 msgstr ""
 
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr ""
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, python-format
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you"
-" uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr ""
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
@@ -2259,6 +2231,11 @@ msgid ""
 "<strong>%(username)s</strong>."
 msgstr ""
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr ""
+
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
 "PyPI administrators have determined that your password is compromised. To"
@@ -2271,6 +2248,11 @@ msgstr ""
 msgid ""
 "PyPI itself has not suffered a breach. This is a protective measure to "
 "reduce the risk for PyPI and its users."
+msgstr ""
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:33
