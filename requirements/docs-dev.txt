@@ -132,9 +132,9 @@ docutils==0.20.1 \
     # via
     #   myst-parser
     #   sphinx
-furo==2024.1.29 \
-    --hash=sha256:3548be2cef45a32f8cdc0272d415fcb3e5fa6a0eb4ddfe21df3ecf1fe45a13cf \
-    --hash=sha256:4d6b2fe3f10a6e36eb9cc24c1e7beb38d7a23fc7b3c382867503b7fcac8a1e02
+furo==2024.4.27 \
+    --hash=sha256:15a9b65269038def2cefafb86c71c6616e3969b8f07ba231f588c10c4aee6d88 \
+    --hash=sha256:f7eb1b2c2204fd9cbd4af42e027289a67f17a98a4e14f4f9e2f17b96d61bb020
     # via -r requirements/docs-dev.in
 h11==0.14.0 \
     --hash=sha256:8f19fbbe99e72420ff35c00b27a34cb9937e902a8b810e2c88300c6f0a3b699d \
