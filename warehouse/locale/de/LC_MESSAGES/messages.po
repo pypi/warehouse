@@ -24,13 +24,14 @@
 # Thomas Hess <thomas.hess@udo.edu>, 2024.
 # 12LuA <Luca.strack@gmx.de>, 2024.
 # TheescapedShadow <ki.net@kijama.de>, 2024.
+# Stanis Trendelenburg <stanis.trendelenburg@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-02-20 21:12+0000\n"
-"Last-Translator: TheescapedShadow <ki.net@kijama.de>\n"
+"PO-Revision-Date: 2024-04-27 07:53+0000\n"
+"Last-Translator: Stanis Trendelenburg <stanis.trendelenburg@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/pypa/warehouse/de/"
 ">\n"
 "Language: de\n"
@@ -38,7 +39,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.5.1\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -219,7 +220,7 @@ msgstr "Schon authentifiziert"
 msgid "Successful WebAuthn assertion"
 msgstr "Erfolgreiche WebAuthn-Assertion"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Wiederherstellungscode akzeptiert. Der eingegebene Code kann nicht erneut "
@@ -360,7 +361,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Sie sind nun '${role}' vom Projekt '${project_name}'."
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1242
+#: warehouse/manage/views/__init__.py:1247
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -397,10 +398,10 @@ msgstr ""
 "Sie können nicht mehr als 3 ausstehende vertrauenswürdige Publisher "
 "gleichzeitig registrieren."
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
-#: warehouse/manage/views/__init__.py:1390
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1612
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/manage/views/__init__.py:1395
+#: warehouse/manage/views/__init__.py:1507
+#: warehouse/manage/views/__init__.py:1617
 #, fuzzy
 #| msgid ""
 #| "There have been too many attempted OpenID Connect registrations. Try "
@@ -412,10 +413,10 @@ msgstr ""
 "Es existieren zu viele Anmeldeversuche für OpenID Connect. Versuche es "
 "später noch einmal."
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1404
-#: warehouse/manage/views/__init__.py:1516
-#: warehouse/manage/views/__init__.py:1626
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1521
+#: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr "Der vertrauenswürdige Herausgeber konnte nicht registriert werden"
 
@@ -560,43 +561,39 @@ msgstr ""
 "Dieser Team-Name wurde bereits verwendet. Bitte wählen Sie einen anderen "
 "Team-Namen."
 
-#: warehouse/manage/views/__init__.py:277
-#, fuzzy
-#| msgid "Account details"
+#: warehouse/manage/views/__init__.py:282
 msgid "Account details updated"
-msgstr "Konto-Details"
+msgstr "Konto-Details aktualisiert"
 
-#: warehouse/manage/views/__init__.py:307
+#: warehouse/manage/views/__init__.py:312
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-Mail-Adresse ${email_address} hinzugefügt - Bitte überprüfen Sie ihre E-"
 "Mails auf einen Überprüfungslink."
 
-#: warehouse/manage/views/__init__.py:813
+#: warehouse/manage/views/__init__.py:818
 msgid "Recovery codes already generated"
 msgstr "Wiederherstellungscodes wurden bereits generiert"
 
-#: warehouse/manage/views/__init__.py:814
+#: warehouse/manage/views/__init__.py:819
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "Das Generieren von neuen Wiederherstellungscodes macht die bestehenden Codes "
 "ungültig."
 
-#: warehouse/manage/views/__init__.py:923
-#, fuzzy
-#| msgid "Verify your email or add a new address."
+#: warehouse/manage/views/__init__.py:928
 msgid "Verify your email to create an API token."
-msgstr "E-Mail-Adresse bestätigen oder neue Adresse hinzufügen."
+msgstr "E-Mail-Adresse bestätigen um einen neuen API token zu erstellen."
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1028
 msgid "API Token does not exist."
 msgstr "API Token existiert nicht."
 
-#: warehouse/manage/views/__init__.py:1055
+#: warehouse/manage/views/__init__.py:1060
 msgid "Invalid credentials. Try again"
 msgstr "Ungültige Anmeldedaten. Erneut versuchen"
 
-#: warehouse/manage/views/__init__.py:1258
+#: warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -608,7 +605,7 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/manage/views/__init__.py:1371
+#: warehouse/manage/views/__init__.py:1376
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -620,7 +617,7 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/manage/views/__init__.py:1483
+#: warehouse/manage/views/__init__.py:1488
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -632,7 +629,7 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/manage/views/__init__.py:1592
+#: warehouse/manage/views/__init__.py:1597
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -644,9 +641,9 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/manage/views/__init__.py:1827
-#: warehouse/manage/views/__init__.py:2128
-#: warehouse/manage/views/__init__.py:2236
+#: warehouse/manage/views/__init__.py:1832
+#: warehouse/manage/views/__init__.py:2133
+#: warehouse/manage/views/__init__.py:2241
 #, fuzzy
 #| msgid ""
 #| "New user registration temporarily disabled. See https://pypi.org/"
@@ -658,57 +655,57 @@ msgstr ""
 "Die Registrierung neuer Benutzer ist vorübergehend deaktiviert. Siehe "
 "https://pypi.org/help#admin-intervention für Details."
 
-#: warehouse/manage/views/__init__.py:1959
-#: warehouse/manage/views/__init__.py:2044
-#: warehouse/manage/views/__init__.py:2145
-#: warehouse/manage/views/__init__.py:2245
+#: warehouse/manage/views/__init__.py:1964
+#: warehouse/manage/views/__init__.py:2049
+#: warehouse/manage/views/__init__.py:2150
+#: warehouse/manage/views/__init__.py:2250
 #, fuzzy
 #| msgid "Confirm form"
 msgid "Confirm the request"
 msgstr "Bestätigungsformular"
 
-#: warehouse/manage/views/__init__.py:1971
+#: warehouse/manage/views/__init__.py:1976
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not yank release - "
 msgstr "vorab-Veröffentlichung"
 
-#: warehouse/manage/views/__init__.py:2056
+#: warehouse/manage/views/__init__.py:2061
 #, fuzzy
 #| msgid "pre-release"
 msgid "Could not un-yank release - "
 msgstr "vorab-Veröffentlichung"
 
-#: warehouse/manage/views/__init__.py:2157
+#: warehouse/manage/views/__init__.py:2162
 #, fuzzy
 #| msgid "Delete release"
 msgid "Could not delete release - "
 msgstr "Veröffentlichung entfernen"
 
-#: warehouse/manage/views/__init__.py:2257
+#: warehouse/manage/views/__init__.py:2262
 #, fuzzy
 #| msgid "Could not find role invitation."
 msgid "Could not find file"
 msgstr "Es konnte keine Einladung für eine Berechtigungsrolle gefunden werden."
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2266
 msgid "Could not delete file - "
 msgstr "Datei konnte nicht gelöscht werden - "
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2416
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "Team '${team_name}' verfügt bereits über ${role_name} Rolle für Projekt"
 
-#: warehouse/manage/views/__init__.py:2518
+#: warehouse/manage/views/__init__.py:2523
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr "Der Benutzer '${username}' ist schon ${role_name} vom Projekt"
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2590
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} ist jetzt ${role} des Projekts '${project_name}'."
 
-#: warehouse/manage/views/__init__.py:2617
+#: warehouse/manage/views/__init__.py:2622
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -716,7 +713,7 @@ msgstr ""
 "Der Benutzer '${username}' hat keine gültige email Adresse und konnte nicht "
 "als '${role_name}' hinzugefügt werden"
 
-#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/__init__.py:2635
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -724,20 +721,20 @@ msgstr ""
 "Der Benutzer '${username}' hat schon eine Einladung bekommen. Bitte versuche "
 "es später noch einmal."
 
-#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/__init__.py:2700
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Die Einladung wurde '${username}' zugestellt"
 
-#: warehouse/manage/views/__init__.py:2728
+#: warehouse/manage/views/__init__.py:2733
 msgid "Could not find role invitation."
 msgstr "Es konnte keine Einladung für eine Berechtigungsrolle gefunden werden."
 
-#: warehouse/manage/views/__init__.py:2739
+#: warehouse/manage/views/__init__.py:2744
 msgid "Invitation already expired."
 msgstr "Die Einladung ist schon angelaufen."
 
-#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/__init__.py:2776
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Einladung von '${username}' wurde annuliert."
@@ -2378,46 +2375,6 @@ msgstr ""
 "Sie haben eine Einladung zur Mitgliedschaft in der Organisation "
 "\"%(organization_name)s\" abgelehnt"
 
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr "Wie bitte?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "During your recent upload or upload attempt of %(project_name)s to "
-#| "%(site)s, we noticed you used basic authentication (username &amp; "
-#| "password). However, your account has two-factor authentication (2FA) "
-#| "enabled."
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-"Während Ihres letzten Uploads oder Uploadversuchs von %(project_name)s auf "
-"%(site)s haben wir festgestellt, dass Sie die einfache Authentifizierung "
-"(Benutzername &amp; Passwort) verwendet haben. In Ihrem Konto ist jedoch die "
-"Zwei-Faktor-Authentifizierung (2FA) aktiviert."
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr "Was sollte ich tun?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-"Während Uploads weiterhin funktionieren, werden alle Signaturen, die auf "
-"%(site)s hochgeladen wurden, verworfen. Es wird empfohlen, keine Signaturen "
-"mehr auf %(site)s hochzuladen."
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, fuzzy, python-format
 #| msgid ""
@@ -2731,6 +2688,11 @@ msgstr ""
 "Jemand, möglicherweise Sie selbst, hat das Passwort des PyPI-Kontos "
 "<strong>%(username)s</strong> geändert."
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr "Wie bitte?"
+
 #: warehouse/templates/email/password-compromised/body.html:20
 #, fuzzy
 #| msgid ""
@@ -2766,6 +2728,11 @@ msgstr ""
 "Bei PyPI selbst gab es keinen Datenverlust. Dies ist nur eine "
 "Vorsichtsmaßnahme,\n"
 "um das Risiko für PyPI und die Benutzer zu verringern."
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr "Was sollte ich tun?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -12047,6 +12014,32 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Keine Ergebnisse für „%(term)s“"
 msgstr[1] "Keine Ergebnisse für “%(term)s“"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "During your recent upload or upload attempt of %(project_name)s to "
+#~| "%(site)s, we noticed you used basic authentication (username &amp; "
+#~| "password). However, your account has two-factor authentication (2FA) "
+#~| "enabled."
+#~ msgid ""
+#~ "During your recent upload of %(project_name)s to %(site)s, we noticed you "
+#~ "uploaded a GPG signature. However, support for GPG signatures has been "
+#~ "removed from %(site)s."
+#~ msgstr ""
+#~ "Während Ihres letzten Uploads oder Uploadversuchs von %(project_name)s "
+#~ "auf %(site)s haben wir festgestellt, dass Sie die einfache "
+#~ "Authentifizierung (Benutzername &amp; Passwort) verwendet haben. In Ihrem "
+#~ "Konto ist jedoch die Zwei-Faktor-Authentifizierung (2FA) aktiviert."
+
+#, python-format
+#~ msgid ""
+#~ "While uploads will continue to work, any signatures uploaded to %(site)s "
+#~ "will be discarded. It is recommended to no longer upload signatures to "
+#~ "%(site)s."
+#~ msgstr ""
+#~ "Während Uploads weiterhin funktionieren, werden alle Signaturen, die auf "
+#~ "%(site)s hochgeladen wurden, verworfen. Es wird empfohlen, keine "
+#~ "Signaturen mehr auf %(site)s hochzuladen."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "PyPI bei Twitter"
