@@ -5,8 +5,8 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "lint": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
-    "lint:fix": "eslint 'warehouse/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
+    "lint": "eslint 'warehouse/static/js/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**'",
+    "lint:fix": "eslint 'warehouse/static/js/**' 'warehouse/admin/static/js/**' 'tests/frontend/**' --ignore-pattern 'warehouse/static/js/vendor/**' --fix",
     "stylelint": "stylelint '**/*.scss' --cache",
     "stylelint:fix": "stylelint '**/*.scss' --cache --fix",
     "test": "jest --coverage"
@@ -71,7 +71,8 @@
     "env": {
       "browser": true,
       "es6": true,
-      "amd": true
+      "amd": true,
+      "jquery": true
     },
     "extends": "eslint:recommended",
     "parser": "@babel/eslint-parser",

@@ -218,8 +218,7 @@ def add_project_observation(project, request):
             )
         )
 
-    # We allow an empty payload from Admin.
-    payload = {}
+    payload = {"origin": "admin"}
 
     project.record_observation(
         request=request,
@@ -356,8 +355,7 @@ def add_release_observation(release, request):
             )
         )
 
-    # We allow an empty payload from Admin.
-    payload = {}
+    payload = {"origin": "admin"}
 
     release.record_observation(
         request=request,

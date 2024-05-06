@@ -30,8 +30,11 @@ class TestDashboard:
         ]
 
     def test_dashboard_with_permission_and_observation(self, db_request):
+        """Test that the dashboard view returns the correct data when the user has the
+        required permission and there are multiple Observations in the database."""
         ProjectObservationFactory.create(kind="is_malware")
         ProjectObservationFactory.create(kind="is_malware", actions={"foo": "bar"})
+        ProjectObservationFactory.create(kind="is_malware", related=None)
         ProjectObservationFactory.create(kind="something_else")
         db_request.user = pretend.stub()
         db_request.has_permission = pretend.call_recorder(lambda perm: True)
