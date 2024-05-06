@@ -677,22 +677,18 @@ def file_upload(request):
             ) from None
 
     publisher_url = (
-        request.oidc_publisher.publisher_url(request.oidc_claims)
-        if request.oidc_publisher
-        else None
+        request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
     )
     project_urls = {}
     if meta.project_urls:
         for name, url in meta.project_urls.items():
-            url = url.rstrip("/") + "/"
-
+            striped_url = url.rstrip("/") + "/"
             verified = (
-                url.lower() == publisher_url[: len(url)].lower()
+                striped_url[: len(publisher_url)].lower() == publisher_url.lower()
                 if publisher_url
                 else False
             )
 
-            # Would it be a problem sava the modified url?
             project_urls[name] = {"url": url, "verified": verified}
 
     try:

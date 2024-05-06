@@ -81,6 +81,10 @@ class GooglePublisherMixin:
     def publisher_name(self):
         return "Google"
 
+    @property
+    def publisher_base_url(self):
+        return None
+
     def publisher_url(self, claims=None):
         return None
 

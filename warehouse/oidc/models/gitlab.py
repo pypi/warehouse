@@ -221,8 +221,12 @@ class GitLabPublisherMixin:
     def publisher_name(self):
         return "GitLab"
 
+    @property
+    def publisher_base_url(self):
+        return f"https://gitlab.com/{self.project_path}"
+
     def publisher_url(self, claims=None):
-        base = f"https://gitlab.com/{self.project_path}"
+        base = self.publisher_base_url
         return f"{base}/commit/{claims['sha']}" if claims else base
 
     def stored_claims(self, claims=None):

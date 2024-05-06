@@ -235,6 +235,11 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
+    @property
+    def publisher_base_url(self) -> str | None:  # pragma: no cover
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
     def publisher_url(
         self, claims: SignedClaims | None = None
     ) -> str | None:  # pragma: no cover
