@@ -676,7 +676,7 @@ def file_upload(request):
                 ),
             ) from None
 
-    publisher_url = (
+    publisher_base_url = (
         request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
     )
     project_urls = {}
@@ -684,8 +684,9 @@ def file_upload(request):
         for name, url in meta.project_urls.items():
             striped_url = url.rstrip("/") + "/"
             verified = (
-                striped_url[: len(publisher_url)].lower() == publisher_url.lower()
-                if publisher_url
+                striped_url[: len(publisher_base_url)].lower()
+                == publisher_base_url.lower()
+                if publisher_base_url
                 else False
             )
 
@@ -804,7 +805,11 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": publisher_url,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
         )
@@ -1120,7 +1125,11 @@ def file_upload(request):
                     request.user.username if request.user else "OpenID created token"
                 ),
                 "canonical_version": release.canonical_version,
-                "publisher_url": publisher_url,
+                "publisher_url": (
+                    request.oidc_publisher.publisher_url(request.oidc_claims)
+                    if request.oidc_publisher
+                    else None
+                ),
                 "project_id": str(project.id),
                 "uploaded_via_trusted_publisher": bool(request.oidc_publisher),
             },
