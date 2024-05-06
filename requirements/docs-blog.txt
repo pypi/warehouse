@@ -8,9 +8,9 @@ babel==2.14.0 \
     --hash=sha256:6919867db036398ba21eb5c7a0f6b28ab8cbc3ae7a73a44ebe34ae74a4e7d363 \
     --hash=sha256:efb1a25b7118e67ce3a259bed20545c29cb68be8ad2c784c83689981b7a57287
     # via mkdocs-material
-cairocffi==1.6.1 \
-    --hash=sha256:78e6bbe47357640c453d0be929fa49cd05cce2e1286f3d2a1ca9cbda7efdb8b7 \
-    --hash=sha256:aa78ee52b9069d7475eeac457389b6275aa92111895d78fbaa2202a52dac112e
+cairocffi==1.7.0 \
+    --hash=sha256:1f29a8d41dbda4090c0aa33bcdea64f3b493e95f74a43ea107c4a8a7b7f632ef \
+    --hash=sha256:7761863603894305f3160eca68452f373433ca8745ab7dd445bd2c6ce50dcab7
     # via cairosvg
 cairosvg==2.7.1 \
     --hash=sha256:432531d72347291b9a9ebfb6777026b607563fd8719c46ee742db0aef7271ba0 \
