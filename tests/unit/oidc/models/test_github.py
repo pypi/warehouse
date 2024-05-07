@@ -81,6 +81,7 @@ class TestGitHubPublisher:
             "enterprise",
             "enterprise_id",
             "ref_protected",
+            "groups_direct",
         }
 
     def test_github_publisher_computed_properties(self):

@@ -155,6 +155,7 @@ class GitHubPublisherMixin:
         "enterprise",
         "enterprise_id",
         "ref_protected",
+        "groups_direct",
     }
 
     @staticmethod
