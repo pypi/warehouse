@@ -29,10 +29,9 @@ updates:
       patterns:
         - "psycopg*"
     python-package:
-      # Keep rest of package together exclude group of celery and psycopg
-      exclude-patterns:
-        - "celery"
-        - "psycopg"
+      # Keep rest of package together
+      patterns:
+        - "*"
 - package-ecosystem: github-actions
   directory: "/"
   schedule:
