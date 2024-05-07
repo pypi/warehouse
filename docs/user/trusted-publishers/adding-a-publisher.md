@@ -112,14 +112,14 @@ each.
         instances are not supported.
 
     For GitLab CI/CD, you **must** provide the repository's namespace, the
-    repository's name, and the filepath of the GitLab CI/CD workflow that's
-    authorized to upload to PyPI. In addition, you may **optionally**
-    provide the name of a
+    repository's name, and the filepath of the top-level GitLab CI/CD pipeline
+    definition that's authorized to upload to PyPI. In addition, you may
+    **optionally** provide the name of a
     [GitLab CI/CD environment](https://docs.gitlab.com/ee/ci/environments/).
 
     For example, if you have a project at `https://gitlab.com/namespace/sampleproject`
-    that uses a publishing workflow defined in `release.yml` and a custom
-    environment named `release`, then you'd do the following:
+    with a top-level pipeline defined in `.gitlab-ci.yml` and a custom environment
+    named `release`, then you'd do the following:
 
     ![Image showing adding a new GitLab publisher](/assets/trusted-publishing/gitlab/project-publishing-form.png)
 
@@ -135,7 +135,7 @@ each.
 
     ![Image showing a newly added GitLab publisher](/assets/trusted-publishing/gitlab/project-publisher-registered.png)
 
-    From this point onwards, the `release.yml` workflow on `namespace/sampleproject`
+    From this point onwards, the `.gilab-ci.yml` pipeline on `namespace/sampleproject`
     will be able to generate short-lived API tokens from PyPI for the project you've
     registered it against.
 
