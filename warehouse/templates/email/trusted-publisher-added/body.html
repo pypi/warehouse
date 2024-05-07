@@ -16,51 +16,45 @@
 
 {% block content %}
 <p>
-  {% trans username=username, project_name=project_name %}
   PyPI user <strong>{{ username }}</strong> has added a new trusted
   publisher to a project (<strong>{{project_name}}</strong>) that you manage.
   Trusted publishers act as trusted users and can create project releases
   automatically.
-  {% endtrans %}
 </p>
 
 <p>
-  {% trans %}Publisher information{% endtrans %}:
+  Publisher information:
   <ul>
-    <li>{% trans %}Publisher name{% endtrans %}: {{ publisher.publisher_name }}</li>
+    <li>Publisher name: {{ publisher.publisher_name }}</li>
     {% if publisher.publisher_name == "GitHub" %}
-      <li>{% trans %}Workflow{% endtrans %}: {{ publisher }}</li>
-      <li>{% trans %}Owner{% endtrans %}: {{ publisher.repository_owner }}</li>
-      <li>{% trans %}Repository{% endtrans %}: {{ publisher.repository_name }}</li>
+      <li>Workflow: {{ publisher }}</li>
+      <li>Owner: {{ publisher.repository_owner }}</li>
+      <li>Repository: {{ publisher.repository_name }}</li>
       {% if publisher.environment %}
-        <li>{% trans %}Environment{% endtrans %}: {{ publisher.environment }}</li>
+        <li>Environment: {{ publisher.environment }}</li>
       {% endif %}
     {% elif publisher.publisher_name == "Google" %}
-      <li>{% trans %}Email{% endtrans %}: {{ publisher.email }}</li>
+      <li>Email: {{ publisher.email }}</li>
       {% if publisher.sub %}
-        <li>{% trans %}Subject{% endtrans %}: {{ publisher.sub }}</li>
+        <li>Subject: {{ publisher.sub }}</li>
       {% endif %}
     {% elif publisher.publisher_name == "ActiveState" %}
-      <li>{% trans %}ActiveState Project URL{% endtrans %}: {{ publisher.publisher_url }}</li>
-      <li>{% trans %}Organization{% endtrans %}: {{ publisher.organization }}</li>
-      <li>{% trans %}ActiveState Project name{% endtrans %}: {{ publisher.activestate_project_name }}</li>
-      <li>{% trans %}Actor{% endtrans %}: {{ publisher.actor }}</li>
+      <li>ActiveState Project URL: {{ publisher.publisher_url }}</li>
+      <li>Organization: {{ publisher.organization }}</li>
+      <li>ActiveState Project name: {{ publisher.activestate_project_name }}</li>
+      <li>Actor: {{ publisher.actor }}</li>
     {% endif %}
   </ul>
 </p>
 
 <p>
-  {% trans %}
   If you did not make this change and you think it was made maliciously, you can
   remove it from the project via the "Publishing" tab on the project's page.
-  {% endtrans %}
 </p>
 
 <p>
-  {% trans href='mailto:admin@pypi.org', email_address='admin@pypi.org' %}
   If you are unable to revert the change and need to do so, you can email
-  <a href="{{ href }}">{{ email_address }}</a> to communicate with the PyPI
+  <a href="mailto:admin@pypi.org">admin@pypi.org</a> to communicate with the PyPI
   administrators.
-  {% endtrans %}
 </p>
 {% endblock %}
