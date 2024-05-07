@@ -6,7 +6,7 @@ on:
   pull_request:
   merge_group:
     types: [checks_requested]
-  workflow_dispatch:  # generally only for the "combine-prs" workflow
+  workflow_dispatch:
 permissions:
   id-token: write
   contents: read
