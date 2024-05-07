@@ -3079,7 +3079,7 @@ msgstr ""
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 msgid "GitHub Statistics"
 msgstr ""
 
