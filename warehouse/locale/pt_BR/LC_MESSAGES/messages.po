@@ -2,7 +2,7 @@
 # Copyright (C) 2019 PyPA
 # This file is distributed under the same license as the Warehouse project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2019.
-# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020, 2021, 2022, 2023.
+# Rafael Fontenelle <rafaelff@gnome.org>, 2019, 2020, 2021, 2022, 2023, 2024.
 # Sviatoslav Sydorenko <wk+weblate.org@sydorenko.org.ua>, 2021.
 # Kalingth <wallace13@hotmail.com.br>, 2022, 2024.
 # Felipe Nogueira <contato.fnog@gmail.com>, 2023.
@@ -14,8 +14,8 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-01-16 00:04+0000\n"
-"Last-Translator: Kalingth <wallace13@hotmail.com.br>\n"
+"PO-Revision-Date: 2024-04-24 16:34+0000\n"
+"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -23,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5.1-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -202,7 +202,7 @@ msgstr "Já autenticado"
 msgid "Successful WebAuthn assertion"
 msgstr "Asserção WebAuthn bem-sucedida"
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:865
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 "Código de recuperação aceito. O código fornecido não pode ser usado "
@@ -342,7 +342,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr "Você é agora ${role} do projeto \"${project_name}\"."
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1242
+#: warehouse/manage/views/__init__.py:1247
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -378,10 +378,10 @@ msgstr ""
 "Você não pode registrar mais de 3 publicadores confiável pendentes ao mesmo "
 "tempo."
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1277
-#: warehouse/manage/views/__init__.py:1390
-#: warehouse/manage/views/__init__.py:1502
-#: warehouse/manage/views/__init__.py:1612
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/manage/views/__init__.py:1395
+#: warehouse/manage/views/__init__.py:1507
+#: warehouse/manage/views/__init__.py:1617
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
@@ -389,10 +389,10 @@ msgstr ""
 "Houve muitas tentativas de registros de publicadores confiáveis. Tente "
 "novamente mais tarde."
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1291
-#: warehouse/manage/views/__init__.py:1404
-#: warehouse/manage/views/__init__.py:1516
-#: warehouse/manage/views/__init__.py:1626
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/manage/views/__init__.py:1409
+#: warehouse/manage/views/__init__.py:1521
+#: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr "O editor confiável não pôde ser registrado"
 
@@ -534,39 +534,39 @@ msgstr ""
 "Esse nome de equipe já está sendo utilizado. Escolha um nome diferente para "
 "a equipe."
 
-#: warehouse/manage/views/__init__.py:277
+#: warehouse/manage/views/__init__.py:282
 msgid "Account details updated"
 msgstr "Detalhes da conta atualizados"
 
-#: warehouse/manage/views/__init__.py:307
+#: warehouse/manage/views/__init__.py:312
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 "E-mail ${email_address} adicionado - verifique seu e-mail para um link de "
 "verificação"
 
-#: warehouse/manage/views/__init__.py:813
+#: warehouse/manage/views/__init__.py:818
 msgid "Recovery codes already generated"
 msgstr "Códigos de recuperação já gerados"
 
-#: warehouse/manage/views/__init__.py:814
+#: warehouse/manage/views/__init__.py:819
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 "A geração de novos códigos de recuperação invalidará os seus códigos "
 "existentes."
 
-#: warehouse/manage/views/__init__.py:923
+#: warehouse/manage/views/__init__.py:928
 msgid "Verify your email to create an API token."
 msgstr "Verifique seu e-mail para criar um token de API."
 
-#: warehouse/manage/views/__init__.py:1023
+#: warehouse/manage/views/__init__.py:1028
 msgid "API Token does not exist."
 msgstr "A chave de API não existe."
 
-#: warehouse/manage/views/__init__.py:1055
+#: warehouse/manage/views/__init__.py:1060
 msgid "Invalid credentials. Try again"
 msgstr "Credenciais inválidas. Tente novamente"
 
-#: warehouse/manage/views/__init__.py:1258
+#: warehouse/manage/views/__init__.py:1263
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -578,7 +578,7 @@ msgstr ""
 "Publicadores confiáveis estão temporariamente desabilitados. Consulte "
 "https://pypi.org/help#admin-intervention para obter detalhes."
 
-#: warehouse/manage/views/__init__.py:1371
+#: warehouse/manage/views/__init__.py:1376
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -590,7 +590,7 @@ msgstr ""
 "Publicadores confiáveis estão temporariamente desabilitados. Consulte "
 "https://pypi.org/help#admin-intervention para obter detalhes."
 
-#: warehouse/manage/views/__init__.py:1483
+#: warehouse/manage/views/__init__.py:1488
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -602,7 +602,7 @@ msgstr ""
 "Publicadores confiáveis estão temporariamente desabilitados. Consulte "
 "https://pypi.org/help#admin-intervention para obter detalhes."
 
-#: warehouse/manage/views/__init__.py:1592
+#: warehouse/manage/views/__init__.py:1597
 #, fuzzy
 #| msgid ""
 #| "Trusted publishers are temporarily disabled. See https://pypi.org/"
@@ -614,9 +614,9 @@ msgstr ""
 "Publicadores confiáveis estão temporariamente desabilitados. Consulte "
 "https://pypi.org/help#admin-intervention para obter detalhes."
 
-#: warehouse/manage/views/__init__.py:1827
-#: warehouse/manage/views/__init__.py:2128
-#: warehouse/manage/views/__init__.py:2236
+#: warehouse/manage/views/__init__.py:1832
+#: warehouse/manage/views/__init__.py:2133
+#: warehouse/manage/views/__init__.py:2241
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
@@ -624,48 +624,48 @@ msgstr ""
 "Exclusão de projeto desabilitado temporariamente. Consulte https://pypi.org/"
 "help#admin-intervention para obter detalhes."
 
-#: warehouse/manage/views/__init__.py:1959
-#: warehouse/manage/views/__init__.py:2044
-#: warehouse/manage/views/__init__.py:2145
-#: warehouse/manage/views/__init__.py:2245
+#: warehouse/manage/views/__init__.py:1964
+#: warehouse/manage/views/__init__.py:2049
+#: warehouse/manage/views/__init__.py:2150
+#: warehouse/manage/views/__init__.py:2250
 msgid "Confirm the request"
 msgstr "Confirmar a solicitação"
 
-#: warehouse/manage/views/__init__.py:1971
+#: warehouse/manage/views/__init__.py:1976
 msgid "Could not yank release - "
 msgstr "Não foi possível retirar o lançamento - "
 
-#: warehouse/manage/views/__init__.py:2056
+#: warehouse/manage/views/__init__.py:2061
 msgid "Could not un-yank release - "
 msgstr "Não foi possível desfazer a retirada do lançamento - "
 
-#: warehouse/manage/views/__init__.py:2157
+#: warehouse/manage/views/__init__.py:2162
 msgid "Could not delete release - "
 msgstr "Não foi possível excluir o lançamento - "
 
-#: warehouse/manage/views/__init__.py:2257
+#: warehouse/manage/views/__init__.py:2262
 msgid "Could not find file"
 msgstr "Não foi possível localizar o arquivo"
 
-#: warehouse/manage/views/__init__.py:2261
+#: warehouse/manage/views/__init__.py:2266
 msgid "Could not delete file - "
 msgstr "Não foi possível excluir o arquivo - "
 
-#: warehouse/manage/views/__init__.py:2411
+#: warehouse/manage/views/__init__.py:2416
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 "A equipe \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2518
+#: warehouse/manage/views/__init__.py:2523
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 "O usuário \"${username}\" já tem a função de ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2585
+#: warehouse/manage/views/__init__.py:2590
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr "${username} é um ${role} do projeto \"${project_name}\"."
 
-#: warehouse/manage/views/__init__.py:2617
+#: warehouse/manage/views/__init__.py:2622
 msgid ""
 "User '${username}' does not have a verified primary email address and cannot "
 "be added as a ${role_name} for project"
@@ -673,7 +673,7 @@ msgstr ""
 "O usuário \"${username}\" não tem um endereço de e-mail principal verificado "
 "e não pode ser adicionado como um ${role_name} para o projeto"
 
-#: warehouse/manage/views/__init__.py:2630
+#: warehouse/manage/views/__init__.py:2635
 #: warehouse/manage/views/organizations.py:878
 msgid ""
 "User '${username}' already has an active invite. Please try again later."
@@ -681,20 +681,20 @@ msgstr ""
 "O usuário \"${username}\" já tem um convite ativo. Tente novamente mais "
 "tarde."
 
-#: warehouse/manage/views/__init__.py:2695
+#: warehouse/manage/views/__init__.py:2700
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr "Convite enviado para \"${username}\""
 
-#: warehouse/manage/views/__init__.py:2728
+#: warehouse/manage/views/__init__.py:2733
 msgid "Could not find role invitation."
 msgstr "Não foi possível encontrar o convite para uma função."
 
-#: warehouse/manage/views/__init__.py:2739
+#: warehouse/manage/views/__init__.py:2744
 msgid "Invitation already expired."
 msgstr "O convite já expirado."
 
-#: warehouse/manage/views/__init__.py:2771
+#: warehouse/manage/views/__init__.py:2776
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr "Convite revogado de \"${username}\"."
@@ -2243,40 +2243,6 @@ msgstr ""
 "Você recusou um convite para participar da organização "
 "\"%(organization_name)s\""
 
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:17
-#: warehouse/templates/email/password-compromised-hibp/body.html:18
-#: warehouse/templates/email/password-compromised/body.html:18
-msgid "What?"
-msgstr "O quê?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:19
-#, python-format
-msgid ""
-"During your recent upload of %(project_name)s to %(site)s, we noticed you "
-"uploaded a GPG signature. However, support for GPG signatures has been "
-"removed from %(site)s."
-msgstr ""
-"Durante seu recente envio de %(project_name)s para %(site)s, notamos que "
-"você usou uma assinatura de GPG. No entanto, suporte a assinaturas GPG foi "
-"removido de %(site)s."
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:22
-#: warehouse/templates/email/password-compromised-hibp/body.html:32
-#: warehouse/templates/email/password-compromised/body.html:31
-msgid "What should I do?"
-msgstr "O que eu devo fazer?"
-
-#: warehouse/templates/email/gpg-signature-uploaded/body.html:24
-#, python-format
-msgid ""
-"While uploads will continue to work, any signatures uploaded to %(site)s "
-"will be discarded. It is recommended to no longer upload signatures to "
-"%(site)s."
-msgstr ""
-"Embora os envios continuem a funcionar, todas as assinaturas enviadas para "
-"%(site)s serão descartadas. Recomenda-se não enviar mais assinaturas para "
-"%(site)s."
-
 #: warehouse/templates/email/new-email-added/body.html:17
 #, python-format
 msgid ""
@@ -2547,6 +2513,11 @@ msgstr ""
 "Alguém, talvez você, mudou a senha para sua conta PyPI <strong>%(username)s</"
 "strong>."
 
+#: warehouse/templates/email/password-compromised-hibp/body.html:18
+#: warehouse/templates/email/password-compromised/body.html:18
+msgid "What?"
+msgstr "O quê?"
+
 #: warehouse/templates/email/password-compromised/body.html:20
 msgid ""
 "PyPI administrators have determined that your password is compromised. To "
@@ -2566,6 +2537,11 @@ msgid ""
 msgstr ""
 "O PyPI em si não sofreu uma violação. Essa é uma medida de proteção para "
 "reduzir o risco para o PyPI e seus usuários."
+
+#: warehouse/templates/email/password-compromised-hibp/body.html:32
+#: warehouse/templates/email/password-compromised/body.html:31
+msgid "What should I do?"
+msgstr "O que eu devo fazer?"
 
 #: warehouse/templates/email/password-compromised/body.html:33
 #, python-format
@@ -5510,7 +5486,7 @@ msgstr "Editor"
 #: warehouse/templates/manage/account/publishing.html:472
 #: warehouse/templates/manage/project/publishing.html:374
 msgid "Details"
-msgstr ""
+msgstr "Detalhes"
 
 #: warehouse/templates/manage/account/publishing.html:484
 msgid ""
@@ -11281,6 +11257,26 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Nenhuma ocorrência para o filtro \"%(filters)s\""
 msgstr[1] "Nenhuma ocorrência para os filtros \"%(filters)s\""
+
+#, python-format
+#~ msgid ""
+#~ "During your recent upload of %(project_name)s to %(site)s, we noticed you "
+#~ "uploaded a GPG signature. However, support for GPG signatures has been "
+#~ "removed from %(site)s."
+#~ msgstr ""
+#~ "Durante seu recente envio de %(project_name)s para %(site)s, notamos que "
+#~ "você usou uma assinatura de GPG. No entanto, suporte a assinaturas GPG "
+#~ "foi removido de %(site)s."
+
+#, python-format
+#~ msgid ""
+#~ "While uploads will continue to work, any signatures uploaded to %(site)s "
+#~ "will be discarded. It is recommended to no longer upload signatures to "
+#~ "%(site)s."
+#~ msgstr ""
+#~ "Embora os envios continuem a funcionar, todas as assinaturas enviadas "
+#~ "para %(site)s serão descartadas. Recomenda-se não enviar mais assinaturas "
+#~ "para %(site)s."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "PyPI no Twitter"

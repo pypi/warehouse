@@ -547,7 +547,7 @@
       {% endif %}
     {% elif publisher.publisher_name == "GitLab" %}
       <b>Project:</b> <a href="{{ publisher.publisher_url() }}">{{ publisher.project_path }}</a><br>
-      <b>Workflow:</b> {{ publisher.workflow_filepath }}<br>
+      <b>Top-level pipeline:</b> {{ publisher.workflow_filepath }}<br>
       <b>Environment name:</b>
       {% if publisher.environment %}
         {{ publisher.environment }}

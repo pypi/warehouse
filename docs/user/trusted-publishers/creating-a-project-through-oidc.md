@@ -75,9 +75,14 @@ provide the name of the PyPI project that will be created.
 
 === "GitLab CI/CD"
 
+    !!! note
+
+        Currently, only projects hosted on <https://gitlab.com> are supported. Self-managed
+        instances are not supported.
+
      If you have a repository at
-    `https://gitlab.com/namespace/sampleproject` with a release workflow at
-    `release.yml` and an environment named `release` that you would like to publish
+    `https://gitlab.com/namespace/sampleproject` with a top-level pipeline defined in
+    `.gitlab-ci.yml` and an environment named `release` that you would like to publish
     to PyPI as `sampleproject`, then you would do the following:
 
     ![Image showing adding a new GitLab publisher](/assets/trusted-publishing/gitlab/pending-publisher-form-filled.png)
