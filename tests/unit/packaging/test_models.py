@@ -961,6 +961,52 @@ class TestRelease:
         release = DBReleaseFactory.create()
         assert release.verified_github_open_issue_info_url is None
 
+    @pytest.mark.parametrize(
+        ("url", "expected"),
+        [
+            (
+                "https://gitlab.com/someuser/someproject",
+                "someuser/someproject",
+            ),
+            (
+                "https://gitlab.com/someuser/someproject/",
+                "someuser/someproject",
+            ),
+            (
+                "https://gitlab.com/someuser/someproject/-/tree/stable-9",
+                "someuser/someproject",
+            ),
+            (
+                "https://www.gitlab.com/someuser/someproject",
+                "someuser/someproject",
+            ),
+            ("https://gitlab.com/someuser/", None),
+            ("https://google.com/pypi/warehouse/tree/main", None),
+            ("https://google.com", None),
+            ("incorrect url", None),
+            (
+                "https://gitlab.com/someuser/someproject.git",
+                "someuser/someproject",
+            ),
+            (
+                "https://www.gitlab.com/someuser/someproject.git/",
+                "someuser/someproject",
+            ),
+            ("git@bitbucket.org:definex/dsgnutils.git", None),
+        ],
+    )
+    def test_verified_gitlab_repository(self, db_session, url, expected):
+        release = DBReleaseFactory.create()
+        release.project_urls["Homepage"] = {"url": url, "verified": True}
+        assert release.verified_gitlab_repository == expected
+
+    def test_verified_gitlab_repository_is_none_without_verified_url(
+        self,
+        db_session,
+    ):
+        release = DBReleaseFactory.create()
+        assert release.verified_gitlab_repository is None
+
     def test_trusted_published_none(self, db_session):
         release = DBReleaseFactory.create()
 

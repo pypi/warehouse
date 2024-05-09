@@ -710,17 +710,18 @@ class Release(HasObservations, db.Model):
                 _urls[name] = url
         return _urls
 
-    @property
-    def verified_user_name_and_repo_name(self):
+    def verified_user_name_and_repo_name(
+        self, domains: set[str], reserved_names: typing.Sequence[str] | None = None
+    ):
         for _, url in self.urls_by_verify_status(verified=True).items():
             try:
                 parsed = parse_url(url)
             except LocationParseError:
                 continue
             segments = parsed.path.strip("/").split("/") if parsed.path else []
-            if parsed.netloc in {"github.com", "www.github.com"} and len(segments) >= 2:
+            if parsed.netloc in domains and len(segments) >= 2:
                 user_name, repo_name = segments[:2]
-                if user_name in GITHUB_RESERVED_NAMES:
+                if reserved_names and user_name in reserved_names:
                     continue
                 if repo_name.endswith(".git"):
                     repo_name = repo_name.removesuffix(".git")
@@ -728,19 +729,37 @@ class Release(HasObservations, db.Model):
         return None, None
 
     @property
+    def verified_github_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name(
+            {"github.com", "www.github.com"}, GITHUB_RESERVED_NAMES
+        )
+
+    @property
     def verified_github_repo_info_url(self):
-        user_name, repo_name = self.verified_user_name_and_repo_name
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return f"https://api.github.com/repos/{user_name}/{repo_name}"
 
     @property
     def verified_github_open_issue_info_url(self):
-        user_name, repo_name = self.verified_user_name_and_repo_name
+        user_name, repo_name = self.verified_github_user_name_and_repo_name
         if user_name and repo_name:
             return (
                 f"https://api.github.com/search/issues?q=repo:{user_name}/{repo_name}"
                 "+type:issue+state:open&per_page=1"
             )
+
+    @property
+    def verified_gitlab_user_name_and_repo_name(self):
+        return self.verified_user_name_and_repo_name({"gitlab.com", "www.gitlab.com"})
+
+    @property
+    def verified_gitlab_repository(self):
+        user_name, repo_name = self.verified_gitlab_user_name_and_repo_name
+        if user_name and repo_name:
+            return f"{user_name}/{repo_name}"
+
+        return None
 
     @property
     def has_meta(self):
