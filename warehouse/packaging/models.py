@@ -678,6 +678,19 @@ class Release(HasObservations, db.Model):
             )
 
     @property
+    def gitlab_repository(self):
+        for url in self.urls.values():
+            try:
+                parsed = parse_url(url)
+            except LocationParseError:
+                continue
+
+            if parsed.netloc in {"gitlab.com", "www.gitlab.com"}:
+                return parsed.path.strip("/") if parsed.path else None
+
+        return None
+
+    @property
     def has_meta(self):
         return any(
             [
