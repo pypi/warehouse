@@ -1,0 +1,42 @@
+# Origin: https://github.com/marketplace/actions/combine-prs
+
+name: 'Combine PRs'
+
+# Controls when the action will run - in this case triggered manually
+on:
+  workflow_dispatch:
+    inputs:
+      ignoreLabel:
+        description: 'Exclude PRs with this label'
+        required: true
+        default: 'blocked'
+
+# https://docs.github.com/en/actions/security-guides/automatic-token-authentication#permissions-for-the-github_token
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+  actions: write
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "combine-prs"
+  combine-prs:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Use GitHub App Token
+        uses: wow-actions/use-app-token@v2.0.2
+        id: generate_token
+        with:
+          app_id: ${{ secrets.COMBINE_PRS_APP_ID }}
+          private_key: ${{ secrets.COMBINE_PRS_PRIVATE_KEY }}
+          fallback: ${{ secrets.GITHUB_TOKEN }} # fall back to the default token if the app token is
+
+      - name: combine-prs
+        id: combine-prs
+        uses: github/combine-prs@v5.0.0
+        with:
+          github_token: ${{ steps.generate_token.outputs.BOT_TOKEN }}
+          ignore_label: ${{ github.event.inputs.ignoreLabel || 'blocked' }}
