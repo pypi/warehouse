@@ -1963,9 +1963,9 @@ structlog==24.1.0 \
     --hash=sha256:3f6efe7d25fab6e86f277713c218044669906537bb717c1807a09d46bca0714d \
     --hash=sha256:41a09886e4d55df25bdcb9b5c9674bccfab723ff43e0a86a1b7b236be8e57b16
     # via -r requirements/main.in
-tenacity==8.2.3 \
-    --hash=sha256:5398ef0d78e63f40007c1fb4c0bff96e1911394d2fa8d194f77619c05ff6cc8a \
-    --hash=sha256:ce510e327a630c9e1beaf17d42e6ffacc88185044ad85cf74c0a8887c6a0f88c
+tenacity==8.3.0 \
+    --hash=sha256:3649f6443dbc0d9b01b9d8020a9c4ec7a1ff5f6f3c6c8a036ef371f573fe9185 \
+    --hash=sha256:953d4e6ad24357bceffbc9707bc74349aca9d245f68eb65419cf0c249a1949a2
     # via celery-redbeat
 text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
