@@ -172,6 +172,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     total_size: Mapped[int | None] = mapped_column(
         BigInteger, server_default=sql.text("0")
     )
+    archived: Mapped[bool_false]
 
     oidc_publishers: Mapped[list[OIDCPublisher]] = orm.relationship(
         secondary="oidc_publisher_project_association",
