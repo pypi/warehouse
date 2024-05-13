@@ -71,7 +71,7 @@ class PreventNullBytesValidator:
         self.message = message
 
     def __call__(self, form, field):
-        if "\x00" in field.data:
+        if field.data and "\x00" in field.data:
             raise wtforms.validators.StopValidation(self.message)
 
 
@@ -349,7 +349,8 @@ class RegistrationForm(  # type: ignore[misc]
                     "The name is too long. "
                     "Choose a name with 100 characters or less."
                 ),
-            )
+            ),
+            PreventNullBytesValidator(),
         ]
     )
     g_recaptcha_response = wtforms.StringField()
