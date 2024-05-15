@@ -13,12 +13,13 @@
 -#}
 {% extends "email/_base/body.html" %}
 
+{% set domain = request.registry.settings.get('warehouse.domain') %}
 
 {% block content %}
   <p>
     {% trans token_owner_username=token_owner_username, project_name=project_name,
-    account_href=request.route_url('accounts.profile', username=token_owner_username),
-    project_href=request.route_url('packaging.project', name=project_name)
+    account_href=request.route_url('accounts.profile', username=token_owner_username, _host=domain),
+    project_href=request.route_url('packaging.project', name=project_name, _host=domain)
     %}
       An API token belonging to user <a href="{{ account_href }}">{{ token_owner_username }}</a>
       was used to upload files to the project
@@ -29,7 +30,7 @@
     {% endtrans %}
   </p>
   <p>
-    {% trans href=request.route_url('manage.account'), token_name=token_name %}
+    {% trans href=request.route_url('manage.account', _host=domain), token_name=token_name %}
       If you are the owner of this token, you can delete it by going to your
       <a href="{{ href }}#api-tokens">API tokens configuration</a> and deleting the token named
       <strong>{{ token_name }}</strong>.
