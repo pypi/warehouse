@@ -3,4 +3,3 @@ hupper>=1.9
 pip-tools>=1.0
 pyramid_debugtoolbar>=2.5
 pip-api
-repository-service-tuf
