@@ -27,8 +27,8 @@ Warehouse follows the `WCAG 2.0 AA standard <https://www.w3.org/TR/WCAG20/>`_.
 When working on the UI:
 
 - Ensure contrast is high, particularly on text. This can be checked:
-   - On Chrome by installing `Accessibility Developer Tools
-     <https://bit.ly/1ikZ68B>`_
+   - On Chrome by using `DevTools Accessibility features
+     <https://developer.chrome.com/docs/devtools/accessibility/contrast>`_
    - On Firefox by installing the `WCAG Contrast Checker
      <https://addons.mozilla.org/en-US/firefox/addon/wcag-contrast-checker/>`_
 - Write `semantic HTML <https://en.wikipedia.org/wiki/Semantic_HTML>`_
