@@ -228,9 +228,9 @@ psycopg==3.1.19 \
     --hash=sha256:92d7b78ad82426cdcf1a0440678209faa890c6e1721361c2f8901f0dccd62961 \
     --hash=sha256:dca5e5521c859f6606686432ae1c94e8766d29cc91f2ee595378c510cc5b0731
     # via pytest-postgresql
-pytest==8.2.0 \
-    --hash=sha256:1733f0620f6cda4095bbf0d9ff8022486e91892245bb9e7d5542c018f612f233 \
-    --hash=sha256:d507d4482197eac0ba2bae2e9babf0672eb333017bcedaa5fb1a3d42c1174b3f
+pytest==8.2.1 \
+    --hash=sha256:5046e5b46d8e4cac199c373041f26be56fdb81eb4e67dc11d4e10811fc3408fd \
+    --hash=sha256:faccc5d332b8c3719f40283d0d44aa5cf101cec36f88cde9ed8f2bc0538612b1
     # via
     #   -r requirements/tests.in
     #   pytest-icdiff
