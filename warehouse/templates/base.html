@@ -12,6 +12,33 @@
  # limitations under the License.
 -#}
 
+{% macro input_field_label(user_friendly_name, form_instance) -%}
+<label for="{{form_instance.name}}" class="form-group__label">
+  {% trans form_name=user_friendly_name %}{{ form_name }}{% endtrans %}
+  {% if form_instance.flags.required %}
+  <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
+  {% endif %}
+</label>
+{% endmacro %}
+
+{% macro input_field_errors(name, form_instance) -%}
+<div id="{{name}}-errors">
+  {% if form_instance.errors %}
+  <ul class="form-errors" role="alert">
+    {% for error in form_instance.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+{% endmacro %}
+
+{% macro input_field(name, user_friendly_name, form_instance, placeholder, autocomplete="", required=True, data_action="", data_target="") -%}
+  {{ input_field_label(user_friendly_name, form_instance) }}
+  {{ form_instance(placeholder=gettext(placeholder), autocapitalize="off", autocomplete=autocomplete, spellcheck="false", required=required, data_target=data_target, data_action=data_action, class_="form-group__field", **{"aria-describedby":name + "-errors"}) }}
+  {{ input_field_errors(name, form_instance) }}
+{% endmacro %}
+
 {% macro humanize(timestamp, relative="true", time="false") -%}
 <time datetime="{{ timestamp|format_datetime('yyyy-MM-ddTHH:mm:ssZ') }}" data-controller="localized-time" data-localized-time-relative="{{ relative }}" data-localized-time-show-time="{{ time }}">
   {{ timestamp|format_date()}}
