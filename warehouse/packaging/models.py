@@ -29,6 +29,7 @@ from sqlalchemy import (
     FetchedValue,
     ForeignKey,
     Index,
+    Integer,
     String,
     Text,
     UniqueConstraint,
