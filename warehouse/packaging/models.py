@@ -40,7 +40,13 @@ from sqlalchemy import (
     select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID, REGCLASS
+from sqlalchemy.dialects.postgresql import (
+    ARRAY,
+    CITEXT,
+    ENUM,
+    REGCLASS,
+    UUID as PG_UUID,
+)
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
