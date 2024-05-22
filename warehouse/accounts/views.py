@@ -1250,7 +1250,14 @@ def verify_project_role(request):
 
     request.db.add(Role(user=user, project=project, role_name=desired_role))
     request.db.delete(role_invite)
-
+    request.db.add(
+        JournalEntry.create_with_lock(
+            request.db,
+            name=project.name,
+            action=f"accepted {desired_role} {user.username}",
+            submitted_by=request.user,
+        )
+    )
     project.record_event(
         tag=EventTag.Project.RoleAdd,
         request=request,

@@ -518,6 +518,20 @@ def change_team_project_role(project, request, _form_class=ChangeTeamProjectRole
                     queue="error",
                 )
             else:
+                # Add journal entry.
+                request.db.add(
+                    JournalEntry.create_with_lock(
+                        request.db,
+                        name=project.name,
+                        action="change {} {} to {}".format(
+                            role.role_name.value,
+                            role.team.name,
+                            form.team_project_role_name.data.value,
+                        ),
+                        submitted_by=request.user,
+                    )
+                )
+
                 # Change team project role.
                 role.role_name = form.team_project_role_name.data
 
@@ -613,6 +627,16 @@ def delete_team_project_role(project, request):
 
             # Delete role.
             request.db.delete(role)
+
+            # Add journal entry.
+            request.db.add(
+                JournalEntry.create_with_lock(
+                    request.db,
+                    name=project.name,
+                    action=f"remove {role_name.value} {team.name}",
+                    submitted_by=request.user,
+                )
+            )
 
             # Record event.
             project.record_event(

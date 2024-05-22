@@ -39,6 +39,7 @@ from warehouse.organizations.models import (
     TeamProjectRoleType,
     TeamRoleType,
 )
+from warehouse.packaging.models import JournalEntry
 from warehouse.utils.paginate import paginate_url_factory
 
 
@@ -823,6 +824,16 @@ class TestChangeTeamProjectRole:
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
 
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+
+        assert entry.name == organization_project.name
+        assert entry.action == f"change Owner {organization_team.name} to Maintainer"
+        assert entry.submitted_by == db_request.user
+
     def test_change_role_invalid_role_name(self, pyramid_request, organization_project):
         pyramid_request.method = "POST"
         pyramid_request.POST = MultiDict(
@@ -998,6 +1009,16 @@ class TestDeleteTeamProjectRole:
         ]
         assert isinstance(result, HTTPSeeOther)
         assert result.headers["Location"] == "/the-redirect"
+
+        entry = (
+            db_request.db.query(JournalEntry)
+            .options(joinedload(JournalEntry.submitted_by))
+            .one()
+        )
+
+        assert entry.name == organization_project.name
+        assert entry.action == f"remove Owner {organization_team.name}"
+        assert entry.submitted_by == db_request.user
 
     def test_delete_missing_role(self, db_request, organization_project):
         missing_role_id = str(uuid.uuid4())

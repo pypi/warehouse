@@ -562,7 +562,17 @@ class ProjectService:
         # Mark the creator as the newly created project's owner, if configured.
         if creator_is_owner:
             self.db.add(Role(user=creator, project=project, role_name="Owner"))
-
+            # TODO: This should be handled by some sort of database trigger or a
+            #       SQLAlchemy hook or the like instead of doing it inline in this
+            #       service.
+            self.db.add(
+                JournalEntry.create_with_lock(
+                    request.db,
+                    name=project.name,
+                    action=f"add Owner {creator.username}",
+                    submitted_by=creator,
+                )
+            )
             project.record_event(
                 tag=EventTag.Project.RoleAdd,
                 request=request,
