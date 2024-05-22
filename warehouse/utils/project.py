@@ -70,8 +70,7 @@ def remove_project(project, request, flash=True):
     #       some kind of garbage collection at some point.
 
     request.db.add(
-        JournalEntry.create_with_lock(
-            request.db,
+        JournalEntry(
             name=project.name,
             action="remove project",
             submitted_by=request.user,

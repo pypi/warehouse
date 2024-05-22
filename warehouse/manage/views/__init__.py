@@ -1992,8 +1992,7 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry.create_with_lock(
-                self.request.db,
+            JournalEntry(
                 name=self.release.project.name,
                 action="yank release",
                 version=self.release.version,
@@ -2078,8 +2077,7 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry.create_with_lock(
-                self.request.db,
+            JournalEntry(
                 name=self.release.project.name,
                 action="unyank release",
                 version=self.release.version,
@@ -2180,8 +2178,7 @@ class ManageProjectRelease:
         )
 
         self.request.db.add(
-            JournalEntry.create_with_lock(
-                self.request.db,
+            JournalEntry(
                 name=self.release.project.name,
                 action="remove release",
                 version=self.release.version,
@@ -2273,8 +2270,7 @@ class ManageProjectRelease:
             )
 
         self.request.db.add(
-            JournalEntry.create_with_lock(
-                self.request.db,
+            JournalEntry(
                 name=self.release.project.name,
                 action=f"remove file {release_file.filename}",
                 version=self.release.version,

@@ -211,8 +211,7 @@ def _nuke_user(user, request):
     )
     for project in projects:
         request.db.add(
-            JournalEntry.create_with_lock(
-                request.db,
+            JournalEntry(
                 name=project.name,
                 action="remove project",
                 submitted_by=request.user,
