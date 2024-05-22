@@ -69,7 +69,7 @@ from warehouse.organizations.models import (
     OrganizationType,
 )
 from warehouse.packaging import IProjectService, Project, Role
-from warehouse.packaging.models import ProjectFactory
+from warehouse.packaging.models import JournalEntry, ProjectFactory
 from warehouse.subscriptions import IBillingService, ISubscriptionService
 from warehouse.subscriptions.services import MockStripeBillingService
 from warehouse.utils.organization import confirm_organization
@@ -745,8 +745,7 @@ class ManageOrganizationProjectsViews:
             if role:
                 self.request.db.delete(role)
                 self.request.db.add(
-                    JournalEntry.create_with_lock(
-                        self.request.db,
+                    JournalEntry(
                         name=project.name,
                         action=f"remove {role.role_name} {role.user.username}",
                         submitted_by=self.request.user,
@@ -1522,8 +1521,7 @@ def transfer_organization_project(project, request):
     if role:
         request.db.delete(role)
         request.db.add(
-            JournalEntry.create_with_lock(
-                request.db,
+            JournalEntry(
                 name=project.name,
                 action=f"remove {role.role_name} {role.user.username}",
                 submitted_by=request.user,

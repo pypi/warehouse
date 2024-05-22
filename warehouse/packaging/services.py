@@ -566,8 +566,7 @@ class ProjectService:
             #       SQLAlchemy hook or the like instead of doing it inline in this
             #       service.
             self.db.add(
-                JournalEntry.create_with_lock(
-                    request.db,
+                JournalEntry(
                     name=project.name,
                     action=f"add Owner {creator.username}",
                     submitted_by=creator,
