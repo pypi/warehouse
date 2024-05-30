@@ -871,8 +871,8 @@ class JournalEntry(db.ModelBase):
     submitted_by: Mapped[User] = orm.relationship(lazy="raise_on_sql")
 
 
-@db.listens_for(JournalEntry, "before_insert")
-def ensure_monotonic_journals(config, mapper, connection, target):
+@db.listens_for(db.Session, "before_flush")
+def ensure_monotonic_journals(config, session, flush_context, instances):
     # We rely on `journals.id` to be a monotonically increasing integer,
     # however the way that SERIAL is implemented, it does not guarentee
     # that is the case.
@@ -885,14 +885,17 @@ def ensure_monotonic_journals(config, mapper, connection, target):
     # The way this works, not even the SERIALIZABLE transaction types give
     # us this property. Instead we have to implement our own locking that
     # ensures that each new journal entry will be serialized.
-    connection.execute(
-        select(
-            func.pg_advisory_xact_lock(
-                cast(cast(target.__tablename__, REGCLASS), Integer),
-                _MONOTONIC_SEQUENCE,
+    for obj in session.new:
+        if isinstance(obj, JournalEntry):
+            session.execute(
+                select(
+                    func.pg_advisory_xact_lock(
+                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                        _MONOTONIC_SEQUENCE,
+                    )
+                )
             )
-        )
-    )
+            return
 
 
 class ProhibitedProjectName(db.Model):
