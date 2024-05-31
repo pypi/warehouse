@@ -120,6 +120,7 @@ def test_raises_db_available_error(pyramid_services, metrics):
     request = pretend.stub(
         find_service=pyramid_services.find_service,
         registry={"sqlalchemy.engine": engine},
+        environ={},
     )
 
     with pytest.raises(DatabaseNotAvailableError):
@@ -151,6 +152,7 @@ def test_create_session(monkeypatch, pyramid_services):
         registry={"sqlalchemy.engine": engine},
         tm=pretend.stub(),
         add_finished_callback=pretend.call_recorder(lambda callback: None),
+        environ={},
     )
 
     request2 = pretend.stub()
@@ -212,6 +214,7 @@ def test_create_session_read_only_mode(
         tm=pretend.stub(doom=pretend.call_recorder(lambda: None)),
         add_finished_callback=lambda callback: None,
         user=pretend.stub(is_superuser=is_superuser),
+        environ={},
     )
 
     assert _create_session(request) is session_obj
