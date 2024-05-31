@@ -30,6 +30,7 @@ from webob.multidict import MultiDict
 from warehouse import views
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
+from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
     SecurityKeyGiveaway,
     current_user_indicator,
@@ -366,6 +367,10 @@ class TestIndex:
             python_version="source",
         )
         UserFactory.create()
+
+        # Make sure that the task to update the database counts has been
+        # called.
+        compute_row_counts(db_request)
 
         assert index(db_request) == {
             "num_projects": 1,
