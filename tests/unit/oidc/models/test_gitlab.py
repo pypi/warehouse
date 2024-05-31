@@ -80,6 +80,7 @@ class TestGitLabPublisher:
             "project_visibility",
             "jti",
             "user_access_level",
+            "groups_direct",
         }
 
     def test_gitlab_publisher_computed_properties(self):

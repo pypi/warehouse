@@ -19,8 +19,17 @@ from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
 from warehouse.authnz import Permissions
+from warehouse.macaroons import caveats
+from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import TeamProjectRoleType
-from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
+from warehouse.packaging.models import (
+    File,
+    Project,
+    ProjectFactory,
+    ProjectMacaroonWarningAssociation,
+    ReleaseURL,
+)
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
@@ -260,6 +269,103 @@ class TestProject:
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
+
+    def test_deletion_with_trusted_publisher(self, db_session):
+        """
+        When we remove a Project, ensure that we also remove the related
+        Publisher Association, but not the Publisher itself.
+        """
+        project = DBProjectFactory.create()
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert db_session.query(GitHubPublisher).filter_by(id=publisher.id).count() == 1
+
+    def test_deletion_project_with_macaroon_warning(self, db_session, macaroon_service):
+        """
+        When we remove a Project, ensure that we also remove any related
+        warnings about the use of API tokens from the ProjectMacaroonWarningAssociation
+        table
+        """
+        project = DBProjectFactory.create()
+        owner = DBRoleFactory.create()
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(owner.user.id))],
+            user_id=owner.user.id,
+        )
+
+        db_session.add(
+            ProjectMacaroonWarningAssociation(
+                macaroon_id=macaroon.id,
+                project_id=project.id,
+            )
+        )
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(project_id=project.id)
+            .count()
+            == 1
+        )
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(project_id=project.id)
+            .count()
+            == 0
+        )
+
+    def test_deletion_macaroon_with_macaroon_warning(
+        self, db_session, macaroon_service
+    ):
+        """
+        When we remove a Macaroon, ensure that we also remove any related
+        warnings about the use of API tokens from the ProjectMacaroonWarningAssociation
+        table
+        """
+        project = DBProjectFactory.create()
+        owner = DBRoleFactory.create()
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(owner.user.id))],
+            user_id=owner.user.id,
+        )
+
+        db_session.add(
+            ProjectMacaroonWarningAssociation(
+                macaroon_id=macaroon.id,
+                project_id=project.id,
+            )
+        )
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(macaroon_id=macaroon.id)
+            .count()
+            == 1
+        )
+
+        db_session.delete(macaroon)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Macaroon).filter_by(id=macaroon.id).count() == 0
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(macaroon_id=macaroon.id)
+            .count()
+            == 0
+        )
 
 
 class TestDependency:

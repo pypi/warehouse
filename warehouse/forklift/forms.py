@@ -12,10 +12,6 @@
 
 import re
 
-import packaging.requirements
-import packaging.specifiers
-import packaging.utils
-import packaging.version
 import wtforms
 import wtforms.validators
 
@@ -28,17 +24,6 @@ _filetype_extension_mapping = {
 }
 
 
-def _validate_pep440_version(form, field):
-    # Check that this version is a valid PEP 440 version at all.
-    try:
-        packaging.version.parse(field.data)
-    except packaging.version.InvalidVersion:
-        raise wtforms.validators.ValidationError(
-            "Start and end with a letter or numeral containing only "
-            "ASCII numeric and '.', '_' and '-'."
-        )
-
-
 # NOTE: This form validation runs prior to ensuring that the current identity
 #       is authorized to upload for the given project, so it should not validate
 #       against anything other than what the user themselves have provided.
@@ -47,8 +32,8 @@ def _validate_pep440_version(form, field):
 #       occur elsewhere so that they can happen after we've authorized the request
 #       to upload for the given project.
 class UploadForm(forms.Form):
-    # The name and version fields are duplicated out of the general metadata handling,
-    # to be part of the upload form as well so that we can use them prior to extracting
+    # The name field is duplicated out of the general metadata handling, to be
+    # part of the upload form as well so that we can use it prior to extracting
     # the metadata from the uploaded artifact.
     #
     # NOTE: We don't need to fully validate these values here, as we will be validating
@@ -66,17 +51,6 @@ class UploadForm(forms.Form):
                     "only ASCII numeric and '.', '_' and '-'."
                 ),
             ),
-        ],
-    )
-    version = wtforms.StringField(
-        description="Version",
-        validators=[
-            wtforms.validators.InputRequired(),
-            wtforms.validators.Regexp(
-                r"^(?!\s).*(?<!\s)$",
-                message="Can't have leading or trailing whitespace.",
-            ),
-            _validate_pep440_version,
         ],
     )
 

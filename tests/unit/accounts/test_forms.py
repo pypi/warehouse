@@ -561,13 +561,22 @@ class TestRegistrationForm:
             "different email."
         )
 
-    def test_prohibited_email_error(self, db_request):
+    @pytest.mark.parametrize(
+        "email",
+        [
+            "foo@wutang.net",
+            "foo@clan.wutang.net",
+            "foo@one.two.wutang.net",
+            "foo@wUtAnG.net",
+        ],
+    )
+    def test_prohibited_email_error(self, db_request, email):
         domain = ProhibitedEmailDomain(domain="wutang.net")
         db_request.db.add(domain)
 
         form = forms.RegistrationForm(
             request=db_request,
-            formdata=MultiDict({"email": "foo@wutang.net"}),
+            formdata=MultiDict({"email": email}),
             user_service=pretend.stub(
                 find_userid_by_email=pretend.call_recorder(lambda _: None)
             ),
@@ -576,6 +585,7 @@ class TestRegistrationForm:
         )
 
         assert not form.validate()
+        assert form.email.errors
         assert (
             str(form.email.errors.pop())
             == "You can't use an email address from this domain. Use a "
@@ -755,6 +765,22 @@ class TestRegistrationForm:
             == "The name is too long. Choose a name with 100 characters or less."
         )
 
+    def test_name_contains_null_bytes(self, pyramid_config):
+        form = forms.RegistrationForm(
+            request=pretend.stub(),
+            formdata=MultiDict({"full_name": "hello\0world"}),
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+        )
+        assert not form.validate()
+        assert form.full_name.errors.pop() == "Null bytes are not allowed."
+
 
 class TestRequestPasswordResetForm:
     @pytest.mark.parametrize(
@@ -775,7 +801,7 @@ class TestRequestPasswordResetForm:
         form = forms.RequestPasswordResetForm()
         assert "password" not in form._fields
 
-    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net"])
+    @pytest.mark.parametrize("form_input", ["_username", "foo@bar@net", "foo@"])
     def test_validate_with_invalid_inputs(self, form_input):
         form = forms.RequestPasswordResetForm()
         field = pretend.stub(data=form_input)

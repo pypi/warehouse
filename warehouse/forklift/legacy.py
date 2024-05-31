@@ -39,19 +39,20 @@ from pyramid.httpexceptions import (
     HTTPTooManyRequests,
 )
 from pyramid.view import view_config
-from sqlalchemy import func, orm
+from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
-    send_gpg_signature_uploaded_email,
+    send_api_token_used_in_trusted_publisher_project_email,
     send_two_factor_not_yet_enabled_email,
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
+from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
@@ -62,6 +63,7 @@ from warehouse.packaging.models import (
     Filename,
     JournalEntry,
     Project,
+    ProjectMacaroonWarningAssociation,
     Release,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -449,7 +451,8 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however,
+    # and we don't care about the legacy gpg_signature field.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
@@ -607,6 +610,36 @@ def file_upload(request):
             )
         raise _exc_with_message(HTTPForbidden, msg)
 
+    # If this is a user identity (i.e: API token) but there exists
+    # a trusted publisher for this project, send an email warning that an
+    # API token was used to upload a project where Trusted Publishing is configured.
+    # Only do this once per (API token, project) combination.
+    if request.user and project.oidc_publishers:
+        macaroon: Macaroon = request.identity.macaroon
+        # If we haven't warned about use of this particular API token and project
+        # combination, send the warning email
+        warning_exists = request.db.query(
+            exists().where(
+                and_(
+                    ProjectMacaroonWarningAssociation.macaroon_id == macaroon.id,
+                    ProjectMacaroonWarningAssociation.project_id == project.id,
+                )
+            )
+        ).scalar()
+        if not warning_exists:
+            send_api_token_used_in_trusted_publisher_project_email(
+                request,
+                set(project.users),
+                project_name=project.name,
+                token_owner_username=request.user.username,
+                token_name=macaroon.description,
+            )
+            request.db.add(
+                ProjectMacaroonWarningAssociation(
+                    macaroon_id=macaroon.id,
+                    project_id=project.id,
+                )
+            )
     # Update name if it differs but is still equivalent. We don't need to check if
     # they are equivalent when normalized because that's already been done when we
     # queried for the project.
@@ -660,7 +693,7 @@ def file_upload(request):
         release = (
             request.db.query(Release)
             .filter(
-                (Release.project == project) & (Release.version == form.version.data)
+                (Release.project == project) & (Release.version == str(meta.version))
             )
             .one()
         )
@@ -736,17 +769,6 @@ def file_upload(request):
         )
         request.db.add(release)
 
-        if "gpg_signature" in request.POST:
-            warnings.append(
-                "GPG signature support has been removed from PyPI and the "
-                "provided signature has been discarded."
-            )
-            send_gpg_signature_uploaded_email(
-                request,
-                request.user if request.user else project.users,
-                project_name=project.name,
-            )
-
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -797,44 +819,6 @@ def file_upload(request):
 
     # Ensure the filename doesn't contain any characters that are too 🌶️spicy🥵
     _validate_filename(filename, filetype=form.filetype.data)
-
-    # Extract the project name from the filename and normalize it.
-    filename_prefix = (
-        # For wheels, the project name is normalized and won't contain hyphens, so
-        # we can split on the first hyphen.
-        filename.partition("-")[0]
-        if filename.endswith(".whl")
-        # For source releases, the version might contain a hyphen as a
-        # post-release separator, so we get the prefix by removing the provided
-        # version.
-        # Per 625, the version should be normalized, but we aren't currently
-        # enforcing this, so we permit a filename with either the exact
-        # provided version if it contains a hyphen, or any version that doesn't
-        # contain a hyphen.
-        else (
-            # A hyphen is being used for a post-release separator, so partition
-            # the prefix twice
-            filename.rpartition("-")[0].rpartition("-")[0]
-            # Check if the provided version contains a hyphen and the same
-            # version is being used in the filename
-            if "-" in form.version.data
-            and filename.endswith(f"-{form.version.data}.tar.gz")
-            # The only hyphen should be between the prefix and the version, so
-            # we only need to partition the prefix once
-            else filename.rpartition("-")[0]
-        )
-    )
-
-    # Normalize the prefix in the filename. Eventually this should be unnecessary once
-    # we become more restrictive in what we permit
-    filename_prefix = filename_prefix.lower().replace(".", "_").replace("-", "_")
-
-    # Make sure that our filename matches the project that it is being uploaded to.
-    if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Start filename for {project.name!r} with {prefix!r}.",
-        )
 
     # Check the content type of what is being uploaded
     if not request.POST["content"].type or request.POST["content"].type.startswith(
@@ -961,10 +945,63 @@ def file_upload(request):
         if not _is_valid_dist_file(temporary_filename, form.filetype.data):
             raise _exc_with_message(HTTPBadRequest, "Invalid distribution file.")
 
+        # Check that the sdist filename is correct
+        if filename.endswith(".tar.gz"):
+            # Extract the project name and version from the filename and check it.
+            # Per PEP 625, both should be normalized, but we aren't currently
+            # enforcing this, so we permit a filename with a project name and
+            # version that normalizes to be what we expect
+
+            try:
+                name, version = packaging.utils.parse_sdist_filename(filename)
+            except packaging.utils.InvalidSdistFilename:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid source distribution filename: {filename}",
+                )
+
+            # The previous function fails to accomodate the edge case where
+            # versions may contain hyphens, so we handle that here based on
+            # what we were expecting
+            if (
+                meta.version.is_postrelease
+                and name != packaging.utils.canonicalize_name(meta.name)
+            ):
+                # The distribution is a source distribution, the version is a
+                # postrelease, and the project name doesn't match, so
+                # there may be a hyphen in the version. Split the filename on the
+                # second to last hyphen instead.
+                name = filename.rpartition("-")[0].rpartition("-")[0]
+                version = packaging.version.Version(
+                    filename[len(name) + 1 : -len(".tar.gz")]
+                )
+
+            # Normalize the prefix in the filename. Eventually this should be
+            # unnecessary once we become more restrictive in what we permit
+            filename_prefix = name.lower().replace(".", "_").replace("-", "_")
+
+            # Make sure that our filename matches the project that it is being
+            # uploaded to.
+            if (prefix := project.normalized_name.replace("-", "_")) != filename_prefix:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Start filename for {project.name!r} with {prefix!r}.",
+                )
+
+            # Make sure that the version in the filename matches the metadata
+            if version != meta.version:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Version in filename should be {str(meta.version)!r} not "
+                    f"{str(version)!r}.",
+                )
+
         # Check that if it's a binary wheel, it's on a supported platform
         if filename.endswith(".whl"):
             try:
-                _, __, ___, tags = packaging.utils.parse_wheel_filename(filename)
+                name, version, ___, tags = packaging.utils.parse_wheel_filename(
+                    filename
+                )
             except packaging.utils.InvalidWheelFilename as e:
                 raise _exc_with_message(
                     HTTPBadRequest,
@@ -978,6 +1015,20 @@ def file_upload(request):
                         f"Binary wheel '{filename}' has an unsupported "
                         f"platform tag '{tag.platform}'.",
                     )
+
+            if (canonical_name := packaging.utils.canonicalize_name(meta.name)) != name:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Start filename for {project.name!r} with "
+                    f"{canonical_name.replace('-', '_')!r}.",
+                )
+
+            if meta.version != version:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Version in filename should be {str(meta.version)!r} not "
+                    f"{str(version)!r}.",
+                )
 
             """
             Extract METADATA file from a wheel and return it as a content.

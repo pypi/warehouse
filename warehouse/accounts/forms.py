@@ -71,7 +71,7 @@ class PreventNullBytesValidator:
         self.message = message
 
     def __call__(self, form, field):
-        if "\x00" in field.data:
+        if field.data and "\x00" in field.data:
             raise wtforms.validators.StopValidation(self.message)
 
 
@@ -278,14 +278,14 @@ class NewEmailMixin:
     def validate_email(self, field):
         # Additional checks for the validity of the address
         try:
-            Address(addr_spec=field.data)
+            address = Address(addr_spec=field.data)
         except (ValueError, HeaderParseError):
             raise wtforms.validators.ValidationError(
                 self.request._("The email address isn't valid. Try again.")
             )
 
         # Check if the domain is valid
-        domain = field.data.split("@")[-1]
+        domain = ".".join(address.domain.split(".")[-2:]).lower()
 
         if (
             domain in disposable_email_domains.blocklist
@@ -349,7 +349,8 @@ class RegistrationForm(  # type: ignore[misc]
                     "The name is too long. "
                     "Choose a name with 100 characters or less."
                 ),
-            )
+            ),
+            PreventNullBytesValidator(),
         ]
     )
     g_recaptcha_response = wtforms.StringField()
@@ -552,7 +553,7 @@ class RequestPasswordResetForm(forms.Form):
             # Additional checks for the validity of the address
             try:
                 Address(addr_spec=field.data)
-            except (ValueError, HeaderParseError):
+            except (IndexError, ValueError, HeaderParseError):
                 raise wtforms.validators.ValidationError(
                     message=INVALID_PASSWORD_MESSAGE
                 )

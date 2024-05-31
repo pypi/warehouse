@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans site=request.registry.settings["site.name"] %}Unsupported GPG signature uploaded to {{ site }}{% endtrans %}{% endblock %}
+{% block subject %}{% trans project_name=project_name %}API token used to upload to project {{ project_name }} despite Trusted Publishing enabled{% endtrans %}{% endblock %}
