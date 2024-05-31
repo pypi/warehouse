@@ -31,7 +31,6 @@ from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 
 from warehouse.accounts.utils import UserTokenContext
-from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -90,22 +89,6 @@ _TAR_BZ2_PKG_TESTDATA = _get_tar_testdata("bz2")
 _TAR_BZ2_PKG_MD5 = hashlib.md5(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_SHA256 = hashlib.sha256(_TAR_BZ2_PKG_TESTDATA).hexdigest()
 _TAR_BZ2_PKG_STORAGE_HASH = _storage_hash(_TAR_BZ2_PKG_TESTDATA)
-
-
-class TestExcWithMessage:
-    def test_exc_with_message(self):
-        exc = legacy._exc_with_message(HTTPBadRequest, "My Test Message.")
-        assert isinstance(exc, HTTPBadRequest)
-        assert exc.status_code == 400
-        assert exc.status == "400 My Test Message."
-
-    def test_exc_with_exotic_message(self):
-        exc = legacy._exc_with_message(
-            HTTPBadRequest, "look at these wild chars: аÃ¤â€—"
-        )
-        assert isinstance(exc, HTTPBadRequest)
-        assert exc.status_code == 400
-        assert exc.status == "400 look at these wild chars: ?Ã¤â??"
 
 
 def test_construct_dependencies():
@@ -398,23 +381,6 @@ class TestIsDuplicateFile:
 
 
 class TestFileUpload:
-    def test_fails_disallow_new_upload(self, pyramid_config, pyramid_request):
-        pyramid_request.flags = pretend.stub(
-            enabled=lambda value: value == AdminFlagValue.DISALLOW_NEW_UPLOAD
-        )
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-        pyramid_request.user = pretend.stub(primary_email=pretend.stub(verified=True))
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 New uploads are temporarily disabled. "
-            "See /the/help/url/ for more information."
-        )
 
     @pytest.mark.parametrize("version", ["2", "3", "-1", "0", "dog", "cat"])
     def test_fails_invalid_version(self, pyramid_config, pyramid_request, version):
@@ -604,28 +570,6 @@ class TestFileUpload:
                 "'summary' must be a single line. See "
                 "https://packaging.python.org/specifications/core-metadata for more "
                 "information.",
-            ),
-            # classifiers are a FieldStorage
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
-                    "filetype": "sdist",
-                    "classifiers": FieldStorage(),
-                },
-                "classifiers: Should not be a tuple.",
-            ),
-            # keywords are a FieldStorage
-            (
-                {
-                    "metadata_version": "1.2",
-                    "name": "example",
-                    "version": "1.0",
-                    "filetype": "sdist",
-                    "keywords": FieldStorage(),
-                },
-                "keywords: Should not be a tuple.",
             ),
         ],
     )
@@ -859,50 +803,6 @@ class TestFileUpload:
             "for more information."
         ).format(name)
 
-    def test_fails_with_admin_flag_set(self, pyramid_config, db_request):
-        admin_flag = (
-            db_request.db.query(AdminFlag)
-            .filter(
-                AdminFlag.id == AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION.value
-            )
-            .first()
-        )
-        admin_flag.enabled = True
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        name = "fails-with-admin-flag"
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": name,
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-                "content": pretend.stub(
-                    filename=f"{name}-1.0.tar.gz",
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(db_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 New project registration temporarily "
-            "disabled. See "
-            "/the/help/url/ for "
-            "more information."
-        )
-
     def test_upload_fails_without_file(self, pyramid_config, db_request):
         user = UserFactory.create()
         EmailFactory.create(user=user)
@@ -925,48 +825,6 @@ class TestFileUpload:
 
         assert resp.status_code == 400
         assert resp.status == "400 Upload payload does not have a file."
-
-    @pytest.mark.parametrize("value", [("UNKNOWN"), ("UNKNOWN\n\n")])
-    def test_upload_cleans_unknown_values(self, pyramid_config, db_request, value):
-        user = UserFactory.create()
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        EmailFactory.create(user=user)
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": value,
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            legacy.file_upload(db_request)
-
-        assert "name" not in db_request.POST
-
-    def test_upload_escapes_nul_characters(self, pyramid_config, db_request):
-        user = UserFactory.create()
-        EmailFactory.create(user=user)
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "testing",
-                "summary": "I want to go to the \x00",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": "a fake md5 digest",
-            }
-        )
-
-        with pytest.raises(HTTPBadRequest):
-            legacy.file_upload(db_request)
-
-        assert "\x00" not in db_request.POST["summary"]
 
     @pytest.mark.parametrize("token_context", [True, False])
     @pytest.mark.parametrize(
@@ -3778,80 +3636,6 @@ class TestFileUpload:
             pretend.call(db_request, user),
         ]
 
-    @pytest.mark.parametrize(
-        ("emails_verified", "expected_success"),
-        [
-            ([], False),
-            ([True], True),
-            ([False], False),
-            ([True, True], True),
-            ([True, False], True),
-            ([False, False], False),
-            ([False, True], False),
-        ],
-    )
-    def test_upload_requires_verified_email(
-        self,
-        pyramid_config,
-        db_request,
-        emails_verified,
-        expected_success,
-        metrics,
-        project_service,
-    ):
-        user = UserFactory.create()
-        for i, verified in enumerate(emails_verified):
-            EmailFactory.create(user=user, verified=verified, primary=i == 0)
-
-        filename = "{}-{}.tar.gz".format("example", "1.0")
-
-        pyramid_config.testing_securitypolicy(identity=user)
-        db_request.user = user
-        db_request.POST = MultiDict(
-            {
-                "metadata_version": "1.2",
-                "name": "example",
-                "version": "1.0",
-                "filetype": "sdist",
-                "md5_digest": _TAR_GZ_PKG_MD5,
-                "content": pretend.stub(
-                    filename=filename,
-                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
-                    type="application/tar",
-                ),
-            }
-        )
-
-        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
-        db_request.find_service = lambda svc, name=None, context=None: {
-            IFileStorage: storage_service,
-            IMetricsService: metrics,
-            IProjectService: project_service,
-        }.get(svc)
-        db_request.user_agent = "warehouse-tests/6.6.6"
-
-        if expected_success:
-            resp = legacy.file_upload(db_request)
-            assert resp.status_code == 200
-        else:
-            db_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-
-            with pytest.raises(HTTPBadRequest) as excinfo:
-                legacy.file_upload(db_request)
-
-            resp = excinfo.value
-
-            assert db_request.help_url.calls == [pretend.call(_anchor="verified-email")]
-            assert resp.status_code == 400
-            assert resp.status == (
-                (
-                    "400 User {!r} does not have a verified primary email "
-                    "address. Please add a verified primary email before "
-                    "attempting to upload to PyPI. See /the/help/url/ for "
-                    "more information."
-                ).format(user.username)
-            )
-
     def test_upload_purges_legacy(
         self,
         pyramid_config,
@@ -3893,33 +3677,6 @@ class TestFileUpload:
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-
-    def test_fails_in_read_only_mode(self, pyramid_request):
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: True)
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == ("403 Read-only mode: Uploads are temporarily disabled.")
-
-    def test_fails_without_user(self, pyramid_config, pyramid_request):
-        pyramid_request.flags = pretend.stub(enabled=lambda *a: False)
-        pyramid_request.help_url = pretend.call_recorder(lambda **kw: "/the/help/url/")
-        pyramid_config.testing_securitypolicy(userid=None)
-
-        with pytest.raises(HTTPForbidden) as excinfo:
-            legacy.file_upload(pyramid_request)
-
-        resp = excinfo.value
-
-        assert resp.status_code == 403
-        assert resp.status == (
-            "403 Invalid or non-existent authentication information. "
-            "See /the/help/url/ for more information."
-        )
 
     @pytest.mark.parametrize(
         # The only case where we expect the warning email to be sent is the first one:

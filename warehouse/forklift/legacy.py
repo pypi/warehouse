@@ -18,8 +18,6 @@ import tarfile
 import tempfile
 import zipfile
 
-from cgi import FieldStorage
-
 import packaging.requirements
 import packaging.specifiers
 import packaging.utils
@@ -42,7 +40,6 @@ from pyramid.view import view_config
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
-from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
@@ -51,7 +48,9 @@ from warehouse.email import (
 )
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
+from warehouse.forklift.decorators import ensure_uploads_allowed, sanitize
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
+from warehouse.forklift.utils import _exc_with_message
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
@@ -182,18 +181,6 @@ def _valid_platform_tag(platform_tag):
 _error_message_order = ["metadata-version", "name", "version"]
 
 _dist_file_re = re.compile(r".+?(?P<extension>\.(tar\.gz|zip|whl))$", re.I)
-
-
-def _exc_with_message(exc, message, **kwargs):
-    # The crappy old API that PyPI offered uses the status to pass down
-    # messages to the client. So this function will make that easier to do.
-    resp = exc(detail=message, **kwargs)
-    # We need to guard against characters outside of iso-8859-1 per RFC.
-    # Specifically here, where user-supplied text may appear in the message,
-    # which our WSGI server may not appropriately handle (indeed gunicorn does not).
-    status_message = message.encode("iso-8859-1", "replace").decode("iso-8859-1")
-    resp.status = f"{resp.status_code} {status_message}"
-    return resp
 
 
 def _construct_dependencies(meta: metadata.Metadata, types):
@@ -373,92 +360,20 @@ def _is_duplicate_file(db_session, filename, hashes):
     require_csrf=False,
     require_methods=["POST"],
     has_translations=True,
+    decorator=[sanitize, ensure_uploads_allowed],
 )
 def file_upload(request):
     # This is a list of warnings that we'll emit *IF* the request is successful.
     warnings = []
 
-    # If we're in read-only mode, let upload clients know
-    if request.flags.enabled(AdminFlagValue.READ_ONLY):
-        raise _exc_with_message(
-            HTTPForbidden, "Read-only mode: Uploads are temporarily disabled."
-        )
-
-    if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_UPLOAD):
-        raise _exc_with_message(
-            HTTPForbidden,
-            "New uploads are temporarily disabled. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="admin-intervention")
-            ),
-        )
-
     # Log an attempt to upload
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.upload.attempt")
-
-    # Before we do anything, if there isn't an authenticated identity with
-    # this request, then we'll go ahead and bomb out.
-    if request.identity is None:
-        raise _exc_with_message(
-            HTTPForbidden,
-            "Invalid or non-existent authentication information. "
-            "See {projecthelp} for more information.".format(
-                projecthelp=request.help_url(_anchor="invalid-auth")
-            ),
-        )
-
-    # These checks only make sense when our authenticated identity is a user,
-    # not a project identity (like OIDC-minted tokens.)
-    if request.user:
-        # Ensure that user has a verified, primary email address. This should both
-        # reduce the ease of spam account creation and activity, as well as act as
-        # a forcing function for https://github.com/pypa/warehouse/issues/3632.
-        # TODO: Once https://github.com/pypa/warehouse/issues/3632 has been solved,
-        #       we might consider a different condition, possibly looking at
-        #       User.is_active instead.
-        if not (request.user.primary_email and request.user.primary_email.verified):
-            raise _exc_with_message(
-                HTTPBadRequest,
-                (
-                    "User {!r} does not have a verified primary email address. "
-                    "Please add a verified primary email before attempting to "
-                    "upload to PyPI. See {project_help} for more information."
-                ).format(
-                    request.user.username,
-                    project_help=request.help_url(_anchor="verified-email"),
-                ),
-            ) from None
-
-    # Do some cleanup of the various form fields
-    for key in list(request.POST):
-        value = request.POST.get(key)
-        if isinstance(value, str):
-            # distutils "helpfully" substitutes unknown, but "required" values
-            # with the string "UNKNOWN". This is basically never what anyone
-            # actually wants so we'll just go ahead and delete anything whose
-            # value is UNKNOWN.
-            if value.strip() == "UNKNOWN":
-                del request.POST[key]
-
-            # Escape NUL characters, which psycopg doesn't like
-            if "\x00" in value:
-                request.POST[key] = value.replace("\x00", "\\x00")
 
     # We require protocol_version 1, it's the only supported version however
     # passing a different version should raise an error.
     if request.POST.get("protocol_version", "1") != "1":
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
-
-    # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however,
-    # and we don't care about the legacy gpg_signature field.
-    # ref: https://github.com/pypi/warehouse/issues/2185
-    # ref: https://github.com/pypi/warehouse/issues/2491
-    for field in set(request.POST) - {"content", "gpg_signature"}:
-        values = request.POST.getall(field)
-        if any(isinstance(value, FieldStorage) for value in values):
-            raise _exc_with_message(HTTPBadRequest, f"{field}: Should not be a tuple.")
 
     # Validate and process the incoming file data.
     form = UploadForm(request.POST)
