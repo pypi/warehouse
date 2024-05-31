@@ -10,18 +10,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import text
-
 from tests.common.db.accounts import UserFactory
 
 
-def test_user_profile(webtest, db_session):
+def test_user_profile(webtest):
+    """
+    This test is maintained as a POC for future tests that want to add data to
+    the database and test HTTP endpoints afterwards.
+
+    The trick is to use the ``webtest`` fixture which will create a special
+    instance of the Warehouse WSGI app, sharing the same DB session as is active
+    in pytest.
+    """
+    # Create a user
     user = UserFactory.create()
     assert user.username
-    print(f"got user {user.username}", flush=True)
-    result = db_session.execute(text("select * from users"))
-    actual = ["; ".join([f"{s}" for s in row]) for row in result]
-    print(actual, flush=True)
-    # visit user's page
+    # ...and verify that the user's profile page exists
     resp = webtest.get(f"/user/{user.username}/")
     assert resp.status_code == 200

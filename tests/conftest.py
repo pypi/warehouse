@@ -636,19 +636,22 @@ def tm():
 
 @pytest.fixture
 def webtest(app_config, tm, db_session):
-    # TODO: Ensure that we have per test isolation of the database level
-    #       changes. This probably involves flushing the database or something
-    #       between test cases to wipe any committed changes.
-
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
+
+    # Register the transaction manager with the db_session
     zope.sqlalchemy.register(db_session, transaction_manager=tm)
 
+    # Create WSGI app with current test settings
+    # (this could be a fixture)
     app = app_config.make_wsgi_app()
+
+    # Register the app with the external test environment, telling
+    # warehouse.db to use this db_session and use the Transaction manager.
     testapp = _TestApp(
         app,
         extra_environ={
-            "warehouse.db_session": db_session,  # Tell warehouse.db to use this dbsession
+            "warehouse.db_session": db_session,
             "tm.active": True,  # disable pyramid_tm
             "tm.manager": tm,  # pass in our own tm for the app to use
         },
