@@ -12,7 +12,7 @@ Use ``pg_dump`` to create the initial file::
 
 Now create a database locally and load the result::
 
-    createdb warehouse_dev_dump
+    createdb warehouse_dev_dump && \
     psql warehouse_dev_dump < dev/example.sql
 
 With the database loaded, run the clean script to remove personal information::
@@ -21,12 +21,12 @@ With the database loaded, run the clean script to remove personal information::
 
 Dump the result, compress it, and clean up::
 
-    pg_dump --no-owner warehouse_dev_dump > dev/example.sql
-    xz -z -9 dev/example.sql
+    pg_dump --no-owner warehouse_dev_dump > dev/example.sql && \
+    xz -z -9 dev/example.sql && \
     dropdb warehouse_dev_dump
 
 Now commit the result::
 
-    git checkout -b update_dev_db_dump
-    git add dev/example.sql.xz
+    git checkout -b update_dev_db_dump && \
+    git add dev/example.sql.xz && \
     git commit -m "Update development database dump"
