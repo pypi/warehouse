@@ -134,6 +134,12 @@ def _configure_alembic(config):
 
 
 def _create_session(request):
+
+    # Use pre-configured db session (usually for integration test transactions)
+    db_session = request.environ.get("warehouse.db_session")
+    if db_session:
+        return db_session
+
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.db.session.start")
 

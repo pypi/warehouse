@@ -27,6 +27,7 @@ import pytest
 import stripe
 import transaction
 import webtest as _webtest
+import zope.sqlalchemy
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
@@ -623,33 +624,36 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config, db_session):
+def tm():
+    tm = transaction.TransactionManager(explicit=True)
+    tm.begin()
+    tm.doom()
+
+    yield tm
+
+    tm.abort()
+
+
+@pytest.fixture
+def webtest(app_config, tm, db_session):
     # TODO: Ensure that we have per test isolation of the database level
     #       changes. This probably involves flushing the database or something
     #       between test cases to wipe any committed changes.
 
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
+    zope.sqlalchemy.register(db_session, transaction_manager=tm)
 
-    try:
-        tm = transaction.TransactionManager(explicit=True)
-        tm.begin()
-        # tm.doom()  # ensure no one can call tm.commit() manually
-
-        # I tried setting the tm.manager_hook to return the given
-        # transaction, but it doesn't appear to be called.  e.g.,
-        # if I change it to return "42", the test still runs.
-        app_config.add_settings({ "tm.manager_hook": lambda request: tm })
-
-        app = app_config.make_wsgi_app()
-        testapp = _TestApp(app, extra_environ={
-            'tm.active': True,    # disable pyramid_tm
-            'tm.manager': tm,    # pass in our own tm for the app to use
-        })
-        yield testapp
-    finally:
-        tm.abort()
-        app_config.registry["sqlalchemy.engine"].dispose()
+    app = app_config.make_wsgi_app()
+    testapp = _TestApp(
+        app,
+        extra_environ={
+            "warehouse.db_session": db_session,  # Tell warehouse.db to use this dbsession
+            "tm.active": True,  # disable pyramid_tm
+            "tm.manager": tm,  # pass in our own tm for the app to use
+        },
+    )
+    yield testapp
 
 
 class _MockRedis:
