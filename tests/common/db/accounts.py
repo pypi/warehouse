@@ -22,7 +22,6 @@ from .base import WarehouseFactory
 class UserFactory(WarehouseFactory):
     class Meta:
         model = User
-        # sqlalchemy_session_persistence = 'commit'
 
     username = factory.Faker("pystr", max_chars=12)
     name = factory.Faker("word")
