@@ -27,7 +27,6 @@ import pytest
 import stripe
 import transaction
 import webtest as _webtest
-import zope.sqlalchemy
 
 from jinja2 import Environment, FileSystemLoader
 from psycopg.errors import InvalidCatalogName
@@ -638,9 +637,6 @@ def tm():
 def webtest(app_config, tm, db_session):
     # We want to disable anything that relies on TLS here.
     app_config.add_settings(enforce_https=False)
-
-    # Register the transaction manager with the db_session
-    zope.sqlalchemy.register(db_session, transaction_manager=tm)
 
     # Create WSGI app with current test settings
     # (this could be a fixture)
