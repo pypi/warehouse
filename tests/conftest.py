@@ -647,7 +647,7 @@ def webtest(app_config, tm, db_session):
     app = app_config.make_wsgi_app()
 
     # Register the app with the external test environment, telling
-    # warehouse.db to use this db_session and use the Transaction manager.
+    # request.db to use this db_session and use the Transaction manager.
     testapp = _TestApp(
         app,
         extra_environ={
