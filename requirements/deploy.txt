@@ -100,9 +100,9 @@ importlib-metadata==7.0.0 \
     --hash=sha256:7fc841f8b8332803464e5dc1c63a2e59121f46ca186c0e2e182e80bf8c1319f7 \
     --hash=sha256:d97503976bb81f40a193d41ee6570868479c69d5068651eb039c40d850c59d67
     # via opentelemetry-api
-opentelemetry-api==1.24.0 \
-    --hash=sha256:0f2c363d98d10d1ce93330015ca7fd3a65f60be64e05e30f557c61de52c80ca2 \
-    --hash=sha256:42719f10ce7b5a9a73b10a4baf620574fb8ad495a9cbe5c18d76b75d8689c67e
+opentelemetry-api==1.25.0 \
+    --hash=sha256:757fa1aa020a0f8fa139f8959e53dec2051cc26b832e76fa839a6d76ecefd737 \
+    --hash=sha256:77c4985f62f2614e42ce77ee4c9da5fa5f0bc1e1821085e9a47533a9323ae869
     # via ddtrace
 packaging==24.0 \
     --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
