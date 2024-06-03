@@ -36,6 +36,7 @@ from warehouse.packaging.tasks import (
     update_release_description,
 )
 from warehouse.utils import readme
+from warehouse.utils.row_counter import compute_row_counts
 
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
@@ -100,6 +101,10 @@ def test_compute_packaging_metrics(db_request, metrics):
     FileFactory(release=release2)
     FileFactory(release=release3, packagetype="sdist")
     FileFactory(release=release3, packagetype="bdist_wheel")
+
+    # Make sure that the task to update the database counts has been
+    # called.
+    compute_row_counts(db_request)
 
     compute_packaging_metrics(db_request)
 

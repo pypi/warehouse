@@ -29,15 +29,24 @@ from sqlalchemy import (
     FetchedValue,
     ForeignKey,
     Index,
+    Integer,
     String,
     Text,
     UniqueConstraint,
+    cast,
     func,
     or_,
     orm,
+    select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import ARRAY, CITEXT, ENUM, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import (
+    ARRAY,
+    CITEXT,
+    ENUM,
+    REGCLASS,
+    UUID as PG_UUID,
+)
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -73,6 +82,8 @@ from warehouse.utils.db.types import bool_false, datetime_now
 
 if typing.TYPE_CHECKING:
     from warehouse.oidc.models import OIDCPublisher
+
+_MONOTONIC_SEQUENCE = 42
 
 
 class Role(db.Model):
@@ -858,6 +869,33 @@ class JournalEntry(db.ModelBase):
         nullable=True,
     )
     submitted_by: Mapped[User] = orm.relationship(lazy="raise_on_sql")
+
+
+@db.listens_for(db.Session, "before_flush")
+def ensure_monotonic_journals(config, session, flush_context, instances):
+    # We rely on `journals.id` to be a monotonically increasing integer,
+    # however the way that SERIAL is implemented, it does not guarentee
+    # that is the case.
+    #
+    # Ultimately SERIAL fetches the next integer regardless of what happens
+    # inside of the transaction. So journals.id will get filled in, in order
+    # of when the `INSERT` statements were executed, but not in the order
+    # that transactions were committed.
+    #
+    # The way this works, not even the SERIALIZABLE transaction types give
+    # us this property. Instead we have to implement our own locking that
+    # ensures that each new journal entry will be serialized.
+    for obj in session.new:
+        if isinstance(obj, JournalEntry):
+            session.execute(
+                select(
+                    func.pg_advisory_xact_lock(
+                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                        _MONOTONIC_SEQUENCE,
+                    )
+                )
+            )
+            return
 
 
 class ProhibitedProjectName(db.Model):

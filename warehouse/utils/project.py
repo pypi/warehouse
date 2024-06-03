@@ -85,14 +85,6 @@ def remove_project(project, request, flash=True):
 
 
 def destroy_docs(project, request, flash=True):
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="docdestroy",
-            submitted_by=request.user,
-        )
-    )
-
     request.task(remove_documentation).delay(project.name)
 
     project.has_docs = False

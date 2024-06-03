@@ -364,6 +364,7 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".referrer_policy"),
             pretend.call(".captcha"),
             pretend.call(".http"),
+            pretend.call(".utils.row_counter"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
         + [pretend.call(".sanity")]
