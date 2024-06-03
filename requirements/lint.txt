@@ -230,9 +230,9 @@ mccabe==0.7.0 \
     --hash=sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325 \
     --hash=sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e
     # via flake8
-msgpack-types==0.2.0 \
-    --hash=sha256:7e5bce9e3bba9fe08ed14005ad107aa44ea8d4b779ec28b8db880826d4c67303 \
-    --hash=sha256:b6b7ce9f52599f9dc3497006be8cf6bed7bd2c83fa48c4df43ac6958b97b0720
+msgpack-types==0.3.0 \
+    --hash=sha256:44933978973cf1f09a97fc830676b10ba848cc103d73628af5c57f14ec4d6e92 \
+    --hash=sha256:e14faa08ab56ce529738f04d585e601c90f415d11d84f8089883d00d731d1ebf
     # via -r requirements/lint.in
 mypy==1.9.0 \
     --hash=sha256:0235391f1c6f6ce487b23b9dbd1327b4ec33bb93934aa986efe8a9563d9349e6 \
