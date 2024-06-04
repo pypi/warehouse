@@ -255,6 +255,9 @@
   <div class="card-header">
     <h3 class="card-title">Project Observations</h3>
     <div class="card-tools">
+      {% if observations %}
+      <span class="badge badge-warning">{{ observations|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>
