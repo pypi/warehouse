@@ -18,8 +18,8 @@
   <div class="sidebar-section">
     <h3 class="sidebar-section__title">{% trans %}Statistics{% endtrans %}</h3>
     <p>
-      {% trans libs_io_href='https://libraries.io/', title=gettext('External link'), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
-        View statistics for your projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
+      {% trans libs_io_href='https://libraries.io/', title=gettext('External link'), clickpy_href='https://clickpy.clickhouse.com/{project_name}'.format(project_name=release.project.name), gbq_href='https://packaging.python.org/guides/analyzing-pypi-package-downloads/' %}
+        View statistics for your projects via <a href="{{ libs_io_href }}" title="{{ title }}" target="_blank" rel="noopener">Libraries.io</a>, <a href="{{ clickpy_href }}" title="{{ title }}" target="_blank" rel="noopener">clickpy.clickhouse.com</a>, or by using <a href="{{ gbq_href }}" target="_blank" rel="noopener">our public dataset on Google BigQuery</a>
       {% endtrans %}
     </p>
   </div>
