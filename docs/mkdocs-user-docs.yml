@@ -14,7 +14,8 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
+      slugify:
+        !!python/object/apply:pymdownx.slugs.slugify { kwds: { case: lower } }
   - tables
 theme:
   name: material
@@ -66,3 +67,6 @@ nav:
       - "trusted-publishers/security-model.md"
       - "trusted-publishers/troubleshooting.md"
       - "trusted-publishers/internals.md"
+  - "Digital Attestations":
+      - "attestations/index.md"
+      - "attestations/publish/v1.md"
