@@ -68,7 +68,7 @@ jobs:
         BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
-        image: ${{ (matrix.name == 'Tests') && 'postgres:14.11' || '' }}
+        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
         ports:
           - 5432:5432
         env:
