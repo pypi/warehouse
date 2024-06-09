@@ -344,11 +344,6 @@ def send_two_factor_not_yet_enabled_email(request, user):
     return {"username": user.username}
 
 
-@_email("gpg-signature-uploaded", repeat_window=datetime.timedelta(days=1))
-def send_gpg_signature_uploaded_email(request, user, *, project_name):
-    return {"project_name": project_name}
-
-
 @_email("account-deleted")
 def send_account_deletion_email(request, user):
     return {"username": user.username}
@@ -1033,6 +1028,17 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
 def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
+    }
+
+
+@_email("api-token-used-in-trusted-publisher-project")
+def send_api_token_used_in_trusted_publisher_project_email(
+    request, users, project_name, token_owner_username, token_name
+):
+    return {
+        "token_owner_username": token_owner_username,
+        "project_name": project_name,
+        "token_name": token_name,
     }
 
 

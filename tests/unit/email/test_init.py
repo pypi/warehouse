@@ -1384,77 +1384,6 @@ class TestPasswordCompromisedEmail:
         ]
 
 
-class TestGPGSignatureUploadedEmail:
-    def test_gpg_signature_uploaded_email(
-        self, pyramid_request, pyramid_config, monkeypatch
-    ):
-        stub_user = pretend.stub(
-            id="id",
-            username="username",
-            name="",
-            email="email@example.com",
-            primary_email=pretend.stub(email="email@example.com", verified=True),
-        )
-        subject_renderer = pyramid_config.testing_add_renderer(
-            "email/gpg-signature-uploaded/subject.txt"
-        )
-        subject_renderer.string_response = "Email Subject"
-        body_renderer = pyramid_config.testing_add_renderer(
-            "email/gpg-signature-uploaded/body.txt"
-        )
-        body_renderer.string_response = "Email Body"
-        html_renderer = pyramid_config.testing_add_renderer(
-            "email/gpg-signature-uploaded/body.html"
-        )
-        html_renderer.string_response = "Email HTML Body"
-
-        send_email = pretend.stub(
-            delay=pretend.call_recorder(lambda *args, **kwargs: None)
-        )
-        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
-        monkeypatch.setattr(email, "send_email", send_email)
-
-        pyramid_request.db = pretend.stub(
-            query=lambda a: pretend.stub(
-                filter=lambda *a: pretend.stub(
-                    one=lambda: pretend.stub(user_id=stub_user.id)
-                )
-            ),
-        )
-        pyramid_request.user = stub_user
-        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
-        project_name = "exampleproject"
-        result = email.send_gpg_signature_uploaded_email(
-            pyramid_request, stub_user, project_name=project_name
-        )
-
-        assert result == {"project_name": project_name}
-        assert pyramid_request.task.calls == [pretend.call(send_email)]
-        assert send_email.delay.calls == [
-            pretend.call(
-                f"{stub_user.username} <{stub_user.email}>",
-                {
-                    "subject": "Email Subject",
-                    "body_text": "Email Body",
-                    "body_html": (
-                        "<html>\n<head></head>\n"
-                        "<body><p>Email HTML Body</p></body>\n</html>\n"
-                    ),
-                },
-                {
-                    "tag": "account:email:sent",
-                    "user_id": stub_user.id,
-                    "additional": {
-                        "from_": "noreply@example.com",
-                        "to": stub_user.email,
-                        "subject": "Email Subject",
-                        "redact_ip": False,
-                    },
-                },
-            )
-        ]
-
-
 class Test2FAonUploadEmail:
     def test_send_two_factor_not_yet_enabled_email(
         self, pyramid_request, pyramid_config, monkeypatch
@@ -5849,4 +5778,131 @@ class TestTrustedPublisherEmails:
                     },
                 },
             )
+        ]
+
+    def test_api_token_warning_with_trusted_publisher_emails(
+        self, pyramid_request, pyramid_config, monkeypatch
+    ):
+        template_name = "api-token-used-in-trusted-publisher-project"
+        # We set up two users to receive the email. The owner of the API token
+        # will be stub_user, their username should be the one mentioned in the
+        # email body.
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=True),
+        )
+        stub_user_maintainer = pretend.stub(
+            id="id_maintainer",
+            username="username_maintainer",
+            name="",
+            email="email_maintainer@example.com",
+            primary_email=pretend.stub(
+                email="email_maintainer@example.com", verified=True
+            ),
+        )
+        subject_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            f"email/{ template_name }/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        project_name = "test_project"
+        api_token_name = "old_api_token"
+        result = email.send_api_token_used_in_trusted_publisher_project_email(
+            pyramid_request,
+            [stub_user, stub_user_maintainer],
+            project_name=project_name,
+            token_owner_username=stub_user.username,
+            token_name=api_token_name,
+        )
+
+        assert result == {
+            "project_name": project_name,
+            "token_owner_username": stub_user.username,
+            "token_name": api_token_name,
+        }
+        subject_renderer.assert_()
+        body_renderer.assert_(
+            project_name=project_name,
+            token_owner_username=stub_user.username,
+            token_name=api_token_name,
+        )
+        html_renderer.assert_(
+            project_name=project_name,
+            token_owner_username=stub_user.username,
+            token_name=api_token_name,
+        )
+        assert pyramid_request.task.calls == [
+            pretend.call(send_email),
+            pretend.call(send_email),
+        ]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            ),
+            pretend.call(
+                f"{stub_user_maintainer.username} <{stub_user_maintainer.email}>",
+                {
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user_maintainer.id,
+                    "additional": {
+                        "from_": "noreply@example.com",
+                        "to": stub_user_maintainer.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            ),
         ]

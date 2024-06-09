@@ -11,26 +11,12 @@
 # limitations under the License.
 
 
-import pretend
 import pytest
 
 from webob.multidict import MultiDict
 from wtforms.validators import ValidationError
 
-from warehouse.forklift.forms import UploadForm, _validate_pep440_version
-
-
-class TestValidation:
-    @pytest.mark.parametrize("version", ["1.0", "30a1", "1!1", "1.0-1", "v1.0"])
-    def test_validates_valid_pep440_version(self, version):
-        form, field = pretend.stub(), pretend.stub(data=version)
-        _validate_pep440_version(form, field)
-
-    @pytest.mark.parametrize("version", ["dog", "1.0.dev.a1"])
-    def test_validates_invalid_pep440_version(self, version):
-        form, field = pretend.stub(), pretend.stub(data=version)
-        with pytest.raises(ValidationError):
-            _validate_pep440_version(form, field)
+from warehouse.forklift.forms import UploadForm
 
 
 class TestUploadForm:

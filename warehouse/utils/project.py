@@ -13,9 +13,10 @@
 import re
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.sql import func
 
 from warehouse.packaging.interfaces import IDocsStorage
-from warehouse.packaging.models import JournalEntry
+from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
 from warehouse.tasks import task
 
 
@@ -65,6 +66,32 @@ def confirm_project(
         )
 
 
+def prohibit_and_remove_project(
+    project: Project | str, request, comment: str, flash: bool = True
+):
+    """
+    View helper to prohibit and remove a project.
+    """
+    # TODO: See if we can constrain `project` to be a `Project` only.
+    project_name = project.name if isinstance(project, Project) else project
+    # Add our requested prohibition.
+    request.db.add(
+        ProhibitedProjectName(
+            name=project_name, comment=comment, prohibited_by=request.user
+        )
+    )
+    # Go through and delete the project and everything related to it so that
+    # our prohibition actually blocks things and isn't ignored (since the
+    # prohibition only takes effect on new project registration).
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+    if project is not None:
+        remove_project(project, request, flash=flash)
+
+
 def remove_project(project, request, flash=True):
     # TODO: We don't actually delete files from the data store. We should add
     #       some kind of garbage collection at some point.
@@ -85,14 +112,6 @@ def remove_project(project, request, flash=True):
 
 
 def destroy_docs(project, request, flash=True):
-    request.db.add(
-        JournalEntry(
-            name=project.name,
-            action="docdestroy",
-            submitted_by=request.user,
-        )
-    )
-
     request.task(remove_documentation).delay(project.name)
 
     project.has_docs = False

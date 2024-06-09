@@ -14,43 +14,36 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-{% trans username=username, project_name=project_name %}
 PyPI user {{ username }} has added a new trusted publisher to a project
 ({{ project_name }}) that you manage. Trusted publishers act as trusted
 users and can create project releases automatically.
-{% endtrans %}
 
-{% trans %}Publisher information{% endtrans %}:
+Publisher information:
 
-* {% trans %}Publisher{% endtrans %}: {{ publisher.publisher_name }}
+* Publisher: {{ publisher.publisher_name }}
 {%- if publisher.publisher_name == "GitHub" %}
-* {% trans %}Workflow{% endtrans %}: {{ publisher }}
-* {% trans %}Owner{% endtrans %}: {{ publisher.repository_owner }}
-* {% trans %}Repository{% endtrans %}: {{ publisher.repository_name }}
+* Workflow: {{ publisher }}
+* Owner: {{ publisher.repository_owner }}
+* Repository: {{ publisher.repository_name }}
 {%- if publisher.environment %}
-* {% trans %}Environment{% endtrans %}: {{ publisher.environment }}
+* Environment: {{ publisher.environment }}
 {%- endif %}
 {%- elif publisher.publisher_name == "Google" %}
-* {% trans %}Email{% endtrans %}: {{ publisher.email }}
+* Email: {{ publisher.email }}
 {%- if publisher.sub %}
-* {% trans %}Subject{% endtrans %}: {{ publisher.sub }}
+* Subject: {{ publisher.sub }}
 {%- endif %}
 {% elif publisher.publisher_name == "ActiveState" %}
-* {% trans %}Platform Project URL{% endtrans %}: {{ publisher.publisher_url }}
-* {% trans %}Organization{% endtrans %}: {{ publisher.organization }}
-* {% trans %}Project{% endtrans %}: {{ publisher.activestate_project_name }}
-* {% trans %}Actor{% endtrans %}: {{ publisher.actor }}
+* Platform Project URL: {{ publisher.publisher_url }}
+* Organization: {{ publisher.organization }}
+* Project: {{ publisher.activestate_project_name }}
+* Actor: {{ publisher.actor }}
 {%- endif %}
 
-{% trans %}
 If you did not make this change and you think it was made maliciously, you can
 remove it from the project via the "Publishing" tab on the project's page.
-{% endtrans %}
 
-{% trans email_address='admin@pypi.org' %}
 If you are unable to revert the change and need to do so, you can email
-{{ email_address }} to communicate with the PyPI administrators.
-{% endtrans %}
+admin@pypi.org to communicate with the PyPI administrators.
 
 {% endblock %}
-

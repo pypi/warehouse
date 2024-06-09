@@ -807,6 +807,9 @@ def configure(settings=None):
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
 
+    # Register our row counting maintenance
+    config.include(".utils.row_counter")
+
     # Scan everything for configuration
     config.scan(
         categories=(
