@@ -30,7 +30,7 @@ services:
       - "12111:12111"
 
   redis:
-    image: redis:4.0
+    image: redis:7.0
 
   localstack:
     image: localstack/localstack:1.4
