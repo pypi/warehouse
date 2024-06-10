@@ -1,5 +1,5 @@
 ---
-title: Getting Started
+title: Introduction
 ---
 
 <!--[[ preview('index-attestations') ]]-->
@@ -20,15 +20,28 @@ wheel) to a strong cryptographic digest of its contents, allowing both PyPI
 and downstream users to verify that a particular package was attested to by
 a particular identity (such as a GitHub Actions workflow).
 
-These attestations can take multiple forms, including ["publish" attestations]
+These attestations can take multiple forms, including [publish attestations]
 for publicly verifiable proof that a package was published via a specific
-[Trusted Publisher], or more general [SLSA provenance] attesting to a package's
+[Trusted Publisher], or more general [SLSA Provenance] attesting to a package's
 original source location.
+
+## Supported attestations
+
+PyPI uses the [in-toto Attestation Framework] for the attestations it accepts.
+
+Currently, PyPI allows the following attestation predicates:
+
+* [SLSA Provenance]
+* [PyPI Publish]
+
+[in-toto Attestation Framework]: https://github.com/in-toto/attestation/blob/main/spec/README.md
 
 [PEP 740]: https://peps.python.org/pep-0740/
 
-["publish" attestations]: /attestations/publish/v1/
+[PyPI Publish]: /attestations/publish/v1/
+
+[publish attestations]: /attestations/publish/v1/
 
 [Trusted Publisher]: /trusted-publishers/
 
-[SLSA provenance]: https://slsa.dev/spec/v1.0/provenance
+[SLSA Provenance]: https://slsa.dev/spec/v1.0/provenance
