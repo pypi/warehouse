@@ -233,3 +233,7 @@ COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/
 COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
+
+# Load our module to pre-compile as much bytecode as we can easily.
+# Saves time collectively on container boot!
+RUN python -m warehouse
