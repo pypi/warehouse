@@ -189,7 +189,7 @@ def includeme(config):
     )
 
     # Possibly override how to fetch new db sessions from config.settings
-    db_session_factory = config.get_settings().get(
+    db_session_factory = config.registry.settings.get(
         "warehouse.db_create_session", _create_session
     )
     config.add_request_method(db_session_factory, name="db", reify=True)
