@@ -299,8 +299,7 @@ def mock_manifest_cache_buster():
     return MockManifestCacheBuster
 
 
-@pytest.fixture(scope="session")
-def app_config(database):
+def get_app_config(database, nondefaults=None):
     settings = {
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
@@ -330,6 +329,10 @@ def app_config(database):
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
     }
+
+    if nondefaults:
+        settings.update(nondefaults)
+
     with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
         with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
             with mock.patch.object(static, "whitenoise_add_manifest"):
@@ -339,6 +342,24 @@ def app_config(database):
     alembic.command.upgrade(cfg.alembic_config(), "head")
 
     return cfg
+
+
+@pytest.fixture(scope="session")
+def app_config(database):
+
+    return get_app_config(
+        database,
+    )
+
+
+@pytest.fixture(scope="session")
+def app_config_dbsession_from_env(database):
+
+    nondefaults = {
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+    }
+
+    return get_app_config(database, nondefaults)
 
 
 @pytest.fixture
@@ -634,13 +655,11 @@ def tm():
 
 
 @pytest.fixture
-def webtest(app_config, tm, db_session):
+def webtest(app_config_dbsession_from_env, tm, db_session):
     # We want to disable anything that relies on TLS here.
-    app_config.add_settings(enforce_https=False)
+    app_config_dbsession_from_env.add_settings(enforce_https=False)
 
-    # Create WSGI app with current test settings
-    # (this could be a fixture)
-    app = app_config.make_wsgi_app()
+    app = app_config_dbsession_from_env.make_wsgi_app()
 
     # Register the app with the external test environment, telling
     # request.db to use this db_session and use the Transaction manager.

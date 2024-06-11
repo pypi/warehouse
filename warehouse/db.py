@@ -135,11 +135,6 @@ def _configure_alembic(config):
 
 def _create_session(request):
 
-    # Use pre-configured db session (usually for integration test transactions)
-    db_session = request.environ.get("warehouse.db_session")
-    if db_session:
-        return db_session
-
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.db.session.start")
 
@@ -193,8 +188,11 @@ def includeme(config):
         pool_timeout=20,
     )
 
-    # Register our request.db property
-    config.add_request_method(_create_session, name="db", reify=True)
+    # Possibly override how to fetch new db sessions from config.settings
+    db_session_factory = config.get_settings().get(
+        "warehouse.db_create_session", _create_session
+    )
+    config.add_request_method(db_session_factory, name="db", reify=True)
 
     # Set a custom JSON serializer for psycopg
     renderer = JSON()
