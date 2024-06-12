@@ -4,8 +4,6 @@ title: Introduction
 
 <!--[[ preview('index-attestations') ]]-->
 
-# Digital Attestations for PyPI
-
 These pages document PyPI's implementation of index attestations ([PEP 740]),
 including in-toto attestation predicates specific to PyPI itself.
 
@@ -45,3 +43,5 @@ Currently, PyPI allows the following attestation predicates:
 [Trusted Publisher]: /trusted-publishers/
 
 [SLSA Provenance]: https://slsa.dev/spec/v1.0/provenance
+
+

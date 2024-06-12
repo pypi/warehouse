@@ -70,3 +70,4 @@ nav:
   - "Digital Attestations":
       - "attestations/index.md"
       - "attestations/publish/v1.md"
+      - "attestations/internals.md"
