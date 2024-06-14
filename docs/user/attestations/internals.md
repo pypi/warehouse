@@ -304,7 +304,7 @@ Using the details above, we can provide the steps with slightly more accuracy:
     This step is equivalent to Sigstore "bundle" verification and also requires
     a source of signed time, such as the `verification_material.transparency_entries`.
 
-3. Verify that the the attestation's `envelope.signature` is valid for `envelope.statement`,
+3. Verify that the attestation's `envelope.signature` is valid for `envelope.statement`,
    using the [DSSE PAE encoding] and the public key of
    `verification_material.certificate`.
 
