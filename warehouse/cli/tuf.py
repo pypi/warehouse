@@ -24,7 +24,7 @@ def tuf():
 
 
 @tuf.command()
-@click.argument("payload", type=click.File("rb"), required=True)
+@click.argument("payload", type=click.File("rb", lazy=True), required=True)
 @click.option("--api-server", required=True)
 def bootstrap(payload, api_server):
     """Use payload file to bootstrap RSTUF server."""
