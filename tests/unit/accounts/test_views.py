@@ -104,7 +104,7 @@ class TestFailedLoginView:
         assert resp.detail == (
             "Too many emails have been added to this account without verifying "
             "them. Check your inbox and follow the verification links. (IP: "
-            f"{ pyramid_request.remote_addr })"
+            f"{pyramid_request.remote_addr})"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
@@ -117,7 +117,7 @@ class TestFailedLoginView:
         assert resp.detail == (
             "Too many password resets have been requested for this account without "
             "completing them. Check your inbox and follow the verification links. (IP: "
-            f"{ pyramid_request.remote_addr })"
+            f"{pyramid_request.remote_addr})"
         )
         assert dict(resp.headers).get("Retry-After") == "600"
 
