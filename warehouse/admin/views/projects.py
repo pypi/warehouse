@@ -609,7 +609,7 @@ def add_role(project, request):
         tag=EventTag.Project.RoleAdd,
         request=request,
         additional={
-            "submitted_by": user_service.get_admin_user(),
+            "submitted_by": user_service.get_admin_user().username,
             "role_name": role_name,
             "target_user": user.username,
         },
@@ -618,7 +618,7 @@ def add_role(project, request):
         tag=EventTag.Account.RoleAdd,
         request=request,
         additional={
-            "submitted_by": user_service.get_admin_user(),
+            "submitted_by": user_service.get_admin_user().username,
             "project_name": project.name,
             "role_name": role_name,
         },
@@ -678,7 +678,7 @@ def delete_role(project, request):
         tag=EventTag.Project.RoleRemove,
         request=request,
         additional={
-            "submitted_by": user_service.get_admin_user(),
+            "submitted_by": user_service.get_admin_user().username,
             "role_name": role.role_name,
             "target_user": role.user.username,
         },
