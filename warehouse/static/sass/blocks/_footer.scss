@@ -67,7 +67,7 @@
   &__menu {
     @include flex-basis(220px);
     @include flex-shrink(0);
-    margin: 0 $half-spacing-unit 40px $half-spacing-unit;
+    margin: 0 $half-spacing-unit 40px;
     padding: 0;
 
     h2 {
