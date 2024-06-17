@@ -642,22 +642,16 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def tm():
-    tm = transaction.TransactionManager(explicit=True)
-    tm.begin()
-    tm.doom()
-
-    yield tm
-
-    tm.abort()
-
-
-@pytest.fixture
-def webtest(app_config_dbsession_from_env, tm, db_session):
+def webtest(app_config_dbsession_from_env, db_session):
     # We want to disable anything that relies on TLS here.
     app_config_dbsession_from_env.add_settings(enforce_https=False)
 
     app = app_config_dbsession_from_env.make_wsgi_app()
+
+    # Create a new transaction manager for dependant test cases
+    tm = transaction.TransactionManager(explicit=True)
+    tm.begin()
+    tm.doom()
 
     # Register the app with the external test environment, telling
     # request.db to use this db_session and use the Transaction manager.
@@ -670,6 +664,9 @@ def webtest(app_config_dbsession_from_env, tm, db_session):
         },
     )
     yield testapp
+
+    # Abort the transaction, leaving database in previous state
+    tm.abort()
 
 
 class _MockRedis:
