@@ -29,7 +29,6 @@ kombu[sqs]>=5.3.5,<5.4  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
-mistune
 msgpack
 natsort
 orjson

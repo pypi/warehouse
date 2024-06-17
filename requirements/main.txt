@@ -1184,10 +1184,6 @@ markupsafe==2.1.5 \
     #   pyramid-jinja2
     #   werkzeug
     #   wtforms
-mistune==3.0.2 \
-    --hash=sha256:71481854c30fdbc938963d3605b72501f5c10a9320ecd412c121c163a1c7d205 \
-    --hash=sha256:fc7f93ded930c92394ef2cb6f04a8aabab4117a91449e72dcc8dfa646a508be8
-    # via -r requirements/main.in
 more-itertools==10.3.0 \
     --hash=sha256:e5d93ef411224fbcef366a6e8ddc4c5781bc6359d43412a65dd5964e46111463 \
     --hash=sha256:ea6a02e24a9161e51faad17a8782b92a0df82c12c1c8886fec7f0c3fa1a1b320
