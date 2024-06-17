@@ -9,13 +9,14 @@
 # Helio <heliob_8@hotmail.com>, 2023.
 # Diego Kluwe de Souza <dikluwe@gmail.com>, 2023.
 # FolkDigital - Soluções em Internet <contato@folkdigital.com.br>, 2023.
+# "A. Bento" <kyweehz@pm.me>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-04-24 16:34+0000\n"
-"Last-Translator: Rafael Fontenelle <rafaelff@gnome.org>\n"
+"PO-Revision-Date: 2024-05-25 14:15+0000\n"
+"Last-Translator: \"A. Bento\" <kyweehz@pm.me>\n"
 "Language-Team: Portuguese (Brazil) <https://hosted.weblate.org/projects/pypa/"
 "warehouse/pt_BR/>\n"
 "Language: pt_BR\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.5.1-dev\n"
+"X-Generator: Weblate 5.6-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -31,6 +32,8 @@ msgid ""
 "You must verify your **primary** email address before you can perform this "
 "action."
 msgstr ""
+"Você deve verificar seu endereço de e-mail **primary** antes de realizar "
+"essa ação."
 
 #: warehouse/views.py:158
 msgid ""
@@ -105,10 +108,8 @@ msgid "Your passwords don't match. Try again."
 msgstr "Suas senhas não coincidem. Tentar novamente."
 
 #: warehouse/accounts/forms.py:269
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The email address is too long. Try again."
-msgstr "O endereço de e-mail não é válido. Tentar novamente."
+msgstr "O endereço de e-mail é muito longo. Tente novamente."
 
 #: warehouse/accounts/forms.py:284
 msgid "The email address isn't valid. Try again."
@@ -140,27 +141,25 @@ msgstr ""
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "O nome é muito longo. Escolha um nome com 100 caracteres ou menos."
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "Código TOTP inválido."
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Asserção inválida do WebAuthn: Carga incorreta"
 
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "Código de recuperação inválido."
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "O código de recuperação já foi usado anteriormente."
 
-#: warehouse/accounts/forms.py:564
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
+#: warehouse/accounts/forms.py:565
 msgid "The username isn't valid. Try again."
-msgstr "O endereço de e-mail não é válido. Tentar novamente."
+msgstr "O nome de usuário é inválido. Tente novamente."
 
 #: warehouse/accounts/views.py:120
 msgid ""
@@ -343,26 +342,18 @@ msgstr "Você é agora ${role} do projeto \"${project_name}\"."
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
 #: warehouse/manage/views/__init__.py:1247
-#, fuzzy
-#| msgid ""
-#| "Trusted publishers are temporarily disabled. See https://pypi.org/"
-#| "help#admin-intervention for details."
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
-"Publicadores confiáveis estão temporariamente desabilitados. Consulte "
-"https://pypi.org/help#admin-intervention para obter detalhes."
+"A publicação confiável está temporariamente desabilitada. Consulte https://"
+"pypi.org/help#admin-intervention para obter detalhes."
 
 #: warehouse/accounts/views.py:1578
-#, fuzzy
-#| msgid ""
-#| "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
-#| "intervention for details."
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
-"Exclusão de projeto desabilitado temporariamente. Consulte https://pypi.org/"
-"help#admin-intervention para obter detalhes."
+"desabilitado. Consulte https://pypi.org/help#admin-intervention para obter "
+"detalhes."
 
 #: warehouse/accounts/views.py:1594
 msgid ""
@@ -860,26 +851,26 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Nome de usuário ou organização inválido do GitHub."
 
-#: warehouse/oidc/forms/gitlab.py:53
+#: warehouse/oidc/forms/gitlab.py:54
 #, fuzzy
 #| msgid "Specify workflow filename"
-msgid "Specify workflow filepath"
+msgid "Specify top-level pipeline file path"
 msgstr "Especifique o nome de arquivo do fluxo de trabalho"
 
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 #, fuzzy
 #| msgid "Invalid project name"
 msgid "Invalid environment name"
 msgstr "Nome de projeto inválido"
 
-#: warehouse/oidc/forms/gitlab.py:76
+#: warehouse/oidc/forms/gitlab.py:78
 #, fuzzy
 #| msgid "Workflow name must end with .yml or .yaml"
-msgid "Workflow file path must end with .yml or .yaml"
+msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "O nome do fluxo de trabalho deve terminar com .yml ou .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
+#: warehouse/oidc/forms/gitlab.py:82
+msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
 #: warehouse/packaging/forms.py:27
@@ -952,7 +943,8 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2187,7 +2179,7 @@ msgstr ""
 "A organização do %(site)s foi renomeada de "
 "\"%(previous_organization_name)s\" para \"%(organization_name)s\"."
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2198,7 +2190,7 @@ msgid ""
 "Publisher to publish."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2206,7 +2198,7 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a "
@@ -2902,154 +2894,6 @@ msgstr ""
 "equipe \"%(team_name)s\" na organização \"%(organization_name)s\" por <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
-#| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
-#| "manage.\n"
-#| "  OpenID Connect publishers act as trusted users and can create project "
-#| "releases\n"
-#| "  automatically.\n"
-#| "  "
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-"O usuário PyPI <strong>%(username)s</strong> adicionou um novo editor "
-"confiável a um projeto (<strong>%(project_name)s</strong>) que você "
-"gerencia. Editores confiáveis atuam como usuários confiáveis e podem criar "
-"lançamentos de projetos automaticamente."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr "Informação do editor"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-msgid "Publisher name"
-msgstr "Nome do editor"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-msgid "Workflow"
-msgstr "Fluxo de trabalho"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "Proprietário"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-msgid "Repository"
-msgstr "Repositório"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-msgid "Environment"
-msgstr "Ambiente"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr "E-mail"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-#, fuzzy
-#| msgid "Subject:"
-msgid "Subject"
-msgstr "Assunto:"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Organization name"
-msgid "Organization"
-msgstr "Organização"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project name"
-msgid "ActiveState Project name"
-msgstr "Nome do projeto"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-"Se você não fez essa alteração e acha que foi feita de forma maliciosa, você "
-"pode removê-lo do projeto por meio da aba \"Publicação\" na página do "
-"projeto."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, python-format
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Se você não conseguir reverter a alteração e precisar fazer isso, envie um e-"
-"mail para <a href=\"%(href)s\">%(email_address)s</a> para se comunicar com "
-"os administradores do PyPI."
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-"O usuário PyPI <strong>%(username)s</strong> removeu um publicador confiável "
-"de um projeto (<strong>%(project_name)s</strong>) que você gerencia."
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-"Se você não fez esta alteração e acha que foi um erro, pode consultar a aba "
-"\"Histórico de segurança\" na página do projeto."
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -3447,6 +3291,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s ainda não enviou nenhum projeto ao PyPI."
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr "E-mail"
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3547,7 +3397,7 @@ msgstr "Não verificado"
 msgid "Project links"
 msgstr "Links do projeto"
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 #, fuzzy
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
@@ -4854,6 +4704,20 @@ msgstr "Inativa"
 msgid "Manager"
 msgstr "Gerente"
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "Proprietário"
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -5314,10 +5178,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Workflow name"
-msgid "Workflow file path"
-msgstr "Nome do fluxo de trabalho"
+msgid "Top-level pipeline file path"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -5328,8 +5190,8 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:177
 #, fuzzy
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
 "O nome do arquivo do fluxo de trabalho de publicação. Este arquivo deve "
@@ -5379,6 +5241,13 @@ msgstr "E-mail"
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+#, fuzzy
+#| msgid "Subject:"
+msgid "Subject"
+msgstr "Assunto:"
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 #, fuzzy
@@ -5407,6 +5276,14 @@ msgstr ""
 "Leia mais sobre o provedor de OpenID Connect do GitHub <a "
 "href=\"%(href)s\">aqui</a>."
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+#, fuzzy
+#| msgid "Organization name"
+msgid "Organization"
+msgstr "Organização"
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 #, fuzzy
@@ -5423,6 +5300,13 @@ msgid "The ActiveState organization name that owns the project"
 msgstr ""
 "O nome da organização no GitHub ou o nome de usuário do GitHub que possui o "
 "repositório"
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+#, fuzzy
+#| msgid "Project name"
+msgid "ActiveState Project name"
+msgstr "Nome do projeto"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -11257,6 +11141,83 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Nenhuma ocorrência para o filtro \"%(filters)s\""
 msgstr[1] "Nenhuma ocorrência para os filtros \"%(filters)s\""
+
+#, fuzzy
+#~| msgid "Workflow name"
+#~ msgid "Workflow file path"
+#~ msgstr "Nome do fluxo de trabalho"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "  PyPI user <strong>%(username)s</strong> has added a new OpenID "
+#~| "Connect\n"
+#~| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
+#~| "manage.\n"
+#~| "  OpenID Connect publishers act as trusted users and can create project "
+#~| "releases\n"
+#~| "  automatically.\n"
+#~| "  "
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
+#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
+#~ "publishers act as trusted users and can create project releases "
+#~ "automatically."
+#~ msgstr ""
+#~ "O usuário PyPI <strong>%(username)s</strong> adicionou um novo editor "
+#~ "confiável a um projeto (<strong>%(project_name)s</strong>) que você "
+#~ "gerencia. Editores confiáveis atuam como usuários confiáveis e podem "
+#~ "criar lançamentos de projetos automaticamente."
+
+#~ msgid "Publisher information"
+#~ msgstr "Informação do editor"
+
+#~ msgid "Publisher name"
+#~ msgstr "Nome do editor"
+
+#~ msgid "Workflow"
+#~ msgstr "Fluxo de trabalho"
+
+#~ msgid "Repository"
+#~ msgstr "Repositório"
+
+#~ msgid "Environment"
+#~ msgstr "Ambiente"
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made maliciously, "
+#~ "you can remove it from the project via the \"Publishing\" tab on the "
+#~ "project's page."
+#~ msgstr ""
+#~ "Se você não fez essa alteração e acha que foi feita de forma maliciosa, "
+#~ "você pode removê-lo do projeto por meio da aba \"Publicação\" na página "
+#~ "do projeto."
+
+#, python-format
+#~ msgid ""
+#~ "If you are unable to revert the change and need to do so, you can email "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Se você não conseguir reverter a alteração e precisar fazer isso, envie "
+#~ "um e-mail para <a href=\"%(href)s\">%(email_address)s</a> para se "
+#~ "comunicar com os administradores do PyPI."
+
+#, python-format
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
+#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
+#~ msgstr ""
+#~ "O usuário PyPI <strong>%(username)s</strong> removeu um publicador "
+#~ "confiável de um projeto (<strong>%(project_name)s</strong>) que você "
+#~ "gerencia."
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made in error, you "
+#~ "can check the \"Security history\" tab on the project's page."
+#~ msgstr ""
+#~ "Se você não fez esta alteração e acha que foi um erro, pode consultar a "
+#~ "aba \"Histórico de segurança\" na página do projeto."
 
 #, python-format
 #~ msgid ""
