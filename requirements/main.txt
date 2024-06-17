@@ -612,9 +612,9 @@ google-crc32c==1.5.0 \
     # via
     #   google-cloud-storage
     #   google-resumable-media
-google-resumable-media==2.7.0 \
-    --hash=sha256:5f18f5fa9836f4b083162064a1c2c98c17239bfda9ca50ad970ccf905f3e625b \
-    --hash=sha256:79543cfe433b63fd81c0844b7803aba1bb8950b47bedf7d980c38fa123937e08
+google-resumable-media==2.7.1 \
+    --hash=sha256:103ebc4ba331ab1bfdac0250f8033627a2cd7cde09e7ccff9181e31ba4315b2c \
+    --hash=sha256:eae451a7b2e2cdbaaa0fd2eb00cc8a1ee5e95e16b55597359cbc3d27d7d90e33
     # via
     #   google-cloud-bigquery
     #   google-cloud-storage
