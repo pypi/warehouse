@@ -25,6 +25,8 @@ down_revision = "cec0316503a5"
 
 
 def upgrade():
+    op.execute("SET statement_timeout = 60000")
+    op.execute("SET lock_timeout = 60000")
     op.sync_enum_values(
         "public",
         "release_dynamic_fields",
@@ -70,6 +72,8 @@ def upgrade():
 
 
 def downgrade():
+    op.execute("SET statement_timeout = 60000")
+    op.execute("SET lock_timeout = 60000")
     op.sync_enum_values(
         "public",
         "release_dynamic_fields",
