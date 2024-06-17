@@ -335,7 +335,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".tasks"),
             pretend.call(".rate_limiting"),
             pretend.call(".static"),
-            pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".b2"),

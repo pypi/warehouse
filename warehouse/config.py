@@ -675,8 +675,6 @@ def configure(settings=None):
 
     config.include(".static")
 
-    config.include(".policy")
-
     config.include(".search")
 
     # Register the support for AWS, Backblaze,and Google Cloud
