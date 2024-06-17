@@ -134,7 +134,6 @@ def _configure_alembic(config):
 
 
 def _create_session(request):
-
     metrics = request.find_service(IMetricsService, context=None)
     metrics.increment("warehouse.db.session.start")
 
@@ -189,6 +188,7 @@ def includeme(config):
     )
 
     # Possibly override how to fetch new db sessions from config.settings
+    #  Useful in test fixtures
     db_session_factory = config.registry.settings.get(
         "warehouse.db_create_session", _create_session
     )
