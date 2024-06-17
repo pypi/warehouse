@@ -1609,6 +1609,7 @@ pyramid==2.0.2 \
     #   pyramid-jinja2
     #   pyramid-mailer
     #   pyramid-openapi3
+    #   pyramid-redirect
     #   pyramid-retry
     #   pyramid-rpc
     #   pyramid-services
@@ -1624,6 +1625,10 @@ pyramid-mailer==0.15.1 \
 pyramid-openapi3==0.19 \
     --hash=sha256:843c1666d7f57e29694c2deaf215c83b96d210a3a3b479d52fbf4575b38869b0 \
     --hash=sha256:d0d68f0745ba059c91fc0ca4f764466adaaf3bf97acf6f129e096c04ced7022b
+    # via -r requirements/main.in
+pyramid-redirect==0.4 \
+    --hash=sha256:2e43aca7c364137b8d33c07578813f6612d775b6d87dde5e555bdf5fd8aaa752 \
+    --hash=sha256:a008afdd452c07e98c56cb04eb6e8fa9cf3d8754bafc624be4cb085f64cb7da7
     # via -r requirements/main.in
 pyramid-retry==2.1.1 \
     --hash=sha256:b5129a60eb9d7409234ea52839006426d2ae887b4a1f0530c75ec336cabf2476 \
