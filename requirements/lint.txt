@@ -425,9 +425,9 @@ types-zxcvbn==4.4.1.20240106 \
     --hash=sha256:188315a87501b31ca3bf0ecf323a1376f611bd1969a69a06df86a5f92d05d64c \
     --hash=sha256:ca9e6cda8c0eec045f8b38d1183c4a2e29daeb240ddcddc5087fa11af66213e4
     # via -r requirements/lint.in
-typing-extensions==4.12.1 \
-    --hash=sha256:6024b58b69089e5a89c347397254e35f1bf02a907728ec7fee9bf0fe837d203a \
-    --hash=sha256:915f5e35ff76f56588223f15fdd5938f9a1cf9195c0de25130c627e4d597f6d1
+typing-extensions==4.12.2 \
+    --hash=sha256:04e5ca0351e0f3f85c6853954072df659d0d13fac324d0072316b67d7794700d \
+    --hash=sha256:1a7ead55c7e559dd4dee8856e3a88b41225abfe1ce8df57b7c13915fe121ffb8
     # via
     #   celery-types
     #   mypy
