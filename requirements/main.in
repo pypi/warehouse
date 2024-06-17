@@ -6,7 +6,7 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.3.5,<5.4
+celery[sqs]>=5.3.5,<5.5
 celery-redbeat
 certifi
 click
