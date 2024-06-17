@@ -347,9 +347,7 @@ def get_app_config(database, nondefaults=None):
 @pytest.fixture(scope="session")
 def app_config(database):
 
-    return get_app_config(
-        database,
-    )
+    return get_app_config(database)
 
 
 @pytest.fixture(scope="session")
