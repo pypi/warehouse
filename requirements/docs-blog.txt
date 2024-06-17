@@ -304,9 +304,9 @@ mkdocs-rss-plugin==1.12.2 \
     --hash=sha256:2e1d5cb871494f2634b9c3fe523a4246ba5c00c5f6627242101675d3c63b2bdd \
     --hash=sha256:313f127967ebcf14ad6f74f1f6f89f054deeb3a1de510770778ce150b75f2247
     # via -r requirements/docs-blog.in
-packaging==24.0 \
-    --hash=sha256:2ddfb553fdf02fb784c234c7ba6ccc288296ceabec964ad2eae3777778130bc5 \
-    --hash=sha256:eb82c5e3e56209074766e6885bb04b8c38a0c015d0a30036ebe7ece34c9989e9
+packaging==24.1 \
+    --hash=sha256:026ed72c8ed3fcce5bf8950572258698927fd1dbda10a5e981cdf0ac37f4f002 \
+    --hash=sha256:5b8f2217dbdbd2f7f384c41c628544e6d52f2d0f53c6d0c3ea61aa5d1d7ff124
     # via mkdocs
 paginate==0.5.6 \
     --hash=sha256:5e6007b6a9398177a7e1648d04fdd9f8c9766a1a945bceac82f1929e8c78af2d
