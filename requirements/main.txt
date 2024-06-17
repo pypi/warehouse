@@ -1952,9 +1952,9 @@ structlog==24.2.0 \
     --hash=sha256:0e3fe74924a6d8857d3f612739efb94c72a7417d7c7c008d12276bca3b5bf13b \
     --hash=sha256:983bd49f70725c5e1e3867096c0c09665918936b3db27341b41d294283d7a48a
     # via -r requirements/main.in
-tenacity==8.3.0 \
-    --hash=sha256:3649f6443dbc0d9b01b9d8020a9c4ec7a1ff5f6f3c6c8a036ef371f573fe9185 \
-    --hash=sha256:953d4e6ad24357bceffbc9707bc74349aca9d245f68eb65419cf0c249a1949a2
+tenacity==8.4.0 \
+    --hash=sha256:5ea66b27e881eec324b15adc7be9ec35001d231d4cfb5d10eee1bf9323d723a9 \
+    --hash=sha256:6c72aeb4d300b9858be0d52f1894ee952f0b391ec583cdc19c2523030efcc4eb
     # via celery-redbeat
 text-unidecode==1.3 \
     --hash=sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8 \
