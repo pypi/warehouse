@@ -143,23 +143,23 @@ msgstr "Alamat email ini sudah digunakan oleh akun lain. Gunakan email lain."
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Nama terlalu panjang. Pilih nama dengan panjang kurang dari 100 huruf."
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "Kode TOTP tidak valid."
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Pernyataan WebAuthn tidak valid: Muatan buruk"
 
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "Kode pemulihan tidak valid."
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "Kode pemulihan telah digunakan sebelumnya."
 
-#: warehouse/accounts/forms.py:564
+#: warehouse/accounts/forms.py:565
 #, fuzzy
 #| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
@@ -928,22 +928,22 @@ msgstr "Tentukan pemilik repositori GitHub (nama pengguna atau organisasi)"
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Nama pengguna atau organisasi GitHub tidak valid."
 
-#: warehouse/oidc/forms/gitlab.py:53
-msgid "Specify workflow filepath"
+#: warehouse/oidc/forms/gitlab.py:54
+msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 #, fuzzy
 #| msgid "Invalid repository name"
 msgid "Invalid environment name"
 msgstr "Nama repositori tidak valid"
 
-#: warehouse/oidc/forms/gitlab.py:76
-msgid "Workflow file path must end with .yml or .yaml"
+#: warehouse/oidc/forms/gitlab.py:78
+msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
+#: warehouse/oidc/forms/gitlab.py:82
+msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
 #: warehouse/packaging/forms.py:27
@@ -1023,7 +1023,8 @@ msgstr "Monty Python - Sketsa Toko Keju"
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2325,7 +2326,7 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> dihapus sebagai proyek %(role_name)s"
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2336,7 +2337,7 @@ msgid ""
 "Publisher to publish."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2344,7 +2345,7 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a "
@@ -3172,205 +3173,6 @@ msgid ""
 msgstr ""
 "<a href=\"%(href)s\">%(username)s</a> dihapus sebagai proyek %(role_name)s"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  PyPI user <strong>%(username)s</strong> has added a new OpenID Connect\n"
-#| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
-#| "manage.\n"
-#| "  OpenID Connect publishers act as trusted users and can create project "
-#| "releases\n"
-#| "  automatically.\n"
-#| "  "
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-"\n"
-"  Pengguna PyPI <strong>%(username)s</strong> telah menambahkan penerbit "
-"OpenID Connect\n"
-"  baru ke sebuah proyek (<strong>%(project_name)s</strong>) yang Anda "
-"kelola.\n"
-"  Penerbit OpenID Connect bertindak sebagai pengguna terpercaya dan dapat "
-"membuat rilis proyek\n"
-"  secara otomatis.\n"
-"  "
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr "Informasi penerbit"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-msgid "Publisher name"
-msgstr "Nama penerbit"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow"
-msgstr "Nama anda"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "Pemilik"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-#, fuzzy
-#| msgid "repository"
-msgid "Repository"
-msgstr "repositori"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid repository name"
-msgid "Environment"
-msgstr "Nama repositori tidak valid"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr "Email"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-#, fuzzy
-#| msgid "Subject:"
-msgid "Subject"
-msgstr "Subjek:"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Project description"
-msgid "Organization"
-msgstr "Deskripsi proyek"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project name"
-msgid "ActiveState Project name"
-msgstr "Nama proyek"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "  If you did not make this change and you think it was made maliciously, "
-#| "you can\n"
-#| "  check the \"Security history\" tab on the project's page.\n"
-#| "  "
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-"\n"
-"  Jika Anda tidak melakukan perubahan ini dan menurut Anda perubahan ini "
-"dibuat dengan maksud jahat, Anda dapat\n"
-"  memeriksa tab \"Riwayat keamanan\" pada halaman proyek.\n"
-"  "
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  If you are unable to revert the change and need to do so, you can "
-#| "email\n"
-#| "  <a href=\"%(href)s\">%(email_address)s</a> to communicate with the "
-#| "PyPI\n"
-#| "  administrators.\n"
-#| "  "
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"\n"
-"  Jika Anda tidak dapat mengembalikan perubahan tersebut dan Anda perlu "
-"melakukannya, Anda bisa mengirim email ke\n"
-"  <a href=\"%(href)s\">%(email_address)s</a> untuk berkomunikasi dengan\n"
-"  administrator PyPI.\n"
-"  "
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "  PyPI user <strong>%(username)s</strong> has removed an OpenID Connect\n"
-#| "  publisher from a project (<strong>%(project_name)s</strong>) that you "
-#| "manage.\n"
-#| "  "
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-"\n"
-"  Pengguna PyPI <strong>%(username)s</strong> telah menghapus sebuah "
-"penerbit\n"
-"  OpenID Connect dari sebuah proyek (<strong>%(project_name)s</strong>) yang "
-"Anda kelola.\n"
-"  "
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-#, fuzzy
-#| msgid ""
-#| "\n"
-#| "  If you did not make this change and you think it was made maliciously, "
-#| "you can\n"
-#| "  check the \"Security history\" tab on the project's page.\n"
-#| "  "
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-"\n"
-"  Jika Anda tidak melakukan perubahan ini dan menurut Anda perubahan ini "
-"dibuat dengan maksud jahat, Anda dapat\n"
-"  memeriksa tab \"Riwayat keamanan\" pada halaman proyek.\n"
-"  "
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -3771,6 +3573,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s belum pernah mengunggah proyek apapun ke PyPI."
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr "Email"
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -3875,7 +3683,7 @@ msgstr "Tidak diverifikasi"
 msgid "Project links"
 msgstr "Tautan proyek"
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 #, fuzzy
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
@@ -5265,6 +5073,20 @@ msgstr ""
 msgid "Manager"
 msgstr "Mengelola"
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "Pemilik"
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -5721,10 +5543,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow file path"
-msgstr "Nama anda"
+msgid "Top-level pipeline file path"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -5734,8 +5554,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
 
@@ -5778,6 +5598,13 @@ msgstr "Email"
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+#, fuzzy
+#| msgid "Subject:"
+msgid "Subject"
+msgstr "Subjek:"
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 #, fuzzy
@@ -5808,6 +5635,14 @@ msgstr ""
 "Anda dapat membuat kode pemulihan untuk akun Anda di sini:\n"
 "<a href=\"%(href)s\">%(href)s</a>\n"
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+#, fuzzy
+#| msgid "Project description"
+msgid "Organization"
+msgstr "Deskripsi proyek"
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 #, fuzzy
@@ -5819,6 +5654,13 @@ msgstr "Deskripsi proyek"
 #: warehouse/templates/manage/project/publishing.html:297
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+#, fuzzy
+#| msgid "Project name"
+msgid "ActiveState Project name"
+msgstr "Nama proyek"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -11622,6 +11464,133 @@ msgstr "Tidak ada hasil untuk '%(term)s'"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Tidak ada hasil untuk '%(term)s'"
+
+#, fuzzy
+#~| msgid "Your name"
+#~ msgid "Workflow file path"
+#~ msgstr "Nama anda"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "  PyPI user <strong>%(username)s</strong> has added a new OpenID "
+#~| "Connect\n"
+#~| "  publisher to a project (<strong>%(project_name)s</strong>) that you "
+#~| "manage.\n"
+#~| "  OpenID Connect publishers act as trusted users and can create project "
+#~| "releases\n"
+#~| "  automatically.\n"
+#~| "  "
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
+#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
+#~ "publishers act as trusted users and can create project releases "
+#~ "automatically."
+#~ msgstr ""
+#~ "\n"
+#~ "  Pengguna PyPI <strong>%(username)s</strong> telah menambahkan penerbit "
+#~ "OpenID Connect\n"
+#~ "  baru ke sebuah proyek (<strong>%(project_name)s</strong>) yang Anda "
+#~ "kelola.\n"
+#~ "  Penerbit OpenID Connect bertindak sebagai pengguna terpercaya dan dapat "
+#~ "membuat rilis proyek\n"
+#~ "  secara otomatis.\n"
+#~ "  "
+
+#~ msgid "Publisher information"
+#~ msgstr "Informasi penerbit"
+
+#~ msgid "Publisher name"
+#~ msgstr "Nama penerbit"
+
+#, fuzzy
+#~| msgid "Your name"
+#~ msgid "Workflow"
+#~ msgstr "Nama anda"
+
+#, fuzzy
+#~| msgid "repository"
+#~ msgid "Repository"
+#~ msgstr "repositori"
+
+#, fuzzy
+#~| msgid "Invalid repository name"
+#~ msgid "Environment"
+#~ msgstr "Nama repositori tidak valid"
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "  If you did not make this change and you think it was made maliciously, "
+#~| "you can\n"
+#~| "  check the \"Security history\" tab on the project's page.\n"
+#~| "  "
+#~ msgid ""
+#~ "If you did not make this change and you think it was made maliciously, "
+#~ "you can remove it from the project via the \"Publishing\" tab on the "
+#~ "project's page."
+#~ msgstr ""
+#~ "\n"
+#~ "  Jika Anda tidak melakukan perubahan ini dan menurut Anda perubahan ini "
+#~ "dibuat dengan maksud jahat, Anda dapat\n"
+#~ "  memeriksa tab \"Riwayat keamanan\" pada halaman proyek.\n"
+#~ "  "
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "  If you are unable to revert the change and need to do so, you can "
+#~| "email\n"
+#~| "  <a href=\"%(href)s\">%(email_address)s</a> to communicate with the "
+#~| "PyPI\n"
+#~| "  administrators.\n"
+#~| "  "
+#~ msgid ""
+#~ "If you are unable to revert the change and need to do so, you can email "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "\n"
+#~ "  Jika Anda tidak dapat mengembalikan perubahan tersebut dan Anda perlu "
+#~ "melakukannya, Anda bisa mengirim email ke\n"
+#~ "  <a href=\"%(href)s\">%(email_address)s</a> untuk berkomunikasi dengan\n"
+#~ "  administrator PyPI.\n"
+#~ "  "
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "  PyPI user <strong>%(username)s</strong> has removed an OpenID Connect\n"
+#~| "  publisher from a project (<strong>%(project_name)s</strong>) that you "
+#~| "manage.\n"
+#~| "  "
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
+#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
+#~ msgstr ""
+#~ "\n"
+#~ "  Pengguna PyPI <strong>%(username)s</strong> telah menghapus sebuah "
+#~ "penerbit\n"
+#~ "  OpenID Connect dari sebuah proyek (<strong>%(project_name)s</strong>) "
+#~ "yang Anda kelola.\n"
+#~ "  "
+
+#, fuzzy
+#~| msgid ""
+#~| "\n"
+#~| "  If you did not make this change and you think it was made maliciously, "
+#~| "you can\n"
+#~| "  check the \"Security history\" tab on the project's page.\n"
+#~| "  "
+#~ msgid ""
+#~ "If you did not make this change and you think it was made in error, you "
+#~ "can check the \"Security history\" tab on the project's page."
+#~ msgstr ""
+#~ "\n"
+#~ "  Jika Anda tidak melakukan perubahan ini dan menurut Anda perubahan ini "
+#~ "dibuat dengan maksud jahat, Anda dapat\n"
+#~ "  memeriksa tab \"Riwayat keamanan\" pada halaman proyek.\n"
+#~ "  "
 
 #, fuzzy, python-format
 #~| msgid ""

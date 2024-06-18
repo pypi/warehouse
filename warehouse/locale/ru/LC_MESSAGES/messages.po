@@ -162,23 +162,23 @@ msgstr ""
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "Слишком длинное имя. Выберите имя, используя не более 100 символов."
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "Неверный TOTP-код."
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "Недопустимое значение WebAuthn: Плохая полезная нагрузка"
 
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "Неверный код восстановления."
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "Коды восстановления были повторно сгенерированы."
 
-#: warehouse/accounts/forms.py:564
+#: warehouse/accounts/forms.py:565
 msgid "The username isn't valid. Try again."
 msgstr "Имя пользователя не является действительным. Попробуй еще раз."
 
@@ -847,20 +847,26 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "Неверное имя пользователя или организации GitHub."
 
-#: warehouse/oidc/forms/gitlab.py:53
-msgid "Specify workflow filepath"
+#: warehouse/oidc/forms/gitlab.py:54
+#, fuzzy
+#| msgid "Specify workflow filepath"
+msgid "Specify top-level pipeline file path"
 msgstr "Укажите путь к файлу рабочего процесса"
 
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 msgid "Invalid environment name"
 msgstr "Неверное имя окружения"
 
-#: warehouse/oidc/forms/gitlab.py:76
-msgid "Workflow file path must end with .yml or .yaml"
+#: warehouse/oidc/forms/gitlab.py:78
+#, fuzzy
+#| msgid "Workflow file path must end with .yml or .yaml"
+msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr "Путь к файлу рабочего процесса должен заканчиваться на .yml или .yaml"
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
+#: warehouse/oidc/forms/gitlab.py:82
+#, fuzzy
+#| msgid "Workflow file path cannot start or end with /"
+msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 "Путь к файлу рабочего процесса не может начинаться или заканчиваться "
 "символом /"
@@ -934,7 +940,8 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2180,7 +2187,7 @@ msgstr ""
 "Организация %(site)s была переименована из "
 "\"%(previous_organization_name)s\" в \"%(organization_name)s\"."
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2191,7 +2198,7 @@ msgid ""
 "Publisher to publish."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2199,7 +2206,7 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a "
@@ -2893,142 +2900,6 @@ msgstr ""
 "\"%(team_name)s\" в организации \"%(organization_name)s\" от <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>."
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-"Пользователь PyPI <strong>%(username)s</strong> добавил новый доверенный "
-"издатель в проект (<strong>%(project_name)s</strong>), которым вы "
-"управляете. Доверенные издатели действуют как доверенные пользователи и "
-"могут создавать выпуски проектов автоматически."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr "Издательская информация"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-msgid "Publisher name"
-msgstr "Имя издателя"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-msgid "Workflow"
-msgstr "Рабочий процесс"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "Владелец"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-msgid "Repository"
-msgstr "Репозиторий"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-msgid "Environment"
-msgstr "Окружающая среда"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr "Электронная почта"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Subject"
-msgstr "Тема"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-msgid "Organization"
-msgstr "Организация"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project name"
-msgid "ActiveState Project name"
-msgstr "Название проекта"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-"Если вы не сделали это изменение, и вы думаете, что оно было сделано "
-"злонамеренно, вы можете удалить его из проекта через вкладку «Публикование» "
-"на странице проекта."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, python-format
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"Если вы не можете отменить изменение, а вам это необходимо, вы можете "
-"отправить письмо <a href=\"%(href)s\">%(email_address)s</a> для связи с "
-"администраторами PyPI."
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-"Пользователь PyPI <strong>%(username)s</strong> удалил доверенного издателя "
-"из проекта (<strong>%(project_name)s</strong>), которым вы управляете."
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-"Если вы не сделали это изменение, и вы думаете, что оно было сделано в "
-"ошибке, вы можете проверить вкладку «История безопасности» на странице "
-"проекта."
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -3460,6 +3331,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "Пользователь %(username)s ещё не загрузил на PyPI ни одного проекта."
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr "Электронная почта"
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3560,7 +3437,7 @@ msgstr "Непроверенный"
 msgid "Project links"
 msgstr "Ссылки проекта"
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 msgid "GitHub Statistics"
 msgstr "Статистика GitHub"
 
@@ -4836,6 +4713,20 @@ msgstr "Неактивный"
 msgid "Manager"
 msgstr "Руководитель"
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "Владелец"
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -5253,8 +5144,8 @@ msgstr "Имя проекта GitLab, содержащего рабочий пр
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-msgid "Workflow file path"
-msgstr "Путь к файлу рабочего процесса"
+msgid "Top-level pipeline file path"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -5263,9 +5154,14 @@ msgstr ".gitlab-ci.yml"
 
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
+#, fuzzy
+#| msgid ""
+#| "The file path of the publishing workflow, relative to the project's root. "
+#| "This file should exist in the project configured above (external "
+#| "workflows are not supported)."
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
 "Путь к файлу рабочего процесса публикации, относительно корня проекта. Этот "
@@ -5311,6 +5207,11 @@ msgstr ""
 "Адрес электронной почты учетной записи или учетной записи службы, "
 "используемой для публикации."
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+msgid "Subject"
+msgstr "Тема"
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 msgid "subject"
@@ -5340,6 +5241,12 @@ msgid ""
 msgstr ""
 "Подробнее о поддержке Google OpenID Connect <a href=\"%(href)s\">здесь</a>."
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+msgid "Organization"
+msgstr "Организация"
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 #, fuzzy
@@ -5356,6 +5263,13 @@ msgid "The ActiveState organization name that owns the project"
 msgstr ""
 "Имя организации GitHub или имя пользователя GitHub, которому принадлежит "
 "репозиторий"
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+#, fuzzy
+#| msgid "Project name"
+msgid "ActiveState Project name"
+msgstr "Название проекта"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -10661,6 +10575,72 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Не было результатов для фильтра '%(filters)s'"
 msgstr[1] "Не было результатов для фильтра '%(filters)s'"
 msgstr[2] "Не было результатов для фильтров '%(filters)s'"
+
+#~ msgid "Workflow file path"
+#~ msgstr "Путь к файлу рабочего процесса"
+
+#, python-format
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
+#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
+#~ "publishers act as trusted users and can create project releases "
+#~ "automatically."
+#~ msgstr ""
+#~ "Пользователь PyPI <strong>%(username)s</strong> добавил новый доверенный "
+#~ "издатель в проект (<strong>%(project_name)s</strong>), которым вы "
+#~ "управляете. Доверенные издатели действуют как доверенные пользователи и "
+#~ "могут создавать выпуски проектов автоматически."
+
+#~ msgid "Publisher information"
+#~ msgstr "Издательская информация"
+
+#~ msgid "Publisher name"
+#~ msgstr "Имя издателя"
+
+#~ msgid "Workflow"
+#~ msgstr "Рабочий процесс"
+
+#~ msgid "Repository"
+#~ msgstr "Репозиторий"
+
+#~ msgid "Environment"
+#~ msgstr "Окружающая среда"
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made maliciously, "
+#~ "you can remove it from the project via the \"Publishing\" tab on the "
+#~ "project's page."
+#~ msgstr ""
+#~ "Если вы не сделали это изменение, и вы думаете, что оно было сделано "
+#~ "злонамеренно, вы можете удалить его из проекта через вкладку "
+#~ "«Публикование» на странице проекта."
+
+#, python-format
+#~ msgid ""
+#~ "If you are unable to revert the change and need to do so, you can email "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "Если вы не можете отменить изменение, а вам это необходимо, вы можете "
+#~ "отправить письмо <a href=\"%(href)s\">%(email_address)s</a> для связи с "
+#~ "администраторами PyPI."
+
+#, python-format
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
+#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
+#~ msgstr ""
+#~ "Пользователь PyPI <strong>%(username)s</strong> удалил доверенного "
+#~ "издателя из проекта (<strong>%(project_name)s</strong>), которым вы "
+#~ "управляете."
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made in error, you "
+#~ "can check the \"Security history\" tab on the project's page."
+#~ msgstr ""
+#~ "Если вы не сделали это изменение, и вы думаете, что оно было сделано в "
+#~ "ошибке, вы можете проверить вкладку «История безопасности» на странице "
+#~ "проекта."
 
 #, python-format
 #~ msgid ""
