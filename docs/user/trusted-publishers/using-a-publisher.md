@@ -108,8 +108,8 @@ below describe the setup process for each supported trusted publisher.
     2. Submit that token to PyPI, which will return a short-lived API key;
     3. Use that API key as you normally would (e.g. with `twine`)
 
-    GitHub is currently the only OIDC identity provider supported, so we'll use it
-    for examples below.
+    While the examples below demonstrate using GitHub as an identity providers, 
+    this process is also compatible with the other identity providers.
 
     All code below assumes that it's being run in a GitHub Actions
     workflow runner with `id-token: write` permissions. That permission is
