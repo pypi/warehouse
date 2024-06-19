@@ -111,10 +111,9 @@ def update_metadata(request: Request, project_id: UUID):
     distributions files and simple detail files. In reality, simple detail files
     are enough, as they already include all relevant distribution file infos.
     """
-    if not request.registry.settings["tuf.enabled"]:
-        return
-
     server = request.registry.settings["tuf.rstuf_api_url"]
+    if not server:
+        return
 
     project = request.db.query(Project).filter(Project.id == project_id).one()
 

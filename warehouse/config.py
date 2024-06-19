@@ -367,13 +367,6 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
-    maybe_set(
-        settings,
-        "tuf.enabled",
-        "TUF_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
     maybe_set(settings, "tuf.rstuf_api_url", "TUF_RSTUF_API_URL")
 
     # Pythondotorg integration settings

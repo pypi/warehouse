@@ -267,7 +267,7 @@ TUF trust root for development, and creates the initial set of TUF metadata.
 
 Once this process is finished, TUF metadata will update automatically whenever
 distribution files are uploaded, yanked or removed. To disable this behavior,
-you can set the ``TUF_ENABLED`` environment variable to false. TUF metadata
+you can unset the ``TUF_RSTUF_API_URL`` environment variable. TUF metadata
 is hosted at: http://localhost:9001/tuf-metadata/
 
 .. note::
