@@ -705,9 +705,3 @@ class _MockRedis:
 def mockredis():
     mock_redis = _MockRedis()
     yield mock_redis
-
-
-@pytest.fixture
-def disable_tuf(monkeypatch):
-    # TODO: disable via setting
-    monkeypatch.setattr("warehouse.tuf.update_metadata", lambda *a: None)

@@ -1169,7 +1169,7 @@ def file_upload(request):
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
-    tuf.update_metadata(request, release.project)
+    request.task(tuf.update_metadata).delay(release.project.id)
 
     # Push updates to BigQuery
     dist_metadata = {
