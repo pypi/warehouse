@@ -336,7 +336,6 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.search.ratelimit_string": "5 per second",
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "integrity.backend": "warehouse.attestations.services.IntegrityService",
-        "tuf.enabled": False,
         "warehouse.organizations.max_undecided_organization_applications": 3,
         "reconcile_file_storages.batch_size": 100,
         "metadata_backfill.batch_size": 500,

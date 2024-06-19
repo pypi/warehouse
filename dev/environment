@@ -65,7 +65,6 @@ TWOFACTORMANDATE_ENABLED=true
 OIDC_AUDIENCE=pypi
 
 TUF_RSTUF_API_URL="http://rstuf-api"
-TUF_ENABLED=true
 
 # Default to the reCAPTCHA testing keys from https://developers.google.com/recaptcha/docs/faq
 RECAPTCHA_SITE_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI

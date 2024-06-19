@@ -470,13 +470,6 @@ def configure(settings=None):
         "INTEGRITY_BACKEND",
         default="warehouse.attestations.services.IntegrityService",
     )
-    maybe_set(
-        settings,
-        "tuf.enabled",
-        "TUF_ENABLED",
-        coercer=distutils.util.strtobool,
-        default=False,
-    )
     maybe_set(settings, "tuf.rstuf_api_url", "TUF_RSTUF_API_URL")
 
     # Pythondotorg integration settings
