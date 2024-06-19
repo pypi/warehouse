@@ -16,7 +16,6 @@ RSTUF API client library
 
 import time
 
-from http import HTTPStatus
 from typing import Any
 from uuid import UUID
 
@@ -33,19 +32,14 @@ class RSTUFError(Exception):
     pass
 
 
+class RSTUFNoBootstrapError(Exception):
+    pass
+
+
 def get_task_state(server: str, task_id: str) -> str:
     resp = requests.get(f"{server}/api/v1/task?task_id={task_id}")
     resp.raise_for_status()
     return resp.json()["data"]["state"]
-
-
-def is_bootstrapped(server: str) -> bool:
-    """Call RSTUF bootstrap API to check, if RSTUF is ready to be used."""
-    response = requests.get(f"{server}/api/v1/bootstrap")
-    if response.status_code != HTTPStatus.OK:
-        return False
-
-    return response.json()["data"]["bootstrap"]
 
 
 def post_bootstrap(server: str, payload: Any) -> str:
@@ -68,7 +62,15 @@ def post_artifacts(server: str, payload: Any) -> str:
     """
     resp = requests.post(f"{server}/api/v1/artifacts", json=payload)
     resp.raise_for_status()
-    return resp.json()["data"]["task_id"]
+
+    # 200 but no "data" means that RSTUF isn't bootstrapped yet
+    # TODO: Ask upstream to not return 200 on error
+    resp_json = resp.json()
+    resp_data = resp_json.get("data")
+    if not resp_data:
+        raise RSTUFNoBootstrapError(resp_json)
+
+    return resp_data["task_id"]
 
 
 def wait_for_success(server: str, task_id: str):
@@ -113,9 +115,6 @@ def update_metadata(request: Request, project_id: UUID):
         return
 
     server = request.registry.settings["tuf.rstuf_api_url"]
-
-    if not is_bootstrapped(server):
-        return
 
     project = request.db.query(Project).filter(Project.id == project_id).one()
 
