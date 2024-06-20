@@ -338,10 +338,45 @@ def get_app_config(database, nondefaults=None):
             with mock.patch.object(static, "whitenoise_add_manifest"):
                 cfg = config.configure(settings=settings)
 
-    # Ensure our migrations have been ran.
+    # Run migrations:
+    # This might harmlessly run multiple times if there are several app config fixtures
+    # in the test session, using the same database.
     alembic.command.upgrade(cfg.alembic_config(), "head")
 
     return cfg
+
+
+@contextmanager
+def get_db_session_for_app_config(app_config):
+    """
+    Refactor: This helper function is designed to help fixtures yield a database
+    session for a particular app_config.
+
+    It needs the app_config in order to fetch the database engine that's owned
+    by the config.
+    """
+
+    # TODO: We possibly accept 2 instances of the sqlalchemy engine.
+    # There's a bit of circular dependencies in place:
+    # 1) To create a database session, we need to create an app config registry
+    #    and read config.registry["sqlalchemy.engine"]
+    # 2) To create an app config registry, we need to be able to dictate the
+    #    database session through the initial config.
+    #
+    # 1) and 2) clash.
+    engine = app_config.registry["sqlalchemy.engine"]  # get_sqlalchemy_engine(database)
+    conn = engine.connect()
+    trans = conn.begin()
+    session = Session(bind=conn, join_transaction_mode="create_savepoint")
+
+    try:
+        yield session
+    finally:
+        session.close()
+        Session.remove()
+        trans.rollback()
+        conn.close()
+        engine.dispose()
 
 
 @pytest.fixture(scope="session")
@@ -362,19 +397,15 @@ def app_config_dbsession_from_env(database):
 
 @pytest.fixture
 def db_session(app_config):
-    engine = app_config.registry["sqlalchemy.engine"]
-    conn = engine.connect()
-    trans = conn.begin()
-    session = Session(bind=conn, join_transaction_mode="create_savepoint")
+    """
+    Refactor:
 
-    try:
-        yield session
-    finally:
-        session.close()
-        Session.remove()
-        trans.rollback()
-        conn.close()
-        engine.dispose()
+    This fixture actually manages a specific app_config paired with a database
+    connection. For this reason, it's suggested to change the name to
+    db_and_app, and yield both app_config and db_session.
+    """
+    with get_db_session_for_app_config(app_config) as _db_session:
+        yield _db_session
 
 
 @pytest.fixture
@@ -642,7 +673,17 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config_dbsession_from_env, db_session):
+def webtest(app_config_dbsession_from_env):
+    """
+    This fixture yields a test app with an alternative Pyramid configuration,
+    injecting the database session and transaction manager into the app.
+
+    This is because the Warehouse app normally manages its own database session.
+
+    After the fixture has yielded the app, the transaction is rolled back and
+    the database is left in its previous state.
+    """
+
     # We want to disable anything that relies on TLS here.
     app_config_dbsession_from_env.add_settings(enforce_https=False)
 
@@ -653,17 +694,18 @@ def webtest(app_config_dbsession_from_env, db_session):
     tm.begin()
     tm.doom()
 
-    # Register the app with the external test environment, telling
-    # request.db to use this db_session and use the Transaction manager.
-    testapp = _TestApp(
-        app,
-        extra_environ={
-            "warehouse.db_session": db_session,
-            "tm.active": True,  # disable pyramid_tm
-            "tm.manager": tm,  # pass in our own tm for the app to use
-        },
-    )
-    yield testapp
+    with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
+        # Register the app with the external test environment, telling
+        # request.db to use this db_session and use the Transaction manager.
+        testapp = _TestApp(
+            app,
+            extra_environ={
+                "warehouse.db_session": _db_session,
+                "tm.active": True,  # disable pyramid_tm
+                "tm.manager": tm,  # pass in our own tm for the app to use
+            },
+        )
+        yield testapp
 
     # Abort the transaction, leaving database in previous state
     tm.abort()
