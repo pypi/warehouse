@@ -67,9 +67,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==2.4.0 \
-    --hash=sha256:95122d163819c233e8b11b4a1d87fcd3b9c4eb62db78b69bd231e20aa91547fb \
-    --hash=sha256:fe53e53febd7a84aad67ae919fae4341d62ea799095f0f7d9c07e9a9ae2213b8
+b2sdk==2.4.1 \
+    --hash=sha256:257510b7c661dc6d513588560b436f2424fcbb4213834fa3ca52c7a5fd8d44b7 \
+    --hash=sha256:7ce6301cb119fdbf9826d4a11c7ea783194a2ffbfaf2fb1c437c3643e22bfe36
     # via -r requirements/main.in
 babel==2.15.0 \
     --hash=sha256:08706bdad8d0a3413266ab61bd6c34d0c28d6e1e7badf40a2cebe67644e2e1fb \
@@ -495,9 +495,9 @@ elasticsearch-dsl==7.4.1 \
     --hash=sha256:07ee9c87dc28cc3cae2daa19401e1e18a172174ad9e5ca67938f752e3902a1d5 \
     --hash=sha256:97f79239a252be7c4cce554c29e64695d7ef6a4828372316a5e5ff815e7a7498
     # via -r requirements/main.in
-email-validator==2.1.2 \
-    --hash=sha256:14c0f3d343c4beda37400421b39fa411bbe33a75df20825df73ad53e06a9f04c \
-    --hash=sha256:d89f6324e13b1e39889eab7f9ca2f91dc9aebb6fa50a6d8bd4329ab50f251115
+email-validator==2.2.0 \
+    --hash=sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631 \
+    --hash=sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7
     # via wtforms
 first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
@@ -526,9 +526,9 @@ google-auth==2.30.0 \
     #   google-cloud-bigquery
     #   google-cloud-core
     #   google-cloud-storage
-google-cloud-bigquery==3.24.0 \
-    --hash=sha256:bc08323ce99dee4e811b7c3d0cde8929f5bf0b1aeaed6bcd75fc89796dd87652 \
-    --hash=sha256:e95e6f6e0aa32e6c453d44e2b3298931fdd7947c309ea329a31b6ff1f939e17e
+google-cloud-bigquery==3.25.0 \
+    --hash=sha256:5b2aff3205a854481117436836ae1403f11f2594e6810a98886afd57eda28509 \
+    --hash=sha256:7f0c371bc74d2a7fb74dacbc00ac0f90c8c2bec2289b51dd6685a275873b1ce9
     # via -r requirements/main.in
 google-cloud-core==2.4.1 \
     --hash=sha256:9b7749272a812bde58fff28868d0c5e2f585b82f37e09a1f6ed2d4d10f134073 \
@@ -1391,9 +1391,9 @@ prompt-toolkit==3.0.47 \
     --hash=sha256:0d7bfa67001d5e39d02c224b663abc33687405033a8c422d0d675a5a13361d10 \
     --hash=sha256:1e1b29cb58080b1e69f207c893a1a7bf16d127a5c30c9d17a25a5d77792e5360
     # via click-repl
-proto-plus==1.23.0 \
-    --hash=sha256:89075171ef11988b3fa157f5dbd8b9cf09d65fffee97e29ce403cd8defba19d2 \
-    --hash=sha256:a829c79e619e1cf632de091013a4173deed13a55f326ef84f05af6f50ff4c82c
+proto-plus==1.24.0 \
+    --hash=sha256:30b72a5ecafe4406b0d339db35b56c4059064e69227b8c3bda7462397f966445 \
+    --hash=sha256:402576830425e5f6ce4c2a6702400ac79897dab0b4343821aa5188b0fab81a12
     # via google-api-core
 protobuf==4.25.3 \
     --hash=sha256:19b270aeaa0099f16d3ca02628546b8baefe2955bbe23224aaf856134eccf1e4 \
@@ -1871,9 +1871,9 @@ s3transfer==0.7.0 \
     --hash=sha256:10d6923c6359175f264811ef4bf6161a3156ce8e350e705396a7557d6293c33a \
     --hash=sha256:fd3889a66f5fe17299fe75b82eae6cf722554edca744ca5d5fe308b104883d2e
     # via boto3
-sentry-sdk==2.5.1 \
-    --hash=sha256:1f87acdce4a43a523ae5aa21a3fc37522d73ebd9ec04b1dbf01aa3d173852def \
-    --hash=sha256:fbc40a78a8a9c6675133031116144f0d0940376fa6e4e1acd5624c90b0aaf58b
+sentry-sdk==2.6.0 \
+    --hash=sha256:422b91cb49378b97e7e8d0e8d5a1069df23689d45262b86f54988a7db264e874 \
+    --hash=sha256:65cc07e9c6995c5e316109f138570b32da3bd7ff8d0d0ee4aaf2628c3dd8127d
     # via -r requirements/main.in
 six==1.16.0 \
     --hash=sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926 \
@@ -2189,9 +2189,9 @@ zxcvbn==4.4.28 \
     # via -r requirements/main.in
 
 # The following packages are considered to be unsafe in a requirements file:
-setuptools==70.0.0 \
-    --hash=sha256:54faa7f2e8d2d11bcd2c07bed282eef1046b5c080d1c32add737d7b5817b1ad4 \
-    --hash=sha256:f211a66637b8fa059bb28183da127d4e86396c991a942b028c6650d4319c3fd0
+setuptools==70.1.0 \
+    --hash=sha256:01a1e793faa5bd89abc851fa15d0a0db26f160890c7102cd8dce643e886b47f5 \
+    --hash=sha256:d9b8b771455a97c8a9f3ab3448ebe0b29b5e105f1228bba41028be116985a267
     # via
     #   -r requirements/main.in
     #   pyramid
