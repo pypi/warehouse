@@ -25,13 +25,14 @@
 # "Wdt@.+_-" <wdt.app.vip.v8@outlook.com>, 2023.
 # 123456789 <15183543555@163.com>, 2023.
 # "Wei-Hsiang (Matt) Wang" <mattwang44@gmail.com>, 2024.
+# hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-03-13 13:45+0000\n"
-"Last-Translator: \"Wei-Hsiang (Matt) Wang\" <mattwang44@gmail.com>\n"
+"PO-Revision-Date: 2024-06-06 14:36+0000\n"
+"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
 "Language-Team: Chinese (Traditional) <https://hosted.weblate.org/projects/"
 "pypa/warehouse/zh_Hant/>\n"
 "Language: zh_Hant\n"
@@ -39,7 +40,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.6-dev\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -142,23 +143,23 @@ msgstr "其他帳戶已使用此電子郵件地址。 請使用其他電子郵�
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "名稱太長了。請選擇不超過 100 個字的名稱。"
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "無效的一次性密碼 (TOTP)。"
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "無效的 WebAuthn 斷言：負載錯誤"
 
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "無效的重設碼。"
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "重設碼已重新生成。"
 
-#: warehouse/accounts/forms.py:564
+#: warehouse/accounts/forms.py:565
 msgid "The username isn't valid. Try again."
 msgstr "使用者名稱無效。 請再試一次。"
 
@@ -851,22 +852,22 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:53
-msgid "Specify workflow filepath"
+#: warehouse/oidc/forms/gitlab.py:54
+msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid environment name"
 msgstr "無效的重設碼。"
 
-#: warehouse/oidc/forms/gitlab.py:76
-msgid "Workflow file path must end with .yml or .yaml"
+#: warehouse/oidc/forms/gitlab.py:78
+msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
+#: warehouse/oidc/forms/gitlab.py:82
+msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
 #: warehouse/packaging/forms.py:27
@@ -902,7 +903,7 @@ msgstr "取消"
 
 #: warehouse/subscriptions/models.py:39
 msgid "Incomplete"
-msgstr ""
+msgstr "不完整"
 
 #: warehouse/subscriptions/models.py:40
 #, fuzzy
@@ -946,7 +947,8 @@ msgstr "蒙提·派森（Monty Python） - The Cheese Shop Sketch"
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2195,7 +2197,7 @@ msgid ""
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr "<a href=\"%(href)s\">%(username)s</a> 移除專案角色 %(role_name)s"
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2206,7 +2208,7 @@ msgid ""
 "Publisher to publish."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2214,7 +2216,7 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, fuzzy, python-format
 #| msgid ""
 #| "If you did not make this change, you can email <a "
@@ -2997,147 +2999,6 @@ msgid ""
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr "<a href=\"%(href)s\">%(username)s</a> 移除專案角色 %(role_name)s"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-#, fuzzy
-#| msgid "Username"
-msgid "Publisher name"
-msgstr "使用者名稱用戶名"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow"
-msgstr "您的姓名"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "擁有者"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-#, fuzzy
-#| msgid "Release history"
-msgid "Repository"
-msgstr "發行歷史"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid recovery code."
-msgid "Environment"
-msgstr "無效的重設碼。"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr "電子郵件"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-#, fuzzy
-#| msgid "Subject:"
-msgid "Subject"
-msgstr "主旨："
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Project description"
-msgid "Organization"
-msgstr "專案敘述"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Project name"
-msgid "ActiveState Project name"
-msgstr "專案名稱"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, fuzzy, python-format
-#| msgid ""
-#| "\n"
-#| "If you did not make this change, you can email <a "
-#| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-#| "administrators.\n"
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"\n"
-"如果未進行此項更改，可以通過向<a href=“%（href）s”>%（email_address）s</a>發"
-"送電子郵件的管道與PyPI管理員進行溝通。\n"
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -3532,6 +3393,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s 尚未上載任何專案到PyPI。"
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr "電子郵件"
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, fuzzy, python-format
 #| msgid "Navigation for managing %(project)s"
@@ -3636,7 +3503,7 @@ msgstr "未驗證"
 msgid "Project links"
 msgstr "專案連結"
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 #, fuzzy
 #| msgid "GitHub statistics:"
 msgid "GitHub Statistics"
@@ -4963,6 +4830,20 @@ msgstr ""
 msgid "Manager"
 msgstr "管理"
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "擁有者"
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -5401,10 +5282,8 @@ msgstr "專案名稱"
 
 #: warehouse/templates/manage/account/publishing.html:192
 #: warehouse/templates/manage/project/publishing.html:160
-#, fuzzy
-#| msgid "Project:"
 msgid "project"
-msgstr "專案："
+msgstr "專案"
 
 #: warehouse/templates/manage/account/publishing.html:194
 #: warehouse/templates/manage/project/publishing.html:162
@@ -5413,10 +5292,8 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-#, fuzzy
-#| msgid "Your name"
-msgid "Workflow file path"
-msgstr "您的姓名"
+msgid "Top-level pipeline file path"
+msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -5426,8 +5303,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
 
@@ -5470,6 +5347,13 @@ msgstr "電子郵件"
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+#, fuzzy
+#| msgid "Subject:"
+msgid "Subject"
+msgstr "主旨："
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 #, fuzzy
@@ -5500,6 +5384,14 @@ msgstr ""
 "你可在此處生成帳戶的恢復程式碼：\n"
 "<a href=“%（href）s”>%（href）s</a>\n"
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+#, fuzzy
+#| msgid "Project description"
+msgid "Organization"
+msgstr "專案敘述"
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 #, fuzzy
@@ -5511,6 +5403,13 @@ msgstr "專案敘述"
 #: warehouse/templates/manage/project/publishing.html:297
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+#, fuzzy
+#| msgid "Project name"
+msgid "ActiveState Project name"
+msgstr "專案名稱"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -5552,10 +5451,8 @@ msgid "Manage publishers"
 msgstr "管理版本"
 
 #: warehouse/templates/manage/account/publishing.html:436
-#, fuzzy
-#| msgid "Project:"
 msgid "Project"
-msgstr "專案："
+msgstr "專案"
 
 #: warehouse/templates/manage/account/publishing.html:458
 msgid ""
@@ -5577,7 +5474,7 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:472
 #: warehouse/templates/manage/project/publishing.html:374
 msgid "Details"
-msgstr ""
+msgstr "詳細資訊"
 
 #: warehouse/templates/manage/account/publishing.html:484
 msgid ""
@@ -10983,6 +10880,46 @@ msgstr "There were no results for '%(filters)s' filter"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "'%(term)s' 沒有結果"
+
+#, fuzzy
+#~| msgid "Your name"
+#~ msgid "Workflow file path"
+#~ msgstr "您的姓名"
+
+#, fuzzy
+#~| msgid "Username"
+#~ msgid "Publisher name"
+#~ msgstr "使用者名稱用戶名"
+
+#, fuzzy
+#~| msgid "Your name"
+#~ msgid "Workflow"
+#~ msgstr "您的姓名"
+
+#, fuzzy
+#~| msgid "Release history"
+#~ msgid "Repository"
+#~ msgstr "發行歷史"
+
+#, fuzzy
+#~| msgid "Invalid recovery code."
+#~ msgid "Environment"
+#~ msgstr "無效的重設碼。"
+
+#, fuzzy, python-format
+#~| msgid ""
+#~| "\n"
+#~| "If you did not make this change, you can email <a "
+#~| "href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~| "administrators.\n"
+#~ msgid ""
+#~ "If you are unable to revert the change and need to do so, you can email "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "\n"
+#~ "如果未進行此項更改，可以通過向<a href=“%（href）s”>%（email_address）s</a>"
+#~ "發送電子郵件的管道與PyPI管理員進行溝通。\n"
 
 #, fuzzy, python-format
 #~| msgid ""

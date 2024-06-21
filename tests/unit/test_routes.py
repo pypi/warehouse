@@ -66,7 +66,7 @@ def test_routes(warehouse):
 
         @staticmethod
         @pretend.call_recorder
-        def add_policy(name, filename):
+        def add_redirect_rule(*args, **kwargs):
             pass
 
     config = FakeConfig()
@@ -659,6 +659,17 @@ def test_routes(warehouse):
         ),
     ]
 
+    assert config.add_redirect_rule.calls == [
+        pretend.call(
+            f"https?://({warehouse}|localhost)/policy/terms-of-use/",
+            "https://policies.python.org/pypi.org/Terms-of-use/",
+        ),
+        pretend.call(
+            f"https?://({warehouse}|localhost)/policy/acceptable-use-policy/",
+            "https://policies.python.org/pypi.org/Acceptable-Use-Policy/",
+        ),
+    ]
+
     assert config.add_pypi_action_route.calls == [
         pretend.call("legacy.api.pypi.file_upload", "file_upload", domain=warehouse),
         pretend.call("legacy.api.pypi.submit", "submit", domain=warehouse),
@@ -700,9 +711,4 @@ def test_routes(warehouse):
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
-    ]
-
-    assert config.add_policy.calls == [
-        pretend.call("terms-of-use", "terms.md"),
-        pretend.call("acceptable-use-policy", "acceptable-use-policy.md"),
     ]

@@ -136,23 +136,23 @@ msgstr ""
 "Kiritilgan ism juda ham uzun, 100 ta belgi yokida undan kam o'lgan "
 "miqdordagi ism tanlang."
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "TOTP kodi not`g`ri"
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr ""
 
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "Qayta tiklash kodi yaroqsiz."
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "Qayta tiklash kodi ilgari ishlatilgan."
 
-#: warehouse/accounts/forms.py:564
+#: warehouse/accounts/forms.py:565
 msgid "The username isn't valid. Try again."
 msgstr "Foydalanuvchi nomi yaroqsiz. Qayta urinib ko'ring."
 
@@ -857,22 +857,22 @@ msgstr ""
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:53
-msgid "Specify workflow filepath"
+#: warehouse/oidc/forms/gitlab.py:54
+msgid "Specify top-level pipeline file path"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 #, fuzzy
 #| msgid "Invalid recovery code."
 msgid "Invalid environment name"
 msgstr "Qayta tiklash kodi yaroqsiz."
 
-#: warehouse/oidc/forms/gitlab.py:76
-msgid "Workflow file path must end with .yml or .yaml"
+#: warehouse/oidc/forms/gitlab.py:78
+msgid "Top-level pipeline file path must end with .yml or .yaml"
 msgstr ""
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
+#: warehouse/oidc/forms/gitlab.py:82
+msgid "Top-level pipeline file path cannot start or end with /"
 msgstr ""
 
 #: warehouse/packaging/forms.py:27
@@ -944,7 +944,8 @@ msgstr "Monti Python - pishloq do'konining eskizi"
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2113,7 +2114,7 @@ msgid ""
 "\"%(previous_organization_name)s\" to \"%(organization_name)s\"."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2124,7 +2125,7 @@ msgid ""
 "Publisher to publish."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2132,7 +2133,7 @@ msgid ""
 "token named <strong>%(token_name)s</strong>."
 msgstr ""
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a "
@@ -2710,131 +2711,6 @@ msgid ""
 "by <a href=\"%(submitter_profile)s\">%(submitter)s</a>."
 msgstr ""
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-msgid "Publisher name"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-msgid "Workflow"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-msgid "Repository"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-#, fuzzy
-#| msgid "Invalid recovery code."
-msgid "Environment"
-msgstr "Qayta tiklash kodi yaroqsiz."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Subject"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-#, fuzzy
-#| msgid "Role invitation is not valid."
-msgid "Organization"
-msgstr "Rol taklifi haqiqiy emas."
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-#, fuzzy
-#| msgid "Search projects"
-msgid "ActiveState Project name"
-msgstr "Loyihalarni qidirish"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, python-format
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-
 #: warehouse/templates/email/two-factor-added/body.html:18
 #, python-format
 msgid ""
@@ -3197,6 +3073,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr ""
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr ""
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3295,7 +3177,7 @@ msgstr ""
 msgid "Project links"
 msgstr ""
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 msgid "GitHub Statistics"
 msgstr ""
 
@@ -4496,6 +4378,20 @@ msgstr ""
 msgid "Manager"
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr ""
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -4896,7 +4792,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-msgid "Workflow file path"
+msgid "Top-level pipeline file path"
 msgstr ""
 
 #: warehouse/templates/manage/account/publishing.html:207
@@ -4907,8 +4803,8 @@ msgstr ""
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
 
@@ -4942,6 +4838,11 @@ msgstr ""
 msgid "The email address of the account or service account used to publish."
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+msgid "Subject"
+msgstr ""
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 msgid "subject"
@@ -4963,6 +4864,14 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+#, fuzzy
+#| msgid "Role invitation is not valid."
+msgid "Organization"
+msgstr "Rol taklifi haqiqiy emas."
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 #, fuzzy
@@ -4974,6 +4883,13 @@ msgstr "Rol taklifi haqiqiy emas."
 #: warehouse/templates/manage/project/publishing.html:297
 msgid "The ActiveState organization name that owns the project"
 msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+#, fuzzy
+#| msgid "Search projects"
+msgid "ActiveState Project name"
+msgstr "Loyihalarni qidirish"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -9411,6 +9327,11 @@ msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] ""
 msgstr[1] ""
+
+#, fuzzy
+#~| msgid "Invalid recovery code."
+#~ msgid "Environment"
+#~ msgstr "Qayta tiklash kodi yaroqsiz."
 
 #~ msgid "PyPI on Twitter"
 #~ msgstr "Twitterda PyPI"
