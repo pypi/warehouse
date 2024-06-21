@@ -333,7 +333,7 @@ class TestLogin:
 
         pyramid_request.route_path = pretend.call_recorder(lambda a: "/the-redirect")
 
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         with freezegun.freeze_time(now):
             result = views.login(pyramid_request, _form_class=form_class)
@@ -502,8 +502,8 @@ class TestLogin:
 
 class TestTwoFactor:
     def test_get_two_factor_data_invalid_after_login(self, pyramid_request):
-        sign_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=30)
-        last_login_time = datetime.datetime.utcnow() - datetime.timedelta(seconds=1)
+        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(seconds=30)
+        last_login_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(seconds=1)
 
         query_params = {"userid": 1}
         token_service = pretend.stub(
@@ -555,7 +555,7 @@ class TestTwoFactor:
             name="Joe",
             password="any",
             is_active=True,
-            last_login=datetime.datetime.utcnow() + datetime.timedelta(days=+1),
+            last_login=datetime.datetime.now(datetime.UTC) + datetime.timedelta(days=+1),
         )
         token_data = {"userid": user.id}
 
@@ -587,7 +587,7 @@ class TestTwoFactor:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
@@ -595,7 +595,7 @@ class TestTwoFactor:
             find_userid=pretend.call_recorder(lambda username: 1),
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             update_user=lambda *a, **k: None,
@@ -640,7 +640,7 @@ class TestTwoFactor:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
@@ -648,7 +648,7 @@ class TestTwoFactor:
             find_userid=pretend.call_recorder(lambda username: 1),
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             update_user=lambda *a, **k: None,
@@ -681,7 +681,7 @@ class TestTwoFactor:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
@@ -689,7 +689,7 @@ class TestTwoFactor:
             find_userid=pretend.call_recorder(lambda username: 1),
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             update_user=lambda *a, **k: None,
@@ -737,12 +737,12 @@ class TestTwoFactor:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
         user = pretend.stub(
-            last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+            last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)),
             has_recovery_codes=has_recovery_codes,
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
@@ -843,14 +843,14 @@ class TestTwoFactor:
         token_data = {"userid": 1}
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (token_data, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (token_data, datetime.datetime.now(datetime.UTC))
             )
         )
 
         user_service = pretend.stub(
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             has_totp=lambda userid: True,
@@ -1230,7 +1230,7 @@ class TestRecoveryCode:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
@@ -1238,7 +1238,7 @@ class TestRecoveryCode:
             find_userid=pretend.call_recorder(lambda username: 1),
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             update_user=lambda *a, **k: None,
@@ -1282,12 +1282,12 @@ class TestRecoveryCode:
 
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (query_params, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (query_params, datetime.datetime.now(datetime.UTC))
             )
         )
 
         user = pretend.stub(
-            last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1)),
+            last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)),
             record_event=pretend.call_recorder(lambda *a, **kw: None),
         )
         user_service = pretend.stub(
@@ -1371,7 +1371,7 @@ class TestRecoveryCode:
         token_data = {"userid": 1}
         token_service = pretend.stub(
             loads=pretend.call_recorder(
-                lambda *args, **kwargs: (token_data, datetime.datetime.utcnow())
+                lambda *args, **kwargs: (token_data, datetime.datetime.now(datetime.UTC))
             )
         )
 
@@ -1379,7 +1379,7 @@ class TestRecoveryCode:
             find_userid=pretend.call_recorder(lambda username: 1),
             get_user=pretend.call_recorder(
                 lambda userid: pretend.stub(
-                    last_login=(datetime.datetime.utcnow() - datetime.timedelta(days=1))
+                    last_login=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1))
                 )
             ),
             has_recovery_codes=lambda userid: True,
@@ -2089,7 +2089,7 @@ class TestResetPassword:
         )
         db_request.session.flash = pretend.call_recorder(lambda *a, **kw: None)
 
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         with freezegun.freeze_time(now):
             result = views.reset_password(db_request, _form_class=form_class)
@@ -2284,7 +2284,7 @@ class TestResetPassword:
         assert user_service.get_user.calls == [pretend.call(uuid.UUID(data["user.id"]))]
 
     def test_reset_password_last_login_changed(self, pyramid_request):
-        now = pytz.UTC.localize(datetime.datetime.utcnow())
+        now = pytz.UTC.localize(datetime.datetime.now(datetime.UTC))
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",
@@ -2316,7 +2316,7 @@ class TestResetPassword:
         ]
 
     def test_reset_password_password_date_changed(self, pyramid_request):
-        now = pytz.UTC.localize(datetime.datetime.utcnow())
+        now = pytz.UTC.localize(datetime.datetime.now(datetime.UTC))
         later = now + datetime.timedelta(hours=1)
         data = {
             "action": "password-reset",

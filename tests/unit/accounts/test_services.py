@@ -992,7 +992,7 @@ class TestDatabaseUserService:
         assert [c.id for c in initial_codes] != [c.id for c in new_codes]
 
     def test_get_password_timestamp(self, user_service):
-        create_time = datetime.datetime.utcnow()
+        create_time = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(create_time):
             user = UserFactory.create()
             user.password_date = create_time
@@ -1031,7 +1031,7 @@ class TestTokenService:
         assert token_service.loads(token) == {"foo": "bar"}
 
     def test_loads_return_timestamp(self, token_service):
-        sign_time = pytz.UTC.localize(datetime.datetime.utcnow())
+        sign_time = pytz.UTC.localize(datetime.datetime.now(datetime.UTC))
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
@@ -1046,7 +1046,7 @@ class TestTokenService:
             token_service.loads(token)
 
     def test_loads_token_is_expired(self, token_service):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         with freezegun.freeze_time(now) as frozen_time:
             token = token_service.dumps({"foo": "bar"})
@@ -1064,7 +1064,7 @@ class TestTokenService:
 
     def test_unsafe_load_payload(self, token_service):
         sign_time = pytz.UTC.localize(
-            datetime.datetime.utcnow() - datetime.timedelta(days=1)
+            datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
         )
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
@@ -1076,7 +1076,7 @@ class TestTokenService:
 
     def test_unsafe_load_payload_signature_invalid(self, token_service):
         sign_time = pytz.UTC.localize(
-            datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
+            datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=10)
         )
         with freezegun.freeze_time(sign_time):
             token = services.TokenService("wrongsecret", "pepper", max_age=3600).dumps(

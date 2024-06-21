@@ -25,7 +25,7 @@ class EmailMessageFactory(WarehouseFactory):
 
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14),
+        datetime_start=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=14),
     )
     message_id = factory.Faker("pystr", max_chars=12)
     from_ = factory.Faker("safe_email")
@@ -39,7 +39,7 @@ class EventFactory(WarehouseFactory):
 
     created = factory.Faker(
         "date_time_between_dates",
-        datetime_start=datetime.datetime.utcnow() - datetime.timedelta(days=14),
+        datetime_start=datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=14),
     )
     email = factory.SubFactory(EmailMessageFactory)
     event_id = factory.Faker("pystr", max_chars=12)

@@ -133,7 +133,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This is My Topic",
                 },
@@ -164,7 +164,7 @@ class TestMessageVerifier:
                     "MessageId": "1",
                     "Timestamp": (
                         (
-                            datetime.datetime.utcnow() - datetime.timedelta(days=1)
+                            datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
                         ).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This is My Topic",
@@ -181,7 +181,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "This topic I got but didn't expect",
                 },
@@ -220,7 +220,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },
@@ -234,7 +234,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "another valid topic",
                 },
@@ -249,7 +249,7 @@ class TestMessageVerifier:
                     "Message": "This is My Message",
                     "MessageId": "1",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },
@@ -265,7 +265,7 @@ class TestMessageVerifier:
                     "SubscribeURL": "https://example.com/subscribe",
                     "Token": "1234",
                     "Timestamp": (
-                        datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+                        datetime.datetime.now(datetime.UTC).strftime("%Y-%m-%dT%H:%M:%S.%fZ")
                     ),
                     "TopicArn": "valid topic",
                 },

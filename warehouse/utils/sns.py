@@ -49,7 +49,7 @@ class MessageVerifier:
             raise InvalidMessageError("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         try:
             timestamp = datetime.datetime.strptime(

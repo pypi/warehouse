@@ -1747,7 +1747,7 @@ class TestManageOrganizationRoles:
             "organizations_with_sole_owner": [],
         }
 
-    @freeze_time(datetime.datetime.utcnow())
+    @freeze_time(datetime.datetime.now(datetime.UTC))
     @pytest.mark.parametrize("orgtype", list(OrganizationType))
     def test_post_new_organization_role(
         self,
@@ -2016,7 +2016,7 @@ class TestManageOrganizationRoles:
         ]
         assert isinstance(result, HTTPSeeOther)
 
-    @freeze_time(datetime.datetime.utcnow())
+    @freeze_time(datetime.datetime.now(datetime.UTC))
     def test_reinvite_organization_role_after_expiration(
         self,
         db_request,
@@ -2147,7 +2147,7 @@ class TestManageOrganizationRoles:
 
 
 class TestResendOrganizationInvitations:
-    @freeze_time(datetime.datetime.utcnow())
+    @freeze_time(datetime.datetime.now(datetime.UTC))
     def test_resend_invitation(
         self, db_request, token_service, enable_organizations, monkeypatch
     ):
