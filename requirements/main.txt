@@ -67,9 +67,9 @@ automat==22.10.0 \
     --hash=sha256:c3164f8742b9dc440f3682482d32aaff7bb53f71740dd018533f9de286b64180 \
     --hash=sha256:e56beb84edad19dcc11d30e8d9b895f75deeb5ef5e96b84a467066b3b84bb04e
     # via -r requirements/main.in
-b2sdk==2.4.0 \
-    --hash=sha256:95122d163819c233e8b11b4a1d87fcd3b9c4eb62db78b69bd231e20aa91547fb \
-    --hash=sha256:fe53e53febd7a84aad67ae919fae4341d62ea799095f0f7d9c07e9a9ae2213b8
+b2sdk==2.4.1 \
+    --hash=sha256:257510b7c661dc6d513588560b436f2424fcbb4213834fa3ca52c7a5fd8d44b7 \
+    --hash=sha256:7ce6301cb119fdbf9826d4a11c7ea783194a2ffbfaf2fb1c437c3643e22bfe36
     # via -r requirements/main.in
 babel==2.15.0 \
     --hash=sha256:08706bdad8d0a3413266ab61bd6c34d0c28d6e1e7badf40a2cebe67644e2e1fb \
