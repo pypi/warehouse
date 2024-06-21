@@ -23,7 +23,7 @@ such as a truncated hash of the key itself. In X.509-based PKIs it can be
 the certificate's subject or other identifying material (such as a domain
 name or email address).
 
-As specified in PEP 740, signing identities for index attestations are
+As specified in PEP 740, signing identities for attestations are
 *Trusted Publisher* identities. In practice, this means that the identity
 expected to sign a distribution's attestation is expected to match the
 Trusted Publisher that published the package.
