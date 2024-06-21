@@ -4,12 +4,12 @@ title: Introduction
 
 <!--[[ preview('index-attestations') ]]-->
 
-These pages document PyPI's implementation of index attestations ([PEP 740]),
+These pages document PyPI's implementation of digital attestations ([PEP 740]),
 including in-toto attestation predicates specific to PyPI itself.
 
 ## Quick background
 
-*Index attestations* enable package maintainers as well as third parties (such
+*Digital attestations* enable package maintainers as well as third parties (such
 as the index itself, external auditors, etc.) to *cryptographically sign*
 for uploaded packages.
 
