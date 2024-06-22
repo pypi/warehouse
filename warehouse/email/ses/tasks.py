@@ -40,6 +40,8 @@ def cleanup(request):
     # will not continue to save the email message data.
     (
         request.db.query(EmailMessage)
-        .filter(EmailMessage.created < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER))
+        .filter(
+            EmailMessage.created < (datetime.datetime.now(datetime.UTC) - CLEANUP_AFTER)
+        )
         .delete(synchronize_session=False)
     )
