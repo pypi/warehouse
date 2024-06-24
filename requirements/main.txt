@@ -2043,9 +2043,9 @@ werkzeug==3.0.3 \
     --hash=sha256:097e5bfda9f0aba8da6b8545146def481d06aa7d3266e7448e2cccf67dd8bd18 \
     --hash=sha256:fc9645dc43e03e4d630d23143a04a7f947a9a3b5727cd535fdfe155a17cc48c8
     # via openapi-core
-whitenoise==6.6.0 \
-    --hash=sha256:8998f7370973447fac1e8ef6e8ded2c5209a7b1f67c1012866dbcd09681c3251 \
-    --hash=sha256:b1f9db9bf67dc183484d760b99f4080185633136a273a03f6436034a41064146
+whitenoise==6.7.0 \
+    --hash=sha256:58c7a6cd811e275a6c91af22e96e87da0b1109e9a53bb7464116ef4c963bf636 \
+    --hash=sha256:a1ae85e01fdc9815d12fa33f17765bc132ed2c54fa76daf9e39e879dd93566f6
     # via -r requirements/main.in
 wired==0.4 \
     --hash=sha256:2c8007863e9bfbc119da58a6d7d615a5a747986c5ce698916e44e19d88e905ff \
