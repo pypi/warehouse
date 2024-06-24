@@ -1,6 +1,8 @@
 # System Architecture
 
-Using the [C4 Model](https://c4model.com/) approach in [Mermaid syntax](https://mermaid.js.org/syntax/c4c.html)
+Using the [C4 Model](https://c4model.com/) approach in [Mermaid syntax](https://mermaid.js.org/syntax/c4c.html).
+
+_**Note**: These diagrams are best viewed in [light mode](https://github.com/mermaid-js/mermaid/issues/4906)._
 
 ## System Context Diagram
 
