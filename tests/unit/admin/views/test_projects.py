@@ -241,6 +241,29 @@ class TestReleaseAddObservation:
         ]
 
 
+class TestProjectQuarantine:
+    def test_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+        db_request.matchdict["project_name"] = project.normalized_name
+
+        views.remove_from_quarantine(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Project {project.name} quarantine cleared.\n"
+                "Please update related Help Scout conversations.",
+                queue="success",
+            )
+        ]
+
+
 class TestProjectReleasesList:
     def test_no_query(self, db_request):
         project = ProjectFactory.create()
