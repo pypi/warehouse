@@ -21,7 +21,7 @@ import sqlalchemy as sa
 
 from alembic import op
 
-from warehouse.packaging.models import Project
+# from warehouse.packaging.models import Project
 
 revision = "c978a4eaa0f6"
 down_revision = "56b3ef8e8af3"
@@ -60,17 +60,20 @@ def upgrade():
         ),
     )
 
+    # NOTE: Commenting out the following to avoid failing other migrations during tests.
+    # Migration ran successfully in production on 2024-04-17
+
     # Data migration to set the related_name for existing rows.
-    bind = op.get_bind()
-    session = sa.orm.Session(bind=bind)
-    # Get all Projects with Observations
-    projects_query = sa.select(Project).where(Project.observations.any())
-    # For each, set the `related_name` to the related Project's model name
-    for project in session.scalars(projects_query):
-        for observation in project.observations:
-            observation.related_name = repr(project)
-            session.add(observation)
-    session.commit()
+    # bind = op.get_bind()
+    # session = sa.orm.Session(bind=bind)
+    # # Get all Projects with Observations
+    # projects_query = sa.select(Project).where(Project.observations.any())
+    # # For each, set the `related_name` to the related Project's model name
+    # for project in session.scalars(projects_query):
+    #     for observation in project.observations:
+    #         observation.related_name = repr(project)
+    #         session.add(observation)
+    # session.commit()
 
     # Flip the nullable flag to False
     op.alter_column("project_observations", "related_name", nullable=False)
