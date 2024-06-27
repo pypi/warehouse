@@ -14,7 +14,7 @@
 import collections
 import re
 
-import elasticsearch
+import opensearchpy
 
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
@@ -60,7 +60,7 @@ from warehouse.packaging.models import (
     Release,
     ReleaseClassifiers,
 )
-from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
+from warehouse.search.queries import SEARCH_FILTER_ORDER, get_os_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -327,7 +327,7 @@ def search(request):
 
     order = request.params.get("o", "")
     classifiers = request.params.getall("c")
-    query = get_es_query(request.es, querystring, order, classifiers)
+    query = get_os_query(request.os, querystring, order, classifiers)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -338,7 +338,7 @@ def search(request):
         page = ElasticsearchPage(
             query, page=page_num, url_maker=paginate_url_factory(request)
         )
-    except elasticsearch.TransportError:
+    except opensearchpy.TransportError:
         metrics.increment("warehouse.views.search.error")
         raise HTTPServiceUnavailable
 

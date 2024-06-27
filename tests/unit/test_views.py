@@ -12,7 +12,7 @@
 
 import datetime
 
-import elasticsearch
+import opensearchpy
 import pretend
 import pytest
 import sqlalchemy
@@ -465,10 +465,10 @@ class TestSearch:
             params["page"] = page
         db_request.params = params
 
-        db_request.es = pretend.stub()
-        es_query = pretend.stub()
-        get_es_query = pretend.call_recorder(lambda *a, **kw: es_query)
-        monkeypatch.setattr(views, "get_es_query", get_es_query)
+        db_request.os = pretend.stub()
+        os_query = pretend.stub()
+        get_os_query = pretend.call_recorder(lambda *a, **kw: os_query)
+        monkeypatch.setattr(views, "get_os_query", get_os_query)
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -485,11 +485,11 @@ class TestSearch:
             "applied_filters": [],
             "available_filters": [],
         }
-        assert get_es_query.calls == [
-            pretend.call(db_request.es, params.get("q"), "", [])
+        assert get_os_query.calls == [
+            pretend.call(db_request.os, params.get("q"), "", [])
         ]
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=page or 1)
+            pretend.call(os_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.histogram.calls == [
@@ -503,10 +503,10 @@ class TestSearch:
             params["page"] = page
         db_request.params = params
 
-        es_query = pretend.stub()
-        db_request.es = pretend.stub()
-        get_es_query = pretend.call_recorder(lambda *a, **kw: es_query)
-        monkeypatch.setattr(views, "get_es_query", get_es_query)
+        os_query = pretend.stub()
+        db_request.os = pretend.stub()
+        get_os_query = pretend.call_recorder(lambda *a, **kw: os_query)
+        monkeypatch.setattr(views, "get_os_query", get_os_query)
 
         classifier1 = ClassifierFactory.create(classifier="foo :: bar")
         classifier2 = ClassifierFactory.create(classifier="foo :: baz")
@@ -543,11 +543,11 @@ class TestSearch:
         }
         assert ("fiz", [classifier3.classifier]) not in search_view["available_filters"]
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=page or 1)
+            pretend.call(os_query, url_maker=url_maker, page=page or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
-        assert get_es_query.calls == [
-            pretend.call(db_request.es, params.get("q"), "", params.getall("c"))
+        assert get_os_query.calls == [
+            pretend.call(db_request.os, params.get("q"), "", params.getall("c"))
         ]
         assert metrics.histogram.calls == [
             pretend.call("warehouse.views.search.results", 1000)
@@ -557,8 +557,8 @@ class TestSearch:
         params = MultiDict({"page": 15})
         db_request.params = params
 
-        es_query = pretend.stub()
-        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+        os_query = pretend.stub()
+        db_request.os = pretend.stub(query=lambda *a, **kw: os_query)
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -572,7 +572,7 @@ class TestSearch:
             search(db_request)
 
         assert page_cls.calls == [
-            pretend.call(es_query, url_maker=url_maker, page=15 or 1)
+            pretend.call(os_query, url_maker=url_maker, page=15 or 1)
         ]
         assert url_maker_factory.calls == [pretend.call(db_request)]
         assert metrics.histogram.calls == []
@@ -581,8 +581,8 @@ class TestSearch:
         params = MultiDict({"page": "abc"})
         db_request.params = params
 
-        es_query = pretend.stub()
-        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+        os_query = pretend.stub()
+        db_request.os = pretend.stub(query=lambda *a, **kw: os_query)
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
@@ -609,15 +609,15 @@ class TestSearch:
             pretend.call("warehouse.views.search.error", tags=["error:query_too_long"])
         ]
 
-    def test_returns_503_when_es_unavailable(self, monkeypatch, db_request, metrics):
+    def test_returns_503_when_os_unavailable(self, monkeypatch, db_request, metrics):
         params = MultiDict({"page": 15})
         db_request.params = params
 
-        es_query = pretend.stub()
-        db_request.es = pretend.stub(query=lambda *a, **kw: es_query)
+        os_query = pretend.stub()
+        db_request.os = pretend.stub(query=lambda *a, **kw: os_query)
 
         def raiser(*args, **kwargs):
-            raise elasticsearch.ConnectionError()
+            raise opensearchpy.ConnectionError()
 
         monkeypatch.setattr(views, "ElasticsearchPage", raiser)
 

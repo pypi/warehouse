@@ -12,7 +12,7 @@
 
 import re
 
-from elasticsearch_dsl import Q
+from opensearchpy import Q
 
 SEARCH_FIELDS = [
     "author",
@@ -48,9 +48,9 @@ SEARCH_FILTER_ORDER = (
 )
 
 
-def get_es_query(es, terms, order, classifiers):
+def get_os_query(es, terms, order, classifiers):
     """
-    Returns an Elasticsearch query from data from the request.
+    Returns an OpenSearch query from data from the request.
     """
     classifier_q = Q(
         "bool",
