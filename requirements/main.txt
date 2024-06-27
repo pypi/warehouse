@@ -892,9 +892,9 @@ jsonschema==4.22.0 \
     #   openapi-core
     #   openapi-schema-validator
     #   openapi-spec-validator
-jsonschema-path==0.3.2 \
-    --hash=sha256:271aedfefcd161a0f467bdf23e1d9183691a61eaabf4b761046a914e369336c7 \
-    --hash=sha256:4d0dababf341e36e9b91a5fb2a3e3fd300b0150e7fe88df4e55cc8253c5a3989
+jsonschema-path==0.3.3 \
+    --hash=sha256:203aff257f8038cd3c67be614fe6b2001043408cb1b4e36576bc4921e09d83c4 \
+    --hash=sha256:f02e5481a4288ec062f8e68c808569e427d905bedfecb7f2e4c69ef77957c382
     # via
     #   openapi-core
     #   openapi-spec-validator
