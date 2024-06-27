@@ -64,7 +64,7 @@ def execute_project_reindex(config, session):
         config.task(unindex_project).delay(project.normalized_name)
 
 
-def os(request):
+def opensearch(request):
     client = request.registry["opensearch.client"]
     doc_types = request.registry.get("search.doc_types", set())
     index_name = request.registry["opensearch.index"]
@@ -104,7 +104,7 @@ def includeme(config):
     config.registry["opensearch.index"] = p.path.strip("/")
     config.registry["opensearch.shards"] = int(qs.get("shards", ["1"])[0])
     config.registry["opensearch.replicas"] = int(qs.get("replicas", ["0"])[0])
-    config.add_request_method(os, name="os", reify=True)
+    config.add_request_method(opensearch, name="opensearch", reify=True)
 
     from warehouse.search.tasks import reindex
 

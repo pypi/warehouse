@@ -48,7 +48,7 @@ SEARCH_FILTER_ORDER = (
 )
 
 
-def get_os_query(es, terms, order, classifiers):
+def get_opensearch_query(opensearch, terms, order, classifiers):
     """
     Returns an OpenSearch query from data from the request.
     """
@@ -69,7 +69,7 @@ def get_os_query(es, terms, order, classifiers):
         ],
     )
     if not terms:
-        query = es.query(classifier_q) if classifiers else es.query()
+        query = opensearch.query(classifier_q) if classifiers else opensearch.query()
     else:
         quoted_string, unquoted_string = filter_query(terms)
         bool_query = Q(
@@ -84,7 +84,7 @@ def get_os_query(es, terms, order, classifiers):
         if len(terms) > 1:
             bool_query = bool_query | Q("prefix", normalized_name=terms)
 
-        query = es.query(bool_query)
+        query = opensearch.query(bool_query)
         query = query.suggest("name_suggestion", terms, term={"field": "name"})
 
     query = query_for_order(query, order)

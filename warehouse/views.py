@@ -60,7 +60,7 @@ from warehouse.packaging.models import (
     Release,
     ReleaseClassifiers,
 )
-from warehouse.search.queries import SEARCH_FILTER_ORDER, get_os_query
+from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -327,7 +327,7 @@ def search(request):
 
     order = request.params.get("o", "")
     classifiers = request.params.getall("c")
-    query = get_os_query(request.os, querystring, order, classifiers)
+    query = get_opensearch_query(request.opensearch, querystring, order, classifiers)
 
     try:
         page_num = int(request.params.get("page", 1))
