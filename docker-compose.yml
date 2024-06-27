@@ -33,13 +33,11 @@ services:
     image: redis:7.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.5
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
-      HOSTNAME: "localstack"
-      HOSTNAME_EXTERNAL: "localstack"
-      DEFAULT_REGION: "us-east-2"
+      LOCALSTACK_HOST: "localstack"
       LS_LOG: "error"
     ports:
       - "4566:4566"
