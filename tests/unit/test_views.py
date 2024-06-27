@@ -472,7 +472,7 @@ class TestSearch:
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
 
         url_maker = pretend.stub()
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
@@ -520,7 +520,7 @@ class TestSearch:
 
         page_obj = pretend.stub(page_count=(page or 1) + 10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
 
         url_maker = pretend.stub()
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
@@ -562,7 +562,7 @@ class TestSearch:
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
 
         url_maker = pretend.stub()
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
@@ -586,7 +586,7 @@ class TestSearch:
 
         page_obj = pretend.stub(page_count=10, item_count=1000)
         page_cls = pretend.call_recorder(lambda *a, **kw: page_obj)
-        monkeypatch.setattr(views, "ElasticsearchPage", page_cls)
+        monkeypatch.setattr(views, "OpenSearchPage", page_cls)
 
         url_maker = pretend.stub()
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)
@@ -621,7 +621,7 @@ class TestSearch:
         def raiser(*args, **kwargs):
             raise opensearchpy.ConnectionError()
 
-        monkeypatch.setattr(views, "ElasticsearchPage", raiser)
+        monkeypatch.setattr(views, "OpenSearchPage", raiser)
 
         url_maker = pretend.stub()
         url_maker_factory = pretend.call_recorder(lambda request: url_maker)

@@ -62,7 +62,7 @@ from warehouse.packaging.models import (
 )
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.http import is_safe_url
-from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
+from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
 
 JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
@@ -335,7 +335,7 @@ def search(request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     try:
-        page = ElasticsearchPage(
+        page = OpenSearchPage(
             query, page=page_num, url_maker=paginate_url_factory(request)
         )
     except opensearchpy.TransportError:
