@@ -108,17 +108,18 @@ billiard==4.2.0 \
     --hash=sha256:07aa978b308f334ff8282bd4a746e681b3513db5c9a514cbdd810cbbdc19714d \
     --hash=sha256:9a3c3184cb275aa17a732f93f65b20c525d3d9f253722d26a82194803ade5a2c
     # via celery
-boto3==1.28.63 \
-    --hash=sha256:65d052ec13197460586ee385aa2d6bba0e7378d2d2c7f3e93c044c43ae1ca782 \
-    --hash=sha256:94218aba2feb5b404b665b8d76c172dc654f79b4c5fa0e9e92459c098da87bf4
+boto3==1.34.134 \
+    --hash=sha256:342782c02ff077aae118c9c61179eed95c585831fba666baacc5588ff04aa6e1 \
+    --hash=sha256:f6d6e5b0c9ab022a75373fa16c01f0cd54bc1bb64ef3b6ac64ac7cedd56cbe9c
     # via
     #   -r requirements/main.in
     #   celery
     #   kombu
-botocore==1.31.63 \
-    --hash=sha256:6e582c811ea74f25bdb490ac372b2645de4a60286b42ddd8c69f3b6df82b6b12 \
-    --hash=sha256:cb9db5db5af865b1fc2e1405b967db5d78dd0f4d84e5dc1974e082733c1034b7
+botocore==1.34.134 \
+    --hash=sha256:45219e00639755f92569b29f8f279d5dde721494791412c1f7026a3779e8d9f4 \
+    --hash=sha256:e29c299599426ed16dd2d4c1e20eef784f96b15e1850ebbc59a3250959285b95
     # via
+    #   -r requirements/main.in
     #   boto3
     #   s3transfer
 cachetools==5.3.3 \
@@ -1865,9 +1866,9 @@ rsa==4.9 \
     --hash=sha256:90260d9058e514786967344d0ef75fa8727eed8a7d2e43ce9f4bcf1b536174f7 \
     --hash=sha256:e38464a49c6c85d7f1351b0126661487a7e0a14a50f1675ec50eb34d4f20ef21
     # via google-auth
-s3transfer==0.7.0 \
-    --hash=sha256:10d6923c6359175f264811ef4bf6161a3156ce8e350e705396a7557d6293c33a \
-    --hash=sha256:fd3889a66f5fe17299fe75b82eae6cf722554edca744ca5d5fe308b104883d2e
+s3transfer==0.10.2 \
+    --hash=sha256:0711534e9356d3cc692fdde846b4a1e4b0cb6519971860796e6bc4c7aea00ef6 \
+    --hash=sha256:eca1c20de70a39daee580aef4986996620f365c4e0fda6a86100231d62f1bf69
     # via boto3
 sentry-sdk==2.6.0 \
     --hash=sha256:422b91cb49378b97e7e8d0e8d5a1069df23689d45262b86f54988a7db264e874 \
@@ -1997,9 +1998,9 @@ ua-parser==0.18.0 \
     --hash=sha256:9d94ac3a80bcb0166823956a779186c746b50ea4c9fd9bf30fdb758553c38950 \
     --hash=sha256:db51f1b59bfaa82ed9e2a1d99a54d3e4153dddf99ac1435d51828165422e624e
     # via -r requirements/main.in
-urllib3==1.26.19 \
-    --hash=sha256:37a0344459b199fce0e80b0d3569837ec6b6937435c5244e7fd73fa6006830f3 \
-    --hash=sha256:3e3d753a8618b86d7de333b4223005f68720bcd6a7d2bcb9fbd2229ec7c1e429
+urllib3==2.2.2 \
+    --hash=sha256:a448b2f64d686155468037e1ace9f2d2199776e17f0a46610480d311f73e3472 \
+    --hash=sha256:dd505485549a7a552833da5e6063639d0d177c04f23bc3864e41e5dc5f612168
     # via
     #   -r requirements/main.in
     #   botocore
