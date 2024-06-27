@@ -13,11 +13,10 @@
 import urllib.parse
 
 import certifi
-import elasticsearch
+import opensearchpy
 import requests_aws4auth
 
 from celery.schedules import crontab
-from elasticsearch_dsl import serializer
 from urllib3.util import parse_url
 
 from warehouse import db
@@ -65,22 +64,22 @@ def execute_project_reindex(config, session):
         config.task(unindex_project).delay(project.normalized_name)
 
 
-def es(request):
-    client = request.registry["elasticsearch.client"]
+def opensearch(request):
+    client = request.registry["opensearch.client"]
     doc_types = request.registry.get("search.doc_types", set())
-    index_name = request.registry["elasticsearch.index"]
+    index_name = request.registry["opensearch.index"]
     index = get_index(
         index_name,
         doc_types,
         using=client,
-        shards=request.registry.get("elasticsearch.shards", 1),
-        replicas=request.registry.get("elasticsearch.replicas", 0),
+        shards=request.registry.get("opensearch.shards", 1),
+        replicas=request.registry.get("opensearch.replicas", 0),
     )
     return index.search()
 
 
 def includeme(config):
-    p = parse_url(config.registry.settings["elasticsearch.url"])
+    p = parse_url(config.registry.settings["opensearch.url"])
     qs = urllib.parse.parse_qs(p.query)
     kwargs = {
         "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
@@ -88,24 +87,24 @@ def includeme(config):
         "ca_certs": certifi.where(),
         "timeout": 2,
         "retry_on_timeout": False,
-        "serializer": serializer.serializer,
+        "serializer": opensearchpy.serializer.serializer,
         "max_retries": 1,
     }
     aws_auth = bool(qs.get("aws_auth", False))
     if aws_auth:
         aws_region = qs.get("region", ["us-east-1"])[0]
-        kwargs["connection_class"] = elasticsearch.RequestsHttpConnection
+        kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
         kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
             config.registry.settings["aws.key_id"],
             config.registry.settings["aws.secret_key"],
             aws_region,
             "es",
         )
-    config.registry["elasticsearch.client"] = elasticsearch.Elasticsearch(**kwargs)
-    config.registry["elasticsearch.index"] = p.path.strip("/")
-    config.registry["elasticsearch.shards"] = int(qs.get("shards", ["1"])[0])
-    config.registry["elasticsearch.replicas"] = int(qs.get("replicas", ["0"])[0])
-    config.add_request_method(es, name="es", reify=True)
+    config.registry["opensearch.client"] = opensearchpy.OpenSearch(**kwargs)
+    config.registry["opensearch.index"] = p.path.strip("/")
+    config.registry["opensearch.shards"] = int(qs.get("shards", ["1"])[0])
+    config.registry["opensearch.replicas"] = int(qs.get("replicas", ["0"])[0])
+    config.add_request_method(opensearch, name="opensearch", reify=True)
 
     from warehouse.search.tasks import reindex
 

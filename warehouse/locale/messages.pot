@@ -8418,8 +8418,8 @@ msgstr ""
 #: warehouse/templates/pages/help.html:897
 #, python-format
 msgid ""
-"If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
-"SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
+"If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, "
+"or SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting "
 "started\" guide</a>, then take a look at the <a "
 "href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" "

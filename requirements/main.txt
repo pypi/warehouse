@@ -184,7 +184,7 @@ certifi==2024.6.2 \
     --hash=sha256:ddc6c8ce995e6987e7faf5e3f1b02b302836a0e5d98ece18392cb1a36c72ad56
     # via
     #   -r requirements/main.in
-    #   elasticsearch
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 cffi==1.16.0 \
@@ -485,20 +485,13 @@ docutils==0.20.1 \
     --hash=sha256:96f387a2c5562db4476f09f13bbab2192e764cac08ebbf3a34a95d9b1e4a59d6 \
     --hash=sha256:f08a4e276c3a1583a86dce3e34aba3fe04d02bba2dd51ed16106244e8a923e3b
     # via readme-renderer
-elasticsearch==7.10.1 \
-    --hash=sha256:4ebd34fd223b31c99d9f3b6b6236d3ac18b3046191a37231e8235b06ae7db955 \
-    --hash=sha256:a725dd923d349ca0652cf95d6ce23d952e2153740cf4ab6daf4a2d804feeed48
-    # via
-    #   -r requirements/main.in
-    #   elasticsearch-dsl
-elasticsearch-dsl==7.4.1 \
-    --hash=sha256:07ee9c87dc28cc3cae2daa19401e1e18a172174ad9e5ca67938f752e3902a1d5 \
-    --hash=sha256:97f79239a252be7c4cce554c29e64695d7ef6a4828372316a5e5ff815e7a7498
-    # via -r requirements/main.in
 email-validator==2.2.0 \
     --hash=sha256:561977c2d73ce3611850a06fa56b414621e0c8faa9d66f2611407d87465da631 \
     --hash=sha256:cb690f344c617a714f22e66ae771445a1ceb46821152df8e165c5f9a364582b7
     # via wtforms
+events==0.5 \
+    --hash=sha256:a7286af378ba3e46640ac9825156c93bdba7502174dd696090fdfcd4d80a1abd
+    # via opensearch-py
 first==2.0.2 \
     --hash=sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86 \
     --hash=sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf
@@ -1285,6 +1278,10 @@ openapi-spec-validator==0.7.1 \
     --hash=sha256:3c81825043f24ccbcd2f4b149b11e8231abce5ba84f37065e14ec947d8f4e959 \
     --hash=sha256:8577b85a8268685da6f8aa30990b83b7960d4d1117e901d451b5d572605e5ec7
     # via openapi-core
+opensearch-py==2.6.0 \
+    --hash=sha256:0b7c27e8ed84c03c99558406927b6161f186a72502ca6d0325413d8e5523ba96 \
+    --hash=sha256:b6e78b685dd4e9c016d7a4299cf1de69e299c88322e3f81c716e6e23fe5683c1
+    # via -r requirements/main.in
 orjson==3.10.5 \
     --hash=sha256:03b565c3b93f5d6e001db48b747d31ea3819b89abf041ee10ac6988886d18e01 \
     --hash=sha256:099e81a5975237fda3100f918839af95f42f981447ba8f47adb7b6a3cdb078fa \
@@ -1649,8 +1646,8 @@ python-dateutil==2.9.0.post0 \
     #   botocore
     #   celery
     #   celery-redbeat
-    #   elasticsearch-dsl
     #   google-cloud-bigquery
+    #   opensearch-py
 python-slugify==8.0.4 \
     --hash=sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8 \
     --hash=sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856
@@ -1745,6 +1742,7 @@ requests==2.32.3 \
     #   google-cloud-bigquery
     #   google-cloud-storage
     #   jsonschema-path
+    #   opensearch-py
     #   premailer
     #   requests-aws4auth
     #   stripe
@@ -1880,9 +1878,9 @@ six==1.16.0 \
     --hash=sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254
     # via
     #   automat
-    #   elasticsearch-dsl
     #   html5lib
     #   isodate
+    #   opensearch-py
     #   pymacaroons
     #   python-dateutil
     #   requests-aws4auth
@@ -2006,8 +2004,8 @@ urllib3==1.26.19 \
     #   -r requirements/main.in
     #   botocore
     #   celery
-    #   elasticsearch
     #   kombu
+    #   opensearch-py
     #   requests
     #   sentry-sdk
 venusian==3.1.0 \

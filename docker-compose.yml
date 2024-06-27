@@ -44,11 +44,20 @@ services:
     ports:
       - "4566:4566"
 
-  elasticsearch:
-    image: elasticsearch:7.10.1
+  opensearch:
+    build:
+      context: ./dev/compose/opensearch
+    init: true
+    healthcheck:
+        test: ["CMD-SHELL", "curl -u admin:gqYeDIzbEwTTYmB7 --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+        interval: 1s
+        start_period: 10s
     environment:
-      - xpack.security.enabled=false
       - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=gqYeDIzbEwTTYmB7
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI=true
     ulimits:
       nofile:
         soft: 65536
@@ -109,7 +118,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      elasticsearch:
+      opensearch:
         condition: service_started
       redis:
         condition: service_started
