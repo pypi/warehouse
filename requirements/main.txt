@@ -119,7 +119,6 @@ botocore==1.34.134 \
     --hash=sha256:45219e00639755f92569b29f8f279d5dde721494791412c1f7026a3779e8d9f4 \
     --hash=sha256:e29c299599426ed16dd2d4c1e20eef784f96b15e1850ebbc59a3250959285b95
     # via
-    #   -r requirements/main.in
     #   boto3
     #   s3transfer
 cachetools==5.3.3 \
@@ -1720,9 +1719,9 @@ redis==5.0.7 \
     # via
     #   -r requirements/main.in
     #   celery-redbeat
-referencing==0.31.1 \
-    --hash=sha256:81a1471c68c9d5e3831c30ad1dd9815c45b558e596653db751a2bfdd17b3b9ec \
-    --hash=sha256:c19c4d006f1757e3dd75c4f784d38f8698d87b649c54f9ace14e5e8c9667c01d
+referencing==0.35.1 \
+    --hash=sha256:25b42124a6c8b632a425174f24087783efb348a6f1e0008e63cd4466fedf703c \
+    --hash=sha256:eda6d3234d62814d1c64e305c1331c9a3a6132da475ab6382eaa997b21ee75de
     # via
     #   jsonschema
     #   jsonschema-path
