@@ -199,14 +199,14 @@
     </div>
     <div class="form-group">
       <label for="workflow_filepath" class="form-group__label">
-        {% trans %}Workflow file path{% endtrans %}
+        {% trans %}Top-level pipeline file path{% endtrans %}
         {% if pending_gitlab_publisher_form.workflow_filepath.flags.required %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
       {{ pending_gitlab_publisher_form.workflow_filepath(placeholder=gettext(".gitlab-ci.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filepath-errors"}) }}
       <p class="form-group__help-text">
-        {% trans %}The file path of the publishing workflow, relative to the project's root. This file should exist in the project configured above (external workflows are not supported).{% endtrans %}
+        {% trans %}The file path of the top-level pipeline, relative to the project's root. This file should exist in the project configured above (external pipelines are not supported).{% endtrans %}
       </p>
       <div id="workflow_filepath-errors">
         {{ field_errors(pending_gitlab_publisher_form.workflow_filepath) }}
@@ -320,7 +320,7 @@
     Read more about ActiveState's OpenID Connect support <a href="{{ href }}">here</a>.
     {% endtrans %}
   </p>
-  
+
   {{ form_error_anchor(pending_activestate_pubisher_form) }}
   <form method="POST" action="{{ request.route_path('manage.account.publishing') }}#errors">
     <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -497,7 +497,7 @@
       {% endtrans %}
     </p>
 
-    <p class="no-bottom-padding">
+    <p>
       {% trans href="https://docs.pypi.org/trusted-publishers/" %}
       These publishers behave similarly to trusted publishers registered
       against specific projects, except that they allow users to <strong>create</strong>
@@ -505,6 +505,14 @@
       the "pending" publisher becomes an ordinary trusted publisher.
       You can read more about "pending" and ordinary trusted publishers
       <a href="{{ href }}">here</a>.
+      {% endtrans %}
+    </p>
+
+    <p class="callout-block callout-block--warning">
+      {% trans %}
+      Configuring a "pending" publisher for a project name does <strong>not</strong> reserve
+      that name. Until the project is created, any other user may create it,
+      including via their own "pending" publisher.
       {% endtrans %}
     </p>
 

@@ -13,10 +13,12 @@
 -#}
 {% extends "email/_base/body.txt" %}
 
+{% set domain = request.registry.settings.get('warehouse.domain') %}
+
 {% block content %}
   {% trans token_owner_username=token_owner_username, project_name=project_name,
-     account_href=request.route_url('accounts.profile', username=token_owner_username),
-     project_href=request.route_url('packaging.project', name=project_name)
+     account_href=request.route_url('accounts.profile', username=token_owner_username, _host=domain),
+     project_href=request.route_url('packaging.project', name=project_name, _host=domain)
   %}
     An API token belonging to user {{ token_owner_username }} ({{ account_href }})
     was used to upload files to the project {{ project_name }} ({{ project_href }}),
@@ -25,7 +27,7 @@
     We recommend removing the API token and only using the Trusted Publisher to publish.
   {% endtrans %}
 
-  {% trans href=request.route_url('manage.account'), token_name=token_name %}
+  {% trans href=request.route_url('manage.account', _host=domain), token_name=token_name %}
     If you are the owner of this token, you can delete it by going to your API tokens
     configuration at {{ href }} and deleting the token named {{ token_name }}.
   {% endtrans %}

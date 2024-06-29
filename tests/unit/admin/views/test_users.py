@@ -353,12 +353,6 @@ class TestUserDelete:
             .one()
         )
         assert remove_journal.name == project.name
-        nuke_journal = (
-            db_request.db.query(JournalEntry)
-            .filter(JournalEntry.action == "nuke user")
-            .one()
-        )
-        assert nuke_journal.name == f"user:{user.username}"
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()

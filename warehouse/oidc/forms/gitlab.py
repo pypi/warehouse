@@ -50,7 +50,9 @@ class GitLabPublisherBase(forms.Form):
 
     workflow_filepath = wtforms.StringField(
         validators=[
-            wtforms.validators.InputRequired(message=_("Specify workflow filepath"))
+            wtforms.validators.InputRequired(
+                message=_("Specify top-level pipeline file path")
+            )
         ]
     )
 
@@ -73,11 +75,11 @@ class GitLabPublisherBase(forms.Form):
             workflow_filepath.endswith(".yml") or workflow_filepath.endswith(".yaml")
         ):
             raise wtforms.validators.ValidationError(
-                _("Workflow file path must end with .yml or .yaml")
+                _("Top-level pipeline file path must end with .yml or .yaml")
             )
         if workflow_filepath.startswith("/") or workflow_filepath.endswith("/"):
             raise wtforms.validators.ValidationError(
-                _("Workflow file path cannot start or end with /")
+                _("Top-level pipeline file path cannot start or end with /")
             )
 
     @property

@@ -270,7 +270,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
-    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
+    maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
@@ -675,8 +675,6 @@ def configure(settings=None):
 
     config.include(".static")
 
-    config.include(".policy")
-
     config.include(".search")
 
     # Register the support for AWS, Backblaze,and Google Cloud
@@ -716,7 +714,9 @@ def configure(settings=None):
     config.include(".packaging")
 
     # Configure redirection support
-    config.include(".redirects")
+    config.include(".redirects")  # internal
+    config.include("pyramid_redirect")  # external
+    config.add_settings({"pyramid_redirect.structlog": True})
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
@@ -806,6 +806,9 @@ def configure(settings=None):
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
+
+    # Register our row counting maintenance
+    config.include(".utils.row_counter")
 
     # Scan everything for configuration
     config.scan(

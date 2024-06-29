@@ -765,6 +765,22 @@ class TestRegistrationForm:
             == "The name is too long. Choose a name with 100 characters or less."
         )
 
+    def test_name_contains_null_bytes(self, pyramid_config):
+        form = forms.RegistrationForm(
+            request=pretend.stub(),
+            formdata=MultiDict({"full_name": "hello\0world"}),
+            user_service=pretend.stub(
+                find_userid=pretend.call_recorder(lambda _: None)
+            ),
+            captcha_service=pretend.stub(
+                enabled=False,
+                verify_response=pretend.call_recorder(lambda _: None),
+            ),
+            breach_service=pretend.stub(check_password=lambda pw, tags=None: True),
+        )
+        assert not form.validate()
+        assert form.full_name.errors.pop() == "Null bytes are not allowed."
+
 
 class TestRequestPasswordResetForm:
     @pytest.mark.parametrize(

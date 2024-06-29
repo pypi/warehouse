@@ -1,7 +1,17 @@
 {% extends "base.html" %}
 
 {% block extrahead %}
-  <!-- RSS Feed -->
-  <link rel="alternate" type="application/rss+xml" title="RSS feed of created content" href="{{ config.site_url }}feed_rss_created.xml">
-  <link rel="alternate" type="application/rss+xml" title="RSS feed of updated content" href="{{ config.site_url }}feed_rss_updated.xml">
+{# JSON Feed #}
+{% if "rss" in config.plugins %}
+<link
+  rel="alternate"
+  type="application/feed+json"
+  title="JSON feed" href="{{ 'feed_json_created.json' | url }}"
+  />
+<link
+  rel="alternate"
+  type="application/feed+json"
+  title="JSON feed of updated content"
+  href="{{ 'feed_json_updated.json' | url }}" />
+{% endif %}
 {% endblock %}
