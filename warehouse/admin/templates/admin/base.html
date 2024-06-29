@@ -12,7 +12,7 @@
  # limitations under the License.
 -#}
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -92,7 +92,7 @@
           <img src="{{ gravatar(request, request.user.email, size=160) }}" class="img-circle elevation-2" alt="User Image">
         </div>
         <div class="info">
-          <a class="d-block">{{ request.user.name|default(request.user.username, true) }}</a>
+          <a class="d-block" href="{{ request.route_path('admin.user.detail', username=request.user.username) }}">{{ request.user.name|default(request.user.username, true) }}</a>
         </div>
       </div>
 
@@ -114,6 +114,11 @@
           {# TODO: Is there a cleaner way to show/hide the allowed sections? #}
           {% if request.has_permission(Permissions.AdminDashboardSidebarRead) %}
           <li class="nav-item">
+            <a href="{{ request.route_path('admin.malware_reports.list') }}" class="nav-link">
+              <i class="fa-solid fa-dumpster-fire nav-icon"></i> <p>Malware Reports <span class="right badge badge-danger">New</span></p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="{{ request.route_path('admin.organization_application.list') }}" class="nav-link">
               <i class="fa fa-sitemap nav-icon"></i> <p>Organization Applications</p>
             </a>
@@ -130,7 +135,7 @@
           </li>
           <li class="nav-item">
             <a href="{{ request.route_path('admin.macaroon.decode_token') }}" class="nav-link">
-              <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons <span class="right badge badge-danger">New</span></p>
+              <i class="fa-solid fa-stroopwafel nav-icon"></i> <p>Macaroons</p>
             </a>
           </li>
           <li class="nav-item">

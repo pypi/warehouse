@@ -238,7 +238,7 @@ def test_find_publisher_by_issuer_activestate(
 
 def test_oidc_context_principals():
     assert principals_for(
-        utils.OIDCContext(publisher=pretend.stub(id=17), claims=None)
+        utils.PublisherTokenContext(publisher=pretend.stub(id=17), claims=None)
     ) == [
         Authenticated,
         "oidc:17",

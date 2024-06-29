@@ -335,7 +335,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".tasks"),
             pretend.call(".rate_limiting"),
             pretend.call(".static"),
-            pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".b2"),
@@ -352,17 +351,20 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".subscriptions"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
+            pretend.call("pyramid_redirect"),
             pretend.call(".routes"),
             pretend.call(".sponsors"),
             pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
+            pretend.call(".api.config"),
             pretend.call(".utils.wsgi"),
             pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
             pretend.call(".captcha"),
             pretend.call(".http"),
+            pretend.call(".utils.row_counter"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
         + [pretend.call(".sanity")]
@@ -390,6 +392,7 @@ def test_configure(monkeypatch, settings, environment):
                 "tm.annotate_user": False,
             }
         ),
+        pretend.call({"pyramid_redirect.structlog": True}),
         pretend.call({"http": {"verify": "/etc/ssl/certs/"}}),
     ]
     add_settings_dict = configurator_obj.add_settings.calls[5].args[0]

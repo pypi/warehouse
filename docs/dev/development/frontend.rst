@@ -8,14 +8,35 @@ serving.
 All of the static files are located in ``warehouse/static/`` and external
 libraries are found in ``package.json``.
 
+The static files are compiled and included in the
+``warehouse:docker-compose-static`` Docker image.
+
 
 Building
 --------
 
-Static files should be automatically built when ``make serve`` is running;
-however, you can trigger a manual build of them by installing
-`NodeJS 16.x <https://nodejs.org/en/download/releases/>`_, installing
-the dependencies using ``npm install`` and then running ``npm run build``.
+Static files should be automatically built when ``make serve`` is
+running; however, you can also manually run commands in the ``static``
+container:
+
+.. code-block:: console
+
+    $ # install dependencies
+    $ docker compose run --rm static npm install
+
+    $ # start a build
+    $ docker compose run --rm static npm run build
+
+
+Building outside of Docker
+--------------------------
+
+    Note: building outside of Docker is **not recommended** as it may
+    install platform-specific dependencies.
+
+Install `NodeJS 20.x <https://nodejs.org/en/download/releases/>`_,
+install the dependencies using ``npm install`` and then run ``npm run
+build``.
 
 If you're in a POSIX environment you may find
 `NVM <https://github.com/nvm-sh/nvm>`_ useful to have multiple NodeJS
@@ -25,9 +46,9 @@ versions installed in your system.
 Tests
 -----
 
-The JavaScript codebase includes tests that can be ran via
+The JavaScript codebase includes tests that can be run via
 ``make static_tests``. This target will run the static tests in the Docker
-environment but they may also be ran locally using ``npm run test`` once NodeJS
+environment but they may also be run locally using ``npm run test`` once NodeJS
 and the dependencies are installed as described above.
 
 JavaScript tests use the `Jest testing framework <https://jestjs.io/>`_
@@ -41,7 +62,7 @@ All tests are located in the ``tests/frontend``.
 including `JSDOM <https://github.com/jsdom/jsdom/>`_ allowing us to
 inject the required HTML markup for Stimulus in a setup phase. After the
 setup we must manually instantiate and start a Stimulus application and
-then test the funcionality by triggering events in DOM elements and
+then test the functionality by triggering events in DOM elements and
 asserting on the effects. See existing tests the details on how to
 accomplish this.
 
@@ -51,7 +72,7 @@ accomplish this.
     false negatives on the tests. In these cases it's best to keep the HTML
     setup in a ``beforeEach`` block, even if it means repeating the setup on
     different ``describe`` scenarios. This will ensure the application and
-    controllers are ready before the actual test is ran.
+    controllers are ready before the actual test is run.
 
 Deploying
 ---------

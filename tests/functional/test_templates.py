@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+
 from pathlib import Path
 
 import pytest
@@ -37,6 +39,11 @@ FILTERS = {
     "ctime": "warehouse.filters:ctime",
     "canonicalize_name": "packaging.utils:canonicalize_name",
 }
+
+# A compiled regex that matches a subject block, possibly with newlines inside
+SUBJECT_BLOCK_EXPRESSION = re.compile(
+    r"\{% block subject %}.*\{% endblock %}", re.DOTALL
+)
 
 
 @pytest.mark.parametrize(
@@ -103,3 +110,21 @@ def test_render_templates(template):
     env.filters.update(FILTERS)
 
     assert env.get_template(str(template))
+
+
+@pytest.mark.parametrize(
+    "template",
+    [f for f in Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")],
+)
+def test_email_subjects_for_multiple_lines(template: Path):
+    """
+    Test if all email subject templates don't contain new lines. See
+    https://github.com/pypi/warehouse/issues/13216
+    """
+
+    with template.open("r") as f:
+        match = SUBJECT_BLOCK_EXPRESSION.search(f.read())
+        # There should be a subject block inside a subject template file
+        assert match is not None
+        # There should NOT be a newline inside the subject block
+        assert "\n" not in match.group(0)

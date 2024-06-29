@@ -217,6 +217,9 @@ def configure(settings=None):
     if settings is None:
         settings = {}
 
+    # Allow configuring the log level. See `warehouse/logging.py` for more
+    maybe_set(settings, "logging.level", "LOG_LEVEL")
+
     # Add information about the current copy of the code.
     maybe_set(settings, "warehouse.commit", "SOURCE_COMMIT", default="null")
 
@@ -267,7 +270,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
-    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
+    maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
@@ -672,8 +675,6 @@ def configure(settings=None):
 
     config.include(".static")
 
-    config.include(".policy")
-
     config.include(".search")
 
     # Register the support for AWS, Backblaze,and Google Cloud
@@ -713,7 +714,9 @@ def configure(settings=None):
     config.include(".packaging")
 
     # Configure redirection support
-    config.include(".redirects")
+    config.include(".redirects")  # internal
+    config.include("pyramid_redirect")  # external
+    config.add_settings({"pyramid_redirect.structlog": True})
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")
@@ -770,6 +773,9 @@ def configure(settings=None):
         "warehouse:static/dist/manifest.json", prefix="/static/"
     )
 
+    # Set up API configuration
+    config.include(".api.config")
+
     # Enable support of passing certain values like remote host, client
     # address, and protocol support in from an outer proxy to the application.
     config.add_wsgi_middleware(
@@ -800,6 +806,9 @@ def configure(settings=None):
 
     config.add_settings({"http": {"verify": "/etc/ssl/certs/"}})
     config.include(".http")
+
+    # Register our row counting maintenance
+    config.include(".utils.row_counter")
 
     # Scan everything for configuration
     config.scan(

@@ -103,6 +103,9 @@
         </div>
         <div class="card-body">
           <div class="form-group">
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#freezeModal" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="icon fa fa-snowman"></i> Freeze user & block domain
+            </button>
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
@@ -112,7 +115,48 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
-            <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+            <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="nukeModalLabel">Freeze user {{ user.username }} and prohibit domain?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This is totally reversible.
+                      </p>
+                      <p>
+                        This will also prohibit the following domains:
+                      </p>
+                      <ul>
+                      {% for email in user.emails if email.verified %}
+                        <li>
+                          {{ email.domain }}
+                        </li>
+                      {% else %}
+                        <li><i>None</i></li>
+                      {% endfor %}
+                      </ul>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Freeze 'em</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">

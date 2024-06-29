@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}{% trans project_name=project_name %}Trusted publisher added to {{ project_name }}{% endtrans %}{% endblock %}
+{% block subject %}Trusted publisher added to {{ project_name }}{% endblock %}

@@ -1,5 +1,3 @@
-version: '3.9'
-
 volumes:
   simple:
   packages:
@@ -11,7 +9,7 @@ volumes:
 
 services:
   db:
-    image: postgres:14.11
+    image: postgres:16.1
     ports:
       # 5432 may already in use by another PostgreSQL on host
       - "5433:5432"
@@ -32,25 +30,32 @@ services:
       - "12111:12111"
 
   redis:
-    image: redis:4.0
+    image: redis:7.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.5
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
-      HOSTNAME: "localstack"
-      HOSTNAME_EXTERNAL: "localstack"
-      DEFAULT_REGION: "us-east-2"
+      LOCALSTACK_HOST: "localstack"
       LS_LOG: "error"
     ports:
       - "4566:4566"
 
-  elasticsearch:
-    image: elasticsearch:7.10.1
+  opensearch:
+    build:
+      context: ./dev/compose/opensearch
+    init: true
+    healthcheck:
+        test: ["CMD-SHELL", "curl -u admin:gqYeDIzbEwTTYmB7 --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+        interval: 1s
+        start_period: 10s
     environment:
-      - xpack.security.enabled=false
       - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=gqYeDIzbEwTTYmB7
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI=true
     ulimits:
       nofile:
         soft: 65536
@@ -102,7 +107,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
@@ -111,7 +116,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      elasticsearch:
+      opensearch:
         condition: service_started
       redis:
         condition: service_started
@@ -141,13 +146,14 @@ services:
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
       - simple:/var/opt/warehouse/simple
+      - rstuf-metadata:/var/opt/warehouse/tuf-metadata
     ports:
       - "9001:9001"
 
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker -B -S redbeat.RedBeatScheduler -l info
+    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages
@@ -160,21 +166,28 @@ services:
       SIMPLE_BACKEND: "warehouse.packaging.services.LocalSimpleStorage path=/var/opt/warehouse/simple/ url=http://files:9001/simple/{path}"
 
   rstuf-api:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.9.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-api:v0.12.0b1
     ports:
       - 8001:80
+    stop_signal: SIGKILL
     environment:
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
       - RSTUF_REDIS_SERVER_DB_RESULT=1
       - RSTUF_REDIS_SERVER_DB_REPO_SETTINGS=2
+    depends_on:
+      redis:
+        condition: service_started
 
   rstuf-worker:
-    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.11.0b1
+    image: ghcr.io/repository-service-tuf/repository-service-tuf-worker:v0.14.0b1
     volumes:
       - rstuf-metadata:/var/opt/repository-service-tuf/storage
+      - ./dev/rstuf/keys/online:/keyvault
+    stop_signal: SIGKILL
     environment:
       - RSTUF_STORAGE_BACKEND=LocalStorage
+      - RSTUF_ONLINE_KEY_DIR=/keyvault
       - RSTUF_LOCAL_STORAGE_BACKEND_PATH=/var/opt/repository-service-tuf/storage
       - RSTUF_BROKER_SERVER=redis://redis/1
       - RSTUF_REDIS_SERVER=redis://redis
@@ -184,6 +197,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_started
 
   static:
     build:
@@ -203,6 +218,8 @@ services:
       - ./.stylelintrc.json:/opt/warehouse/src/.stylelintrc.json:z
       - ./tests/frontend:/opt/warehouse/src/tests/frontend:z
       - ./bin:/opt/warehouse/src/bin:z
+      - ./package.json:/opt/warehouse/src/package.json:z
+      - ./package-lock.json:/opt/warehouse/src/package-lock.json:z
       - caches:/opt/warehouse/src/.stylelintcache
 
   maildev:

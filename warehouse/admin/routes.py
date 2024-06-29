@@ -75,6 +75,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.freeze",
+        "/admin/users/{username}/freeze/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.reset_password",
         "/admin/users/{username}/reset_password/",
         domain=warehouse,
@@ -256,6 +263,47 @@ def includeme(config):
     # Observation related Admin pages
     config.add_route(
         "admin.observations.list", "/admin/observations/", domain=warehouse
+    )
+    config.add_route(
+        "admin.malware_reports.list",
+        "/admin/malware_reports/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.list",
+        "/admin/projects/{project_name}/malware_reports/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.verdict_not_malware",
+        "/admin/projects/{project_name}/malware_reports/not_malware/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.project.verdict_remove_malware",
+        "/admin/projects/{project_name}/malware_reports/remove_malware/",
+        factory="warehouse.packaging.models:ProjectFactory",
+        traverse="/{project_name}",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail",
+        "/admin/malware_reports/{observation_id}/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_not_malware",
+        "/admin/malware_reports/{observation_id}/not_malware/",
+        domain=warehouse,
+    )
+    config.add_route(
+        "admin.malware_reports.detail.verdict_remove_malware",
+        "/admin/malware_reports/{observation_id}/remove_malware/",
+        domain=warehouse,
     )
 
     # Email related Admin pages

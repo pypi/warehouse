@@ -749,6 +749,7 @@ class TestAddRole:
     def test_add_role(self, db_request):
         role_name = "Maintainer"
         project = ProjectFactory.create(name="foo")
+        UserFactory.create(username="admin")
         user = UserFactory.create(username="bar")
 
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
@@ -843,6 +844,7 @@ class TestDeleteRole:
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="bar")
         role = RoleFactory.create(project=project, user=user)
+        UserFactory.create(username="admin")
 
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
         db_request.session = pretend.stub(

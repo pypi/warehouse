@@ -35,6 +35,7 @@ from warehouse.utils import readme
 
 from .accounts import UserFactory
 from .base import WarehouseFactory
+from .observations import ObserverFactory
 
 fake = faker.Faker()
 
@@ -60,6 +61,10 @@ class ProjectEventFactory(WarehouseFactory):
 class ProjectObservationFactory(WarehouseFactory):
     class Meta:
         model = Project.Observation
+
+    related = factory.SubFactory(ProjectFactory)
+    related_name = factory.LazyAttribute(lambda o: repr(o.related))
+    observer = factory.SubFactory(ObserverFactory)
 
     kind = factory.Faker(
         "random_element", elements=[kind.value[1] for kind in ObservationKind]
