@@ -336,7 +336,7 @@ msgstr ""
 msgid "Removed trusted publisher for project "
 msgstr ""
 
-#: warehouse/admin/static/js/warehouse.js:107
+#: warehouse/admin/static/js/warehouse.js:114
 #: warehouse/static/js/warehouse/controllers/clipboard_controller.js:32
 msgid "Copied"
 msgstr ""
