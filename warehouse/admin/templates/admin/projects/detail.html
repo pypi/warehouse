@@ -255,6 +255,9 @@
   <div class="card-header">
     <h3 class="card-title">Project Observations</h3>
     <div class="card-tools">
+      {% if observations %}
+      <span class="badge badge-warning">{{ observations|length }}</span>
+      {% endif %}
       <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-plus"></i>
       </button>
     </div>
@@ -267,6 +270,7 @@
       <table class="table table-hover table-striped">
         <thead>
           <tr>
+            <th></th>
             <th>Created</th>
             <th>Kind</th>
             <th>Reporter</th>
@@ -276,6 +280,11 @@
         <tbody>
           {% for observation in observations %}
           <tr>
+            <td>
+              <a href="{{ request.route_path('admin.malware_reports.detail', observation_id=observation.id) }}">
+                <i class="fa-regular fa-eye"></i>
+              </a>
+            </td>
             <td>{{ observation.created }}</td>
             {# TODO: There's no exact relationship back to the ObservationKind to get the human-string. Not exactly sure how to get that yet. #}
             <td>{{ observation.kind }}</td>

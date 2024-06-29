@@ -2909,6 +2909,10 @@ class TestFileUpload:
                 "400 Invalid wheel filename (invalid version): "
                 "foo-0.0.4test1-py3-none-any",
             ),
+            (
+                "something.tar.gz",
+                "400 Invalid source distribution filename: something.tar.gz",
+            ),
         ],
     )
     def test_upload_fails_with_invalid_filename(
@@ -2932,8 +2936,8 @@ class TestFileUpload:
                 "metadata_version": "1.2",
                 "name": project.name,
                 "version": release.version,
-                "filetype": "bdist_wheel",
-                "pyversion": "cp34",
+                "filetype": "bdist_wheel" if filename.endswith(".whl") else "sdist",
+                "pyversion": "cp34" if filename.endswith(".whl") else "source",
                 "md5_digest": hashlib.md5(filebody).hexdigest(),
                 "content": pretend.stub(
                     filename=filename,
@@ -3691,7 +3695,7 @@ class TestFileUpload:
             ("example", "1.0", "add source file example-1.0.tar.gz", user),
         ]
 
-    def test_upload_succeeds_with_signature(
+    def test_upload_succeeds_with_gpg_signature_field(
         self, pyramid_config, db_request, metrics, project_service, monkeypatch
     ):
         user = UserFactory.create()
@@ -3725,20 +3729,9 @@ class TestFileUpload:
         }.get(svc)
         db_request.user_agent = "warehouse-tests/6.6.6"
 
-        send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(legacy, "send_gpg_signature_uploaded_email", send_email)
-
         resp = legacy.file_upload(db_request)
 
         assert resp.status_code == 200
-        assert resp.body == (
-            b"GPG signature support has been removed from PyPI and the provided "
-            b"signature has been discarded."
-        )
-
-        assert send_email.calls == [
-            pretend.call(db_request, user, project_name="example"),
-        ]
 
     def test_upload_succeeds_without_two_factor(
         self, pyramid_config, db_request, metrics, project_service, monkeypatch

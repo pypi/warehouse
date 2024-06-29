@@ -13,7 +13,7 @@
 import os
 
 import celery.exceptions
-import elasticsearch
+import opensearchpy
 import packaging.version
 import pretend
 import pytest
@@ -227,14 +227,14 @@ class TestReindex:
         task = pretend.stub()
         es_client = FakeESClient()
 
-        db_request.registry.update({"elasticsearch.index": "warehouse"})
+        db_request.registry.update({"opensearch.index": "warehouse"})
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
 
@@ -288,15 +288,15 @@ class TestReindex:
         es_client = FakeESClient()
 
         db_request.registry.update(
-            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
+            {"opensearch.index": "warehouse", "opensearch.shards": 42}
         )
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
@@ -349,18 +349,18 @@ class TestReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.index": "warehouse",
-                "elasticsearch.shards": 42,
+                "opensearch.index": "warehouse",
+                "opensearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             }
         )
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
@@ -412,19 +412,19 @@ class TestReindex:
         es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
 
         db_request.registry.update(
-            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
+            {"opensearch.index": "warehouse", "opensearch.shards": 42}
         )
         db_request.registry.settings = {
             "aws.key_id": "AAAAAAAAAAAAAAAAAA",
             "aws.secret_key": "deadbeefdeadbeefdeadbeef",
-            "elasticsearch.url": "https://some.url?aws_auth=1&region=us-east-2",
+            "opensearch.url": "https://some.url?aws_auth=1&region=us-east-2",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
             warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth
         )
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch, "Elasticsearch", es_client_init
+            warehouse.search.tasks.opensearchpy, "OpenSearch", es_client_init
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
@@ -441,7 +441,7 @@ class TestReindex:
         assert es_client_init.calls[0].kwargs["retry_on_timeout"] is True
         assert (
             es_client_init.calls[0].kwargs["connection_class"]
-            == elasticsearch.connection.http_requests.RequestsHttpConnection
+            == opensearchpy.connection.http_requests.RequestsHttpConnection
         )
         assert es_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
         assert aws4auth.calls == [
@@ -491,7 +491,7 @@ class TestPartialReindex:
         es_client = FakeESClient()
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         class TestError(Exception):
@@ -523,7 +523,7 @@ class TestPartialReindex:
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         with pytest.raises(TestError):
@@ -536,12 +536,12 @@ class TestPartialReindex:
 
         es_client = FakeESClient()
         es_client.delete = pretend.call_recorder(
-            pretend.raiser(elasticsearch.exceptions.NotFoundError)
+            pretend.raiser(opensearchpy.exceptions.NotFoundError)
         )
         monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         unindex_project(task, db_request, "foo")
@@ -596,9 +596,9 @@ class TestPartialReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.client": es_client,
-                "elasticsearch.index": "warehouse",
-                "elasticsearch.shards": 42,
+                "opensearch.client": es_client,
+                "opensearch.index": "warehouse",
+                "opensearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             }
         )

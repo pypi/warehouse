@@ -167,14 +167,14 @@
       </div>
       <div class="form-group">
         <label for="workflow_filepath" class="form-group__label">
-          {% trans %}Workflow file path{% endtrans %}
+          {% trans %}Top-level pipeline file path{% endtrans %}
           {% if gitlab_publisher_form.workflow_filepath.flags.required %}
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
         {{ gitlab_publisher_form.workflow_filepath(placeholder=gettext(".gitlab-ci.yml"), class_="form-group__field", autocomplete="off", **{"aria-describedby":"workflow_filepath-errors"}) }}
         <p class="form-group__help-text">
-          {% trans %}The file path of the publishing workflow, relative to the project's root. This file should exist in the project configured above (external workflows are not supported).{% endtrans %}
+          {% trans %}The file path of the top-level pipeline, relative to the project's root. This file should exist in the project configured above (external pipelines are not supported).{% endtrans %}
         </p>
         <div id="workflow_filepath-errors">
           {{ field_errors(gitlab_publisher_form.workflow_filepath) }}

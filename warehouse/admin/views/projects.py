@@ -19,8 +19,10 @@ from sqlalchemy import func, or_
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
 
+from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
+from warehouse.events.tags import EventTag
 from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
@@ -218,8 +220,7 @@ def add_project_observation(project, request):
             )
         )
 
-    # We allow an empty payload from Admin.
-    payload = {}
+    payload = {"origin": "admin"}
 
     project.record_observation(
         request=request,
@@ -356,8 +357,7 @@ def add_release_observation(release, request):
             )
         )
 
-    # We allow an empty payload from Admin.
-    payload = {}
+    payload = {"origin": "admin"}
 
     release.record_observation(
         request=request,
@@ -603,6 +603,27 @@ def add_role(project, request):
 
     request.db.add(Role(role_name=role_name, user=user, project=project))
 
+    user_service = request.find_service(IUserService, context=None)
+
+    project.record_event(
+        tag=EventTag.Project.RoleAdd,
+        request=request,
+        additional={
+            "submitted_by": user_service.get_admin_user().username,
+            "role_name": role_name,
+            "target_user": user.username,
+        },
+    )
+    user.record_event(
+        tag=EventTag.Account.RoleAdd,
+        request=request,
+        additional={
+            "submitted_by": user_service.get_admin_user().username,
+            "project_name": project.name,
+            "role_name": role_name,
+        },
+    )
+
     request.session.flash(
         f"Added '{user.username}' as '{role_name}' on '{project.name}'", queue="success"
     )
@@ -649,6 +670,18 @@ def delete_role(project, request):
             action=f"remove {role.role_name} {role.user.username}",
             submitted_by=request.user,
         )
+    )
+
+    user_service = request.find_service(IUserService, context=None)
+
+    project.record_event(
+        tag=EventTag.Project.RoleRemove,
+        request=request,
+        additional={
+            "submitted_by": user_service.get_admin_user().username,
+            "role_name": role.role_name,
+            "target_user": role.user.username,
+        },
     )
 
     request.db.delete(role)

@@ -160,9 +160,14 @@ class ManageAccountMixin:
                 )
                 .one()
             )
-        except NoResultFound:
+        except (NoResultFound, ValueError):
             self.request.session.flash("Email address not found", queue="error")
-            return self.default_response
+            if self.request.user.has_primary_verified_email:
+                return HTTPSeeOther(self.request.route_path("manage.account"))
+            else:
+                return HTTPSeeOther(
+                    self.request.route_path("manage.unverified-account")
+                )
 
         if email.verified:
             self.request.session.flash("Email is already verified", queue="error")

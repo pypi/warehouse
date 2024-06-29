@@ -47,7 +47,6 @@ from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
-    send_gpg_signature_uploaded_email,
     send_two_factor_not_yet_enabled_email,
 )
 from warehouse.events.tags import EventTag
@@ -452,7 +451,8 @@ def file_upload(request):
         raise _exc_with_message(HTTPBadRequest, "Unknown protocol version.")
 
     # Check if any fields were supplied as a tuple and have become a
-    # FieldStorage. The 'content' field _should_ be a FieldStorage, however.
+    # FieldStorage. The 'content' field _should_ be a FieldStorage, however,
+    # and we don't care about the legacy gpg_signature field.
     # ref: https://github.com/pypi/warehouse/issues/2185
     # ref: https://github.com/pypi/warehouse/issues/2491
     for field in set(request.POST) - {"content", "gpg_signature"}:
@@ -769,17 +769,6 @@ def file_upload(request):
         )
         request.db.add(release)
 
-        if "gpg_signature" in request.POST:
-            warnings.append(
-                "GPG signature support has been removed from PyPI and the "
-                "provided signature has been discarded."
-            )
-            send_gpg_signature_uploaded_email(
-                request,
-                request.user if request.user else project.users,
-                project_name=project.name,
-            )
-
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
         #       this view.
@@ -963,7 +952,13 @@ def file_upload(request):
             # enforcing this, so we permit a filename with a project name and
             # version that normalizes to be what we expect
 
-            name, version = packaging.utils.parse_sdist_filename(filename)
+            try:
+                name, version = packaging.utils.parse_sdist_filename(filename)
+            except packaging.utils.InvalidSdistFilename:
+                raise _exc_with_message(
+                    HTTPBadRequest,
+                    f"Invalid source distribution filename: {filename}",
+                )
 
             # The previous function fails to accomodate the edge case where
             # versions may contain hyphens, so we handle that here based on
