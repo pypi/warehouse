@@ -211,4 +211,3 @@ class AlternateRepositoryFactory(WarehouseFactory):
     url = factory.Faker("uri")
     description = factory.Faker("text")
     project = factory.SubFactory(ProjectFactory)
-

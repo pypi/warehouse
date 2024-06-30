@@ -1178,9 +1178,7 @@ class ManageProjectSettingsViews:
 
         if not form.validate():
             self.request.session.flash(
-                self.request._(
-                    "Invalid alternate repository location details",
-                ),
+                self.request._("Invalid alternate repository location details"),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1249,7 +1247,7 @@ class ManageProjectSettingsViews:
         permission=Permissions.ProjectsWrite,
     )
     def delete_project_alternate_repository(self):
-        alt_repo_name = self.request.POST.get("confirm_alternate_repository_name")
+        confirm_name = self.request.POST.get("confirm_alternate_repository_name")
 
         resp_inst = HTTPSeeOther(
             self.request.route_path(
@@ -1257,7 +1255,7 @@ class ManageProjectSettingsViews:
             )
         )
 
-        if not alt_repo_name:
+        if not confirm_name:
             self.request.session.flash(
                 self.request._("Confirm the request"), queue="error"
             )
@@ -1270,7 +1268,18 @@ class ManageProjectSettingsViews:
         )
         if alt_repo is None or alt_repo not in self.project.alternate_repositories:
             self.request.session.flash(
-                "Invalid alternate repository for project",
+                self.request._("Invalid alternate repository for project"),
+                queue="error",
+            )
+            return resp_inst
+
+        if confirm_name != alt_repo.name:
+            self.request.session.flash(
+                self.request._(
+                    "Could not delete alternate repository - "
+                    "${confirm} is not the same as ${alt_repo_name}",
+                    mapping={"confirm": confirm_name, "alt_repo_name": alt_repo.name},
+                ),
                 queue="error",
             )
             return resp_inst
