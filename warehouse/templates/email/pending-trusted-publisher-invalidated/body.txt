@@ -14,12 +14,8 @@
 {% extends "email/_base/body.txt" %}
 
 {% block content %}
-You registered an pending OpenID Connect publisher for a project
+You registered a pending trusted publisher for a project
 ({{ project_name }}), but someone else has invalidated your pending publisher
 by creating the project before you did.
-
-If you believe this was done in error, you can email admin@pypi.org
-to communicate with the PyPI administrators.
-
 {% endblock %}
 

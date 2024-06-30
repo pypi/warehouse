@@ -2,7 +2,7 @@ doc8>=1.1.0
 flake8
 curlylint
 pep8-naming
-black==24.4.0
+black==24.4.2
 isort>=5.13.1
 pyupgrade
 mypy
@@ -19,7 +19,7 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests==2.31.0.6  # See https://github.com/pypi/warehouse/issues/14671
+types-requests==2.32.0.20240622
 types-setuptools
 types-stripe
 types-WTForms

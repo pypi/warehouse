@@ -56,8 +56,15 @@ def includeme(config):
     )
 
     # Our legal policies
-    config.add_policy("terms-of-use", "terms.md")
-    config.add_policy("acceptable-use-policy", "acceptable-use-policy.md")
+    _domain_prefix = rf"https?://({warehouse}|localhost)"
+    config.add_redirect_rule(
+        f"{_domain_prefix}/policy/terms-of-use/",
+        "https://policies.python.org/pypi.org/Terms-of-use/",
+    )
+    config.add_redirect_rule(
+        f"{_domain_prefix}/policy/acceptable-use-policy/",
+        "https://policies.python.org/pypi.org/Acceptable-Use-Policy/",
+    )
     config.add_template_view(
         "trademarks",
         "/trademarks/",

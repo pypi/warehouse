@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime, timedelta
+import datetime
 
 import pretend
 import pytest
@@ -29,14 +29,20 @@ def test_sitemap_index(db_request):
     )
 
     project = ProjectFactory.create(
-        name="foobar", created=(datetime.utcnow() - timedelta(days=15))
+        name="foobar",
+        created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)),
     )
     users = [
         UserFactory.create(
-            username="a", date_joined=(datetime.utcnow() - timedelta(days=15))
+            username="a",
+            date_joined=(
+                datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)
+            ),
         ),
         UserFactory.create(username="b"),
-        UserFactory.create(username="c", date_joined=(datetime.utcnow())),
+        UserFactory.create(
+            username="c", date_joined=(datetime.datetime.now(datetime.UTC))
+        ),
     ]
 
     # Have to pass this here, because passing date_joined=None to the create
@@ -69,7 +75,8 @@ def test_sitemap_bucket(db_request):
     db_request.matchdict["bucket"] = "0a"
 
     ProjectFactory.create(
-        name="foobar", created=(datetime.utcnow() - timedelta(days=15))
+        name="foobar",
+        created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15)),
     )
     UserFactory.create(username="a")
     UserFactory.create(username="b")
@@ -91,7 +98,9 @@ def test_sitemap_bucket_too_many(monkeypatch, db_request):
     monkeypatch.setattr(sitemap, "SITEMAP_MAXSIZE", 2)
 
     for _ in range(3):
-        p = ProjectFactory.create(created=(datetime.utcnow() - timedelta(days=15)))
+        p = ProjectFactory.create(
+            created=(datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=15))
+        )
         p.sitemap_bucket = "52"
 
     db_request.db.flush()

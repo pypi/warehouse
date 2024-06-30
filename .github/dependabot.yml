@@ -11,8 +11,6 @@ updates:
   - dependency-type: indirect
   rebase-strategy: "disabled"
   ignore:
-  # Always ignore elasticsearch, future versions are always incompatible with our provider
-  - dependency-name: "elasticsearch"
   # These update basically every day, and 99.9% of the time we don't care
   - dependency-name: "boto3"
   - dependency-name: "boto3-stubs"

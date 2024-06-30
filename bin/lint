@@ -11,7 +11,7 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 set -x
 
 # Actually run our tests.
-find . -name '*.py' -exec python -m pyupgrade --py311-plus {} +
+find . -name '*.py' -exec python -m pyupgrade --py312-plus {} +
 python -m flake8 .
 python -m black --check --diff *.py warehouse/ tests/
 python -m isort --check *.py warehouse/ tests/
