@@ -2785,7 +2785,7 @@ class TestManageProjectSettings:
 
         db_request.POST = MultiDict(
             {
-                "alternate_repository_id": alt_repo.id,
+                "alternate_repository_id": str(alt_repo.id),
                 "confirm_alternate_repository_name": alt_repo.name,
                 "alternate_repository_location": "delete",
             }
@@ -2813,13 +2813,78 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
 
+    @pytest.mark.parametrize("alt_repo_id", [None, "", "blah"])
+    def test_delete_alternate_repository_invalid_id(self, db_request, alt_repo_id):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": alt_repo_id,
+                "confirm_alternate_repository_name": alt_repo.name,
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid alternate repository id", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
+    def test_delete_alternate_repository_wrong_id(self, db_request):
+        project = ProjectFactory.create(name="foo")
+        alt_repo = AlternateRepositoryFactory.create(project=project)
+
+        db_request.POST = MultiDict(
+            {
+                "alternate_repository_id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+                "confirm_alternate_repository_name": alt_repo.name,
+                "alternate_repository_location": "delete",
+            }
+        )
+        db_request.flags = pretend.stub(enabled=pretend.call_recorder(lambda *a: False))
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect")
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+
+        RoleFactory.create(project=project, user=db_request.user, role_name="Owner")
+
+        settings_views = views.ManageProjectSettingsViews(project, db_request)
+        result = settings_views.delete_project_alternate_repository()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+        assert db_request.session.flash.calls == [
+            pretend.call("Invalid alternate repository for project", queue="error")
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("manage.project.settings", project_name="foo")
+        ]
+
     def test_delete_alternate_repository_no_confirm(self, db_request):
         project = ProjectFactory.create(name="foo")
         alt_repo = AlternateRepositoryFactory.create(project=project)
 
         db_request.POST = MultiDict(
             {
-                "alternate_repository_id": alt_repo.id,
+                "alternate_repository_id": str(alt_repo.id),
                 "alternate_repository_location": "delete",
             }
         )
@@ -2844,13 +2909,13 @@ class TestManageProjectSettings:
             pretend.call("manage.project.settings", project_name="foo")
         ]
 
-    def test_delete_alternate_repository_wrong_confirm(self, monkeypatch, db_request):
+    def test_delete_alternate_repository_wrong_confirm(self, db_request):
         project = ProjectFactory.create(name="foo")
         alt_repo = AlternateRepositoryFactory.create(project=project)
 
         db_request.POST = MultiDict(
             {
-                "alternate_repository_id": alt_repo.id,
+                "alternate_repository_id": str(alt_repo.id),
                 "confirm_alternate_repository_name": f"invalid-confirm-{alt_repo.name}",
                 "alternate_repository_location": "delete",
             }
