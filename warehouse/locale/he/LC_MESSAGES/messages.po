@@ -16,15 +16,15 @@
 # אברהם רוזנטל <tcruo123@gmail.com>, 2022.
 # Mike Fiedler <miketheman@gmail.com>, 2022, 2023, 2024.
 # Eytan Goldshmidt <eitntt@gmail.com>, 2023.
-# Oriya Alperin <oriya2011@gmail.com>, 2023.
+# Oriya Alperin <oriya2011@gmail.com>, 2023, 2024.
 # doronz88 <doron88@gmail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-01-15 20:11+0200\n"
-"PO-Revision-Date: 2024-01-03 17:37+0000\n"
-"Last-Translator: Mike Fiedler <miketheman@gmail.com>\n"
+"PO-Revision-Date: 2024-06-25 11:12+0000\n"
+"Last-Translator: Oriya Alperin <oriya2011@gmail.com>\n"
 "Language-Team: Hebrew <https://hosted.weblate.org/projects/pypa/warehouse/he/"
 ">\n"
 "Language: he\n"
@@ -33,7 +33,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
 "n % 10 == 0) ? 2 : 3));\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.6-rc\n"
 "Generated-By: Babel 2.7.0\n"
 
 #: warehouse/views.py:142
@@ -158,19 +158,16 @@ msgid "Recovery code has been previously used."
 msgstr "קוד השחזור היה בשימוש בעבר."
 
 #: warehouse/accounts/forms.py:565
-#, fuzzy
-#| msgid "The email address isn't valid. Try again."
 msgid "The username isn't valid. Try again."
-msgstr "כתובת האי-מייל אינה תקינה. יש לנסות שוב."
+msgstr "שם משתמש אינו תקין. יש לנסות שוב."
 
 #: warehouse/accounts/views.py:120
-#, fuzzy
-#| msgid ""
-#| "There have been too many unsuccessful login attempts. Try again later."
 msgid ""
 "There have been too many unsuccessful login attempts. You have been locked "
 "out for {}. Please try again later."
-msgstr "בוצעו נסיונות הזדהות כושלים רבים מדי. יש לנסות שוב מאוחר יותר."
+msgstr ""
+"בוצעו נסיונות הזדהות כושלים רבים מדי. חשבונך ננעל למשך {}. יש לנסות שוב "
+"מאוחר יותר."
 
 #: warehouse/accounts/views.py:137
 msgid ""
@@ -181,17 +178,13 @@ msgstr ""
 "שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:149
-#, fuzzy
-#| msgid ""
-#| "Too many emails have been added to this account without verifying them. "
-#| "Check your inbox and follow the verification links. (IP: ${ip})"
 msgid ""
 "Too many password resets have been requested for this account without "
 "completing them. Check your inbox and follow the verification links. (IP: "
 "${ip})"
 msgstr ""
-"יותר מדי אי-מיילים נוספו לחשבון זה מבלי שאומתו. בדק/י את תיבת הדואר הנכנס "
-"שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
+"יותר מדי בקשות לאיפוס סיסמא בחשבון זה נשלחו מבלי שהושלמו. בדק/י את תיבת "
+"הדואר הנכנס שלך ועקב/י אחר קישורי האימות. (IP: ${ip})"
 
 #: warehouse/accounts/views.py:331 warehouse/accounts/views.py:400
 #: warehouse/accounts/views.py:402 warehouse/accounts/views.py:431
@@ -305,28 +298,22 @@ msgid "Organization invitation is not valid."
 msgstr "הזמנה לארגון אינה חוקית."
 
 #: warehouse/accounts/views.py:1038
-#, fuzzy
-#| msgid "Role invitation no longer exists."
 msgid "Organization invitation no longer exists."
-msgstr "הזמנת תפקיד כבר לא קיימת."
+msgstr "הזמנה לארגון כבר לא קיימת."
 
 #: warehouse/accounts/views.py:1089
-#, fuzzy
-#| msgid "Invitation for '${project_name}' is declined."
 msgid "Invitation for '${organization_name}' is declined."
-msgstr "ההזמנה ל- '${project_name}' נדחתה."
+msgstr "ההזמנה ל- '${organization_name}' נדחתה."
 
 #: warehouse/accounts/views.py:1152
-#, fuzzy
-#| msgid "You are now ${role} of the '${project_name}' project."
 msgid "You are now ${role} of the '${organization_name}' organization."
-msgstr "כעת אתה $ {role} של פרויקט '$ {project_name}'."
+msgstr "כעת את/ה ${role} של ארגון '${organization_name}'."
 
 #: warehouse/accounts/views.py:1186
 #, fuzzy
 #| msgid "Expired token: request a new project role invite"
 msgid "Expired token: request a new project role invitation"
-msgstr "האסימון שפג תוקפו: בקש הזמנה לתפקיד פרוייקט חדש"
+msgstr "אסימון פג תוקף: בקש/י הזמנה חדשה לתפקיד פרוייקט"
 
 #: warehouse/accounts/views.py:1188
 #, fuzzy
@@ -420,10 +407,8 @@ msgstr "ניהול פרויקט זה"
 
 #: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
 #: warehouse/accounts/views.py:1834
-#, fuzzy
-#| msgid "Manage version"
 msgid "Invalid publisher ID"
-msgstr "ניהול גרסה"
+msgstr "מספר זיהוי מפרסם אינו תקין"
 
 #: warehouse/accounts/views.py:1840
 msgid "Removed trusted publisher for project "
@@ -5557,7 +5542,14 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:541
+#: warehouse/templates/manage/account/publishing.html:512
+msgid ""
+"Configuring a \"pending\" publisher for a project name does <strong>not</"
+"strong> reserve that name. Until the project is created, any other user may "
+"create it, including via their own \"pending\" publisher."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:549
 #: warehouse/templates/manage/project/publishing.html:422
 #, fuzzy, python-format
 #| msgid "You have not enabled two factor authentication on your account."
@@ -10472,9 +10464,19 @@ msgstr ""
 "בעצם, היינו שמחים לעזור לך ליצור את ה-pull request הראשון שלך בקוד פתוח!"
 
 #: warehouse/templates/pages/help.html:897
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
+#| "SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
+#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting "
+#| "started\" guide</a>, then take a look at the <a "
+#| "href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">issue tracker</a>. We've created a <a "
+#| "href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">'Good first issue'</a> label – we recommend you start "
+#| "here."
 msgid ""
-"If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
+"If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
 "SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting started\" "
 "guide</a>, then take a look at the <a href=\"%(issue_tracker_href)s\" "

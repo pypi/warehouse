@@ -59,7 +59,7 @@ msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-05-09 11:37+0000\n"
+"PO-Revision-Date: 2024-06-29 08:52+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -69,7 +69,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5.4-rc\n"
+"X-Generator: Weblate 5.7-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -5097,7 +5097,16 @@ msgstr ""
 "受信任发布者。要了解关于“待定”和普通的受信任发布者的更多信息，请访问 <a "
 "href=\"%(href)s\">此处</a>。"
 
-#: warehouse/templates/manage/account/publishing.html:541
+#: warehouse/templates/manage/account/publishing.html:512
+msgid ""
+"Configuring a \"pending\" publisher for a project name does <strong>not</"
+"strong> reserve that name. Until the project is created, any other user may "
+"create it, including via their own \"pending\" publisher."
+msgstr ""
+"为项目名称配置一个“待定”发布者<strong>不</strong>保留该名称。在此项目创建前，"
+"任何其他用户都可以创建它，包括通过这些用户自己的“待定”发布者。"
+
+#: warehouse/templates/manage/account/publishing.html:549
 #: warehouse/templates/manage/project/publishing.html:422
 #, python-format
 msgid ""
@@ -9280,7 +9289,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:897
 #, python-format
 msgid ""
-"If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
+"If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
 "SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting started\" "
 "guide</a>, then take a look at the <a href=\"%(issue_tracker_href)s\" "
@@ -9289,13 +9298,13 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">'Good first issue'</a> label – we "
 "recommend you start here."
 msgstr ""
-"如果你在Python、ElasticSearch、HTML、SCSS、JavaScript或SQLAlchemy方面有技能，"
+"如果你拥有Python、全文搜索、HTML、SCSS、JavaScript或SQLAlchemy方面的技能，"
 "那么请浏览我们的<a href=\"%(getting_started_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">“入门”</a>指南，然后查看<a "
-"href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">问题跟踪程序</a>。我们已经创建了一个<a "
-"href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">“好的第一期”</a>标签——我们建议你从这里开始。"
+"target=\"_blank\" rel=\"noopener\">“入门”</a>指南，然后查看<a href=\""
+"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">问题跟踪程序</a>。我们已经创建了一个<a href=\"%(good_first_issue_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">“好的第一期”</a>标签——我们建议你从这里开始。"
 
 #: warehouse/templates/pages/help.html:905
 #, python-format
