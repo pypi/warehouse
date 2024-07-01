@@ -188,8 +188,8 @@ application.
    (on Windows by editing the config file found at ``C:\Users\<USER>\AppData\Local\Docker\wsl``).
 
    If you are using Linux, you may need to configure the maximum map count to get
-   the `elasticsearch` up and running. According to the
-   `documentation <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/vm-max-map-count.html>`_
+   the `opensearch` up and running. According to the
+   `documentation <https://opensearch.org/docs/2.15/install-and-configure/install-opensearch/index/#important-settings>`_
    this can be set temporarily:
 
    .. code-block:: console
@@ -200,9 +200,9 @@ application.
    :file:`/etc/sysctl.conf`.
 
    Also check that you have more than 5% disk space free, otherwise
-   elasticsearch will become read only. See ``flood_stage`` in the
-   `elasticsearch disk allocation docs
-   <https://www.elastic.co/guide/en/elasticsearch/reference/6.8/disk-allocator.html>`_.
+   opensearch will become read only. See ``flood_stage`` in the
+   `opensearch disk allocation docs
+   <https://opensearch.org/docs/latest/install-and-configure/configuring-opensearch/cluster-settings/#cluster-level-routing-and-allocation-settings>`_.
 
 
 Once ``make build`` has finished,  run the command:
@@ -414,10 +414,10 @@ Errors when executing ``make initdb``
 
 * If ``make initdb`` fails with a timeout like::
 
-    urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPConnection object at 0x8beca733c3c8>, 'Connection to elasticsearch timed out. (connect timeout=30)')
+    urllib3.exceptions.ConnectTimeoutError: (<urllib3.connection.HTTPConnection object at 0x8beca733c3c8>, 'Connection to opensearch timed out. (connect timeout=30)')
 
   you might need to increase the amount of memory allocated to docker, since
-  elasticsearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
+  opensearch wants a lot of memory (Dustin gives warehouse ~4GB locally).
   Refer to the tip under :ref:`running-warehouse-containers` section for more details.
 
 
@@ -478,7 +478,7 @@ Docker please raise an issue in
 Disabling services locally
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Some services, such as Elasticsearch, consume a lot of resources when running
+Some services, such as OpenSearch, consume a lot of resources when running
 locally, but might not always be necessary when doing local development.
 
 To disable these locally, you can create a ``docker-compose.override.yaml``
@@ -490,8 +490,8 @@ individually disable services, modify their entrypoint to do something else:
     version: "3"
 
     services:
-      elasticsearch:
-        entrypoint: ["echo", "Elasticsearch disabled"]
+      opensearch:
+        entrypoint: ["echo", "OpenSearch disabled"]
 
 Note that disabling services might cause things to fail in unexpected ways.
 

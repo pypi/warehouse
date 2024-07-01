@@ -53,12 +53,13 @@
 # Thomas <jzh20180312@163.com>, 2023.
 # 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate.org>, 2024.
 # Eana Hufwe <eana@1a23.com>, 2024.
+# Peter Shen <xianpeng.shen@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Warehouse VERSION\n"
 "Report-Msgid-Bugs-To: admin@pypi.org\n"
 "POT-Creation-Date: 2020-04-06 17:52-0500\n"
-"PO-Revision-Date: 2024-04-19 04:55+0000\n"
+"PO-Revision-Date: 2024-06-29 08:52+0000\n"
 "Last-Translator: 大王叫我来巡山 <hamburger2048@users.noreply.hosted.weblate."
 "org>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
@@ -68,7 +69,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 "Generated-By: Babel 2.8.0\n"
 
 #: warehouse/views.py:142
@@ -90,7 +91,7 @@ msgstr "区域设置已更新"
 
 #: warehouse/accounts/forms.py:51
 msgid "The password is invalid. Try again."
-msgstr "密码无效，请重新输入。"
+msgstr "密码错误。请重试。"
 
 #: warehouse/accounts/forms.py:52
 msgid ""
@@ -142,7 +143,7 @@ msgstr ""
 
 #: warehouse/accounts/forms.py:235
 msgid "Your passwords don't match. Try again."
-msgstr "两次输入的密码不一致，请重新输入。"
+msgstr "输入的密码不一致，请重试。"
 
 #: warehouse/accounts/forms.py:269
 msgid "The email address is too long. Try again."
@@ -172,24 +173,24 @@ msgstr "此电子邮件地址已被另一个账户使用。使用一个不同的
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr "用户名太长。请选择一个不超过100个字符的用户名。"
 
-#: warehouse/accounts/forms.py:439
+#: warehouse/accounts/forms.py:440
 msgid "Invalid TOTP code."
 msgstr "无效的 TOTP 代码。"
 
-#: warehouse/accounts/forms.py:456
+#: warehouse/accounts/forms.py:457
 msgid "Invalid WebAuthn assertion: Bad payload"
 msgstr "无效的 WebAuthn 断言：数据错误"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/accounts/forms.py:525
+#: warehouse/accounts/forms.py:526
 msgid "Invalid recovery code."
 msgstr "无效的恢复代码。"
 
-#: warehouse/accounts/forms.py:534
+#: warehouse/accounts/forms.py:535
 msgid "Recovery code has been previously used."
 msgstr "恢复代码先前已用过。"
 
-#: warehouse/accounts/forms.py:564
+#: warehouse/accounts/forms.py:565
 msgid "The username isn't valid. Try again."
 msgstr "用户名无效。请再试一次。"
 
@@ -800,22 +801,22 @@ msgstr "指定 GitLab 命名空间（用户名或组/子组）"
 msgid "Invalid GitLab username or group/subgroup name."
 msgstr "无效的 GitLab 用户名或组/子组名。"
 
-#: warehouse/oidc/forms/gitlab.py:53
-msgid "Specify workflow filepath"
-msgstr "指定工作流文件路径"
+#: warehouse/oidc/forms/gitlab.py:54
+msgid "Specify top-level pipeline file path"
+msgstr "指定顶层管线文件路径"
 
 # | msgid "Invalid TOTP code."
-#: warehouse/oidc/forms/gitlab.py:61
+#: warehouse/oidc/forms/gitlab.py:63
 msgid "Invalid environment name"
 msgstr "无效的环境名"
 
-#: warehouse/oidc/forms/gitlab.py:76
-msgid "Workflow file path must end with .yml or .yaml"
-msgstr "工作流文件路径必须以 .yml 或 .yaml 结尾"
+#: warehouse/oidc/forms/gitlab.py:78
+msgid "Top-level pipeline file path must end with .yml or .yaml"
+msgstr "顶层管线文件路径必须以 .yml 或 .yaml 结尾"
 
-#: warehouse/oidc/forms/gitlab.py:80
-msgid "Workflow file path cannot start or end with /"
-msgstr "工作流文件路径不能以 / 开头或结尾"
+#: warehouse/oidc/forms/gitlab.py:82
+msgid "Top-level pipeline file path cannot start or end with /"
+msgstr "顶层管线文件路径不能以 / 开头或结尾"
 
 #: warehouse/packaging/forms.py:27
 msgid "Provide an Inspector link to specific lines of code."
@@ -886,7 +887,8 @@ msgstr "Monty Python - 奶酪店素描"
 #: warehouse/templates/base.html:291 warehouse/templates/base.html:292
 #: warehouse/templates/base.html:305 warehouse/templates/base.html:306
 #: warehouse/templates/base.html:308 warehouse/templates/base.html:317
-#: warehouse/templates/base.html:319 warehouse/templates/base.html:331
+#: warehouse/templates/base.html:319 warehouse/templates/base.html:320
+#: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
 #: warehouse/templates/includes/accounts/profile-actions.html:21
 #: warehouse/templates/includes/accounts/profile-actions.html:30
@@ -2089,7 +2091,7 @@ msgstr ""
 "%(site)s组织名称已从“%(previous_organization_name)s”被重命名"
 "为“%(organization_name)s”。"
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:19
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:20
 #, python-format
 msgid ""
 "An API token belonging to user <a "
@@ -2104,7 +2106,7 @@ msgstr ""
 "项目已经配置了受信任 发布者。这可能是错误的。我们建议删除此 API 令牌，仅使用"
 "受信任发布者来进行发布。"
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:32
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:33
 #, python-format
 msgid ""
 "If you are the owner of this token, you can delete it by going to your <a "
@@ -2114,7 +2116,7 @@ msgstr ""
 "如果你是此令牌的拥有者，你可以删除它，方法是前往 <a href=\"%(href)s#api-"
 "tokens\">API 令牌配置</a>并删除名为 <strong>%(token_name)s</strong>的令牌。"
 
-#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:39
+#: warehouse/templates/email/api-token-used-in-trusted-publisher-project/body.html:40
 #, python-format
 msgid ""
 "If you believe this was done in error, you can email <a "
@@ -2746,137 +2748,6 @@ msgstr ""
 "一员，该团队所属组织为\"%(organization_name)s\"，操作执行人 <a "
 "href=\"%(submitter_profile)s\">%(submitter)s</a>。"
 
-#: warehouse/templates/email/trusted-publisher-added/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has added a new trusted publisher to "
-"a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
-"publishers act as trusted users and can create project releases "
-"automatically."
-msgstr ""
-"PyPI 用户 <strong>%(username)s</strong> 添加了新的受信任发布者发布到你管理的"
-"项目 （<strong>%(project_name)s</strong>）。受信任发布者的权限类似受信任用"
-"户，可以自动创建项目版本。"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:28
-#: warehouse/templates/email/trusted-publisher-removed/body.html:26
-msgid "Publisher information"
-msgstr "发布者信息"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:30
-#: warehouse/templates/email/trusted-publisher-removed/body.html:28
-msgid "Publisher name"
-msgstr "出版商名"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:32
-#: warehouse/templates/email/trusted-publisher-removed/body.html:30
-msgid "Workflow"
-msgstr "工作流"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:33
-#: warehouse/templates/email/trusted-publisher-removed/body.html:31
-#: warehouse/templates/manage/account/publishing.html:53
-#: warehouse/templates/manage/organization/roles.html:53
-#: warehouse/templates/manage/organization/roles.html:172
-#: warehouse/templates/manage/organizations.html:90
-#: warehouse/templates/manage/project/publishing.html:36
-#: warehouse/templates/manage/project/roles.html:50
-#: warehouse/templates/manage/project/roles.html:85
-#: warehouse/templates/manage/project/roles.html:115
-#: warehouse/templates/manage/project/roles.html:127
-#: warehouse/templates/manage/project/roles.html:172
-#: warehouse/templates/manage/project/roles.html:184
-msgid "Owner"
-msgstr "所有者"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:34
-#: warehouse/templates/email/trusted-publisher-removed/body.html:32
-msgid "Repository"
-msgstr "存储库"
-
-# | msgid "Invalid TOTP code."
-#: warehouse/templates/email/trusted-publisher-added/body.html:36
-#: warehouse/templates/email/trusted-publisher-removed/body.html:34
-msgid "Environment"
-msgstr "环境"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:39
-#: warehouse/templates/email/trusted-publisher-removed/body.html:37
-#: warehouse/templates/includes/accounts/profile-public-email.html:17
-#: warehouse/templates/manage/account/publishing.html:274
-#: warehouse/templates/manage/project/publishing.html:227
-msgid "Email"
-msgstr "邮件"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:41
-#: warehouse/templates/email/trusted-publisher-removed/body.html:39
-#: warehouse/templates/manage/account/publishing.html:289
-#: warehouse/templates/manage/project/publishing.html:242
-msgid "Subject"
-msgstr "标题"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:44
-#: warehouse/templates/email/trusted-publisher-removed/body.html:42
-msgid "ActiveState Project URL"
-msgstr "ActiveState 项目 URL"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:45
-#: warehouse/templates/email/trusted-publisher-removed/body.html:43
-#: warehouse/templates/manage/account/publishing.html:352
-#: warehouse/templates/manage/project/publishing.html:283
-#: warehouse/templates/organizations/profile.html:30
-msgid "Organization"
-msgstr "组织"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:46
-#: warehouse/templates/email/trusted-publisher-removed/body.html:44
-#: warehouse/templates/manage/account/publishing.html:374
-#: warehouse/templates/manage/project/publishing.html:305
-msgid "ActiveState Project name"
-msgstr "ActiveState 项目名"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:47
-#: warehouse/templates/email/trusted-publisher-removed/body.html:45
-msgid "Actor"
-msgstr "行动者"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:53
-msgid ""
-"If you did not make this change and you think it was made maliciously, you "
-"can remove it from the project via the \"Publishing\" tab on the project's "
-"page."
-msgstr ""
-"如果你没有进行此更改，并且你认为这是恶意进行的，则可以通过项目页面上的“发"
-"布”选项卡将其从项目中删除。"
-
-#: warehouse/templates/email/trusted-publisher-added/body.html:60
-#: warehouse/templates/email/trusted-publisher-removed/body.html:58
-#, python-format
-msgid ""
-"If you are unable to revert the change and need to do so, you can email <a "
-"href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
-"administrators."
-msgstr ""
-"如果你无法恢复更改而需要这样做，你可以发电子邮件到 <a "
-"href=\"%(href)s\">%(email_address)s</a> 和 PyPI 管理员进行沟通。"
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:19
-#, python-format
-msgid ""
-"PyPI user <strong>%(username)s</strong> has removed a trusted publisher from "
-"a project (<strong>%(project_name)s</strong>) that you manage."
-msgstr ""
-"PyPI 用户 <strong>%(username)s</strong> 已删除一位受信任发布者，它来自你管理"
-"的项目 （<strong>%(project_name)s</strong>）。"
-
-#: warehouse/templates/email/trusted-publisher-removed/body.html:51
-msgid ""
-"If you did not make this change and you think it was made in error, you can "
-"check the \"Security history\" tab on the project's page."
-msgstr ""
-"如果你没有进行此更改并且你认为它是个错误，你可以检查项目页面上的“安全历史记"
-"录”选项卡。"
-
 # | msgid ""
 # | "Someone, perhaps you, has changed the password for your PyPI
 # account "
@@ -3307,6 +3178,12 @@ msgstr ""
 msgid "%(username)s has not uploaded any projects to PyPI, yet."
 msgstr "%(username)s 尚未将任何项目上载到 PyPI。"
 
+#: warehouse/templates/includes/accounts/profile-public-email.html:17
+#: warehouse/templates/manage/account/publishing.html:274
+#: warehouse/templates/manage/project/publishing.html:227
+msgid "Email"
+msgstr "邮件"
+
 #: warehouse/templates/includes/manage/manage-organization-menu.html:14
 #, python-format
 msgid "Navigation for managing %(organization)s"
@@ -3403,7 +3280,7 @@ msgstr "未验证的详情"
 msgid "Project links"
 msgstr "项目链接"
 
-#: warehouse/templates/includes/packaging/project-data.html:66
+#: warehouse/templates/includes/packaging/project-data.html:67
 msgid "GitHub Statistics"
 msgstr "GitHub 统计信息"
 
@@ -4623,6 +4500,20 @@ msgstr "不活跃"
 msgid "Manager"
 msgstr "管理者"
 
+#: warehouse/templates/manage/account/publishing.html:53
+#: warehouse/templates/manage/organization/roles.html:53
+#: warehouse/templates/manage/organization/roles.html:172
+#: warehouse/templates/manage/organizations.html:90
+#: warehouse/templates/manage/project/publishing.html:36
+#: warehouse/templates/manage/project/roles.html:50
+#: warehouse/templates/manage/project/roles.html:85
+#: warehouse/templates/manage/project/roles.html:115
+#: warehouse/templates/manage/project/roles.html:127
+#: warehouse/templates/manage/project/roles.html:172
+#: warehouse/templates/manage/project/roles.html:184
+msgid "Owner"
+msgstr "所有者"
+
 #: warehouse/templates/manage/organization/roles.html:55
 #: warehouse/templates/manage/organization/roles.html:174
 #: warehouse/templates/manage/organizations.html:92
@@ -5017,8 +4908,8 @@ msgstr "包含发布工作流的 GitLab 项目的名称"
 
 #: warehouse/templates/manage/account/publishing.html:202
 #: warehouse/templates/manage/project/publishing.html:170
-msgid "Workflow file path"
-msgstr "工作流文件路径"
+msgid "Top-level pipeline file path"
+msgstr "顶层管线文件路径"
 
 #: warehouse/templates/manage/account/publishing.html:207
 #: warehouse/templates/manage/project/publishing.html:175
@@ -5028,12 +4919,12 @@ msgstr ".gitlab-ci.yml"
 #: warehouse/templates/manage/account/publishing.html:209
 #: warehouse/templates/manage/project/publishing.html:177
 msgid ""
-"The file path of the publishing workflow, relative to the project's root. "
-"This file should exist in the project configured above (external workflows "
+"The file path of the top-level pipeline, relative to the project's root. "
+"This file should exist in the project configured above (external pipelines "
 "are not supported)."
 msgstr ""
-"相对于项目根目录的发布工作流的文件路径。文件应存在于之前配置的项目中（不支持"
-"外部工作流）。"
+"相对于项目根目录的顶层管线的文件路径。文件应存在于上面配置的项目中（不支持外"
+"部管线）。"
 
 #: warehouse/templates/manage/account/publishing.html:226
 #: warehouse/templates/manage/project/publishing.html:194
@@ -5071,6 +4962,11 @@ msgstr "电子邮件"
 msgid "The email address of the account or service account used to publish."
 msgstr "用于发布的账户或服务账户的电子邮件地址。"
 
+#: warehouse/templates/manage/account/publishing.html:289
+#: warehouse/templates/manage/project/publishing.html:242
+msgid "Subject"
+msgstr "标题"
+
 #: warehouse/templates/manage/account/publishing.html:297
 #: warehouse/templates/manage/project/publishing.html:250
 msgid "subject"
@@ -5096,6 +4992,12 @@ msgstr ""
 "如要获取更多关于 ActiveState 的 OpenID Connect 支持的信息，<a "
 "href=\"%(href)s\">请点击此处</a>。"
 
+#: warehouse/templates/manage/account/publishing.html:352
+#: warehouse/templates/manage/project/publishing.html:283
+#: warehouse/templates/organizations/profile.html:30
+msgid "Organization"
+msgstr "组织"
+
 #: warehouse/templates/manage/account/publishing.html:358
 #: warehouse/templates/manage/project/publishing.html:289
 msgid "my-organization"
@@ -5105,6 +5007,11 @@ msgstr "我的组织"
 #: warehouse/templates/manage/project/publishing.html:297
 msgid "The ActiveState organization name that owns the project"
 msgstr "拥有项目的 ActiveState 组织名"
+
+#: warehouse/templates/manage/account/publishing.html:374
+#: warehouse/templates/manage/project/publishing.html:305
+msgid "ActiveState Project name"
+msgstr "ActiveState 项目名"
 
 #: warehouse/templates/manage/account/publishing.html:380
 #: warehouse/templates/manage/project/publishing.html:311
@@ -5190,7 +5097,16 @@ msgstr ""
 "受信任发布者。要了解关于“待定”和普通的受信任发布者的更多信息，请访问 <a "
 "href=\"%(href)s\">此处</a>。"
 
-#: warehouse/templates/manage/account/publishing.html:541
+#: warehouse/templates/manage/account/publishing.html:512
+msgid ""
+"Configuring a \"pending\" publisher for a project name does <strong>not</"
+"strong> reserve that name. Until the project is created, any other user may "
+"create it, including via their own \"pending\" publisher."
+msgstr ""
+"为项目名称配置一个“待定”发布者<strong>不</strong>保留该名称。在此项目创建前，"
+"任何其他用户都可以创建它，包括通过这些用户自己的“待定”发布者。"
+
+#: warehouse/templates/manage/account/publishing.html:549
 #: warehouse/templates/manage/project/publishing.html:422
 #, python-format
 msgid ""
@@ -9373,7 +9289,7 @@ msgstr ""
 #: warehouse/templates/pages/help.html:897
 #, python-format
 msgid ""
-"If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
+"If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
 "SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting started\" "
 "guide</a>, then take a look at the <a href=\"%(issue_tracker_href)s\" "
@@ -9382,13 +9298,13 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">'Good first issue'</a> label – we "
 "recommend you start here."
 msgstr ""
-"如果你在Python、ElasticSearch、HTML、SCSS、JavaScript或SQLAlchemy方面有技能，"
+"如果你拥有Python、全文搜索、HTML、SCSS、JavaScript或SQLAlchemy方面的技能，"
 "那么请浏览我们的<a href=\"%(getting_started_href)s\" title=\"%(title)s\" "
-"target=\"_blank\" rel=\"noopener\">“入门”</a>指南，然后查看<a "
-"href=\"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">问题跟踪程序</a>。我们已经创建了一个<a "
-"href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
-"rel=\"noopener\">“好的第一期”</a>标签——我们建议你从这里开始。"
+"target=\"_blank\" rel=\"noopener\">“入门”</a>指南，然后查看<a href=\""
+"%(issue_tracker_href)s\" title=\"%(title)s\" target=\"_blank\" rel=\"noopener"
+"\">问题跟踪程序</a>。我们已经创建了一个<a href=\"%(good_first_issue_href)s\" "
+"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\""
+">“好的第一期”</a>标签——我们建议你从这里开始。"
 
 #: warehouse/templates/pages/help.html:905
 #, python-format
@@ -10021,6 +9937,74 @@ msgstr "“%(term)s”没有结果"
 msgid "There were no results for '%(filters)s' filter"
 msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "“%(filters)s”筛选器没有结果"
+
+#~ msgid "Workflow file path"
+#~ msgstr "工作流文件路径"
+
+#, python-format
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has added a new trusted publisher "
+#~ "to a project (<strong>%(project_name)s</strong>) that you manage. Trusted "
+#~ "publishers act as trusted users and can create project releases "
+#~ "automatically."
+#~ msgstr ""
+#~ "PyPI 用户 <strong>%(username)s</strong> 添加了新的受信任发布者发布到你管理"
+#~ "的项目 （<strong>%(project_name)s</strong>）。受信任发布者的权限类似受信任"
+#~ "用户，可以自动创建项目版本。"
+
+#~ msgid "Publisher information"
+#~ msgstr "发布者信息"
+
+#~ msgid "Publisher name"
+#~ msgstr "出版商名"
+
+#~ msgid "Workflow"
+#~ msgstr "工作流"
+
+#~ msgid "Repository"
+#~ msgstr "存储库"
+
+# | msgid "Invalid TOTP code."
+#~ msgid "Environment"
+#~ msgstr "环境"
+
+#~ msgid "ActiveState Project URL"
+#~ msgstr "ActiveState 项目 URL"
+
+#~ msgid "Actor"
+#~ msgstr "行动者"
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made maliciously, "
+#~ "you can remove it from the project via the \"Publishing\" tab on the "
+#~ "project's page."
+#~ msgstr ""
+#~ "如果你没有进行此更改，并且你认为这是恶意进行的，则可以通过项目页面上的“发"
+#~ "布”选项卡将其从项目中删除。"
+
+#, python-format
+#~ msgid ""
+#~ "If you are unable to revert the change and need to do so, you can email "
+#~ "<a href=\"%(href)s\">%(email_address)s</a> to communicate with the PyPI "
+#~ "administrators."
+#~ msgstr ""
+#~ "如果你无法恢复更改而需要这样做，你可以发电子邮件到 <a "
+#~ "href=\"%(href)s\">%(email_address)s</a> 和 PyPI 管理员进行沟通。"
+
+#, python-format
+#~ msgid ""
+#~ "PyPI user <strong>%(username)s</strong> has removed a trusted publisher "
+#~ "from a project (<strong>%(project_name)s</strong>) that you manage."
+#~ msgstr ""
+#~ "PyPI 用户 <strong>%(username)s</strong> 已删除一位受信任发布者，它来自你管"
+#~ "理的项目 （<strong>%(project_name)s</strong>）。"
+
+#~ msgid ""
+#~ "If you did not make this change and you think it was made in error, you "
+#~ "can check the \"Security history\" tab on the project's page."
+#~ msgstr ""
+#~ "如果你没有进行此更改并且你认为它是个错误，你可以检查项目页面上的“安全历史"
+#~ "记录”选项卡。"
 
 #, python-format
 #~ msgid ""

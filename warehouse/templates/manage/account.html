@@ -504,6 +504,20 @@
   <section id="account-events">
     <h2>{% trans %}Security history{% endtrans %}</h2>
 
+    {% set role_strings = {
+      EventTag.Account.RoleAdd: 'Role added',
+      EventTag.Account.RoleChange: 'Role changed',
+      EventTag.Account.RoleDeclineInvite: 'Role invitation declined',
+      EventTag.Account.RoleInvite: 'Invited to role',
+      EventTag.Account.RoleRemove: 'Role removed',
+      EventTag.Account.RoleRevokeInvite: 'Role invitation revoked'
+    } %}
+
+    {% set team_role_strings = {
+      EventTag.Account.TeamRoleAdd: 'Team role added',
+      EventTag.Account.TeamRoleRemove: 'Team role removed'
+    } %}
+
     {% set recent_events = user.recent_events.all() %}
     {% if recent_events|length > 0 %}
 
@@ -615,6 +629,8 @@
       <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
       {% elif event.tag  == EventTag.Account.PasswordChange %}
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
+      {% elif event.tag == EventTag.Account.PasswordDisabled %}
+      <strong>{% trans %}Password disabled{% endtrans %}</strong>
 
       {% elif event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
       <strong>Pending trusted publisher added</strong>
@@ -645,6 +661,8 @@
           {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% endif %}
       </small>
+      {% elif event.tag == EventTag.Account.TwoFactorDeviceRemembered %}
+      <strong>{% trans %}Two factor device remembered{% endtrans %}</strong>
 
       {% elif event.tag == EventTag.Account.RecoveryCodesGenerated %}
       <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
@@ -712,6 +730,39 @@
       <strong>
         {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invitation to join <a href="{{ href }}">{{ organization_name }}</a> expired{% endtrans %}
       </strong>
+
+
+      {% elif event.tag == EventTag.Account.OrganizationRoleAdd %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Role in <a href="{{ href }}">{{ organization_name }}</a> added{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleChange %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Role in <a href="{{ href }}">{{ organization_name }}</a> changed{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleRemove %}
+      <strong>{% trans %}Organization role removed{% endtrans %}</strong>
+      <small>
+        {% trans project_name=event.additional.project_name, role_name=event.additional.role_name|lower %}
+        Project: {{ project_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
+
+      {% elif event.tag in role_strings %}
+      <strong>{% trans heading=role_strings[event.tag] %}{{ heading }}{% endtrans %}</strong>
+      <small>
+        {% trans project_name=event.additional.project_name, role_name=event.additional.role_name|lower %}
+        Project: {{ project_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
+
+      {% elif event.tag in team_role_strings %}
+      <strong>{% trans heading=team_role_strings[event.tag] %}{{ heading }}{% endtrans %}</strong>
+      <small>
+        {% trans organization_name=event.additional.organization_name, team_name=event.additional.team_name, role_name=event.additional.role_name|lower %}
+        Organization: {{ organization_name }}; team: {{ team_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
 
       {% else %}
       <strong>{{ event.tag }}</strong>
