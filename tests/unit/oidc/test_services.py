@@ -13,13 +13,11 @@
 import jwt
 import pretend
 import pytest
-
 from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import DecodeError, PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
 import warehouse.utils.exceptions
-
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors, interfaces, services
 
@@ -130,18 +128,26 @@ class TestOIDCPublisherService:
         )
 
         assert service.verify_jwt_signature(token) is None
-        assert service.metrics.increment.calls == [
-            pretend.call(
-                "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                tags=["publisher:fakepublisher"],
-            )
-        ]
-
         if exc != DecodeError:
+            assert service.metrics.increment.calls == [
+                pretend.call(
+                    "warehouse.oidc.verify_jwt_signature.key_lookup_failure",
+                    tags=["publisher:fakepublisher"],
+                )
+            ]
             assert services.sentry_sdk.capture_message.calls == [
-                pretend.call(f"JWT backend raised generic error: {exc}")
+                pretend.call(
+                    "verify_jwt_signature failed to obtain matching key for JWT: "
+                    f"{type(exc).__name__}: {exc}"
+                )
             ]
         else:
+            assert service.metrics.increment.calls == [
+                pretend.call(
+                    "warehouse.oidc.verify_jwt_signature.malformed_jwt",
+                    tags=["publisher:fakepublisher"],
+                )
+            ]
             assert services.sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize("exc", [PyJWTError, TypeError("foo")])
