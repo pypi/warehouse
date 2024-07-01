@@ -30,7 +30,7 @@ from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 
-from warehouse.accounts.utils import UserTokenContext
+from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
@@ -968,7 +968,7 @@ class TestFileUpload:
 
         assert "\x00" not in db_request.POST["summary"]
 
-    @pytest.mark.parametrize("token_context", [True, False])
+    @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
         ("digests",),
         [
@@ -997,7 +997,7 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         digests,
-        token_context,
+        macaroon_in_user_context,
         metrics,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
@@ -1013,11 +1013,10 @@ class TestFileUpload:
         filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.user = user
-        if token_context:
-            user_context = UserTokenContext(user, pretend.stub())
-            pyramid_config.testing_securitypolicy(identity=user_context)
-        else:
-            pyramid_config.testing_securitypolicy(identity=user)
+        user_context = UserContext(
+            user, pretend.stub() if macaroon_in_user_context else None
+        )
+        pyramid_config.testing_securitypolicy(identity=user_context)
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -3977,7 +3976,7 @@ class TestFileUpload:
                 [caveats.RequestUser(user_id=str(maintainer.id))],
                 user_id=maintainer.id,
             )
-            identity = UserTokenContext(maintainer, macaroon)
+            identity = UserContext(maintainer, macaroon)
         else:
             claims = {"sha": "somesha"}
             identity = PublisherTokenContext(publisher, SignedClaims(claims))
