@@ -22,9 +22,8 @@ omit =
   warehouse/celery.py
 
 [report]
-exclude_lines =
-  pragma: no cover
-  class \\w+\\(Interface\\):
-  if (typing\\.)?TYPE_CHECKING:
+exclude_also =
+  class \w+\(Interface\):
+  if (typing\.)?TYPE_CHECKING:
 
 skip_covered = true
