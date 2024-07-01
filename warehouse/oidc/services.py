@@ -222,26 +222,13 @@ class OIDCPublisherService:
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
             key = self._get_key_for_token(unverified_token)
-        except Exception as e:
-            if isinstance(e, jwt.PyJWTError):
-                # The user might feed us an entirely nonsense JWT, e.g. one
-                # with missing components.
-                self.metrics.increment(
-                    "warehouse.oidc.verify_jwt_signature.malformed_jwt",
-                    tags=[f"publisher:{self.publisher}"],
-                )
-            else:
-                # Key retrieval can fail if JWK Set lookup fails for any reason.
-                self.metrics.increment(
-                    "warehouse.oidc.verify_jwt_signature.key_lookup_failure",
-                    tags=[f"publisher:{self.publisher}"],
-                )
-                with sentry_sdk.push_scope() as scope:
-                    scope.fingerprint = e
-                    sentry_sdk.capture_message(
-                        "verify_jwt_signature failed to obtain matching key for JWT: "
-                        f"{type(e).__name__}: {e}"
-                    )
+        except jwt.PyJWTError:
+            # The user might feed us an entirely nonsense JWT, e.g. one
+            # with missing components.
+            self.metrics.increment(
+                "warehouse.oidc.verify_jwt_signature.malformed_jwt",
+                tags=[f"publisher:{self.publisher}"],
+            )
             return None
 
         try:
