@@ -6,7 +6,7 @@ set -e
 # correct.
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
-
+export COVERAGE_PROCESS_START="$(find .. -type f -name '.coveragerc' -exec realpath {} \;)"
 COMMAND_ARGS="$@"
 
 # Test the postgres connection
