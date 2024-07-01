@@ -102,7 +102,7 @@ class SessionSecurityPolicy:
             return None
 
         # Sessions can only authenticate users, not any other type of identity.
-        return UserContext(user, None)
+        return UserContext(user=user, macaroon=None)
 
     def forget(self, request, **kw):
         return self._session_helper.forget(request, **kw)
