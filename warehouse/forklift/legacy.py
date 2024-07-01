@@ -676,22 +676,22 @@ def file_upload(request):
                 ),
             ) from None
 
+    # Verify any verifiable URLs
     publisher_base_url = (
         request.oidc_publisher.publisher_base_url if request.oidc_publisher else None
     )
-    project_urls = {}
-    if meta.project_urls:
-        for name, url in meta.project_urls.items():
-            striped_url = url.rstrip("/") + "/"
-            verified = (
-                striped_url[: len(publisher_base_url)].lower()
-                == publisher_base_url.lower()
-                if publisher_base_url
-                else False
-            )
-
-            project_urls[name] = {"url": url, "verified": verified}
-
+    project_urls = (
+        {}
+        if not meta.project_urls
+        else {
+            name: {
+                "url": url,
+                "verified": publisher_base_url
+                and url.lower().startswith(publisher_base_url.lower()),
+            }
+            for name, url in meta.project_urls.items()
+        }
+    )
     try:
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
