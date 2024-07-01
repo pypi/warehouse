@@ -151,6 +151,7 @@ class GitLabPublisherMixin:
         "project_visibility",
         "jti",
         "user_access_level",
+        "groups_direct",
     }
 
     @staticmethod

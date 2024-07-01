@@ -3694,7 +3694,7 @@ class TestCollaboratorRemovedEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                f"{ removed_user.name } <{ removed_user.primary_email.email }>",
+                f"{removed_user.name} <{removed_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -3715,7 +3715,7 @@ class TestCollaboratorRemovedEmail:
                 },
             ),
             pretend.call(
-                f"{ submitter_user.name } <{ submitter_user.primary_email.email }>",
+                f"{submitter_user.name} <{submitter_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -3789,7 +3789,7 @@ class TestRemovedAsCollaboratorEmail:
         assert db_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                f"{ removed_user.name } <{ removed_user.primary_email.email }>",
+                f"{removed_user.name} <{removed_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -3872,7 +3872,7 @@ class TestRoleChangedEmail:
         ]
         assert send_email.delay.calls == [
             pretend.call(
-                f"{ changed_user.name } <{ changed_user.primary_email.email }>",
+                f"{changed_user.name} <{changed_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -3893,7 +3893,7 @@ class TestRoleChangedEmail:
                 },
             ),
             pretend.call(
-                f"{ submitter_user.name } <{ submitter_user.primary_email.email }>",
+                f"{submitter_user.name} <{submitter_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -3971,7 +3971,7 @@ class TestRoleChangedAsCollaboratorEmail:
         assert db_request.task.calls == [pretend.call(send_email)]
         assert send_email.delay.calls == [
             pretend.call(
-                f"{ changed_user.name } <{ changed_user.primary_email.email }>",
+                f"{changed_user.name} <{changed_user.primary_email.email}>",
                 {
                     "subject": "Email Subject",
                     "body_text": "Email Body",
@@ -5535,15 +5535,15 @@ class TestRecoveryCodeEmails:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/subject.txt"
+            f"email/{template_name}/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.txt"
+            f"email/{template_name}/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.html"
+            f"email/{template_name}/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 
@@ -5616,15 +5616,15 @@ class TestTrustedPublisherEmails:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/subject.txt"
+            f"email/{template_name}/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.txt"
+            f"email/{template_name}/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.html"
+            f"email/{template_name}/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 
@@ -5700,15 +5700,15 @@ class TestTrustedPublisherEmails:
             primary_email=pretend.stub(email="email@example.com", verified=True),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/subject.txt"
+            f"email/{template_name}/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.txt"
+            f"email/{template_name}/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.html"
+            f"email/{template_name}/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 
@@ -5804,15 +5804,15 @@ class TestTrustedPublisherEmails:
             ),
         )
         subject_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/subject.txt"
+            f"email/{template_name}/subject.txt"
         )
         subject_renderer.string_response = "Email Subject"
         body_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.txt"
+            f"email/{template_name}/body.txt"
         )
         body_renderer.string_response = "Email Body"
         html_renderer = pyramid_config.testing_add_renderer(
-            f"email/{ template_name }/body.html"
+            f"email/{template_name}/body.html"
         )
         html_renderer.string_response = "Email HTML Body"
 

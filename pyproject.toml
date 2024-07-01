@@ -56,7 +56,6 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
-    "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
     "github_reserved_names.*",
     "google.cloud.*",
     "forcediphttpsadapter.*",

@@ -241,13 +241,6 @@ def _nuke_user(user, request):
 
     # Delete the user
     request.db.delete(user)
-    request.db.add(
-        JournalEntry(
-            name=f"user:{user.username}",
-            action="nuke user",
-            submitted_by=request.user,
-        )
-    )
 
 
 @view_config(

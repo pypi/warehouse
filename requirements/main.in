@@ -6,15 +6,13 @@ b2sdk
 Babel
 bcrypt
 boto3
-celery[sqs]>=5.2.2,<5.3.2
+celery[sqs]>=5.3.5,<5.5
 celery-redbeat
 certifi
 click
 cryptography
 datadog>=0.19.0
 disposable-email-domains
-elasticsearch>=7.0.0,<7.11.0
-elasticsearch_dsl>=7.0.0,<8.0.0
 first
 forcediphttpsadapter
 github-reserved-names>=1.0.0
@@ -25,13 +23,13 @@ html5lib
 humanize
 itsdangerous
 Jinja2>=2.8
-kombu[sqs]<5.3.2  # https://github.com/jazzband/pip-tools/issues/1577
+kombu[sqs]>=5.3.5,<5.4  # https://github.com/jazzband/pip-tools/issues/1577
 limits
 linehaul
 lxml
-mistune
 msgpack
 natsort
+opensearch-py
 orjson
 packaging>=23.2
 packaging_legacy
@@ -48,6 +46,7 @@ pymacaroons
 pyramid_jinja2>=2.5
 pyramid_mailer>=0.14.1
 pyramid_openapi3>=0.17.1
+pyramid_redirect>=0.4
 pyramid_retry>=0.3
 pyramid_rpc>=0.7
 pyramid_services>=2.1
@@ -69,7 +68,7 @@ structlog
 transaction
 trove-classifiers
 ua-parser
-urllib3<2  # See https://github.com/pypi/warehouse/issues/14671
+urllib3
 webauthn>=1.0.0,<3.0.0
 whitenoise
 WTForms[email]>=2.0.0

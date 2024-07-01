@@ -255,7 +255,7 @@ def database(request):
     pg_port = config.get("port") or os.environ.get("PGPORT", 5432)
     pg_user = config.get("user")
     pg_db = config.get("db", "tests")
-    pg_version = config.get("version", 14.11)
+    pg_version = config.get("version", 16.1)
 
     janitor = DatabaseJanitor(
         user=pg_user,
@@ -312,7 +312,7 @@ def app_config(database):
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
-        "elasticsearch.url": "https://localhost/warehouse",
+        "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",

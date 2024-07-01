@@ -21,7 +21,7 @@ from pyramid.security import Allowed
 from zope.interface import implementer
 
 from warehouse.accounts.interfaces import IUserService
-from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserContext
 from warehouse.cache.http import add_vary_callback
 from warehouse.errors import WarehouseDenied
 from warehouse.utils.security_policy import AuthenticationMethod, principals_for
@@ -102,7 +102,7 @@ class SessionSecurityPolicy:
             return None
 
         # Sessions can only authenticate users, not any other type of identity.
-        return user
+        return UserContext(user=user, macaroon=None)
 
     def forget(self, request, **kw):
         return self._session_helper.forget(request, **kw)
@@ -170,11 +170,12 @@ class BasicAuthSecurityPolicy:
 
 
 def _permits_for_user_policy(acl, request, context, permission):
-    # It should only be possible for request.identity to be a User object
-    # at this point, and we only allow a User in these policies.
-    # Note that UserTokenContext is not allowed here, since a UserTokenContext
-    # can only appear in an API-token-authenticated request, not a session.
-    assert isinstance(request.identity, User)
+    # It should only be possible for request.identity to be a UserContext object
+    # at this point, and we only allow a UserContext in these policies.
+    # Note that the UserContext object must not have a macaroon, since a macaroon
+    # is present during an API-token-authenticated request, not a session.
+    assert isinstance(request.identity, UserContext)
+    assert request.identity.macaroon is None
 
     # Dispatch to our ACL
     # NOTE: These parameters are in a different order than the signature of this method.
@@ -183,7 +184,7 @@ def _permits_for_user_policy(acl, request, context, permission):
     # Verify email before you can manage account/projects.
     if (
         isinstance(res, Allowed)
-        and not request.identity.has_primary_verified_email
+        and not request.identity.user.has_primary_verified_email
         and request.matched_route.name
         not in {"manage.unverified-account", "accounts.verify-email"}
     ):
@@ -201,11 +202,14 @@ def _permits_for_user_policy(acl, request, context, permission):
 
 
 def _check_for_mfa(request, context) -> WarehouseDenied | None:
-    # It should only be possible for request.identity to be a User object
-    # at this point, and we only a User in these policies.
-    assert isinstance(request.identity, User)
+    # It should only be possible for request.identity to be a UserContext object
+    # at this point, and we only allow a UserContext in these policies.
+    # Note that the UserContext object must not have a macaroon, since a macaroon
+    # is present during an API-token-authenticated request, not a session.
+    assert isinstance(request.identity, UserContext)
+    assert request.identity.macaroon is None
 
-    if request.identity.has_two_factor:
+    if request.identity.user.has_two_factor:
         # We're good to go!
         return None
 
