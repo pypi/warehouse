@@ -153,7 +153,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
+    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages
