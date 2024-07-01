@@ -13,11 +13,13 @@
 import jwt
 import pretend
 import pytest
+
 from cryptography.hazmat.primitives.asymmetric import rsa
 from jwt import DecodeError, PyJWK, PyJWTError, algorithms
 from zope.interface.verify import verifyClass
 
 import warehouse.utils.exceptions
+
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors, interfaces, services
 
