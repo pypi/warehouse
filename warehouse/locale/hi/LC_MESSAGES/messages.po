@@ -5614,7 +5614,14 @@ msgid ""
 "href=\"%(href)s\">here</a>."
 msgstr ""
 
-#: warehouse/templates/manage/account/publishing.html:541
+#: warehouse/templates/manage/account/publishing.html:512
+msgid ""
+"Configuring a \"pending\" publisher for a project name does <strong>not</"
+"strong> reserve that name. Until the project is created, any other user may "
+"create it, including via their own \"pending\" publisher."
+msgstr ""
+
+#: warehouse/templates/manage/account/publishing.html:549
 #: warehouse/templates/manage/project/publishing.html:422
 #, fuzzy, python-format
 #| msgid "You have not enabled two factor authentication on your account."
@@ -9974,9 +9981,14 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/pages/help.html:897
-#, python-format
+#, fuzzy, python-format
+#| msgid ""
+#| "View statistics for this project via <a href=\"%(libs_io_href)s\" "
+#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
+#| "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
+#| "rel=\"noopener\">our public dataset on Google BigQuery</a>"
 msgid ""
-"If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
+"If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or "
 "SQLAlchemy then skim our <a href=\"%(getting_started_href)s\" "
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">\"Getting started\" "
 "guide</a>, then take a look at the <a href=\"%(issue_tracker_href)s\" "
@@ -9985,6 +9997,10 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">'Good first issue'</a> label – we "
 "recommend you start here."
 msgstr ""
+"<a href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" "
+"rel=\"noopener\">Librarys.io</a>, या <a href=\"%(gbq_href)s\" "
+"target=\"_blank\" rel=\"noopener\">गूगल BigQuery पर हमारे सार्वजनिक डेटासेट</a> "
+"का उपयोग करके इस परियोजना के आंकड़े देखें"
 
 #: warehouse/templates/pages/help.html:905
 #, python-format
