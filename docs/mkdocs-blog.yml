@@ -58,7 +58,7 @@ plugins:
         - tags
       date_from_meta:
         as_creation: "date"
-        as_update: false
+        as_update: "False"
         datetime_format: "%Y-%m-%d %H:%M"
         default_timezone: "UTC"
         default_time: "06:09"

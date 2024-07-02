@@ -13,8 +13,6 @@ click
 cryptography
 datadog>=0.19.0
 disposable-email-domains
-elasticsearch>=7.0.0,<7.11.0
-elasticsearch_dsl>=7.0.0,<8.0.0
 first
 forcediphttpsadapter
 github-reserved-names>=1.0.0
@@ -31,6 +29,7 @@ linehaul
 lxml
 msgpack
 natsort
+opensearch-py
 orjson
 packaging>=23.2
 packaging_legacy
@@ -69,7 +68,7 @@ structlog
 transaction
 trove-classifiers
 ua-parser
-urllib3<2  # See https://github.com/pypi/warehouse/issues/14671
+urllib3
 webauthn>=1.0.0,<3.0.0
 whitenoise
 WTForms[email]>=2.0.0

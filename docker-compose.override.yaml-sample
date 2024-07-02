@@ -34,7 +34,7 @@ services:
   dev-docs: *disable-service
   user-docs: *disable-service
 
-  elasticsearch:
+  opensearch:
     # You can also add selective environment variables
     environment:
       logger.level: WARN  # default INFO is pretty noisy

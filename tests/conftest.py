@@ -312,7 +312,7 @@ def app_config(database):
         "database.url": database,
         "docs.url": "http://docs.example.com/",
         "ratelimit.url": "memory://",
-        "elasticsearch.url": "https://localhost/warehouse",
+        "opensearch.url": "https://localhost/warehouse",
         "files.backend": "warehouse.packaging.services.LocalFileStorage",
         "archive_files.backend": "warehouse.packaging.services.LocalArchiveFileStorage",
         "simple.backend": "warehouse.packaging.services.LocalSimpleStorage",

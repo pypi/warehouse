@@ -46,9 +46,9 @@ versions installed in your system.
 Tests
 -----
 
-The JavaScript codebase includes tests that can be ran via
+The JavaScript codebase includes tests that can be run via
 ``make static_tests``. This target will run the static tests in the Docker
-environment but they may also be ran locally using ``npm run test`` once NodeJS
+environment but they may also be run locally using ``npm run test`` once NodeJS
 and the dependencies are installed as described above.
 
 JavaScript tests use the `Jest testing framework <https://jestjs.io/>`_
@@ -62,7 +62,7 @@ All tests are located in the ``tests/frontend``.
 including `JSDOM <https://github.com/jsdom/jsdom/>`_ allowing us to
 inject the required HTML markup for Stimulus in a setup phase. After the
 setup we must manually instantiate and start a Stimulus application and
-then test the funcionality by triggering events in DOM elements and
+then test the functionality by triggering events in DOM elements and
 asserting on the effects. See existing tests the details on how to
 accomplish this.
 
@@ -72,7 +72,7 @@ accomplish this.
     false negatives on the tests. In these cases it's best to keep the HTML
     setup in a ``beforeEach`` block, even if it means repeating the setup on
     different ``describe`` scenarios. This will ensure the application and
-    controllers are ready before the actual test is ran.
+    controllers are ready before the actual test is run.
 
 Deploying
 ---------
