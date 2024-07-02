@@ -16,6 +16,7 @@ import sqlalchemy
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors
+from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.models import _core, github
 
 
@@ -469,6 +470,31 @@ class TestGitHubPublisher:
     def test_github_publisher_environment_claim(self, truth, claim, valid):
         check = github.GitHubPublisher.__optional_verifiable_claims__["environment"]
         assert check(truth, claim, pretend.stub()) is valid
+
+    @pytest.mark.parametrize(
+        ("ref", "sha", "raises"),
+        [
+            ("ref", "sha", False),
+            (None, "sha", False),
+            ("ref", None, False),
+            (None, None, True),
+        ],
+    )
+    def test_github_publisher_verification_policy(self, ref, sha, raises):
+        publisher = github.GitHubPublisher(
+            repository_name="fakerepo",
+            repository_owner="fakeowner",
+            repository_owner_id="fakeid",
+            workflow_filename="fakeworkflow.yml",
+            environment="",
+        )
+        claims = {"ref": ref, "sha": sha}
+
+        if not raises:
+            publisher.publisher_verification_policy(claims)
+        else:
+            with pytest.raises(InvalidPublisherError):
+                publisher.publisher_verification_policy(claims)
 
     def test_github_publisher_duplicates_cant_be_created(self, db_request):
         publisher1 = github.GitHubPublisher(

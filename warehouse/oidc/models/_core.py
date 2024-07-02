@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, TypeVar
 
 import sentry_sdk
 
+from sigstore.verify.policy import VerificationPolicy
 from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
@@ -241,6 +242,17 @@ class OIDCPublisherMixin:
         """
         NOTE: This is **NOT** a `@property` because we pass `claims` to it.
         When calling, make sure to use `publisher_url()`
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
+    def publisher_verification_policy(
+        self, claims: SignedClaims
+    ) -> VerificationPolicy:  # pragma: no cover
+        """
+        Get the policy used to verify attestations signed with this publisher.
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `publisher_verification_policy()`
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError

@@ -12,6 +12,12 @@
 
 from typing import Any
 
+from sigstore.verify.policy import (
+    AllOf,
+    AnyOf,
+    OIDCBuildConfigURI,
+    OIDCSourceRepositoryDigest,
+)
 from sqlalchemy import ForeignKey, String, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Query, mapped_column
@@ -239,6 +245,39 @@ class GitHubPublisherMixin:
         if sha:
             return f"{base}/commit/{sha}"
         return base
+
+    def publisher_verification_policy(self, claims):
+        """
+        Get the policy used to verify attestations signed with GitHub Actions.
+
+        This policy checks the certificate in an attestation against the following
+        claims:
+        - OIDCBuildConfigURI (e.g:
+        https://github.com/org/repo/.github/workflows/workflow.yml@REF})
+        - OIDCSourceRepositoryDigest (the commit SHA corresponding to the version of
+        the repo used)
+
+        Note: the Build Config URI might end with either a ref (i.e: refs/heads/main)
+        or with a commit SHA, so we allow either by using the `AnyOf` policy and
+        grouping both possibilities together.
+        """
+        sha = claims.get("sha") if claims else None
+        ref = claims.get("ref") if claims else None
+        if not (ref or sha):
+            raise InvalidPublisherError("The ref and sha claims are empty")
+
+        expected_build_configs = [
+            OIDCBuildConfigURI(f"https://github.com/{self.job_workflow_ref}@{claim}")
+            for claim in [ref, sha]
+            if claim is not None
+        ]
+
+        return AllOf(
+            [
+                OIDCSourceRepositoryDigest(sha),
+                AnyOf(expected_build_configs),
+            ],
+        )
 
     def stored_claims(self, claims=None):
         claims = claims if claims else {}
