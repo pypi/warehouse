@@ -87,6 +87,8 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
+      # Site customization shim to enable multiprocess coverage collection in tests.
+      # See: https://coverage.readthedocs.io/en/latest/subprocess.html
       - ./sitecustomize.py:/opt/warehouse/src/sitecustomize.py:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
