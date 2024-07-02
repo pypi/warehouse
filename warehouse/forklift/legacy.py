@@ -45,6 +45,7 @@ from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.email import (
     send_api_token_used_in_trusted_publisher_project_email,
     send_two_factor_not_yet_enabled_email,
@@ -70,15 +71,9 @@ from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_releas
 from warehouse.rate_limiting.interfaces import RateLimiterException
 from warehouse.utils import readme
 
-ONE_MB = 1 * 1024 * 1024
-ONE_GB = 1 * 1024 * 1024 * 1024
-
-MAX_FILESIZE = 100 * ONE_MB
-MAX_PROJECT_SIZE = 10 * ONE_GB
-
 PATH_HASHER = "blake2_256"
 
-COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MB
+COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 
 # If the zip file decompressed to 50x more space
 # than it is uncompressed, consider it a ZIP bomb.
@@ -853,7 +848,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "File too large. "
                         + "Limit for project {name!r} is {limit} MB. ".format(
-                            name=project.name, limit=file_size_limit // ONE_MB
+                            name=project.name, limit=file_size_limit // ONE_MIB
                         )
                         + "See "
                         + request.help_url(_anchor="file-size-limit")
@@ -864,7 +859,7 @@ def file_upload(request):
                         HTTPBadRequest,
                         "Project size too large. Limit for "
                         + "project {name!r} total size is {limit} GB. ".format(
-                            name=project.name, limit=project_size_limit // ONE_GB
+                            name=project.name, limit=project_size_limit // ONE_GIB
                         )
                         + "See "
                         + request.help_url(_anchor="project-size-limit"),
