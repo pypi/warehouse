@@ -662,7 +662,7 @@ def test_routes(warehouse):
     assert config.add_redirect_rule.calls == [
         pretend.call(
             f"https?://({warehouse}|localhost)/policy/terms-of-use/",
-            "https://policies.python.org/pypi.org/Terms-of-use/",
+            "https://policies.python.org/pypi.org/Terms-of-Use/",
         ),
         pretend.call(
             f"https?://({warehouse}|localhost)/policy/acceptable-use-policy/",
