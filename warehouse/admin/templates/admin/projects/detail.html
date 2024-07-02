@@ -56,11 +56,11 @@
             </td>
             <td>
               {% if project.upload_limit %}
-              {% set upload_limit_value = project.upload_limit / ONE_MB %}
+              {% set upload_limit_value = project.upload_limit / ONE_MIB %}
               {% else %}
               {% set upload_limit_value = '' %}
               {% endif %}
-              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
+              <input type="number" name="upload_limit" id="uploadLimit" min="{{ MAX_FILESIZE / ONE_MIB }}" max="{{ UPLOAD_LIMIT_CAP / ONE_MIB }}" step=1 value="{{ upload_limit_value|int }}"> MiB
             </td>
             <td>
               <button type="submit" class="btn btn-primary btn-sm">Submit</button>
