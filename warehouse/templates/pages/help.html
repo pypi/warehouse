@@ -620,9 +620,10 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
+        {% set max_file_size_mb = request.registry.settings.get('warehouse.forklift.legacy.MAX_FILESIZE_MIB') %}
         <p>
           {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
-            If you can't upload your project's release to PyPI because you're hitting the upload file size limit,
+            If you can't upload your project's release to PyPI because you're hitting the upload file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
             (a <a href="{{ dev_release_href }}" title="{{ title }}" target="_blank" rel="noopener">developmental release version number</a> is fine).
@@ -639,9 +640,10 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
         <p>
+          {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
           {% trans %}
             If you can't upload your project's release to PyPI because you're
-            hitting the project size limit, first remove any unnecessary
+            hitting the project size limit ({{ max_project_size_gb }} GiB by default; individual projects may differ), first remove any unnecessary
             releases or individual files to lower your overall project size.
           {% endtrans %}
         </p>
@@ -895,7 +897,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p><strong>{% trans %}Development:{% endtrans %}</strong> {% trans %}Warehouse is open source, and we would love to see some new faces working on the project. You <strong>do not</strong> need to be an experienced open-source developer to make a contribution – in fact, we'd love to help you make your first open source pull request!{% endtrans %}</p>
         <p>
           {% trans getting_started_href='https://warehouse.pypa.io/development/getting-started/', issue_tracker_href='https://github.com/pypi/warehouse/issues', good_first_issue_href='https://github.com/pypi/warehouse/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22', title=gettext('External link') %}
-          If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
+          If you have skills in Python, Full-Text Search, HTML, SCSS, JavaScript, or SQLAlchemy then skim our
           <a href="{{ getting_started_href }}" title="{{ title }}" target="_blank" rel="noopener">"Getting started" guide</a>,
           then take a look at the <a href="{{ issue_tracker_href }}" title="{{ title }}" target="_blank" rel="noopener">issue tracker</a>.
           We've created a <a href="{{ good_first_issue_href }}" title="{{ title }}" target="_blank" rel="noopener">'Good first issue'</a> label – we recommend you start here.

@@ -10,15 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
-
-from tests.common.db.accounts import UserFactory
-from warehouse.accounts.utils import UserContext
-from warehouse.utils.security_policy import principals_for
-
-
-def test_user_context_principals(db_request):
-    user = UserFactory.create()
-    assert principals_for(
-        UserContext(user=user, macaroon=pretend.stub())
-    ) == principals_for(user)
+ONE_MIB = 1 * 1024 * 1024
+ONE_GIB = 1 * 1024 * 1024 * 1024
+MAX_FILESIZE = 100 * ONE_MIB
+MAX_SIGSIZE = 8 * 1024
+MAX_PROJECT_SIZE = 10 * ONE_GIB

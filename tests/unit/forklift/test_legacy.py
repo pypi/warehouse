@@ -30,7 +30,9 @@ from sqlalchemy.orm import joinedload
 from trove_classifiers import classifiers
 from webob.multidict import MultiDict
 
-from warehouse.accounts.utils import UserTokenContext
+import warehouse.constants
+
+from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
@@ -236,7 +238,9 @@ class TestFileValidation:
 
         with zipfile.ZipFile(f, "w") as zfp:
             zfp.writestr("PKG-INFO", b"this is the package info")
-            zfp.writestr("1.dat", b"0" * 65 * legacy.ONE_MB, zipfile.ZIP_DEFLATED)
+            zfp.writestr(
+                "1.dat", b"0" * 65 * warehouse.constants.ONE_MIB, zipfile.ZIP_DEFLATED
+            )
 
         assert not legacy._is_valid_dist_file(f, "")
 
@@ -968,7 +972,7 @@ class TestFileUpload:
 
         assert "\x00" not in db_request.POST["summary"]
 
-    @pytest.mark.parametrize("token_context", [True, False])
+    @pytest.mark.parametrize("macaroon_in_user_context", [True, False])
     @pytest.mark.parametrize(
         ("digests",),
         [
@@ -997,7 +1001,7 @@ class TestFileUpload:
         pyramid_config,
         db_request,
         digests,
-        token_context,
+        macaroon_in_user_context,
         metrics,
     ):
         monkeypatch.setattr(tempfile, "tempdir", str(tmpdir))
@@ -1013,11 +1017,10 @@ class TestFileUpload:
         filename = f"{project.name}-{release.version}.tar.gz"
 
         db_request.user = user
-        if token_context:
-            user_context = UserTokenContext(user, pretend.stub())
-            pyramid_config.testing_securitypolicy(identity=user_context)
-        else:
-            pyramid_config.testing_securitypolicy(identity=user)
+        user_context = UserContext(
+            user, pretend.stub() if macaroon_in_user_context else None
+        )
+        pyramid_config.testing_securitypolicy(identity=user_context)
 
         db_request.user_agent = "warehouse-tests/6.6.6"
 
@@ -1627,8 +1630,8 @@ class TestFileUpload:
         EmailFactory.create(user=user)
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=legacy.MAX_FILESIZE,
-            total_size=legacy.MAX_PROJECT_SIZE - 1,
+            upload_limit=warehouse.constants.MAX_FILESIZE,
+            total_size=warehouse.constants.MAX_PROJECT_SIZE - 1,
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1674,10 +1677,13 @@ class TestFileUpload:
         one_megabyte = 1 * 1024 * 1024
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=legacy.MAX_FILESIZE,
-            total_size=legacy.MAX_PROJECT_SIZE,
-            total_size_limit=legacy.MAX_PROJECT_SIZE
-            + one_megabyte,  # Custom Limit for the project
+            upload_limit=warehouse.constants.MAX_FILESIZE,
+            total_size=warehouse.constants.MAX_PROJECT_SIZE,
+            total_size_limit=(
+                warehouse.constants.MAX_PROJECT_SIZE
+                + one_megabyte
+                # Custom Limit for the project
+            ),
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -1727,10 +1733,11 @@ class TestFileUpload:
         one_megabyte = 1 * 1024 * 1024
         project = ProjectFactory.create(
             name="foobar",
-            upload_limit=legacy.MAX_FILESIZE,
-            total_size=legacy.MAX_PROJECT_SIZE,
-            total_size_limit=legacy.MAX_PROJECT_SIZE
-            + (one_megabyte * 60),  # Custom Limit for the project
+            upload_limit=warehouse.constants.MAX_FILESIZE,
+            total_size=warehouse.constants.MAX_PROJECT_SIZE,
+            total_size_limit=(
+                warehouse.constants.MAX_PROJECT_SIZE + (one_megabyte * 60)
+            ),  # Custom Limit for the project
         )
         release = ReleaseFactory.create(project=project, version="1.0")
         RoleFactory.create(user=user, project=project)
@@ -2168,7 +2175,7 @@ class TestFileUpload:
                 }[filetype],
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -2206,7 +2213,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -2247,7 +2254,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -2284,7 +2291,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -2323,7 +2330,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -2365,7 +2372,7 @@ class TestFileUpload:
                 "md5_digest": "nope!",
                 "content": pretend.stub(
                     filename=filename,
-                    file=io.BytesIO(b"a" * (legacy.MAX_FILESIZE + 1)),
+                    file=io.BytesIO(b"a" * (warehouse.constants.MAX_FILESIZE + 1)),
                     type="application/tar",
                 ),
             }
@@ -3977,7 +3984,7 @@ class TestFileUpload:
                 [caveats.RequestUser(user_id=str(maintainer.id))],
                 user_id=maintainer.id,
             )
-            identity = UserTokenContext(maintainer, macaroon)
+            identity = UserContext(maintainer, macaroon)
         else:
             claims = {"sha": "somesha"}
             identity = PublisherTokenContext(publisher, SignedClaims(claims))

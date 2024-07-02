@@ -12,7 +12,7 @@
 
 import venusian
 
-from elasticsearch_dsl import Index
+from opensearchpy import Index
 
 
 def doc_type(cls):

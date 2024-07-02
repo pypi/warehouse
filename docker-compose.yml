@@ -33,22 +33,29 @@ services:
     image: redis:7.0
 
   localstack:
-    image: localstack/localstack:1.4
+    image: localstack/localstack:3.5
     stop_signal: SIGKILL
     environment:
       SERVICES: "sqs"
-      HOSTNAME: "localstack"
-      HOSTNAME_EXTERNAL: "localstack"
-      DEFAULT_REGION: "us-east-2"
+      LOCALSTACK_HOST: "localstack"
       LS_LOG: "error"
     ports:
       - "4566:4566"
 
-  elasticsearch:
-    image: elasticsearch:7.10.1
+  opensearch:
+    build:
+      context: ./dev/compose/opensearch
+    init: true
+    healthcheck:
+        test: ["CMD-SHELL", "curl -u admin:gqYeDIzbEwTTYmB7 --silent --fail http://localhost:9200/_cluster/health || exit 1"]
+        interval: 1s
+        start_period: 10s
     environment:
-      - xpack.security.enabled=false
       - discovery.type=single-node
+      - OPENSEARCH_INITIAL_ADMIN_PASSWORD=gqYeDIzbEwTTYmB7
+      - DISABLE_INSTALL_DEMO_CONFIG=true
+      - DISABLE_SECURITY_PLUGIN=true
+      - DISABLE_PERFORMANCE_ANALYZER_AGENT_CLI=true
     ulimits:
       nofile:
         soft: 65536
@@ -87,6 +94,9 @@ services:
       - ./htmlcov:/opt/warehouse/src/htmlcov:z
       - ./setup.cfg:/opt/warehouse/src/setup.cfg:z
       - ./pyproject.toml:/opt/warehouse/src/pyproject.toml:z
+      # Site customization shim to enable multiprocess coverage collection in tests.
+      # See: https://coverage.readthedocs.io/en/latest/subprocess.html
+      - ./sitecustomize.py:/opt/warehouse/src/sitecustomize.py:z
       - packages:/var/opt/warehouse/packages
       - packages-archive:/var/opt/warehouse/packages-archive
       - sponsorlogos:/var/opt/warehouse/sponsorlogos
@@ -109,7 +119,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
-      elasticsearch:
+      opensearch:
         condition: service_started
       redis:
         condition: service_started
@@ -146,7 +156,7 @@ services:
   worker:
     image: warehouse:docker-compose
     pull_policy: never
-    command: hupper -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
+    command: hupper --shutdown-interval 10 --reload-interval 10 -m celery -A warehouse worker --beat --scheduler redbeat.RedBeatScheduler -l info
     volumes:
       - ./warehouse:/opt/warehouse/src/warehouse:z
       - packages:/var/opt/warehouse/packages

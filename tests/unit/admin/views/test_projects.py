@@ -21,6 +21,8 @@ from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
+import warehouse.constants
+
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.observations.models import ObservationKind
@@ -102,10 +104,10 @@ class TestProjectDetail:
             "maintainers": roles,
             "journal": journals[:30],
             "oidc_publishers": oidc_publishers,
-            "ONE_MB": views.ONE_MB,
-            "MAX_FILESIZE": views.MAX_FILESIZE,
-            "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
-            "ONE_GB": views.ONE_GB,
+            "ONE_MIB": views.ONE_MIB,
+            "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": warehouse.constants.MAX_PROJECT_SIZE,
+            "ONE_GIB": views.ONE_GIB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
             "observation_kinds": ObservationKind,
             "observations": [],
@@ -575,11 +577,11 @@ class TestProjectSetTotalSizeLimit:
             pretend.call("Set the total size limit on 'foo'", queue="success")
         ]
 
-        assert project.total_size_limit == 150 * views.ONE_GB
+        assert project.total_size_limit == 150 * views.ONE_GIB
 
     def test_sets_total_size_limitwith_none(self, db_request):
         project = ProjectFactory.create(name="foo")
-        project.total_size_limit = 150 * views.ONE_GB
+        project.total_size_limit = 150 * views.ONE_GIB
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -627,7 +629,7 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        new_upload_limit = views.MAX_FILESIZE // views.ONE_MB
+        new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST["upload_limit"] = str(new_upload_limit)
 
         views.set_upload_limit(project, db_request)
@@ -636,11 +638,11 @@ class TestProjectSetLimit:
             pretend.call("Set the upload limit on 'foo'", queue="success")
         ]
 
-        assert project.upload_limit == new_upload_limit * views.ONE_MB
+        assert project.upload_limit == new_upload_limit * views.ONE_MIB
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
-        project.upload_limit = 90 * views.ONE_MB
+        project.upload_limit = 90 * views.ONE_MIB
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"

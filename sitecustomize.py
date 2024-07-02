@@ -10,15 +10,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
+# Site customization shim to enable multiprocess coverage collection in tests.
+# See: https://coverage.readthedocs.io/en/latest/subprocess.html
 
-from tests.common.db.accounts import UserFactory
-from warehouse.accounts.utils import UserContext
-from warehouse.utils.security_policy import principals_for
+try:
+    import coverage
 
-
-def test_user_context_principals(db_request):
-    user = UserFactory.create()
-    assert principals_for(
-        UserContext(user=user, macaroon=pretend.stub())
-    ) == principals_for(user)
+    coverage.process_startup()
+except ImportError:
+    pass
