@@ -17,6 +17,9 @@ omit = [
   # And again, tiny shim code.
   "warehouse/celery.py",
 ]
+# We run multiple processes in parallel, so we need to make sure that we don't
+# write to the same file at the same time.
+parallel = true
 
 [tool.coverage.report]
 exclude_lines = [
@@ -87,6 +90,7 @@ addopts = [
   "--disable-socket",
   "--allow-hosts=localhost,::1,notdatadog,stripe",
   "--durations=20",
+  "--numprocesses=auto",
 ]
 cache_dir = "dev/.pytest_cache"
 norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']
