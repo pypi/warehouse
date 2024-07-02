@@ -14,7 +14,7 @@ import hashlib
 import urllib.parse
 
 
-def _hash(email):
+def _hash(email: str | None) -> str:
     if email is None:
         email = ""
 
@@ -30,5 +30,5 @@ def gravatar(request, email, size=80):
     return request.camo_url("?".join([url, urllib.parse.urlencode(params)]))
 
 
-def profile(email):
+def profile(email: str) -> str:
     return f"https://gravatar.com/{_hash(email)}"

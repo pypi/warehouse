@@ -13,24 +13,6 @@
 -#}
 {% extends "admin/base.html" %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
-<div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
-
-  <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
-
-    {% if field.errors %}
-    <div class="help-block">
-    {% for error in field.errors %}
-      <div>{{ error }}</div>
-    {% endfor %}
-    </div>
-    {% endif %}
-  </div>
-</div>
-{% endmacro %}
-
 {% block title %}Application for {{ organization_application.name }}{% endblock %}
 
 {% block breadcrumb %}
@@ -63,10 +45,10 @@
             Approve or decline request for organization named <strong>{{ organization_application.name }}</strong>?
           </p>
           <div class="form-group">
-            <button type="button" class="btn {{ 'btn-primary' if organization_application.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission('admin') or organization_application.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission('admin') else 'Organization request already approved' if organization_application.is_approved == True else 'Approve organization request' }}">
+            <button type="button" class="btn {{ 'btn-primary' if organization_application.is_approved != True else '' }} btn-block" data-toggle="modal" data-target="#approveModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == True }} title="{{ 'Admin permission required to approve organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already approved' if organization_application.is_approved == True else 'Approve organization request' }}">
               <i class="icon fa fa-check"></i> Approve
             </button>
-            <button type="button" class="btn {{ 'btn-danger' if organization_application.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission('admin') or organization_application.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission('admin') else 'Organization request already declined' if organization_application.is_approved == False else 'Decline organization request' }}">
+            <button type="button" class="btn {{ 'btn-danger' if organization_application.is_approved != False else '' }} btn-block" data-toggle="modal" data-target="#declineModal" {{ 'disabled' if not request.has_permission(Permissions.AdminOrganizationsWrite) or organization_application.is_approved == False }} title="{{ 'Admin permission required to decline organization request' if not request.has_permission(Permissions.AdminOrganizationsWrite) else 'Organization request already declined' if organization_application.is_approved == False else 'Decline organization request' }}">
               <i class="icon fa fa-times"></i> Decline
             </button>
             {% if user %}

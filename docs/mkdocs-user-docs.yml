@@ -4,14 +4,17 @@ site_dir: user-site
 plugins:
   - macros:
       module_name: user/main
-      j2_block_start_string: '<!--[[%'
-      j2_block_end_string: '%]]-->'
-      j2_variable_start_string: '<!--[['
-      j2_variable_end_string: ']]-->'
+      j2_block_start_string: "<!--[[%"
+      j2_block_end_string: "%]]-->"
+      j2_variable_start_string: "<!--[["
+      j2_variable_end_string: "]]-->"
 markdown_extensions:
   - admonition
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify {kwds: {case: lower}}
   - tables
 theme:
   name: material
@@ -46,20 +49,20 @@ edit_uri: blob/main/docs/user/
 nav:
   - "index.md"
   - "Organization Accounts":
-    - "organization-accounts/index.md"
-    - "organization-accounts/org-acc-faq.md"
-    - "organization-accounts/roles-entities.md"
-    - "Actions":
-      - "organization-accounts/actions/billing-actions.md"
-      - "organization-accounts/actions/org-actions.md"
-      - "organization-accounts/actions/project-actions.md"
-      - "organization-accounts/actions/team-actions.md"
-    - "organization-accounts/pricing-and-payments.md"
+      - "organization-accounts/index.md"
+      - "organization-accounts/org-acc-faq.md"
+      - "organization-accounts/roles-entities.md"
+      - "Actions":
+          - "organization-accounts/actions/billing-actions.md"
+          - "organization-accounts/actions/org-actions.md"
+          - "organization-accounts/actions/project-actions.md"
+          - "organization-accounts/actions/team-actions.md"
+      - "organization-accounts/pricing-and-payments.md"
   - "Trusted Publishers":
-    - "trusted-publishers/index.md"
-    - "trusted-publishers/adding-a-publisher.md"
-    - "trusted-publishers/creating-a-project-through-oidc.md"
-    - "trusted-publishers/using-a-publisher.md"
-    - "trusted-publishers/security-model.md"
-    - "trusted-publishers/troubleshooting.md"
-    - "trusted-publishers/internals.md"
+      - "trusted-publishers/index.md"
+      - "trusted-publishers/adding-a-publisher.md"
+      - "trusted-publishers/creating-a-project-through-oidc.md"
+      - "trusted-publishers/using-a-publisher.md"
+      - "trusted-publishers/security-model.md"
+      - "trusted-publishers/troubleshooting.md"
+      - "trusted-publishers/internals.md"

@@ -21,7 +21,7 @@ from pymacaroons.exceptions import MacaroonInvalidSignatureException
 from pyramid.request import Request
 from pyramid.security import Allowed
 
-from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserContext
 from warehouse.errors import WarehouseDenied
 from warehouse.macaroons.caveats._core import (
     Caveat,
@@ -31,12 +31,14 @@ from warehouse.macaroons.caveats._core import (
     Success,
     as_caveat,
     deserialize,
+    deserialize_obj,
     serialize,
+    serialize_obj,
 )
 from warehouse.oidc.interfaces import SignedClaims
 from warehouse.packaging.models import Project
 
-__all__ = ["deserialize", "serialize", "verify"]
+__all__ = ["deserialize", "deserialize_obj", "serialize", "serialize_obj", "verify"]
 
 
 # NOTE: Under the covers, caveat serialization is done as an array
@@ -102,10 +104,13 @@ class RequestUser(Caveat):
     user_id: StrictStr
 
     def verify(self, request: Request, context: Any, permission: str) -> Result:
-        if not isinstance(request.identity, User):
+        if not isinstance(request.identity, UserContext):
             return Failure("token with user restriction without a user")
 
-        if str(request.identity.id) != self.user_id:
+        if request.identity.macaroon is None:
+            return Failure("token with user restriction without a macaroon")
+
+        if str(request.identity.user.id) != self.user_id:
             return Failure("current user does not match user restriction in token")
 
         return Success()

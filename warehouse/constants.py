@@ -10,8 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ONE_MB = 1 * 1024 * 1024
-ONE_GB = 1 * 1024 * 1024 * 1024
-MAX_FILESIZE = 100 * ONE_MB
+ONE_MIB = 1 * 1024 * 1024
+ONE_GIB = 1 * 1024 * 1024 * 1024
+MAX_FILESIZE = 100 * ONE_MIB
 MAX_SIGSIZE = 8 * 1024
-MAX_PROJECT_SIZE = 10 * ONE_GB
+MAX_PROJECT_SIZE = 10 * ONE_GIB

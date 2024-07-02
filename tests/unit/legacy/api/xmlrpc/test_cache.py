@@ -220,11 +220,8 @@ class TestRedisLru:
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, None, None
         )
 
-    def test_redis_custom_metrics(self, mockredis):
-        metric_reporter = pretend.stub(
-            increment=pretend.call_recorder(lambda *args: None)
-        )
-        redis_lru = RedisLru(mockredis, metric_reporter=metric_reporter)
+    def test_redis_custom_metrics(self, metrics, mockredis):
+        redis_lru = RedisLru(mockredis, metric_reporter=metrics)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -234,16 +231,13 @@ class TestRedisLru:
         assert expected == redis_lru.fetch(
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, None, None
         )
-        assert metric_reporter.increment.calls == [
+        assert metrics.increment.calls == [
             pretend.call("lru.cache.miss"),
             pretend.call("lru.cache.hit"),
         ]
 
-    def test_redis_purge(self, mockredis):
-        metric_reporter = pretend.stub(
-            increment=pretend.call_recorder(lambda *args: None)
-        )
-        redis_lru = RedisLru(mockredis, metric_reporter=metric_reporter)
+    def test_redis_purge(self, metrics, mockredis):
+        redis_lru = RedisLru(mockredis, metric_reporter=metrics)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -260,7 +254,7 @@ class TestRedisLru:
         assert expected == redis_lru.fetch(
             func_test, [0, 1], {"kwarg0": 2, "kwarg1": 3}, None, "test", None
         )
-        assert metric_reporter.increment.calls == [
+        assert metrics.increment.calls == [
             pretend.call("lru.cache.miss"),
             pretend.call("lru.cache.hit"),
             pretend.call("lru.cache.purge"),
@@ -268,16 +262,13 @@ class TestRedisLru:
             pretend.call("lru.cache.hit"),
         ]
 
-    def test_redis_down(self):
-        metric_reporter = pretend.stub(
-            increment=pretend.call_recorder(lambda *args: None)
-        )
+    def test_redis_down(self, metrics):
         down_redis = pretend.stub(
             hget=pretend.raiser(redis.exceptions.RedisError),
             pipeline=pretend.raiser(redis.exceptions.RedisError),
             scan_iter=pretend.raiser(redis.exceptions.RedisError),
         )
-        redis_lru = RedisLru(down_redis, metric_reporter=metric_reporter)
+        redis_lru = RedisLru(down_redis, metric_reporter=metrics)
 
         expected = func_test(0, 1, kwarg0=2, kwarg1=3)
 
@@ -290,7 +281,7 @@ class TestRedisLru:
         with pytest.raises(CacheError):
             redis_lru.purge("test")
 
-        assert metric_reporter.increment.calls == [
+        assert metrics.increment.calls == [
             pretend.call("lru.cache.error"),  # Failed get
             pretend.call("lru.cache.miss"),
             pretend.call("lru.cache.error"),  # Failed add

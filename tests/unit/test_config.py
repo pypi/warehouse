@@ -21,11 +21,10 @@ import pytest
 
 from pyramid import renderers
 from pyramid.authorization import Allow, Authenticated
-from pyramid.httpexceptions import HTTPForbidden, HTTPUnauthorized
 from pyramid.tweens import EXCVIEW
 
 from warehouse import config
-from warehouse.errors import BasicAuthBreachedPassword, BasicAuthFailedPassword
+from warehouse.authnz import Permissions
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
 
@@ -76,24 +75,6 @@ class TestRequireHTTPSTween:
 def test_activate_hook(path, expected):
     request = pretend.stub(path=path)
     assert config.activate_hook(request) == expected
-
-
-@pytest.mark.parametrize(
-    ("exc_info", "expected"),
-    [
-        (None, False),
-        ((ValueError, ValueError(), None), True),
-        ((HTTPForbidden, HTTPForbidden(), None), True),
-        ((HTTPUnauthorized, HTTPUnauthorized(), None), True),
-        ((BasicAuthBreachedPassword, BasicAuthBreachedPassword(), None), False),
-        ((BasicAuthFailedPassword, BasicAuthFailedPassword(), None), False),
-    ],
-)
-def test_commit_veto(exc_info, expected):
-    request = pretend.stub(exc_info=exc_info)
-    response = pretend.stub()
-
-    assert bool(config.commit_veto(request, response)) == expected
 
 
 @pytest.mark.parametrize("route_kw", [None, {}, {"foo": "bar"}])
@@ -268,16 +249,13 @@ def test_configure(monkeypatch, settings, environment):
         "warehouse.manage.oidc.ip_registration_ratelimit_string": "100 per day",
         "warehouse.packaging.project_create_user_ratelimit_string": "20 per hour",
         "warehouse.packaging.project_create_ip_ratelimit_string": "40 per hour",
-        "warehouse.two_factor_requirement.enabled": False,
-        "warehouse.two_factor_mandate.available": False,
-        "warehouse.two_factor_mandate.enabled": False,
         "oidc.backend": "warehouse.oidc.services.OIDCPublisherService",
         "warehouse.organizations.max_undecided_organization_applications": 3,
-        "warehouse.two_factor_mandate.cohort_size": 0,
         "reconcile_file_storages.batch_size": 100,
+        "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
-        "warehouse.forklift.legacy.MAX_FILESIZE_MB": 100,
-        "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GB": 10,
+        "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
+        "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
     }
     if environment == config.Environment.development:
         expected_settings.update(
@@ -359,7 +337,6 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".tasks"),
             pretend.call(".rate_limiting"),
             pretend.call(".static"),
-            pretend.call(".policy"),
             pretend.call(".search"),
             pretend.call(".aws"),
             pretend.call(".b2"),
@@ -376,17 +353,20 @@ def test_configure(monkeypatch, settings, environment):
             pretend.call(".subscriptions"),
             pretend.call(".packaging"),
             pretend.call(".redirects"),
+            pretend.call("pyramid_redirect"),
             pretend.call(".routes"),
             pretend.call(".sponsors"),
             pretend.call(".banners"),
             pretend.call(".admin"),
             pretend.call(".forklift"),
+            pretend.call(".api.config"),
             pretend.call(".utils.wsgi"),
             pretend.call(".sentry"),
             pretend.call(".csp"),
             pretend.call(".referrer_policy"),
-            pretend.call(".recaptcha"),
+            pretend.call(".captcha"),
             pretend.call(".http"),
+            pretend.call(".utils.row_counter"),
         ]
         + [pretend.call(x) for x in [configurator_settings.get("warehouse.theme")] if x]
         + [pretend.call(".sanity")]
@@ -404,18 +384,20 @@ def test_configure(monkeypatch, settings, environment):
     assert configurator_obj.add_settings.calls == [
         pretend.call({"jinja2.newstyle": True}),
         pretend.call({"jinja2.i18n.domain": "messages"}),
+        pretend.call({"jinja2.lstrip_blocks": True}),
+        pretend.call({"jinja2.trim_blocks": True}),
         pretend.call({"retry.attempts": 3}),
         pretend.call(
             {
                 "tm.manager_hook": mock.ANY,
                 "tm.activate_hook": config.activate_hook,
-                "tm.commit_veto": config.commit_veto,
                 "tm.annotate_user": False,
             }
         ),
+        pretend.call({"pyramid_redirect.structlog": True}),
         pretend.call({"http": {"verify": "/etc/ssl/certs/"}}),
     ]
-    add_settings_dict = configurator_obj.add_settings.calls[3].args[0]
+    add_settings_dict = configurator_obj.add_settings.calls[5].args[0]
     assert add_settings_dict["tm.manager_hook"](pretend.stub()) is transaction_manager
     assert configurator_obj.add_tween.calls == [
         pretend.call("warehouse.config.require_https_tween_factory"),
@@ -478,11 +460,93 @@ def test_root_factory_access_control_list():
     acl = config.RootFactory.__acl__
 
     assert acl == [
-        (Allow, "group:admins", "admin"),
-        (Allow, "group:admins", "admin_dashboard_access"),
-        (Allow, "group:moderators", "moderator"),
-        (Allow, "group:moderators", "admin_dashboard_access"),
-        (Allow, "group:psf_staff", "psf_staff"),
-        (Allow, "group:psf_staff", "admin_dashboard_access"),
-        (Allow, Authenticated, "manage:user"),
+        (
+            Allow,
+            "group:admins",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminEmailsWrite,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminFlagsWrite,
+                Permissions.AdminIpAddressesRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminMacaroonsRead,
+                Permissions.AdminMacaroonsWrite,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminOrganizationsWrite,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProhibitedProjectsWrite,
+                Permissions.AdminProjectsDelete,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminProjectsWrite,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+                Permissions.AdminUsersWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:moderators",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminDashboardSidebarRead,
+                Permissions.AdminEmailsRead,
+                Permissions.AdminFlagsRead,
+                Permissions.AdminJournalRead,
+                Permissions.AdminObservationsRead,
+                Permissions.AdminObservationsWrite,
+                Permissions.AdminOrganizationsRead,
+                Permissions.AdminProhibitedProjectsRead,
+                Permissions.AdminProjectsRead,
+                Permissions.AdminProjectsSetLimit,
+                Permissions.AdminRoleAdd,
+                Permissions.AdminRoleDelete,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminUsersRead,
+            ),
+        ),
+        (
+            Allow,
+            "group:psf_staff",
+            (
+                Permissions.AdminBannerRead,
+                Permissions.AdminBannerWrite,
+                Permissions.AdminDashboardRead,
+                Permissions.AdminSponsorsRead,
+                Permissions.AdminSponsorsWrite,
+            ),
+        ),
+        (
+            Allow,
+            "group:observers",
+            (
+                Permissions.APIEcho,
+                Permissions.APIObservationsAdd,
+            ),
+        ),
+        (
+            Allow,
+            Authenticated,
+            (
+                Permissions.Account2FA,
+                Permissions.AccountAPITokens,
+                Permissions.AccountManage,
+                Permissions.AccountManagePublishing,
+                Permissions.AccountVerifyEmail,
+                Permissions.AccountVerifyOrgRole,
+                Permissions.AccountVerifyProjectRole,
+                Permissions.OrganizationsManage,
+                Permissions.ProjectsRead,
+            ),
+        ),
     ]

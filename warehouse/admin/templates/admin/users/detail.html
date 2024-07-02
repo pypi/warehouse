@@ -15,12 +15,14 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
+{% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
+
 {% macro render_field(label, field, input_id, placeholder=None, class=None) %}
 <div class="form-group row{% if field.errors %} has-error{% endif %}">
   <label for="{{ input_id }}" class="col-sm-2 col-form-label">{{ label }}</label>
 
   <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
+    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not perms_admin_users_write))}}
 
     {% if field.errors %}
     <div class="help-block">
@@ -35,7 +37,7 @@
 
 {% macro render_checkbox(label, field, input_id, class=None) %}
 <div class="form-check">
-  {{ field(id=input_id, class=class, disabled=(not request.has_permission('admin')))}}
+  {{ field(id=input_id, class=class, disabled=(not perms_admin_users_write))}}
   <label for="{{ input_id }}" class="form-check-label">{{ label }}</label>
 </div>
 {% endmacro %}
@@ -101,16 +103,60 @@
         </div>
         <div class="card-body">
           <div class="form-group">
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#freezeModal" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="icon fa fa-snowman"></i> Freeze user & block domain
+            </button>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="icon fa fa-bomb"></i> Nuke user
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not request.has_permission('admin') }}>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
             </button>
-            <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+            <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="nukeModalLabel">Freeze user {{ user.username }} and prohibit domain?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This is totally reversible.
+                      </p>
+                      <p>
+                        This will also prohibit the following domains:
+                      </p>
+                      <ul>
+                      {% for email in user.emails if email.verified %}
+                        <li>
+                          {{ email.domain }}
+                        </li>
+                      {% else %}
+                        <li><i>None</i></li>
+                      {% endfor %}
+                      </ul>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Freeze 'em</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
                 <div class="modal-dialog" role="document">
@@ -262,6 +308,7 @@
                       {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
                       {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
                       {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+                      {{ render_checkbox("Observer", form.is_observer, "is-observer")}}
                     </div>
                   </div>
                   <div class="col">
@@ -309,7 +356,7 @@
             <div class="card-footer">
               <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">
-                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
                 </div>
               </div>
             </div>
@@ -350,7 +397,7 @@
           <div class="card-footer">
             <div class="form-group">
               <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
               </div>
             </div>
           </div>
@@ -427,14 +474,15 @@
         </div>
 
         <div class="card-body">
-          <table class="table table-hover">
+          <table id="api-tokens" class="table table-hover">
             <thead>
               <tr>
-                <th>Token</th>
-                <th>Description</th>
-                <th>Created</th>
-                <th>Last Used</th>
-                <th>Permissions</th>
+                <th scope="col" class="token">Token</th>
+                <th scope="col" class="description">Description</th>
+                <th scope="col" class="created">Created</th>
+                <th scope="col" class="last_used">Last Used</th>
+                <th scope="col" class="caveats">Caveats (as created)</th>
+                <th scope="col" class="permissions_caveat">Permissions (deprecated)</th>
               </tr>
             </thead>
             <tbody>
@@ -448,6 +496,7 @@
                 <td>{{ token.description }}</td>
                 <td>{{ token.created }}</td>
                 <td>{{ token.last_used }}</td>
+                <td>{{ token.caveats }}</td>
                 <td>{{ token.permissions_caveat }}</td>
               </tr>
               {% endfor %}
@@ -527,16 +576,16 @@
           <h3 class="card-title">Account activity</h3>
         </div>
         <div class="card-body">
-          <table class="table table-hover">
+          <table id="account-activity" class="table table-striped table-hover">
             <thead>
               <tr>
-                <th scope="col">Event</th>
-                <th scope="col">Time</th>
-                <th scope="col">IP address</th>
-                <th scope="col">Hashed IP address</th>
-                <th scope="col">Location info</th>
-                <th scope="col">User-Agent</th>
-                <th scope="col">Additional information</th>
+                <th scope="col" class="event">Event</th>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="ip_address">IP address</th>
+                <th scope="col" class="hashed_ip">Hashed IP address</th>
+                <th scope="col" class="location_info">Location info</th>
+                <th scope="col" class="user_agent">User-Agent</th>
+                <th scope="col" class="additional_info">Additional information</th>
               </tr>
             </thead>
             <tbody>
@@ -556,6 +605,37 @@
         </div>
       </div> <!-- .card -->
 
+    {% if user.observations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations</h3>
+        </div>
+        <div class="card-body">
+          <table id="observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
     </div>
   </div>
 {% endblock %}

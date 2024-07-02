@@ -24,7 +24,7 @@ from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherF
 from warehouse.oidc import errors, interfaces, services
 
 
-def test_oidc_publisher_service_factory():
+def test_oidc_publisher_service_factory(metrics):
     factory = services.OIDCPublisherServiceFactory(
         publisher="example", issuer_url="https://example.com"
     )
@@ -33,7 +33,6 @@ def test_oidc_publisher_service_factory():
     assert factory.issuer_url == "https://example.com"
     assert verifyClass(interfaces.IOIDCPublisherService, factory.service_class)
 
-    metrics = pretend.stub()
     request = pretend.stub(
         db=pretend.stub(),
         registry=pretend.stub(
@@ -93,12 +92,12 @@ class TestOIDCPublisherService:
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
-                    require=["iss", "iat", "nbf", "exp", "aud"],
+                    require=["iss", "iat", "exp", "aud"],
                     verify_iss=True,
                     verify_iat=True,
-                    verify_nbf=True,
                     verify_exp=True,
                     verify_aud=True,
+                    verify_nbf=True,
                     strict_aud=True,
                 ),
                 issuer=service.issuer_url,
@@ -108,16 +107,16 @@ class TestOIDCPublisherService:
         ]
 
     @pytest.mark.parametrize("exc", [DecodeError, TypeError("foo")])
-    def test_verify_jwt_signature_get_key_for_token_fails(self, monkeypatch, exc):
+    def test_verify_jwt_signature_get_key_for_token_fails(
+        self, metrics, monkeypatch, exc
+    ):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
             audience="fakeaudience",
             cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            metrics=metrics,
         )
 
         token = pretend.stub()
@@ -146,16 +145,14 @@ class TestOIDCPublisherService:
             assert services.sentry_sdk.capture_message.calls == []
 
     @pytest.mark.parametrize("exc", [PyJWTError, TypeError("foo")])
-    def test_verify_jwt_signature_fails(self, monkeypatch, exc):
+    def test_verify_jwt_signature_fails(self, metrics, monkeypatch, exc):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
             audience="fakeaudience",
             cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            metrics=metrics,
         )
 
         token = pretend.stub()
@@ -186,16 +183,14 @@ class TestOIDCPublisherService:
         else:
             assert services.sentry_sdk.capture_message.calls == []
 
-    def test_find_publisher(self, monkeypatch):
+    def test_find_publisher(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
             audience="fakeaudience",
             cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            metrics=metrics,
         )
 
         token = pretend.stub()
@@ -218,16 +213,14 @@ class TestOIDCPublisherService:
             ),
         ]
 
-    def test_find_publisher_issuer_lookup_fails(self, monkeypatch):
+    def test_find_publisher_issuer_lookup_fails(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
             audience="fakeaudience",
             cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            metrics=metrics,
         )
 
         find_publisher_by_issuer = pretend.raiser(errors.InvalidPublisherError("foo"))
@@ -249,16 +242,14 @@ class TestOIDCPublisherService:
             ),
         ]
 
-    def test_find_publisher_verify_claims_fails(self, monkeypatch):
+    def test_find_publisher_verify_claims_fails(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
             issuer_url=pretend.stub(),
             audience="fakeaudience",
             cache_url=pretend.stub(),
-            metrics=pretend.stub(
-                increment=pretend.call_recorder(lambda *a, **kw: None)
-            ),
+            metrics=metrics,
         )
 
         publisher = pretend.stub(
@@ -322,8 +313,7 @@ class TestOIDCPublisherService:
         assert keys == keyset
         assert timeout is True
 
-    def test_refresh_keyset_timeout(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_timeout(self, metrics, monkeypatch, mockredis):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -346,8 +336,7 @@ class TestOIDCPublisherService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_fails(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_oidc_config_fails(self, metrics, monkeypatch, mockredis):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -384,8 +373,9 @@ class TestOIDCPublisherService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_uri(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_oidc_config_no_jwks_uri(
+        self, metrics, monkeypatch, mockredis
+    ):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -424,8 +414,9 @@ class TestOIDCPublisherService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_json(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_oidc_config_no_jwks_json(
+        self, metrics, monkeypatch, mockredis
+    ):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -475,8 +466,9 @@ class TestOIDCPublisherService:
             )
         ]
 
-    def test_refresh_keyset_oidc_config_no_jwks_keys(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_oidc_config_no_jwks_keys(
+        self, metrics, monkeypatch, mockredis
+    ):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -523,8 +515,7 @@ class TestOIDCPublisherService:
             pretend.call("OIDC publisher example returned JWKS JSON but no keys")
         ]
 
-    def test_refresh_keyset_successful(self, monkeypatch, mockredis):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_refresh_keyset_successful(self, metrics, monkeypatch, mockredis):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -576,8 +567,7 @@ class TestOIDCPublisherService:
         assert keys == {"fake-key-id": {"kid": "fake-key-id", "foo": "bar"}}
         assert timeout is True
 
-    def test_get_key_cached(self, monkeypatch):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_get_key_cached(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -607,8 +597,7 @@ class TestOIDCPublisherService:
 
         assert metrics.increment.calls == []
 
-    def test_get_key_uncached(self, monkeypatch):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_get_key_uncached(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -639,8 +628,7 @@ class TestOIDCPublisherService:
 
         assert metrics.increment.calls == []
 
-    def test_get_key_refresh_fails(self, monkeypatch):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda *a, **kw: None))
+    def test_get_key_refresh_fails(self, metrics, monkeypatch):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="example",
@@ -860,7 +848,7 @@ class TestNullOIDCPublisherService:
 
         assert service.find_publisher(claims) == publisher
 
-    def test_find_publisher_full_pending(self, oidc_service):
+    def test_find_publisher_full_pending(self, github_oidc_service):
         pending_publisher = PendingGitHubPublisherFactory.create(
             project_name="does-not-exist",
             repository_name="bar",
@@ -898,10 +886,12 @@ class TestNullOIDCPublisherService:
             "iat": 1650663865,
         }
 
-        expected_pending_publisher = oidc_service.find_publisher(claims, pending=True)
+        expected_pending_publisher = github_oidc_service.find_publisher(
+            claims, pending=True
+        )
         assert expected_pending_publisher == pending_publisher
 
-    def test_find_publisher_full(self, oidc_service):
+    def test_find_publisher_full(self, github_oidc_service):
         publisher = GitHubPublisherFactory.create(
             repository_name="bar",
             repository_owner="foo",
@@ -938,7 +928,7 @@ class TestNullOIDCPublisherService:
             "iat": 1650663865,
         }
 
-        expected_publisher = oidc_service.find_publisher(claims, pending=False)
+        expected_publisher = github_oidc_service.find_publisher(claims, pending=False)
         assert expected_publisher == publisher
 
     def test_reify_publisher(self):

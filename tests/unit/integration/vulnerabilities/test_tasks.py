@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import datetime
 
 import faker
@@ -26,12 +25,6 @@ def test_analyze_vulnerability(db_request, metrics):
     release2 = ReleaseFactory.create(project=project, version="2.0")
     release3 = ReleaseFactory.create(project=project, version="3.0")
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -61,23 +54,23 @@ def test_analyze_vulnerability(db_request, metrics):
     assert "vuln_alias1" in vuln_record.aliases
     assert "vuln_alias2" in vuln_record.aliases
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_update_metadata(db_request, metrics):
     project = ProjectFactory.create()
     release = ReleaseFactory.create(project=project, version="1.0")
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -103,15 +96,21 @@ def test_analyze_vulnerability_update_metadata(db_request, metrics):
     assert release.vulnerabilities[0].fixed_in == []
     assert release.vulnerabilities[0].withdrawn is None
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
-    metrics_counter.clear()
+    metrics.increment.calls = []  # reset
 
-    withdrawn_date = datetime.datetime.utcnow()
+    withdrawn_date = datetime.datetime.now(datetime.UTC)
 
     tasks.analyze_vulnerability_task(
         request=db_request,
@@ -137,11 +136,17 @@ def test_analyze_vulnerability_update_metadata(db_request, metrics):
     assert release.vulnerabilities[0].fixed_in == ["2.0"]
     assert release.vulnerabilities[0].withdrawn is withdrawn_date
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_add_release(db_request, metrics):
@@ -149,12 +154,6 @@ def test_analyze_vulnerability_add_release(db_request, metrics):
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -171,13 +170,19 @@ def test_analyze_vulnerability_add_release(db_request, metrics):
 
     assert len(release1.vulnerabilities) == 1
     assert len(release2.vulnerabilities) == 0
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
-    metrics_counter.clear()
+    metrics.increment.calls = []  # reset
 
     tasks.analyze_vulnerability_task(
         request=db_request,
@@ -195,11 +200,17 @@ def test_analyze_vulnerability_add_release(db_request, metrics):
     assert len(release2.vulnerabilities) == 1
     assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_delete_releases(db_request, metrics):
@@ -207,12 +218,6 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
     release1 = ReleaseFactory.create(project=project, version="1.0")
     release2 = ReleaseFactory.create(project=project, version="2.0")
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -231,13 +236,19 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
     assert len(release2.vulnerabilities) == 1
     assert release1.vulnerabilities[0] == release2.vulnerabilities[0]
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
-    metrics_counter.clear()
+    metrics.increment.calls = []  # reset
 
     tasks.analyze_vulnerability_task(
         request=db_request,
@@ -253,13 +264,19 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
 
     assert len(release1.vulnerabilities) == 1
     assert len(release2.vulnerabilities) == 0
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
-    metrics_counter.clear()
+    metrics.increment.calls = []  # reset
 
     tasks.analyze_vulnerability_task(
         request=db_request,
@@ -277,22 +294,22 @@ def test_analyze_vulnerability_delete_releases(db_request, metrics):
     # https://docs.sqlalchemy.org/en/14/orm/cascades.html#notes-on-delete-deleting-objects-referenced-from-collections-and-scalar-relationships
     # assert len(release1.vulnerabilities) == 0
     assert len(release2.vulnerabilities) == 0
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_invalid_request(db_request, metrics):
     project = ProjectFactory.create()
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -307,19 +324,17 @@ def test_analyze_vulnerability_invalid_request(db_request, metrics):
         origin="test_report_source",
     )
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.error.format", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.error.format", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_project_not_found(db_request, metrics):
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -334,26 +349,24 @@ def test_analyze_vulnerability_project_not_found(db_request, metrics):
         origin="test_report_source",
     )
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-        (
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
             "warehouse.vulnerabilities.error.project_not_found",
-            ("origin:test_report_source",),
-        ): 1,
-    }
+            tags=["origin:test_report_source"],
+        ),
+    ]
 
 
 def test_analyze_vulnerability_release_not_found(db_request, metrics):
     project = ProjectFactory.create()
     ReleaseFactory.create(project=project, version="1.0")
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -368,30 +381,34 @@ def test_analyze_vulnerability_release_not_found(db_request, metrics):
         origin="test_report_source",
     )
 
-    assert metrics_counter == {
-        (
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
             "warehouse.vulnerabilities.error.release_not_found",
-            ("origin:test_report_source",),
-        ): 2,
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-        (
+            tags=["origin:test_report_source"],
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.error.release_not_found",
+            tags=["origin:test_report_source"],
+        ),
+        pretend.call(
             "warehouse.vulnerabilities.error.no_releases_found",
-            ("origin:test_report_source",),
-        ): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-    }
+            tags=["origin:test_report_source"],
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]
 
 
 def test_analyze_vulnerability_no_versions(db_request, metrics):
     project = ProjectFactory.create()
 
-    metrics_counter = collections.Counter()
-
-    def metrics_increment(key, tags):
-        metrics_counter.update([(key, tuple(tags))])
-
-    metrics = pretend.stub(increment=metrics_increment, timed=metrics.timed)
     db_request.find_service = lambda *a, **kw: metrics
 
     tasks.analyze_vulnerability_task(
@@ -406,8 +423,14 @@ def test_analyze_vulnerability_no_versions(db_request, metrics):
         origin="test_report_source",
     )
 
-    assert metrics_counter == {
-        ("warehouse.vulnerabilities.received", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.valid", ("origin:test_report_source",)): 1,
-        ("warehouse.vulnerabilities.processed", ("origin:test_report_source",)): 1,
-    }
+    assert metrics.increment.calls == [
+        pretend.call(
+            "warehouse.vulnerabilities.received", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.valid", tags=["origin:test_report_source"]
+        ),
+        pretend.call(
+            "warehouse.vulnerabilities.processed", tags=["origin:test_report_source"]
+        ),
+    ]

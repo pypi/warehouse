@@ -254,7 +254,7 @@
         {% trans %}️Team or member?{% endtrans %}
       </label>
       {% for subfield in internal_role_form.is_team %}
-      {{ subfield(**{"data-target": ".radio-toggle-" + loop.index|string}) }}
+      {{ subfield(data_target=".radio-toggle-" + loop.index|string) }}
       {{ subfield.label }}
       {% endfor %}
       <div id="is-team-errors">
@@ -273,7 +273,12 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
       {% set no_teams = internal_role_form.team_name.choices|length <= 1 %}
-      {{ internal_role_form.team_name(class_="form-group__field", disabled=no_teams, title=gettext("There are no teams in the organization.") if no_teams else "", **{"aria-describedby":"team-errors"}) }}
+      {{ internal_role_form.team_name(
+        class_="form-group__field",
+        disabled=no_teams,
+        title=gettext("There are no teams in the organization.") if no_teams else "",
+        aria_describedby="team-errors",
+      ) }}
       <div id="team-errors">
         {{ field_errors(internal_role_form.team_name) }}
       </div>
@@ -283,7 +288,11 @@
         {% trans %}Role{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
-      {{ internal_role_form.team_project_role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"team-project-role-errors"}) }}
+      {{ internal_role_form.team_project_role_name(
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="team-project-role-errors",
+      ) }}
       <div id="team-project-role-errors">
         {{ field_errors(internal_role_form.team_project_role_name) }}
       </div>
@@ -295,7 +304,15 @@
         {% trans %}Member{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
-      {{ internal_role_form.username(placeholder=gettext("Username"), list="organization-users", autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors"}) }}
+      {{ internal_role_form.username(
+        placeholder=gettext("Username"),
+        list="organization-users",
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="user-errors",
+      ) }}
       <datalist id="organization-users">
         {% for username in internal_role_form.user_choices %}
         <option value="{{ username }}">{{ username }}</option>
@@ -310,7 +327,11 @@
         {% trans %}Role{% endtrans %}
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
       </label>
-      {{ internal_role_form.role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
+      {{ internal_role_form.role_name(
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="role-errors",
+      ) }}
       <div id="role-errors">
         {{ field_errors(internal_role_form.role_name) }}
       </div>
@@ -338,7 +359,15 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.username(placeholder=gettext("Username"), autocomplete="off", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"user-errors", "data-autocomplete-target":"input"}) }}
+      {{ form.username(
+        placeholder=gettext("Username"),
+        autocomplete="off",
+        autocapitalize="off",
+        spellcheck="false",
+        class_="form-group__field",
+        aria_describedby="user-errors",
+        data_autocomplete_target="input",
+      ) }}
       <ul class="form-group__results" data-autocomplete-target="results"></ul>
       <div id="user-errors">
         {{ field_errors(form.username) }}
@@ -351,7 +380,11 @@
         <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
         {% endif %}
       </label>
-      {{ form.role_name(class_="form-group__field", autocomplete="off", **{"aria-describedby":"role-errors"}) }}
+      {{ form.role_name(
+        class_="form-group__field",
+        autocomplete="off",
+        aria_describedby="role-errors",
+      ) }}
       <div id="role-errors">
         {{ field_errors(form.role_name) }}
       </div>

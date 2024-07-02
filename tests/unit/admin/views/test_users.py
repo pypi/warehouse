@@ -20,6 +20,7 @@ from webob.multidict import MultiDict, NoVars
 from warehouse.accounts.interfaces import IEmailBreachedService, IUserService
 from warehouse.accounts.models import (
     DisableReason,
+    ProhibitedEmailDomain,
     ProhibitedUserName,
     RecoveryCode,
     WebAuthn,
@@ -352,12 +353,6 @@ class TestUserDelete:
             .one()
         )
         assert remove_journal.name == project.name
-        nuke_journal = (
-            db_request.db.query(JournalEntry)
-            .filter(JournalEntry.action == "nuke user")
-            .one()
-        )
-        assert nuke_journal.name == f"user:{user.username}"
 
     def test_deletes_user_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
@@ -388,6 +383,65 @@ class TestUserDelete:
         )
 
         result = views.user_delete(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
+
+
+class TestUserFreeze:
+    def test_freezes_user(self, db_request, monkeypatch):
+        user = UserFactory.create()
+        verified_email = EmailFactory.create(user=user, verified=True, primary=True)
+        EmailFactory.create(user=user, verified=False, primary=False)
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda a: "/foobar")
+        db_request.user = UserFactory.create()
+
+        result = views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert db_request.db.get(User, user.id).is_frozen
+        prohibition = db_request.db.query(ProhibitedEmailDomain).one()
+        assert prohibition.domain == verified_email.domain
+
+        assert db_request.route_path.calls == [pretend.call("admin.user.list")]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_freezes_user_bad_confirm(self, db_request, monkeypatch):
+        user = UserFactory.create(is_frozen=False)
+        EmailFactory.create(user=user, verified=True, primary=True)
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": "wrong"}
+        db_request.route_path = pretend.call_recorder(lambda a, **k: "/foobar")
+
+        result = views.user_freeze(user, db_request)
+
+        db_request.db.flush()
+
+        assert not db_request.db.get(User, user.id).is_frozen
+        assert not db_request.db.query(ProhibitedEmailDomain).all()
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_user_freeze_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_freeze(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"

@@ -66,7 +66,7 @@ def test_routes(warehouse):
 
         @staticmethod
         @pretend.call_recorder
-        def add_policy(name, filename):
+        def add_redirect_rule(*args, **kwargs):
             pass
 
     config = FakeConfig()
@@ -139,6 +139,13 @@ def test_routes(warehouse):
             traverse="/{user_name}",
             domain=warehouse,
         ),
+        pretend.call(
+            "includes.submit_malware_report",
+            "/_includes/submit-malware-report/{project_name}",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
         pretend.call("classifiers", "/classifiers/", domain=warehouse),
         pretend.call("search", "/search/", domain=warehouse),
         pretend.call("stats", "/stats/", accept="text/html", domain=warehouse),
@@ -203,6 +210,9 @@ def test_routes(warehouse):
             "accounts.verify-project-role",
             "/account/verify-project-role/",
             domain=warehouse,
+        ),
+        pretend.call(
+            "manage.unverified-account", "/manage/unverified-account/", domain=warehouse
         ),
         pretend.call("manage.account", "/manage/account/", domain=warehouse),
         pretend.call(
@@ -497,6 +507,13 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call(
+            "packaging.project.submit_malware_observation",
+            "/project/{name}/submit-malware-report/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "packaging.release",
             "/project/{name}/{version}/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -531,6 +548,19 @@ def test_routes(warehouse):
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
+            domain=warehouse,
+        ),
+        # API URLs
+        pretend.call(
+            "api.echo",
+            "/danger-api/echo",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "api.projects.observations",
+            "/danger-api/projects/{name}/observations",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{name}",
             domain=warehouse,
         ),
         # Mock URLs
@@ -629,6 +659,17 @@ def test_routes(warehouse):
         ),
     ]
 
+    assert config.add_redirect_rule.calls == [
+        pretend.call(
+            f"https?://({warehouse}|localhost)/policy/terms-of-use/",
+            "https://policies.python.org/pypi.org/Terms-of-use/",
+        ),
+        pretend.call(
+            f"https?://({warehouse}|localhost)/policy/acceptable-use-policy/",
+            "https://policies.python.org/pypi.org/Acceptable-Use-Policy/",
+        ),
+    ]
+
     assert config.add_pypi_action_route.calls == [
         pretend.call("legacy.api.pypi.file_upload", "file_upload", domain=warehouse),
         pretend.call("legacy.api.pypi.submit", "submit", domain=warehouse),
@@ -670,9 +711,4 @@ def test_routes(warehouse):
             header="Content-Type:text/xml",
             domain=warehouse,
         ),
-    ]
-
-    assert config.add_policy.calls == [
-        pretend.call("terms-of-use", "terms.md"),
-        pretend.call("acceptable-use-policy", "acceptable-use-policy.md"),
     ]

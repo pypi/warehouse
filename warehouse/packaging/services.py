@@ -19,16 +19,26 @@ import os.path
 import shutil
 import warnings
 
-import b2sdk
+from itertools import chain
+
+import b2sdk.v2.exception
 import botocore.exceptions
 import google.api_core.exceptions
 import google.api_core.retry
 import sentry_sdk
+import stdlib_list
 
+from packaging.utils import canonicalize_name
+from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
+from sqlalchemy import exists, func
+from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
+from warehouse.admin.flags import AdminFlagValue
+from warehouse.email import send_pending_trusted_publisher_invalidated_email
 from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
+from warehouse.oidc.models import PendingOIDCPublisher
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
@@ -36,10 +46,32 @@ from warehouse.packaging.interfaces import (
     ISimpleStorage,
     TooManyProjectsCreated,
 )
-from warehouse.packaging.models import JournalEntry, Project, Role
+from warehouse.packaging.models import (
+    JournalEntry,
+    ProhibitedProjectName,
+    Project,
+    Role,
+)
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
+from warehouse.utils.project import PROJECT_NAME_RE
 
 logger = logging.getLogger(__name__)
+
+
+def _namespace_stdlib_list(module_list):
+    for module_name in module_list:
+        parts = module_name.split(".")
+        for i, part in enumerate(parts):
+            yield ".".join(parts[: i + 1])
+
+
+STDLIB_PROHIBITED = {
+    canonicalize_name(s.rstrip("-_.").lstrip("-_."))
+    for s in chain.from_iterable(
+        _namespace_stdlib_list(stdlib_list.stdlib_list(version))
+        for version in stdlib_list.short_versions
+    )
+}
 
 
 class InsecureStorageWarning(UserWarning):
@@ -416,6 +448,98 @@ class ProjectService:
         if ratelimited:
             self._check_ratelimits(request, creator)
 
+        # Sanity check that the project name is valid. This may have already
+        # happened via form validation prior to calling this function, but
+        # isn't guaranteed.
+        if not PROJECT_NAME_RE.match(name):
+            raise HTTPBadRequest(f"The name {name!r} is invalid.")
+
+        # Look up the project first before doing anything else, and fail if it
+        # already exists. If it does not exist, proceed with additional checks
+        # to ensure that the project has a valid name before creating it.
+        try:
+            # Find existing project or raise NoResultFound.
+            (
+                request.db.query(Project.id)
+                .filter(Project.normalized_name == func.normalize_pep426_name(name))
+                .one()
+            )
+
+            # Found existing project with conflicting name.
+            raise HTTPConflict(
+                (
+                    "The name {name!r} conflicts with an existing project. "
+                    "See {projecthelp} for more information."
+                ).format(
+                    name=name,
+                    projecthelp=request.help_url(_anchor="project-name"),
+                ),
+            ) from None
+        except NoResultFound:
+            # Check for AdminFlag set by a PyPI Administrator disabling new project
+            # registration, reasons for this include Spammers, security
+            # vulnerabilities, or just wanting to be lazy and not worry ;)
+            if request.flags.enabled(AdminFlagValue.DISALLOW_NEW_PROJECT_REGISTRATION):
+                raise HTTPForbidden(
+                    (
+                        "New project registration temporarily disabled. "
+                        "See {projecthelp} for more information."
+                    ).format(
+                        projecthelp=request.help_url(_anchor="admin-intervention")
+                    ),
+                ) from None
+
+            # Before we create the project, we're going to check our prohibited
+            # names to see if this project name prohibited, or if the project name
+            # is a close approximation of an existing project name. If it is,
+            # then we're going to deny the request to create this project.
+            _prohibited_name = request.db.query(
+                exists().where(
+                    ProhibitedProjectName.name == func.normalize_pep426_name(name)
+                )
+            ).scalar()
+            if _prohibited_name:
+                raise HTTPBadRequest(
+                    (
+                        "The name {name!r} isn't allowed. "
+                        "See {projecthelp} for more information."
+                    ).format(
+                        name=name,
+                        projecthelp=request.help_url(_anchor="project-name"),
+                    ),
+                ) from None
+
+            _ultranormalize_collision = request.db.query(
+                exists().where(
+                    func.ultranormalize_name(Project.name)
+                    == func.ultranormalize_name(name)
+                )
+            ).scalar()
+            if _ultranormalize_collision:
+                raise HTTPBadRequest(
+                    (
+                        "The name {name!r} is too similar to an existing project. "
+                        "See {projecthelp} for more information."
+                    ).format(
+                        name=name,
+                        projecthelp=request.help_url(_anchor="project-name"),
+                    ),
+                ) from None
+
+            # Also check for collisions with Python Standard Library modules.
+            if canonicalize_name(name) in STDLIB_PROHIBITED:
+                raise HTTPBadRequest(
+                    (
+                        "The name {name!r} isn't allowed (conflict with Python "
+                        "Standard Library module name). See "
+                        "{projecthelp} for more information."
+                    ).format(
+                        name=name,
+                        projecthelp=request.help_url(_anchor="project-name"),
+                    ),
+                ) from None
+
+        # The project name is valid: create it and add it
         project = Project(name=name)
         self.db.add(project)
 
@@ -457,6 +581,28 @@ class ProjectService:
                     "target_user": creator.username,
                 },
             )
+
+        # Remove all pending publishers not owned by the creator.
+        # There might be other pending publishers for the same project name,
+        # which we've now invalidated by creating the project. These would
+        # be disposed of on use, but we explicitly dispose of them here while
+        # also sending emails to their owners.
+        stale_pending_publishers = (
+            request.db.query(PendingOIDCPublisher)
+            .filter(
+                func.normalize_pep426_name(PendingOIDCPublisher.project_name)
+                == func.normalize_pep426_name(project.name),
+                PendingOIDCPublisher.added_by != creator,
+            )
+            .all()
+        )
+        for stale_publisher in stale_pending_publishers:
+            send_pending_trusted_publisher_invalidated_email(
+                request,
+                stale_publisher.added_by,
+                project_name=stale_publisher.project_name,
+            )
+            request.db.delete(stale_publisher)
 
         if ratelimited:
             self._hit_ratelimits(request, creator)

@@ -197,9 +197,11 @@ def _email(
                     tags=[
                         f"template_name:{name}",
                         f"allow_unverified:{allow_unverified}",
-                        f"repeat_window:{repeat_window.total_seconds()}"
-                        if repeat_window
-                        else "repeat_window:none",
+                        (
+                            f"repeat_window:{repeat_window.total_seconds()}"
+                            if repeat_window
+                            else "repeat_window:none"
+                        ),
                     ],
                 )
 
@@ -274,11 +276,11 @@ def send_password_reset_email(request, user_and_email):
         {
             "action": "password-reset",
             "user.id": str(user.id),
-            "user.last_login": str(user.last_login),
+            "user.last_login": str(
+                user.last_login or datetime.datetime.min.replace(tzinfo=pytz.UTC)
+            ),
             "user.password_date": str(
-                user.password_date
-                if user.password_date is not None
-                else datetime.datetime.min.replace(tzinfo=pytz.UTC)
+                user.password_date or datetime.datetime.min.replace(tzinfo=pytz.UTC)
             ),
         }
     )
@@ -334,26 +336,12 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 
 
 @_email(
-    "basic-auth-with-2fa",
-    allow_unverified=True,
-    repeat_window=datetime.timedelta(days=1),
-)
-def send_basic_auth_with_two_factor_email(request, user, *, project_name):
-    return {"project_name": project_name}
-
-
-@_email(
     "two-factor-not-yet-enabled",
     allow_unverified=True,
     repeat_window=datetime.timedelta(days=14),
 )
 def send_two_factor_not_yet_enabled_email(request, user):
     return {"username": user.username}
-
-
-@_email("gpg-signature-uploaded", repeat_window=datetime.timedelta(days=1))
-def send_gpg_signature_uploaded_email(request, user, *, project_name):
-    return {"project_name": project_name}
 
 
 @_email("account-deleted")
@@ -1040,6 +1028,17 @@ def send_trusted_publisher_removed_email(request, user, project_name, publisher)
 def send_pending_trusted_publisher_invalidated_email(request, user, project_name):
     return {
         "project_name": project_name,
+    }
+
+
+@_email("api-token-used-in-trusted-publisher-project")
+def send_api_token_used_in_trusted_publisher_project_email(
+    request, users, project_name, token_owner_username, token_name
+):
+    return {
+        "token_owner_username": token_owner_username,
+        "project_name": project_name,
+        "token_name": token_name,
     }
 
 

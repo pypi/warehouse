@@ -1,9 +1,9 @@
 ---
 title: Removing PGP from PyPI
 description: PyPI has removed support for uploading PGP signatures with new releases.
-author: Donald Stufft
-publish_date: 2023-05-23
-date: "2023-05-23 00:00"
+authors:
+  - dstufft
+date: 2023-05-23
 tags:
   - security
 ---
@@ -14,6 +14,8 @@ someone who is currently downloading PGP signatures, existing signatures
 *SHOULD* continue to be available [^1], but no new signatures will be made available.
 The related API fields such as `has_sig` have all been hardcoded to always be
 `False`.
+
+<!-- more -->
 
 Historically, PyPI has supported uploading PGP signatures alongside the release
 artifacts in an attempt to provide some level of package signing. However, the

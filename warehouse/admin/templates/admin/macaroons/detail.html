@@ -50,8 +50,12 @@
         <td>{{ macaroon.oidc_publisher }}</td>
       </tr>
       <tr>
-        <td>Permissions</td>
+        <td>Permissions (deprecated)</td>
         <td>{{ macaroon.permissions_caveat }}</td>
+      </tr>
+      <tr>
+        <td>Caveats (as created)</td>
+        <td>{{ macaroon.caveats }}</td>
       </tr>
       <tr>
         <td>Additional</td>
@@ -70,7 +74,7 @@
   </div>
   <div class="card-footer">
     <div class="form-group">
-      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteMacaroon" {{ "disabled" if not request.has_permission('admin') }} value=>
+      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteMacaroon" {{ "disabled" if not request.has_permission(Permissions.AdminMacaroonsWrite) }} value=>
         <i class="icon fa fa-trash"></i> Delete Macaroon
       </button>
     </div>

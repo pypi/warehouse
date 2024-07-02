@@ -1,1 +1,1 @@
-{{ tag_content }}
+<!-- file intentionally empty -->

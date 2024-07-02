@@ -15,23 +15,23 @@ import xmlrpc.client
 import pytest
 
 
-def test_xmlrpc_raises_fault(app_config, webtest, metrics):
+def test_xmlrpc_raises_fault(webtest):
     with pytest.raises(xmlrpc.client.Fault):
         webtest.xmlrpc("/pypi", "list_packages", "one", "two")
 
 
-def test_xmlrpc_nomethod(app_config, webtest, metrics):
+def test_xmlrpc_nomethod(webtest, metrics):
     with pytest.raises(xmlrpc.client.Fault):
         webtest.xmlrpc("/pypi", "multipassssss")
     assert metrics.increment.calls == []
     assert metrics.timed.calls == []
 
 
-def test_xmlrpc_succeeds(app_config, webtest, metrics):
+def test_xmlrpc_succeeds(webtest):
     webtest.xmlrpc("/pypi", "changelog_last_serial")
 
 
-def test_invalid_arguments(app_config, webtest):
+def test_invalid_arguments(webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
         match=r"client error; package_name: Missing required argument",
@@ -39,7 +39,7 @@ def test_invalid_arguments(app_config, webtest):
         webtest.xmlrpc("/pypi", "package_releases")
 
 
-def test_excess_arguments(app_config, webtest):
+def test_excess_arguments(webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
         match=r"client error; 1: Unexpected positional argument",
@@ -47,7 +47,7 @@ def test_excess_arguments(app_config, webtest):
         webtest.xmlrpc("/pypi", "changelog_last_serial", 1)
 
 
-def test_arguments_with_wrong_type(app_config, webtest):
+def test_arguments_with_wrong_type(webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
         match=r"client error; serial: Input should be a valid integer",
@@ -55,7 +55,7 @@ def test_arguments_with_wrong_type(app_config, webtest):
         webtest.xmlrpc("/pypi", "changelog_since_serial", "wrong!")
 
 
-def test_multiple_garbage_types(app_config, webtest):
+def test_multiple_garbage_types(webtest):
     with pytest.raises(
         xmlrpc.client.Fault,
         match=(

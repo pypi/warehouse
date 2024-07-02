@@ -248,9 +248,8 @@ class EmailMessage(db.Model):
     missing: Mapped[bool_false]
 
     # Relationships!
-    events = orm.relationship(
-        "Event",
-        backref="email",
+    events: Mapped[list["Event"]] = orm.relationship(
+        back_populates="email",
         cascade="all, delete-orphan",
         lazy=False,
         order_by=lambda: Event.created,
@@ -275,6 +274,10 @@ class Event(db.Model):
         ),
         index=True,
     )
+    email: Mapped[EmailMessage] = orm.relationship(
+        back_populates="events",
+        lazy=False,
+    )
 
     event_id: Mapped[str] = mapped_column(unique=True, index=True)
     event_type: Mapped[Enum] = mapped_column(
@@ -282,5 +285,5 @@ class Event(db.Model):
     )
 
     data: Mapped[dict] = mapped_column(
-        MutableDict.as_mutable(JSONB), server_default=sql.text("'{}'")  # type: ignore[arg-type] # noqa: E501
+        MutableDict.as_mutable(JSONB()), server_default=sql.text("'{}'")
     )

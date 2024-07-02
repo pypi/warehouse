@@ -1,9 +1,9 @@
 ---
 title: Introducing 'Trusted Publishers'
 description: Announcing a new, more secure way to publish to PyPI
-author: Dustin Ingram
-publish_date: 2023-04-20
-date: "2023-04-20 00:00"
+authors:
+  - di
+date: 2023-04-20
 tags:
   - publishing
   - security
@@ -13,6 +13,8 @@ tags:
 Starting today, PyPI package maintainers can adopt a new, more secure
 publishing method that does not require long-lived passwords or API tokens to
 be shared with external systems.
+
+<!-- more -->
 
 ### About trusted publishing
 
@@ -110,8 +112,7 @@ providing valuable feedback to improve this feature along the way.
 
 ---
 
-_Dustin Ingram is a maintainer of the Python Package Index and a director of
-the Python Software Foundation._
+_Dustin Ingram is a maintainer of the Python Package Index._
 
 [^1]: Currently, information such as this are provided by the uploader and are not verified as accurate by PyPI.
 [OpenID Connect (OIDC)]: https://openid.net/connect/

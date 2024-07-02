@@ -15,6 +15,8 @@ import pretend
 from pyramid.interfaces import ISecurityPolicy
 from zope.interface.verify import verifyClass
 
+from tests.common.db.accounts import UserFactory
+from warehouse.accounts.utils import UserContext
 from warehouse.utils import security_policy
 
 
@@ -86,12 +88,26 @@ class TestMultiSecurityPolicy:
 
         assert policy.authenticated_userid(request) is None
 
-    def test_authenticated_userid(self, monkeypatch):
-        monkeypatch.setattr(security_policy, "User", pretend.stub)
+    def test_authenticated_userid_user_contex_macaroon(self, db_request):
+        user = UserFactory.create()
+        user_ctx = UserContext(user, pretend.stub())
 
         request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
-        user = pretend.stub(id="a fake user")
-        subpolicies = [pretend.stub(identity=lambda r: user)]
+        subpolicies = [pretend.stub(identity=lambda r: user_ctx)]
+        policy = security_policy.MultiSecurityPolicy(subpolicies)
+
+        assert (
+            policy.authenticated_userid(request)
+            == str(user.id)
+            == str(user_ctx.user.id)
+        )
+
+    def test_authenticated_userid_user_context_no_macaroon(self, db_request):
+        user = UserFactory.create()
+        user_ctx = UserContext(user, None)
+
+        request = pretend.stub(add_finished_callback=lambda *a, **kw: None)
+        subpolicies = [pretend.stub(identity=lambda r: user_ctx)]
         policy = security_policy.MultiSecurityPolicy(subpolicies)
 
         assert policy.authenticated_userid(request) == str(user.id)

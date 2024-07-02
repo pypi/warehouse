@@ -229,15 +229,21 @@ class HasEvents:
                 else:
                     additional = additional or {}
                     additional["user_agent_info"] = {
-                        "installer": parsed_user_agent.installer.name
-                        if parsed_user_agent and parsed_user_agent.installer
-                        else None,
-                        "implementation": parsed_user_agent.implementation.name
-                        if parsed_user_agent and parsed_user_agent.implementation
-                        else None,
-                        "system": parsed_user_agent.system.name
-                        if parsed_user_agent and parsed_user_agent.system
-                        else None,
+                        "installer": (
+                            parsed_user_agent.installer.name
+                            if parsed_user_agent and parsed_user_agent.installer
+                            else None
+                        ),
+                        "implementation": (
+                            parsed_user_agent.implementation.name
+                            if parsed_user_agent and parsed_user_agent.implementation
+                            else None
+                        ),
+                        "system": (
+                            parsed_user_agent.system.name
+                            if parsed_user_agent and parsed_user_agent.system
+                            else None
+                        ),
                     }
             except linehaul_user_agent_parser.UnknownUserAgentError:
                 pass

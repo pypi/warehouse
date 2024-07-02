@@ -2,8 +2,8 @@ doc8>=1.1.0
 flake8
 curlylint
 pep8-naming
-black==23.9.1
-isort>=5
+black==24.4.2
+isort>=5.13.1
 pyupgrade
 mypy
 celery-types
@@ -19,6 +19,9 @@ types-passlib
 types-python-slugify
 types-pytz
 types-redis
-types-requests
+types-requests==2.32.0.20240622
 types-setuptools
 types-stripe
+types-WTForms
+types-WebOb
+types-zxcvbn

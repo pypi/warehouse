@@ -22,8 +22,7 @@ from warehouse.integrations.vulnerabilities import osv
 
 
 class TestVulnerabilityReportVerifier:
-    def test_init(self):
-        metrics = pretend.stub()
+    def test_init(self, metrics):
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
 
@@ -37,7 +36,7 @@ class TestVulnerabilityReportVerifier:
         assert vuln_report_verifier._metrics is metrics
         assert vuln_report_verifier._public_keys_cache is cache
 
-    def test_verify_cache_miss(self):
+    def test_verify_cache_miss(self, metrics):
         # Example taken from
         # https://gist.github.com/ewjoachim/7dde11c31d9686ed6b4431c3ca166da2
         meta_payload = {
@@ -57,7 +56,6 @@ class TestVulnerabilityReportVerifier:
             json=lambda: meta_payload, raise_for_status=lambda: None
         )
         session = pretend.stub(get=lambda *a, **k: response)
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
@@ -90,9 +88,8 @@ class TestVulnerabilityReportVerifier:
             pretend.call("warehouse.vulnerabilities.osv.auth.success"),
         ]
 
-    def test_verify_cache_hit(self):
+    def test_verify_cache_hit(self, metrics):
         session = pretend.stub()
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
         cache = integrations.PublicKeysCache(cache_time=12)
         cache.cached_at = time.time()
         cache.cache = [
@@ -137,8 +134,7 @@ class TestVulnerabilityReportVerifier:
             pretend.call("warehouse.vulnerabilities.osv.auth.success"),
         ]
 
-    def test_verify_error(self):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
+    def test_verify_error(self, metrics):
         cache = integrations.PublicKeysCache(cache_time=12)
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
@@ -177,12 +173,11 @@ class TestVulnerabilityReportVerifier:
             json=lambda: meta_payload, raise_for_status=lambda: None
         )
         session = pretend.stub(get=pretend.call_recorder(lambda *a, **k: response))
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
             session=session,
-            metrics=metrics,
+            metrics=pretend.stub(),
             public_keys_cache=pretend.stub(),
         )
         assert vuln_report_verifier.retrieve_public_key_payload() == meta_payload
@@ -193,7 +188,6 @@ class TestVulnerabilityReportVerifier:
         ]
 
     def test_get_cached_public_key_cache_hit(self):
-        metrics = pretend.stub()
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
         cache_value = pretend.stub()
@@ -202,21 +196,20 @@ class TestVulnerabilityReportVerifier:
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
             session=session,
-            metrics=metrics,
+            metrics=pretend.stub(),
             public_keys_cache=cache,
         )
 
         assert vuln_report_verifier._get_cached_public_keys() is cache_value
 
     def test_get_cached_public_key_cache_miss_no_cache(self):
-        metrics = pretend.stub()
         session = pretend.stub()
         cache = integrations.PublicKeysCache(cache_time=12)
 
         vuln_report_verifier = osv.VulnerabilityReportVerifier(
             public_keys_api_url="http://foo",
             session=session,
-            metrics=metrics,
+            metrics=pretend.stub(),
             public_keys_cache=cache,
         )
 

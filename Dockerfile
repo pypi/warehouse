@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:20.7.0-bookworm as static-deps
+FROM node:22.3.0-bookworm as static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -36,7 +36,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.11.5-slim-bookworm as docs
+FROM python:3.12.4-slim-bookworm as docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -105,12 +105,16 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.11.5-slim-bookworm as build
+FROM python:3.12.4-slim-bookworm as build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
 # test dependencies.
 ARG DEVEL=no
+
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
 
 # To enable Ipython in the development environment set to yes (for using ipython
 # as the warehouse shell interpreter,
@@ -176,6 +180,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
+                    $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
     && pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
@@ -184,7 +189,7 @@ RUN --mount=type=cache,target=/root/.cache/pip \
 
 # Now we're going to build our actual application image, which will eventually
 # pull in the static files that were built above.
-FROM python:3.11.5-slim-bookworm
+FROM python:3.12.4-slim-bookworm
 
 # Setup some basic environment variables that are ~never going to change.
 ENV PYTHONUNBUFFERED 1
@@ -197,6 +202,10 @@ WORKDIR /opt/warehouse/src/
 # generally be used to control whether or not we install our development and
 # test dependencies.
 ARG DEVEL=no
+
+# Define whether we're building a CI image. This will include all the docs stuff
+# as well for the matrix!
+ARG CI=no
 
 # This is a work around because otherwise postgresql-client bombs out trying
 # to create symlinks to these directories.
@@ -224,3 +233,7 @@ COPY --from=static /opt/warehouse/src/warehouse/static/dist/ /opt/warehouse/src/
 COPY --from=static /opt/warehouse/src/warehouse/admin/static/dist/ /opt/warehouse/src/warehouse/admin/static/dist/
 COPY --from=build /opt/warehouse/ /opt/warehouse/
 COPY . /opt/warehouse/src/
+
+# Load our module to pre-compile as much bytecode as we can easily.
+# Saves time collectively on container boot!
+RUN python -m warehouse

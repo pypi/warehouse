@@ -27,10 +27,19 @@ from warehouse.oidc.models._core import (
 )
 
 
+def _check_repository(ground_truth, signed_claim, all_signed_claims):
+    # Defensive: GitHub should never give us an empty repository claim.
+    if not signed_claim:
+        return False
+
+    # GitHub repository names are case-insensitive.
+    return signed_claim.lower() == ground_truth.lower()
+
+
 def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     # We expect a string formatted as follows:
     #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
-    # where REF is the value of the `ref` claim.
+    # where REF is the value of either the `ref` or `sha` claims.
 
     # Defensive: GitHub should never give us an empty job_workflow_ref,
     # but we check for one anyways just in case.
@@ -38,6 +47,11 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
         raise InvalidPublisherError("The job_workflow_ref claim is empty")
 
     # We need at least one of these to be non-empty
+    # In most cases, the `ref` claim will be present (e.g: "refs/heads/main")
+    # and used in `job_workflow_ref`. However, there are certain cases
+    # (such as creating a GitHub deployment tied to a specific commit SHA), where
+    # a workflow triggered by that deployment will have an empty `ref` claim, and
+    # the `job_workflow_ref` claim will use the `sha` claim instead.
     ref = all_signed_claims.get("ref")
     sha = all_signed_claims.get("sha")
     if not (ref or sha):
@@ -112,7 +126,7 @@ class GitHubPublisherMixin:
 
     __required_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "sub": _check_sub,
-        "repository": check_claim_binary(str.__eq__),
+        "repository": _check_repository,
         "repository_owner": check_claim_binary(str.__eq__),
         "repository_owner_id": check_claim_binary(str.__eq__),
         "job_workflow_ref": _check_job_workflow_ref,
@@ -144,6 +158,7 @@ class GitHubPublisherMixin:
         "runner_environment",
         "environment_node_id",
         "enterprise",
+        "enterprise_id",
         "ref_protected",
     }
 
@@ -224,6 +239,10 @@ class GitHubPublisherMixin:
         if sha:
             return f"{base}/commit/{sha}"
         return base
+
+    def stored_claims(self, claims=None):
+        claims = claims if claims else {}
+        return {"ref": claims.get("ref"), "sha": claims.get("sha")}
 
     def __str__(self):
         return self.workflow_filename

@@ -14,7 +14,7 @@ import hashlib
 import io
 import os.path
 
-import b2sdk.v2
+import b2sdk.v2.exception
 import boto3.session
 import botocore.exceptions
 import pretend

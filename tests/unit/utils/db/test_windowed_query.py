@@ -15,7 +15,6 @@ import math
 import pytest
 
 from sqlalchemy import select
-from sqlalchemy.orm import aliased
 
 from warehouse.packaging.models import Project
 from warehouse.utils.db.windowed_query import windowed_query
@@ -30,15 +29,13 @@ def test_windowed_query(db_session, query_recorder, window_size):
 
     expected = math.ceil(len(projects) / window_size) + 1
 
-    subquery = select(Project.normalized_name).order_by(Project.id).subquery()
-    pa = aliased(Project, subquery)
+    query = select(Project)
 
-    query = select(Project.name).select_from(pa).distinct(Project.id)
-
+    result_set = set()
     with query_recorder:
-        assert (
-            set(windowed_query(db_session, query, Project.id, window_size))
-            == project_set
-        )
+        for result in windowed_query(db_session, query, Project.id, window_size):
+            for project in result.scalars():
+                result_set.add((project.name, project.id))
 
+    assert result_set == project_set
     assert len(query_recorder.queries) == expected

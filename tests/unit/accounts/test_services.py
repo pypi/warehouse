@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import collections
 import datetime
 import uuid
 
@@ -18,7 +17,6 @@ import freezegun
 import passlib.exc
 import pretend
 import pytest
-import pytz
 import requests
 
 from webauthn.helpers import bytes_to_base64url
@@ -593,7 +591,8 @@ class TestDatabaseUserService:
 
     def test_check_totp_value_no_secret(self, user_service):
         user = UserFactory.create()
-        assert not user_service.check_totp_value(user.id, b"123456")
+        with pytest.raises(otp.InvalidTOTPError):
+            user_service.check_totp_value(user.id, b"123456")
 
     def test_check_totp_global_rate_limited(self, user_service, metrics):
         resets = pretend.stub()
@@ -992,7 +991,7 @@ class TestDatabaseUserService:
         assert [c.id for c in initial_codes] != [c.id for c in new_codes]
 
     def test_get_password_timestamp(self, user_service):
-        create_time = datetime.datetime.utcnow()
+        create_time = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(create_time):
             user = UserFactory.create()
             user.password_date = create_time
@@ -1031,7 +1030,7 @@ class TestTokenService:
         assert token_service.loads(token) == {"foo": "bar"}
 
     def test_loads_return_timestamp(self, token_service):
-        sign_time = pytz.UTC.localize(datetime.datetime.utcnow())
+        sign_time = datetime.datetime.now(datetime.UTC)
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
@@ -1046,7 +1045,7 @@ class TestTokenService:
             token_service.loads(token)
 
     def test_loads_token_is_expired(self, token_service):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         with freezegun.freeze_time(now) as frozen_time:
             token = token_service.dumps({"foo": "bar"})
@@ -1063,9 +1062,7 @@ class TestTokenService:
             token_service.loads("invalid")
 
     def test_unsafe_load_payload(self, token_service):
-        sign_time = pytz.UTC.localize(
-            datetime.datetime.utcnow() - datetime.timedelta(days=1)
-        )
+        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=1)
         with freezegun.freeze_time(sign_time):
             token = token_service.dumps({"foo": "bar"})
 
@@ -1075,9 +1072,7 @@ class TestTokenService:
         assert token_service.unsafe_load_payload(token) == {"foo": "bar"}
 
     def test_unsafe_load_payload_signature_invalid(self, token_service):
-        sign_time = pytz.UTC.localize(
-            datetime.datetime.utcnow() - datetime.timedelta(minutes=10)
-        )
+        sign_time = datetime.datetime.now(datetime.UTC) - datetime.timedelta(minutes=10)
         with freezegun.freeze_time(sign_time):
             token = services.TokenService("wrongsecret", "pepper", max_age=3600).dumps(
                 {"foo": "bar"}
@@ -1288,16 +1283,7 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         assert not svc.check_password("my password")
         assert raiser.calls
 
-    def test_metrics_increments(self):
-        class Metrics:
-            def __init__(self):
-                self.values = collections.Counter()
-
-            def increment(self, metric):
-                self.values[metric] += 1
-
-        metrics = Metrics()
-
+    def test_metrics_increments(self, metrics):
         svc = services.HaveIBeenPwnedPasswordBreachedService(
             session=pretend.stub(), metrics=metrics
         )
@@ -1306,7 +1292,11 @@ class TestHaveIBeenPwnedPasswordBreachedService:
         svc._metrics_increment("another_thing")
         svc._metrics_increment("something")
 
-        assert metrics.values == {"something": 2, "another_thing": 1}
+        assert metrics.increment.calls == [
+            pretend.call("something"),
+            pretend.call("another_thing"),
+            pretend.call("something"),
+        ]
 
     def test_factory(self):
         context = pretend.stub()

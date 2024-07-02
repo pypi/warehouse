@@ -77,16 +77,17 @@
             {{ render_field("Button label", form.link_label, "banner-link-label", class="form-control", placeholder="See more") }}
 
             {{ render_field("Active", form.active, "banner-active", helper="<small>Only active banners are displayed.</small>") }}
+            {{ render_field("Dismissable", form.dismissable, "banner-dismissable", helper="<small>Only dismissable banners can be dismissed.</small>") }}
             {{ render_field("End date", form.end, "banner-end", placeholder="YYYY-MM-DD", helper="<small>UTC date to work as a safeguard to hide the banner if past this date.</small>")}}
 
 
             <div class="form-group">
-              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires staff privileges' if not request.has_permission('psf_staff') }}" {{ "disabled" if not request.has_permission('psf_staff') }}>Submit</button>
+              <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires staff privileges' if not request.has_permission(Permissions.AdminBannerWrite) }}" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }}>Submit</button>
 
               {% if banner %}
               <a class="btn btn-info" href="{{ request.route_path('admin.banner.preview', banner_id=banner.id) }}" rel="nofollow noopener noreferrer" target="_blank"><i class="icon fa fa-eye"></i> Preview Saved</a>
 
-              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission('psf_staff') }} value=>
+              <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteBanner" {{ "disabled" if not request.has_permission(Permissions.AdminBannerWrite) }} value=>
                 <i class="icon fa fa-trash"></i> Delete banner
               </button>
               {% endif %}

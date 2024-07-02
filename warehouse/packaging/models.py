@@ -12,6 +12,7 @@
 from __future__ import annotations
 
 import enum
+import typing
 
 from collections import OrderedDict
 from uuid import UUID
@@ -19,22 +20,33 @@ from uuid import UUID
 import packaging.utils
 
 from github_reserved_names import ALL as GITHUB_RESERVED_NAMES
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.threadlocal import get_current_request
 from sqlalchemy import (
     BigInteger,
     CheckConstraint,
+    Column,
     FetchedValue,
     ForeignKey,
     Index,
+    Integer,
     String,
     Text,
     UniqueConstraint,
+    cast,
     func,
+    or_,
     orm,
+    select,
     sql,
 )
-from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
+from sqlalchemy.dialects.postgresql import (
+    ARRAY,
+    CITEXT,
+    ENUM,
+    REGCLASS,
+    UUID as PG_UUID,
+)
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -50,20 +62,28 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
+from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
+from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
     Organization,
     OrganizationProject,
     OrganizationRole,
     OrganizationRoleType,
+    Team,
     TeamProjectRole,
 )
 from warehouse.sitemap.models import SitemapMixin
-from warehouse.utils import dotted_navigator
+from warehouse.utils import dotted_navigator, wheel
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import bool_false, datetime_now
+
+if typing.TYPE_CHECKING:
+    from warehouse.oidc.models import OIDCPublisher
+
+_MONOTONIC_SEQUENCE = 42
 
 
 class Role(db.Model):
@@ -142,18 +162,7 @@ class ProjectFactory:
             return True
 
 
-class TwoFactorRequireable:
-    # Project owner requires 2FA for this project
-    owners_require_2fa: Mapped[bool_false]
-    # PyPI requires 2FA for this project
-    pypi_mandates_2fa: Mapped[bool_false]
-
-    @hybrid_property
-    def two_factor_required(self):
-        return self.owners_require_2fa | self.pypi_mandates_2fa
-
-
-class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
+class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     __tablename__ = "projects"
     __repr__ = make_repr("name")
 
@@ -175,6 +184,12 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         BigInteger, server_default=sql.text("0")
     )
 
+    oidc_publishers: Mapped[list[OIDCPublisher]] = orm.relationship(
+        secondary="oidc_publisher_project_association",
+        back_populates="projects",
+        passive_deletes=True,
+    )
+
     organization: Mapped[Organization] = orm.relationship(
         secondary=OrganizationProject.__table__,
         back_populates="projects",
@@ -185,6 +200,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         back_populates="project",
         passive_deletes=True,
     )
+    team: Mapped[Team] = orm.relationship(
+        secondary=TeamProjectRole.__table__,
+        back_populates="projects",
+        viewonly=True,
+    )
     team_project_roles: Mapped[list[TeamProjectRole]] = orm.relationship(
         back_populates="project",
         passive_deletes=True,
@@ -193,7 +213,6 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         secondary=Role.__table__, back_populates="projects", viewonly=True
     )
     releases: Mapped[list[Release]] = orm.relationship(
-        backref="project",
         cascade="all, delete-orphan",
         order_by=lambda: Release._pypi_ordering.desc(),
         passive_deletes=True,
@@ -248,14 +267,47 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
     def __acl__(self):
         session = orm.object_session(self)
         acls = [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            # TODO: Similar to `warehouse.accounts.models.User.__acl__`, we express the
+            #       permissions here in terms of the permissions that the user has on
+            #       the project. This is more complex, as add ACL Entries based on other
+            #       criteria, such as the user's role in the project.
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (Allow, "group:observers", Permissions.APIObservationsAdd),
+            (Allow, Authenticated, Permissions.SubmitMalwareObservation),
         ]
 
         # The project has zero or more OIDC publishers registered to it,
         # each of which serves as an identity with the ability to upload releases.
         for publisher in self.oidc_publishers:
-            acls.append((Allow, f"oidc:{publisher.id}", ["upload"]))
+            acls.append((Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload]))
 
         # Get all of the users for this project.
         query = session.query(Role).filter(Role.project == self)
@@ -288,9 +340,19 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
             if permission_name == "Administer":
-                acls.append((Allow, f"user:{user_id}", ["manage:project", "upload"]))
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        [
+                            Permissions.ProjectsRead,
+                            Permissions.ProjectsUpload,
+                            Permissions.ProjectsWrite,
+                        ],
+                    )
+                )
             else:
-                acls.append((Allow, f"user:{user_id}", ["upload"]))
+                acls.append((Allow, f"user:{user_id}", [Permissions.ProjectsUpload]))
         return acls
 
     @property
@@ -327,7 +389,11 @@ class Project(SitemapMixin, TwoFactorRequireable, HasEvents, db.Model):
         return (
             orm.object_session(self)
             .query(
-                Release.version, Release.created, Release.is_prerelease, Release.yanked
+                Release.version,
+                Release.created,
+                Release.is_prerelease,
+                Release.yanked,
+                Release.yanked_reason,
             )
             .filter(Release.project == self)
             .order_by(Release._pypi_ordering.desc())
@@ -365,6 +431,7 @@ class Dependency(db.Model):
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    release: Mapped[Release] = orm.relationship(back_populates="dependencies")
     kind: Mapped[int | None]
     specifier: Mapped[str | None]
 
@@ -387,6 +454,8 @@ class Description(db.Model):
     html: Mapped[str]
     rendered_by: Mapped[str]
 
+    release: Mapped[Release] = orm.relationship(back_populates="description")
+
 
 class ReleaseURL(db.Model):
     __tablename__ = "release_urls"
@@ -403,12 +472,39 @@ class ReleaseURL(db.Model):
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
         index=True,
     )
+    release: Mapped[Release] = orm.relationship(back_populates="_project_urls")
 
     name: Mapped[str] = mapped_column(String(32))
     url: Mapped[str]
 
 
-class Release(db.Model):
+DynamicFieldsEnum = ENUM(
+    "Platform",
+    "Supported-Platform",
+    "Summary",
+    "Description",
+    "Description-Content-Type",
+    "Keywords",
+    "Home-Page",
+    "Download-Url",
+    "Author",
+    "Author-Email",
+    "Maintainer",
+    "Maintainer-Email",
+    "License",
+    "Classifier",
+    "Requires-Dist",
+    "Requires-Python",
+    "Requires-External",
+    "Project-Url",
+    "Provides-Extra",
+    "Provides-Dist",
+    "Obsoletes-Dist",
+    name="release_dynamic_fields",
+)
+
+
+class Release(HasObservations, db.Model):
     __tablename__ = "releases"
 
     @declared_attr
@@ -428,6 +524,7 @@ class Release(db.Model):
     project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    project: Mapped[Project] = orm.relationship(back_populates="releases")
     version: Mapped[str] = mapped_column(Text)
     canonical_version: Mapped[str] = mapped_column()
     is_prerelease: Mapped[bool_false]
@@ -450,22 +547,22 @@ class Release(db.Model):
         index=True,
     )
     description: Mapped[Description] = orm.relationship(
-        backref=orm.backref(
-            "release",
-            cascade="all, delete-orphan",
-            passive_deletes=True,
-            passive_updates=True,
-            single_parent=True,
-            uselist=False,
-        ),
+        back_populates="release",
+        cascade="all, delete-orphan",
+        single_parent=True,
     )
 
     yanked: Mapped[bool_false]
 
     yanked_reason: Mapped[str] = mapped_column(server_default="")
 
+    dynamic = Column(  # type: ignore[var-annotated]
+        ARRAY(DynamicFieldsEnum),
+        nullable=True,
+        comment="Array of metadata fields marked as Dynamic (PEP 643/Metadata 2.2)",
+    )
+
     _classifiers: Mapped[list[Classifier]] = orm.relationship(
-        backref="project_releases",
         secondary="release_classifiers",
         order_by=Classifier.ordering,
         passive_deletes=True,
@@ -473,7 +570,6 @@ class Release(db.Model):
     classifiers = association_proxy("_classifiers", "classifier")
 
     _project_urls: Mapped[list[ReleaseURL]] = orm.relationship(
-        backref="release",
         collection_class=attribute_keyed_dict("name"),
         cascade="all, delete-orphan",
         order_by=lambda: ReleaseURL.name.asc(),
@@ -486,8 +582,6 @@ class Release(db.Model):
     )
 
     files: Mapped[list[File]] = orm.relationship(
-        "File",
-        backref="release",
         cascade="all, delete-orphan",
         lazy="dynamic",
         order_by=lambda: File.filename,
@@ -495,7 +589,6 @@ class Release(db.Model):
     )
 
     dependencies: Mapped[list[Dependency]] = orm.relationship(
-        backref="release",
         cascade="all, delete-orphan",
         passive_deletes=True,
     )
@@ -520,6 +613,12 @@ class Release(db.Model):
 
     _provides_dist = _dependency_relation(DependencyKind.provides_dist)
     provides_dist = association_proxy("_provides_dist", "specifier")
+
+    provides_extra = Column(  # type: ignore[var-annotated]
+        ARRAY(Text),
+        nullable=True,
+        comment="Array of extra names (PEP 566/685|Metadata 2.1/2.3)",
+    )
 
     _obsoletes_dist = _dependency_relation(DependencyKind.obsoletes_dist)
     obsoletes_dist = association_proxy("_obsoletes_dist", "specifier")
@@ -603,6 +702,17 @@ class Release(db.Model):
             ]
         )
 
+    @property
+    def trusted_published(self) -> bool:
+        """
+        A Release can be considered published via a trusted publisher if
+        **all** the Files in the release are published via a trusted publisher.
+        """
+        files = self.files.all()  # type: ignore[attr-defined]
+        if not files:
+            return False
+        return all(file.uploaded_via_trusted_publisher for file in files)
+
 
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
@@ -641,6 +751,7 @@ class File(HasEvents, db.Model):
     release_id: Mapped[UUID] = mapped_column(
         ForeignKey("releases.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    release: Mapped[Release] = orm.relationship(back_populates="files")
     python_version: Mapped[str]
     requires_python: Mapped[str | None]
     packagetype: Mapped[PackageType] = mapped_column()
@@ -669,6 +780,27 @@ class File(HasEvents, db.Model):
     archived: Mapped[bool_false] = mapped_column(
         comment="If True, the object has been archived to our archival bucket.",
     )
+    metadata_file_unbackfillable: Mapped[bool_false] = mapped_column(
+        nullable=True,
+        comment="If True, the metadata for the file cannot be backfilled.",
+    )
+
+    @property
+    def uploaded_via_trusted_publisher(self) -> bool:
+        """Return True if the file was uploaded via a trusted publisher."""
+        return (
+            self.events.where(
+                or_(
+                    self.Event.additional[  # type: ignore[attr-defined]
+                        "uploaded_via_trusted_publisher"
+                    ].as_boolean(),
+                    self.Event.additional["publisher_url"]  # type: ignore[attr-defined]
+                    .as_string()
+                    .is_not(None),
+                )
+            ).count()
+            > 0
+        )
 
     @hybrid_property
     def metadata_path(self):
@@ -681,6 +813,10 @@ class File(HasEvents, db.Model):
     @validates("requires_python")
     def validates_requires_python(self, *args, **kwargs):
         raise RuntimeError("Cannot set File.requires_python")
+
+    @property
+    def pretty_wheel_tags(self) -> list[str]:
+        return wheel.filename_to_pretty_tags(self.filename)
 
 
 class Filename(db.ModelBase):
@@ -735,6 +871,33 @@ class JournalEntry(db.ModelBase):
     submitted_by: Mapped[User] = orm.relationship(lazy="raise_on_sql")
 
 
+@db.listens_for(db.Session, "before_flush")
+def ensure_monotonic_journals(config, session, flush_context, instances):
+    # We rely on `journals.id` to be a monotonically increasing integer,
+    # however the way that SERIAL is implemented, it does not guarentee
+    # that is the case.
+    #
+    # Ultimately SERIAL fetches the next integer regardless of what happens
+    # inside of the transaction. So journals.id will get filled in, in order
+    # of when the `INSERT` statements were executed, but not in the order
+    # that transactions were committed.
+    #
+    # The way this works, not even the SERIALIZABLE transaction types give
+    # us this property. Instead we have to implement our own locking that
+    # ensures that each new journal entry will be serialized.
+    for obj in session.new:
+        if isinstance(obj, JournalEntry):
+            session.execute(
+                select(
+                    func.pg_advisory_xact_lock(
+                        cast(cast(JournalEntry.__tablename__, REGCLASS), Integer),
+                        _MONOTONIC_SEQUENCE,
+                    )
+                )
+            )
+            return
+
+
 class ProhibitedProjectName(db.Model):
     __tablename__ = "prohibited_project_names"
     __table_args__ = (
@@ -753,3 +916,30 @@ class ProhibitedProjectName(db.Model):
     )
     prohibited_by: Mapped[User] = orm.relationship()
     comment: Mapped[str] = mapped_column(server_default="")
+
+
+class ProjectMacaroonWarningAssociation(db.Model):
+    """
+    Association table for Projects and Macaroons where a row (P, M) exists in
+    the table iff all of the following statements are true:
+    - M is an API-token Macaroon
+    - M was used to upload a file to project P
+    - P had a Trusted Publisher configured at the time of the upload
+    - An email warning was sent to P's maintainers about the use of M
+
+    In other words, this table tracks if we have warned a project's
+    maintainers about a specific API token being used in spite of a Trusted
+    Publisher being present. This is used in order to only send the warning
+    once per project and API token.
+    """
+
+    __tablename__ = "project_macaroon_warning_association"
+
+    macaroon_id = mapped_column(
+        ForeignKey("macaroons.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    project_id = mapped_column(
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        primary_key=True,
+    )

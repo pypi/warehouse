@@ -1,9 +1,9 @@
 ---
 title: Announcing the PyPI Safety & Security Engineer role
 description: PyPI is hiring, thanks to funding from Amazon Web Services!
-author: Ee Durbin
-publish_date: 2023-05-09
-date: "2023-05-09 00:00"
+authors:
+  - ewdurbin
+date: 2023-05-09
 tags:
   - security
   - hiring
@@ -15,6 +15,8 @@ as the inaugural Security Sponsor for PyPI,
 investing $144,000 over one year
 to fund key enhancements to PyPI infrastructure and operations,
 including the creation of a new “PyPI Safety & Security Engineer” role. 
+
+<!-- more -->
 
 This role builds on our existing long term partnership with AWS
 as one of the top sponsors of the Python Software Foundation for the last five years,

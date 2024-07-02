@@ -20,11 +20,13 @@ from pyramid.security import Denied
 from zope.interface.verify import verifyClass
 
 from warehouse.accounts.interfaces import IUserService
+from warehouse.accounts.utils import UserContext
+from warehouse.authnz import Permissions
 from warehouse.macaroons import security_policy
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import InvalidMacaroonError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.oidc.utils import OIDCContext
+from warehouse.oidc.utils import PublisherTokenContext
 
 
 @pytest.mark.parametrize(
@@ -213,7 +215,7 @@ class TestMacaroonSecurityPolicy:
             ),
         )
 
-        assert policy.identity(request) is user
+        assert policy.identity(request) == UserContext(user, macaroon)
         assert extract_http_macaroon.calls == [pretend.call(request)]
         assert request.find_service.calls == [
             pretend.call(IMacaroonService, context=None),
@@ -257,7 +259,7 @@ class TestMacaroonSecurityPolicy:
         identity = policy.identity(request)
         assert identity
         assert identity.publisher is oidc_publisher
-        assert identity == OIDCContext(
+        assert identity == PublisherTokenContext(
             oidc_publisher, SignedClaims(oidc_additional["oidc"])
         )
 
@@ -284,7 +286,7 @@ class TestMacaroonSecurityPolicy:
         )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, pretend.stub(), "upload")
+        result = policy.permits(request, pretend.stub(), Permissions.ProjectsUpload)
 
         assert result == Denied("")
         assert result.s == "Invalid API Token: foo"
@@ -307,16 +309,18 @@ class TestMacaroonSecurityPolicy:
             security_policy, "_extract_http_macaroon", _extract_http_macaroon
         )
 
-        context = pretend.stub(__acl__=[(Allow, "user:5", ["upload"])])
+        context = pretend.stub(
+            __acl__=[(Allow, "user:5", [Permissions.ProjectsUpload])]
+        )
 
         policy = security_policy.MacaroonSecurityPolicy()
-        result = policy.permits(request, context, "upload")
+        result = policy.permits(request, context, Permissions.ProjectsUpload)
 
         assert bool(result) == expected
 
     @pytest.mark.parametrize(
         "invalid_permission",
-        ["admin", "moderator", "manage:user", "manage:project", "nonexistent"],
+        [Permissions.AccountManage, Permissions.ProjectsWrite, "nonexistent"],
     )
     def test_denies_valid_macaroon_for_incorrect_permission(
         self, monkeypatch, invalid_permission

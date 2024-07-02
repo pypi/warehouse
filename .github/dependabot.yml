@@ -11,14 +11,17 @@ updates:
   - dependency-type: indirect
   rebase-strategy: "disabled"
   ignore:
-  # Always ignore elasticsearch, future versions are always incompatible with our provider
-  - dependency-name: "elasticsearch"
   # These update basically every day, and 99.9% of the time we don't care
   - dependency-name: "boto3"
   - dependency-name: "boto3-stubs"
   - dependency-name: "botocore"
   - dependency-name: "botocore-stubs"
   groups:
+    celery:
+      # Keep both celery and kombu together
+      patterns:
+        - "celery"
+        - "kombu"
     psycopg:
       # Keep both psycopg and psycopg-c together
       patterns:

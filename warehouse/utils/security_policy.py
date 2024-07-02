@@ -17,7 +17,7 @@ from pyramid.request import RequestLocalCache
 from pyramid.security import Denied
 from zope.interface import implementer
 
-from warehouse.accounts.models import User
+from warehouse.accounts.utils import UserContext
 
 
 # NOTE: Is there a better place for this to live? It may not even need to exist
@@ -82,8 +82,8 @@ class MultiSecurityPolicy:
             #       it here for now, because there are a number of views directly
             #       using this to detect user vs not, which we'll need to move to a
             #       more correct pattern before fixing this.
-            if isinstance(ident, User):
-                return str(ident.id)
+            if isinstance(ident, UserContext):
+                return str(ident.user.id)
         return None
 
     def forget(self, request, **kw):

@@ -15,11 +15,21 @@ from collections import OrderedDict
 import pretend
 import pytest
 
-from pyramid.authorization import Allow
+from pyramid.authorization import Allow, Authenticated
 from pyramid.location import lineage
 
+from warehouse.authnz import Permissions
+from warehouse.macaroons import caveats
+from warehouse.macaroons.models import Macaroon
+from warehouse.oidc.models import GitHubPublisher
 from warehouse.organizations.models import TeamProjectRoleType
-from warehouse.packaging.models import File, ProjectFactory, ReleaseURL
+from warehouse.packaging.models import (
+    File,
+    Project,
+    ProjectFactory,
+    ProjectMacaroonWarningAssociation,
+    ReleaseURL,
+)
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.organizations import (
@@ -32,6 +42,7 @@ from ...common.db.organizations import (
 )
 from ...common.db.packaging import (
     DependencyFactory as DBDependencyFactory,
+    FileEventFactory as DBFileEventFactory,
     FileFactory as DBFileFactory,
     ProjectFactory as DBProjectFactory,
     ReleaseFactory as DBReleaseFactory,
@@ -157,31 +168,85 @@ class TestProject:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
         ] + sorted(
-            [(Allow, f"oidc:{publisher.id}", ["upload"])], key=lambda x: x[1]
+            [(Allow, f"oidc:{publisher.id}", [Permissions.ProjectsUpload])],
+            key=lambda x: x[1],
         ) + sorted(
             [
                 (
                     Allow,
                     f"user:{owner1.user.id}",
-                    ["manage:project", "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner2.user.id}",
-                    ["manage:project", "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner3.user.id}",
-                    ["manage:project", "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
                 (
                     Allow,
                     f"user:{owner4.user.id}",
-                    ["manage:project", "upload"],
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
                 ),
             ],
             key=lambda x: x[1],
@@ -190,12 +255,12 @@ class TestProject:
                 (
                     Allow,
                     f"user:{maintainer1.user.id}",
-                    ["upload"],
+                    [Permissions.ProjectsUpload],
                 ),
                 (
                     Allow,
                     f"user:{maintainer2.user.id}",
-                    ["upload"],
+                    [Permissions.ProjectsUpload],
                 ),
             ],
             key=lambda x: x[1],
@@ -204,6 +269,103 @@ class TestProject:
     def test_repr(self, db_request):
         project = DBProjectFactory()
         assert isinstance(repr(project), str)
+
+    def test_deletion_with_trusted_publisher(self, db_session):
+        """
+        When we remove a Project, ensure that we also remove the related
+        Publisher Association, but not the Publisher itself.
+        """
+        project = DBProjectFactory.create()
+        publisher = GitHubPublisherFactory.create(projects=[project])
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert db_session.query(GitHubPublisher).filter_by(id=publisher.id).count() == 1
+
+    def test_deletion_project_with_macaroon_warning(self, db_session, macaroon_service):
+        """
+        When we remove a Project, ensure that we also remove any related
+        warnings about the use of API tokens from the ProjectMacaroonWarningAssociation
+        table
+        """
+        project = DBProjectFactory.create()
+        owner = DBRoleFactory.create()
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(owner.user.id))],
+            user_id=owner.user.id,
+        )
+
+        db_session.add(
+            ProjectMacaroonWarningAssociation(
+                macaroon_id=macaroon.id,
+                project_id=project.id,
+            )
+        )
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(project_id=project.id)
+            .count()
+            == 1
+        )
+
+        db_session.delete(project)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Project).filter_by(id=project.id).count() == 0
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(project_id=project.id)
+            .count()
+            == 0
+        )
+
+    def test_deletion_macaroon_with_macaroon_warning(
+        self, db_session, macaroon_service
+    ):
+        """
+        When we remove a Macaroon, ensure that we also remove any related
+        warnings about the use of API tokens from the ProjectMacaroonWarningAssociation
+        table
+        """
+        project = DBProjectFactory.create()
+        owner = DBRoleFactory.create()
+        raw_macaroon, macaroon = macaroon_service.create_macaroon(
+            "fake location",
+            "fake description",
+            [caveats.RequestUser(user_id=str(owner.user.id))],
+            user_id=owner.user.id,
+        )
+
+        db_session.add(
+            ProjectMacaroonWarningAssociation(
+                macaroon_id=macaroon.id,
+                project_id=project.id,
+            )
+        )
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(macaroon_id=macaroon.id)
+            .count()
+            == 1
+        )
+
+        db_session.delete(macaroon)
+        # Flush session to trigger any FK constraints
+        db_session.flush()
+
+        assert db_session.query(Macaroon).filter_by(id=macaroon.id).count() == 0
+        assert (
+            db_session.query(ProjectMacaroonWarningAssociation)
+            .filter_by(macaroon_id=macaroon.id)
+            .count()
+            == 0
+        )
 
 
 class TestDependency:
@@ -414,18 +576,71 @@ class TestRelease:
             acls.extend(acl)
 
         assert acls == [
-            (Allow, "group:admins", "admin"),
-            (Allow, "group:moderators", "moderator"),
+            (
+                Allow,
+                "group:admins",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProhibitedProjectsWrite,
+                    Permissions.AdminProjectsDelete,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminProjectsWrite,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:moderators",
+                (
+                    Permissions.AdminDashboardSidebarRead,
+                    Permissions.AdminObservationsRead,
+                    Permissions.AdminObservationsWrite,
+                    Permissions.AdminProjectsRead,
+                    Permissions.AdminProjectsSetLimit,
+                    Permissions.AdminRoleAdd,
+                    Permissions.AdminRoleDelete,
+                ),
+            ),
+            (
+                Allow,
+                "group:observers",
+                Permissions.APIObservationsAdd,
+            ),
+            (
+                Allow,
+                Authenticated,
+                Permissions.SubmitMalwareObservation,
+            ),
         ] + sorted(
             [
-                (Allow, f"user:{owner1.user.id}", ["manage:project", "upload"]),
-                (Allow, f"user:{owner2.user.id}", ["manage:project", "upload"]),
+                (
+                    Allow,
+                    f"user:{owner1.user.id}",
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
+                ),
+                (
+                    Allow,
+                    f"user:{owner2.user.id}",
+                    [
+                        Permissions.ProjectsRead,
+                        Permissions.ProjectsUpload,
+                        Permissions.ProjectsWrite,
+                    ],
+                ),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{maintainer1.user.id}", ["upload"]),
-                (Allow, f"user:{maintainer2.user.id}", ["upload"]),
+                (Allow, f"user:{maintainer1.user.id}", [Permissions.ProjectsUpload]),
+                (Allow, f"user:{maintainer2.user.id}", [Permissions.ProjectsUpload]),
             ],
             key=lambda x: x[1],
         )
@@ -515,6 +730,70 @@ class TestRelease:
         release = DBReleaseFactory.create(home_page=home_page)
         assert release.github_open_issue_info_url == expected
 
+    def test_trusted_published_none(self, db_session):
+        release = DBReleaseFactory.create()
+
+        assert not release.trusted_published
+
+    def test_trusted_published_all(self, db_session):
+        release = DBReleaseFactory.create()
+        release_file = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+        )
+
+        # Without a `publisher_url` value, not considered trusted published
+        assert not release.trusted_published
+
+        DBFileEventFactory.create(
+            source=release_file,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert release.trusted_published
+
+    def test_trusted_published_mixed(self, db_session):
+        release = DBReleaseFactory.create()
+        rfile_1 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.tar.gz",
+            python_version="source",
+            packagetype="sdist",
+        )
+        rfile_2 = DBFileFactory.create(
+            release=release,
+            filename=f"{release.project.name}-{release.version}.whl",
+            python_version="bdist_wheel",
+            packagetype="bdist_wheel",
+        )
+        DBFileEventFactory.create(
+            source=rfile_1,
+            tag="fake:event",
+        )
+        DBFileEventFactory.create(
+            source=rfile_2,
+            tag="fake:event",
+            additional={"publisher_url": "https://fake/url"},
+        )
+
+        assert not release.trusted_published
+
+    def test_description_relationship(self, db_request):
+        """When a Release is deleted, the Description is also deleted."""
+        release = DBReleaseFactory.create()  # also creates a Description
+        description = release.description
+
+        db_request.db.delete(release)
+
+        assert release in db_request.db.deleted
+        assert description in db_request.db.deleted
+
 
 class TestFile:
     def test_requires_python(self, db_session):
@@ -579,3 +858,66 @@ class TestFile:
         )
 
         assert results == (expected, expected + ".metadata")
+
+    def test_published_via_trusted_publisher_from_publisher_url(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+        )
+
+        # Without the `publisher_url` key, not considered trusted published
+        assert not rfile.uploaded_via_trusted_publisher
+
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={
+                "publisher_url": "https://fake/url",
+                "uploaded_via_trusted_publisher": False,
+            },
+        )
+
+        assert rfile.uploaded_via_trusted_publisher
+
+    def test_published_via_trusted_publisher_from_uploaded_via_trusted_publisher(
+        self, db_session
+    ):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release,
+            filename=f"{project.name}-{release.version}.tar.gz",
+            python_version="source",
+        )
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+        )
+
+        # Without `uploaded_via_trusted_publisher` being true,
+        # not considered trusted published
+        assert not rfile.uploaded_via_trusted_publisher
+
+        DBFileEventFactory.create(
+            source=rfile,
+            tag="fake:event",
+            additional={"publisher_url": None, "uploaded_via_trusted_publisher": True},
+        )
+
+        assert rfile.uploaded_via_trusted_publisher
+
+    def test_pretty_wheel_tags(self, db_session):
+        project = DBProjectFactory.create()
+        release = DBReleaseFactory.create(project=project)
+        rfile = DBFileFactory.create(
+            release=release, filename=f"{project.name}-{release.version}.tar.gz"
+        )
+
+        assert rfile.pretty_wheel_tags == ["Source"]

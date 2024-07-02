@@ -11,13 +11,31 @@
  * limitations under the License.
  */
 
-// Import the AdminLTE version of Bootstrap JS (4.x) to avoid namespace
-// conflicts with other bootstrap packages.
-// Related: https://github.com/ColorlibHQ/AdminLTE/commit/4f1546acb25dc73b034cb15a598171f4c2b3d835
-import "admin-lte/node_modules/bootstrap";
+import "admin-lte/plugins/jquery/jquery";
+import "admin-lte/plugins/bootstrap/js/bootstrap.bundle";
+
+// Import DataTables JS
+import "admin-lte/plugins/datatables/jquery.dataTables";
+import "admin-lte/plugins/datatables-bs4/js/dataTables.bootstrap4";
+import "admin-lte/plugins/datatables-responsive/js/dataTables.responsive";
+import "admin-lte/plugins/datatables-responsive/js/responsive.bootstrap4";
+import "admin-lte/plugins/datatables-buttons/js/dataTables.buttons";
+import "admin-lte/plugins/datatables-buttons/js/buttons.bootstrap4";
+import "admin-lte/plugins/datatables-buttons/js/buttons.html5";
+import "admin-lte/plugins/datatables-buttons/js/buttons.colVis";
+import "admin-lte/plugins/datatables-rowgroup/js/dataTables.rowGroup";
+import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
+
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
+// Get our timeago function
+import timeAgo from "warehouse/utils/timeago";
+
+// Human-readable timestamps
+$(document).ready(function() {
+  timeAgo();
+});
 
 document.querySelectorAll("a[data-form-submit]").forEach(function (element) {
   element.addEventListener("click", function(event) {
@@ -100,3 +118,70 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
     copy(element.dataset.copyText, element);
   });
 });
+
+// Activate Datatables https://datatables.net/
+// Guard each one to not break execution if the table isn't present
+
+// User Account Activity
+let accountActivityTable = $("#account-activity");
+if (accountActivityTable.length) {
+  let table = accountActivityTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  // sort by time
+  table.column(".time").order("desc").draw();
+  // Hide some columns we don't need to see all the time
+  table.columns([".ip_address", ".hashed_ip"]).visible(false);
+  // add column visibility button
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// User API Tokens
+let tokenTable = $("#api-tokens");
+if (tokenTable.length) {
+  let table = tokenTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  table.columns([".last_used", ".created"]).order([1, "desc"]).draw();
+  table.columns([".permissions_caveat"]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// Observations
+let observationsTable = $("#observations");
+if (observationsTable.length) {
+  let table = observationsTable.DataTable({
+    responsive: true,
+    lengthChange: false,
+  });
+  table.column(".time").order("desc").draw();
+  table.columns([".payload"]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}
+
+// Malware Reports
+let malwareReportsTable = $("#malware-reports");
+if (malwareReportsTable.length) {
+  let table = malwareReportsTable.DataTable({
+    displayLength: 25,
+    lengthChange: false,
+    order: [[0, "asc"], [2, "desc"]],  // alpha name, recent date
+    responsive: true,
+    rowGroup: {
+      dataSrc: 0,
+      // display row count in group header
+      startRender: function (rows, group) {
+        return group + " (" + rows.count() + ")";
+      },
+    },
+  });
+  // hide the project name, since it's in the group title
+  table.columns([0]).visible(false);
+  new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
+  table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
+}

@@ -13,19 +13,22 @@
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import sentry_sdk
 
 from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
-from warehouse.macaroons.models import Macaroon
 from warehouse.oidc.errors import InvalidPublisherError
 from warehouse.oidc.interfaces import SignedClaims
-from warehouse.packaging.models import Project
+
+if TYPE_CHECKING:
+    from warehouse.accounts.models import User
+    from warehouse.macaroons.models import Macaroon
+    from warehouse.packaging.models import Project
 
 C = TypeVar("C")
 
@@ -71,7 +74,10 @@ class OIDCPublisherProjectAssociation(db.Model):
         primary_key=True,
     )
     project_id = mapped_column(
-        UUID(as_uuid=True), ForeignKey("projects.id"), nullable=False, primary_key=True
+        UUID(as_uuid=True),
+        ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
+        nullable=False,
+        primary_key=True,
     )
 
 
@@ -97,7 +103,7 @@ class OIDCPublisherMixin:
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = dict()
 
     # Claims that have already been verified during the JWT signature
-    # verification phase.
+    # verification phase if present.
     __preverified_claims__ = {
         "iss",
         "iat",
@@ -182,7 +188,7 @@ class OIDCPublisherMixin:
                 )
 
         # Finally, perform the actual claim verification. First, verify that
-        # all requred claims are present.
+        # all required claims are present.
         for claim_name in (
             self.__required_verifiable_claims__.keys()
             | self.__required_unverifiable_claims__
@@ -229,10 +235,27 @@ class OIDCPublisherMixin:
         # Only concrete subclasses are constructed.
         raise NotImplementedError
 
-    def publisher_url(self, claims=None) -> str | None:  # pragma: no cover
+    def publisher_url(
+        self, claims: SignedClaims | None = None
+    ) -> str | None:  # pragma: no cover
         """
         NOTE: This is **NOT** a `@property` because we pass `claims` to it.
         When calling, make sure to use `publisher_url()`
+        """
+        # Only concrete subclasses are constructed.
+        raise NotImplementedError
+
+    def stored_claims(
+        self, claims: SignedClaims | None = None
+    ) -> dict:  # pragma: no cover
+        """
+        These are claims that are serialized into any macaroon generated for
+        this publisher. You likely want to use this to surface claims that
+        are not configured on the publishers, that might vary from one publish
+        event to the next, and are useful to show to the user.
+
+        NOTE: This is **NOT** a `@property` because we pass `claims` to it.
+        When calling, make sure to use `stored_claims()`
         """
         # Only concrete subclasses are constructed.
         raise NotImplementedError
@@ -241,12 +264,13 @@ class OIDCPublisherMixin:
 class OIDCPublisher(OIDCPublisherMixin, db.Model):
     __tablename__ = "oidc_publishers"
 
-    projects = orm.relationship(
-        Project,
+    projects: Mapped[list[Project]] = orm.relationship(
         secondary=OIDCPublisherProjectAssociation.__table__,
-        backref="oidc_publishers",
+        back_populates="oidc_publishers",
     )
-    macaroons = orm.relationship(Macaroon, cascade="all, delete-orphan", lazy=True)
+    macaroons: Mapped[list[Macaroon]] = orm.relationship(
+        cascade="all, delete-orphan", lazy=True
+    )
 
     __mapper_args__ = {
         "polymorphic_identity": "oidc_publishers",
@@ -266,6 +290,7 @@ class PendingOIDCPublisher(OIDCPublisherMixin, db.Model):
     added_by_id = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), nullable=False, index=True
     )
+    added_by: Mapped[User] = orm.relationship(back_populates="pending_oidc_publishers")
 
     __mapper_args__ = {
         "polymorphic_identity": "pending_oidc_publishers",

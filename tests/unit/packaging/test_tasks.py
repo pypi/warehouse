@@ -27,7 +27,6 @@ from warehouse.accounts.models import WebAuthn
 from warehouse.packaging.models import Description
 from warehouse.packaging.tasks import (
     check_file_cache_tasks_outstanding,
-    compute_2fa_mandate,
     compute_2fa_metrics,
     compute_packaging_metrics,
     sync_bigquery_release_files,
@@ -37,6 +36,7 @@ from warehouse.packaging.tasks import (
     update_release_description,
 )
 from warehouse.utils import readme
+from warehouse.utils.row_counter import compute_row_counts
 
 from ...common.db.classifiers import ClassifierFactory
 from ...common.db.packaging import (
@@ -45,7 +45,6 @@ from ...common.db.packaging import (
     FileFactory,
     ProjectFactory,
     ReleaseFactory,
-    RoleFactory,
     UserFactory,
 )
 
@@ -100,8 +99,12 @@ def test_compute_packaging_metrics(db_request, metrics):
     release3 = ReleaseFactory(project=project2)
     FileFactory(release=release1)
     FileFactory(release=release2)
-    FileFactory(release=release3)
-    FileFactory(release=release3)
+    FileFactory(release=release3, packagetype="sdist")
+    FileFactory(release=release3, packagetype="bdist_wheel")
+
+    # Make sure that the task to update the database counts has been
+    # called.
+    compute_row_counts(db_request)
 
     compute_packaging_metrics(db_request)
 
@@ -291,9 +294,9 @@ def test_reconcile_file_storages_borked(
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == borked.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == borked.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
@@ -338,9 +341,9 @@ def test_not_all_files(db_request, monkeypatch, metrics, borked_ext, metrics_tag
 
     storage_service = pretend.stub(get_checksum=lambda pth: f"{pth}-deadbeef")
     bad_storage_service = pretend.stub(
-        get_checksum=lambda pth: None
-        if pth == just_dist.path + borked_ext
-        else f"{pth}-deadbeef"
+        get_checksum=lambda pth: (
+            None if pth == just_dist.path + borked_ext else f"{pth}-deadbeef"
+        )
     )
     db_request.find_service = pretend.call_recorder(
         lambda svc, name=None, context=None: {
@@ -389,13 +392,12 @@ def test_update_description_html(monkeypatch, db_request):
 
 
 def test_update_release_description(db_request):
-    release = ReleaseFactory.create()
     description = DescriptionFactory.create(
-        release=release,
         raw="rst\n===\n\nbody text",
         html="",
         rendered_by="0.0",
     )
+    release = ReleaseFactory.create(description=description)
 
     task = pretend.stub()
     update_release_description(task, db_request, release.id)
@@ -856,117 +858,30 @@ class TestSyncBigQueryMetadata:
         sync_bigquery_release_files(request)
 
 
-def test_compute_2fa_mandate(db_request, monkeypatch):
-    # A dependency in our requirements/main.txt
-    main_dependency = ProjectFactory.create(name="pyramid", pypi_mandates_2fa=False)
-    main_dependency_maintainer = UserFactory.create()
-    RoleFactory.create(user=main_dependency_maintainer, project=main_dependency)
-
-    # A dependency in our requirements/deploy.txt
-    deploy_dependency = ProjectFactory.create(name="gunicorn", pypi_mandates_2fa=False)
-    deploy_dependency_maintainer = UserFactory.create()
-    RoleFactory.create(user=deploy_dependency_maintainer, project=deploy_dependency)
-
-    # A project previously declared to be critical
-    previous_critical_project = ProjectFactory.create(
-        name="previous_critical_project", pypi_mandates_2fa=True
-    )
-    previous_critical_project_maintainer = UserFactory.create()
-    RoleFactory.create(
-        user=previous_critical_project_maintainer, project=previous_critical_project
-    )
-
-    # A project that will be newly declared to be critical
-    new_critical_project = ProjectFactory.create(
-        name="new_critical_project", pypi_mandates_2fa=False
-    )
-    new_critical_project_maintainer = UserFactory.create()
-    RoleFactory.create(
-        user=new_critical_project_maintainer, project=new_critical_project
-    )
-
-    # A regular non-critical project
-    non_critical_project = ProjectFactory.create(
-        name="non_critical_project", pypi_mandates_2fa=False
-    )
-    non_critical_project_maintainer = UserFactory.create()
-    RoleFactory.create(
-        user=non_critical_project_maintainer, project=non_critical_project
-    )
-
-    results = [
-        {"project_name": "new_critical_project"},
-        {"project_name": "previous_critical_project"},
-    ]
-    query = pretend.stub(result=pretend.call_recorder(lambda *a, **kw: results))
-    bigquery = pretend.stub(query=pretend.call_recorder(lambda q: query))
-
-    def find_service(iface=None, name=None):
-        if iface is None and name == "gcloud.bigquery":
-            return bigquery
-
-        raise LookupError
-
-    db_request.find_service = find_service
-    db_request.registry.settings = {
-        "warehouse.downloads_table": "downloads_table",
-        "warehouse.two_factor_mandate.cohort_size": 666,
-    }
-
-    compute_2fa_mandate(db_request)
-
-    assert main_dependency.pypi_mandates_2fa
-    assert deploy_dependency.pypi_mandates_2fa
-    assert previous_critical_project.pypi_mandates_2fa
-    assert new_critical_project.pypi_mandates_2fa
-    assert not non_critical_project.pypi_mandates_2fa
-
-
 def test_compute_2fa_metrics(db_request, monkeypatch):
-    # A project declared to be critical
-    critical_project = ProjectFactory.create(
-        name="critical_project", pypi_mandates_2fa=True
-    )
+    # A user without 2FA enabled
+    UserFactory.create(totp_secret=None, webauthn=[])
 
-    # A critical maintainer without 2FA enabled
-    critical_project_maintainer = UserFactory.create(totp_secret=None, webauthn=[])
-    RoleFactory.create(user=critical_project_maintainer, project=critical_project)
+    # A user with TOTP enabled
+    UserFactory.create(totp_secret=b"foo", webauthn=[])
 
-    # A critical maintainer with TOTP enabled
-    second_critical_project_maintainer = UserFactory.create(
-        totp_secret=b"foo", webauthn=[]
-    )
-    RoleFactory.create(
-        user=second_critical_project_maintainer, project=critical_project
-    )
-
-    # A critical maintainer with two WebAuthn methods enabled
-    third_critical_project_maintainer = UserFactory.create(totp_secret=None)
-    RoleFactory.create(user=third_critical_project_maintainer, project=critical_project)
+    # A user with two WebAuthn methods enabled
+    some_user = UserFactory.create(totp_secret=None)
     webauthn = WebAuthn(
-        user_id=third_critical_project_maintainer.id,
+        user_id=some_user.id,
         label="wu",
         credential_id="wu",
         public_key="wu",
     )
     webauthn2 = WebAuthn(
-        user_id=third_critical_project_maintainer.id,
+        user_id=some_user.id,
         label="tang",
         credential_id="tang",
         public_key="tang",
     )
     db_request.db.add(webauthn)
     db_request.db.add(webauthn2)
-    third_critical_project_maintainer.webauthn = [webauthn, webauthn2]
-
-    # A regular project opted in to 2FA
-    non_critical_project = ProjectFactory.create(
-        name="non_critical_project", owners_require_2fa=True
-    )
-    non_critical_project_maintainer = UserFactory.create(totp_secret=b"foo")
-    RoleFactory.create(
-        user=non_critical_project_maintainer, project=non_critical_project
-    )
+    some_user.webauthn = [webauthn, webauthn2]
 
     gauge = pretend.call_recorder(lambda metric, value: None)
     db_request.find_service = lambda *a, **kw: pretend.stub(gauge=gauge)
@@ -974,16 +889,7 @@ def test_compute_2fa_metrics(db_request, monkeypatch):
     compute_2fa_metrics(db_request)
 
     assert gauge.calls == [
-        pretend.call("warehouse.2fa.total_critical_projects", 1),
-        pretend.call("warehouse.2fa.total_critical_maintainers", 3),
-        pretend.call("warehouse.2fa.total_critical_maintainers_with_totp_enabled", 1),
-        pretend.call(
-            "warehouse.2fa.total_critical_maintainers_with_webauthn_enabled", 1
-        ),
-        pretend.call("warehouse.2fa.total_critical_maintainers_with_2fa_enabled", 2),
-        pretend.call("warehouse.2fa.total_projects_with_2fa_opt_in", 1),
-        pretend.call("warehouse.2fa.total_projects_with_two_factor_required", 2),
-        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 2),
+        pretend.call("warehouse.2fa.total_users_with_totp_enabled", 1),
         pretend.call("warehouse.2fa.total_users_with_webauthn_enabled", 1),
-        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 3),
+        pretend.call("warehouse.2fa.total_users_with_two_factor_enabled", 2),
     ]

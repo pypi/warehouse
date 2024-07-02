@@ -11,13 +11,29 @@
 # limitations under the License.
 
 from pyramid.view import view_config
+from sqlalchemy import func
+
+from warehouse.authnz import Permissions
+from warehouse.observations.models import Observation, ObservationKind
 
 
 @view_config(
     route_name="admin.dashboard",
     renderer="admin/dashboard.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminDashboardRead,
     uses_session=True,
 )
 def dashboard(request):
-    return {}
+    if request.has_permission(Permissions.AdminObservationsRead):
+        # Count how many Malware Project Observations are in the database
+        malware_reports_count = (
+            request.db.query(func.count(Observation.id)).filter(
+                Observation.kind == ObservationKind.IsMalware.value[0],
+                Observation.related_id.is_not(None),  # Project is not removed
+                Observation.actions == {},  # No actions have been taken
+            )
+        ).scalar()
+    else:
+        malware_reports_count = None
+
+    return {"malware_reports_count": malware_reports_count}

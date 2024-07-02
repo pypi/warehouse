@@ -173,6 +173,9 @@ class TestAddEmailForm:
         user_id = pretend.stub()
         user_service = pretend.stub(find_userid_by_email=lambda _: None)
         form = forms.AddEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+            ),
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
             user_service=user_service,
@@ -182,9 +185,13 @@ class TestAddEmailForm:
         assert form.user_service is user_service
         assert form.validate(), str(form.errors)
 
-    def test_email_exists_error(self, pyramid_config):
+    def test_email_exists_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         user_id = pretend.stub()
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=user_id,
             user_service=pretend.stub(find_userid_by_email=lambda _: user_id),
@@ -197,8 +204,12 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_email_exists_other_account_error(self, pyramid_config):
+    def test_email_exists_other_account_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bar.com"}),
             user_id=pretend.stub(),
             user_service=pretend.stub(find_userid_by_email=lambda _: pretend.stub()),
@@ -211,8 +222,12 @@ class TestAddEmailForm:
             "Use a different email."
         )
 
-    def test_prohibited_email_error(self, pyramid_config):
+    def test_prohibited_email_error(self, pyramid_request):
+        pyramid_request.db = pretend.stub(
+            query=lambda *a: pretend.stub(scalar=lambda: False)
+        )
         form = forms.AddEmailForm(
+            request=pyramid_request,
             formdata=MultiDict({"email": "foo@bearsarefuzzy.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
@@ -227,6 +242,9 @@ class TestAddEmailForm:
 
     def test_email_too_long_error(self, pyramid_config):
         form = forms.AddEmailForm(
+            request=pretend.stub(
+                db=pretend.stub(query=lambda *a: pretend.stub(scalar=lambda: False))
+            ),
             formdata=MultiDict({"email": f"{'x' * 300}@bar.com"}),
             user_service=pretend.stub(find_userid_by_email=lambda _: None),
             user_id=pretend.stub(),
@@ -306,15 +324,24 @@ class TestProvisionTOTPForm:
         assert form.totp_secret is totp_secret
         assert form.validate(), str(form.errors)
 
-    def test_verify_totp_invalid(self, monkeypatch):
-        verify_totp = pretend.call_recorder(lambda *a: False)
-        monkeypatch.setattr(otp, "verify_totp", verify_totp)
+    @pytest.mark.parametrize(
+        "exception, expected_error",
+        [
+            (otp.InvalidTOTPError, "Invalid TOTP code. Try again?"),
+            (
+                otp.OutOfSyncTOTPError,
+                "Invalid TOTP code. Your device time may be out of sync.",
+            ),
+        ],
+    )
+    def test_verify_totp_invalid(self, monkeypatch, exception, expected_error):
+        monkeypatch.setattr(otp, "verify_totp", pretend.raiser(exception))
 
         form = forms.ProvisionTOTPForm(
             formdata=MultiDict({"totp_value": "123456"}), totp_secret=pretend.stub()
         )
         assert not form.validate()
-        assert form.totp_value.errors.pop() == "Invalid TOTP code. Try again?"
+        assert form.totp_value.errors.pop() == expected_error
 
 
 class TestDeleteWebAuthnForm:
@@ -796,16 +823,6 @@ class TestCreateOrganizationApplicationForm:
         assert organization_service.find_organizationid.calls == [
             pretend.call("my_organization_name")
         ]
-
-
-class TestToggle2FARequirementForm:
-    def test_creation(self):
-        # TODO
-        pass
-
-    def test_validate(self):
-        # TODO
-        pass
 
 
 class TestSaveOrganizationNameForm:
