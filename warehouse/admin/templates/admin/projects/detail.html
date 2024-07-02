@@ -80,11 +80,11 @@
             </td>
             <td>
               {% if project.total_size_limit %}
-              {% set total_size_limit_value = project.total_size_limit // ONE_GB %}
+              {% set total_size_limit_value = project.total_size_limit // ONE_GIB %}
               {% else %}
               {% set total_size_limit_value = '' %}
               {% endif %}
-              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GB }}" value="{{total_size_limit_value}}"> GiB
+              <input type="number" name="total_size_limit" id="totalSizeLimit" min="{{ MAX_PROJECT_SIZE // ONE_GIB }}" value="{{total_size_limit_value}}"> GiB
             </td>
             <td>
               <button type="submit" class="btn btn-primary btn-sm">Submit</button>
