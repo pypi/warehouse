@@ -29,7 +29,11 @@ from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
 from warehouse.search.tasks import reindex_project as _reindex_project
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.utils.project import confirm_project, remove_project
+from warehouse.utils.project import (
+    clear_project_quarantine,
+    confirm_project,
+    remove_project,
+)
 
 ONE_MB = 1024 * 1024  # bytes
 ONE_GB = 1024 * 1024 * 1024  # bytes
@@ -377,6 +381,21 @@ def add_release_observation(release, request):
             project_name=release.project.normalized_name,
             version=release.version,
         )
+    )
+
+
+@view_config(
+    route_name="admin.project.remove_from_quarantine",
+    permission=Permissions.AdminProjectsWrite,
+    request_method="POST",
+    uses_session=True,
+    require_methods=False,
+)
+def remove_from_quarantine(project, request):
+    clear_project_quarantine(project, request)
+
+    return HTTPSeeOther(
+        request.route_path("admin.project.detail", project_name=project.normalized_name)
     )
 
 

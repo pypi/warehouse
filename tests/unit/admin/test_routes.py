@@ -177,6 +177,13 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.project.remove_from_quarantine",
+            "/admin/projects/{project_name}/remove_from_quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.project.journals",
             "/admin/projects/{project_name}/journals/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -276,6 +283,13 @@ def test_includeme():
             domain=warehouse,
         ),
         pretend.call(
+            "admin.malware_reports.project.verdict_quarantine",
+            "/admin/projects/{project_name}/malware_reports/quarantine/",
+            factory="warehouse.packaging.models:ProjectFactory",
+            traverse="/{project_name}",
+            domain=warehouse,
+        ),
+        pretend.call(
             "admin.malware_reports.project.verdict_remove_malware",
             "/admin/projects/{project_name}/malware_reports/remove_malware/",
             factory="warehouse.packaging.models:ProjectFactory",
@@ -290,6 +304,11 @@ def test_includeme():
         pretend.call(
             "admin.malware_reports.detail.verdict_not_malware",
             "/admin/malware_reports/{observation_id}/not_malware/",
+            domain=warehouse,
+        ),
+        pretend.call(
+            "admin.malware_reports.detail.verdict_quarantine",
+            "/admin/malware_reports/{observation_id}/quarantine/",
             domain=warehouse,
         ),
         pretend.call(
