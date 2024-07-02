@@ -102,6 +102,8 @@ class EventTag:
         TwoFactorMethodAdded = "account:two_factor:method_added"
         TwoFactorMethodRemoved = "account:two_factor:method_removed"
         EmailSent = "account:email:sent"
+        AlternateRepositoryAdd = "account:alternate_repository:add"
+        AlternateRepositoryDelete = "account:alternate_repository:delete"
         # The following tags are no longer used when recording events.
         # ReauthenticateFailure = "account:reauthenticate:failure"
         # RoleAccepted = "account:role:accepted"
@@ -136,6 +138,8 @@ class EventTag:
         TeamProjectRoleAdd = "project:team_project_role:add"
         TeamProjectRoleChange = "project:team_project_role:change"
         TeamProjectRoleRemove = "project:team_project_role:remove"
+        AlternateRepositoryAdd = "project:alternate_repository:add"
+        AlternateRepositoryDelete = "project:alternate_repository:delete"
         # The following tags are no longer used when recording events.
         # RoleAccepted = "project:role:accepted"
         # RoleDelete = "project:role:delete"

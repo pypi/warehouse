@@ -91,6 +91,7 @@ msgid ""
 msgstr ""
 
 #: warehouse/accounts/forms.py:348 warehouse/manage/forms.py:139
+#: warehouse/manage/forms.py:728
 msgid "The name is too long. Choose a name with 100 characters or less."
 msgstr ""
 
@@ -147,7 +148,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:873
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -281,7 +282,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1247
+#: warehouse/manage/views/__init__.py:1423
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -301,19 +302,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
-#: warehouse/manage/views/__init__.py:1395
-#: warehouse/manage/views/__init__.py:1507
-#: warehouse/manage/views/__init__.py:1617
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1458
+#: warehouse/manage/views/__init__.py:1571
+#: warehouse/manage/views/__init__.py:1683
+#: warehouse/manage/views/__init__.py:1793
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
-#: warehouse/manage/views/__init__.py:1409
-#: warehouse/manage/views/__init__.py:1521
-#: warehouse/manage/views/__init__.py:1631
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1472
+#: warehouse/manage/views/__init__.py:1585
+#: warehouse/manage/views/__init__.py:1697
+#: warehouse/manage/views/__init__.py:1807
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -423,130 +424,175 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/forms.py:724
+msgid "Specify your alternate repository name"
+msgstr ""
+
+#: warehouse/manage/forms.py:738
+msgid "Specify your alternate repository URL"
+msgstr ""
+
+#: warehouse/manage/forms.py:742
+msgid "The URL is too long. Choose a URL with 400 characters or less."
+msgstr ""
+
+#: warehouse/manage/forms.py:756
+msgid ""
+"The description is too long. Choose a description with 400 characters or "
+"less."
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:285
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:312
+#: warehouse/manage/views/__init__.py:315
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:821
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:819
+#: warehouse/manage/views/__init__.py:822
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:931
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1028
+#: warehouse/manage/views/__init__.py:1031
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1060
+#: warehouse/manage/views/__init__.py:1063
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1263
+#: warehouse/manage/views/__init__.py:1182
+msgid "Invalid alternate repository location details"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1227
+msgid "Added alternate repository '${name}'"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1261
+#: warehouse/manage/views/__init__.py:2140
+#: warehouse/manage/views/__init__.py:2225
+#: warehouse/manage/views/__init__.py:2326
+#: warehouse/manage/views/__init__.py:2426
+msgid "Confirm the request"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1273
+msgid "Invalid alternate repository id"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1284
+msgid "Invalid alternate repository for project"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1292
+msgid ""
+"Could not delete alternate repository - ${confirm} is not the same as "
+"${alt_repo_name}"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1330
+msgid "Deleted alternate repository '${name}'"
+msgstr ""
+
+#: warehouse/manage/views/__init__.py:1439
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1376
+#: warehouse/manage/views/__init__.py:1552
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1488
+#: warehouse/manage/views/__init__.py:1664
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1597
+#: warehouse/manage/views/__init__.py:1773
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:2133
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:2008
+#: warehouse/manage/views/__init__.py:2309
+#: warehouse/manage/views/__init__.py:2417
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1964
-#: warehouse/manage/views/__init__.py:2049
-#: warehouse/manage/views/__init__.py:2150
-#: warehouse/manage/views/__init__.py:2250
-msgid "Confirm the request"
-msgstr ""
-
-#: warehouse/manage/views/__init__.py:1976
+#: warehouse/manage/views/__init__.py:2152
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2061
+#: warehouse/manage/views/__init__.py:2237
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2162
+#: warehouse/manage/views/__init__.py:2338
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2438
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2266
+#: warehouse/manage/views/__init__.py:2442
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2416
+#: warehouse/manage/views/__init__.py:2592
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2523
+#: warehouse/manage/views/__init__.py:2699
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2590
+#: warehouse/manage/views/__init__.py:2766
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/__init__.py:2798
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2635
+#: warehouse/manage/views/__init__.py:2811
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2700
+#: warehouse/manage/views/__init__.py:2876
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2733
+#: warehouse/manage/views/__init__.py:2909
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2744
+#: warehouse/manage/views/__init__.py:2920
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2776
+#: warehouse/manage/views/__init__.py:2952
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -1028,7 +1074,7 @@ msgstr ""
 #: warehouse/templates/manage/project/release.html:188
 #: warehouse/templates/manage/project/settings.html:84
 #: warehouse/templates/manage/project/settings.html:133
-#: warehouse/templates/manage/project/settings.html:205
+#: warehouse/templates/manage/project/settings.html:343
 #: warehouse/templates/manage/team/settings.html:84
 msgid "Warning"
 msgstr ""
@@ -1394,6 +1440,9 @@ msgstr ""
 #: warehouse/templates/manage/project/roles.html:328
 #: warehouse/templates/manage/project/roles.html:359
 #: warehouse/templates/manage/project/roles.html:380
+#: warehouse/templates/manage/project/settings.html:273
+#: warehouse/templates/manage/project/settings.html:293
+#: warehouse/templates/manage/project/settings.html:313
 #: warehouse/templates/manage/team/roles.html:106
 #: warehouse/templates/manage/team/settings.html:35
 #: warehouse/templates/packaging/submit-malware-observation.html:58
@@ -1644,6 +1693,13 @@ msgstr ""
 #: warehouse/templates/accounts/register.html:47
 #: warehouse/templates/manage/account.html:139
 #: warehouse/templates/manage/account.html:480
+#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:312
+#: warehouse/templates/manage/project/history.html:323
+#: warehouse/templates/manage/project/history.html:334
+#: warehouse/templates/manage/project/settings.html:210
+#: warehouse/templates/manage/project/settings.html:271
+#: warehouse/templates/manage/project/settings.html:277
 #: warehouse/templates/manage/unverified-account.html:112
 msgid "Name"
 msgstr ""
@@ -3672,7 +3728,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:780
 #: warehouse/templates/manage/organization/history.html:201
-#: warehouse/templates/manage/project/history.html:304
+#: warehouse/templates/manage/project/history.html:352
 #: warehouse/templates/manage/team/history.html:108
 #: warehouse/templates/manage/unverified-account.html:466
 msgid "Event"
@@ -3681,8 +3737,8 @@ msgstr ""
 #: warehouse/templates/manage/account.html:781
 #: warehouse/templates/manage/organization/history.html:202
 #: warehouse/templates/manage/organization/history.html:211
-#: warehouse/templates/manage/project/history.html:305
-#: warehouse/templates/manage/project/history.html:314
+#: warehouse/templates/manage/project/history.html:353
+#: warehouse/templates/manage/project/history.html:362
 #: warehouse/templates/manage/team/history.html:109
 #: warehouse/templates/manage/team/history.html:118
 #: warehouse/templates/manage/unverified-account.html:467
@@ -3709,7 +3765,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:795
 #: warehouse/templates/manage/organization/history.html:217
-#: warehouse/templates/manage/project/history.html:320
+#: warehouse/templates/manage/project/history.html:368
 #: warehouse/templates/manage/team/history.html:124
 #: warehouse/templates/manage/unverified-account.html:481
 msgid "Device Info"
@@ -4041,6 +4097,8 @@ msgstr ""
 #: warehouse/templates/manage/project/history.html:137
 #: warehouse/templates/manage/project/history.html:182
 #: warehouse/templates/manage/project/history.html:208
+#: warehouse/templates/manage/project/history.html:299
+#: warehouse/templates/manage/project/history.html:321
 #: warehouse/templates/manage/team/history.html:88
 msgid "Added by:"
 msgstr ""
@@ -4493,6 +4551,7 @@ msgstr ""
 #: warehouse/templates/manage/project/publishing.html:265
 #: warehouse/templates/manage/project/publishing.html:346
 #: warehouse/templates/manage/project/roles.html:341
+#: warehouse/templates/manage/project/settings.html:334
 #: warehouse/templates/manage/team/roles.html:131
 msgid "Add"
 msgstr ""
@@ -5229,6 +5288,8 @@ msgid "Created by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:144
+#: warehouse/templates/manage/project/history.html:310
+#: warehouse/templates/manage/project/history.html:332
 #: warehouse/templates/manage/team/history.html:76
 msgid "Deleted by:"
 msgstr ""
@@ -5266,7 +5327,7 @@ msgid "Revoked by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:198
-#: warehouse/templates/manage/project/history.html:301
+#: warehouse/templates/manage/project/history.html:349
 #: warehouse/templates/manage/team/history.html:105
 #, python-format
 msgid "Security history for %(source_name)s"
@@ -5532,6 +5593,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/roles.html:252
 #: warehouse/templates/manage/project/release.html:112
 #: warehouse/templates/manage/project/releases.html:109
+#: warehouse/templates/manage/project/settings.html:238
 msgid "Delete"
 msgstr ""
 
@@ -5919,11 +5981,31 @@ msgstr ""
 msgid "Disabled by:"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:306
+#: warehouse/templates/manage/project/history.html:297
+#: warehouse/templates/manage/project/history.html:319
+msgid "Project alternate repository added"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:302
+#: warehouse/templates/manage/project/history.html:313
+#: warehouse/templates/manage/project/history.html:324
+#: warehouse/templates/manage/project/history.html:335
+#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:291
+#: warehouse/templates/manage/project/settings.html:297
+msgid "Url"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:308
+#: warehouse/templates/manage/project/history.html:330
+msgid "Project alternate repository deleted"
+msgstr ""
+
+#: warehouse/templates/manage/project/history.html:354
 msgid "Additional info"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:318
+#: warehouse/templates/manage/project/history.html:366
 #: warehouse/templates/manage/team/history.html:122
 msgid "Location info"
 msgstr ""
@@ -6483,7 +6565,7 @@ msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:105
 #: warehouse/templates/manage/project/settings.html:176
-#: warehouse/templates/manage/project/settings.html:243
+#: warehouse/templates/manage/project/settings.html:381
 msgid "Project Name"
 msgstr ""
 
@@ -6570,16 +6652,59 @@ msgstr ""
 msgid "You are not an owner or manager of any organizations."
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:203
-#: warehouse/templates/manage/project/settings.html:243
-msgid "Delete project"
+#: warehouse/templates/manage/project/settings.html:202
+msgid "Alternate repository locations"
 msgstr ""
 
 #: warehouse/templates/manage/project/settings.html:206
+#, python-format
+msgid "Alternate repository locations for %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:212
+msgid "Description"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:231
+#, python-format
+msgid "Delete %(name)s from this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:239
+msgid "Alternate Repository Name"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:254
+msgid "There are no alternate repositories for this project, yet."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:258
+msgid "Get started by adding an alternate repository below."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:264
+msgid "Add alternate repository location"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:311
+msgid "Alternate repository description"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:317
+#: warehouse/templates/manage/project/settings.html:328
+msgid "Description of the purpose or content of the alternate repository."
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:341
+#: warehouse/templates/manage/project/settings.html:381
+msgid "Delete project"
+msgstr ""
+
+#: warehouse/templates/manage/project/settings.html:344
 msgid "Deleting this project will:"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:211
+#: warehouse/templates/manage/project/settings.html:349
 #, python-format
 msgid ""
 "Irreversibly delete the project along with <a href=\"%(href)s\">%(count)s"
@@ -6590,15 +6715,15 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/settings.html:217
+#: warehouse/templates/manage/project/settings.html:355
 msgid "Irreversibly delete the project"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:221
+#: warehouse/templates/manage/project/settings.html:359
 msgid "Make the project name available to <strong>any other PyPI</strong> user"
 msgstr ""
 
-#: warehouse/templates/manage/project/settings.html:223
+#: warehouse/templates/manage/project/settings.html:361
 msgid ""
 "This user will be able to make new releases under this project name, so "
 "long as the distribution filenames do not match filenames from a "
