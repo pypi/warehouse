@@ -33,6 +33,7 @@ from webob.multidict import MultiDict
 
 import warehouse.utils.otp as otp
 
+from warehouse import tuf
 from warehouse.accounts.forms import RecoveryCodeAuthenticationForm
 from warehouse.accounts.interfaces import (
     IPasswordBreachedService,
@@ -1861,6 +1862,8 @@ def delete_project(project, request):
 
     remove_project(project, request)
 
+    request.task(tuf.update_metadata).delay(project.id)
+
     return HTTPSeeOther(request.route_path("manage.projects"))
 
 
@@ -2031,6 +2034,7 @@ class ManageProjectRelease:
                 recipient_role=contributor_role,
             )
 
+        self.request.task(tuf.update_metadata).delay(self.release.project.id)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2115,7 +2119,7 @@ class ManageProjectRelease:
                 submitter_role=submitter_role,
                 recipient_role=contributor_role,
             )
-
+        self.request.task(tuf.update_metadata).delay(self.release.project.id)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2215,6 +2219,7 @@ class ManageProjectRelease:
                 recipient_role=contributor_role,
             )
 
+        self.request.task(tuf.update_metadata).delay(self.release.project.id)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.releases", project_name=self.release.project.name
@@ -2313,7 +2318,7 @@ class ManageProjectRelease:
         self.request.session.flash(
             f"Deleted file {release_file.filename!r}", queue="success"
         )
-
+        self.request.task(tuf.update_metadata).delay(self.release.project.id)
         return HTTPSeeOther(
             self.request.route_path(
                 "manage.project.release",

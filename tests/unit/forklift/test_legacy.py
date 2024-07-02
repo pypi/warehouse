@@ -51,6 +51,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
+from warehouse.tuf import update_metadata
 
 from ...common.db.accounts import EmailFactory, UserFactory
 from ...common.db.classifiers import ClassifierFactory
@@ -1113,10 +1114,12 @@ class TestFileUpload:
         ]
 
         assert db_request.task.calls == [
+            pretend.call(update_metadata),
             pretend.call(update_bigquery_release_files),
             pretend.call(sync_file_to_cache),
         ]
         assert delay.calls == [
+            pretend.call(release.project.id),
             pretend.call(
                 {
                     "metadata_version": "1.2",
