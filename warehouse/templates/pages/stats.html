@@ -22,16 +22,47 @@
     <p>
       {% trans %}
         We all love stats, so here are some useful statistics about PyPI.
-        The statistics page is cached for 24 hours, so don't expect the
-        numbers to be realtime.
       {% endtrans %}
     </p>
+
+    <h2>{% trans %}First-party statistics{% endtrans %}</h2>
+    <p>
+      {% trans %}
+        These statistics are provided directly by PyPI.
+      {% endtrans %}
+    </p>
+    <ul>
+      <li>
+        <a href="https://warehouse.pypa.io/api-reference/bigquery-datasets.html">
+          {% trans %}PyPI provides public datasets, including download statistics and metadata via BigQuery{% endtrans %}
+        </a>
+      </li>
+      <li>
+        <a href="https://p.datadoghq.com/sb/7dc8b3250-85dcf667bd">
+          {% trans %}PyPI provides a public dashboard with statistics on usage and performance{% endtrans %}
+        </a>
+      </li>
+    </ul>
+
+    <h2>{% trans %}Third-party statistics{% endtrans %}</h2>
+    <p>
+      {% trans %}
+        These statistics are provided by other third-party services unaffiliated with PyPI.
+      {% endtrans %}
+    </p>
+    <ul>
+      <li><a href="https://libraries.io/pypi">https://libraries.io/pypi</a></li>
+      <li><a href="https://pypistats.org/">https://pypistats.org/</a></li>
+      <li><a href="https://deps.dev/">https://deps.dev/</a></li>
+      <li><a href="https://clickpy.clickhouse.com/">https://clickpy.clickhouse.com/</a></li>
+    </ul>
 
     <h2>{% trans %}Top projects by total package size{% endtrans %}</h2>
     <p>
       {% trans %}
         Here is a list of the top 100 projects based on the sum of their
-        packages' sizes (in bytes).
+        packages' sizes (in bytes). This page is cached for 24 hours, so don't
+        expect the numbers to be realtime.
       {% endtrans %}
     </p>
 
