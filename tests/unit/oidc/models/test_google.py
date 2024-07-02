@@ -33,6 +33,11 @@ class TestGooglePublisher:
 
         assert publisher.publisher_name == "Google"
 
+    def test_publisher_base_url(self):
+        publisher = google.GooglePublisher(email="fake@example.com")
+
+        assert publisher.publisher_base_url is None
+
     def test_publisher_url(self):
         publisher = google.GooglePublisher(email="fake@example.com")
 
