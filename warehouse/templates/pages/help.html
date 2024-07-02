@@ -643,7 +643,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
           {% trans %}
             If you can't upload your project's release to PyPI because you're
-            hitting the project size limit ({{ max_project_size_gb }} GiB; individual projects may differ), first remove any unnecessary
+            hitting the project size limit ({{ max_project_size_gb }} GiB by default; individual projects may differ), first remove any unnecessary
             releases or individual files to lower your overall project size.
           {% endtrans %}
         </p>
