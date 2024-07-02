@@ -28,6 +28,7 @@ from sqlalchemy import (
     orm,
     select,
     sql,
+    text,
 )
 from sqlalchemy.dialects.postgresql import CITEXT, UUID as PG_UUID
 from sqlalchemy.exc import NoResultFound
@@ -59,7 +60,12 @@ class UserFactory:
         self.request = request
 
     def __getitem__(self, username):
+        print(f"TRY GETTING USER: {username}")
         try:
+            result = self.request.db.execute(text("select * from users"))
+            actual = ["; ".join([f"{s}" for s in row]) for row in result]
+            print(f"Actual data: {actual}", flush=True)
+
             return self.request.db.query(User).filter(User.username == username).one()
         except NoResultFound:
             raise KeyError from None
