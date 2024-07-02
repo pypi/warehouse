@@ -25,6 +25,7 @@ import packaging.specifiers
 import packaging.utils
 import packaging.version
 import packaging_legacy.version
+import rfc3986
 import sentry_sdk
 import wtforms
 import wtforms.validators
@@ -452,6 +453,45 @@ def _process_attestations(request, distribution: Distribution):
         metrics.increment("warehouse.upload.attestations.ok")
 
 
+def _verify_url(url: str, publisher_url: str | None) -> bool:
+    """
+    Verify a given URL against a Trusted Publisher URL
+
+    A URL is considered "verified" iff it matches the Trusted Publisher URL
+    such that, when both URLs are normalized:
+    - The scheme component is the same (e.g: both use `https`)
+    - The authority component is the same (e.g.: `github.com`)
+    - The path component is the same, or a sub-path of the Trusted Publisher URL
+      (e.g.: `org/project` and `org/project/issues.html` will pass verification
+      against an `org/project` Trusted Publisher path component)
+    - The path component of the Trusted Publisher URL is not empty
+    Note: We compare the authority component instead of the host component because
+    the authority includes the host, and in practice neither URL should have user
+    nor port information.
+    """
+    if not publisher_url:
+        return False
+
+    publisher_uri = rfc3986.api.uri_reference(publisher_url).normalize()
+    user_uri = rfc3986.api.uri_reference(url).normalize()
+    if publisher_uri.path is None:
+        # Currently no Trusted Publishers have an empty path component,
+        # so we defensively fail verification.
+        return False
+    elif user_uri.path and publisher_uri.path:
+        is_subpath = publisher_uri.path == user_uri.path or user_uri.path.startswith(
+            publisher_uri.path + "/"
+        )
+    else:
+        is_subpath = publisher_uri.path == user_uri.path
+
+    return (
+        publisher_uri.scheme == user_uri.scheme
+        and publisher_uri.authority == user_uri.authority
+        and is_subpath
+    )
+
+
 @view_config(
     route_name="forklift.legacy.file_upload",
     uses_session=True,
@@ -771,8 +811,7 @@ def file_upload(request):
         else {
             name: {
                 "url": url,
-                "verified": publisher_base_url
-                and url.lower().startswith(publisher_base_url.lower()),
+                "verified": _verify_url(url=url, publisher_url=publisher_base_url),
             }
             for name, url in meta.project_urls.items()
         }
