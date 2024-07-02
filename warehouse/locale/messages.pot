@@ -8036,9 +8036,9 @@ msgstr ""
 #, python-format
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting"
-" the project size limit (%(max_project_size_gb)s GiB; individual projects"
-" may differ), first remove any unnecessary releases or individual files "
-"to lower your overall project size."
+" the project size limit (%(max_project_size_gb)s GiB by default; "
+"individual projects may differ), first remove any unnecessary releases or"
+" individual files to lower your overall project size."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:651
