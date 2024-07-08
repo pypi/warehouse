@@ -22,8 +22,8 @@ from sqlalchemy.orm import joinedload
 from warehouse.accounts.interfaces import IUserService
 from warehouse.accounts.models import User
 from warehouse.authnz import Permissions
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.events.tags import EventTag
-from warehouse.forklift.legacy import MAX_FILESIZE, MAX_PROJECT_SIZE
 from warehouse.observations.models import OBSERVATION_KIND_MAP, ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Release, Role
 from warehouse.packaging.tasks import update_release_description
@@ -35,9 +35,7 @@ from warehouse.utils.project import (
     remove_project,
 )
 
-ONE_MB = 1024 * 1024  # bytes
-ONE_GB = 1024 * 1024 * 1024  # bytes
-UPLOAD_LIMIT_CAP = 1073741824  # 1 GiB
+UPLOAD_LIMIT_CAP = ONE_GIB
 
 
 @view_config(
@@ -146,9 +144,9 @@ def project_detail(project, request):
         "maintainers": maintainers,
         "journal": journal,
         "oidc_publishers": project.oidc_publishers,
-        "ONE_MB": ONE_MB,
+        "ONE_MIB": ONE_MIB,
         "MAX_FILESIZE": MAX_FILESIZE,
-        "ONE_GB": ONE_GB,
+        "ONE_GIB": ONE_GIB,
         "MAX_PROJECT_SIZE": MAX_PROJECT_SIZE,
         "UPLOAD_LIMIT_CAP": UPLOAD_LIMIT_CAP,
         "observation_kinds": ObservationKind,
@@ -495,19 +493,19 @@ def set_upload_limit(project, request):
                 f"must be integer or empty string."
             )
 
-        # The form is in MB, but the database field is in bytes.
-        upload_limit *= ONE_MB
+        # The form is in MiB, but the database field is in bytes.
+        upload_limit *= ONE_MIB
 
         if upload_limit > UPLOAD_LIMIT_CAP:
             raise HTTPBadRequest(
                 f"Upload limit can not be more than the overall limit of "
-                f"{UPLOAD_LIMIT_CAP / ONE_MB}MiB."
+                f"{UPLOAD_LIMIT_CAP / ONE_MIB}MiB."
             )
 
         if upload_limit < MAX_FILESIZE:
             raise HTTPBadRequest(
                 f"Upload limit can not be less than the default limit of "
-                f"{MAX_FILESIZE / ONE_MB}MB."
+                f"{MAX_FILESIZE / ONE_MIB}MiB."
             )
 
     project.upload_limit = upload_limit
@@ -540,13 +538,13 @@ def set_total_size_limit(project, request):
                 f"must be integer or empty string."
             )
 
-        # The form is in GB, but the database field is in bytes.
-        total_size_limit *= ONE_GB
+        # The form is in GiB, but the database field is in bytes.
+        total_size_limit *= ONE_GIB
 
         if total_size_limit < MAX_PROJECT_SIZE:
             raise HTTPBadRequest(
                 f"Total project size can not be less than the default limit of "
-                f"{MAX_PROJECT_SIZE / ONE_GB}GB."
+                f"{MAX_PROJECT_SIZE / ONE_GIB}GiB."
             )
 
     project.total_size_limit = total_size_limit
