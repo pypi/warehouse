@@ -27,8 +27,8 @@ down_revision = "b14df478c48f"
 
 
 def upgrade():
-    op.execute("SET statement_timeout = 5000")
-    op.execute("SET lock_timeout = 4000")
+    op.execute("SET statement_timeout = 11000")
+    op.execute("SET lock_timeout = 10000")
 
     sa.Enum("quarantine-enter", "quarantine-exit", name="lifecyclestatus").create(
         op.get_bind()
