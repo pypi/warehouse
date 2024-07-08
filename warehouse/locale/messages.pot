@@ -1169,8 +1169,8 @@ msgstr ""
 msgid "Privacy policy"
 msgstr ""
 
-#: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:43
-msgid "Terms of use"
+#: warehouse/templates/base.html:320
+msgid "Terms of Use"
 msgstr ""
 
 #: warehouse/templates/base.html:321
@@ -8679,7 +8679,7 @@ msgstr ""
 msgid "Security policy"
 msgstr ""
 
-#: warehouse/templates/pages/sitemap.html:44
+#: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/trademarks.html:20
 msgid "PyPI Trademarks"
 msgstr ""
