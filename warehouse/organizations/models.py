@@ -559,7 +559,9 @@ class OrganizationInvitation(db.Model):
         index=True,
     )
 
-    user: Mapped[User] = relationship(lazy=False)
+    user: Mapped[User] = relationship(
+        back_populates="organization_invitations", lazy=False
+    )
     organization: Mapped[Organization] = relationship(lazy=False)
 
 

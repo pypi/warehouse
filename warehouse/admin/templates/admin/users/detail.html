@@ -348,6 +348,11 @@
                     Breaches: {{ breached_email_count[field.email.data] }}
                   </div>
                   {% endif %}
+                  {% if field.unverify_reason.data %}
+                  <div class="col">
+                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                  </div>
+                  {% endif %}
                 </div>
                 {% endfor %}
               </div>
@@ -505,6 +510,32 @@
         </div>
       </div> <!-- .card -->
 
+      {% if user.role_invitations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Project Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for invitation in user.role_invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">{{ invitation.project.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div> <!-- .card -->
+      {% endif %}
+
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Projects</h3>
@@ -531,6 +562,58 @@
           </table>
         </div>
       </div> <!-- .card -->
+
+      {% if user.organization_invitations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="organization-invitations">
+            <thead>
+              <tr>
+                <th>Organization Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for invitation in user.organization_invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">{{ invitation.organization.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
+      {% if user.organizations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organizations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="organizations">
+            <thead>
+              <tr>
+                <th>Organization Name</th>
+                <th>Organization Role</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for organization in user.organization_roles %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a></td>
+                <td>{{ organization.role_name.value }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
 
       <div class="card">
         <div class="card-header with-border">
@@ -589,7 +672,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for event in user.recent_events %}
+              {% for event in user.events %}
               <tr>
                 <td>{{ event.tag }}</td>
                 <td>{{ event.time }}</td>
