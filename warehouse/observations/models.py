@@ -63,7 +63,7 @@ class Observer(db.Model):
     parent: AssociationProxy = association_proxy("_association", "parent")
 
 
-class HasObserversMixin:
+class HasObservers:
     """A mixin for models that can have observers."""
 
     @declared_attr
@@ -97,14 +97,6 @@ class HasObserversMixin:
             creator=lambda o: assoc_cls(observer=o),
         )
         return relationship(assoc_cls)
-
-    @declared_attr
-    def observations(cls):  # noqa: N805
-        """Simplify `foo.observer.observations` to `foo.observations`."""
-        return association_proxy(
-            "observer_association",
-            "observer.observations",
-        )
 
 
 class ObservationKind(enum.Enum):

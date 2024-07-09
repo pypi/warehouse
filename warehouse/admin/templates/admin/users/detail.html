@@ -605,7 +605,7 @@
         </div>
       </div> <!-- .card -->
 
-    {% if user.observations %}
+    {% if user.observer.observations %}
       <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Observations</h3>
@@ -622,7 +622,7 @@
               </tr>
             </thead>
             <tbody>
-              {% for observation in user.observations %}
+              {% for observation in user.observer.observations %}
               <tr>
                 <td>{{ observation.created }}</td>
                 <td>{{ observation.related }}</td>
