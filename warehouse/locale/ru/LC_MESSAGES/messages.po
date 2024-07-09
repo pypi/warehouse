@@ -937,11 +937,8 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/base.html:319 warehouse/templates/base.html:320
 #: warehouse/templates/base.html:321 warehouse/templates/base.html:331
 #: warehouse/templates/base.html:344
-#: warehouse/templates/includes/accounts/profile-actions.html:21
-#: warehouse/templates/includes/accounts/profile-actions.html:30
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #: warehouse/templates/includes/hash-modal.html:23
-#: warehouse/templates/includes/packaging/project-data.html:106
 #: warehouse/templates/index.html:100 warehouse/templates/index.html:104
 #: warehouse/templates/manage/account.html:228
 #: warehouse/templates/manage/account.html:234
@@ -989,37 +986,37 @@ msgstr "Монти Пайтон — Магазин сыра (Monty Python — Th
 #: warehouse/templates/pages/help.html:606
 #: warehouse/templates/pages/help.html:618
 #: warehouse/templates/pages/help.html:619
-#: warehouse/templates/pages/help.html:624
-#: warehouse/templates/pages/help.html:649
-#: warehouse/templates/pages/help.html:662
-#: warehouse/templates/pages/help.html:667
-#: warehouse/templates/pages/help.html:679
-#: warehouse/templates/pages/help.html:700
-#: warehouse/templates/pages/help.html:714
-#: warehouse/templates/pages/help.html:723
-#: warehouse/templates/pages/help.html:735
-#: warehouse/templates/pages/help.html:746
-#: warehouse/templates/pages/help.html:751
-#: warehouse/templates/pages/help.html:759
-#: warehouse/templates/pages/help.html:770
-#: warehouse/templates/pages/help.html:815
-#: warehouse/templates/pages/help.html:823
-#: warehouse/templates/pages/help.html:846
-#: warehouse/templates/pages/help.html:851
-#: warehouse/templates/pages/help.html:856
-#: warehouse/templates/pages/help.html:866
-#: warehouse/templates/pages/help.html:875
-#: warehouse/templates/pages/help.html:889
-#: warehouse/templates/pages/help.html:897
-#: warehouse/templates/pages/help.html:905
-#: warehouse/templates/pages/help.html:913
-#: warehouse/templates/pages/help.html:922
-#: warehouse/templates/pages/help.html:941
-#: warehouse/templates/pages/help.html:956
-#: warehouse/templates/pages/help.html:957
+#: warehouse/templates/pages/help.html:625
+#: warehouse/templates/pages/help.html:651
+#: warehouse/templates/pages/help.html:664
+#: warehouse/templates/pages/help.html:669
+#: warehouse/templates/pages/help.html:681
+#: warehouse/templates/pages/help.html:702
+#: warehouse/templates/pages/help.html:716
+#: warehouse/templates/pages/help.html:725
+#: warehouse/templates/pages/help.html:737
+#: warehouse/templates/pages/help.html:748
+#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:761
+#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:817
+#: warehouse/templates/pages/help.html:825
+#: warehouse/templates/pages/help.html:848
+#: warehouse/templates/pages/help.html:853
+#: warehouse/templates/pages/help.html:858
+#: warehouse/templates/pages/help.html:868
+#: warehouse/templates/pages/help.html:877
+#: warehouse/templates/pages/help.html:891
+#: warehouse/templates/pages/help.html:899
+#: warehouse/templates/pages/help.html:907
+#: warehouse/templates/pages/help.html:915
+#: warehouse/templates/pages/help.html:924
+#: warehouse/templates/pages/help.html:943
 #: warehouse/templates/pages/help.html:958
 #: warehouse/templates/pages/help.html:959
-#: warehouse/templates/pages/help.html:964
+#: warehouse/templates/pages/help.html:960
+#: warehouse/templates/pages/help.html:961
+#: warehouse/templates/pages/help.html:966
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -1301,10 +1298,7 @@ msgstr "Блог PyPI"
 msgid "Infrastructure dashboard"
 msgstr "Панель мониторинга инфраструктуры"
 
-#: warehouse/templates/base.html:293
-#: warehouse/templates/includes/accounts/profile-actions.html:19
-#: warehouse/templates/includes/accounts/profile-actions.html:28
-#: warehouse/templates/pages/sitemap.html:40
+#: warehouse/templates/base.html:293 warehouse/templates/pages/sitemap.html:40
 #: warehouse/templates/pages/stats.html:16
 msgid "Statistics"
 msgstr "Статистика"
@@ -1365,8 +1359,10 @@ msgstr "Сообщить о проблеме безопасности"
 msgid "Privacy policy"
 msgstr "Политика конфиденциальности"
 
-#: warehouse/templates/base.html:320 warehouse/templates/pages/sitemap.html:43
-msgid "Terms of use"
+#: warehouse/templates/base.html:320
+#, fuzzy
+#| msgid "Terms of use"
+msgid "Terms of Use"
 msgstr "Условия пользования"
 
 #: warehouse/templates/base.html:321
@@ -3292,32 +3288,6 @@ msgstr ""
 msgid "Edit profile"
 msgstr "Редактировать профиль"
 
-#: warehouse/templates/includes/accounts/profile-actions.html:21
-#, python-format
-msgid ""
-"View statistics for your projects via <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
-"by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
-"public dataset on Google BigQuery</a>"
-msgstr ""
-"Смотрите статистику своих проектов на <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> или "
-"в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
-"общедоступном наборе данных на Google BigQuery</a>"
-
-#: warehouse/templates/includes/accounts/profile-actions.html:30
-#, python-format
-msgid ""
-"View statistics for %(username)s's projects via <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
-"by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
-"public dataset on Google BigQuery</a>"
-msgstr ""
-"Смотрите статистику проектов %(username)s на <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> или "
-"в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
-"общедоступном наборе данных на Google BigQuery</a>"
-
 #: warehouse/templates/includes/accounts/profile-callout.html:18
 #, python-format
 msgid ""
@@ -3456,51 +3426,38 @@ msgstr "Открытые вопросы:"
 msgid "Open PRs:"
 msgstr "Открытие PRs:"
 
-#: warehouse/templates/includes/packaging/project-data.html:106
-#, python-format
-msgid ""
-"View statistics for this project via <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, or "
-"by using <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">our "
-"public dataset on Google BigQuery</a>"
-msgstr ""
-"Смотрите статистику этого проекта на <a href=\"%(libs_io_href)s\" "
-"title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> или "
-"в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
-"общедоступном наборе данных на Google BigQuery</a>"
-
-#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:108
 msgid "Meta"
 msgstr "Метаданные"
 
-#: warehouse/templates/includes/packaging/project-data.html:115
+#: warehouse/templates/includes/packaging/project-data.html:110
 msgid "License:"
 msgstr "Лицензия:"
 
-#: warehouse/templates/includes/packaging/project-data.html:118
-#: warehouse/templates/includes/packaging/project-data.html:120
+#: warehouse/templates/includes/packaging/project-data.html:113
+#: warehouse/templates/includes/packaging/project-data.html:115
 msgid "Author:"
 msgstr "Автор:"
 
-#: warehouse/templates/includes/packaging/project-data.html:123
-#: warehouse/templates/includes/packaging/project-data.html:125
+#: warehouse/templates/includes/packaging/project-data.html:118
+#: warehouse/templates/includes/packaging/project-data.html:120
 #: warehouse/templates/pages/help.html:610
 msgid "Maintainer:"
 msgstr "Сопровождающий:"
 
-#: warehouse/templates/includes/packaging/project-data.html:130
+#: warehouse/templates/includes/packaging/project-data.html:125
 msgid "Tags"
 msgstr "Метки"
 
-#: warehouse/templates/includes/packaging/project-data.html:140
+#: warehouse/templates/includes/packaging/project-data.html:135
 msgid "Requires:"
 msgstr "Требует:"
 
-#: warehouse/templates/includes/packaging/project-data.html:145
+#: warehouse/templates/includes/packaging/project-data.html:140
 msgid "Provides-Extra:"
 msgstr "Предоставляет-экстра:"
 
-#: warehouse/templates/includes/packaging/project-data.html:153
+#: warehouse/templates/includes/packaging/project-data.html:148
 #: warehouse/templates/pages/classifiers.html:16
 #: warehouse/templates/pages/classifiers.html:21
 #: warehouse/templates/pages/sitemap.html:39
@@ -5174,7 +5131,7 @@ msgstr ""
 #: warehouse/templates/manage/project/documentation.html:35
 #: warehouse/templates/manage/project/publishing.html:155
 #: warehouse/templates/manage/project/release.html:129
-#: warehouse/templates/pages/stats.html:42
+#: warehouse/templates/pages/stats.html:73
 msgid "Project name"
 msgstr "Название проекта"
 
@@ -8272,12 +8229,12 @@ msgid "Administration of projects on PyPI"
 msgstr "Администрирование проектов на PyPI"
 
 #: warehouse/templates/pages/help.html:174
-#: warehouse/templates/pages/help.html:675
+#: warehouse/templates/pages/help.html:677
 msgid "Troubleshooting"
 msgstr "Диагностика/устранение неисправностей"
 
 #: warehouse/templates/pages/help.html:192
-#: warehouse/templates/pages/help.html:842
+#: warehouse/templates/pages/help.html:844
 msgid "About"
 msgstr "О PyPI"
 
@@ -9330,13 +9287,23 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Руководству пользователя по созданию Python’ьих пакетов</a>."
 
-#: warehouse/templates/pages/help.html:624
-#, python-format
+#: warehouse/templates/pages/help.html:625
+#, fuzzy, python-format
+#| msgid ""
+#| "If you can't upload your project's release to PyPI because you're hitting "
+#| "the upload file size limit, we can sometimes increase your limit. Make "
+#| "sure you've uploaded at least one release for the project that's "
+#| "<em>under</em> the limit (a <a href=\"%(dev_release_href)s\" "
+#| "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">developmental "
+#| "release version number</a> is fine). Then, <a "
+#| "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#| "rel=\"noopener\">file an issue</a> and tell us:"
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
-"the upload file size limit, we can sometimes increase your limit. Make sure "
-"you've uploaded at least one release for the project that's <em>under</em> "
-"the limit (a <a href=\"%(dev_release_href)s\" title=\"%(title)s\" "
+"the upload file size limit (%(max_file_size_mb)s MiB by default; individual "
+"projects may differ), we can sometimes increase your limit. Make sure you've "
+"uploaded at least one release for the project that's <em>under</em> the "
+"limit (a <a href=\"%(dev_release_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">developmental release version number</a> "
 "is fine). Then, <a href=\"%(file_issue_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">file an issue</a> and tell us:"
@@ -9350,41 +9317,47 @@ msgstr ""
 "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">создайте на GitHub’е замечание</a> и сообщите нам:"
 
-#: warehouse/templates/pages/help.html:633
-#: warehouse/templates/pages/help.html:654
+#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:656
 msgid "A link to your project on PyPI (or Test PyPI)"
 msgstr "Ссылку на ваш проект на PyPI (или на тестовом PyPI)"
 
-#: warehouse/templates/pages/help.html:634
+#: warehouse/templates/pages/help.html:635
 msgid "The size of your release, in megabytes"
 msgstr "Размер вашего выпуска в мегабайтах"
 
-#: warehouse/templates/pages/help.html:635
+#: warehouse/templates/pages/help.html:636
 msgid ""
 "Which index/indexes you need the increase for (PyPI, Test PyPI, or both)"
 msgstr ""
 "В каких указателях вам необходимо увеличить лимит (на PyPI, на тестовом PyPI "
 "или на обоих)"
 
-#: warehouse/templates/pages/help.html:636
-#: warehouse/templates/pages/help.html:656
+#: warehouse/templates/pages/help.html:637
+#: warehouse/templates/pages/help.html:658
 msgid ""
 "A brief description of your project, including the reason for the additional "
 "size."
 msgstr ""
 "Краткое описание вашего проекта, включая причину запроса увеличения размера."
 
-#: warehouse/templates/pages/help.html:642
+#: warehouse/templates/pages/help.html:644
+#, fuzzy, python-format
+#| msgid ""
+#| "If you can't upload your project's release to PyPI because you're hitting "
+#| "the project size limit, first remove any unnecessary releases or "
+#| "individual files to lower your overall project size."
 msgid ""
 "If you can't upload your project's release to PyPI because you're hitting "
-"the project size limit, first remove any unnecessary releases or individual "
+"the project size limit (%(max_project_size_gb)s GiB by default; individual "
+"projects may differ), first remove any unnecessary releases or individual "
 "files to lower your overall project size."
 msgstr ""
 "Если вы не можете загрузить выпуск своего проекта на PyPI из-за того, что вы "
 "упёрлись в ограничение на размер проекта, сначала удалите все ненужные "
 "выпуски или отдельные файлы, чтобы уменьшить общий размер проекта."
 
-#: warehouse/templates/pages/help.html:649
+#: warehouse/templates/pages/help.html:651
 #, python-format
 msgid ""
 "If that is not possible, we can sometimes increase your limit. <a "
@@ -9395,11 +9368,11 @@ msgstr ""
 "href=\"%(file_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Создайте замечание</a>, в котором укажите для нас:"
 
-#: warehouse/templates/pages/help.html:655
+#: warehouse/templates/pages/help.html:657
 msgid "The total size of your project, in gigabytes"
 msgstr "Общий размер вашего проекта в гигабайтах"
 
-#: warehouse/templates/pages/help.html:662
+#: warehouse/templates/pages/help.html:664
 #, python-format
 msgid ""
 "PyPI receives reports on vulnerabilities in the packages hosted on it from "
@@ -9416,7 +9389,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Python Packaging "
 "Advisory Database</a>."
 
-#: warehouse/templates/pages/help.html:667
+#: warehouse/templates/pages/help.html:669
 #, python-format
 msgid ""
 "If you believe vulnerability data for your project is invalid or incorrect, "
@@ -9428,7 +9401,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">напишите проблему</a> "
 "с подробной информацией."
 
-#: warehouse/templates/pages/help.html:679
+#: warehouse/templates/pages/help.html:681
 #, python-format
 msgid ""
 "PyPI will reject uploads if the package description fails to render. You may "
@@ -9439,7 +9412,7 @@ msgstr ""
 "href=\"%(href)s\" title=\"%(title)s\"> использовать чековую команду близнеца "
 "</a> для локальной проверки описания действительности."
 
-#: warehouse/templates/pages/help.html:685
+#: warehouse/templates/pages/help.html:687
 msgid ""
 "If you've forgotten your PyPI password, but you remember your email address "
 "or username, follow these steps to reset your password:"
@@ -9447,32 +9420,32 @@ msgstr ""
 "Если вы забыли свой пароль PyPI, но помните свой адрес электронной почты или "
 "имя пользователя, выполните эти шаги, чтобы сбросить пароль:"
 
-#: warehouse/templates/pages/help.html:687
+#: warehouse/templates/pages/help.html:689
 #, python-format
 msgid "Go to <a href=\"%(href)s\">reset your password</a>."
 msgstr "Перейдите на <a href=\"%(href)s\">страницу сброса пароля</a>."
 
-#: warehouse/templates/pages/help.html:688
+#: warehouse/templates/pages/help.html:690
 msgid ""
 "Enter the email address or username you used for PyPI and submit the form."
 msgstr ""
 "Введите адрес электронной почты или имя пользователя, которое вы "
 "использовали на PyPI, и отправьте форму."
 
-#: warehouse/templates/pages/help.html:689
+#: warehouse/templates/pages/help.html:691
 msgid "You'll receive an email with a password reset link."
 msgstr "Вы получите по электронной почте письмо со ссылкой на сброс пароля."
 
-#: warehouse/templates/pages/help.html:694
+#: warehouse/templates/pages/help.html:696
 msgid "If you've lost access to your PyPI account due to:"
 msgstr "Если вы потеряли доступ к своей учётной записи PyPI из-за:"
 
-#: warehouse/templates/pages/help.html:696
+#: warehouse/templates/pages/help.html:698
 msgid "Lost access to the email address associated with your account"
 msgstr ""
 "Потери доступа к адресу электронной почты, связанному с вашей учётной записью"
 
-#: warehouse/templates/pages/help.html:697
+#: warehouse/templates/pages/help.html:699
 msgid ""
 "Lost two-factor authentication <a href=\"#totp\">application</a>, <a "
 "href=\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</"
@@ -9482,7 +9455,7 @@ msgstr ""
 "<a href=\"#utfkey\">устройство </a>, и <a href=\"#recoverycodes\"> код "
 "восстановления </a>"
 
-#: warehouse/templates/pages/help.html:700
+#: warehouse/templates/pages/help.html:702
 #, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9493,11 +9466,11 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">завести замечание</"
 "a>, чтобы запросить помощь в восстановлении учётной записи."
 
-#: warehouse/templates/pages/help.html:708
+#: warehouse/templates/pages/help.html:710
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr "Убедитесь, что ваш API-токен действителен и не был отозван."
 
-#: warehouse/templates/pages/help.html:709
+#: warehouse/templates/pages/help.html:711
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
@@ -9506,12 +9479,12 @@ msgstr ""
 "a> и не содержит никаких лишних конечных символов, вроде символов новой "
 "строки."
 
-#: warehouse/templates/pages/help.html:710
+#: warehouse/templates/pages/help.html:712
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr ""
 "Убедитесь, что используемое вами имя пользователя - <code>__token__</code>."
 
-#: warehouse/templates/pages/help.html:712
+#: warehouse/templates/pages/help.html:714
 msgid ""
 "Remember that PyPI and TestPyPI each require you to create an account, so "
 "your credentials may be different."
@@ -9519,7 +9492,7 @@ msgstr ""
 "Помните, что PyPI и TestPyPI требуют создания учетной записи, поэтому ваши "
 "учетные данные могут отличаться."
 
-#: warehouse/templates/pages/help.html:714
+#: warehouse/templates/pages/help.html:716
 #, python-format
 msgid ""
 "If you're using Windows and trying to paste your token in the Command Prompt "
@@ -9537,7 +9510,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">известная проблема</a> с помощью модуля "
 "Python <code>getpass</code>."
 
-#: warehouse/templates/pages/help.html:723
+#: warehouse/templates/pages/help.html:725
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -9558,7 +9531,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">Узнать, почему он это сделал, в блоге "
 "PSF</a>."
 
-#: warehouse/templates/pages/help.html:730
+#: warehouse/templates/pages/help.html:732
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -9571,7 +9544,7 @@ msgstr ""
 "извлечь по адресу URL»), попробуйте добавить к команде параметр <code>-v</"
 "code>, чтобы получить более подробную информацию:"
 
-#: warehouse/templates/pages/help.html:732
+#: warehouse/templates/pages/help.html:734
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -9584,7 +9557,7 @@ msgstr ""
 "tlsv1»), или <code>TLSV1_ALERT_PROTOCOL_VERSION</code>, вам нужно "
 "подключиться к PyPI через более свежую библиотеку поддержки TLS."
 
-#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:735
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -9597,7 +9570,7 @@ msgstr ""
 "сторонним дистрибьютором), а также от установленных версий Python’а, "
 "<code>setuptools</code> и <code>pip</code>."
 
-#: warehouse/templates/pages/help.html:735
+#: warehouse/templates/pages/help.html:737
 #, python-format
 msgid ""
 "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" "
@@ -9618,7 +9591,7 @@ msgstr ""
 "сообщение сведения о вашей операционной системе и сведения об установке, а "
 "также вывод команды <code>%(command)s</code>."
 
-#: warehouse/templates/pages/help.html:746
+#: warehouse/templates/pages/help.html:748
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9629,7 +9602,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">доступности</a> и хотим сделать сайт "
 "простым в использовании для всех."
 
-#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:753
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" "
@@ -9641,7 +9614,7 @@ msgstr ""
 "через GitHub</a>, чтобы мы могли попробовать решить эту проблему как для "
 "вас, так и для других пользователей."
 
-#: warehouse/templates/pages/help.html:759
+#: warehouse/templates/pages/help.html:761
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -9656,7 +9629,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">использовать для "
 "загрузки своего проекта на PyPI модуль twine</a>."
 
-#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:770
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -9671,7 +9644,7 @@ msgstr ""
 "данные, связанные с проектами, и в целом имеет солидную репутацию в области "
 "поиска, он является лакомой целью."
 
-#: warehouse/templates/pages/help.html:770
+#: warehouse/templates/pages/help.html:772
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -9688,23 +9661,23 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">нашу страницу статуса</a>, так как, "
 "скорее всего, мы обновили её, указав на ней причину такого вмешательства."
 
-#: warehouse/templates/pages/help.html:779
+#: warehouse/templates/pages/help.html:781
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr "PyPI возвращает эти ошибки по одной из следующих причин:"
 
-#: warehouse/templates/pages/help.html:781
+#: warehouse/templates/pages/help.html:783
 msgid "Filename has been used and file exists"
 msgstr "Имя файла уже использовалось и файл существует"
 
-#: warehouse/templates/pages/help.html:782
+#: warehouse/templates/pages/help.html:784
 msgid "Filename has been used but file no longer exists"
 msgstr "Имя файла уже использовалось, но файл больше не существует"
 
-#: warehouse/templates/pages/help.html:783
+#: warehouse/templates/pages/help.html:785
 msgid "A file with the exact same content exists"
 msgstr "Существует файл с точно таким же содержимым"
 
-#: warehouse/templates/pages/help.html:786
+#: warehouse/templates/pages/help.html:788
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -9712,7 +9685,7 @@ msgstr ""
 "PyPI не позволяет повторно использовать имя файла, даже если проект был "
 "удалён и создан заново."
 
-#: warehouse/templates/pages/help.html:792
+#: warehouse/templates/pages/help.html:794
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
@@ -9720,7 +9693,7 @@ msgstr ""
 "Имя дистрибутива на PyPI состоит из комбинации имени проекта, номера версии "
 "и типа дистрибутива."
 
-#: warehouse/templates/pages/help.html:798
+#: warehouse/templates/pages/help.html:800
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -9732,7 +9705,7 @@ msgstr ""
 "день он не может быть тайно изменен сопровождающим проекта или "
 "злоумышленником (его можно только удалить)."
 
-#: warehouse/templates/pages/help.html:806
+#: warehouse/templates/pages/help.html:808
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -9742,7 +9715,7 @@ msgstr ""
 "номер версии на тот, который вы ранее не загружали в PyPI, пересобрать "
 "дистрибутив, а затем загрузить новый дистрибутив."
 
-#: warehouse/templates/pages/help.html:815
+#: warehouse/templates/pages/help.html:817
 #, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -9756,7 +9729,7 @@ msgstr ""
 "code></a>. Обязательно включите в него краткое обоснование, почему новый "
 "классификатор так важен."
 
-#: warehouse/templates/pages/help.html:823
+#: warehouse/templates/pages/help.html:825
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -9774,7 +9747,7 @@ msgstr ""
 "обеспечением, на котором работает сам PyPI. Перед тем, как создать новое "
 "замечание, сначала проверьте, не существует ли уже похожего замечания."
 
-#: warehouse/templates/pages/help.html:830
+#: warehouse/templates/pages/help.html:832
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -9782,7 +9755,7 @@ msgstr ""
 "Если у вас возникли проблемы с определённым пакетом, установленным из PyPI, "
 "вам следует обратиться непосредственно к сопровождающим этого проекта."
 
-#: warehouse/templates/pages/help.html:835
+#: warehouse/templates/pages/help.html:837
 msgid ""
 "If you are having issues while setting up a <abbr title=\"time-based one-"
 "time password\">TOTP</abbr> device, it may be because your device time is "
@@ -9795,7 +9768,7 @@ msgstr ""
 "вашем устройстве устанавливается автоматически, и попробуйте снова настроить "
 "устройство."
 
-#: warehouse/templates/pages/help.html:846
+#: warehouse/templates/pages/help.html:848
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" "
@@ -9811,7 +9784,7 @@ msgstr ""
 "Authority — PyPA) и поддерживаемым Рабочей группой Python’а по пакетированию "
 "(Python Packaging Working Group — PackagingWG)."
 
-#: warehouse/templates/pages/help.html:851
+#: warehouse/templates/pages/help.html:853
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9824,7 +9797,7 @@ msgstr ""
 "которой является улучшение и поддержка множества основных проектов, "
 "связанных с созданием и распространением Python’ьих пакетов."
 
-#: warehouse/templates/pages/help.html:856
+#: warehouse/templates/pages/help.html:858
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -9846,7 +9819,7 @@ msgstr ""
 "Technology Fund)</a>, чьё финансирование позволило разработчикам улучшить "
 "безопасность и доступность Warehouse."
 
-#: warehouse/templates/pages/help.html:866
+#: warehouse/templates/pages/help.html:868
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" "
@@ -9859,7 +9832,7 @@ msgstr ""
 "различные инструменты и услуги, предоставляемые нашими <a "
 "href=\"%(sponsors_href)s\">великодушными спонсорами</a>."
 
-#: warehouse/templates/pages/help.html:873
+#: warehouse/templates/pages/help.html:875
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -9870,7 +9843,7 @@ msgstr ""
 "org). Теперь это надёжный и протестированный сайт, готовый к ожидаемому "
 "трафику от браузеров и вызовов своего API."
 
-#: warehouse/templates/pages/help.html:875
+#: warehouse/templates/pages/help.html:877
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -9899,7 +9872,7 @@ msgstr ""
 "либо <a href=\"%(mirror_href)s\">зеркала</a>, либо <a "
 "href=\"%(private_index_href)s\">частного указателя</a>."
 
-#: warehouse/templates/pages/help.html:889
+#: warehouse/templates/pages/help.html:891
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -9911,11 +9884,11 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">проект Warehouse "
 "(хранилища)</a>)."
 
-#: warehouse/templates/pages/help.html:894
+#: warehouse/templates/pages/help.html:896
 msgid "Financial:"
 msgstr "Финансирование:"
 
-#: warehouse/templates/pages/help.html:894
+#: warehouse/templates/pages/help.html:896
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -9924,11 +9897,11 @@ msgstr ""
 "Мы были бы глубоко вам признательны за <a href=\"%(href)s\">ваши "
 "пожертвования для финансирования развития и сопровождения проекта</a>."
 
-#: warehouse/templates/pages/help.html:895
+#: warehouse/templates/pages/help.html:897
 msgid "Development:"
 msgstr "Участие в разработке:"
 
-#: warehouse/templates/pages/help.html:895
+#: warehouse/templates/pages/help.html:897
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -9941,7 +9914,7 @@ msgstr ""
 "свой вклад — на самом деле мы с радостью поможем вам сделать ваш первый "
 "запрос на вытягивание в проект с открытым исходным кодом!"
 
-#: warehouse/templates/pages/help.html:897
+#: warehouse/templates/pages/help.html:899
 #, fuzzy, python-format
 #| msgid ""
 #| "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -9972,7 +9945,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">'Good first issue'</a> label – we "
 "recommend you start here."
 
-#: warehouse/templates/pages/help.html:905
+#: warehouse/templates/pages/help.html:907
 #, python-format
 msgid ""
 "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -9987,11 +9960,11 @@ msgstr ""
 "заинтересованы в работе над конкретным вопросом, оставьте комментарий, и мы "
 "можем направлять вас через процесс вклада."
 
-#: warehouse/templates/pages/help.html:912
+#: warehouse/templates/pages/help.html:914
 msgid "Stay updated:"
 msgstr "Оставайтесь в курсе событий:"
 
-#: warehouse/templates/pages/help.html:913
+#: warehouse/templates/pages/help.html:915
 #, python-format
 msgid ""
 "You can also follow the ongoing development of the project on the <a "
@@ -10003,7 +9976,7 @@ msgstr ""
 "rel=\"noopener\"> форум на Discourse, посвящённый пакетирования в Python’е</"
 "a>."
 
-#: warehouse/templates/pages/help.html:922
+#: warehouse/templates/pages/help.html:924
 #, python-format
 msgid ""
 "Changes to PyPI are generally announced on both the <a "
@@ -10021,7 +9994,7 @@ msgstr ""
 "PyPI также есть <a href=\"%(rss_href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">RSS-лента</a>."
 
-#: warehouse/templates/pages/help.html:931
+#: warehouse/templates/pages/help.html:933
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
@@ -10030,7 +10003,7 @@ msgstr ""
 "Весь трафик направляется через наш глобальный CDN, который перечисляет свои "
 "публичные IP-адреса здесь: <a href=\"%(href)s\">%(href)s</a>."
 
-#: warehouse/templates/pages/help.html:932
+#: warehouse/templates/pages/help.html:934
 #, python-format
 msgid ""
 "More information about this list can be found here: <a "
@@ -10039,7 +10012,7 @@ msgstr ""
 "Более подробную информацию об этом списке можно найти здесь: <a "
 "href=\"%(href)s\">%(href)s</a>."
 
-#: warehouse/templates/pages/help.html:936
+#: warehouse/templates/pages/help.html:938
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -10050,11 +10023,11 @@ msgstr ""
 "работать хорошо, но это новая и менее проверенная функциональность, нежели "
 "другие возможности сайта."
 
-#: warehouse/templates/pages/help.html:937
+#: warehouse/templates/pages/help.html:939
 msgid "Currently, no features are in beta."
 msgstr "В настоящее время никаких функций в бета-версии нет."
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:943
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -10068,39 +10041,39 @@ msgstr ""
 "путаницу с проектом <a href=\"%(href)s\" title=\"%(title)s\">PyPy</a>, "
 "который является популярной альтернативной реализацией языка Python."
 
-#: warehouse/templates/pages/help.html:953
+#: warehouse/templates/pages/help.html:955
 msgid "Resources"
 msgstr "Ресурсы"
 
-#: warehouse/templates/pages/help.html:954
+#: warehouse/templates/pages/help.html:956
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "Ищете что-то ещё? Возможно, вам помогут следующие ссылки:"
 
-#: warehouse/templates/pages/help.html:956
+#: warehouse/templates/pages/help.html:958
 msgid "Python Packaging User Guide"
 msgstr "Руководство пользователя по созданию Python’ьих пакетов"
 
-#: warehouse/templates/pages/help.html:957
+#: warehouse/templates/pages/help.html:959
 msgid "Python documentation"
 msgstr "Документация Python’а"
 
-#: warehouse/templates/pages/help.html:958
+#: warehouse/templates/pages/help.html:960
 msgid "(main Python website)"
 msgstr "(основной сайт Python’а)"
 
-#: warehouse/templates/pages/help.html:959
+#: warehouse/templates/pages/help.html:961
 msgid "Python community page"
 msgstr "Страница Python’ьего сообщества"
 
-#: warehouse/templates/pages/help.html:959
+#: warehouse/templates/pages/help.html:961
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(списки каналов IRC, списков рассылки и так далее)"
 
-#: warehouse/templates/pages/help.html:962
+#: warehouse/templates/pages/help.html:964
 msgid "Contact"
 msgstr "Контактная информация"
 
-#: warehouse/templates/pages/help.html:964
+#: warehouse/templates/pages/help.html:966
 #, python-format
 msgid ""
 "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10268,7 +10241,7 @@ msgstr "Вход"
 msgid "Security policy"
 msgstr "Политика безопасности"
 
-#: warehouse/templates/pages/sitemap.html:44
+#: warehouse/templates/pages/sitemap.html:43
 #: warehouse/templates/pages/trademarks.html:20
 msgid "PyPI Trademarks"
 msgstr "Торговые марки PyPI"
@@ -10463,36 +10436,68 @@ msgid "PyPI statistics"
 msgstr "Статистика PyPI"
 
 #: warehouse/templates/pages/stats.html:23
-msgid ""
-"We all love stats, so here are some useful statistics about PyPI. The "
-"statistics page is cached for 24 hours, so don't expect the numbers to be "
-"realtime."
+msgid "We all love stats, so here are some useful statistics about PyPI."
 msgstr ""
-"Все мы любим статистику, так что вот некоторые полезные статистические "
-"данные о PyPI. Страница статистики кэшируется на 24 часа, так что не ждите, "
-"что цифры на ней будут обновляться в реальном времени."
+
+#: warehouse/templates/pages/stats.html:28
+#, fuzzy
+#| msgid "PyPI statistics"
+msgid "First-party statistics"
+msgstr "Статистика PyPI"
 
 #: warehouse/templates/pages/stats.html:30
+msgid "These statistics are provided directly by PyPI."
+msgstr ""
+
+#: warehouse/templates/pages/stats.html:37
+msgid ""
+"PyPI provides public datasets, including download statistics and metadata "
+"via BigQuery"
+msgstr ""
+
+#: warehouse/templates/pages/stats.html:42
+msgid ""
+"PyPI provides a public dashboard with statistics on usage and performance"
+msgstr ""
+
+#: warehouse/templates/pages/stats.html:47
+#, fuzzy
+#| msgid "PyPI statistics"
+msgid "Third-party statistics"
+msgstr "Статистика PyPI"
+
+#: warehouse/templates/pages/stats.html:49
+msgid ""
+"These statistics are provided by other third-party services unaffiliated "
+"with PyPI."
+msgstr ""
+
+#: warehouse/templates/pages/stats.html:60
 msgid "Top projects by total package size"
 msgstr "Топ проектов по общему размеру пакета"
 
-#: warehouse/templates/pages/stats.html:32
+#: warehouse/templates/pages/stats.html:62
+#, fuzzy
+#| msgid ""
+#| "Here is a list of the top 100 projects based on the sum of their "
+#| "packages' sizes (in bytes)."
 msgid ""
 "Here is a list of the top 100 projects based on the sum of their packages' "
-"sizes (in bytes)."
+"sizes (in bytes). This page is cached for 24 hours, so don't expect the "
+"numbers to be realtime."
 msgstr ""
 "Ниже приведён список из 100 проектов с самым большим суммарным размеров их "
 "пакетов (в байтах)."
 
-#: warehouse/templates/pages/stats.html:39
+#: warehouse/templates/pages/stats.html:70
 msgid "Statistics by project"
 msgstr "Статистика по проектам"
 
-#: warehouse/templates/pages/stats.html:43
+#: warehouse/templates/pages/stats.html:74
 msgid "Sum of release files (bytes)"
 msgstr "Сумма по файлам выпуска (в байтах)"
 
-#: warehouse/templates/pages/stats.html:48
+#: warehouse/templates/pages/stats.html:79
 msgid "All of PyPI"
 msgstr "Всего по PyPI"
 
@@ -10620,6 +10625,52 @@ msgid_plural "There were no results for '%(filters)s' filters"
 msgstr[0] "Не было результатов для фильтра '%(filters)s'"
 msgstr[1] "Не было результатов для фильтра '%(filters)s'"
 msgstr[2] "Не было результатов для фильтров '%(filters)s'"
+
+#, python-format
+#~ msgid ""
+#~ "View statistics for your projects via <a href=\"%(libs_io_href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
+#~ "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">our public dataset on Google BigQuery</a>"
+#~ msgstr ""
+#~ "Смотрите статистику своих проектов на <a href=\"%(libs_io_href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> "
+#~ "или в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
+#~ "общедоступном наборе данных на Google BigQuery</a>"
+
+#, python-format
+#~ msgid ""
+#~ "View statistics for %(username)s's projects via <a "
+#~ "href=\"%(libs_io_href)s\" title=\"%(title)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">Libraries.io</a>, or by using <a href=\"%(gbq_href)s\" "
+#~ "target=\"_blank\" rel=\"noopener\">our public dataset on Google BigQuery</"
+#~ "a>"
+#~ msgstr ""
+#~ "Смотрите статистику проектов %(username)s на <a href=\"%(libs_io_href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> "
+#~ "или в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
+#~ "общедоступном наборе данных на Google BigQuery</a>"
+
+#, python-format
+#~ msgid ""
+#~ "View statistics for this project via <a href=\"%(libs_io_href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a>, "
+#~ "or by using <a href=\"%(gbq_href)s\" target=\"_blank\" "
+#~ "rel=\"noopener\">our public dataset on Google BigQuery</a>"
+#~ msgstr ""
+#~ "Смотрите статистику этого проекта на <a href=\"%(libs_io_href)s\" "
+#~ "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">Libraries.io</a> "
+#~ "или в <a href=\"%(gbq_href)s\" target=\"_blank\" rel=\"noopener\">нашем "
+#~ "общедоступном наборе данных на Google BigQuery</a>"
+
+#~ msgid ""
+#~ "We all love stats, so here are some useful statistics about PyPI. The "
+#~ "statistics page is cached for 24 hours, so don't expect the numbers to be "
+#~ "realtime."
+#~ msgstr ""
+#~ "Все мы любим статистику, так что вот некоторые полезные статистические "
+#~ "данные о PyPI. Страница статистики кэшируется на 24 часа, так что не "
+#~ "ждите, что цифры на ней будут обновляться в реальном времени."
 
 #~ msgid "Workflow file path"
 #~ msgstr "Путь к файлу рабочего процесса"
