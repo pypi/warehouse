@@ -2186,6 +2186,7 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:18
 #: warehouse/templates/email/password-compromised/body.html:18
+#: warehouse/templates/email/password-reset-by-admin/body.html:18
 msgid "What?"
 msgstr ""
 
@@ -2205,10 +2206,12 @@ msgstr ""
 
 #: warehouse/templates/email/password-compromised-hibp/body.html:32
 #: warehouse/templates/email/password-compromised/body.html:31
+#: warehouse/templates/email/password-reset-by-admin/body.html:24
 msgid "What should I do?"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:33
+#: warehouse/templates/email/password-reset-by-admin/body.html:26
 #, python-format
 msgid ""
 "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -2216,10 +2219,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:39
+#: warehouse/templates/email/password-reset-by-admin/body.html:32
 msgid "How can I contact you?"
 msgstr ""
 
 #: warehouse/templates/email/password-compromised/body.html:41
+#: warehouse/templates/email/password-reset-by-admin/body.html:34
 #, python-format
 msgid ""
 "For more information, you can email %(email_address)s to communicate with"
@@ -2299,6 +2304,13 @@ msgstr[1] ""
 #: warehouse/templates/email/password-reset/body.html:24
 #: warehouse/templates/email/verify-email/body.html:24
 msgid "If you did not make this request, you can safely ignore this email."
+msgstr ""
+
+#: warehouse/templates/email/password-reset-by-admin/body.html:20
+msgid ""
+"PyPI administrators have have initiated a password reset for your "
+"account. You will no longer be able to log in or upload to PyPI with your"
+" existing password."
 msgstr ""
 
 #: warehouse/templates/email/primary-email-change/body.html:18

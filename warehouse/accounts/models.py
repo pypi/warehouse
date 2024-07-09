@@ -69,6 +69,7 @@ class UserFactory:
 class DisableReason(enum.Enum):
     CompromisedPassword = "password compromised"
     AccountFrozen = "account frozen"
+    AdminInitiated = "admin initiated"
 
 
 class User(SitemapMixin, HasObservers, HasEvents, db.Model):
