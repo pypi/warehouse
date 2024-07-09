@@ -15,23 +15,23 @@
 
 
 {% block content %}
-<h3>{% trans %}What?{% endtrans %}</h3>
+<h3>What?</h3>
 <p>
-  {% trans %}PyPI administrators have have initiated a password reset for your account.
-  You will no longer be able to log in or upload to PyPI with your existing password.{% endtrans %}
+  PyPI administrators have have initiated a password reset for your account.
+  You will no longer be able to log in to PyPI with your existing password.
 </p>
 
-<h3>{% trans %}What should I do?{% endtrans %}</h3>
+<h3>What should I do?</h3>
 <p>
-  {% trans href=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
-  To regain access to your account, <a href="{{ href }}">reset your password</a> on PyPI.
-  {% endtrans %}
+  To regain access to your account,
+  <a href="{{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}">reset your password</a>
+  on PyPI.
 </p>
 
 
-<h3>{% trans %}How can I contact you?{% endtrans %}</h3>
+<h3>How can I contact you?</h3>
 <p>
-  {% trans email_address='admin@pypi.org' %}For more information, you can email {{ email_address }} to communicate with
-  the PyPI administrators.{% endtrans %}
+  For more information, you can email admin@pypi.org to communicate with
+  the PyPI administrators.
 </p>
 {% endblock %}

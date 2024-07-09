@@ -15,19 +15,18 @@
 
 
 {% block content %}
-# {% trans %}What?{% endtrans %}
+# What?
 
-{% trans %}PyPI administrators have have initiated a password reset for your account.
-You will no longer be able to log in or upload to PyPI with your existing password.{% endtrans %}
-
-
-# {% trans %}What should I do?{% endtrans %}
-
-{% trans url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
-To regain access to your account, reset your password on PyPI ({{ url }}).{% endtrans %}
+PyPI administrators have have initiated a password reset for your account.
+You will no longer be able to log in to PyPI with your existing password.
 
 
-# {% trans %}How can I contact you?{% endtrans %}
+# What should I do?
 
-{% trans email_address='admin@pypi.org' %}For more information, you can email {{ email_address }} to communicate with the PyPI administrators.{% endtrans %}
+To regain access to your account, reset your password on PyPI ({{ request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) }}).
+
+
+# How can I contact you?
+
+For more information, you can email admin@pypi.org to communicate with the PyPI administrators.
 {% endblock %}
