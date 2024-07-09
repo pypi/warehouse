@@ -21,8 +21,9 @@ No indicators of malicious activity were found.
 ## Timeline of events
 
 - 2023-MM-DD[^1]:
-    A GitHub Personal Access Token was created for `ewdurbin`[^2].
-    This token had access to all the organizations and repositories as my User,
+    A GitHub Personal Access Token was created for `ewdurbin`.
+    This token had push, pull, and admin access[^2]
+    to all the organizations and repositories as my User,
     including `pypi`, `python`, `psf`, and `pypa`.
 - 2023-MM-DD[^3]:
     `cabotage/cabotage-app:v3.0.0b35` pushed to hub.docker.com
@@ -153,6 +154,8 @@ secure since 2013._
     and were not noted before the token was destroyed.
     We've asked JFrog if their findings include the token level permissions
     and will update this post if they provide them.
+    
+    **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^3]:
     Publication dates are not known because hub.docker.com does not retain any
     history for images which have been removed.
