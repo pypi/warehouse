@@ -125,6 +125,9 @@ and perform builds on automated systems from clean source only[^7].
 ## Thanks
 
 First and foremost, thanks to JFrog's team for finding and reporting this leak.
+You can read their blog post on this finding
+[on their blog](https://jfrog.com/blog/leaked-pypi-secret-token-revealed-in-binary-preventing-suppy-chain-attack/).
+
 We are grateful for the entire community of security researchers
 undertaking scanning of public repositories like Docker Hub and PyPI itself.
 PyPI relies on the efforts of this community for detecting
