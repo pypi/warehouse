@@ -15,7 +15,7 @@ from datetime import datetime, timedelta, timezone
 from warehouse import tasks
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.oidc.models import OIDCPublisher
+from warehouse.oidc.models import OIDCPublisher, OIDCJtiTokens
 from warehouse.packaging.models import File, Project, Release
 
 
@@ -91,5 +91,25 @@ def delete_expired_oidc_macaroons(request):
     metrics = request.find_service(IMetricsService, context=None)
     metrics.gauge(
         "warehouse.oidc.expired_oidc_tokens_deleted",
+        rows_deleted,
+    )
+
+
+@tasks.task(ignore_result=True, acks_late=True)
+def delete_expired_jwt_tokens(request):
+    """
+    Purge all JWT Token Identifier tokens that have been stored that are expired.
+    While OIDC tokens are short-lived, storing them prevent to generate multiple
+    OIDC-minted macaroons with a single JWT.
+    """
+    rows_deleted = (
+        request.db.query(OIDCJtiTokens)
+        .filter(OIDCJtiTokens.expiration < datetime.now(tz=timezone.utc))
+        .delete(synchronize_session=False)
+    )
+
+    metrics = request.find_service(IMetricsService, context=None)
+    metrics.gauge(
+        "warehouse.oidc.expired_jwt_deleted",
         rows_deleted,
     )
