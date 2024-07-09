@@ -639,6 +639,8 @@ Building the docs requires Python 3.8. If it is not installed, the
   make: *** [.state/env/pyvenv.cfg] Error 127
 
 
+.. _building-translations:
+
 Building translations
 ---------------------
 

@@ -30,6 +30,7 @@ from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.authnz import Permissions
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -216,6 +217,10 @@ def from_base64_encoded_json(configuration):
 def configure(settings=None):
     if settings is None:
         settings = {}
+    settings["warehouse.forklift.legacy.MAX_FILESIZE_MIB"] = MAX_FILESIZE / ONE_MIB
+    settings["warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB"] = (
+        MAX_PROJECT_SIZE / ONE_GIB
+    )
 
     # Allow configuring the log level. See `warehouse/logging.py` for more
     maybe_set(settings, "logging.level", "LOG_LEVEL")
