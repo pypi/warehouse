@@ -25,10 +25,10 @@ No indicators of malicious activity were found.
     This token had push, pull, and admin access[^2]
     to all the organizations and repositories as my User,
     including `pypi`, `python`, `psf`, and `pypa`.
-- 2023-MM-DD[^3]:
+- 2023-03-03[^3]:
     `cabotage/cabotage-app:v3.0.0b35` pushed to hub.docker.com
     containing GitHub Personal Access Token for `ewdurbin` in a `.pyc` file.
-- 2023-MM-DD[^3]:
+- 2023-07-20[^3]:
     `cabotage/cabotage-app:v3.0.0b110` pushed to hub.docker.com
     containing GitHub Personal Access Token for `ewdurbin` in a `.pyc` file.
 - 2024-06-21:
@@ -161,6 +161,8 @@ secure since 2013._
     history for images which have been removed.
     We've asked JFrog if their findings include the publication dates
     and will update this post if they provide them.
+    
+    **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^4]:
     `cabotage-app` had moved its builds to an automated system. The images on
     hub.docker.com were no longer necessary and were removed proactively.
