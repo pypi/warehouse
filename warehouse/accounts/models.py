@@ -48,10 +48,11 @@ if TYPE_CHECKING:
     from warehouse.organizations.models import (
         Organization,
         OrganizationApplication,
+        OrganizationInvitation,
         OrganizationRole,
         Team,
     )
-    from warehouse.packaging.models import Project
+    from warehouse.packaging.models import Project, RoleInvitation
 
 
 class UserFactory:
@@ -125,6 +126,11 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
         order_by="Macaroon.created.desc()",
     )
 
+    role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        "RoleInvitation",
+        back_populates="user",
+    )
+
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
     )
@@ -156,6 +162,10 @@ class User(SitemapMixin, HasObservers, HasEvents, db.Model):
         cascade="all, delete-orphan",
         lazy=True,
         viewonly=True,
+    )
+
+    organization_invitations: Mapped[list[OrganizationInvitation]] = orm.relationship(
+        back_populates="user",
     )
 
     teams: Mapped[list[Team]] = orm.relationship(
