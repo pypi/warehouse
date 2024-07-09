@@ -10,7 +10,7 @@ tags:
   - security
 ---
 
-On June 28, 2024 security@python.org and I (Ee Durbin) were notified of
+On June 28, 2024 security@pypi.org and I (Ee Durbin) were notified of
 a leaked GitHub Personal Access Token for my GitHub user account, `ewdurbin`.
 This token was immediately revoked,
 and a review of my GitHub account and activity was performed.
