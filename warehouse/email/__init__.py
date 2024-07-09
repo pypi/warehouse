@@ -340,6 +340,18 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
 
 
+@_email("account-recovery-initiated", allow_unverified=True)
+def send_account_recovery_initiated_email(
+    request, user, *, project_name, support_issue_link, token
+):
+    return {
+        "user": user,
+        "support_issue_link": support_issue_link,
+        "project_name": project_name,
+        "token": token,
+    }
+
+
 @_email(
     "two-factor-not-yet-enabled",
     allow_unverified=True,

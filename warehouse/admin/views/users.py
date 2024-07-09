@@ -10,8 +10,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+import functools
+import secrets
 import shlex
 
+from collections import defaultdict
+
+import requests
 import wtforms
 import wtforms.fields
 import wtforms.validators
@@ -32,9 +38,13 @@ from warehouse.accounts.models import (
     User,
 )
 from warehouse.authnz import Permissions
-from warehouse.email import send_password_reset_by_admin_email
+from warehouse.email import (
+    send_account_recovery_initiated_email,
+    send_password_reset_by_admin_email,
+)
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
+from warehouse.observations.models import ObservationKind
 
 
 @view_config(
@@ -335,6 +345,105 @@ def user_reset_password(user, request):
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
+@functools.lru_cache
+def _is_a_valid_github_url(url):
+    return (
+        url.startswith("https://github.com/")
+        and requests.get(url, timeout=1).status_code == 200
+    )
+
+
+def _get_related_github_repos(user):
+    project_to_urls = defaultdict(set)
+    for project in user.projects:
+        release = project.releases[0]
+
+        if release.home_page and _is_a_valid_github_url(release.home_page):
+            project_to_urls[project.name].add(release.home_page)
+
+        for url in release.urls:
+            if _is_a_valid_github_url(url):
+                project_to_urls[project.name].add(url)
+
+    return project_to_urls
+
+
+@view_config(
+    route_name="admin.user.account_recovery.initiate",
+    renderer="admin/users/account_recovery/initiate.html",
+    permission=Permissions.AdminUsersWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+    require_methods=False,
+)
+def user_recover_account_initiate(user, request):
+    repo_urls = _get_related_github_repos(user)
+
+    if request.method == "POST":
+        support_issue_link = request.POST.get("support_issue_link")
+        project_name = request.POST.get("project_name")
+
+        if not support_issue_link:
+            request.session.flash(
+                "Provide a link to the pypi/support issue", queue="error"
+            )
+        elif not support_issue_link.startswith(
+            "https://github.com/pypi/support/issues/"
+        ):
+            request.session.flash(
+                "The pypi/support issue link is invalid", queue="error"
+            )
+        elif repo_urls and not project_name:
+            request.session.flash("Select a project for verification", queue="error")
+        else:
+            # Send the email
+            token = secrets.token_urlsafe().replace("-", "").replace("_", "")[:16]
+
+            # Store an event
+            user.record_observation(
+                request=request,
+                kind=ObservationKind.AccountRecoveryInitiated,
+                actor=request.user,
+                summary="Account Recovery Initiated",
+                payload={
+                    "initiated": datetime.datetime.now(),
+                    "token": token,
+                    "project_name": project_name,
+                    "repos": repo_urls[project_name],
+                },
+            )
+
+            send_account_recovery_initiated_email(
+                request,
+                user,
+                project_name=project_name,
+                support_issue_link=support_issue_link,
+                token=token,
+            )
+
+            request.session.flash(
+                f"Initiatied account recovery for {user.username!r}", queue="success"
+            )
+
+            return HTTPSeeOther(
+                request.route_path("admin.user.detail", username=user.username)
+            )
+
+        return HTTPSeeOther(
+            request.route_path(
+                "admin.user.account_recovery.initiate", username=user.username
+            )
+        )
+
+    return {
+        "user": user,
+        "repo_urls": repo_urls,
+    }
+
+
+"""
 @view_config(
     route_name="admin.user.wipe_factors",
     require_methods=["POST"],
@@ -363,6 +472,7 @@ def user_wipe_factors(user, request):
         f"Wiped factors and reset password for {user.username!r}", queue="success"
     )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
+"""
 
 
 @view_config(

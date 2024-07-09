@@ -89,8 +89,8 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
-        "admin.user.wipe_factors",
-        "/admin/users/{username}/wipe_factors/",
+        "admin.user.account_recovery.initiate",
+        "/admin/users/{username}/account_recovery/initiate/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",

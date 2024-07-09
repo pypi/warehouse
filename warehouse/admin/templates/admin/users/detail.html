@@ -112,9 +112,9 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
-            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
-              <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
-            </button>
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="fa-solid fa-recycle"></i> Start account recovery
+            </a>
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -221,40 +221,6 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Reset password</button>
-                      </div>
-                  </div>
-                </div>
-              </form>
-            </div>
-            <div class="modal fade" id="wipeFactorsModal" tabindex="-1" role="dialog">
-              <form method="POST" action="{{ request.route_path('admin.user.wipe_factors', username=user.username) }}">
-                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                <div class="modal-dialog" role="document">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h4 class="modal-title" id="wipeFactorsModalLabel">Wipe second/recovery factors for {{ user.username }}?</h4>
-                      <button type="button" class="close" data-dismiss="modal">
-                        <span>&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <p>
-                        This will permanently remove the user's second factors and recovery codes,
-                        and cannot be undone.
-                      </p>
-                      <p>
-                        It will also permanently remove the user's current password,
-                        and send them a password reset request.
-                      </p>
-                      <hr>
-                      <p>
-                        Type the username '{{ user.username }}' to confirm:
-                      </p>
-                      <input type="text" name="username" placeholder="{{ user.username }}">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-danger">Wipe factors</button>
                       </div>
                   </div>
                 </div>
