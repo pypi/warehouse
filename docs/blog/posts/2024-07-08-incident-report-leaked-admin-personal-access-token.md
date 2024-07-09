@@ -10,7 +10,7 @@ tags:
   - security
 ---
 
-On June 28, 2024 security@python.org and I (Ee Durbin) were notified of
+On June 28, 2024 security@pypi.org and I (Ee Durbin) were notified of
 a leaked GitHub Personal Access Token for my GitHub user account, `ewdurbin`.
 This token was immediately revoked,
 and a review of my GitHub account and activity was performed.
@@ -21,13 +21,14 @@ No indicators of malicious activity were found.
 ## Timeline of events
 
 - 2023-MM-DD[^1]:
-    A GitHub Personal Access Token was created for `ewdurbin`[^2].
-    This token had access to all the organizations and repositories as my User,
+    A GitHub Personal Access Token was created for `ewdurbin`.
+    This token had push, pull, and admin access[^2]
+    to all the organizations and repositories as my User,
     including `pypi`, `python`, `psf`, and `pypa`.
-- 2023-MM-DD[^3]:
+- 2023-03-03[^3]:
     `cabotage/cabotage-app:v3.0.0b35` pushed to hub.docker.com
     containing GitHub Personal Access Token for `ewdurbin` in a `.pyc` file.
-- 2023-MM-DD[^3]:
+- 2023-07-20[^3]:
     `cabotage/cabotage-app:v3.0.0b110` pushed to hub.docker.com
     containing GitHub Personal Access Token for `ewdurbin` in a `.pyc` file.
 - 2024-06-21:
@@ -124,6 +125,9 @@ and perform builds on automated systems from clean source only[^7].
 ## Thanks
 
 First and foremost, thanks to JFrog's team for finding and reporting this leak.
+You can read their blog post on this finding
+[on their blog](https://jfrog.com/blog/leaked-pypi-secret-token-revealed-in-binary-preventing-suppy-chain-attack/).
+
 We are grateful for the entire community of security researchers
 undertaking scanning of public repositories like Docker Hub and PyPI itself.
 PyPI relies on the efforts of this community for detecting
@@ -153,11 +157,15 @@ secure since 2013._
     and were not noted before the token was destroyed.
     We've asked JFrog if their findings include the token level permissions
     and will update this post if they provide them.
+    
+    **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^3]:
     Publication dates are not known because hub.docker.com does not retain any
     history for images which have been removed.
     We've asked JFrog if their findings include the publication dates
     and will update this post if they provide them.
+    
+    **Edit**: JFrog provided these dates from their findings on 2024-07-09.
 [^4]:
     `cabotage-app` had moved its builds to an automated system. The images on
     hub.docker.com were no longer necessary and were removed proactively.
