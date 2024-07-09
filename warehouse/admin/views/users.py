@@ -85,6 +85,7 @@ class EmailForm(forms.Form):
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
+    unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
 class UserForm(forms.Form):

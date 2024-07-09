@@ -348,6 +348,11 @@
                     Breaches: {{ breached_email_count[field.email.data] }}
                   </div>
                   {% endif %}
+                  {% if field.unverify_reason.data %}
+                  <div class="col">
+                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                  </div>
+                  {% endif %}
                 </div>
                 {% endfor %}
               </div>
