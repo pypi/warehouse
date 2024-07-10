@@ -135,7 +135,7 @@ class RoleInvitation(db.Model):
         index=True,
     )
 
-    user: Mapped[User] = orm.relationship(lazy=False)
+    user: Mapped[User] = orm.relationship(lazy=False, back_populates="role_invitations")
     project: Mapped[Project] = orm.relationship(lazy=False)
 
 
