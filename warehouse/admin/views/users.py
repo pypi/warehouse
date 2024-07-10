@@ -346,24 +346,24 @@ def user_reset_password(user, request):
 
 
 @functools.lru_cache
-def _is_a_valid_github_url(url):
-    return (
-        url.startswith("https://github.com/")
-        and requests.get(url, timeout=1).status_code == 200
-    )
+def _is_a_valid_url(url):
+    try:
+        return (
+            url.startswith("https://") or url.startswith("http://")
+        ) and requests.get(url, timeout=1).status_code == 200
+    except requests.exceptions.ConnectionError:
+        return False
 
 
-def _get_related_github_repos(user):
+def _get_related_urls(user):
     project_to_urls = defaultdict(set)
     for project in user.projects:
         release = project.releases[0]
 
-        if release.home_page and _is_a_valid_github_url(release.home_page):
-            project_to_urls[project.name].add(release.home_page)
-
-        for url in release.urls:
-            if _is_a_valid_github_url(url):
-                project_to_urls[project.name].add(url)
+        for kind, url in release.urls.items():
+            print(kind, url)
+            if _is_a_valid_url(url):
+                project_to_urls[project.name].add((kind, url))
 
     return project_to_urls
 
@@ -379,7 +379,7 @@ def _get_related_github_repos(user):
     require_methods=False,
 )
 def user_recover_account_initiate(user, request):
-    repo_urls = _get_related_github_repos(user)
+    repo_urls = _get_related_urls(user)
 
     if request.method == "POST":
         support_issue_link = request.POST.get("support_issue_link")
