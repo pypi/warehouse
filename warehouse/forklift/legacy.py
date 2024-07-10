@@ -17,6 +17,7 @@ import re
 import tarfile
 import tempfile
 import zipfile
+
 from cgi import FieldStorage
 from pathlib import Path
 
@@ -28,6 +29,7 @@ import packaging_legacy.version
 import sentry_sdk
 import wtforms
 import wtforms.validators
+
 from pydantic import TypeAdapter, ValidationError
 from pypi_attestations import Attestation, VerificationError
 from pyramid.httpexceptions import (
