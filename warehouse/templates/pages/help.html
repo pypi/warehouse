@@ -617,7 +617,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
         <p>
           {% trans %}
-          When using <code>pyproject.toml</code> for project metadata, you can use the suffix of the <code>readme</code> field to control how PyPI renders your description.
+          When using <code>pyproject.toml</code> for project metadata, you can use the extension of the <code>readme</code> field value to control how PyPI renders your description.
           {% endtrans %}
         </p>
         <p>
@@ -631,7 +631,7 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
           {% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}
           Refer to the
           <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
-          for details on the available formats and use with <code>setup.py</code>.
+          for details on the available formats.
           {% endtrans %}
         </p>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
