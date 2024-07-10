@@ -103,6 +103,7 @@ resetdb: .state/docker-build-base
 	docker compose pause web worker
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
+	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
 	rm -f .state/db-populated .state/db-migrated
 	$(MAKE) initdb
 	docker compose unpause web worker
@@ -114,6 +115,7 @@ resetdb: .state/docker-build-base
 .state/db-populated: .state/db-migrated
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
+	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
 	mkdir -p .state && touch .state/db-populated
 
 .state/db-migrated: .state/docker-build-base
