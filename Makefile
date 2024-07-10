@@ -103,7 +103,6 @@ resetdb: .state/docker-build-base
 	docker compose pause web worker
 	docker compose up -d db
 	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
-	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
 	rm -f .state/db-populated .state/db-migrated
 	$(MAKE) initdb
 	docker compose unpause web worker
