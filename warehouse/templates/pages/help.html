@@ -97,6 +97,7 @@
 {% macro new_classifier() %}{% trans %}How do I request a new trove classifier?{% endtrans %}{% endmacro %}
 {% macro feedback() %}{% trans %}Where can I report a bug or provide feedback about PyPI?{% endtrans %}{% endmacro %}
 {% macro totp_trouble() %}{% trans %}I'm having trouble setting up two factor authentication with an authentication application (<abbr title="time-based one-time password">TOTP</abbr>). Can you help me?{% endtrans %}{% endmacro %}
+{% macro project_in_quarantine() %}{% trans %}My project says it's in quarantine. What does that mean?{% endtrans %}{% endmacro %}
 
 {% macro maintainers() %}{% trans %}Who maintains PyPI?{% endtrans %}{% endmacro %}
 {% macro sponsors() %}{% trans %}What powers PyPI?{% endtrans %}{% endmacro %}
@@ -185,6 +186,7 @@
           <li><a href="#new-classifier">{{ new_classifier() }}</a></li>
           <li><a href="#feedback">{{ feedback() }}</a></li>
           <li><a href="#totp_trouble">{{ totp_trouble() }}</a></li>
+          <li><a href="#project_in_quarantine">{{ project_in_quarantine() }}</a></li>
         </ul>
       </section>
 
@@ -853,6 +855,31 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>
           {% trans %}
           If you are having issues while setting up a <abbr title="time-based one-time password">TOTP</abbr> device, it may be because your device time is out of sync. Please check that the time on your device is set automatically, and try setting up the device again.
+          {% endtrans %}
+        </p>
+
+        <h3 id="project_in_quarantine">{{ project_in_quarantine() }}</h3>
+        <p>
+          {% trans tou="https://policies.python.org/pypi.org/Terms-of-Use/", aup="https://policies.python.org/pypi.org/Acceptable-Use-Policy/" %}
+            Projects may get placed in quarantine for any number of reasons,
+            such as suspicion of malicious activity, spam, or other violations of the
+            <a href="{{ tou }}" target="_blank" rel="noopener">Terms of Use</a>
+            or
+            <a href="{{ aup }}" target="_blank" rel="noopener">Acceptable Use Policy</a>.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans %}
+            While in quarantine, the project is not installable by clients,
+            and cannot be being modified by its maintainers.
+            PyPI Administrators will need to review this project before it can be restored.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans mailto="mailto:security@pypi.org" %}
+            If you believe your project has mistakenly been flagged for quarantine,
+            contact PyPI via <a href="{{ mailto }}">security@pypi.org</a>
+            with any details.
           {% endtrans %}
         </p>
       </section>

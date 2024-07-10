@@ -65,6 +65,18 @@
           {% trans %}Back to projects{% endtrans %}
         </a>
         <div class="vertical-tabs__content">
+          {% if project.lifecycle_status == "quarantine-enter" %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}This project has been quarantined.{% endtrans %}</p>
+              <p>
+                {% trans %}
+                  PyPI Admins need to review this project before it can be restored.
+                  While in quarantine, the project is not installable by clients,
+                  and cannot be being modified by its maintainers.
+                {% endtrans %}
+              </p>
+            </div>
+          {% endif %}
           {% if request.organization_access and project.organization %}
             <div class="organization-snippet organization-snippet--margin-bottom">
               <h1 class="organization-snippet__title organization-snippet__title--page-title">
