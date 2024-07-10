@@ -12,13 +12,12 @@
 
 from __future__ import annotations
 
-import datetime
 from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, TypeVar
 
 import sentry_sdk
 
-from sqlalchemy import ForeignKey, String, orm, UniqueConstraint
+from sqlalchemy import ForeignKey, String, orm
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -80,18 +79,6 @@ class OIDCPublisherProjectAssociation(db.Model):
         nullable=False,
         primary_key=True,
     )
-
-
-class OIDCJtiTokens(db.Model):
-    __tablename__ = "oidc_jti_tokens"
-
-    __table_args__ = (
-        UniqueConstraint("jwt_token_identifier", name="jwt_token_identifier_key"),
-    )
-
-    oidc_provider_name: Mapped[str] = mapped_column(String(length=128))
-    jwt_token_identifier: Mapped[str] = mapped_column(String(length=128))
-    expiration: Mapped[datetime.datetime]
 
 
 class OIDCPublisherMixin:

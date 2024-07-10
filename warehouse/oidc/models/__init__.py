@@ -10,7 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher, OIDCJtiTokens
+from warehouse.oidc.models._core import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.models.activestate import (
     ActiveStatePublisher,
     PendingActiveStatePublisher,
@@ -20,7 +20,6 @@ from warehouse.oidc.models.gitlab import GitLabPublisher, PendingGitLabPublisher
 from warehouse.oidc.models.google import GooglePublisher, PendingGooglePublisher
 
 __all__ = [
-    "OIDCJtiTokens",
     "OIDCPublisher",
     "PendingOIDCPublisher",
     "PendingGitHubPublisher",

@@ -16,8 +16,7 @@ import pretend
 
 from warehouse.macaroons import caveats
 from warehouse.macaroons.models import Macaroon
-from warehouse.oidc.models import OIDCJtiTokens
-from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons, delete_expired_jwt_tokens
+from warehouse.oidc.tasks import compute_oidc_metrics, delete_expired_oidc_macaroons
 
 from ...common.db.oidc import GitHubPublisherFactory
 from ...common.db.packaging import (
@@ -98,33 +97,6 @@ def test_compute_oidc_metrics(db_request, metrics):
         pretend.call(
             "warehouse.oidc.publishers", 4, tags=["publisher:github_oidc_publishers"]
         ),
-    ]
-
-
-def test_delete_expired_jwt_tokens(db_request, metrics):
-    # We create 4 tokens :
-    # With two different providers
-    # With two different types of expiration date (before and after the current time)
-
-    now = datetime.datetime.now(tz=datetime.timezone.utc)
-    jwt_tokens = [
-        OIDCJtiTokens(oidc_provider_name="some-provider", jwt_token_identifier="some-expired-token", expiration=now - datetime.timedelta(days=1)),
-        OIDCJtiTokens(oidc_provider_name="some-provider", jwt_token_identifier="some-valid-token", expiration=now + datetime.timedelta(hours=1)),
-        OIDCJtiTokens(oidc_provider_name="other-provider", jwt_token_identifier="some-expired-token-other", expiration=now - datetime.timedelta(hours=1)),
-        OIDCJtiTokens(oidc_provider_name="other-provider", jwt_token_identifier="some-valid-token-other", expiration=now + datetime.timedelta(days=1)),
-    ]
-    db_request.db.add_all(jwt_tokens)
-
-    assert db_request.db.query(OIDCJtiTokens).count() == 4
-
-    delete_expired_jwt_tokens(db_request)
-
-    remaining_tokens = db_request.db.query(OIDCJtiTokens).all()
-    assert len(remaining_tokens) == 2
-    assert not set(token.jwt_token_identifier for token in remaining_tokens) ^ {"some-valid-token", "some-valid-token-other"}
-
-    assert metrics.gauge.calls == [
-        pretend.call("warehouse.oidc.expired_jwt_deleted", 2),
     ]
 
 
