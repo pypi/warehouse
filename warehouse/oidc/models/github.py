@@ -160,6 +160,7 @@ class GitHubPublisherMixin:
         "enterprise_id",
         "ref_protected",
     }
+
     @staticmethod
     def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
         # This lookup requires the environment claim to be present;

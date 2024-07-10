@@ -368,7 +368,6 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
         else:
             raise errors.InvalidPublisherError("some message")
 
-
     claims = pretend.stub()
     oidc_service = pretend.stub(
         verify_jwt_signature=pretend.call_recorder(lambda token: claims),
@@ -391,7 +390,6 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
             }
         ],
     }
-
 
 
 def test_mint_token_pending_publisher_project_already_exists(

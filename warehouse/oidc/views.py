@@ -246,7 +246,7 @@ def mint_token(
                     "description": "valid token, but already used",
                 }
             ],
-            request=request
+            request=request,
         )
     except InvalidPublisherError as e:
         return _invalid(

@@ -233,7 +233,6 @@ class OIDCPublisherService:
         with redis.StrictRedis.from_url(self.cache_url) as r:
             r.set(jti, exat=expiration, value="placeholder", nx=True)
 
-
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
             key = self._get_key_for_token(unverified_token)
@@ -322,7 +321,9 @@ class OIDCPublisherService:
             )
 
             if pending is False and jwt_token_identifier:
-                self.store_jwt_identifier(jwt_token_identifier, signed_claims.get("exp"))
+                self.store_jwt_identifier(
+                    jwt_token_identifier, int(signed_claims.get("exp"))
+                )
 
             return publisher
         except InvalidPublisherError as e:

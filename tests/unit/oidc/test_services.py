@@ -289,26 +289,33 @@ class TestOIDCPublisherService:
         )
 
         expiration = int(
-            (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
         )
         jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
         service.store_jwt_identifier(jwt_token_identifier, expiration=expiration)
 
-        claims = SignedClaims({
-            "iss": "foo",
-            "iat": 1516239022,
-            "nbf": 1516239022,
-            "exp": expiration,
-            "aud": "pypi",
-            "jti": jwt_token_identifier,
-        })
+        claims = SignedClaims(
+            {
+                "iss": "foo",
+                "iat": 1516239022,
+                "nbf": 1516239022,
+                "exp": expiration,
+                "aud": "pypi",
+                "jti": jwt_token_identifier,
+            }
+        )
 
         with pytest.raises(errors.ReusedTokenError):
             service.find_publisher(claims, pending=False)
 
-        assert pretend.call(
+        assert (
+            pretend.call(
                 "warehouse.oidc.reused_token", tags=["publisher:fakepublisher"]
-            ) in metrics.increment.calls
+            )
+            in metrics.increment.calls
+        )
 
     def test_find_publisher_store_jti(self, monkeypatch, mockredis, metrics):
         service = services.OIDCPublisherService(
@@ -329,22 +336,28 @@ class TestOIDCPublisherService:
         )
 
         expiration = int(
-            (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
+            (
+                datetime.datetime.now(tz=datetime.UTC) + datetime.timedelta(minutes=15)
+            ).timestamp()
         )
         jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
-        claims = SignedClaims({
-            "iss": "foo",
-            "iat": 1516239022,
-            "nbf": 1516239022,
-            "exp": expiration,
-            "aud": "pypi",
-            "jti": jwt_token_identifier,
-        })
+        claims = SignedClaims(
+            {
+                "iss": "foo",
+                "iat": 1516239022,
+                "nbf": 1516239022,
+                "exp": expiration,
+                "aud": "pypi",
+                "jti": jwt_token_identifier,
+            }
+        )
 
         service.find_publisher(claims, pending=False)
         assert service.token_identifier_exists(jwt_token_identifier) is True
 
-    def test_find_publisher_jti_not_stored_if_pending(self, monkeypatch, mockredis, metrics):
+    def test_find_publisher_jti_not_stored_if_pending(
+        self, monkeypatch, mockredis, metrics
+    ):
         service = services.OIDCPublisherService(
             session=pretend.stub(),
             publisher="fakepublisher",
@@ -362,14 +375,16 @@ class TestOIDCPublisherService:
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
         jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
-        claims = SignedClaims({
-            "iss": "foo",
-            "iat": 1516239022,
-            "nbf": 1516239022,
-            "exp": int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp()),
-            "aud": "pypi",
-            "jti": jwt_token_identifier,
-        })
+        claims = SignedClaims(
+            {
+                "iss": "foo",
+                "iat": 1516239022,
+                "nbf": 1516239022,
+                "exp": int(datetime.datetime.now(tz=datetime.UTC).timestamp()),
+                "aud": "pypi",
+                "jti": jwt_token_identifier,
+            }
+        )
 
         service.find_publisher(claims, pending=True)
         assert service.token_identifier_exists(jwt_token_identifier) is False
@@ -926,7 +941,7 @@ class TestNullOIDCPublisherService:
             "nbf": 1516239022,
             "exp": 9999999999,
             "aud": "pypi",
-            "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+            "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970",
         }
 
         service = services.NullOIDCPublisherService(
