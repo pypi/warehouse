@@ -7982,8 +7982,8 @@ msgstr ""
 #: warehouse/templates/pages/help.html:619
 msgid ""
 "When using <code>pyproject.toml</code> for project metadata, you can use "
-"the suffix of the <code>readme</code> field to control how PyPI renders "
-"your description."
+"the extension of the <code>readme</code> field value to control how PyPI "
+"renders your description."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:624
@@ -8000,7 +8000,7 @@ msgstr ""
 msgid ""
 "Refer to the <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Python Packaging User Guide</a> for details on the "
-"available formats and use with <code>setup.py</code>."
+"available formats."
 msgstr ""
 
 #: warehouse/templates/pages/help.html:642
