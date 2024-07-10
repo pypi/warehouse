@@ -49,12 +49,12 @@ class MessageVerifier:
             raise InvalidMessageError("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         try:
             timestamp = datetime.datetime.strptime(
                 timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-            )
+            ).replace(tzinfo=datetime.UTC)
         except ValueError:
             raise InvalidMessageError("Unknown Timestamp format")
 

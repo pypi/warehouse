@@ -56,10 +56,10 @@ def includeme(config):
     )
 
     # Our legal policies
-    _domain_prefix = r"https?://({warehouse}|localhost)"
+    _domain_prefix = rf"https?://({warehouse}|localhost)"
     config.add_redirect_rule(
         f"{_domain_prefix}/policy/terms-of-use/",
-        "https://policies.python.org/pypi.org/Terms-of-use/",
+        "https://policies.python.org/pypi.org/Terms-of-Use/",
     )
     config.add_redirect_rule(
         f"{_domain_prefix}/policy/acceptable-use-policy/",

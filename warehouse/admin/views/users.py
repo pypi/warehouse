@@ -32,7 +32,7 @@ from warehouse.accounts.models import (
     User,
 )
 from warehouse.authnz import Permissions
-from warehouse.email import send_password_compromised_email
+from warehouse.email import send_password_reset_by_admin_email
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
 
@@ -85,6 +85,7 @@ class EmailForm(forms.Form):
     primary = wtforms.fields.BooleanField()
     verified = wtforms.fields.BooleanField()
     public = wtforms.fields.BooleanField()
+    unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
 class UserForm(forms.Form):
@@ -303,9 +304,9 @@ def user_freeze(user, request):
 
 def _user_reset_password(user, request):
     login_service = request.find_service(IUserService, context=None)
-    send_password_compromised_email(request, user)
+    send_password_reset_by_admin_email(request, user)
     login_service.disable_password(
-        user.id, request, reason=DisableReason.CompromisedPassword
+        user.id, request, reason=DisableReason.AdminInitiated
     )
 
 

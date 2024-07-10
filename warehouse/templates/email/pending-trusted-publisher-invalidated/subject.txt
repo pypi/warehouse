@@ -14,4 +14,4 @@
 
 {% extends "email/_base/subject.txt" %}
 
-{% block subject %}Pending OpenID Connect publisher invalidated for {{ project_name }}{% endblock %}
+{% block subject %}Pending trusted publisher invalidated for {{ project_name }}{% endblock %}

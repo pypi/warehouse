@@ -467,7 +467,7 @@ class TestUserResetPassword:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_reset_password(user, db_request)
 
@@ -476,7 +476,7 @@ class TestUserResetPassword:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
@@ -498,7 +498,7 @@ class TestUserResetPassword:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_reset_password(user, db_request)
 
@@ -558,7 +558,7 @@ class TestUserWipeFactors:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_wipe_factors(user, db_request)
 
@@ -570,7 +570,7 @@ class TestUserWipeFactors:
         ]
         assert send_email.calls == [pretend.call(db_request, user)]
         assert service.disable_password.calls == [
-            pretend.call(user.id, db_request, reason=DisableReason.CompromisedPassword)
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
         ]
         assert db_request.route_path.calls == [
             pretend.call("admin.user.detail", username=user.username)
@@ -592,7 +592,7 @@ class TestUserWipeFactors:
         db_request.find_service = pretend.call_recorder(lambda iface, context: service)
 
         send_email = pretend.call_recorder(lambda *a, **kw: None)
-        monkeypatch.setattr(views, "send_password_compromised_email", send_email)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
 
         result = views.user_wipe_factors(user, db_request)
 
