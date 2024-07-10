@@ -9,6 +9,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import datetime
 
 import jwt
 import pretend
@@ -22,6 +23,7 @@ import warehouse.utils.exceptions
 
 from tests.common.db.oidc import GitHubPublisherFactory, PendingGitHubPublisherFactory
 from warehouse.oidc import errors, interfaces, services
+from warehouse.oidc.interfaces import SignedClaims
 
 
 def test_oidc_publisher_service_factory(metrics):
@@ -193,7 +195,7 @@ class TestOIDCPublisherService:
             metrics=metrics,
         )
 
-        token = pretend.stub()
+        token = SignedClaims({})
 
         publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
         find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
@@ -262,7 +264,7 @@ class TestOIDCPublisherService:
             services, "find_publisher_by_issuer", find_publisher_by_issuer
         )
 
-        claims = pretend.stub()
+        claims = SignedClaims({})
         with pytest.raises(errors.InvalidPublisherError):
             service.find_publisher(claims)
         assert service.metrics.increment.calls == [
@@ -276,6 +278,110 @@ class TestOIDCPublisherService:
             ),
         ]
         assert publisher.verify_claims.calls == [pretend.call(claims)]
+
+    def test_find_publisher_prevent_reuse_token(self, monkeypatch, mockredis, metrics):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
+        find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
+        monkeypatch.setattr(
+            services, "find_publisher_by_issuer", find_publisher_by_issuer
+        )
+
+        expiration = int(
+            (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
+        )
+        jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+        service.store_jwt_identifier(jwt_token_identifier, expiration=expiration)
+
+        claims = SignedClaims({
+            "iss": "foo",
+            "iat": 1516239022,
+            "nbf": 1516239022,
+            "exp": expiration,
+            "aud": "pypi",
+            "jti": jwt_token_identifier,
+        })
+
+        with pytest.raises(errors.ReusedTokenError):
+            service.find_publisher(claims, pending=False)
+
+        assert pretend.call(
+                "warehouse.oidc.reused_token", tags=["publisher:fakepublisher"]
+            ) in metrics.increment.calls
+
+    def test_find_publisher_store_jti(self, monkeypatch, mockredis, metrics):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
+        find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
+        monkeypatch.setattr(
+            services, "find_publisher_by_issuer", find_publisher_by_issuer
+        )
+
+        expiration = int(
+            (datetime.datetime.now(tz=datetime.timezone.utc) + datetime.timedelta(minutes=15)).timestamp()
+        )
+        jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+        claims = SignedClaims({
+            "iss": "foo",
+            "iat": 1516239022,
+            "nbf": 1516239022,
+            "exp": expiration,
+            "aud": "pypi",
+            "jti": jwt_token_identifier,
+        })
+
+        service.find_publisher(claims, pending=False)
+        assert service.token_identifier_exists(jwt_token_identifier) is True
+
+    def test_find_publisher_jti_not_stored_if_pending(self, monkeypatch, mockredis, metrics):
+        service = services.OIDCPublisherService(
+            session=pretend.stub(),
+            publisher="fakepublisher",
+            issuer_url=pretend.stub(),
+            audience="fakeaudience",
+            cache_url="redis://fake.example.com",
+            metrics=metrics,
+        )
+
+        monkeypatch.setattr(services.redis, "StrictRedis", mockredis)
+
+        publisher = pretend.stub(verify_claims=pretend.call_recorder(lambda c: True))
+        find_publisher_by_issuer = pretend.call_recorder(lambda *a, **kw: publisher)
+        monkeypatch.setattr(
+            services, "find_publisher_by_issuer", find_publisher_by_issuer
+        )
+        jwt_token_identifier = "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
+        claims = SignedClaims({
+            "iss": "foo",
+            "iat": 1516239022,
+            "nbf": 1516239022,
+            "exp": int(datetime.datetime.now(tz=datetime.timezone.utc).timestamp()),
+            "aud": "pypi",
+            "jti": jwt_token_identifier,
+        })
+
+        service.find_publisher(claims, pending=True)
+        assert service.token_identifier_exists(jwt_token_identifier) is False
 
     def test_get_keyset_not_cached(self, monkeypatch, mockredis):
         service = services.OIDCPublisherService(
@@ -829,6 +935,7 @@ class TestNullOIDCPublisherService:
             "nbf": 1516239022,
             "exp": 9999999999,
             "aud": "pypi",
+            "jti": "6e67b1cb-2b8d-4be5-91cb-757edb2ec970"
         }
 
         service = services.NullOIDCPublisherService(

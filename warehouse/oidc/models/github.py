@@ -132,7 +132,7 @@ class GitHubPublisherMixin:
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
-    __required_unverifiable_claims__: set[str] = {"ref", "sha"}
+    __required_unverifiable_claims__: set[str] = {"ref", "sha", "jti"}
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
@@ -141,7 +141,6 @@ class GitHubPublisherMixin:
     __unchecked_claims__ = {
         "actor",
         "actor_id",
-        "jti",
         "run_id",
         "run_number",
         "run_attempt",
@@ -161,7 +160,6 @@ class GitHubPublisherMixin:
         "enterprise_id",
         "ref_protected",
     }
-
     @staticmethod
     def __lookup_all__(klass, signed_claims: SignedClaims) -> Query | None:
         # This lookup requires the environment claim to be present;

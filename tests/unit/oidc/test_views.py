@@ -361,6 +361,39 @@ def test_mint_token_trusted_publisher_lookup_fails(dummy_github_oidc_jwt):
     ]
 
 
+def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
+    def find_publishers_mockup(_, pending: bool = False):
+        if pending is False:
+            raise errors.ReusedTokenError("some message")
+        else:
+            raise errors.InvalidPublisherError("some message")
+
+
+    claims = pretend.stub()
+    oidc_service = pretend.stub(
+        verify_jwt_signature=pretend.call_recorder(lambda token: claims),
+        find_publisher=find_publishers_mockup,
+    )
+    request = pretend.stub(
+        response=pretend.stub(status=None),
+        find_service=pretend.call_recorder(lambda cls, **kw: oidc_service),
+        flags=pretend.stub(disallow_oidc=lambda *a: False),
+    )
+
+    response = views.mint_token(oidc_service, dummy_github_oidc_jwt, request)
+    assert request.response.status == 422
+    assert response == {
+        "message": "Token request failed",
+        "errors": [
+            {
+                "code": "invalid-reuse-token",
+                "description": "valid token, but already used",
+            }
+        ],
+    }
+
+
+
 def test_mint_token_pending_publisher_project_already_exists(
     db_request, dummy_github_oidc_jwt
 ):

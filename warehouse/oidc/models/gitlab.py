@@ -120,7 +120,7 @@ class GitLabPublisherMixin:
         "ci_config_ref_uri": _check_ci_config_ref_uri,
     }
 
-    __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
+    __required_unverifiable_claims__: set[str] = {"ref_path", "sha", "jti"}
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
@@ -149,7 +149,6 @@ class GitLabPublisherMixin:
         "runner_environment",
         "ci_config_sha",
         "project_visibility",
-        "jti",
         "user_access_level",
         "groups_direct",
     }

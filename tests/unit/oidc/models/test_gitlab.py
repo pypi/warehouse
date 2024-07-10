@@ -49,6 +49,7 @@ class TestGitLabPublisher:
             # required unverifiable claims
             "ref_path",
             "sha",
+            "jti",
             # optional verifiable claims
             "environment",
             # preverified claims
@@ -78,7 +79,6 @@ class TestGitLabPublisher:
             "runner_environment",
             "ci_config_sha",
             "project_visibility",
-            "jti",
             "user_access_level",
             "groups_direct",
         }
@@ -141,7 +141,7 @@ class TestGitLabPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref_path"])
+    @pytest.mark.parametrize("missing", ["sub", "ref_path", "jti"])
     def test_gitlab_publisher_missing_claims(self, monkeypatch, missing):
         publisher = gitlab.GitLabPublisher(
             project="fakerepo",
@@ -194,6 +194,7 @@ class TestGitLabPublisher:
         signed_claims["ref_path"] = "ref"
         signed_claims["sha"] = "sha"
         signed_claims["ci_config_ref_uri"] = publisher.ci_config_ref_uri + "@ref"
+        signed_claims["jti"] = "jti"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
             publisher.verify_claims(signed_claims=signed_claims)

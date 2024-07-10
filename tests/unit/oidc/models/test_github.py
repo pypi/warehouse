@@ -51,6 +51,7 @@ class TestGitHubPublisher:
             # required unverifiable claims
             "ref",
             "sha",
+            "jti",
             # optional verifiable claims
             "environment",
             # preverified claims
@@ -62,7 +63,6 @@ class TestGitHubPublisher:
             # unchecked claims
             "actor",
             "actor_id",
-            "jti",
             "run_id",
             "run_number",
             "run_attempt",
@@ -143,7 +143,7 @@ class TestGitHubPublisher:
         ]
         assert scope.fingerprint == ["another-fake-claim", "fake-claim"]
 
-    @pytest.mark.parametrize("missing", ["sub", "ref"])
+    @pytest.mark.parametrize("missing", ["sub", "ref", "jti"])
     def test_github_publisher_missing_claims(self, monkeypatch, missing):
         publisher = github.GitHubPublisher(
             repository_name="fakerepo",
@@ -198,6 +198,7 @@ class TestGitHubPublisher:
         signed_claims["ref"] = "ref"
         signed_claims["sha"] = "sha"
         signed_claims["job_workflow_ref"] = publisher.job_workflow_ref + "@ref"
+        signed_claims["jti"] = "jti"
         assert publisher.__required_verifiable_claims__
         with pytest.raises(errors.InvalidPublisherError) as e:
             publisher.verify_claims(signed_claims=signed_claims)

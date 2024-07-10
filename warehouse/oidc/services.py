@@ -21,7 +21,7 @@ import sentry_sdk
 from zope.interface import implementer
 
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService, SignedClaims
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.utils import find_publisher_by_issuer
@@ -219,6 +219,21 @@ class OIDCPublisherService:
         unverified_header = jwt.get_unverified_header(token)
         return self._get_key(unverified_header["kid"])
 
+    def token_identifier_exists(self, jti: str) -> bool:
+        """
+        Check if a JWT Token Identifier has already been used.
+        """
+        with redis.StrictRedis.from_url(self.cache_url) as r:
+            return bool(r.exists(jti))
+
+    def store_jwt_identifier(self, jti: str, expiration: int) -> None:
+        """
+        Store the JTI with its expiration date if the key does not exist.
+        """
+        with redis.StrictRedis.from_url(self.cache_url) as r:
+            r.set(jti, exat=expiration, value="placeholder", nx=True)
+
+
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
             key = self._get_key_for_token(unverified_token)
@@ -294,11 +309,28 @@ class OIDCPublisherService:
             publisher = find_publisher_by_issuer(
                 self.db, self.issuer_url, signed_claims, pending=pending
             )
+
+            jwt_token_identifier: str | None = signed_claims.get("jti", None)
+            # It is ok to not perform the reused token check here if we don't have a JTI
+            # because it is going to be checked in `verify_claims` function if the claim
+            # was required and fail with the appropriate error.
+            if pending is False and jwt_token_identifier:
+                if self.token_identifier_exists(jwt_token_identifier):
+                    self.metrics.increment(
+                        "warehouse.oidc.reused_token",
+                        tags=metrics_tags,
+                    )
+                    raise ReusedTokenError("JWT Token already used to mint a token.")
+
             publisher.verify_claims(signed_claims)
             self.metrics.increment(
                 "warehouse.oidc.find_publisher.ok",
                 tags=metrics_tags,
             )
+
+            if pending is False and jwt_token_identifier:
+                self.store_jwt_identifier(jwt_token_identifier, signed_claims.get("exp"))
+
             return publisher
         except InvalidPublisherError as e:
             self.metrics.increment(

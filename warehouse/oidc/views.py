@@ -28,7 +28,7 @@ from warehouse.macaroons import caveats
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import DatabaseMacaroonService
 from warehouse.metrics.interfaces import IMetricsService
-from warehouse.oidc.errors import InvalidPublisherError
+from warehouse.oidc.errors import InvalidPublisherError, ReusedTokenError
 from warehouse.oidc.interfaces import IOIDCPublisherService
 from warehouse.oidc.models import OIDCPublisher, PendingOIDCPublisher
 from warehouse.oidc.services import OIDCPublisherService
@@ -238,6 +238,16 @@ def mint_token(
         publisher = oidc_service.find_publisher(claims, pending=False)
         # NOTE: assert to persuade mypy of the correct type here.
         assert isinstance(publisher, OIDCPublisher)
+    except ReusedTokenError:
+        return _invalid(
+            errors=[
+                {
+                    "code": "invalid-reuse-token",
+                    "description": "valid token, but already used",
+                }
+            ],
+            request=request
+        )
     except InvalidPublisherError as e:
         return _invalid(
             errors=[
