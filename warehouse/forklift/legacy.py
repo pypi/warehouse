@@ -17,7 +17,6 @@ import re
 import tarfile
 import tempfile
 import zipfile
-
 from cgi import FieldStorage
 from pathlib import Path
 
@@ -29,7 +28,6 @@ import packaging_legacy.version
 import sentry_sdk
 import wtforms
 import wtforms.validators
-
 from pydantic import TypeAdapter, ValidationError
 from pypi_attestations import Attestation, VerificationError
 from pyramid.httpexceptions import (
@@ -366,7 +364,7 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, metrics, artifact_path: Path):
+def _process_attestations(request, artifact_path: Path):
     """
     Process any attestations included in a file upload request
 
@@ -378,78 +376,73 @@ def _process_attestations(request, metrics, artifact_path: Path):
     attestations are discarded after verification.
     """
 
-    # Check that if the file was uploaded with attestations, verification
-    # passes
-    if "attestations" in request.POST:
-        publisher = request.oidc_publisher
-        if not publisher or not publisher.publisher_name == "GitHub":
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "Attestations are currently only supported when using Trusted "
-                "Publishing with GitHub Actions.",
-            )
-        try:
-            attestations = TypeAdapter(list[Attestation]).validate_json(
-                request.POST["attestations"]
-            )
-        except ValidationError as e:
-            # Log invalid (malformed) attestation upload
-            metrics.increment("warehouse.upload.attestations.malformed")
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Error while decoding the included attestation: {e}",
-            )
+    metrics = request.find_service(IMetricsService, context=None)
 
-        if len(attestations) > 1:
-            metrics.increment(
-                "warehouse.upload.attestations." "failed_multiple_attestations"
-            )
-            raise _exc_with_message(
-                HTTPBadRequest,
-                "Only a single attestation per-file is supported at the moment.",
-            )
-
-        verification_policy = publisher.publisher_verification_policy(
-            request.oidc_claims
+    publisher = request.oidc_publisher
+    if not publisher or not publisher.publisher_name == "GitHub":
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions.",
         )
-        for attestation_model in attestations:
-            try:
-                # For now, attestations are not stored, just verified
-                predicate_type, _ = attestation_model.verify(
-                    Verifier.production(),
-                    verification_policy,
-                    artifact_path,
-                )
-            except VerificationError as e:
-                # Log invalid (failed verification) attestation upload
-                metrics.increment("warehouse.upload.attestations.failed_verify")
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Could not verify the uploaded artifact using the included "
-                    f"attestation: {e}",
-                )
-            except Exception as e:
-                sentry_sdk.capture_message(
-                    f"Unexpected error while verifying attestation: {e}"
-                )
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Unknown error while trying to verify included "
-                    f"attestations: {e}",
-                )
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Error while decoding the included attestation: {e}",
+        )
 
-            if predicate_type != "https://docs.pypi.org/attestations/publish/v1":
-                metrics.increment(
-                    "warehouse.upload.attestations." "failed_unsupported_predicate_type"
-                )
-                raise _exc_with_message(
-                    HTTPBadRequest,
-                    f"Attestation with unsupported predicate type: "
-                    f"{predicate_type}",
-                )
+    if len(attestations) > 1:
+        metrics.increment(
+            "warehouse.upload.attestations." "failed_multiple_attestations"
+        )
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only a single attestation per-file is supported at the moment.",
+        )
 
-            # Log successful attestation upload
-            metrics.increment("warehouse.upload.attestations.ok")
+    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
+    for attestation_model in attestations:
+        try:
+            # For now, attestations are not stored, just verified
+            predicate_type, _ = attestation_model.verify(
+                Verifier.production(),
+                verification_policy,
+                artifact_path,
+            )
+        except VerificationError as e:
+            # Log invalid (failed verification) attestation upload
+            metrics.increment("warehouse.upload.attestations.failed_verify")
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Could not verify the uploaded artifact using the included "
+                f"attestation: {e}",
+            )
+        except Exception as e:
+            sentry_sdk.capture_message(
+                f"Unexpected error while verifying attestation: {e}"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Unknown error while trying to verify included " f"attestations: {e}",
+            )
+
+        if predicate_type != "https://docs.pypi.org/attestations/publish/v1":
+            metrics.increment(
+                "warehouse.upload.attestations." "failed_unsupported_predicate_type"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Attestation with unsupported predicate type: " f"{predicate_type}",
+            )
+
+        # Log successful attestation upload
+        metrics.increment("warehouse.upload.attestations.ok")
 
 
 @view_config(
@@ -1150,9 +1143,10 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
-        _process_attestations(
-            request=request, metrics=metrics, artifact_path=Path(temporary_filename)
-        )
+        if "attestations" in request.POST:
+            _process_attestations(
+                request=request, artifact_path=Path(temporary_filename)
+            )
 
         # TODO: This should be handled by some sort of database trigger or a
         #       SQLAlchemy hook or the like instead of doing it inline in this
