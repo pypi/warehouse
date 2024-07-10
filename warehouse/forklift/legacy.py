@@ -31,7 +31,7 @@ import wtforms
 import wtforms.validators
 
 from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import Attestation, VerificationError
+from pypi_attestations import Attestation, AttestationType, VerificationError
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -400,9 +400,7 @@ def _process_attestations(request, artifact_path: Path):
         )
 
     if len(attestations) > 1:
-        metrics.increment(
-            "warehouse.upload.attestations." "failed_multiple_attestations"
-        )
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
         raise _exc_with_message(
             HTTPBadRequest,
             "Only a single attestation per-file is supported at the moment.",
@@ -434,9 +432,9 @@ def _process_attestations(request, artifact_path: Path):
                 f"Unknown error while trying to verify included " f"attestations: {e}",
             )
 
-        if predicate_type != "https://docs.pypi.org/attestations/publish/v1":
+        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
             metrics.increment(
-                "warehouse.upload.attestations." "failed_unsupported_predicate_type"
+                "warehouse.upload.attestations.failed_unsupported_predicate_type"
             )
             raise _exc_with_message(
                 HTTPBadRequest,
