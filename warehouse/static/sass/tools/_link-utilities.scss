@@ -46,9 +46,7 @@
 }
 
 @mixin white-underlined-link {
-  color: transparentize($white, 0.05);
-
-  @include link-focus-state($white);
+  @include colored-link($white);
 }
 
 @mixin link-without-underline {
