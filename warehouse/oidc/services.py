@@ -235,7 +235,7 @@ class OIDCPublisherService:
             # Defensive: to prevent races, we expire the JTI slightly after
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
-            r.set(jti, exat=expiration + 1, value="placeholder", nx=True)
+            r.set(jti, exat=expiration + 5, value="placeholder", nx=True)
 
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
