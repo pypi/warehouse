@@ -118,21 +118,17 @@ class TestGitLabPublisherForm:
 
     @pytest.mark.parametrize(
         "project_name",
-        [
-            "badges",
-            "BaDGes",
-            "-",
-            "invalid.git",
-            "invalid.atom",
-            "invalid--project"
-        ],
+        ["badges", "BaDGes", "-", "invalid.git", "invalid.atom", "invalid--project"],
     )
     def test_reserved_project_names(self, project_name):
 
-        data = MultiDict({
-            "namespace": "some", "workflow_filepath": "subfolder/some-workflow.yml",
-            "project": project_name
-        })
+        data = MultiDict(
+            {
+                "namespace": "some",
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": project_name,
+            }
+        )
 
         form = gitlab.GitLabPublisherForm(data)
         assert not form.validate()
@@ -154,10 +150,13 @@ class TestGitLabPublisherForm:
     )
     def test_reserved_organization_names(self, namespace):
 
-        data = MultiDict({
-            "namespace": namespace, "workflow_filepath": "subfolder/some-workflow.yml",
-            "project": "valid-project"
-        })
+        data = MultiDict(
+            {
+                "namespace": namespace,
+                "workflow_filepath": "subfolder/some-workflow.yml",
+                "project": "valid-project",
+            }
+        )
 
         form = gitlab.GitLabPublisherForm(data)
         assert not form.validate()
