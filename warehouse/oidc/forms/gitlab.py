@@ -19,11 +19,117 @@ from warehouse.i18n import localize as _
 from warehouse.oidc.forms._core import PendingPublisherMixin
 
 # https://docs.gitlab.com/ee/user/reserved_names.html#limitations-on-project-and-group-names
-_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_.]*$")
-_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./]*$")
+_VALID_GITLAB_PROJECT = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*[a-zA-Z0-9]$")
+_VALID_GITLAB_NAMESPACE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9-_./+]*[a-zA-Z0-9]$")
 _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
+_GITLAB_SPECIAL_CHARACTERS = [".", "-", "_"]
 
+_GITLAB_RESERVED_PROJECT_NAMES = {
+    "-",
+    "badges",
+    "blame",
+    "blob",
+    "builds",
+    "commits",
+    "create",
+    "create_dir",
+    "edit",
+    "environments/folders",
+    "files",
+    "find_file",
+    "gitlab-lfs/objects",
+    "info/lfs/objects",
+    "new",
+    "preview",
+    "raw",
+    "refs",
+    "tree",
+    "update",
+    "wikis",
+}
+
+_GITLAB_RESERVED_GROUP_NAMES = {
+  "-",
+  ".well-known",
+  "404.html",
+  "422.html",
+  "500.html",
+  "502.html",
+  "503.html",
+  "admin",
+  "api",
+  "apple-touch-icon.png",
+  "assets",
+  "dashboard",
+  "deploy.html",
+  "explore",
+  "favicon.ico",
+  "favicon.png",
+  "files",
+  "groups",
+  "health_check",
+  "help",
+  "import",
+  "jwt",
+  "login",
+  "oauth",
+  "profile",
+  "projects",
+  "public",
+  "robots.txt",
+  "s",
+  "search",
+  "sitemap",
+  "sitemap.xml",
+  "sitemap.xml.gz",
+  "slash-command-logo.png",
+  "snippets",
+  "unsubscribes",
+  "uploads",
+  "users",
+  "v2",
+}
+
+_GITLAB_RESERVED_SUBGROUP_NAMES = {
+    "-",
+}
+
+
+class CaseInsensitiveNonOf(wtforms.validators.NoneOf):
+
+    def __init__(self, values, message=None, values_formatter=None):
+        values = {val.lower() for val in values}
+        super().__init__(values, message, values_formatter)
+
+    def __call__(self, form, field):
+        field.data = field.data.lower()
+        super().__call__(form, field)
+
+def ends_with_atom_or_git(form, field):
+    field: str = field.data.lower()
+    if field.endswith(".atom") or field.endswith(".git"):
+        raise wtforms.validators.ValidationError(
+            _("Name ends with .git or .atom")
+        )
+
+class ConsecutiveSpecialCharacters:
+    def __init__(self, characters: list[str], message: str):
+        self.forbidden_characters = characters
+        self.message = message
+
+    def __call__(self, form, field):
+        countdown = 2
+        for char in field.data:
+            match char:
+                case char if char in self.forbidden_characters:
+                    countdown -= 1
+
+                    if countdown == 0:
+                        raise wtforms.validators.ValidationError(self.message)
+
+                case _:
+                    countdown = 2
 class GitLabPublisherBase(forms.Form):
     __params__ = ["namespace", "project", "workflow_filepath", "environment"]
 
@@ -32,19 +138,19 @@ class GitLabPublisherBase(forms.Form):
             wtforms.validators.InputRequired(
                 message=_("Specify GitLab namespace (username or group/subgroup)"),
             ),
-            wtforms.validators.Regexp(
-                _VALID_GITLAB_NAMESPACE,
-                message=_("Invalid GitLab username or group/subgroup name."),
-            ),
+            ends_with_atom_or_git,
         ]
     )
 
     project = wtforms.StringField(
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
+            ends_with_atom_or_git,
+            CaseInsensitiveNonOf(values=_GITLAB_RESERVED_PROJECT_NAMES),
             wtforms.validators.Regexp(
                 _VALID_GITLAB_PROJECT, message=_("Invalid project name")
             ),
+            ConsecutiveSpecialCharacters(characters=_GITLAB_SPECIAL_CHARACTERS, message=_("Invalid project name"))
         ]
     )
 
@@ -81,6 +187,35 @@ class GitLabPublisherBase(forms.Form):
             raise wtforms.validators.ValidationError(
                 _("Top-level pipeline file path cannot start or end with /")
             )
+
+    def validate_namespace(self, field):
+        group: str = field.data.lower()
+        if count := group.count("/"):
+            if count != 1:
+                raise wtforms.validators.ValidationError(
+                    _("Invalid GitLab username or group/subgroup name.")
+                )
+            group, subgroup = group.split("/")
+
+            if subgroup in _GITLAB_RESERVED_SUBGROUP_NAMES:
+                raise wtforms.validators.ValidationError(
+                    _("Invalid GitLab username or group/subgroup name.")
+                )
+
+        if group in _GITLAB_RESERVED_GROUP_NAMES:
+            raise wtforms.validators.ValidationError(
+                _("Invalid GitLab username or group/subgroup name.")
+            )
+
+        if not _VALID_GITLAB_NAMESPACE.match(group):
+            raise wtforms.validators.ValidationError(
+                _("Invalid GitLab username or group/subgroup name.")
+            )
+
+        ConsecutiveSpecialCharacters(
+            characters=_GITLAB_SPECIAL_CHARACTERS, message=_("Invalid GitLab username or group/subgroup name.")
+        )(self, field)
+
 
     @property
     def normalized_environment(self):
