@@ -84,7 +84,7 @@ class ProjectNameUnavailableReason(enum.Enum):
 
 
 class IProjectService(Interface):
-    def check_project_name(name, request):
+    def check_project_name(name):
         """
         Check if a project name is valid and available for use.
         """

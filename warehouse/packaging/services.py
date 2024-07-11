@@ -30,9 +30,7 @@ import stdlib_list
 
 from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
-from pyramid.request import Request
 from sqlalchemy import exists, func
-from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -444,9 +442,7 @@ class ProjectService:
         self.ratelimiters["project.create.user"].hit(creator.id)
         self.ratelimiters["project.create.ip"].hit(request.remote_addr)
 
-    def check_project_name(
-        self, name: str, request: Request
-    ) -> ProjectNameUnavailableReason | None:
+    def check_project_name(self, name: str) -> ProjectNameUnavailableReason | None:
         if not PROJECT_NAME_RE.match(name):
             return ProjectNameUnavailableReason.Invalid
 
@@ -454,24 +450,26 @@ class ProjectService:
         if canonicalize_name(name) in STDLIB_PROHIBITED:
             return ProjectNameUnavailableReason.Stdlib
 
-        if request.db.query(
+        if self.db.query(
             exists().where(Project.normalized_name == func.normalize_pep426_name(name))
         ).scalar():
             return ProjectNameUnavailableReason.AlreadyExists
 
-        if request.db.query(
+        if self.db.query(
             exists().where(
                 ProhibitedProjectName.name == func.normalize_pep426_name(name)
             )
         ).scalar():
             return ProjectNameUnavailableReason.Prohibited
 
-        if request.db.query(
+        if self.db.query(
             exists().where(
                 func.ultranormalize_name(Project.name) == func.ultranormalize_name(name)
             )
         ).scalar():
             return ProjectNameUnavailableReason.TooSimilar
+
+        return None
 
     def create_project(
         self, name, creator, request, *, creator_is_owner=True, ratelimited=True
@@ -491,7 +489,7 @@ class ProjectService:
             ) from None
 
         # Verify that the project name is both valid and currently available.
-        match self.check_project_name(name, request):
+        match self.check_project_name(name):
             case ProjectNameUnavailableReason.Invalid:
                 raise HTTPBadRequest(f"The name {name!r} is invalid.")
             case ProjectNameUnavailableReason.AlreadyExists:
@@ -537,7 +535,7 @@ class ProjectService:
                     ),
                 ) from None
             case None:
-                return None
+                pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)
