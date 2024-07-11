@@ -320,6 +320,12 @@
                     </ul>
                   </td>
                 </tr>
+                {% if account_recovery.payload["override_to_email"] %}
+                <tr>
+                  <th>Alternate E-Mail</th>
+                  <td>{{ account_recovery.payload["override_to_email"] }}</td>
+                </tr>
+                {% endif %}
                 <tr>
                   <th>Actions</th>
                   <td>

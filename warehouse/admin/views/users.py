@@ -400,7 +400,6 @@ def user_recover_account_initiate(user, request):
         elif repo_urls and not project_name:
             request.session.flash("Select a project for verification", queue="error")
         else:
-            # Send the email
             token = secrets.token_urlsafe().replace("-", "").replace("_", "")[:16]
 
             # Store an event
@@ -416,10 +415,12 @@ def user_recover_account_initiate(user, request):
                     "project_name": project_name,
                     "repos": list(repo_urls[project_name]),
                     "support_issue_link": support_issue_link,
+                    "override_to_email": request.POST.get("override_to_email"),
                 },
             )
             observation.additional = {"status": "initiated"}
 
+            # Send the email
             send_account_recovery_initiated_email(
                 request,
                 user,
