@@ -107,10 +107,6 @@ strong {
 }
 
 a {
-  text-decoration: none;
-  background-position: 0 1.15em;
-  background-repeat: repeat-x;
-  background-size: 100% 1.5px;
   @include primary-underlined-link;
 
   // Add 'external link' icon to most external links

@@ -21,11 +21,9 @@
 
 @mixin colored-link($color) {
   color: $color;
-  background-image: linear-gradient(to right, $color, transparentize($color, 0.3));
 
   &:hover {
     color: darken($color, 10);
-    background-image: linear-gradient(to right, darken($color, 10), darken($color, 10));
   }
 
   @include link-focus-state($color);
@@ -49,15 +47,14 @@
 
 @mixin white-underlined-link {
   color: transparentize($white, 0.05);
-  background-image: linear-gradient(to right, $white, transparentize($white, 0.3));
 
   @include link-focus-state($white);
 }
 
 @mixin link-without-underline {
-  background-image: none;
+  text-decoration: none;
 
   &:hover {
-    background-image: none;
+    text-decoration: none;
   }
 }
