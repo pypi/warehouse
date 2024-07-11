@@ -64,7 +64,7 @@ services:
 
   camo:
     image: pypa/warehouse-camo:2.0.0
-    command: /bin/go-camo --listen=0.0.0.0:9000
+    command: "/bin/go-camo --listen=0.0.0.0:9000 --header 'Access-Control-Allow-Origin: http://localhost'"
     ports:
       - "9000:9000"
     environment:

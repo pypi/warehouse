@@ -345,14 +345,10 @@ def user_reset_password(user, request):
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
-@functools.lru_cache
 def _is_a_valid_url(url):
-    try:
         return (
             url.startswith("https://") or url.startswith("http://")
-        ) and requests.get(url, timeout=1).status_code == 200
-    except requests.exceptions.ConnectionError:
-        return False
+        )
 
 
 def _get_related_urls(user):
@@ -361,7 +357,6 @@ def _get_related_urls(user):
         release = project.releases[0]
 
         for kind, url in release.urls.items():
-            print(kind, url)
             if _is_a_valid_url(url):
                 project_to_urls[project.name].add((kind, url))
 

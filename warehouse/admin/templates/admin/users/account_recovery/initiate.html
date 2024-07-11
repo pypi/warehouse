@@ -78,7 +78,7 @@
       <label class="form-check-label" for="{{ project_name }}"><a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }}</a></label>
       <ul>
       {% for kind, repo_url in repo_urls %}
-      <li>{{ kind }}: <a href="{{ repo_url }}">{{ repo_url }}</a></li>
+      <li>{{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a></li>
       {% endfor %}
       </ul>
     </div>
