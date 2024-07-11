@@ -37,7 +37,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObservers, HasObservations
+from warehouse.observations.models import HasObservations, HasObservers, ObservationKind
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -254,6 +254,13 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 self.prohibit_password_reset,
             ]
         )
+
+    @property
+    def active_account_recoveries(self):
+        return self.observations.filter(
+            (UserObservation.kind == ObservationKind.AccountRecovery)
+            & (UserObservation.additional["status"].astext == "initiated")
+        ).all()
 
     def __principals__(self) -> list[str]:
         principals = [Authenticated, f"user:{self.id}"]

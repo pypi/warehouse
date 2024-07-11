@@ -42,9 +42,9 @@ from warehouse.email import (
     send_account_recovery_initiated_email,
     send_password_reset_by_admin_email,
 )
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project, Role
 from warehouse.utils.paginate import paginate_url_factory
-from warehouse.observations.models import ObservationKind
 
 
 @view_config(
@@ -397,18 +397,23 @@ def user_recover_account_initiate(user, request):
             token = secrets.token_urlsafe().replace("-", "").replace("_", "")[:16]
 
             # Store an event
-            user.record_observation(
+            observation = user.record_observation(
                 request=request,
-                kind=ObservationKind.AccountRecoveryInitiated,
+                kind=ObservationKind.AccountRecovery,
                 actor=request.user,
-                summary="Account Recovery Initiated",
+                summary="Account Recovery",
                 payload={
-                    "initiated": datetime.datetime.now(),
+                    "initiated": str(datetime.datetime.now()),
+                    "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": repo_urls[project_name],
+                    "repos": list(repo_urls[project_name]),
+                    "support_issue_link": support_issue_link,
                 },
             )
+            observation.additional = {
+                "status": "initiated"
+            }
 
             send_account_recovery_initiated_email(
                 request,
