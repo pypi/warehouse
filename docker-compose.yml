@@ -22,6 +22,7 @@ services:
     volumes:
       - ./dev/db/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d:z
       - ./dev/example.sql.xz:/example.sql.xz:z
+      - ./dev/db/post-migrations.sql:/post-migrations.sql:z
       - ./bin/wait-for-db:/usr/local/bin/wait-for-db:z
 
   stripe:
@@ -110,7 +111,7 @@ services:
 
   web:
     image: warehouse:docker-compose
-    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
+    command: gunicorn --reload --reload-extra-file=warehouse/api/openapi.yaml -w 4 -b 0.0.0.0:8000 --access-logfile - --error-logfile - warehouse.wsgi:application
     env_file: dev/environment
     pull_policy: never
     volumes: *base_volumes
