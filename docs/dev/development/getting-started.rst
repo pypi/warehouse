@@ -328,6 +328,19 @@ secret. You can generate a TOTP value for logging in using:
 
     $ make totp
 
+These users also have recovery codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
+
 Some user accounts that you might want to try are:
 
 - `ewdurbin` - Superuser, 3 email addresses (one verified), has projects
