@@ -96,6 +96,20 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.account_recovery.cancel",
+        "/admin/users/{username}/account_recovery/cancel/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.complete",
+        "/admin/users/{username}/account_recovery/complete/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.prohibited_user_names.bulk_add",
         "/admin/prohibited_user_names/bulk/",
         domain=warehouse,

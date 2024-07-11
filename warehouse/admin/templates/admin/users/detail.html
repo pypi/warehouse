@@ -116,6 +116,9 @@
             <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-recycle"></i> Start account recovery
             </a>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
+            </button>
             {% endif %}
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
@@ -228,6 +231,40 @@
                 </div>
               </form>
             </div>
+            <div class="modal fade" id="wipeFactorsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="wipeFactorsModalLabel">Wipe second/recovery factors for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will permanently remove the user's second factors and recovery codes,
+                        and cannot be undone.
+                      </p>
+                      <p>
+                        It will also permanently remove the user's current password,
+                        and send them a password reset request.
+                      </p>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Wipe factors</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div> <!-- .card -->
@@ -286,11 +323,72 @@
                 <tr>
                   <th>Actions</th>
                   <td>
-                    <button type="button" class="btn btn-block btn-primary">Cancel Recovery</button>
-                    <button type="button" class="btn btn-block btn-danger">Complete Recovery and reset 2FA</button>
+                    <button type="button" class="btn btn-block btn-primary" data-toggle="modal" data-target="#cancelRecoveryModal" {{ "disabled" if not perms_admin_users_write }}>
+                      Cancel Recovery
+                    </button>
+                    <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#completeRecoveryModal" {{ "disabled" if not perms_admin_users_write }}>
+                      Complete Recovery
+                    </button>
                   </td>
                 </tr>
               </table>
+              <div class="modal fade" id="cancelRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.cancel', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Cancel Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will cancel the outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Cancel Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal fade" id="completeRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Complete Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will complete outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                        <hr>
+                        <p>
+                          All recovery codes, 2FA methods, and passwords for {{ user.username }} will be reset.
+                        </p>
+                        <hr>
+                        <p>
+                          Type the username '{{ user.username }}' to confirm:
+                        </p>
+                        <input type="text" name="username" placeholder="{{ user.username }}">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Complete Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
           </div>
           {% endfor %}

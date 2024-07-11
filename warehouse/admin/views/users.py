@@ -375,7 +375,17 @@ def _get_related_urls(user):
 def user_recover_account_initiate(user, request):
     repo_urls = _get_related_urls(user)
 
+    if user.active_account_recoveries:
+        request.session.flash(
+            "Only one account recovery may be in process for each user.", queue="error"
+        )
+
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
     if request.method == "POST":
+
         support_issue_link = request.POST.get("support_issue_link")
         project_name = request.POST.get("project_name")
 
@@ -440,9 +450,30 @@ def user_recover_account_initiate(user, request):
     }
 
 
-"""
 @view_config(
-    route_name="admin.user.wipe_factors",
+    route_name="admin.user.account_recovery.cancel",
+    permission=Permissions.AdminUsersWrite,
+    has_translations=True,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+    require_methods=False,
+)
+def user_recover_account_cancel(user, request):
+    if request.method == "POST":
+        for account_recovery in user.active_account_recoveries:
+            account_recovery.additional["status"] = "cancelled"
+        request.session.flash(
+            f"Cancelled account recovery for {user.username!r}", queue="success"
+        )
+
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+
+@view_config(
+    route_name="admin.user.account_recovery.complete",
     require_methods=["POST"],
     permission=Permissions.AdminUsersWrite,
     has_translations=True,
@@ -450,7 +481,7 @@ def user_recover_account_initiate(user, request):
     require_csrf=True,
     context=User,
 )
-def user_wipe_factors(user, request):
+def user_recover_account_complete(user, request):
     if user.username != request.matchdict.get("username", user.username):
         return HTTPMovedPermanently(request.current_route_path(username=user.username))
 
@@ -465,11 +496,15 @@ def user_wipe_factors(user, request):
     user.recovery_codes = []
     _user_reset_password(user, request)
 
+    for account_recovery in user.active_account_recoveries:
+        account_recovery.additional["status"] = "completed"
+        account_recovery.payload["completed"] = str(datetime.datetime.now())
+
     request.session.flash(
-        f"Wiped factors and reset password for {user.username!r}", queue="success"
+        f"Account Recovery Complete, wiped factors and reset password for {user.username!r}",
+        queue="success",
     )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
-"""
 
 
 @view_config(
