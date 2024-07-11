@@ -11,9 +11,8 @@
 # limitations under the License.
 
 import collections
+import datetime
 import itertools
-
-from datetime import datetime, timedelta
 
 from pyramid.view import view_config
 from sqlalchemy import func, or_
@@ -23,7 +22,7 @@ from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
 from warehouse.packaging.models import Project
 
-AGE_BEFORE_INDEX = timedelta(days=14)
+AGE_BEFORE_INDEX = datetime.timedelta(days=14)
 SITEMAP_MAXSIZE = 50000
 
 
@@ -65,7 +64,9 @@ def sitemap_index(request):
         request.db.query(
             Project.sitemap_bucket, func.max(Project.created).label("modified")
         )
-        .filter(Project.created < datetime.utcnow() - AGE_BEFORE_INDEX)
+        .filter(
+            Project.created < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX
+        )
         .group_by(Project.sitemap_bucket)
         .all()
     )
@@ -75,7 +76,8 @@ def sitemap_index(request):
         )
         .filter(
             or_(
-                User.date_joined < datetime.utcnow() - AGE_BEFORE_INDEX,
+                User.date_joined
+                < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )
@@ -113,7 +115,9 @@ def sitemap_bucket(request):
 
     projects = (
         request.db.query(Project.normalized_name)
-        .filter(Project.created < datetime.utcnow() - AGE_BEFORE_INDEX)
+        .filter(
+            Project.created < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX
+        )
         .filter(Project.sitemap_bucket == bucket)
         .all()
     )
@@ -122,7 +126,8 @@ def sitemap_bucket(request):
         .filter(User.sitemap_bucket == bucket)
         .filter(
             or_(
-                User.date_joined < datetime.utcnow() - AGE_BEFORE_INDEX,
+                User.date_joined
+                < datetime.datetime.now(datetime.UTC) - AGE_BEFORE_INDEX,
                 User.date_joined.is_(None),
             )
         )

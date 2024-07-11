@@ -13,9 +13,16 @@
 import re
 
 from pyramid.httpexceptions import HTTPSeeOther
+from sqlalchemy.sql import func
 
+from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
-from warehouse.packaging.models import JournalEntry
+from warehouse.packaging.models import (
+    JournalEntry,
+    LifecycleStatus,
+    ProhibitedProjectName,
+    Project,
+)
 from warehouse.tasks import task
 
 
@@ -62,6 +69,90 @@ def confirm_project(
                 fail_route,
                 project_name=project.normalized_name,
             )
+        )
+
+
+def prohibit_and_remove_project(
+    project: Project | str, request, comment: str, flash: bool = True
+):
+    """
+    View helper to prohibit and remove a project.
+    """
+    # TODO: See if we can constrain `project` to be a `Project` only.
+    project_name = project.name if isinstance(project, Project) else project
+    # Add our requested prohibition.
+    request.db.add(
+        ProhibitedProjectName(
+            name=project_name, comment=comment, prohibited_by=request.user
+        )
+    )
+    # Go through and delete the project and everything related to it so that
+    # our prohibition actually blocks things and isn't ignored (since the
+    # prohibition only takes effect on new project registration).
+    project = (
+        request.db.query(Project)
+        .filter(Project.normalized_name == func.normalize_pep426_name(project_name))
+        .first()
+    )
+    if project is not None:
+        remove_project(project, request, flash=flash)
+
+
+def quarantine_project(project: Project, request, flash=True) -> None:
+    """
+    Quarantine a project. Reversible action.
+    """
+    project.lifecycle_status = LifecycleStatus.QuarantineEnter
+    project.lifecycle_status_note = f"Quarantined by {request.user.username}."
+
+    project.record_event(
+        tag=EventTag.Project.ProjectQuarantineEnter,
+        request=request,
+        additional={"submitted_by": request.user.username},
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="project quarantined",
+            submitted_by=request.user,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Project {project.name} quarantined.\n"
+            "Please update related Help Scout conversations.",
+            queue="success",
+        )
+
+
+def clear_project_quarantine(project: Project, request, flash=True) -> None:
+    """
+    Remove a project from quarantine.
+    """
+    project.lifecycle_status = LifecycleStatus.QuarantineExit
+    project.lifecycle_status_note = f"Quarantine cleared by {request.user.username}."
+
+    project.record_event(
+        tag=EventTag.Project.ProjectQuarantineExit,
+        request=request,
+        additional={"submitted_by": request.user.username},
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="project quarantine cleared",
+            submitted_by=request.user,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Project {project.name} quarantine cleared.\n"
+            "Please update related Help Scout conversations.",
+            queue="success",
         )
 
 

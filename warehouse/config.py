@@ -30,6 +30,7 @@ from pyramid.tweens import EXCVIEW
 from pyramid_rpc.xmlrpc import XMLRPCRenderer
 
 from warehouse.authnz import Permissions
+from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
 from warehouse.utils.static import ManifestCacheBuster
 from warehouse.utils.wsgi import ProxyFixer, VhmRootRemover
 
@@ -216,6 +217,10 @@ def from_base64_encoded_json(configuration):
 def configure(settings=None):
     if settings is None:
         settings = {}
+    settings["warehouse.forklift.legacy.MAX_FILESIZE_MIB"] = MAX_FILESIZE / ONE_MIB
+    settings["warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB"] = (
+        MAX_PROJECT_SIZE / ONE_GIB
+    )
 
     # Allow configuring the log level. See `warehouse/logging.py` for more
     maybe_set(settings, "logging.level", "LOG_LEVEL")
@@ -270,7 +275,7 @@ def configure(settings=None):
     maybe_set(settings, "celery.scheduler_url", "REDIS_URL")
     maybe_set(settings, "oidc.jwk_cache_url", "REDIS_URL")
     maybe_set(settings, "database.url", "DATABASE_URL")
-    maybe_set(settings, "elasticsearch.url", "ELASTICSEARCH_URL")
+    maybe_set(settings, "opensearch.url", "OPENSEARCH_URL")
     maybe_set(settings, "sentry.dsn", "SENTRY_DSN")
     maybe_set(settings, "sentry.transport", "SENTRY_TRANSPORT")
     maybe_set(settings, "sessions.url", "REDIS_URL")
@@ -675,8 +680,6 @@ def configure(settings=None):
 
     config.include(".static")
 
-    config.include(".policy")
-
     config.include(".search")
 
     # Register the support for AWS, Backblaze,and Google Cloud
@@ -716,7 +719,9 @@ def configure(settings=None):
     config.include(".packaging")
 
     # Configure redirection support
-    config.include(".redirects")
+    config.include(".redirects")  # internal
+    config.include("pyramid_redirect")  # external
+    config.add_settings({"pyramid_redirect.structlog": True})
 
     # Register all our URL routes for Warehouse.
     config.include(".routes")

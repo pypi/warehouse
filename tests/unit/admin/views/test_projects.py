@@ -21,6 +21,8 @@ from paginate_sqlalchemy import SqlalchemyOrmPage
 from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
 
+import warehouse.constants
+
 from tests.common.db.oidc import GitHubPublisherFactory
 from warehouse.admin.views import projects as views
 from warehouse.observations.models import ObservationKind
@@ -102,10 +104,10 @@ class TestProjectDetail:
             "maintainers": roles,
             "journal": journals[:30],
             "oidc_publishers": oidc_publishers,
-            "ONE_MB": views.ONE_MB,
-            "MAX_FILESIZE": views.MAX_FILESIZE,
-            "MAX_PROJECT_SIZE": views.MAX_PROJECT_SIZE,
-            "ONE_GB": views.ONE_GB,
+            "ONE_MIB": views.ONE_MIB,
+            "MAX_FILESIZE": warehouse.constants.MAX_FILESIZE,
+            "MAX_PROJECT_SIZE": warehouse.constants.MAX_PROJECT_SIZE,
+            "ONE_GIB": views.ONE_GIB,
             "UPLOAD_LIMIT_CAP": views.UPLOAD_LIMIT_CAP,
             "observation_kinds": ObservationKind,
             "observations": [],
@@ -238,6 +240,29 @@ class TestReleaseAddObservation:
 
         assert request.session.flash.calls == [
             pretend.call("Provide a summary", queue="error")
+        ]
+
+
+class TestProjectQuarantine:
+    def test_remove_from_quarantine(self, db_request):
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        db_request.route_path = pretend.call_recorder(
+            lambda *a, **kw: "/admin/projects/"
+        )
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+        db_request.user = UserFactory.create()
+        db_request.matchdict["project_name"] = project.normalized_name
+
+        views.remove_from_quarantine(project, db_request)
+
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                f"Project {project.name} quarantine cleared.\n"
+                "Please update related Help Scout conversations.",
+                queue="success",
+            )
         ]
 
 
@@ -575,11 +600,11 @@ class TestProjectSetTotalSizeLimit:
             pretend.call("Set the total size limit on 'foo'", queue="success")
         ]
 
-        assert project.total_size_limit == 150 * views.ONE_GB
+        assert project.total_size_limit == 150 * views.ONE_GIB
 
     def test_sets_total_size_limitwith_none(self, db_request):
         project = ProjectFactory.create(name="foo")
-        project.total_size_limit = 150 * views.ONE_GB
+        project.total_size_limit = 150 * views.ONE_GIB
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -627,7 +652,7 @@ class TestProjectSetLimit:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
         db_request.matchdict["project_name"] = project.normalized_name
-        new_upload_limit = views.MAX_FILESIZE // views.ONE_MB
+        new_upload_limit = warehouse.constants.MAX_FILESIZE // views.ONE_MIB
         db_request.POST["upload_limit"] = str(new_upload_limit)
 
         views.set_upload_limit(project, db_request)
@@ -636,11 +661,11 @@ class TestProjectSetLimit:
             pretend.call("Set the upload limit on 'foo'", queue="success")
         ]
 
-        assert project.upload_limit == new_upload_limit * views.ONE_MB
+        assert project.upload_limit == new_upload_limit * views.ONE_MIB
 
     def test_sets_limit_with_none(self, db_request):
         project = ProjectFactory.create(name="foo")
-        project.upload_limit = 90 * views.ONE_MB
+        project.upload_limit = 90 * views.ONE_MIB
 
         db_request.route_path = pretend.call_recorder(
             lambda *a, **kw: "/admin/projects/"
@@ -749,6 +774,7 @@ class TestAddRole:
     def test_add_role(self, db_request):
         role_name = "Maintainer"
         project = ProjectFactory.create(name="foo")
+        UserFactory.create(username="admin")
         user = UserFactory.create(username="bar")
 
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
@@ -843,6 +869,7 @@ class TestDeleteRole:
         project = ProjectFactory.create(name="foo")
         user = UserFactory.create(username="bar")
         role = RoleFactory.create(project=project, user=user)
+        UserFactory.create(username="admin")
 
         db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/the-redirect/")
         db_request.session = pretend.stub(

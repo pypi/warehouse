@@ -17,6 +17,9 @@ omit = [
   # And again, tiny shim code.
   "warehouse/celery.py",
 ]
+# We run multiple processes in parallel, so we need to make sure that we don't
+# write to the same file at the same time.
+parallel = true
 
 [tool.coverage.report]
 exclude_lines = [
@@ -56,7 +59,6 @@ module = [
     "b2sdk.*",  # https://github.com/Backblaze/b2-sdk-python/issues/148
     "celery.app.backends.*",
     "celery.backends.redis.*",
-    "elasticsearch_dsl.*", # https://github.com/elastic/elasticsearch-dsl-py/issues/1533
     "github_reserved_names.*",
     "google.cloud.*",
     "forcediphttpsadapter.*",
@@ -88,6 +90,7 @@ addopts = [
   "--disable-socket",
   "--allow-hosts=localhost,::1,notdatadog,stripe",
   "--durations=20",
+  "--numprocesses=auto",
 ]
 cache_dir = "dev/.pytest_cache"
 norecursedirs = ['build', 'dist', 'node_modules', '*.egg-info', '.state requirements']

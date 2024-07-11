@@ -13,7 +13,7 @@
 from paginate import Page
 
 
-class _ElasticsearchWrapper:
+class _OpenSearchWrapper:
     max_results = 10000
 
     def __init__(self, query):
@@ -56,8 +56,8 @@ class _ElasticsearchWrapper:
         return min(self.results.hits.total["value"], self.max_results)
 
 
-def ElasticsearchPage(*args, **kwargs):  # noqa
-    kwargs.setdefault("wrapper_class", _ElasticsearchWrapper)
+def OpenSearchPage(*args, **kwargs):  # noqa
+    kwargs.setdefault("wrapper_class", _OpenSearchWrapper)
     return Page(*args, **kwargs)
 
 

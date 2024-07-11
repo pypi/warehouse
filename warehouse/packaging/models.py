@@ -135,7 +135,7 @@ class RoleInvitation(db.Model):
         index=True,
     )
 
-    user: Mapped[User] = orm.relationship(lazy=False)
+    user: Mapped[User] = orm.relationship(lazy=False, back_populates="role_invitations")
     project: Mapped[Project] = orm.relationship(lazy=False)
 
 
@@ -162,6 +162,11 @@ class ProjectFactory:
             return True
 
 
+class LifecycleStatus(enum.StrEnum):
+    QuarantineEnter = "quarantine-enter"
+    QuarantineExit = "quarantine-exit"
+
+
 class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     __tablename__ = "projects"
     __repr__ = make_repr("name")
@@ -182,6 +187,16 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     last_serial: Mapped[int] = mapped_column(server_default=sql.text("0"))
     total_size: Mapped[int | None] = mapped_column(
         BigInteger, server_default=sql.text("0")
+    )
+    lifecycle_status: Mapped[LifecycleStatus | None] = mapped_column(
+        comment="Lifecycle status can change project visibility and access"
+    )
+    lifecycle_status_changed: Mapped[datetime_now | None] = mapped_column(
+        onupdate=func.now(),
+        comment="When the lifecycle status was last changed",
+    )
+    lifecycle_status_note: Mapped[str | None] = mapped_column(
+        comment="Note about the lifecycle status"
     )
 
     oidc_publishers: Mapped[list[OIDCPublisher]] = orm.relationship(
@@ -231,6 +246,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             "project_name_ultranormalized",
             func.ultranormalize_name(name),
         ),
+        Index("projects_lifecycle_status_idx", "lifecycle_status"),
     )
 
     def __getitem__(self, version):
@@ -485,18 +501,18 @@ DynamicFieldsEnum = ENUM(
     "Description",
     "Description-Content-Type",
     "Keywords",
-    "Home-page",
-    "Download-URL",
+    "Home-Page",
+    "Download-Url",
     "Author",
-    "Author-email",
+    "Author-Email",
     "Maintainer",
-    "Maintainer-email",
+    "Maintainer-Email",
     "License",
     "Classifier",
     "Requires-Dist",
     "Requires-Python",
     "Requires-External",
-    "Project-URL",
+    "Project-Url",
     "Provides-Extra",
     "Provides-Dist",
     "Obsoletes-Dist",
