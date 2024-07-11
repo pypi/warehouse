@@ -225,7 +225,7 @@ class OIDCPublisherService:
         Check if a JWT Token Identifier has already been used.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            return bool(r.exists(jti))
+            return bool(r.exists(f"/warehouse/oidc/{self.publisher}/{jti}"))
 
     def store_jwt_identifier(self, jti: str, expiration: int) -> None:
         """
@@ -235,7 +235,12 @@ class OIDCPublisherService:
             # Defensive: to prevent races, we expire the JTI slightly after
             # the token expiration date. Thus, the lock will not be
             # released before the token invalidation.
-            r.set(jti, exat=expiration + 5, value="placeholder", nx=True)
+            r.set(
+                f"/warehouse/oidc/{self.publisher}/{jti}",
+                exat=expiration + 5,
+                value="placeholder",
+                nx=True,
+            )
 
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
@@ -306,7 +311,7 @@ class OIDCPublisherService:
                 self.db, self.issuer_url, signed_claims, pending=pending
             )
 
-            jwt_token_identifier: str | None = signed_claims.get("jti", None)
+            jwt_token_identifier: str | None = signed_claims.get("jti")
             # jti is in the __preverified_claims__ set, so if it was present,
             # it was already checked
             if pending is False and jwt_token_identifier:
