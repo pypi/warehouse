@@ -11,13 +11,11 @@
 # limitations under the License.
 
 import datetime
-import functools
 import secrets
 import shlex
 
 from collections import defaultdict
 
-import requests
 import wtforms
 import wtforms.fields
 import wtforms.validators
@@ -501,7 +499,10 @@ def user_recover_account_complete(user, request):
         account_recovery.payload["completed"] = str(datetime.datetime.now())
 
     request.session.flash(
-        f"Account Recovery Complete, wiped factors and reset password for {user.username!r}",
+        (
+            "Account Recovery Complete, "
+            f"wiped factors and reset password for {user.username!r}"
+        ),
         queue="success",
     )
     return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))

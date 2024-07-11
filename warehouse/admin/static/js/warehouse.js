@@ -189,37 +189,38 @@ if (malwareReportsTable.length) {
 // Link Checking
 var links = document.querySelectorAll("a");
 links.forEach(function(link){
-    if (link.dataset.checkLinkUrl !== undefined) {
-        var reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
-        fetch(reportLine.url, {
-          method: 'GET',
-          mode: 'cors',
-        })
-        .then(function(response) {
-            var responseText = "";
-            response.text().then((text) => {
-              responseText = text;
-              console.log(response.status, responseText);
-              if (response.status == 400 && responseText == "Unsupported content-type returned\n") {
-                reportLine.element.firstChild.classList.remove('fa-question');
-                reportLine.element.firstChild.classList.add('fa-check');
-                reportLine.element.firstChild.classList.add('text-green');
-                reportLine.status = 1;
-              } else {
-                reportLine.status = 0;
-                reportLine.element.firstChild.classList.remove('fa-question');
-                reportLine.element.firstChild.classList.add('fa-times');
-                reportLine.element.firstChild.classList.add('text-red');
-              }
-              console.log(reportLine);
-            });
-        })
-        .catch(function(error){
-            reportLine.status = -1;
-            console.log(reportLine);
-            reportLine.element.firstChild.classList.remove('fa-question');
-            reportLine.element.firstChild.classList.add('fa-times');
-            reportLine.element.firstChild.classList.add('text-red');
+  if (link.dataset.checkLinkUrl !== undefined) {
+    var reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
+    fetch(reportLine.url, {
+      method: "GET",
+      mode: "cors",
+    })
+      .then(function(response) {
+        var responseText = "";
+        response.text().then((text) => {
+          responseText = text;
+          console.log(response.status, responseText);
+          if (response.status == 400 && responseText == "Unsupported content-type returned\n") {
+            reportLine.element.firstChild.classList.remove("fa-question");
+            reportLine.element.firstChild.classList.add("fa-check");
+            reportLine.element.firstChild.classList.add("text-green");
+            reportLine.status = 1;
+          } else {
+            reportLine.status = 0;
+            reportLine.element.firstChild.classList.remove("fa-question");
+            reportLine.element.firstChild.classList.add("fa-times");
+            reportLine.element.firstChild.classList.add("text-red");
+          }
+          console.log(reportLine);
         });
-    }
+      })
+      .catch(function(error){
+        reportLine.status = -1;
+        console.log(error);
+        console.log(reportLine);
+        reportLine.element.firstChild.classList.remove("fa-question");
+        reportLine.element.firstChild.classList.add("fa-times");
+        reportLine.element.firstChild.classList.add("text-red");
+      });
+  }
 });
