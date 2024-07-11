@@ -112,9 +112,11 @@
             <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-unlock-keyhole"></i> Reset password
             </button>
+            {% if not user.active_account_recoveries %}
             <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_write }}>
               <i class="fa-solid fa-recycle"></i> Start account recovery
             </a>
+            {% endif %}
             <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
               <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
                 <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
@@ -248,13 +250,47 @@
 
         {% if user.active_account_recoveries %}
         <div class="card-header with-border">
-          <h3 class="card-title">Account Recoveries</h3>
+          <h3 class="card-title">Account Recovery in Process</h3>
         </div>
         <div class="card-body">
           {% for account_recovery in user.active_account_recoveries %}
           <div class="row">
             <div class="col">
-              {{ account_recovery.__dict__ }}
+              <table class="table table-hover">
+                <tr>
+                  <th>Initiated</th>
+                  <td>{{ account_recovery.payload["initiated"] }}</td>
+                </tr>
+                <tr>
+                  <th><i class="fa-brands fa-github"></i></th>
+                  <td><a href="{{ account_recovery.payload["support_issue_link"] }}">{{ account_recovery.payload["support_issue_link"] }}</a></td>
+                </tr>
+                <tr>
+                  <th>Project</th>
+                  <td>{{ account_recovery.payload["project_name"] }}</td>
+                </tr>
+                <tr>
+                  <th>Token</th>
+                  <td>{{ account_recovery.payload["token"] }}</td>
+                </tr>
+                <tr>
+                  <th>Project URLS</th>
+                  <td>
+                    <ul>
+                      {% for url in account_recovery.payload["repos"] %}
+                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Actions</th>
+                  <td>
+                    <button type="button" class="btn btn-block btn-primary">Cancel Recovery</button>
+                    <button type="button" class="btn btn-block btn-danger">Complete Recovery and reset 2FA</button>
+                  </td>
+                </tr>
+              </table>
             </div>
           </div>
           {% endfor %}
