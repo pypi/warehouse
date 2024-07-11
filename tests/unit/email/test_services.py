@@ -172,7 +172,9 @@ class TestConsoleAndSMTPEmailSender:
         service.send(
             "sombody@example.com",
             EmailMessage(
-                subject="a subject", body_text="a body", body_html="a html body"
+                subject="a subject",
+                body_text="a body",
+                body_html="a html body",
             ),
         )
         captured = capsys.readouterr()

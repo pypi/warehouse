@@ -156,7 +156,12 @@ class TestSendEmailToUser:
         assert task.delay.calls == [
             pretend.call(
                 expected,
-                {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+                {
+                    "sender": None,
+                    "subject": "My Subject",
+                    "body_text": "My Body",
+                    "body_html": None,
+                },
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
@@ -270,7 +275,12 @@ class TestSendEmailToUser:
         assert task.delay.calls == [
             pretend.call(
                 expected,
-                {"subject": "My Subject", "body_text": "My Body", "body_html": None},
+                {
+                    "sender": None,
+                    "subject": "My Subject",
+                    "body_text": "My Body",
+                    "body_html": None,
+                },
                 {
                     "tag": "account:email:sent",
                     "user_id": user.id,
@@ -562,6 +572,7 @@ class TestSendAdminNewOrganizationRequestedEmail:
             pretend.call(
                 f"{admin_user.name} <{admin_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -666,6 +677,7 @@ class TestSendAdminNewOrganizationApprovedEmail:
             pretend.call(
                 f"{admin_user.name} <{admin_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -770,6 +782,7 @@ class TestSendAdminNewOrganizationDeclinedEmail:
             pretend.call(
                 f"{admin_user.name} <{admin_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -885,6 +898,7 @@ class TestSendPasswordResetEmail:
                 + (stub_user.email if email_addr is None else email_addr)
                 + ">",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -978,6 +992,7 @@ class TestEmailVerificationEmail:
             pretend.call(
                 stub_email.email,
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1103,6 +1118,7 @@ class TestPasswordChangeEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1220,6 +1236,7 @@ class TestPasswordCompromisedHIBPEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1293,6 +1310,7 @@ class TestTokenLeakEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1363,6 +1381,7 @@ class TestPasswordCompromisedEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1433,6 +1452,7 @@ class TestPasswordResetByAdminEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1506,6 +1526,7 @@ class Test2FAonUploadEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1578,6 +1599,7 @@ class TestAccountDeletionEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1712,6 +1734,7 @@ class TestPrimaryEmailChangeEmail:
             pretend.call(
                 "username <old_email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1841,6 +1864,7 @@ class TestSendNewOrganizationRequestedEmail:
             pretend.call(
                 f"{initiator_user.username} <{initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -1933,6 +1957,7 @@ class TestSendNewOrganizationApprovedEmail:
             pretend.call(
                 f"{initiator_user.username} <{initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -2024,6 +2049,7 @@ class TestSendNewOrganizationDeclinedEmail:
             pretend.call(
                 f"{initiator_user.username} <{initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -2094,6 +2120,7 @@ class TestOrganizationProjectEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2167,6 +2194,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2226,6 +2254,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2278,6 +2307,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2329,6 +2359,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2383,6 +2414,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2434,6 +2466,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2490,6 +2523,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2545,6 +2579,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2599,6 +2634,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2652,6 +2688,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2708,6 +2745,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.initiator_user.name} <{self.initiator_user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2763,6 +2801,7 @@ class TestOrganizationMemberEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2847,6 +2886,7 @@ class TestOrganizationUpdateEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2908,6 +2948,7 @@ class TestOrganizationRenameEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -2960,6 +3001,7 @@ class TestOrganizationRenameEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -3018,6 +3060,7 @@ class TestOrganizationDeleteEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -3068,6 +3111,7 @@ class TestOrganizationDeleteEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -3156,6 +3200,7 @@ class TestTeamMemberEmails:
             pretend.call(
                 f"{recipient.name} <{recipient.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -3225,6 +3270,7 @@ class TestTeamEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -3331,6 +3377,7 @@ class TestCollaboratorAddedEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3352,6 +3399,7 @@ class TestCollaboratorAddedEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3450,6 +3498,7 @@ class TestCollaboratorAddedEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3531,6 +3580,7 @@ class TestProjectRoleVerificationEmail:
             pretend.call(
                 f"{stub_user.name} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3621,6 +3671,7 @@ class TestAddedAsCollaboratorEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3766,6 +3817,7 @@ class TestCollaboratorRemovedEmail:
             pretend.call(
                 f"{removed_user.name} <{removed_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3787,6 +3839,7 @@ class TestCollaboratorRemovedEmail:
             pretend.call(
                 f"{submitter_user.name} <{submitter_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3861,6 +3914,7 @@ class TestRemovedAsCollaboratorEmail:
             pretend.call(
                 f"{removed_user.name} <{removed_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3944,6 +3998,7 @@ class TestRoleChangedEmail:
             pretend.call(
                 f"{changed_user.name} <{changed_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -3965,6 +4020,7 @@ class TestRoleChangedEmail:
             pretend.call(
                 f"{submitter_user.name} <{submitter_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4043,6 +4099,7 @@ class TestRoleChangedAsCollaboratorEmail:
             pretend.call(
                 f"{changed_user.name} <{changed_user.primary_email.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4146,6 +4203,7 @@ class TestTeamCollaboratorEmails:
             pretend.call(
                 f"{self.user.name} <{self.user.email}>",
                 {
+                    "sender": None,
                     "subject": subject_renderer.string_response,
                     "body_text": body_renderer.string_response,
                     "body_html": (
@@ -4250,6 +4308,7 @@ class TestRemovedProjectEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4271,6 +4330,7 @@ class TestRemovedProjectEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4371,6 +4431,7 @@ class TestRemovedProjectEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4392,6 +4453,7 @@ class TestRemovedProjectEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4508,6 +4570,7 @@ class TestYankedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4529,6 +4592,7 @@ class TestYankedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4643,6 +4707,7 @@ class TestYankedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4664,6 +4729,7 @@ class TestYankedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4779,6 +4845,7 @@ class TestUnyankedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4800,6 +4867,7 @@ class TestUnyankedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4913,6 +4981,7 @@ class TestUnyankedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -4934,6 +5003,7 @@ class TestUnyankedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5049,6 +5119,7 @@ class TestRemovedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5070,6 +5141,7 @@ class TestRemovedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5183,6 +5255,7 @@ class TestRemovedReleaseEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5204,6 +5277,7 @@ class TestRemovedReleaseEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5320,6 +5394,7 @@ class TestRemovedReleaseFileEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5341,6 +5416,7 @@ class TestRemovedReleaseFileEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5455,6 +5531,7 @@ class TestRemovedReleaseFileEmail:
             pretend.call(
                 "username <email@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5476,6 +5553,7 @@ class TestRemovedReleaseFileEmail:
             pretend.call(
                 "submitterusername <submiteremail@example.com>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5564,6 +5642,7 @@ class TestTwoFactorEmail:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5644,6 +5723,7 @@ class TestRecoveryCodeEmails:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5732,6 +5812,7 @@ class TestTrustedPublisherEmails:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5830,6 +5911,7 @@ class TestTrustedPublisherEmails:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5936,6 +6018,7 @@ class TestTrustedPublisherEmails:
             pretend.call(
                 f"{stub_user.username} <{stub_user.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (
@@ -5957,6 +6040,7 @@ class TestTrustedPublisherEmails:
             pretend.call(
                 f"{stub_user_maintainer.username} <{stub_user_maintainer.email}>",
                 {
+                    "sender": None,
                     "subject": "Email Subject",
                     "body_text": "Email Body",
                     "body_html": (

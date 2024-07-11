@@ -89,6 +89,7 @@ def _send_email_to_user(
     email=None,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     # If we were not given a specific email object, then we'll default to using
     # the User's primary email address.
@@ -115,12 +116,17 @@ def _send_email_to_user(
             "subject": msg.subject,
             "body_text": msg.body_text,
             "body_html": msg.body_html,
+            "sender": override_from,
         },
         {
             "tag": EventTag.Account.EmailSent,
             "user_id": user.id,
             "additional": {
-                "from_": request.registry.settings.get("mail.sender"),
+                "from_": (
+                    request.registry.settings.get("mail.sender")
+                    if override_from is None
+                    else override_from
+                ),
                 "to": email.email,
                 "subject": msg.subject,
                 "redact_ip": _redact_ip(request, email.email),
@@ -134,6 +140,7 @@ def _email(
     *,
     allow_unverified=False,
     repeat_window=None,
+    override_from=None,
 ):
     """
     This decorator is used to turn an e function into an email sending function!
@@ -190,6 +197,7 @@ def _email(
                     email=email,
                     allow_unverified=allow_unverified,
                     repeat_window=repeat_window,
+                    override_from=override_from,
                 )
                 metrics = request.find_service(IMetricsService, context=None)
                 metrics.increment(
@@ -340,7 +348,11 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}
 
 
-@_email("account-recovery-initiated", allow_unverified=True)
+@_email(
+    "account-recovery-initiated",
+    allow_unverified=True,
+    override_from="support@pypi.org",
+)
 def send_account_recovery_initiated_email(
     request, user_and_email, *, project_name, support_issue_link, token
 ):
