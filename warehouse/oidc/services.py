@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import json
+import typing
 import warnings
 
 import jwt
@@ -231,7 +232,10 @@ class OIDCPublisherService:
         Store the JTI with its expiration date if the key does not exist.
         """
         with redis.StrictRedis.from_url(self.cache_url) as r:
-            r.set(jti, exat=expiration, value="placeholder", nx=True)
+            # Defensive: to prevent races, we expire the JTI slightly after
+            # the token expiration date. Thus, the lock will not be
+            # released before the token invalidation.
+            r.set(jti, exat=expiration + 1, value="placeholder", nx=True)
 
     def verify_jwt_signature(self, unverified_token: str) -> SignedClaims | None:
         try:
@@ -303,9 +307,8 @@ class OIDCPublisherService:
             )
 
             jwt_token_identifier: str | None = signed_claims.get("jti", None)
-            # It is ok to not perform the reused token check here if we don't have a JTI
-            # because it is going to be checked in `verify_claims` function if the claim
-            # was required and fail with the appropriate error.
+            # jti is in the __preverified_claims__ set, so if it was present,
+            # it was already checked
             if pending is False and jwt_token_identifier:
                 if self.token_identifier_exists(jwt_token_identifier):
                     self.metrics.increment(
@@ -321,9 +324,10 @@ class OIDCPublisherService:
             )
 
             if pending is False and jwt_token_identifier:
-                self.store_jwt_identifier(
-                    jwt_token_identifier, int(signed_claims.get("exp"))
-                )
+                # Of note, exp is coming from a trusted source here,
+                # so we don't validate it
+                expiration = typing.cast(int, signed_claims.get("exp"))
+                self.store_jwt_identifier(jwt_token_identifier, expiration)
 
             return publisher
         except InvalidPublisherError as e:

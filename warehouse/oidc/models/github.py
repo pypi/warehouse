@@ -132,10 +132,19 @@ class GitHubPublisherMixin:
         "job_workflow_ref": _check_job_workflow_ref,
     }
 
-    __required_unverifiable_claims__: set[str] = {"ref", "sha", "jti"}
+    __required_unverifiable_claims__: set[str] = {"ref", "sha"}
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
+    }
+
+    __preverified_claims__ = {
+        "iss",
+        "iat",
+        "nbf",
+        "exp",
+        "aud",
+        "jti",
     }
 
     __unchecked_claims__ = {

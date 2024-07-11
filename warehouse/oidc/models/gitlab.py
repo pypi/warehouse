@@ -120,7 +120,16 @@ class GitLabPublisherMixin:
         "ci_config_ref_uri": _check_ci_config_ref_uri,
     }
 
-    __required_unverifiable_claims__: set[str] = {"ref_path", "sha", "jti"}
+    __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
+
+    __preverified_claims__ = {
+        "iss",
+        "iat",
+        "nbf",
+        "exp",
+        "aud",
+        "jti",
+    }
 
     __optional_verifiable_claims__: dict[str, CheckClaimCallable[Any]] = {
         "environment": _check_environment,
