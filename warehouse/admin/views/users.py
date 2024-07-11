@@ -401,6 +401,41 @@ def user_recover_account_initiate(user, request):
             request.session.flash("Select a project for verification", queue="error")
         else:
             token = secrets.token_urlsafe().replace("-", "").replace("_", "")[:16]
+            override_to_email = (
+                request.POST.get("override_to_email")
+                if request.POST.get("override_to_email") != ""
+                else None
+            )
+
+            if override_to_email is not None:
+                user_service = request.find_service(IUserService, context=None)
+                _user = user_service.get_user_by_email(override_to_email)
+                if _user is None:
+                    user_and_email = (
+                        user,
+                        user_service.add_email(
+                            user.id, override_to_email, ratelimit=False
+                        ),
+                    )
+                elif _user != user:
+                    request.session.flash(
+                        "Email address already associated with a user", queue="error"
+                    )
+                    return HTTPSeeOther(
+                        request.route_path(
+                            "admin.user.account_recovery.initiate",
+                            username=user.username,
+                        )
+                    )
+                else:
+                    user_and_email = (
+                        user,
+                        request.db.query(Email)
+                        .filter(Email.email == override_to_email)
+                        .one(),
+                    )
+            else:
+                user_and_email = (user, user.primary_email)
 
             # Store an event
             observation = user.record_observation(
@@ -415,7 +450,7 @@ def user_recover_account_initiate(user, request):
                     "project_name": project_name,
                     "repos": list(repo_urls[project_name]),
                     "support_issue_link": support_issue_link,
-                    "override_to_email": request.POST.get("override_to_email"),
+                    "override_to_email": override_to_email,
                 },
             )
             observation.additional = {"status": "initiated"}
@@ -423,7 +458,7 @@ def user_recover_account_initiate(user, request):
             # Send the email
             send_account_recovery_initiated_email(
                 request,
-                user,
+                user_and_email,
                 project_name=project_name,
                 support_issue_link=support_issue_link,
                 token=token,

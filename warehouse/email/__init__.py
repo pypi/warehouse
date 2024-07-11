@@ -342,8 +342,9 @@ def send_token_compromised_email_leak(request, user, *, public_url, origin):
 
 @_email("account-recovery-initiated", allow_unverified=True)
 def send_account_recovery_initiated_email(
-    request, user, *, project_name, support_issue_link, token
+    request, user_and_email, *, project_name, support_issue_link, token
 ):
+    user, email = user_and_email
     return {
         "user": user,
         "support_issue_link": support_issue_link,
