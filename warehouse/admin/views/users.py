@@ -346,9 +346,7 @@ def user_reset_password(user, request):
 
 
 def _is_a_valid_url(url):
-        return (
-            url.startswith("https://") or url.startswith("http://")
-        )
+    return url.startswith("https://") or url.startswith("http://")
 
 
 def _get_related_urls(user):
@@ -412,9 +410,7 @@ def user_recover_account_initiate(user, request):
                     "support_issue_link": support_issue_link,
                 },
             )
-            observation.additional = {
-                "status": "initiated"
-            }
+            observation.additional = {"status": "initiated"}
 
             send_account_recovery_initiated_email(
                 request,

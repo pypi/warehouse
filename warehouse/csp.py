@@ -51,7 +51,7 @@ def content_security_policy_tween_factory(handler, registry):
             # Admin UI/Bootstrap 4 uses inline SVGs for icons
             policy["img-src"].extend(["data:"])
             # Link checking
-            policy["connect-src"].extend([request.registry.settings["camo.url"]]);
+            policy["connect-src"].extend([request.registry.settings["camo.url"]])
 
         # We don't want to apply our Content Security Policy to the debug
         # toolbar, that's not part of our application and it doesn't work with

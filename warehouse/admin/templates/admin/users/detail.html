@@ -245,6 +245,22 @@
             </div>
           </div>
         </div>
+
+        {% if user.active_account_recoveries %}
+        <div class="card-header with-border">
+          <h3 class="card-title">Account Recoveries</h3>
+        </div>
+        <div class="card-body">
+          {% for account_recovery in user.active_account_recoveries %}
+          <div class="row">
+            <div class="col">
+              {{ account_recovery.__dict__ }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
         <div class="card-header with-border">
           <h3 class="card-title">Edit User</h3>
         </div>

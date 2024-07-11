@@ -257,10 +257,12 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
     @property
     def active_account_recoveries(self):
-        return self.observations.filter(
-            (UserObservation.kind == ObservationKind.AccountRecovery)
-            & (UserObservation.additional["status"].astext == "initiated")
-        ).all()
+        return [
+            observation
+            for observation in self.observations
+            if observation.kind == ObservationKind.AccountRecovery.value[0]
+            and observation.additional["status"] == "initiated"
+        ]
 
     def __principals__(self) -> list[str]:
         principals = [Authenticated, f"user:{self.id}"]
