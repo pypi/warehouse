@@ -323,6 +323,66 @@ http://localhost:80/account/login/.
 To log in as an admin user, log in as ``ewdurbin`` with the password
 ``password``. Due to session invalidation, you may have to login twice.
 
+Some user accounts that you might want to try are:
+
+- `ewdurbin` - Superuser, 3 email addresses (one verified), has projects
+- `di` - Superuser, 2 email addresses (both verified), has projects
+- `dstufft` - Superuser, 2 email addresses (one verified), has projects
+- `miketheman` - Regular user, 1 email address (not verified), has a project
+
+There are no Moderator accounts in the dev db, any Superuser can change a user
+to a moderator if needed.
+
+Using different accounts will allow you to see different parts of the site,
+and have slightly different experiences.
+
+For example, using `miketheman` will require email verification.
+See :ref:`testing-e-mails` for more information on how to see those emails.
+
+Once logged in, you must enroll in a form of Two-Factor Authentication (2FA).
+This is a requirement for all users.
+
+One way to make this easier is to use a command-line tool like
+`totp-cli <https://yitsushi.github.io/totp-cli/>`_ to generate a TOTP 2FA code.
+
+For example, to generate a code for any of the above users,
+we have a common Key set in the database for those users:
+
+.. code-block:: console
+
+    $ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
+
+This will emit a 6-digit code you can paste into the 2FA form.
+
+For other accounts, you'll need to preserve the Key used
+to genreate the TOTP code the next time you need to log in.
+
+To be able to "forget" the initial Key, and use it like a TOTP app,
+create a storage and set a password, like so:
+
+.. code-block:: console
+
+    $ totp-cli add-token localhost <username>
+    Token: <paste Key from warehouse web interface here>
+    Password: <set a password, is unique to this totp storage>
+
+Then you can retrieve the current TOTP code with:
+
+.. code-block:: console
+
+    $ totp-cli g localhost <username>
+    Password: <the password you set for the totp storage>
+
+Keep in mind: If the database is ever reset,
+you'll need to re-enroll user accounts in 2FA.
+
+Remove the existing TOTP token from storage with:
+
+.. code-block:: console
+
+    $ totp-cli delete localhost <username>
+    Password: <the password you set for the totp storage>
+
 
 Stopping Warehouse and other services
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

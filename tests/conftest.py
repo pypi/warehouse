@@ -25,6 +25,7 @@ import pretend
 import pyramid.testing
 import pytest
 import stripe
+import transaction
 import webtest as _webtest
 
 from jinja2 import Environment, FileSystemLoader
@@ -298,8 +299,7 @@ def mock_manifest_cache_buster():
     return MockManifestCacheBuster
 
 
-@pytest.fixture(scope="session")
-def app_config(database):
+def get_app_config(database, nondefaults=None):
     settings = {
         "warehouse.prevent_esi": True,
         "warehouse.token": "insecure token",
@@ -329,20 +329,42 @@ def app_config(database):
         "statuspage.url": "https://2p66nmmycsj3.statuspage.io",
         "warehouse.xmlrpc.cache.url": "redis://localhost:0/",
     }
+
+    if nondefaults:
+        settings.update(nondefaults)
+
     with mock.patch.object(config, "ManifestCacheBuster", MockManifestCacheBuster):
         with mock.patch("warehouse.admin.ManifestCacheBuster", MockManifestCacheBuster):
             with mock.patch.object(static, "whitenoise_add_manifest"):
                 cfg = config.configure(settings=settings)
 
-    # Ensure our migrations have been ran.
+    # Run migrations:
+    # This might harmlessly run multiple times if there are several app config fixtures
+    # in the test session, using the same database.
     alembic.command.upgrade(cfg.alembic_config(), "head")
 
     return cfg
 
 
-@pytest.fixture
-def db_session(app_config):
-    engine = app_config.registry["sqlalchemy.engine"]
+@contextmanager
+def get_db_session_for_app_config(app_config):
+    """
+    Refactor: This helper function is designed to help fixtures yield a database
+    session for a particular app_config.
+
+    It needs the app_config in order to fetch the database engine that's owned
+    by the config.
+    """
+
+    # TODO: We possibly accept 2 instances of the sqlalchemy engine.
+    # There's a bit of circular dependencies in place:
+    # 1) To create a database session, we need to create an app config registry
+    #    and read config.registry["sqlalchemy.engine"]
+    # 2) To create an app config registry, we need to be able to dictate the
+    #    database session through the initial config.
+    #
+    # 1) and 2) clash.
+    engine = app_config.registry["sqlalchemy.engine"]  # get_sqlalchemy_engine(database)
     conn = engine.connect()
     trans = conn.begin()
     session = Session(bind=conn, join_transaction_mode="create_savepoint")
@@ -355,6 +377,35 @@ def db_session(app_config):
         trans.rollback()
         conn.close()
         engine.dispose()
+
+
+@pytest.fixture(scope="session")
+def app_config(database):
+
+    return get_app_config(database)
+
+
+@pytest.fixture(scope="session")
+def app_config_dbsession_from_env(database):
+
+    nondefaults = {
+        "warehouse.db_create_session": lambda r: r.environ.get("warehouse.db_session")
+    }
+
+    return get_app_config(database, nondefaults)
+
+
+@pytest.fixture
+def db_session(app_config):
+    """
+    Refactor:
+
+    This fixture actually manages a specific app_config paired with a database
+    connection. For this reason, it's suggested to change the name to
+    db_and_app, and yield both app_config and db_session.
+    """
+    with get_db_session_for_app_config(app_config) as _db_session:
+        yield _db_session
 
 
 @pytest.fixture
@@ -622,18 +673,42 @@ class _TestApp(_webtest.TestApp):
 
 
 @pytest.fixture
-def webtest(app_config):
-    # TODO: Ensure that we have per test isolation of the database level
-    #       changes. This probably involves flushing the database or something
-    #       between test cases to wipe any committed changes.
+def webtest(app_config_dbsession_from_env):
+    """
+    This fixture yields a test app with an alternative Pyramid configuration,
+    injecting the database session and transaction manager into the app.
+
+    This is because the Warehouse app normally manages its own database session.
+
+    After the fixture has yielded the app, the transaction is rolled back and
+    the database is left in its previous state.
+    """
 
     # We want to disable anything that relies on TLS here.
-    app_config.add_settings(enforce_https=False)
+    app_config_dbsession_from_env.add_settings(enforce_https=False)
 
-    try:
-        yield _TestApp(app_config.make_wsgi_app())
-    finally:
-        app_config.registry["sqlalchemy.engine"].dispose()
+    app = app_config_dbsession_from_env.make_wsgi_app()
+
+    # Create a new transaction manager for dependant test cases
+    tm = transaction.TransactionManager(explicit=True)
+    tm.begin()
+    tm.doom()
+
+    with get_db_session_for_app_config(app_config_dbsession_from_env) as _db_session:
+        # Register the app with the external test environment, telling
+        # request.db to use this db_session and use the Transaction manager.
+        testapp = _TestApp(
+            app,
+            extra_environ={
+                "warehouse.db_session": _db_session,
+                "tm.active": True,  # disable pyramid_tm
+                "tm.manager": tm,  # pass in our own tm for the app to use
+            },
+        )
+        yield testapp
+
+    # Abort the transaction, leaving database in previous state
+    tm.abort()
 
 
 class _MockRedis:
