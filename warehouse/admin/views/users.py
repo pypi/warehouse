@@ -354,11 +354,12 @@ def _is_a_valid_url(url):
 def _get_related_urls(user):
     project_to_urls = defaultdict(set)
     for project in user.projects:
-        release = project.releases[0]
+        if project.releases:
+            release = project.releases[0]
 
-        for kind, url in release.urls.items():
-            if _is_a_valid_url(url):
-                project_to_urls[project.name].add((kind, url))
+            for kind, url in release.urls.items():
+                if _is_a_valid_url(url):
+                    project_to_urls[project.name].add((kind, url))
 
     return project_to_urls
 
