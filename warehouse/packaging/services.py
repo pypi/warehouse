@@ -32,7 +32,6 @@ from packaging.utils import canonicalize_name
 from pyramid.httpexceptions import HTTPBadRequest, HTTPConflict, HTTPForbidden
 from pyramid.request import Request
 from sqlalchemy import exists, func
-from sqlalchemy.exc import NoResultFound
 from zope.interface import implementer
 
 from warehouse.admin.flags import AdminFlagValue
@@ -473,6 +472,8 @@ class ProjectService:
         ).scalar():
             return ProjectNameUnavailableReason.TooSimilar
 
+        return None
+
     def create_project(
         self, name, creator, request, *, creator_is_owner=True, ratelimited=True
     ):
@@ -537,7 +538,7 @@ class ProjectService:
                     ),
                 ) from None
             case None:
-                return None
+                pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)

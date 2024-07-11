@@ -95,10 +95,10 @@ from warehouse.oidc.models import (
 )
 from warehouse.organizations.interfaces import IOrganizationService
 from warehouse.organizations.models import OrganizationRole, OrganizationRoleType
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import (
     JournalEntry,
     Project,
-    ProjectFactory,
     Release,
     Role,
     RoleInvitation,
@@ -1477,25 +1477,28 @@ def reauthenticate(request, _form_class=ReAuthenticateForm):
 class ManageAccountPublishingViews:
     def __init__(self, request):
         self.request = request
-        self.project_factory = ProjectFactory(request)
         self.metrics = self.request.find_service(IMetricsService, context=None)
+        self.project_service = self.request.find_service(IProjectService, context=None)
         self.pending_github_publisher_form = PendingGitHubPublisherForm(
             self.request.POST,
             api_token=self.request.registry.settings.get("github.token"),
-            project_factory=self.project_factory,
+            check_project_name=self._check_project_name,
         )
         self.pending_gitlab_publisher_form = PendingGitLabPublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            check_project_name=self._check_project_name,
         )
         self.pending_google_publisher_form = PendingGooglePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            check_project_name=self._check_project_name,
         )
         self.pending_activestate_publisher_form = PendingActiveStatePublisherForm(
             self.request.POST,
-            project_factory=self.project_factory,
+            check_project_name=self._check_project_name,
         )
+
+    def _check_project_name(self, name):
+        return self.project_service.check_project_name(name, self.request)
 
     @property
     def _ratelimiters(self):

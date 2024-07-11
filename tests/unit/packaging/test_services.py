@@ -27,8 +27,8 @@ import warehouse.packaging.services
 from warehouse.packaging.interfaces import (
     IDocsStorage,
     IFileStorage,
+    IProjectService,
     ISimpleStorage,
-    ProjectNameUnavailableReason,
 )
 from warehouse.packaging.services import (
     B2FileStorage,
