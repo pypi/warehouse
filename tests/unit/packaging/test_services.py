@@ -24,7 +24,12 @@ from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
 
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    ISimpleStorage,
+    ProjectNameUnavailableReason,
+)
 from warehouse.packaging.services import (
     B2FileStorage,
     GCSFileStorage,
@@ -34,6 +39,7 @@ from warehouse.packaging.services import (
     LocalDocsStorage,
     LocalFileStorage,
     LocalSimpleStorage,
+    ProjectService,
     S3ArchiveFileStorage,
     S3DocsStorage,
     S3FileStorage,
@@ -977,6 +983,11 @@ class TestGenericLocalBlobStorage:
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
             GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+class TestProjectService:
+    def test_verify_service(self):
+        assert verifyClass(IProjectService, ProjectService)
 
 
 def test_project_service_factory():
