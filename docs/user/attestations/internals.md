@@ -31,7 +31,7 @@ Trusted Publisher that published the package.
 For example, for a GitHub-based Trusted Publisher, the identity might be
 `https://github.com/pypa/sampleproject/blob/main/.github/workflows/release.yml`,
 i.e. `pypa/sampleproject` on GitHub, publishing from a workflow defined
-in `release.yml`.
+on the `main` branch in the file `release.yml`.
 
 ### Future identities
 
