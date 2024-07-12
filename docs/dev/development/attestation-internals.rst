@@ -68,7 +68,7 @@ is slightly looser than for a PyPI Publish Attestation: any
 identity under ``https://github.com/pypa/sampleproject`` is accepted, not just
 ones corresponding to the ``release.yml`` workflow.
 
-This is intended to reflect common CI/CD pipeline patterns: `release.yml`
+This is intended to reflect common CI/CD pipeline patterns: ``release.yml``
 is not itself necessarily responsible for producing the distribution that
 gets published, and so SLSA Provenance can't be assumed to be tightly bound to
 it.
