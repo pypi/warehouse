@@ -87,7 +87,7 @@
       text-align: center;
 
       a {
-        background-image: none;
+        text-decoration: none;
         @include white-underlined-link;
       }
     }
