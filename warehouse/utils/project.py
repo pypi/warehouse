@@ -15,8 +15,14 @@ import re
 from pyramid.httpexceptions import HTTPSeeOther
 from sqlalchemy.sql import func
 
+from warehouse.events.tags import EventTag
 from warehouse.packaging.interfaces import IDocsStorage
-from warehouse.packaging.models import JournalEntry, ProhibitedProjectName, Project
+from warehouse.packaging.models import (
+    JournalEntry,
+    LifecycleStatus,
+    ProhibitedProjectName,
+    Project,
+)
 from warehouse.tasks import task
 
 
@@ -90,6 +96,64 @@ def prohibit_and_remove_project(
     )
     if project is not None:
         remove_project(project, request, flash=flash)
+
+
+def quarantine_project(project: Project, request, flash=True) -> None:
+    """
+    Quarantine a project. Reversible action.
+    """
+    project.lifecycle_status = LifecycleStatus.QuarantineEnter
+    project.lifecycle_status_note = f"Quarantined by {request.user.username}."
+
+    project.record_event(
+        tag=EventTag.Project.ProjectQuarantineEnter,
+        request=request,
+        additional={"submitted_by": request.user.username},
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="project quarantined",
+            submitted_by=request.user,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Project {project.name} quarantined.\n"
+            "Please update related Help Scout conversations.",
+            queue="success",
+        )
+
+
+def clear_project_quarantine(project: Project, request, flash=True) -> None:
+    """
+    Remove a project from quarantine.
+    """
+    project.lifecycle_status = LifecycleStatus.QuarantineExit
+    project.lifecycle_status_note = f"Quarantine cleared by {request.user.username}."
+
+    project.record_event(
+        tag=EventTag.Project.ProjectQuarantineExit,
+        request=request,
+        additional={"submitted_by": request.user.username},
+    )
+
+    request.db.add(
+        JournalEntry(
+            name=project.name,
+            action="project quarantine cleared",
+            submitted_by=request.user,
+        )
+    )
+
+    if flash:
+        request.session.flash(
+            f"Project {project.name} quarantine cleared.\n"
+            "Please update related Help Scout conversations.",
+            queue="success",
+        )
 
 
 def remove_project(project, request, flash=True):

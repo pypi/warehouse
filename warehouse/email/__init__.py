@@ -330,6 +330,11 @@ def send_password_compromised_email_hibp(request, user):
     return {}
 
 
+@_email("password-reset-by-admin", allow_unverified=True)
+def send_password_reset_by_admin_email(request, user):
+    return {}
+
+
 @_email("token-compromised-leak", allow_unverified=True)
 def send_token_compromised_email_leak(request, user, *, public_url, origin):
     return {"username": user.username, "public_url": public_url, "origin": origin}

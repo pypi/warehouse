@@ -37,7 +37,7 @@ from sqlalchemy.orm import Mapped, mapped_column
 from warehouse import db
 from warehouse.authnz import Permissions
 from warehouse.events.models import HasEvents
-from warehouse.observations.models import HasObserversMixin
+from warehouse.observations.models import HasObservers
 from warehouse.sitemap.models import SitemapMixin
 from warehouse.utils.attrs import make_repr
 from warehouse.utils.db.types import TZDateTime, bool_false, datetime_now
@@ -48,10 +48,11 @@ if TYPE_CHECKING:
     from warehouse.organizations.models import (
         Organization,
         OrganizationApplication,
+        OrganizationInvitation,
         OrganizationRole,
         Team,
     )
-    from warehouse.packaging.models import Project
+    from warehouse.packaging.models import Project, RoleInvitation
 
 
 class UserFactory:
@@ -68,9 +69,10 @@ class UserFactory:
 class DisableReason(enum.Enum):
     CompromisedPassword = "password compromised"
     AccountFrozen = "account frozen"
+    AdminInitiated = "admin initiated"
 
 
-class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
+class User(SitemapMixin, HasObservers, HasEvents, db.Model):
     __tablename__ = "users"
     __table_args__ = (
         CheckConstraint("length(username) <= 50", name="users_valid_username_length"),
@@ -125,6 +127,11 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         order_by="Macaroon.created.desc()",
     )
 
+    role_invitations: Mapped[list[RoleInvitation]] = orm.relationship(
+        "RoleInvitation",
+        back_populates="user",
+    )
+
     organization_applications: Mapped[list[OrganizationApplication]] = orm.relationship(
         back_populates="submitted_by",
     )
@@ -156,6 +163,10 @@ class User(SitemapMixin, HasObserversMixin, HasEvents, db.Model):
         cascade="all, delete-orphan",
         lazy=True,
         viewonly=True,
+    )
+
+    organization_invitations: Mapped[list[OrganizationInvitation]] = orm.relationship(
+        back_populates="user",
     )
 
     teams: Mapped[list[Team]] = orm.relationship(
