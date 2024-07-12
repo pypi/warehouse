@@ -100,6 +100,7 @@ class ModelBase(DeclarativeBase):
             enum.Enum, values_callable=lambda x: [e.value for e in x]
         ),
     }
+
     def __repr__(self):
         inst = inspect(self)
         self.__repr__ = make_repr(
@@ -262,7 +263,7 @@ def includeme(config):
     psycopg.types.json.set_json_dumps(serialize_as_json)
 
     # Register our request.db property
-    config.add_request_method(_create_session, name="db", reify=True)
+    config.add_request_method(db_session_factory, name="db", reify=True)
 
     # Add a route predicate to mark a route as using a specific database.
     config.add_route_predicate("with_database", WithDatabasePredicate)

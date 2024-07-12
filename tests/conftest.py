@@ -364,7 +364,9 @@ def get_db_session_for_app_config(app_config):
     #    database session through the initial config.
     #
     # 1) and 2) clash.
-    engine = app_config.registry["sqlalchemy.engines"]["primary"]  # get_sqlalchemy_engine(database)
+    engine = app_config.registry["sqlalchemy.engines"][
+        "primary"
+    ]  # get_sqlalchemy_engine(database)
     conn = engine.connect()
     trans = conn.begin()
     session = Session(bind=conn, join_transaction_mode="create_savepoint")
