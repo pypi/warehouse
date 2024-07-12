@@ -18,7 +18,7 @@ from sqlalchemy.orm import Load, contains_eager, joinedload
 
 from warehouse.cache.http import cache_control
 from warehouse.cache.origin import origin_cache
-from warehouse.packaging.models import File, Project, Release, ReleaseURL
+from warehouse.packaging.models import Description, File, Project, Release, ReleaseURL
 from warehouse.utils.cors import _CORS_HEADERS
 
 _RELEASE_CACHE_DECORATOR = [
@@ -204,6 +204,9 @@ def latest_release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            joinedload(Release.description).load_only(
+                Description.content_type, Description.raw
+            ),
         )
         .filter(Release.id == latest.id)
         .one()
@@ -262,6 +265,9 @@ def release_factory(request):
             contains_eager(Release.project),
             contains_eager(Release._project_urls),
             joinedload(Release._requires_dist),
+            joinedload(Release.description).load_only(
+                Description.content_type, Description.raw
+            ),
         )
         .filter(Project.normalized_name == normalized_name)
     )
