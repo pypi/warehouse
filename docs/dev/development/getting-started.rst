@@ -350,7 +350,8 @@ Some user accounts that you might want to try are:
 There are no Moderator accounts in the dev db, any Superuser can change a user
 to a moderator if needed.
 
-All of these users have 2FA enabled via TOTP, using the same secret as ``make totp``.
+All of these users have 2FA enabled via TOTP,
+using the same secret as ``make totp``.
 
 They also have the following Recovery Codes generated:
 
@@ -374,8 +375,9 @@ See :ref:`testing-e-mails` for more information on how to see those emails.
 Logging in as users without 2FA
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-For users that are not listed above, once logged in with the password ``password``
-, you must enroll in a form of Two-Factor Authentication (2FA).
+For users that are not listed above,
+once logged in with the password ``password``,
+you must enroll in a form of Two-Factor Authentication (2FA).
 This is a requirement for all users.
 
 One way to make this easier is to use a command-line tool like
