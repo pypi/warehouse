@@ -54,16 +54,20 @@ def test_model_base_repr(monkeypatch):
 
 
 @pytest.mark.parametrize(
-    "matched_route,value,expected",
+    "matched_route,extra_predicates,value,expected",
     [
-        (None, None, "primary"),
-        (True, None, "primary"),
-        (True, "primary", "primary"),
-        (True, "replica", "replica"),
+        (None, [], None, "primary"),
+        (True, [], None, "primary"),
+        (True, [], "primary", "primary"),
+        (True, [], "replica", "replica"),
+        (None, [None], None, "primary"),
+        (True, [None], None, "primary"),
+        (True, [None], "primary", "primary"),
+        (True, [None], "replica", "replica"),
     ],
 )
-def test_with_database(matched_route, value, expected):
-    route = pretend.stub(predicates=[])
+def test_with_database(matched_route, extra_predicates, value, expected):
+    route = pretend.stub(predicates=extra_predicates)
     if value is not None:
         route.predicates.append(db.WithDatabasePredicate(value, pretend.stub()))
     request = pretend.stub(matched_route=route if matched_route else None)
