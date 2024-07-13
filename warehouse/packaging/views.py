@@ -42,7 +42,7 @@ def project_detail(project, request):
     try:
         release = (
             request.db.query(Release)
-            .filter(Release.project == project)
+            .filter(Release.project == project, Release.published.isnot(None))
             .order_by(
                 Release.yanked,
                 Release.is_prerelease.nullslast(),
@@ -77,7 +77,12 @@ def release_detail(release, request):
     #
     # This also handles the case where both the version and the project name
     # need adjusted, and handles it in a single redirect.
-    if release.version != request.matchdict.get("version", release.version):
+    #
+    # Only redirect if it is not a draft release.
+    if (
+        release.version != request.matchdict.get("version", release.version)
+        and not release.is_draft
+    ):
         return HTTPMovedPermanently(
             request.current_route_path(name=project.name, version=release.version)
         )

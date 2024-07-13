@@ -698,14 +698,7 @@ class TestFileUpload:
 
     @pytest.mark.parametrize(
         "conflicting_name",
-        [
-            "toast1ng",
-            "toastlng",
-            "t0asting",
-            "toast-ing",
-            "toast.ing",
-            "toast_ing",
-        ],
+        ["toast1ng", "toastlng", "t0asting", "toast-ing", "toast.ing", "toast_ing"],
     )
     def test_fails_with_ultranormalized_names(
         self, pyramid_config, db_request, conflicting_name
@@ -3203,11 +3196,7 @@ class TestFileUpload:
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
     @pytest.mark.parametrize(
-        "version, expected_version",
-        [
-            ("1.0", "1.0"),
-            ("v1.0", "1.0"),
-        ],
+        "version, expected_version", [("1.0", "1.0"), ("v1.0", "1.0")],
     )
     @pytest.mark.parametrize(
         "test_with_user",
@@ -3385,6 +3374,77 @@ class TestFileUpload:
                 additional=fileadd_event,
             ),
         ]
+
+    @pytest.mark.parametrize("is_draft", [(True,), (False,)])
+    def test_upload_succeeds_creates_draft_release(
+        self, pyramid_config, db_request, metrics, is_draft,
+    ):
+        pyramid_config.testing_securitypolicy(userid=1)
+
+        user = UserFactory.create()
+        EmailFactory.create(user=user)
+        project = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project)
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        db_request.user = user
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        draft_header = {"Is-Draft": "True" if is_draft else "False"}
+        db_request.headers.update(draft_header)
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("project_urls", "Test, https://example.com/"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        resp = legacy.file_upload(db_request)
+
+        assert resp.status_code == 200
+
+        # Ensure that a Release object has been created.
+        release = (
+            db_request.db.query(Release)
+            .filter((Release.project == project) & (Release.version == "1.0"))
+            .one()
+        )
+        if is_draft:
+            assert release.published is None
+        else:
+            assert release.published is not None
+        assert release.is_draft is is_draft
+        assert release.version == "1.0"
+        assert release.canonical_version == "1"
 
     def test_upload_with_valid_attestation_succeeds(
         self,

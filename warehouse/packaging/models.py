@@ -139,6 +139,24 @@ class RoleInvitation(db.Model):
     project: Mapped[Project] = orm.relationship(lazy=False)
 
 
+class DraftFactory:
+    def __init__(self, request):
+        self.request = request
+
+    def __getitem__(self, draft_hash):
+        try:
+            release = (
+                self.request.db.query(Release)
+                .filter(Release.draft_hash == draft_hash, Release.published.is_(None))
+                .one()
+            )
+            return {
+                release.project.name: release,
+            }
+        except NoResultFound:
+            raise KeyError from None
+
+
 class ProjectFactory:
     def __init__(self, request):
         self.request = request
@@ -252,16 +270,22 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
     def __getitem__(self, version):
         session = orm.object_session(self)
         canonical_version = packaging.utils.canonicalize_version(version)
+        try:
+            canonical_version, something, draft_hash = canonical_version.split("--")
+        except ValueError:
+            draft_hash = None
 
         try:
-            return (
-                session.query(Release)
-                .filter(
-                    Release.project == self,
-                    Release.canonical_version == canonical_version,
-                )
-                .one()
+            query = session.query(Release).filter(
+                Release.project == self,
+                Release.canonical_version == canonical_version,
             )
+            if draft_hash:
+                query = query.filter(Release.draft_hash == draft_hash)
+            else:
+                query = query.filter(Release.published.isnot(None))
+            return query.one()
+
         except MultipleResultsFound:
             # There are multiple releases of this project which have the same
             # canonical version that were uploaded before we checked for
@@ -411,7 +435,7 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
                 Release.yanked,
                 Release.yanked_reason,
             )
-            .filter(Release.project == self)
+            .filter(Release.project == self, Release.published.isnot(None))
             .order_by(Release._pypi_ordering.desc())
             .all()
         )
@@ -421,7 +445,11 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
         return (
             orm.object_session(self)
             .query(Release.version, Release.created, Release.is_prerelease)
-            .filter(Release.project == self, Release.yanked.is_(False))
+            .filter(
+                Release.project == self,
+                Release.yanked.is_(False),
+                Release.published.isnot(None),
+            )
             .order_by(Release.is_prerelease.nullslast(), Release._pypi_ordering.desc())
             .first()
         )
@@ -540,10 +568,12 @@ class Release(HasObservations, db.Model):
     project_id: Mapped[UUID] = mapped_column(
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
     )
+    project_name = Column(Text)
     project: Mapped[Project] = orm.relationship(back_populates="releases")
     version: Mapped[str] = mapped_column(Text)
     canonical_version: Mapped[str] = mapped_column()
     is_prerelease: Mapped[bool_false]
+    draft_hash = orm.column_property(func.make_draft_hash(project_name, version))
     author: Mapped[str | None]
     author_email: Mapped[str | None]
     maintainer: Mapped[str | None]
@@ -557,6 +587,7 @@ class Release(HasObservations, db.Model):
     _pypi_ordering: Mapped[int | None]
     requires_python: Mapped[str | None] = mapped_column(Text)
     created: Mapped[datetime_now] = mapped_column()
+    published = Mapped[datetime_now | None]
 
     description_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_descriptions.id", onupdate="CASCADE", ondelete="CASCADE"),
@@ -728,6 +759,19 @@ class Release(HasObservations, db.Model):
         if not files:
             return False
         return all(file.uploaded_via_trusted_publisher for file in files)
+
+    @property
+    def is_draft(self):
+        return self.published is None
+
+    @property
+    def version_or_draft(self):
+        return (
+            f"{self.version}--draft--{self.draft_hash}"
+            if self.is_draft
+            else self.version
+        )
+
 
 
 class PackageType(str, enum.Enum):

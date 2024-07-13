@@ -147,7 +147,7 @@ msgstr ""
 msgid "Successful WebAuthn assertion"
 msgstr ""
 
-#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:870
+#: warehouse/accounts/views.py:570 warehouse/manage/views/__init__.py:872
 msgid "Recovery code accepted. The supplied code cannot be used again."
 msgstr ""
 
@@ -281,7 +281,7 @@ msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
 #: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
-#: warehouse/manage/views/__init__.py:1247
+#: warehouse/manage/views/__init__.py:1249
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
@@ -301,19 +301,19 @@ msgstr ""
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
-#: warehouse/manage/views/__init__.py:1395
-#: warehouse/manage/views/__init__.py:1507
-#: warehouse/manage/views/__init__.py:1617
+#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1284
+#: warehouse/manage/views/__init__.py:1397
+#: warehouse/manage/views/__init__.py:1509
+#: warehouse/manage/views/__init__.py:1619
 msgid ""
 "There have been too many attempted trusted publisher registrations. Try "
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
-#: warehouse/manage/views/__init__.py:1409
-#: warehouse/manage/views/__init__.py:1521
-#: warehouse/manage/views/__init__.py:1631
+#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1298
+#: warehouse/manage/views/__init__.py:1411
+#: warehouse/manage/views/__init__.py:1523
+#: warehouse/manage/views/__init__.py:1633
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
@@ -423,130 +423,130 @@ msgstr ""
 msgid "This team name has already been used. Choose a different team name."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:282
+#: warehouse/manage/views/__init__.py:284
 msgid "Account details updated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:312
+#: warehouse/manage/views/__init__.py:314
 msgid "Email ${email_address} added - check your email for a verification link"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:818
+#: warehouse/manage/views/__init__.py:820
 msgid "Recovery codes already generated"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:819
+#: warehouse/manage/views/__init__.py:821
 msgid "Generating new recovery codes will invalidate your existing codes."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:928
+#: warehouse/manage/views/__init__.py:930
 msgid "Verify your email to create an API token."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1028
+#: warehouse/manage/views/__init__.py:1030
 msgid "API Token does not exist."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1060
+#: warehouse/manage/views/__init__.py:1062
 msgid "Invalid credentials. Try again"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1263
+#: warehouse/manage/views/__init__.py:1265
 msgid ""
 "GitHub-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1376
+#: warehouse/manage/views/__init__.py:1378
 msgid ""
 "GitLab-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1488
+#: warehouse/manage/views/__init__.py:1490
 msgid ""
 "Google-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1597
+#: warehouse/manage/views/__init__.py:1599
 msgid ""
 "ActiveState-based trusted publishing is temporarily disabled. See "
 "https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1832
-#: warehouse/manage/views/__init__.py:2133
-#: warehouse/manage/views/__init__.py:2241
+#: warehouse/manage/views/__init__.py:1834
+#: warehouse/manage/views/__init__.py:2210
+#: warehouse/manage/views/__init__.py:2318
 msgid ""
 "Project deletion temporarily disabled. See https://pypi.org/help#admin-"
 "intervention for details."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1964
-#: warehouse/manage/views/__init__.py:2049
-#: warehouse/manage/views/__init__.py:2150
-#: warehouse/manage/views/__init__.py:2250
+#: warehouse/manage/views/__init__.py:2041
+#: warehouse/manage/views/__init__.py:2126
+#: warehouse/manage/views/__init__.py:2227
+#: warehouse/manage/views/__init__.py:2327
 msgid "Confirm the request"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:1976
+#: warehouse/manage/views/__init__.py:2053
 msgid "Could not yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2061
+#: warehouse/manage/views/__init__.py:2138
 msgid "Could not un-yank release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2162
+#: warehouse/manage/views/__init__.py:2239
 msgid "Could not delete release - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2262
+#: warehouse/manage/views/__init__.py:2339
 msgid "Could not find file"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2266
+#: warehouse/manage/views/__init__.py:2343
 msgid "Could not delete file - "
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2416
+#: warehouse/manage/views/__init__.py:2493
 msgid "Team '${team_name}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2523
+#: warehouse/manage/views/__init__.py:2600
 msgid "User '${username}' already has ${role_name} role for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2590
+#: warehouse/manage/views/__init__.py:2667
 msgid "${username} is now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2622
+#: warehouse/manage/views/__init__.py:2699
 msgid ""
 "User '${username}' does not have a verified primary email address and "
 "cannot be added as a ${role_name} for project"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2635
+#: warehouse/manage/views/__init__.py:2712
 #: warehouse/manage/views/organizations.py:878
 msgid "User '${username}' already has an active invite. Please try again later."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2700
+#: warehouse/manage/views/__init__.py:2777
 #: warehouse/manage/views/organizations.py:943
 msgid "Invitation sent to '${username}'"
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2733
+#: warehouse/manage/views/__init__.py:2810
 msgid "Could not find role invitation."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2744
+#: warehouse/manage/views/__init__.py:2821
 msgid "Invitation already expired."
 msgstr ""
 
-#: warehouse/manage/views/__init__.py:2776
+#: warehouse/manage/views/__init__.py:2853
 #: warehouse/manage/views/organizations.py:1130
 msgid "Invitation revoked from '${username}'."
 msgstr ""
@@ -705,7 +705,7 @@ msgstr ""
 msgid "Provide an Inspector link to specific lines of code."
 msgstr ""
 
-#: warehouse/packaging/views.py:216
+#: warehouse/packaging/views.py:221
 msgid "Your report has been recorded. Thank you for your help."
 msgstr ""
 
@@ -785,11 +785,11 @@ msgstr ""
 #: warehouse/templates/manage/account/webauthn-provision.html:74
 #: warehouse/templates/manage/manage_base.html:208
 #: warehouse/templates/manage/project/release.html:144
-#: warehouse/templates/manage/project/release.html:200
-#: warehouse/templates/manage/project/releases.html:140
-#: warehouse/templates/manage/project/releases.html:179
-#: warehouse/templates/packaging/detail.html:376
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/manage/project/release.html:225
+#: warehouse/templates/manage/project/releases.html:169
+#: warehouse/templates/manage/project/releases.html:213
+#: warehouse/templates/packaging/detail.html:386
+#: warehouse/templates/packaging/detail.html:405
 #: warehouse/templates/pages/classifiers.html:25
 #: warehouse/templates/pages/help.html:20
 #: warehouse/templates/pages/help.html:218
@@ -1025,7 +1025,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/settings.html:280
 #: warehouse/templates/manage/organization/settings.html:286
 #: warehouse/templates/manage/project/documentation.html:27
-#: warehouse/templates/manage/project/release.html:188
+#: warehouse/templates/manage/project/release.html:213
 #: warehouse/templates/manage/project/settings.html:87
 #: warehouse/templates/manage/project/settings.html:136
 #: warehouse/templates/manage/project/settings.html:208
@@ -2690,7 +2690,7 @@ msgstr ""
 #: warehouse/templates/manage/manage_base.html:329
 #: warehouse/templates/manage/manage_base.html:331
 #: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/releases.html:212
 #: warehouse/templates/manage/project/settings.html:72
 #: warehouse/templates/manage/unverified-account.html:172
 #: warehouse/templates/manage/unverified-account.html:174
@@ -2766,7 +2766,7 @@ msgstr ""
 #: warehouse/templates/manage/account/recovery_codes-provision.html:58
 #: warehouse/templates/manage/account/totp-provision.html:57
 #: warehouse/templates/manage/unverified-account.html:179
-#: warehouse/templates/packaging/detail.html:158
+#: warehouse/templates/packaging/detail.html:162
 #: warehouse/templates/pages/classifiers.html:38
 msgid "Copy to clipboard"
 msgstr ""
@@ -2872,6 +2872,7 @@ msgstr ""
 #: warehouse/templates/includes/manage/manage-project-menu.html:37
 #: warehouse/templates/includes/manage/manage-team-menu.html:34
 #: warehouse/templates/manage/account.html:505
+#: warehouse/templates/manage/history.html:23
 #: warehouse/templates/manage/organization/history.html:23
 #: warehouse/templates/manage/project/history.html:23
 #: warehouse/templates/manage/team/history.html:23
@@ -2892,7 +2893,7 @@ msgstr ""
 
 #: warehouse/templates/includes/manage/manage-project-menu.html:19
 #: warehouse/templates/manage/project/release.html:37
-#: warehouse/templates/manage/project/releases.html:157
+#: warehouse/templates/manage/project/releases.html:191
 msgid "Releases"
 msgstr ""
 
@@ -3061,7 +3062,7 @@ msgstr ""
 #: warehouse/templates/manage/account.html:87
 #: warehouse/templates/manage/account.html:163
 #: warehouse/templates/manage/project/release.html:86
-#: warehouse/templates/manage/project/releases.html:68
+#: warehouse/templates/manage/project/releases.html:74
 #: warehouse/templates/manage/unverified-account.html:84
 #: warehouse/templates/manage/unverified-account.html:136
 msgid "Options"
@@ -3380,6 +3381,7 @@ msgstr ""
 
 #: warehouse/templates/manage/account.html:564
 #: warehouse/templates/manage/account.html:583
+#: warehouse/templates/manage/history.html:89
 #: warehouse/templates/manage/project/history.html:272
 #: warehouse/templates/manage/unverified-account.html:287
 #: warehouse/templates/manage/unverified-account.html:306
@@ -3562,12 +3564,15 @@ msgid "Recovery code used for login"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:682
+#: warehouse/templates/manage/history.html:70
 #: warehouse/templates/manage/unverified-account.html:401
 msgid "API token added"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:684
 #: warehouse/templates/manage/account.html:707
+#: warehouse/templates/manage/history.html:74
+#: warehouse/templates/manage/history.html:81
 #: warehouse/templates/manage/project/history.html:263
 #: warehouse/templates/manage/project/history.html:270
 #: warehouse/templates/manage/unverified-account.html:403
@@ -3576,6 +3581,7 @@ msgid "Token name:"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:701
+#: warehouse/templates/manage/history.html:77
 #: warehouse/templates/manage/project/history.html:265
 #: warehouse/templates/manage/unverified-account.html:420
 msgid "API token removed"
@@ -3671,6 +3677,7 @@ msgid "Recent account activity"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:780
+#: warehouse/templates/manage/history.html:112
 #: warehouse/templates/manage/organization/history.html:201
 #: warehouse/templates/manage/project/history.html:304
 #: warehouse/templates/manage/team/history.html:108
@@ -3697,6 +3704,8 @@ msgid "Additional Info"
 msgstr ""
 
 #: warehouse/templates/manage/account.html:789
+#: warehouse/templates/manage/history.html:113
+#: warehouse/templates/manage/history.html:122
 #: warehouse/templates/manage/unverified-account.html:475
 msgid "Date / time"
 msgstr ""
@@ -3772,6 +3781,170 @@ msgstr ""
 msgid "Delete your PyPI account"
 msgstr ""
 
+#: warehouse/templates/manage/history.html:20
+#, python-format
+msgid "'%(project_name)s' project history"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:25
+#: warehouse/templates/manage/project/history.html:25
+msgid ""
+"Each time you (or your collaborators) perform a security action related "
+"to this project, the action is recorded and displayed here."
+msgstr ""
+
+#: warehouse/templates/manage/history.html:29
+#: warehouse/templates/manage/project/history.html:32
+msgid "Project created"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:31
+#: warehouse/templates/manage/organization/history.html:139
+#: warehouse/templates/manage/project/history.html:34
+#: warehouse/templates/manage/team/history.html:71
+msgid "Created by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:34
+#, python-format
+msgid "<a href=\"%(href)s\">Release version %(version)s</a> created"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:36
+#: warehouse/templates/manage/history.html:57
+#: warehouse/templates/manage/manage_base.html:582
+#: warehouse/templates/manage/organization/history.html:166
+#: warehouse/templates/manage/project/history.html:43
+#: warehouse/templates/manage/project/history.html:97
+#: warehouse/templates/manage/project/history.html:137
+#: warehouse/templates/manage/project/history.html:182
+#: warehouse/templates/manage/project/history.html:208
+#: warehouse/templates/manage/team/history.html:88
+msgid "Added by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:39
+#, python-format
+msgid "<a href=\"%(href)s\">Release version %(version)s</a> published"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:41
+msgid "Published by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:44
+#, python-format
+msgid "Release version %(version)s removed"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:46
+#: warehouse/templates/manage/history.html:52
+#: warehouse/templates/manage/history.html:62
+#: warehouse/templates/manage/manage_base.html:584
+#: warehouse/templates/manage/organization/history.html:171
+#: warehouse/templates/manage/project/history.html:62
+#: warehouse/templates/manage/project/history.html:128
+#: warehouse/templates/manage/project/history.html:144
+#: warehouse/templates/manage/project/history.html:190
+#: warehouse/templates/manage/project/history.html:216
+#: warehouse/templates/manage/team/history.html:93
+msgid "Removed by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:49
+#, python-format
+msgid "File removed from release version %(version)s"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:50
+#: warehouse/templates/manage/project/history.html:94
+#: warehouse/templates/manage/project/history.html:125
+#: warehouse/templates/manage/project/release.html:118
+msgid "Filename:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:55
+#: warehouse/templates/manage/project/history.html:134
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:60
+#: warehouse/templates/manage/project/history.html:141
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:65
+#: warehouse/templates/manage/project/history.html:148
+#, python-format
+msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:67
+#: warehouse/templates/manage/organization/history.html:176
+#: warehouse/templates/manage/project/history.html:151
+#: warehouse/templates/manage/project/history.html:198
+#: warehouse/templates/manage/team/history.html:98
+msgid "Changed by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:72
+#: warehouse/templates/manage/history.html:79
+#: warehouse/templates/manage/project/history.html:222
+#: warehouse/templates/manage/project/history.html:252
+#: warehouse/templates/manage/project/history.html:266
+msgid "Permissions: Can upload to this project"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:73
+#: warehouse/templates/manage/history.html:80
+#: warehouse/templates/manage/project/history.html:255
+#: warehouse/templates/manage/project/history.html:268
+msgid "Controlled by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:84
+#, python-format
+msgid "Release version %(version)s yanked"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:86
+#: warehouse/templates/manage/project/history.html:69
+#: warehouse/templates/manage/project/history.html:76
+msgid "Yanked by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:93
+#: warehouse/templates/manage/project/history.html:285
+msgid "2FA requirement enabled"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:95
+#: warehouse/templates/manage/project/history.html:287
+msgid "Enabled by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:98
+#: warehouse/templates/manage/project/history.html:290
+msgid "2FA requirement disabled"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:100
+#: warehouse/templates/manage/project/history.html:292
+msgid "Disabled by:"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:109
+#, python-format
+msgid "Security history for %(project_name)s"
+msgstr ""
+
+#: warehouse/templates/manage/history.html:114
+#: warehouse/templates/manage/history.html:126
+msgid "IP address"
+msgstr ""
+
 #: warehouse/templates/manage/manage_base.html:16
 #: warehouse/templates/manage/organization/projects.html:67
 #: warehouse/templates/manage/organization/projects.html:71
@@ -3779,7 +3952,7 @@ msgstr ""
 #: warehouse/templates/manage/organizations.html:114
 #: warehouse/templates/manage/organizations.html:120
 #: warehouse/templates/manage/organizations.html:125
-#: warehouse/templates/manage/project/releases.html:88
+#: warehouse/templates/manage/project/releases.html:94
 #: warehouse/templates/manage/projects.html:103
 #: warehouse/templates/manage/projects.html:107
 #: warehouse/templates/manage/team/projects.html:66
@@ -4034,28 +4207,6 @@ msgstr ""
 msgid "Any"
 msgstr ""
 
-#: warehouse/templates/manage/manage_base.html:582
-#: warehouse/templates/manage/organization/history.html:166
-#: warehouse/templates/manage/project/history.html:43
-#: warehouse/templates/manage/project/history.html:97
-#: warehouse/templates/manage/project/history.html:137
-#: warehouse/templates/manage/project/history.html:182
-#: warehouse/templates/manage/project/history.html:208
-#: warehouse/templates/manage/team/history.html:88
-msgid "Added by:"
-msgstr ""
-
-#: warehouse/templates/manage/manage_base.html:584
-#: warehouse/templates/manage/organization/history.html:171
-#: warehouse/templates/manage/project/history.html:62
-#: warehouse/templates/manage/project/history.html:128
-#: warehouse/templates/manage/project/history.html:144
-#: warehouse/templates/manage/project/history.html:190
-#: warehouse/templates/manage/project/history.html:216
-#: warehouse/templates/manage/team/history.html:93
-msgid "Removed by:"
-msgstr ""
-
 #: warehouse/templates/manage/manage_base.html:586
 msgid "Submitted by:"
 msgstr ""
@@ -4180,7 +4331,7 @@ msgstr ""
 #: warehouse/templates/manage/organization/projects.html:82
 #: warehouse/templates/manage/organization/teams.html:63
 #: warehouse/templates/manage/organizations.html:103
-#: warehouse/templates/manage/project/releases.html:94
+#: warehouse/templates/manage/project/releases.html:100
 #: warehouse/templates/manage/projects.html:115
 #: warehouse/templates/manage/projects.html:118
 #: warehouse/templates/manage/team/projects.html:78
@@ -5222,12 +5373,6 @@ msgstr ""
 msgid "Registered by:"
 msgstr ""
 
-#: warehouse/templates/manage/organization/history.html:139
-#: warehouse/templates/manage/project/history.html:34
-#: warehouse/templates/manage/team/history.html:71
-msgid "Created by:"
-msgstr ""
-
 #: warehouse/templates/manage/organization/history.html:144
 #: warehouse/templates/manage/team/history.html:76
 msgid "Deleted by:"
@@ -5244,13 +5389,6 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:159
 msgid "Declined by:"
-msgstr ""
-
-#: warehouse/templates/manage/organization/history.html:176
-#: warehouse/templates/manage/project/history.html:151
-#: warehouse/templates/manage/project/history.html:198
-#: warehouse/templates/manage/team/history.html:98
-msgid "Changed by:"
 msgstr ""
 
 #: warehouse/templates/manage/organization/history.html:181
@@ -5531,7 +5669,7 @@ msgstr ""
 
 #: warehouse/templates/manage/organization/roles.html:252
 #: warehouse/templates/manage/project/release.html:112
-#: warehouse/templates/manage/project/releases.html:109
+#: warehouse/templates/manage/project/releases.html:125
 msgid "Delete"
 msgstr ""
 
@@ -5747,16 +5885,6 @@ msgstr ""
 msgid "Uploading new documentation is no longer supported"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:25
-msgid ""
-"Each time you (or your collaborators) perform a security action related "
-"to this project, the action is recorded and displayed here."
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:32
-msgid "Project created"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:40
 #, python-format
 msgid "<a href=\"%(href)s\">Version %(version)s</a> created"
@@ -5772,11 +5900,6 @@ msgstr ""
 msgid "<a href=\"%(href)s\">Version %(version)s</a> yanked"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:69
-#: warehouse/templates/manage/project/history.html:76
-msgid "Yanked by:"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:73
 #, python-format
 msgid "<a href=\"%(href)s\">Version %(version)s</a> unyanked"
@@ -5787,30 +5910,9 @@ msgstr ""
 msgid "File added to <a href=\"%(href)s\">version %(version)s</a>"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:94
-#: warehouse/templates/manage/project/history.html:125
-#: warehouse/templates/manage/project/release.html:118
-msgid "Filename:"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:113
 #, python-format
 msgid "File removed from <a href=\"%(href)s\">version %(version)s</a>"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:134
-#, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> added as project %(role_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:141
-#, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> removed as project %(role_name)s"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:148
-#, python-format
-msgid "<a href=\"%(href)s\">%(username)s</a> changed to project %(role_name)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:155
@@ -5863,12 +5965,6 @@ msgstr ""
 msgid "Short-lived API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:222
-#: warehouse/templates/manage/project/history.html:252
-#: warehouse/templates/manage/project/history.html:266
-msgid "Permissions: Can upload to this project"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:225
 #: warehouse/templates/manage/project/history.html:260
 msgid "Expiration:"
@@ -5890,33 +5986,12 @@ msgstr ""
 msgid "API token created"
 msgstr ""
 
-#: warehouse/templates/manage/project/history.html:255
-#: warehouse/templates/manage/project/history.html:268
-msgid "Controlled by:"
-msgstr ""
-
 #: warehouse/templates/manage/project/history.html:277
 msgid "Trusted publisher added"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:280
 msgid "Trusted publisher removed"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:285
-msgid "2FA requirement enabled"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:287
-msgid "Enabled by:"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:290
-msgid "2FA requirement disabled"
-msgstr ""
-
-#: warehouse/templates/manage/project/history.html:292
-msgid "Disabled by:"
 msgstr ""
 
 #: warehouse/templates/manage/project/history.html:306
@@ -5975,7 +6050,7 @@ msgid "Version %(version)s"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:41
-#: warehouse/templates/manage/project/releases.html:166
+#: warehouse/templates/manage/project/releases.html:200
 msgid "Yanked releases"
 msgstr ""
 
@@ -6047,12 +6122,12 @@ msgid ""
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:122
-#: warehouse/templates/manage/project/release.html:205
+#: warehouse/templates/manage/project/release.html:230
 msgid "I understand that I will not be able to undo this."
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:123
-#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/release.html:231
 msgid "I understand that the PyPI administrators will not be able to undo this."
 msgstr ""
 
@@ -6065,7 +6140,7 @@ msgid "No files found"
 msgstr ""
 
 #: warehouse/templates/manage/project/release.html:143
-#: warehouse/templates/manage/project/releases.html:178
+#: warehouse/templates/manage/project/releases.html:212
 #: warehouse/templates/manage/project/settings.html:72
 msgid "Dismiss"
 msgstr ""
@@ -6081,13 +6156,55 @@ msgstr ""
 msgid "Release settings"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:151
-#: warehouse/templates/manage/project/release.html:181
-#: warehouse/templates/manage/project/releases.html:123
+#: warehouse/templates/manage/project/release.html:150
+#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/releases.html:135
+msgid "Publish release"
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:153
+#, python-format
+msgid ""
+"Publishing will make this release (and %(count)s file within it) "
+"available when installing or updating this project."
+msgid_plural ""
+"Publishing will make this release (and %(count)s files within it) "
+"available when installing or updating this project."
+msgstr[0] ""
+msgstr[1] ""
+
+#: warehouse/templates/manage/project/release.html:159
+msgid ""
+"Publishing will make this release available when installing or updating "
+"this project."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:167
+#: warehouse/templates/manage/project/releases.html:138
+#, python-format
+msgid ""
+"After publishing this release, users will be able to use pip to install "
+"<code>%(project_name)s==%(version)s</code>."
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:172
+#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/release.html:234
+#: warehouse/templates/manage/project/releases.html:23
+#: warehouse/templates/manage/project/releases.html:143
+#: warehouse/templates/manage/project/releases.html:149
+#: warehouse/templates/manage/project/releases.html:162
+#: warehouse/templates/manage/project/releases.html:171
+msgid "Version"
+msgstr ""
+
+#: warehouse/templates/manage/project/release.html:176
+#: warehouse/templates/manage/project/release.html:206
+#: warehouse/templates/manage/project/releases.html:152
 msgid "Yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:154
+#: warehouse/templates/manage/project/release.html:179
 #, python-format
 msgid ""
 "Yanking will mark this release (and %(count)s file within it) to be "
@@ -6098,26 +6215,26 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:160
+#: warehouse/templates/manage/project/release.html:185
 msgid ""
 "Yanking will mark this release to be ignored when installing in most "
 "common scenarios."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:164
+#: warehouse/templates/manage/project/release.html:189
 #, python-format
 msgid ""
 "This release will still be installable for users pinning to this exact "
 "version, e.g. when using <code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:167
+#: warehouse/templates/manage/project/release.html:192
 #, python-format
 msgid "For more information, see <a href=\"%(href)s\">PEP 592</a>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:174
-#: warehouse/templates/manage/project/releases.html:126
+#: warehouse/templates/manage/project/release.html:199
+#: warehouse/templates/manage/project/releases.html:155
 #, python-format
 msgid ""
 "You may provide a reason for yanking this release, which will be "
@@ -6125,54 +6242,45 @@ msgid ""
 "<code>%(project_name)s==%(version)s</code>."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:178
-#: warehouse/templates/manage/project/releases.html:130
+#: warehouse/templates/manage/project/release.html:203
+#: warehouse/templates/manage/project/releases.html:159
 msgid "Reason (optional)"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:181
-#: warehouse/templates/manage/project/release.html:209
-#: warehouse/templates/manage/project/releases.html:23
-#: warehouse/templates/manage/project/releases.html:120
-#: warehouse/templates/manage/project/releases.html:133
-#: warehouse/templates/manage/project/releases.html:142
-msgid "Version"
-msgstr ""
-
-#: warehouse/templates/manage/project/release.html:186
-#: warehouse/templates/manage/project/release.html:209
-#: warehouse/templates/manage/project/releases.html:136
+#: warehouse/templates/manage/project/release.html:211
+#: warehouse/templates/manage/project/release.html:234
+#: warehouse/templates/manage/project/releases.html:165
 msgid "Delete release"
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:190
+#: warehouse/templates/manage/project/release.html:215
 #, python-format
 msgid "Deleting will irreversibly delete this release along with %(count)s file."
 msgid_plural "Deleting will irreversibly delete this release along with %(count)s files."
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/release.html:196
+#: warehouse/templates/manage/project/release.html:221
 msgid "Deleting will irreversibly delete this release."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:198
-#: warehouse/templates/manage/project/releases.html:138
+#: warehouse/templates/manage/project/release.html:223
+#: warehouse/templates/manage/project/releases.html:167
 msgid ""
 "You will not be able to re-upload a new distribution of the same type "
 "with the same version number."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:199
-#: warehouse/templates/manage/project/releases.html:139
+#: warehouse/templates/manage/project/release.html:224
+#: warehouse/templates/manage/project/releases.html:168
 msgid ""
 "Deletion will break any downstream projects relying on a pinned version "
 "of this package. It is intended as a last resort to address legal issues "
 "or remove harmful releases."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:200
-#: warehouse/templates/manage/project/releases.html:140
+#: warehouse/templates/manage/project/release.html:225
+#: warehouse/templates/manage/project/releases.html:169
 #, python-format
 msgid ""
 "Consider <a href=\"%(yank_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -6181,20 +6289,20 @@ msgid ""
 "rel=\"noopener\">post release</a> instead."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:202
+#: warehouse/templates/manage/project/release.html:227
 #, python-format
 msgid ""
 "I understand that I am permanently deleting all files for the "
 "%(release_version)s release of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:203
+#: warehouse/templates/manage/project/release.html:228
 msgid ""
 "I understand that my users will no longer be able to install this release"
 " of this project."
 msgstr ""
 
-#: warehouse/templates/manage/project/release.html:204
+#: warehouse/templates/manage/project/release.html:229
 #, python-format
 msgid ""
 "I understand that I will <a href=\"%(href)s\" target=\"_blank\" "
@@ -6211,68 +6319,81 @@ msgstr ""
 msgid "Release date"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:25
+#: warehouse/templates/manage/project/releases.html:26
+msgid "Published date"
+msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:28
 msgid "Files"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:27
+#: warehouse/templates/manage/project/releases.html:30
 msgid "Yanked reason"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:36
+#: warehouse/templates/manage/project/releases.html:39
 msgid "Manage version"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:44
+#: warehouse/templates/manage/project/releases.html:50
 #, python-format
 msgid "%(count)s file"
 msgid_plural "%(count)s files"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/manage/project/releases.html:57
+#: warehouse/templates/manage/project/releases.html:63
 msgid "No files"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:67
+#: warehouse/templates/manage/project/releases.html:73
 msgid "View release options"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:73
+#: warehouse/templates/manage/project/releases.html:79
 #, python-format
 msgid "Options for %(version)s"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:76
+#: warehouse/templates/manage/project/releases.html:82
 msgid "Un-yank Release"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:81
+#: warehouse/templates/manage/project/releases.html:87
 msgid "Un-yank"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:101
+#: warehouse/templates/manage/project/releases.html:108
+msgid "Publish"
+msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:116
 msgid "Yank"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:119
+#: warehouse/templates/manage/project/releases.html:148
 msgid "Un-yank release"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:151
+#: warehouse/templates/manage/project/releases.html:180
 #, python-format
 msgid "Manage '%(project_name)s' releases"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:174
+#: warehouse/templates/manage/project/releases.html:185
+#, python-format
+msgid "Draft Releases (%(release_count)s)"
+msgstr ""
+
+#: warehouse/templates/manage/project/releases.html:208
 msgid "Creating a new release"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:176
+#: warehouse/templates/manage/project/releases.html:210
 msgid "No releases found"
 msgstr ""
 
-#: warehouse/templates/manage/project/releases.html:179
+#: warehouse/templates/manage/project/releases.html:213
 #, python-format
 msgid ""
 "Learn how to create a new release on the <a href=\"%(href)s\" "
@@ -6727,128 +6848,132 @@ msgstr ""
 msgid "%(org)s has not uploaded any projects to PyPI, yet"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:108
+#: warehouse/templates/packaging/detail.html:112
 msgid "view hashes"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:126
+#: warehouse/templates/packaging/detail.html:130
 #, python-format
 msgid "RSS: latest releases for %(project_name)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:160
+#: warehouse/templates/packaging/detail.html:164
 msgid "Copy PIP instructions"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:171
+#: warehouse/templates/packaging/detail.html:174
+msgid "Draft version"
+msgstr ""
+
+#: warehouse/templates/packaging/detail.html:179
 msgid "This release has been yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:177
+#: warehouse/templates/packaging/detail.html:185
 #, python-format
 msgid "Stable version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:181
+#: warehouse/templates/packaging/detail.html:189
 #, python-format
 msgid "Newer version available (%(version)s)"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:185
+#: warehouse/templates/packaging/detail.html:193
 msgid "Latest version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:190
+#: warehouse/templates/packaging/detail.html:199
 #, python-format
 msgid "Released: %(release_date)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:204
+#: warehouse/templates/packaging/detail.html:214
 msgid "No project description provided"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:217
+#: warehouse/templates/packaging/detail.html:227
 msgid "Navigation"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:218
-#: warehouse/templates/packaging/detail.html:252
+#: warehouse/templates/packaging/detail.html:228
+#: warehouse/templates/packaging/detail.html:262
 #, python-format
 msgid "Navigation for %(project)s"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:221
-#: warehouse/templates/packaging/detail.html:255
+#: warehouse/templates/packaging/detail.html:231
+#: warehouse/templates/packaging/detail.html:265
 msgid "Project description. Focus will be moved to the description."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:223
-#: warehouse/templates/packaging/detail.html:257
-#: warehouse/templates/packaging/detail.html:291
+#: warehouse/templates/packaging/detail.html:233
+#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:301
 msgid "Project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:227
-#: warehouse/templates/packaging/detail.html:267
+#: warehouse/templates/packaging/detail.html:237
+#: warehouse/templates/packaging/detail.html:277
 msgid "Release history. Focus will be moved to the history panel."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:229
-#: warehouse/templates/packaging/detail.html:269
-#: warehouse/templates/packaging/detail.html:313
+#: warehouse/templates/packaging/detail.html:239
+#: warehouse/templates/packaging/detail.html:279
+#: warehouse/templates/packaging/detail.html:323
 msgid "Release history"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:234
-#: warehouse/templates/packaging/detail.html:274
+#: warehouse/templates/packaging/detail.html:244
+#: warehouse/templates/packaging/detail.html:284
 msgid "Download files. Focus will be moved to the project files."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:236
-#: warehouse/templates/packaging/detail.html:276
-#: warehouse/templates/packaging/detail.html:375
+#: warehouse/templates/packaging/detail.html:246
+#: warehouse/templates/packaging/detail.html:286
+#: warehouse/templates/packaging/detail.html:385
 msgid "Download files"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:261
+#: warehouse/templates/packaging/detail.html:271
 msgid "Project details. Focus will be moved to the project details."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:263
-#: warehouse/templates/packaging/detail.html:305
+#: warehouse/templates/packaging/detail.html:273
+#: warehouse/templates/packaging/detail.html:315
 msgid "Project details"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:287
-#: warehouse/templates/packaging/detail.html:362
+#: warehouse/templates/packaging/detail.html:297
+#: warehouse/templates/packaging/detail.html:372
 msgid "Reason this release was yanked:"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:298
+#: warehouse/templates/packaging/detail.html:308
 msgid "The author of this package has not provided a project description"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:315
+#: warehouse/templates/packaging/detail.html:325
 msgid "Release notifications"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:316
+#: warehouse/templates/packaging/detail.html:326
 msgid "RSS feed"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:328
+#: warehouse/templates/packaging/detail.html:338
 msgid "This version"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:348
+#: warehouse/templates/packaging/detail.html:358
 msgid "pre-release"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:353
+#: warehouse/templates/packaging/detail.html:363
 msgid "yanked"
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:376
+#: warehouse/templates/packaging/detail.html:386
 #, python-format
 msgid ""
 "Download the file for your platform. If you're not sure which to choose, "
@@ -6856,24 +6981,24 @@ msgid ""
 "target=\"_blank\" rel=\"noopener\">installing packages</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:378
+#: warehouse/templates/packaging/detail.html:388
 msgid "Source Distribution"
 msgid_plural "Source Distributions"
 msgstr[0] ""
 msgstr[1] ""
 
-#: warehouse/templates/packaging/detail.html:394
+#: warehouse/templates/packaging/detail.html:404
 msgid "No source distribution files available for this release."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:395
+#: warehouse/templates/packaging/detail.html:405
 #, python-format
 msgid ""
 "See tutorial on <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">generating distribution archives</a>."
 msgstr ""
 
-#: warehouse/templates/packaging/detail.html:402
+#: warehouse/templates/packaging/detail.html:412
 msgid "Built Distribution"
 msgid_plural "Built Distributions"
 msgstr[0] ""
