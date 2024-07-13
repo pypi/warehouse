@@ -3196,7 +3196,8 @@ class TestFileUpload:
         assert release.uploaded_via == "warehouse-tests/6.6.6"
 
     @pytest.mark.parametrize(
-        "version, expected_version", [("1.0", "1.0"), ("v1.0", "1.0")],
+        "version, expected_version",
+        [("1.0", "1.0"), ("v1.0", "1.0")],
     )
     @pytest.mark.parametrize(
         "test_with_user",
@@ -3377,7 +3378,11 @@ class TestFileUpload:
 
     @pytest.mark.parametrize("is_draft", [(True,), (False,)])
     def test_upload_succeeds_creates_draft_release(
-        self, pyramid_config, db_request, metrics, is_draft,
+        self,
+        pyramid_config,
+        db_request,
+        metrics,
+        is_draft,
     ):
         pyramid_config.testing_securitypolicy(userid=1)
 

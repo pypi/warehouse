@@ -773,7 +773,6 @@ class Release(HasObservations, db.Model):
         )
 
 
-
 class PackageType(str, enum.Enum):
     bdist_dmg = "bdist_dmg"
     bdist_dumb = "bdist_dumb"

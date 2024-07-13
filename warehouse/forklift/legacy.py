@@ -461,9 +461,9 @@ def _get_release_classifiers(db_session, classifiers_data):
     ]
 
     # Determine if we need to add any new classifiers to the database
-    missing_classifiers = set(classifiers_data or []) - set(
+    missing_classifiers = set(classifiers_data or []) - {
         c.classifier for c in release_classifiers
-    )
+    }
 
     # Add any new classifiers to the database
     if missing_classifiers:

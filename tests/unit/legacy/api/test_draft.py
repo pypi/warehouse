@@ -77,7 +77,7 @@ class TestDraftDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
+                filename=f"{project.name}-{release.version}.tar.gz",
             )
         ]
         db_request.matchdict["name"] = project.normalized_name
@@ -96,7 +96,7 @@ class TestDraftDetail:
         files = [
             FileFactory.create(
                 release=release,
-                filename="{}-{}.tar.gz".format(project.name, release.version),
+                filename=f"{project.name}-{release.version}.tar.gz",
             )
         ]
         db_request.matchdict["name"] = project.normalized_name
@@ -127,7 +127,7 @@ class TestDraftDetail:
         tar_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.tar.gz",
                 packagetype="sdist",
             )
             for r in releases
@@ -135,7 +135,7 @@ class TestDraftDetail:
         wheel_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.whl".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.whl",
                 packagetype="bdist_wheel",
             )
             for r in releases
@@ -143,7 +143,7 @@ class TestDraftDetail:
         egg_files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.egg".format(project.name, r.version),
+                filename=f"{project.name}-{r.version}.egg",
                 packagetype="bdist_egg",
             )
             for r in releases
