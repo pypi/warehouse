@@ -4,6 +4,11 @@ Internals and Technical Details for PEP 740 on PyPI
 This page documents some of the internals and technical details behind
 PyPI's implementation of :pep:`740`.
 
+.. important::
+
+  If you're a user of PyPI, you probably want the `attestation user docs`_
+  instead.
+
 Signing identities
 ------------------
 
@@ -346,6 +351,8 @@ ad-hoc manner, since they involve error-prone X.509 and transparency log
 operations. Instead, we **strongly encourage** integrators to use
 either `pypi-attestation-models`_ or `sigstore-python`_'s pre-existing APIs
 for attestation manipulation, signing, and verification.
+
+.. _`attestation user docs`: https://docs.pypi.org/attestations/
 
 .. _`PyPI Publish attestation`: https://docs.pypi.org/attestations/publish/v1
 
