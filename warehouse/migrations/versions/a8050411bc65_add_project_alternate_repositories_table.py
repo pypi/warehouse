@@ -13,7 +13,7 @@
 add project alternate repositories table
 
 Revision ID: a8050411bc65
-Revises: 78ecf599841c
+Revises:
 Create Date: 2024-04-25 00:26:09.199573
 """
 
@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "a8050411bc65"
-down_revision = "b14df478c48f"
+down_revision = "82b2ebed68b6"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
