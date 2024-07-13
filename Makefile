@@ -140,6 +140,9 @@ reindex: .state/docker-build-base
 shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
 
+totp: .state/docker-build-base
+	@docker compose run --rm base bin/devtotp
+
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres
 

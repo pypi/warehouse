@@ -321,17 +321,50 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password``. Due to session invalidation, you may have to login twice.
+``password``. You can generate a TOTP value for logging in using:
+
+.. code-block:: console
+
+    $ make totp
+
+These users also have recovery codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
 
 Some user accounts that you might want to try are:
 
-- `ewdurbin` - Superuser, 3 email addresses (one verified), has projects
-- `di` - Superuser, 2 email addresses (both verified), has projects
-- `dstufft` - Superuser, 2 email addresses (one verified), has projects
-- `miketheman` - Regular user, 1 email address (not verified), has a project
+- ``ewdurbin`` - Superuser, 3 email addresses (one verified), has projects
+- ``di`` - Superuser, 2 email addresses (both verified), has projects
+- ``dstufft`` - Superuser, 2 email addresses (one verified), has projects
+- ``miketheman`` - Regular user, 1 email address (not verified), has a project
 
 There are no Moderator accounts in the dev db, any Superuser can change a user
 to a moderator if needed.
+
+All of these users have 2FA enabled via TOTP,
+using the same secret as ``make totp``.
+
+They also have the following Recovery Codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
 
 Using different accounts will allow you to see different parts of the site,
 and have slightly different experiences.
@@ -339,7 +372,12 @@ and have slightly different experiences.
 For example, using `miketheman` will require email verification.
 See :ref:`testing-e-mails` for more information on how to see those emails.
 
-Once logged in, you must enroll in a form of Two-Factor Authentication (2FA).
+Logging in as users without 2FA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For users that are not listed above,
+once logged in with the password ``password``,
+you must enroll in a form of Two-Factor Authentication (2FA).
 This is a requirement for all users.
 
 One way to make this easier is to use a command-line tool like
