@@ -615,14 +615,32 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
         <p>{% trans href='#project-name-claim', anchor_text=project_name_claim() %}If the owner is unresponsive, see <a href="{{ href }}">{{ anchor_text }}</a>{% endtrans %}</p>
 
         <h3 id="description-content-type">{{ description_content_type() }}</h3>
-        <p>{% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}By default, an upload's description will render with <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>. If the description is in an alternate format like Markdown, a package may set the <code>long_description_content_type</code> in <code>setup.py</code> to the alternate format.{% endtrans %}</p>
-        <p>{% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}Refer to the <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a> for details on the available formats.{% endtrans %}</p>
+        <p>
+          {% trans %}
+          When using <code>pyproject.toml</code> for project metadata, you can use the extension of the <code>readme</code> field value to control how PyPI renders your description.
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans href='https://docutils.sourceforge.io/rst.html', title=gettext('External link') %}
+          For example, <code>readme = "README.md"</code> will render the description as Markdown,
+          while <code>readme = "README.rst"</code> will render it as
+          <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">reStructuredText</a>
+          {% endtrans %}
+        </p>
+        <p>
+          {% trans href='https://packaging.python.org/guides/making-a-pypi-friendly-readme/', title=gettext('External link') %}
+          Refer to the
+          <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">Python Packaging User Guide</a>
+          for details on the available formats.
+          {% endtrans %}
+        </p>
         <p>For how to check a description for validity, see also: <a href="#description-render-failure">{{ description_render_failure() }}</a></p>
 
         <h3 id="file-size-limit">{{ file_size_limit() }}</h3>
+        {% set max_file_size_mb = request.registry.settings.get('warehouse.forklift.legacy.MAX_FILESIZE_MIB') %}
         <p>
           {% trans dev_release_href='https://www.python.org/dev/peps/pep-0440/#developmental-releases', file_issue_href='https://github.com/pypi/support/issues/new?assignees=&labels=limit+request&template=limit-request-file.yml&title=File+Limit+Request%3A+PROJECT_NAME+-+000+MB', title=gettext('External link') %}
-            If you can't upload your project's release to PyPI because you're hitting the upload file size limit,
+            If you can't upload your project's release to PyPI because you're hitting the upload file size limit ({{ max_file_size_mb }} MiB by default; individual projects may differ),
             we can sometimes increase your limit. Make sure you've uploaded at least one release
             for the project that's <em>under</em> the limit
             (a <a href="{{ dev_release_href }}" title="{{ title }}" target="_blank" rel="noopener">developmental release version number</a> is fine).
@@ -639,9 +657,10 @@ print(f"BLAKE2b-256: {blake2b_hash}\nSHA256: {sha256_hash}")</pre>
 
         <h3 id="project-size-limit">{{ project_size_limit() }}</h3>
         <p>
+          {% set max_project_size_gb = request.registry.settings.get('warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB') %}
           {% trans %}
             If you can't upload your project's release to PyPI because you're
-            hitting the project size limit, first remove any unnecessary
+            hitting the project size limit ({{ max_project_size_gb }} GiB by default; individual projects may differ), first remove any unnecessary
             releases or individual files to lower your overall project size.
           {% endtrans %}
         </p>

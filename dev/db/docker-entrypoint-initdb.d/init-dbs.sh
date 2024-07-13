@@ -13,5 +13,5 @@ EOF
 xz -d -f -k /example.sql.xz --stdout | psql -d warehouse -U "$POSTGRES_USER" -v ON_ERROR_STOP=1 -1 -f -
 
 psql -d warehouse -U "$POSTGRES_USER" <<-EOF
-    UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin'
+    UPDATE users SET name='Ee Durbin' WHERE username='ewdurbin';
 EOF

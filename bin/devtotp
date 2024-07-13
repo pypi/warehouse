@@ -1,0 +1,3 @@
+#!/bin/bash
+
+oathtool --base32 --totp IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
