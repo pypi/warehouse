@@ -321,7 +321,105 @@ the string ``password``. You can log in as any account at
 http://localhost:80/account/login/.
 
 To log in as an admin user, log in as ``ewdurbin`` with the password
-``password``. Due to session invalidation, you may have to login twice.
+``password``. You can generate a TOTP value for logging in using:
+
+.. code-block:: console
+
+    $ make totp
+
+These users also have recovery codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
+
+Some user accounts that you might want to try are:
+
+- ``ewdurbin`` - Superuser, 3 email addresses (one verified), has projects
+- ``di`` - Superuser, 2 email addresses (both verified), has projects
+- ``dstufft`` - Superuser, 2 email addresses (one verified), has projects
+- ``miketheman`` - Regular user, 1 email address (not verified), has a project
+
+There are no Moderator accounts in the dev db, any Superuser can change a user
+to a moderator if needed.
+
+All of these users have 2FA enabled via TOTP,
+using the same secret as ``make totp``.
+
+They also have the following Recovery Codes generated:
+
+.. code-block::
+
+    6ebc846aadf23e35
+    7283821faf191a33
+    68108e19d25e2eec
+    4e6a18adb880fbc1
+    f62627d29675725f
+    4cda895a133b4cc8
+    8678c6f0d9a1e6de
+    edc6ce3800c0fc94 -- burned
+
+Using different accounts will allow you to see different parts of the site,
+and have slightly different experiences.
+
+For example, using `miketheman` will require email verification.
+See :ref:`testing-e-mails` for more information on how to see those emails.
+
+Logging in as users without 2FA
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For users that are not listed above,
+once logged in with the password ``password``,
+you must enroll in a form of Two-Factor Authentication (2FA).
+This is a requirement for all users.
+
+One way to make this easier is to use a command-line tool like
+`totp-cli <https://yitsushi.github.io/totp-cli/>`_ to generate a TOTP 2FA code.
+
+For example, to generate a code for any of the above users,
+we have a common Key set in the database for those users:
+
+.. code-block:: console
+
+    $ totp-cli instant <<< IU7UP3EMIPI7EBPQUUSEHEJUFNBIWOYG
+
+This will emit a 6-digit code you can paste into the 2FA form.
+
+For other accounts, you'll need to preserve the Key used
+to genreate the TOTP code the next time you need to log in.
+
+To be able to "forget" the initial Key, and use it like a TOTP app,
+create a storage and set a password, like so:
+
+.. code-block:: console
+
+    $ totp-cli add-token localhost <username>
+    Token: <paste Key from warehouse web interface here>
+    Password: <set a password, is unique to this totp storage>
+
+Then you can retrieve the current TOTP code with:
+
+.. code-block:: console
+
+    $ totp-cli g localhost <username>
+    Password: <the password you set for the totp storage>
+
+Keep in mind: If the database is ever reset,
+you'll need to re-enroll user accounts in 2FA.
+
+Remove the existing TOTP token from storage with:
+
+.. code-block:: console
+
+    $ totp-cli delete localhost <username>
+    Password: <the password you set for the totp storage>
 
 
 Stopping Warehouse and other services
@@ -638,6 +736,8 @@ Building the docs requires Python 3.8. If it is not installed, the
   Makefile:53: recipe for target '.state/env/pyvenv.cfg' failed
   make: *** [.state/env/pyvenv.cfg] Error 127
 
+
+.. _building-translations:
 
 Building translations
 ---------------------

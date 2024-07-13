@@ -59,7 +59,7 @@ def includeme(config):
     _domain_prefix = rf"https?://({warehouse}|localhost)"
     config.add_redirect_rule(
         f"{_domain_prefix}/policy/terms-of-use/",
-        "https://policies.python.org/pypi.org/Terms-of-use/",
+        "https://policies.python.org/pypi.org/Terms-of-Use/",
     )
     config.add_redirect_rule(
         f"{_domain_prefix}/policy/acceptable-use-policy/",

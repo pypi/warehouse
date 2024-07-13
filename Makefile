@@ -114,6 +114,7 @@ resetdb: .state/docker-build-base
 .state/db-populated: .state/db-migrated
 	docker compose run --rm web python -m warehouse sponsors populate-db
 	docker compose run --rm web python -m warehouse classifiers sync
+	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
 	mkdir -p .state && touch .state/db-populated
 
 .state/db-migrated: .state/docker-build-base
@@ -138,6 +139,9 @@ reindex: .state/docker-build-base
 
 shell: .state/docker-build-base
 	docker compose run --rm web python -m warehouse shell
+
+totp: .state/docker-build-base
+	@docker compose run --rm base bin/devtotp
 
 dbshell: .state/docker-build-base
 	docker compose run --rm web psql -h db -d warehouse -U postgres

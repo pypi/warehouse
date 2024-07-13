@@ -254,6 +254,8 @@ def test_configure(monkeypatch, settings, environment):
         "reconcile_file_storages.batch_size": 100,
         "metadata_backfill.batch_size": 500,
         "gcloud.service_account_info": {},
+        "warehouse.forklift.legacy.MAX_FILESIZE_MIB": 100,
+        "warehouse.forklift.legacy.MAX_PROJECT_SIZE_GIB": 10,
     }
     if environment == config.Environment.development:
         expected_settings.update(
