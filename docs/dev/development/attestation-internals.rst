@@ -92,8 +92,8 @@ identities. Some potential future attestation types:
 Attestation object internals
 ----------------------------
 
-This section is intended as a high-level walkthrough of a :pep:`740` attestation
-object.
+This section is intended as a high-level walkthrough of a :pep:`740`
+attestation object.
 
 First: here is our contrived attestation object:
 
@@ -249,7 +249,8 @@ The ``envelope`` key contains two components:
       "predicate": {}
     }
 
-* The ``signature``, which contains the base64-encoded signature over ``statement``.
+* The ``signature``, which contains the base64-encoded signature over
+  ``statement``.
 
   ``signature`` can be verified using the public key bound within
   ``verification_material.certificate``, fully linking the attestation back to
@@ -301,20 +302,31 @@ Attestation object verification is described at a high level in :pep:`740`.
 
 Using the details above, we can provide the steps with slightly more accuracy:
 
-1. Retrieve the distribution (sdist or wheel) being verified and its attestation.
-   We'll call these ``foo-1.2.3.tar.gz`` and ``foo-1.2.3.tar.gz.publish.attestation``,
-   respectively.
+1. Retrieve the distribution (sdist or wheel) being verified and its
+   attestation. We'll call these ``foo-1.2.3.tar.gz`` and
+   ``foo-1.2.3.tar.gz.publish.attestation``, respectively.
 
 2. Verify that the attestation's ``verification_material.certificate`` is valid
    and chains up to the expected root of trust (i.e., the Sigstore public
    good instance) *and* has the expected subject (i.e., the subject matches
    a valid Trusted Publisher for project ``foo``).
 
-    This step is equivalent to Sigstore "bundle" verification and also requires
-    a source of signed time, such as the ``verification_material.transparency_entries``.
+   .. note::
 
-3. Verify that the attestation's ``envelope.signature`` is valid for ``envelope.statement``,
-   using the `DSSE PAE encoding`_ and the public key of
+    The "expected subject" is the expected signing identity, which the verifier
+    must establish trust in. For example, depending on the security model,
+    the verifier could either establish *a priori* that a given CI/CD identity
+    is responsible for publishing a given package, or could perform a
+    TOFU-style setup where the first identity associated with the package
+    is considered the trusted one.
+
+   .. note::
+
+     This step is equivalent to Sigstore "bundle" verification and also requires
+     a source of signed time, such as the ``verification_material.transparency_entries``.
+
+3. Verify that the attestation's ``envelope.signature`` is valid for
+   ``envelope.statement``, using the `DSSE PAE encoding`_ and the public key of
    ``verification_material.certificate``.
 
 4. Decode the ``envelope.statement``, verify that it's an in-toto Statement
