@@ -18,7 +18,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently
 from pyramid.testing import DummyRequest
 
 from warehouse.api import simple
-from warehouse.packaging.utils import API_VERSION
+from warehouse.packaging.utils import API_VERSION, _valid_simple_detail_context
 
 from ...common.db.accounts import UserFactory
 from ...common.db.packaging import (
@@ -49,29 +49,30 @@ class TestContentNegotiation:
         default to text/html.
         """
         request = DummyRequest(accept=header)
-        assert simple._select_content_type(request) == "text/html"
+        assert simple._select_content_type(request) == simple.MIME_TEXT_HTML
 
     @pytest.mark.parametrize(
         "header, expected",
         [
-            ("text/html", "text/html"),
+            (simple.MIME_TEXT_HTML, simple.MIME_TEXT_HTML),
             (
-                "application/vnd.pypi.simple.v1+html",
-                "application/vnd.pypi.simple.v1+html",
+                simple.MIME_PYPI_SIMPLE_V1_HTML,
+                simple.MIME_PYPI_SIMPLE_V1_HTML,
             ),
             (
-                "application/vnd.pypi.simple.v1+json",
-                "application/vnd.pypi.simple.v1+json",
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
             (
-                "text/html, application/vnd.pypi.simple.v1+html, "
-                "application/vnd.pypi.simple.v1+json",
-                "text/html",
+                f"{simple.MIME_TEXT_HTML}, {simple.MIME_PYPI_SIMPLE_V1_HTML}, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                simple.MIME_TEXT_HTML,
             ),
             (
-                "text/html;q=0.01, application/vnd.pypi.simple.v1+html;q=0.2, "
-                "application/vnd.pypi.simple.v1+json",
-                "application/vnd.pypi.simple.v1+json",
+                f"{simple.MIME_TEXT_HTML};q=0.01, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_HTML};q=0.2, "
+                f"{simple.MIME_PYPI_SIMPLE_V1_JSON}",
+                simple.MIME_PYPI_SIMPLE_V1_JSON,
             ),
         ],
     )
@@ -81,9 +82,9 @@ class TestContentNegotiation:
 
 
 CONTENT_TYPE_PARAMS = [
-    ("text/html", None),
-    ("application/vnd.pypi.simple.v1+html", None),
-    ("application/vnd.pypi.simple.v1+json", "json"),
+    (simple.MIME_TEXT_HTML, None),
+    (simple.MIME_PYPI_SIMPLE_V1_HTML, None),
+    (simple.MIME_PYPI_SIMPLE_V1_JSON, "json"),
 ]
 
 
@@ -199,13 +200,15 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
             "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -226,16 +229,18 @@ class TestSimpleDetail:
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
         als = [
             AlternateRepositoryFactory.create(project=project),
-            AlternateRepositoryFactory.create(project=project)
+            AlternateRepositoryFactory.create(project=project),
         ]
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "files": [],
             "versions": [],
             "alternate-locations": sorted(al.url for al in als),
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -265,7 +270,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         JournalEntryFactory.create(submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": 0, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -285,6 +290,8 @@ class TestSimpleDetail:
             ],
             "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
         assert db_request.response.content_type == content_type
@@ -314,7 +321,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -334,6 +341,8 @@ class TestSimpleDetail:
             ],
             "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -400,7 +409,7 @@ class TestSimpleDetail:
         user = UserFactory.create()
         je = JournalEntryFactory.create(name=project.name, submitted_by=user)
 
-        assert simple.simple_detail(project, db_request) == {
+        context = {
             "meta": {"_last-serial": je.id, "api-version": API_VERSION},
             "name": project.normalized_name,
             "versions": release_versions,
@@ -428,6 +437,8 @@ class TestSimpleDetail:
             ],
             "alternate-locations": [],
         }
+        context = _update_context(context, content_type, renderer_override)
+        assert simple.simple_detail(project, db_request) == context
 
         assert db_request.response.headers["X-PyPI-Last-Serial"] == str(je.id)
         assert db_request.response.content_type == content_type
@@ -435,3 +446,12 @@ class TestSimpleDetail:
 
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
+
+
+def _update_context(context, content_type, renderer_override):
+    if renderer_override != "json" or content_type in [
+        simple.MIME_TEXT_HTML,
+        simple.MIME_PYPI_SIMPLE_V1_HTML,
+    ]:
+        return _valid_simple_detail_context(context)
+    return context

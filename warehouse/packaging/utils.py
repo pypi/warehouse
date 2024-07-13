@@ -98,7 +98,7 @@ def _simple_detail(project, request):
 
 def render_simple_detail(project, request, store=False):
     context = _simple_detail(project, request)
-    context["alternate_locations"] = context.pop("alternate-locations")
+    context = _valid_simple_detail_context(context)
 
     env = request.registry.queryUtility(IJinja2Environment, name=".jinja2")
     template = env.get_template("templates/api/simple/detail.html")
@@ -138,3 +138,8 @@ def render_simple_detail(project, request, store=False):
             )
 
     return (content_hash, simple_detail_path)
+
+
+def _valid_simple_detail_context(context: dict) -> dict:
+    context["alternate_locations"] = context.pop("alternate-locations", [])
+    return context

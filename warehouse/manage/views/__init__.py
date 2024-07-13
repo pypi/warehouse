@@ -12,6 +12,7 @@
 
 import base64
 import io
+import uuid
 
 import pyqrcode
 
@@ -1178,9 +1179,7 @@ class ManageProjectSettingsViews:
 
         if not form.validate():
             self.request.session.flash(
-                self.request._(
-                    "Invalid alternate repository location details",
-                ),
+                self.request._("Invalid alternate repository location details"),
                 queue="error",
             )
             return HTTPSeeOther(
@@ -1249,28 +1248,52 @@ class ManageProjectSettingsViews:
         permission=Permissions.ProjectsWrite,
     )
     def delete_project_alternate_repository(self):
-        alt_repo_name = self.request.POST.get("confirm_alternate_repository_name")
-
+        confirm_name = self.request.POST.get("confirm_alternate_repository_name")
         resp_inst = HTTPSeeOther(
             self.request.route_path(
                 "manage.project.settings", project_name=self.project.name
             )
         )
 
-        if not alt_repo_name:
+        # Must confirm alt repo name to delete.
+        if not confirm_name:
             self.request.session.flash(
                 self.request._("Confirm the request"), queue="error"
             )
             return resp_inst
 
-        alternate_repository_id = self.request.POST.get("alternate_repository_id")
+        # Must provide a valid alt repo id.
+        alternate_repository_id = self.request.POST.get("alternate_repository_id", "")
+        try:
+            uuid.UUID(str(alternate_repository_id))
+        except ValueError:
+            alternate_repository_id = None
+        if not alternate_repository_id:
+            self.request.session.flash(
+                self.request._("Invalid alternate repository id"),
+                queue="error",
+            )
+            return resp_inst
 
+        # The provided alt repo id must be related to this project.
         alt_repo: AlternateRepository = self.request.db.get(
             AlternateRepository, alternate_repository_id
         )
-        if alt_repo is None or alt_repo not in self.project.alternate_repositories:
+        if not alt_repo or alt_repo not in self.project.alternate_repositories:
             self.request.session.flash(
-                "Invalid alternate repository for project",
+                self.request._("Invalid alternate repository for project"),
+                queue="error",
+            )
+            return resp_inst
+
+        # The confirmed alt repo name must match the provided alt repo id.
+        if confirm_name != alt_repo.name:
+            self.request.session.flash(
+                self.request._(
+                    "Could not delete alternate repository - "
+                    "${confirm} is not the same as ${alt_repo_name}",
+                    mapping={"confirm": confirm_name, "alt_repo_name": alt_repo.name},
+                ),
                 queue="error",
             )
             return resp_inst

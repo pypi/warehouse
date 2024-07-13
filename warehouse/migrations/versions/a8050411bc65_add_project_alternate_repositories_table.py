@@ -22,7 +22,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "a8050411bc65"
-down_revision = "78ecf599841c"
+down_revision = "b14df478c48f"
 
 # Note: It is VERY important to ensure that a migration does not lock for a
 #       long period of time and to ensure that each individual migration does
