@@ -25,7 +25,7 @@ from warehouse.packaging.interfaces import (
     IProjectService,
     ISimpleStorage,
 )
-from warehouse.packaging.models import File, Project, Release, Role
+from warehouse.packaging.models import AlternateRepository, File, Project, Release, Role
 from warehouse.packaging.services import project_service_factory
 from warehouse.packaging.tasks import (  # sync_bigquery_release_files,
     check_file_cache_tasks_outstanding,
@@ -157,6 +157,13 @@ def test_includeme(monkeypatch, with_bq_sync):
                 key_factory("user/{itr.username}", iterate_on="users"),
                 key_factory("org/{obj.normalized_name}"),
                 key_factory("project/{itr.normalized_name}", iterate_on="projects"),
+            ],
+        ),
+        pretend.call(
+            AlternateRepository,
+            cache_keys=["project/{obj.project.normalized_name}"],
+            purge_keys=[
+                key_factory("project/{obj.project.normalized_name}"),
             ],
         ),
     ]
