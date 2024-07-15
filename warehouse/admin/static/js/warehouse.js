@@ -187,19 +187,19 @@ if (malwareReportsTable.length) {
 }
 
 // Link Checking
-var links = document.querySelectorAll("a[data-check-link-url]");
+const links = document.querySelectorAll("a[data-check-link-url]");
 links.forEach(function(link){
-  var reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
+  let reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
   fetch(reportLine.url, {
     method: "GET",
     mode: "cors",
   })
     .then(function(response) {
-      var responseText = "";
+      let responseText = "";
       response.text().then((text) => {
         responseText = text;
         console.log(response.status, responseText);
-        if (response.status == 400 && responseText == "Unsupported content-type returned\n") {
+        if (response.status === 400 && responseText === "Unsupported content-type returned\n") {
           reportLine.element.firstChild.classList.remove("fa-question");
           reportLine.element.firstChild.classList.add("fa-check");
           reportLine.element.firstChild.classList.add("text-green");
