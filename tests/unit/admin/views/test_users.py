@@ -16,7 +16,7 @@ import freezegun
 import pretend
 import pytest
 
-from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently
+from pyramid.httpexceptions import HTTPBadRequest, HTTPMovedPermanently, HTTPSeeOther
 from sqlalchemy.orm import joinedload
 from webob.multidict import MultiDict, NoVars
 
@@ -30,10 +30,15 @@ from warehouse.accounts.models import (
 )
 from warehouse.admin.views import users as views
 from warehouse.observations.models import ObservationKind
-from warehouse.packaging.models import JournalEntry, Project
+from warehouse.packaging.models import JournalEntry, Project, ReleaseURL
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
-from ....common.db.packaging import JournalEntryFactory, ProjectFactory, RoleFactory
+from ....common.db.packaging import (
+    JournalEntryFactory,
+    ProjectFactory,
+    ReleaseFactory,
+    RoleFactory,
+)
 
 
 class TestUserList:
@@ -528,6 +533,98 @@ class TestUserResetPassword:
         assert result.headers["Location"] == "/user/the-redirect/"
         assert db_request.current_route_path.calls == [
             pretend.call(username=user.username)
+        ]
+
+
+class TestUserRecoverAccountInitiate:
+    def test_user_recover_account_initiate(self, db_request, db_session):
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        project0 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project0)
+        release0 = ReleaseFactory.create(project=project0)
+        db_session.add(
+            ReleaseURL(
+                release=release0, name="Homepage", url="https://example.com/home0"
+            )
+        )
+        db_session.add(
+            ReleaseURL(
+                release=release0, name="Source Code", url="http://example.com/source0"
+            )
+        )
+        project1 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project1)
+        release1 = ReleaseFactory.create(project=project1)
+        db_session.add(
+            ReleaseURL(
+                release=release1, name="Homepage", url="https://example.com/home1"
+            )
+        )
+        project2 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project2)
+        release2 = ReleaseFactory.create(project=project2)
+        db_session.add(
+            ReleaseURL(release=release2, name="telnet", url="telnet://192.0.2.16:80/")
+        )
+        project3 = ProjectFactory.create()
+        RoleFactory.create(user=user, project=project3)
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert result == {
+            "user": user,
+            "repo_urls": {
+                project0.name: {
+                    ("Homepage", "https://example.com/home0"),
+                    ("Source Code", "http://example.com/source0"),
+                },
+                project1.name: {
+                    ("Homepage", "https://example.com/home1"),
+                },
+            },
+        }
+
+    def test_user_recover_account_initiate_only_one(self, db_request):
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, **kwargs: "/user/the-redirect/"
+        )
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+
+        result = views.user_recover_account_initiate(user, db_request)
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
         ]
 
 

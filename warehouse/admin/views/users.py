@@ -357,7 +357,7 @@ def _get_related_urls(user):
                 if _is_a_valid_url(url):
                     project_to_urls[project.name].add((kind, url))
 
-    return project_to_urls
+    return dict(project_to_urls)
 
 
 @view_config(
@@ -371,8 +371,6 @@ def _get_related_urls(user):
     require_methods=False,
 )
 def user_recover_account_initiate(user, request):
-    repo_urls = _get_related_urls(user)
-
     if user.active_account_recoveries:
         request.session.flash(
             "Only one account recovery may be in process for each user.", queue="error"
@@ -381,6 +379,8 @@ def user_recover_account_initiate(user, request):
         return HTTPSeeOther(
             request.route_path("admin.user.detail", username=user.username)
         )
+
+    repo_urls = _get_related_urls(user)
 
     if request.method == "POST":
 
