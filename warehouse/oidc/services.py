@@ -238,7 +238,7 @@ class OIDCPublisherService:
             r.set(
                 f"/warehouse/oidc/{self.publisher}/{jti}",
                 exat=expiration + 5,
-                value="placeholder",
+                value="",  # empty value to lower memory usage
                 nx=True,
             )
 

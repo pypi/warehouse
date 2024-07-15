@@ -22,6 +22,7 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
+    OIDCPublisherMixin,
     PendingOIDCPublisher,
 )
 
@@ -122,12 +123,7 @@ class GitLabPublisherMixin:
 
     __required_unverifiable_claims__: set[str] = {"ref_path", "sha"}
 
-    __preverified_claims__ = {
-        "iss",
-        "iat",
-        "nbf",
-        "exp",
-        "aud",
+    __preverified_claims__ = OIDCPublisherMixin.__preverified_claims__ | {
         "jti",
     }
 
