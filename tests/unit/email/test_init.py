@@ -1332,6 +1332,89 @@ class TestTokenLeakEmail:
         ]
 
 
+class TestAccountRecoveryInitiatedEmail:
+    @pytest.mark.parametrize("verified", [True, False])
+    def test_send_account_recovery_initiated_email(
+        self, pyramid_request, pyramid_config, monkeypatch, verified
+    ):
+        stub_user = pretend.stub(
+            id="id",
+            username="username",
+            name="",
+            email="email@example.com",
+            primary_email=pretend.stub(email="email@example.com", verified=verified),
+        )
+        stub_email = pretend.stub(id="id", email="email@example.com", verified=False)
+        subject_renderer = pyramid_config.testing_add_renderer(
+            "email/account-recovery-initiated/subject.txt"
+        )
+        subject_renderer.string_response = "Email Subject"
+        body_renderer = pyramid_config.testing_add_renderer(
+            "email/account-recovery-initiated/body.txt"
+        )
+        body_renderer.string_response = "Email Body"
+        html_renderer = pyramid_config.testing_add_renderer(
+            "email/account-recovery-initiated/body.html"
+        )
+        html_renderer.string_response = "Email HTML Body"
+
+        send_email = pretend.stub(
+            delay=pretend.call_recorder(lambda *args, **kwargs: None)
+        )
+        pyramid_request.task = pretend.call_recorder(lambda *args, **kwargs: send_email)
+        monkeypatch.setattr(email, "send_email", send_email)
+
+        pyramid_request.db = pretend.stub(
+            query=lambda a: pretend.stub(
+                filter=lambda *a: pretend.stub(
+                    one=lambda: pretend.stub(user_id=stub_user.id)
+                )
+            ),
+        )
+        pyramid_request.user = stub_user
+        pyramid_request.registry.settings = {"mail.sender": "noreply@example.com"}
+
+        result = email.send_account_recovery_initiated_email(
+            pyramid_request,
+            (stub_user, stub_email),
+            project_name="project",
+            support_issue_link="https://github.com/pypi/support/issues/666",
+            token="deadbeef",
+        )
+
+        assert result == {
+            "project_name": "project",
+            "support_issue_link": "https://github.com/pypi/support/issues/666",
+            "token": "deadbeef",
+            "user": stub_user,
+        }
+        assert pyramid_request.task.calls == [pretend.call(send_email)]
+        assert send_email.delay.calls == [
+            pretend.call(
+                f"{stub_user.username} <{stub_user.email}>",
+                {
+                    "sender": "support@pypi.org",
+                    "subject": "Email Subject",
+                    "body_text": "Email Body",
+                    "body_html": (
+                        "<html>\n<head></head>\n"
+                        "<body><p>Email HTML Body</p></body>\n</html>\n"
+                    ),
+                },
+                {
+                    "tag": "account:email:sent",
+                    "user_id": stub_user.id,
+                    "additional": {
+                        "from_": "support@pypi.org",
+                        "to": stub_user.email,
+                        "subject": "Email Subject",
+                        "redact_ip": False,
+                    },
+                },
+            )
+        ]
+
+
 class TestPasswordCompromisedEmail:
     @pytest.mark.parametrize("verified", [True, False])
     def test_password_compromised_email(

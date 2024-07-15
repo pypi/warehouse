@@ -379,6 +379,22 @@ class TestDatabaseUserService:
             )
         ]
 
+    def test_add_email_bypass_ratelimit(self, user_service, metrics, remote_addr):
+        resets = pretend.stub()
+        limiter = pretend.stub(
+            hit=pretend.call_recorder(lambda ip: None),
+            test=pretend.call_recorder(lambda ip: False),
+            resets_in=pretend.call_recorder(lambda ip: resets),
+        )
+        user_service.ratelimiters["email.add"] = limiter
+
+        user = UserFactory.create()
+        user_service.add_email(user.id, "foo@example.com", ratelimit=False)
+
+        assert limiter.test.calls == []
+        assert limiter.resets_in.calls == []
+        assert metrics.increment.calls == []
+
     def test_update_user(self, user_service):
         user = UserFactory.create()
         new_name, password = "new username", "TestPa@@w0rd"
