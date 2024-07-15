@@ -534,8 +534,6 @@ class ProjectService:
                         projecthelp=request.help_url(_anchor="project-name"),
                     ),
                 ) from None
-            case None:
-                pass
 
         # The project name is valid: create it and add it
         project = Project(name=name)

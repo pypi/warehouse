@@ -70,8 +70,6 @@ class PendingPublisherMixin:
                         " standard library module name)"
                     )
                 )
-            case None:
-                return
 
     @property
     def provider(self) -> str:  # pragma: no cover
