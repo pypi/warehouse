@@ -171,6 +171,8 @@ class TestUser:
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
