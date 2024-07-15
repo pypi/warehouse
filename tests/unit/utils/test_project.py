@@ -26,6 +26,7 @@ from warehouse.packaging.models import (
     Role,
 )
 from warehouse.utils.project import (
+    PROJECT_NAME_RE,
     clear_project_quarantine,
     confirm_project,
     destroy_docs,
@@ -42,6 +43,18 @@ from ...common.db.packaging import (
     ReleaseFactory,
     RoleFactory,
 )
+
+
+@pytest.mark.parametrize(
+    "name", ["django", "zope.interface", "Twisted", "foo_bar", "abc123"]
+)
+def test_project_name_re_ok(name: str) -> None:
+    assert PROJECT_NAME_RE.match(name) is not None
+
+
+@pytest.mark.parametrize("name", ["", "foo\n", "foo\nbar", "..."])
+def test_project_name_re_invalid(name: str) -> None:
+    assert PROJECT_NAME_RE.match(name) is None
 
 
 def test_confirm():
