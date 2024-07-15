@@ -426,7 +426,9 @@ def _process_attestations(request, artifact_path: Path):
         except Exception as e:
             with sentry_sdk.push_scope() as scope:
                 scope.fingerprint = e
-                sentry_sdk.capture_message(f"Unexpected error while verifying attestation: {e}")
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
 
             raise _exc_with_message(
                 HTTPBadRequest,
