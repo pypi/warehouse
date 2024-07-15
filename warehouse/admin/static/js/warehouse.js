@@ -213,7 +213,7 @@ links.forEach(function(link){
         console.log(reportLine);
       });
     })
-    .catch(function(error){
+    .catch(function(error) {
       reportLine.status = -1;
       console.log(error);
       console.log(reportLine);
