@@ -11,10 +11,10 @@
 # limitations under the License.
 
 import datetime
-import secrets
 import shlex
 
 from collections import defaultdict
+from secrets import token_urlsafe
 
 import wtforms
 import wtforms.fields
@@ -400,7 +400,7 @@ def user_recover_account_initiate(user, request):
         elif repo_urls and not project_name:
             request.session.flash("Select a project for verification", queue="error")
         else:
-            token = secrets.token_urlsafe().replace("-", "").replace("_", "")[:16]
+            token = token_urlsafe().replace("-", "").replace("_", "")[:16]
             override_to_email = (
                 request.POST.get("override_to_email")
                 if request.POST.get("override_to_email") != ""
@@ -448,7 +448,7 @@ def user_recover_account_initiate(user, request):
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
-                    "repos": list(repo_urls[project_name]),
+                    "repos": sorted(list(repo_urls.get(project_name, []))),
                     "support_issue_link": support_issue_link,
                     "override_to_email": override_to_email,
                 },
