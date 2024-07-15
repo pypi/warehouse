@@ -12,4 +12,4 @@ COMMAND_ARGS="$@"
 # Print all the following commands
 set -x
 
-pip-compile $COMMAND_ARGS
+uv pip compile $COMMAND_ARGS

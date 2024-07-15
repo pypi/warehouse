@@ -68,7 +68,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 # TODO: We use --require-hashes in our requirements files, but not here, making
 #       the ones in the requirements files kind of a moot point. We should
 #       probably pin these too, and update them as we do anything else.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools uv wheel
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -80,13 +80,14 @@ COPY requirements /tmp/requirements
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
     set -x \
-    && pip --disable-pip-version-check \
+    && uv pip \
             install --no-deps \
             -r /tmp/requirements/docs-dev.txt \
             -r /tmp/requirements/docs-user.txt \
             -r /tmp/requirements/docs-blog.txt \
-    && pip check \
+    && uv pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
 WORKDIR /opt/warehouse/src/
@@ -152,7 +153,7 @@ ENV PATH="/opt/warehouse/bin:${PATH}"
 # TODO: We use --require-hashes in our requirements files, but not here, making
 #       the ones in the requirements files kind of a moot point. We should
 #       probably pin these too, and update them as we do anything else.
-RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools wheel
+RUN pip --no-cache-dir --disable-pip-version-check install --upgrade pip setuptools uv wheel
 
 # We copy this into the docker container prior to copying in the rest of our
 # application so that we can skip installing requirements if the only thing
@@ -162,26 +163,29 @@ COPY requirements /tmp/requirements
 # Install our development dependencies if we're building a development install
 # otherwise this will do nothing.
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
     set -x \
-    && if [ "$DEVEL" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/dev.txt; fi
+    && if [ "$DEVEL" = "yes" ]; then uv pip install -r /tmp/requirements/dev.txt; fi
 
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
     set -x \
-    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then pip --disable-pip-version-check install -r /tmp/requirements/ipython.txt; fi
+    && if [ "$DEVEL" = "yes" ] && [ "$IPYTHON" = "yes" ]; then uv pip install -r /tmp/requirements/ipython.txt; fi
 
 # Install the Python level Warehouse requirements, this is done after copying
 # the requirements but prior to copying Warehouse itself into the container so
 # that code changes don't require triggering an entire install of all of
 # Warehouse's dependencies.
 RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=cache,target=/root/.cache/uv \
     set -x \
-    && pip --disable-pip-version-check \
+    && uv pip \
             install --no-deps \
                     -r /tmp/requirements/deploy.txt \
                     -r /tmp/requirements/main.txt \
                     $(if [ "$DEVEL" = "yes" ]; then echo '-r /tmp/requirements/tests.txt -r /tmp/requirements/lint.txt'; fi) \
                     $(if [ "$CI" = "yes" ]; then echo '-r /tmp/requirements/docs-dev.txt -r /tmp/requirements/docs-user.txt -r /tmp/requirements/docs-blog.txt'; fi ) \
-    && pip check \
+    && uv pip check \
     && find /opt/warehouse -name '*.pyc' -delete
 
 
