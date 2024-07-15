@@ -389,8 +389,10 @@ class TestDatabaseUserService:
         user_service.ratelimiters["email.add"] = limiter
 
         user = UserFactory.create()
-        user_service.add_email(user.id, "foo@example.com", ratelimit=False)
+        new_email = user_service.add_email(user.id, "foo@example.com", ratelimit=False)
 
+        assert new_email.email == "foo@example.com"
+        assert not new_email.verified
         assert limiter.test.calls == []
         assert limiter.resets_in.calls == []
         assert metrics.increment.calls == []
