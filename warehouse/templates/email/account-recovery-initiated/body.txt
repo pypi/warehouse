@@ -27,8 +27,6 @@ Because there are no projects with public source code repositories associated wi
 
 Please respond to this email confirming intent to reset 2FA.
 
-After that, and a 7 day waiting period, the 2FA for your account will be reset and a password reset will be issued to this address.
-
 {% endif %}
 
 After that, {{ "and a 7 day waiting period," if not project_name else "" }} the 2FA for your account will be reset and a password reset will be issued to this address.
