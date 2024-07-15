@@ -77,6 +77,9 @@ class Permissions(StrEnum):
     AdminUsersRead = "admin:users:read"
     AdminUsersWrite = "admin:users:write"
 
+    AdminUsersEmailWrite = "admin:users:email:write"
+    AdminUsersAccountRecoveryWrite = "admin:users:account-recovery:write"
+
     # API Permissions
     APIEcho = "api:echo"
     APIObservationsAdd = "api:observations:add"

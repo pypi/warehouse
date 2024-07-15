@@ -270,15 +270,17 @@ class DatabaseUserService:
         primary=None,
         verified=False,
         public=False,
+        ratelimit=True,
     ):
-        # Check to make sure that we haven't hitten the rate limit for this IP
-        if not self.ratelimiters["email.add"].test(self.remote_addr):
-            self._metrics.increment(
-                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
-            )
-            raise TooManyEmailsAdded(
-                resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
-            )
+        if ratelimit:
+            # Check to make sure that we haven't hitten the rate limit for this IP
+            if not self.ratelimiters["email.add"].test(self.remote_addr):
+                self._metrics.increment(
+                    "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
+                )
+                raise TooManyEmailsAdded(
+                    resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
+                )
 
         user = self.get_user(user_id)
 
@@ -299,8 +301,9 @@ class DatabaseUserService:
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available
 
-        self.ratelimiters["email.add"].hit(self.remote_addr)
-        self._metrics.increment("warehouse.email.add.ok")
+        if ratelimit:
+            self.ratelimiters["email.add"].hit(self.remote_addr)
+            self._metrics.increment("warehouse.email.add.ok")
 
         return email
 
