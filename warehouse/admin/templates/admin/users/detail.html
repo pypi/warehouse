@@ -286,8 +286,10 @@
             </div>
           </div>
         </div>
+      </div>
 
-        {% if user.active_account_recoveries %}
+      {% if user.active_account_recoveries %}
+      <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Account Recovery in Process</h3>
         </div>
@@ -401,8 +403,10 @@
           </div>
           {% endfor %}
         </div>
-        {% endif %}
+      </div>
+      {% endif %}
 
+      <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Edit User</h3>
         </div>
@@ -416,9 +420,20 @@
               {% endfor %}
             {% endif %}
 
-            {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
-
             <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Details</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <div class="card-header with-border">
                 <h3 class="card-title">Permissions</h3>
               </div>
@@ -463,7 +478,9 @@
             </div>
           </form>
         </div>
+      </div>
 
+      <div class="card">
         <div class="card-header with-border">
           <h3 class="card-title">Emails</h3>
         </div>
@@ -513,54 +530,57 @@
                 {% endfor %}
               </div>
 
-            <div class="card-footer">
-              <div class="form-group">
-                <div class="col-sm-offset-10 col-sm-2">
-                  <button type="submit" action="email_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" action="email_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
                 </div>
               </div>
+
             </div>
           </form>
-        </div>
 
-      <div class="card">
-        <div class="card-header with-border">
-          <h3 class="card-title">Add a new email</h3>
-        </div>
-        <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
-          <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-
-          <div class="card-body">
-            {% if add_email_form.errors.__all__ %}
-              {% for error in add_email_form.errors.__all__ %}
-              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
-              {% endfor %}
-            {% endif %}
-
-            <div class="row">
-              <div class="col-6">
-                {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
-              </div>
-              <div class="col">
-                {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
-              </div>
-            </div>
+          <div class="card-header with-border">
+            <h3 class="card-title">Add a new email</h3>
           </div>
+          <div class="card">
+            <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-          <div class="card-footer">
-            <div class="form-group">
-              <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+              <div class="card-body">
+                {% if add_email_form.errors.__all__ %}
+                  {% for error in add_email_form.errors.__all__ %}
+                  <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+
+                <div class="row">
+                  <div class="col-6">
+                    {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
+                  </div>
+                </div>
               </div>
-            </div>
+
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
           </div>
-        </form>
+        </div>
       </div> <!-- .card -->
 
       <div class="card">
