@@ -143,7 +143,7 @@ class TestUserDetail:
 
         assert result["user"] == user
         assert result["roles"] == roles
-        assert result["form"].emails[0].primary.data
+        assert result["emails_form"].emails[0].primary.data
 
     def test_updates_user(self, db_request):
         user = UserFactory.create()
@@ -161,6 +161,55 @@ class TestUserDetail:
         assert resp.location == f"/admin/users/{user.username}/"
         assert user.name == "Jane Doe"
 
+    def test_user_detail_redirects_actual_name(self, db_request):
+        user = UserFactory.create(username="wu-tang")
+        db_request.matchdict["username"] = "Wu-Tang"
+        db_request.current_route_path = pretend.call_recorder(
+            lambda username: "/user/the-redirect/"
+        )
+
+        result = views.user_detail(user, db_request)
+
+        assert isinstance(result, HTTPMovedPermanently)
+        assert result.headers["Location"] == "/user/the-redirect/"
+        assert db_request.current_route_path.calls == [
+            pretend.call(username=user.username)
+        ]
+
+
+class TestUserEmailSubmit:
+    def test_updates_user_emails(self, db_request):
+        email1 = EmailFactory.create(primary=True)
+        email2 = EmailFactory.create(primary=False)
+        user = UserFactory.create(emails=[email1, email2])
+        db_request.matchdict["username"] = str(user.username)
+        db_request.method = "POST"
+        db_request.POST["name"] = "Jane Doe"
+        db_request.POST["emails-0-email"] = email1.email
+        db_request.POST["emails-0-primary"] = False
+        db_request.POST["emails-1-email"] = email2.email
+        db_request.POST["emails-1-primary"] = True
+
+        db_request.POST = MultiDict(db_request.POST)
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
+        )
+
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
+
+        resp = views.user_submit_email(user, db_request)
+
+        assert email1.primary is False
+        assert email2.primary is True
+
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(f"User '{user.username}': emails updated", queue="success")
+        ]
+
     def test_updates_user_no_primary_email(self, db_request):
         email = EmailFactory.create(primary=True)
         user = UserFactory.create(emails=[email])
@@ -171,20 +220,23 @@ class TestUserDetail:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/users/{user.username}/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
         )
 
-        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
-        db_request.find_service = lambda interface, **kwargs: {
-            IEmailBreachedService: breach_service,
-        }[interface]
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
 
-        resp = views.user_detail(user, db_request)
+        resp = views.user_submit_email(user, db_request)
 
-        assert resp["form"].errors == {
-            "emails": ["There must be exactly one primary email"]
-        }
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "emails: ['There must be exactly one primary email']", queue="error"
+            )
+        ]
 
     def test_updates_user_multiple_primary_emails(self, db_request):
         email1 = EmailFactory.create(primary=True)
@@ -200,34 +252,37 @@ class TestUserDetail:
         # No primary = checkbox unchecked
 
         db_request.POST = MultiDict(db_request.POST)
-        db_request.current_route_path = pretend.call_recorder(
-            lambda: f"/admin/users/{user.username}/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: f"/admin/users/{username}/"
         )
 
-        breach_service = pretend.stub(get_email_breach_count=lambda count: 0)
-        db_request.find_service = lambda interface, **kwargs: {
-            IEmailBreachedService: breach_service,
-        }[interface]
+        db_request.session = pretend.stub(
+            flash=pretend.call_recorder(lambda *a, **kw: None)
+        )
 
-        resp = views.user_detail(user, db_request)
+        resp = views.user_submit_email(user, db_request)
 
-        assert resp["form"].errors == {
-            "emails": ["There must be exactly one primary email"]
-        }
+        assert isinstance(resp, HTTPSeeOther)
+        assert resp.headers["Location"] == f"/admin/users/{user.username}/"
+        assert db_request.session.flash.calls == [
+            pretend.call(
+                "emails: ['There must be exactly one primary email']", queue="error"
+            )
+        ]
 
     def test_user_detail_redirects_actual_name(self, db_request):
         user = UserFactory.create(username="wu-tang")
         db_request.matchdict["username"] = "Wu-Tang"
-        db_request.current_route_path = pretend.call_recorder(
-            lambda username: "/user/the-redirect/"
+        db_request.route_path = pretend.call_recorder(
+            lambda route_name, username=None: "/user/the-redirect/"
         )
 
-        result = views.user_detail(user, db_request)
+        result = views.user_submit_email(user, db_request)
 
         assert isinstance(result, HTTPMovedPermanently)
         assert result.headers["Location"] == "/user/the-redirect/"
-        assert db_request.current_route_path.calls == [
-            pretend.call(username=user.username)
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
         ]
 
 

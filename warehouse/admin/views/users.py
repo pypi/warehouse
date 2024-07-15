@@ -96,6 +96,18 @@ class EmailForm(forms.Form):
     unverify_reason = wtforms.fields.StringField(render_kw={"readonly": True})
 
 
+class EmailsForm(forms.Form):
+    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
+
+    def validate_emails(self, field):
+        # If there's no email on the account, it's ok. Otherwise, ensure
+        # we have 1 primary email.
+        if field.data and len([1 for email in field.data if email["primary"]]) != 1:
+            raise wtforms.validators.ValidationError(
+                "There must be exactly one primary email"
+            )
+
+
 class UserForm(forms.Form):
     name = wtforms.StringField(
         validators=[wtforms.validators.Optional(), wtforms.validators.Length(max=100)]
@@ -110,16 +122,6 @@ class UserForm(forms.Form):
 
     prohibit_password_reset = wtforms.fields.BooleanField()
     hide_avatar = wtforms.fields.BooleanField()
-
-    emails = wtforms.fields.FieldList(wtforms.fields.FormField(EmailForm))
-
-    def validate_emails(self, field):
-        # If there's no email on the account, it's ok. Otherwise, ensure
-        # we have 1 primary email.
-        if field.data and len([1 for email in field.data if email["primary"]]) != 1:
-            raise wtforms.validators.ValidationError(
-                "There must be exactly one primary email"
-            )
 
 
 @view_config(
@@ -154,6 +156,7 @@ def user_detail(user, request):
     )
 
     form = UserForm(request.POST if request.method == "POST" else None, user)
+    emails_form = EmailsForm(request.POST if request.method == "POST" else None, user)
 
     if request.method == "POST" and form.validate():
         form.populate_obj(user)
@@ -165,16 +168,48 @@ def user_detail(user, request):
         email_entry.data["email"]: request.find_service(
             IEmailBreachedService
         ).get_email_breach_count(email_entry.data["email"])
-        for email_entry in form.emails.entries
+        for email_entry in emails_form.emails.entries
     }
 
     return {
         "user": user,
         "form": form,
+        "emails_form": emails_form,
         "roles": roles,
         "add_email_form": EmailForm(),
         "breached_email_count": breached_email_count,
     }
+
+
+@view_config(
+    route_name="admin.user.submit_email",
+    require_methods=["POST"],
+    permission=Permissions.AdminUsersWrite,
+    uses_session=True,
+    require_csrf=True,
+    context=User,
+)
+def user_submit_email(user, request):
+    if user.username != request.matchdict.get("username", user.username):
+        return HTTPMovedPermanently(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    emails_form = EmailsForm(request.POST if request.method == "POST" else None, user)
+
+    if emails_form.validate():
+        emails_form.populate_obj(user)
+        request.session.flash(
+            f"User {user.username!r}: emails updated", queue="success"
+        )
+        return HTTPSeeOther(
+            request.route_path("admin.user.detail", username=user.username)
+        )
+
+    for field, error in emails_form.errors.items():
+        request.session.flash(f"{field}: {error}", queue="error")
+
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 @view_config(

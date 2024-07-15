@@ -425,33 +425,64 @@
                 <div class="row">
                   <div class="col">
                     <div class="form-group">
+                      <span class="badge badge-primary">Status</span>
                       {{ render_checkbox("Active", form.is_active, "is-active") }}
                       {{ render_checkbox("Frozen", form.is_frozen, "is-frozen") }}
-                      {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
-                      {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
-                      {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
                       {{ render_checkbox("Observer", form.is_observer, "is-observer")}}
                     </div>
                   </div>
                   <div class="col">
-                    {{ render_checkbox("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
-                    {{ render_checkbox("Hide avatar", form.hide_avatar, "hide-avatar")}}
+                    <div class="form-group">
+                      <span class="badge badge-danger">Roles</span>
+                      {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
+                      {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
+                      {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <span class="badge badge-secondary">Flags</span>
+                      {{ render_checkbox("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
+                      {{ render_checkbox("Hide avatar", form.hide_avatar, "hide-avatar")}}
+                    </div>
                   </div>
                 </div>
               </div>
-
-              <div class="card-header with-border">
-                <h3 class="card-title">Emails</h3>
+            <div class="card-footer">
+              <div class="form-group">
+                <div class="col-sm-offset-10 col-sm-2">
+                  <button type="submit" action="user_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+                </div>
               </div>
+            </div>
+          </form>
+        </div>
+      </div> <!-- .card -->
 
+        <div class="card-header with-border">
+          <h3 class="card-title">Emails</h3>
+        </div>
+        <div class="card-body">
+          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.submit_email', username=user.username) }}">
+            <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+            {% if form.errors.__all__ %}
+              {% for error in form.errors.__all__ %}
+              <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+              {% endfor %}
+            {% endif %}
+
+            <div class="card">
               <div class="card-body">
-                {% if form.errors.emails %}
-                  {% for error in form.errors.emails %}
+                {% if emails_form.errors.emails %}
+                  {% for error in emails_form.errors.emails %}
                     <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
                   {% endfor %}
                 {% endif %}
 
-                {% for field in form.emails.entries %}
+                {% for field in emails_form.emails.entries %}
                 <div class="row">
                   <div class="col-7">
                     {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email")}}
@@ -483,7 +514,7 @@
             <div class="card-footer">
               <div class="form-group">
                 <div class="col-sm-offset-10 col-sm-2">
-                  <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+                  <button type="submit" action="email_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
                 </div>
               </div>
             </div>

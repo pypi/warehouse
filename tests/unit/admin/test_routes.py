@@ -63,6 +63,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.submit_email",
+            "/admin/users/{username}/emails/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.user.add_email",
             "/admin/users/{username}/add_email/",
             domain=warehouse,
