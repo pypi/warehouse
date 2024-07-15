@@ -93,6 +93,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
     is_active: Mapped[bool_false]
     is_frozen: Mapped[bool_false]
     is_superuser: Mapped[bool_false]
+    is_support: Mapped[bool_false]
     is_moderator: Mapped[bool_false]
     is_psf_staff: Mapped[bool_false]
     is_observer: Mapped[bool_false] = mapped_column(
@@ -249,6 +250,7 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
         return not any(
             [
                 self.is_superuser,
+                self.is_support,
                 self.is_moderator,
                 self.is_psf_staff,
                 self.prohibit_password_reset,
@@ -269,7 +271,9 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
 
         if self.is_superuser:
             principals.append("group:admins")
-        if self.is_moderator or self.is_superuser:
+        if self.is_support:
+            principals.append("group:support")
+        if self.is_moderator or self.is_superuser or self.is_support:
             principals.append("group:moderators")
         if self.is_psf_staff or self.is_superuser:
             principals.append("group:psf_staff")
@@ -290,6 +294,16 @@ class User(SitemapMixin, HasObservers, HasObservations, HasEvents, db.Model):
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                Allow,
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),

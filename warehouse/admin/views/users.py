@@ -116,6 +116,7 @@ class UserForm(forms.Form):
     is_active = wtforms.fields.BooleanField()
     is_frozen = wtforms.fields.BooleanField()
     is_superuser = wtforms.fields.BooleanField()
+    is_support = wtforms.fields.BooleanField()
     is_moderator = wtforms.fields.BooleanField()
     is_psf_staff = wtforms.fields.BooleanField()
     is_observer = wtforms.fields.BooleanField()
@@ -184,7 +185,7 @@ def user_detail(user, request):
 @view_config(
     route_name="admin.user.submit_email",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersEmailWrite,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -215,7 +216,7 @@ def user_submit_email(user, request):
 @view_config(
     route_name="admin.user.add_email",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersEmailWrite,
     uses_session=True,
     require_csrf=True,
     context=User,
@@ -398,7 +399,7 @@ def _get_related_urls(user):
 @view_config(
     route_name="admin.user.account_recovery.initiate",
     renderer="admin/users/account_recovery/initiate.html",
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -522,7 +523,7 @@ def user_recover_account_initiate(user, request):
 @view_config(
     route_name="admin.user.account_recovery.cancel",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
@@ -542,7 +543,7 @@ def user_recover_account_cancel(user, request):
 @view_config(
     route_name="admin.user.account_recovery.complete",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
