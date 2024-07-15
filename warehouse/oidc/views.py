@@ -243,7 +243,7 @@ def mint_token(
             errors=[
                 {
                     "code": "invalid-reuse-token",
-                    "description": "valid token, but already used",
+                    "description": "invalid token: already used",
                 }
             ],
             request=request,
