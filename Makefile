@@ -97,7 +97,7 @@ translations: .state/docker-build-base
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
+	docker compose run --rm base bin/pip-compile --prerelease=allow --no-strip-extras --generate-hashes --output-file=$@ $<
 
 resetdb: .state/docker-build-base
 	docker compose pause web worker
