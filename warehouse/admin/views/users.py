@@ -444,7 +444,7 @@ def user_recover_account_initiate(user, request):
                 actor=request.user,
                 summary="Account Recovery",
                 payload={
-                    "initiated": str(datetime.datetime.now()),
+                    "initiated": str(datetime.datetime.now(datetime.UTC)),
                     "completed": None,
                     "token": token,
                     "project_name": project_name,
@@ -486,24 +486,22 @@ def user_recover_account_initiate(user, request):
 
 @view_config(
     route_name="admin.user.account_recovery.cancel",
+    require_methods=["POST"],
     permission=Permissions.AdminUsersWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
     context=User,
-    require_methods=False,
 )
 def user_recover_account_cancel(user, request):
-    if request.method == "POST":
-        for account_recovery in user.active_account_recoveries:
-            account_recovery.additional["status"] = "cancelled"
-        request.session.flash(
-            f"Cancelled account recovery for {user.username!r}", queue="success"
-        )
+    for account_recovery in user.active_account_recoveries:
+        account_recovery.additional["status"] = "cancelled"
+        account_recovery.payload["cancelled"] = str(datetime.datetime.now(datetime.UTC))
+    request.session.flash(
+        f"Cancelled account recovery for {user.username!r}", queue="success"
+    )
 
-        return HTTPSeeOther(
-            request.route_path("admin.user.detail", username=user.username)
-        )
+    return HTTPSeeOther(request.route_path("admin.user.detail", username=user.username))
 
 
 @view_config(
@@ -532,7 +530,7 @@ def user_recover_account_complete(user, request):
 
     for account_recovery in user.active_account_recoveries:
         account_recovery.additional["status"] = "completed"
-        account_recovery.payload["completed"] = str(datetime.datetime.now())
+        account_recovery.payload["completed"] = str(datetime.datetime.now(datetime.UTC))
 
     request.session.flash(
         (

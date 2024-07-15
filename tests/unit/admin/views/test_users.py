@@ -10,6 +10,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import datetime
+
+import freezegun
 import pretend
 import pytest
 
@@ -26,6 +29,7 @@ from warehouse.accounts.models import (
     WebAuthn,
 )
 from warehouse.admin.views import users as views
+from warehouse.observations.models import ObservationKind
 from warehouse.packaging.models import JournalEntry, Project
 
 from ....common.db.accounts import EmailFactory, User, UserFactory
@@ -527,8 +531,74 @@ class TestUserResetPassword:
         ]
 
 
-class TestUserWipeFactors:
-    def test_wipes_factors(self, db_request, monkeypatch):
+class TestUserRecoverAccountCancel:
+    def test_user_recover_account_cancel_cancels_active_account_recoveries(
+        self, db_request, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+        account_recovery1 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery1.additional = {"status": "initiated"}
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.method = "POST"
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub()
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_cancel(user, db_request)
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        assert db_request.find_service.calls == []
+        assert account_recovery0.additional["status"] == "cancelled"
+        assert account_recovery0.payload["cancelled"] == str(now)
+        assert account_recovery1.additional["status"] == "cancelled"
+        assert account_recovery1.payload["cancelled"] == str(now)
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+
+class TestUserRecoverAccountComplete:
+    def test_user_recover_account_complete(self, db_request, monkeypatch):
         user = UserFactory.create(
             totp_secret=b"aaaaabbbbbcccccddddd",
             webauthn=[
@@ -578,7 +648,83 @@ class TestUserWipeFactors:
         assert result.status_code == 303
         assert result.location == "/foobar"
 
-    def test_wipes_factors_bad_confirm(self, db_request, monkeypatch):
+    def test_user_recover_account_complete_completes_active_account_recoveries(
+        self, db_request, monkeypatch
+    ):
+        admin_user = UserFactory.create()
+        user = UserFactory.create(
+            totp_secret=b"aaaaabbbbbcccccddddd",
+            webauthn=[
+                WebAuthn(
+                    label="fake", credential_id="fake", public_key="extremely fake"
+                )
+            ],
+            recovery_codes=[
+                RecoveryCode(code="fake"),
+            ],
+        )
+
+        account_recovery0 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery0.additional = {"status": "initiated"}
+        account_recovery1 = user.record_observation(
+            request=db_request,
+            kind=ObservationKind.AccountRecovery,
+            actor=admin_user,
+            summary="Account Recovery",
+            payload={"completed": None},
+        )
+        account_recovery1.additional = {"status": "initiated"}
+
+        assert user.totp_secret is not None
+        assert len(user.webauthn) == 1
+        assert len(user.recovery_codes.all()) == 1
+
+        db_request.matchdict["username"] = str(user.username)
+        db_request.params = {"username": user.username}
+        db_request.route_path = pretend.call_recorder(lambda *a, **kw: "/foobar")
+        db_request.user = user
+        service = pretend.stub(
+            find_userid=pretend.call_recorder(lambda username: user.username),
+            disable_password=pretend.call_recorder(
+                lambda userid, request, reason: None
+            ),
+        )
+        db_request.find_service = pretend.call_recorder(lambda iface, context: service)
+
+        send_email = pretend.call_recorder(lambda *a, **kw: None)
+        monkeypatch.setattr(views, "send_password_reset_by_admin_email", send_email)
+
+        now = datetime.datetime.now(datetime.UTC)
+        with freezegun.freeze_time(now):
+            result = views.user_recover_account_complete(user, db_request)
+
+        assert user.totp_secret is None
+        assert len(user.webauthn) == 0
+        assert len(user.recovery_codes.all()) == 0
+        assert db_request.find_service.calls == [
+            pretend.call(IUserService, context=None)
+        ]
+        assert account_recovery0.additional["status"] == "completed"
+        assert account_recovery0.payload["completed"] == str(now)
+        assert account_recovery1.additional["status"] == "completed"
+        assert account_recovery1.payload["completed"] == str(now)
+        assert send_email.calls == [pretend.call(db_request, user)]
+        assert service.disable_password.calls == [
+            pretend.call(user.id, db_request, reason=DisableReason.AdminInitiated)
+        ]
+        assert db_request.route_path.calls == [
+            pretend.call("admin.user.detail", username=user.username)
+        ]
+        assert result.status_code == 303
+        assert result.location == "/foobar"
+
+    def test_user_recover_account_complete_bad_confirm(self, db_request, monkeypatch):
         user = UserFactory.create()
 
         db_request.matchdict["username"] = str(user.username)
