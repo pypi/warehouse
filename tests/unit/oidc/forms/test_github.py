@@ -18,11 +18,14 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import github
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGitHubPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "owner": "some-owner",
@@ -32,20 +35,22 @@ class TestPendingGitHubPublisherForm:
             }
         )
         form = github.PendingGitHubPublisherForm(
-            MultiDict(data), api_token=pretend.stub(), project_factory=project_factory
+            MultiDict(data),
+            api_token=pretend.stub(),
+            check_project_name=check_project_name,
         )
 
         # We're testing only the basic validation here.
         owner_info = {"login": "fake-username", "id": "1234"}
         monkeypatch.setattr(form, "_lookup_owner", lambda o: owner_info)
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
         form = github.PendingGitHubPublisherForm(
-            api_token="fake-token", project_factory=project_factory
+            api_token="fake-token",
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
         )
 
         field = pretend.stub(data="some-project")

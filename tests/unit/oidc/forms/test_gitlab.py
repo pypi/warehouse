@@ -17,11 +17,14 @@ import wtforms
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import gitlab
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 
 class TestPendingGitLabPublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        def check_project_name(name):
+            return None  # Name is available.
+
         data = MultiDict(
             {
                 "namespace": "some-owner",
@@ -31,16 +34,17 @@ class TestPendingGitLabPublisherForm:
             }
         )
         form = gitlab.PendingGitLabPublisherForm(
-            MultiDict(data), project_factory=project_factory
+            MultiDict(data), check_project_name=check_project_name
         )
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
         # We're testing only the basic validation here.
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
-        form = gitlab.PendingGitLabPublisherForm(project_factory=project_factory)
+        form = gitlab.PendingGitLabPublisherForm(
+            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists
+        )
 
         field = pretend.stub(data="some-project")
         with pytest.raises(wtforms.validators.ValidationError):

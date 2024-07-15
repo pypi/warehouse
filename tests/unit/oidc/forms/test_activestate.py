@@ -19,6 +19,7 @@ from requests import ConnectionError, HTTPError, Timeout
 from webob.multidict import MultiDict
 
 from warehouse.oidc.forms import activestate
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 
 fake_username = "some-username"
 fake_org_name = "some-org"
@@ -30,13 +31,11 @@ fake_gql_user_response = {"data": {"users": [fake_user_info]}}
 _requests = requests
 
 
-def _raise(exception):
-    raise exception
-
-
 class TestPendingActiveStatePublisherForm:
     def test_validate(self, monkeypatch):
-        project_factory = []
+        def check_project_name(name):
+            return None
+
         data = MultiDict(
             {
                 "organization": "some-org",
@@ -46,7 +45,7 @@ class TestPendingActiveStatePublisherForm:
             }
         )
         form = activestate.PendingActiveStatePublisherForm(
-            MultiDict(data), project_factory=project_factory
+            MultiDict(data), check_project_name=check_project_name
         )
 
         # Test built-in validations
@@ -54,13 +53,15 @@ class TestPendingActiveStatePublisherForm:
 
         monkeypatch.setattr(form, "_lookup_organization", lambda *o: None)
 
-        assert form._project_factory == project_factory
+        assert form._check_project_name == check_project_name
         assert form.validate()
 
     def test_validate_project_name_already_in_use(self):
-        project_factory = ["some-project"]
+        def check_project_name(name):
+            return ProjectNameUnavailableReason.AlreadyExists
+
         form = activestate.PendingActiveStatePublisherForm(
-            project_factory=project_factory
+            check_project_name=check_project_name
         )
 
         field = pretend.stub(data="some-project")
@@ -197,7 +198,7 @@ class TestActiveStatePublisherForm:
         response = pretend.stub(
             status_code=200,
             raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: _raise(_requests.exceptions.JSONDecodeError("", "", 0)),
+            json=pretend.raiser(_requests.exceptions.JSONDecodeError("", "", 0)),
             content=b"",
         )
 
@@ -426,7 +427,7 @@ class TestActiveStatePublisherForm:
         response = pretend.stub(
             status_code=200,
             raise_for_status=pretend.call_recorder(lambda: None),
-            json=lambda: _raise(_requests.exceptions.JSONDecodeError("", "", 0)),
+            json=pretend.raiser(_requests.exceptions.JSONDecodeError("", "", 0)),
             content=b"",
         )
 
