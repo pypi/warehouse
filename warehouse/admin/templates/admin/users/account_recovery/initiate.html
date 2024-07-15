@@ -71,21 +71,21 @@
     </div>
     <div class="card-body">
     {% if repo_urls %}
-    {% for project_name, repo_urls in repo_urls.items() %}
-    {% if repo_urls %}
-    <div class="form-check">
-      <input class="form-check-input" type="radio" name="project_name" value="{{ project_name }}" name="{{ project_name }}">
-      <label class="form-check-label" for="{{ project_name }}"><a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }}</a></label>
-      <ul>
-      {% for kind, repo_url in repo_urls %}
-      <li>{{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a></li>
+      {% for project_name, repo_urls in repo_urls.items() %}
+        {% if repo_urls %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="project_name" value="{{ project_name }}" name="{{ project_name }}">
+            <label class="form-check-label" for="{{ project_name }}"><a href="{{ request.route_url("admin.project.detail", project_name=project_name) }}">{{ project_name }}</a></label>
+            <ul>
+            {% for kind, repo_url in repo_urls %}
+              <li>{{ kind }}: <a href="{{ repo_url }}" data-check-link-url="{{ request.camo_url(repo_url) }}"><i class="fa fa-question"></i> {{ repo_url }}</a></li>
+            {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
       {% endfor %}
-      </ul>
-    </div>
-    {% endif %}
-    {% endfor %}
     {% else %}
-    <i>No repos found.</i>
+      <i>No repos found.</i>
     {% endif %}
     </div>
   </div>
