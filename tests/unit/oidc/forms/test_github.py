@@ -47,10 +47,11 @@ class TestPendingGitHubPublisherForm:
         assert form._check_project_name == check_project_name
         assert form.validate()
 
-    def test_validate_project_name_already_in_use(self):
+    @pytest.mark.parametrize("reason", list(ProjectNameUnavailableReason))
+    def test_validate_project_name_unavailable(self, reason):
         form = github.PendingGitHubPublisherForm(
             api_token="fake-token",
-            check_project_name=lambda name: ProjectNameUnavailableReason.AlreadyExists,
+            check_project_name=lambda name: reason,
         )
 
         field = pretend.stub(data="some-project")
