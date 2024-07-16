@@ -171,6 +171,18 @@ class TestUser:
                 (
                     Permissions.AdminUsersRead,
                     Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
                     Permissions.AdminDashboardSidebarRead,
                 ),
             ),
@@ -184,14 +196,16 @@ class TestUser:
     @pytest.mark.parametrize(
         (
             "is_superuser",
+            "is_support",
             "is_moderator",
             "is_psf_staff",
             "expected",
         ),
         [
-            (False, False, False, []),
+            (False, False, False, False, []),
             (
                 True,
+                False,
                 False,
                 False,
                 [
@@ -202,6 +216,17 @@ class TestUser:
                 ],
             ),
             (
+                False,
+                True,
+                False,
+                False,
+                [
+                    "group:support",
+                    "group:moderators",
+                ],
+            ),
+            (
+                False,
                 False,
                 True,
                 False,
@@ -209,6 +234,7 @@ class TestUser:
             ),
             (
                 True,
+                False,
                 True,
                 False,
                 [
@@ -221,10 +247,12 @@ class TestUser:
             (
                 False,
                 False,
+                False,
                 True,
                 ["group:psf_staff"],
             ),
             (
+                False,
                 False,
                 True,
                 True,
@@ -235,6 +263,7 @@ class TestUser:
     def test_principals(
         self,
         is_superuser,
+        is_support,
         is_moderator,
         is_psf_staff,
         expected,
@@ -242,6 +271,7 @@ class TestUser:
         user = User(
             id=uuid.uuid4(),
             is_superuser=is_superuser,
+            is_support=is_support,
             is_moderator=is_moderator,
             is_psf_staff=is_psf_staff,
         )
