@@ -386,7 +386,7 @@ def test_mint_token_duplicate_token(dummy_github_oidc_jwt):
         "errors": [
             {
                 "code": "invalid-reuse-token",
-                "description": "valid token, but already used",
+                "description": "invalid token: already used",
             }
         ],
     }
