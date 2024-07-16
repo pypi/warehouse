@@ -425,12 +425,15 @@ def _process_attestations(request, artifact_path: Path):
                 f"attestation: {e}",
             )
         except Exception as e:
-            sentry_sdk.capture_message(
-                f"Unexpected error while verifying attestation: {e}"
-            )
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = e
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
+
             raise _exc_with_message(
                 HTTPBadRequest,
-                f"Unknown error while trying to verify included " f"attestations: {e}",
+                f"Unknown error while trying to verify included attestations: {e}",
             )
 
         if predicate_type != AttestationType.PYPI_PUBLISH_V1:
@@ -439,7 +442,7 @@ def _process_attestations(request, artifact_path: Path):
             )
             raise _exc_with_message(
                 HTTPBadRequest,
-                f"Attestation with unsupported predicate type: " f"{predicate_type}",
+                f"Attestation with unsupported predicate type: {predicate_type}",
             )
 
         # Log successful attestation upload
