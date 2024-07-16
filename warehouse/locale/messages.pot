@@ -280,28 +280,28 @@ msgstr ""
 msgid "You are now ${role} of the '${project_name}' project."
 msgstr ""
 
-#: warehouse/accounts/views.py:1557 warehouse/accounts/views.py:1800
+#: warehouse/accounts/views.py:1560 warehouse/accounts/views.py:1803
 #: warehouse/manage/views/__init__.py:1247
 msgid ""
 "Trusted publishing is temporarily disabled. See https://pypi.org/help"
 "#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1578
+#: warehouse/accounts/views.py:1581
 msgid "disabled. See https://pypi.org/help#admin-intervention for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1594
+#: warehouse/accounts/views.py:1597
 msgid ""
 "You must have a verified email in order to register a pending trusted "
 "publisher. See https://pypi.org/help#openid-connect for details."
 msgstr ""
 
-#: warehouse/accounts/views.py:1607
+#: warehouse/accounts/views.py:1610
 msgid "You can't register more than 3 pending trusted publishers at once."
 msgstr ""
 
-#: warehouse/accounts/views.py:1623 warehouse/manage/views/__init__.py:1282
+#: warehouse/accounts/views.py:1626 warehouse/manage/views/__init__.py:1282
 #: warehouse/manage/views/__init__.py:1395
 #: warehouse/manage/views/__init__.py:1507
 #: warehouse/manage/views/__init__.py:1617
@@ -310,29 +310,29 @@ msgid ""
 "again later."
 msgstr ""
 
-#: warehouse/accounts/views.py:1634 warehouse/manage/views/__init__.py:1296
+#: warehouse/accounts/views.py:1637 warehouse/manage/views/__init__.py:1296
 #: warehouse/manage/views/__init__.py:1409
 #: warehouse/manage/views/__init__.py:1521
 #: warehouse/manage/views/__init__.py:1631
 msgid "The trusted publisher could not be registered"
 msgstr ""
 
-#: warehouse/accounts/views.py:1648
+#: warehouse/accounts/views.py:1651
 msgid ""
 "This trusted publisher has already been registered. Please contact PyPI's"
 " admins if this wasn't intentional."
 msgstr ""
 
-#: warehouse/accounts/views.py:1675
+#: warehouse/accounts/views.py:1678
 msgid "Registered a new pending publisher to create "
 msgstr ""
 
-#: warehouse/accounts/views.py:1814 warehouse/accounts/views.py:1827
-#: warehouse/accounts/views.py:1834
+#: warehouse/accounts/views.py:1817 warehouse/accounts/views.py:1830
+#: warehouse/accounts/views.py:1837
 msgid "Invalid publisher ID"
 msgstr ""
 
-#: warehouse/accounts/views.py:1840
+#: warehouse/accounts/views.py:1843
 msgid "Removed trusted publisher for project "
 msgstr ""
 
@@ -368,7 +368,7 @@ msgstr ""
 msgid "Select project"
 msgstr ""
 
-#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:23
+#: warehouse/manage/forms.py:495 warehouse/oidc/forms/_core.py:24
 #: warehouse/oidc/forms/gitlab.py:44
 msgid "Specify project name"
 msgstr ""
@@ -574,19 +574,34 @@ msgstr ""
 msgid "Expired invitation for '${username}' deleted."
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:25 warehouse/oidc/forms/gitlab.py:46
+#: warehouse/oidc/forms/_core.py:26 warehouse/oidc/forms/_core.py:36
+#: warehouse/oidc/forms/gitlab.py:46
 msgid "Invalid project name"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:35
-msgid "This project already exists, create an ordinary Trusted Publisher instead"
+#: warehouse/oidc/forms/_core.py:39
+msgid "This project already exists; create an ordinary Trusted Publisher instead"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:47
+#: warehouse/oidc/forms/_core.py:46
+msgid "This project name isn't allowed"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:50
+msgid "This project name is too similar to an existing project"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:54
+msgid ""
+"This project name isn't allowed (conflict with the Python standard "
+"library module name)"
+msgstr ""
+
+#: warehouse/oidc/forms/_core.py:66
 msgid "Specify a publisher ID"
 msgstr ""
 
-#: warehouse/oidc/forms/_core.py:48
+#: warehouse/oidc/forms/_core.py:67
 msgid "Publisher must be specified by ID"
 msgstr ""
 
