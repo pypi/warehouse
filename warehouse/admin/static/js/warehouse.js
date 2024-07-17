@@ -29,6 +29,9 @@ import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
+// Import Tippy
+import tippy from "tippy.js";
+
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
 
@@ -103,13 +106,17 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
 
 // Copy handler for copying text, e.g.
 //   - prohibited project names confirmation page
+//   - user account recovieres
 //
 document.querySelectorAll(".copy-text").forEach(function (element) {
+  tippy([element], {content: "Click to copy!"});
   function copy(text, target) {
     setTimeout(function () {
-      $("#copied_tip").remove();
+      target._tippy.hide();
+      target._tippy.setContent("Click to copy!");
     }, 1000);
-    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+    target._tippy.setContent("Copied!");
+    target._tippy.show();
     navigator.clipboard.writeText(text);
   }
 
