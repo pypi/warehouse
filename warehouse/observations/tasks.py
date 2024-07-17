@@ -66,9 +66,9 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
     model = request.db.get(Observation, model_id)
 
     # Check to see if this ObservationKind should be sent
-    if model.kind not in [
-        ObservationKind.IsDependencyConfusion.value[0],
-        ObservationKind.IsMalware.value[0],
+    if OBSERVATION_KIND_MAP[model.kind] not in [
+        ObservationKind.IsDependencyConfusion,
+        ObservationKind.IsMalware,
     ]:
         return
 
