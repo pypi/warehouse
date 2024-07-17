@@ -28,6 +28,7 @@ import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
+import {gettext} from "warehouse/utils/messages-access";
 
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
@@ -109,7 +110,10 @@ document.querySelectorAll(".copy-text").forEach(function (element) {
     setTimeout(function () {
       $("#copied_tip").remove();
     }, 1000);
-    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+
+    const copiedText = gettext("Copied");
+    $(target).append(`<div class='tip' id='copied_tip'>${copiedText}</div>`);
+
     navigator.clipboard.writeText(text);
   }
 

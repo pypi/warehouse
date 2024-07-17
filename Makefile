@@ -93,7 +93,7 @@ licenses: .state/docker-build-base
 deps: .state/docker-build-base
 	docker compose run --rm base bin/deps
 
-translations: .state/docker-build-base
+translations: .state/docker-build-base .state/docker-build-static
 	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
