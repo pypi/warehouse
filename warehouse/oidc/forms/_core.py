@@ -56,8 +56,6 @@ class PendingPublisherMixin:
                         " standard library module name)"
                     )
                 )
-            case None:
-                return
 
 
 class DeletePublisherForm(forms.Form):
