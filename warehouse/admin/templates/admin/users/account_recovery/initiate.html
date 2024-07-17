@@ -28,9 +28,6 @@
       <h3 class="card-title">1. Confirm user details</h3>
     </div>
     <div class="card-body">
-      <p class="card-text">
-        Confirm that TOTP or WebAuthn is enabled, that recovery codes have been generated.
-      </p>
       <table class="table table-hover">
         <tr>
           <th>TOTP Enabled</th>
@@ -67,9 +64,12 @@
 
   <div class="card">
     <div class="card-header with-border">
-      <h3 class="card-title">3. Select a GitHub repository</h3>
+      <h3 class="card-title">3. Select a Project to use for verification</h3>
     </div>
     <div class="card-body">
+      <p class="card-text">
+        Ensure that the Project has at least one reachable URL that leads to a public source code repository.
+      </p>
     {% if repo_urls %}
       {% for project_name, repo_urls in repo_urls.items() %}
         {% if repo_urls %}
@@ -85,7 +85,7 @@
         {% endif %}
       {% endfor %}
     {% else %}
-      <i>No repos found.</i>
+      <i>No repos found. You can proceed with recovery based on response alone.</i>
     {% endif %}
     </div>
   </div>

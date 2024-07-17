@@ -19,7 +19,6 @@ import tempfile
 import zipfile
 
 from cgi import FieldStorage
-from pathlib import Path
 
 import packaging.requirements
 import packaging.specifiers
@@ -31,7 +30,12 @@ import wtforms
 import wtforms.validators
 
 from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import Attestation, AttestationType, VerificationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -366,7 +370,7 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, artifact_path: Path):
+def _process_attestations(request, distribution: Distribution):
     """
     Process any attestations included in a file upload request
 
@@ -413,7 +417,7 @@ def _process_attestations(request, artifact_path: Path):
             predicate_type, _ = attestation_model.verify(
                 Verifier.production(),
                 verification_policy,
-                artifact_path,
+                distribution,
             )
         except VerificationError as e:
             # Log invalid (failed verification) attestation upload
@@ -425,7 +429,7 @@ def _process_attestations(request, artifact_path: Path):
             )
         except Exception as e:
             with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = e
+                scope.fingerprint = [e]
                 sentry_sdk.capture_message(
                     f"Unexpected error while verifying attestation: {e}"
                 )
@@ -1148,7 +1152,8 @@ def file_upload(request):
 
         if "attestations" in request.POST:
             _process_attestations(
-                request=request, artifact_path=Path(temporary_filename)
+                request=request,
+                distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
             )
 
         # TODO: This should be handled by some sort of database trigger or a
