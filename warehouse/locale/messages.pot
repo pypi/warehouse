@@ -5950,6 +5950,13 @@ msgid ""
 "being modified by its maintainers."
 msgstr ""
 
+#: warehouse/templates/manage/project/manage_project_base.html:79
+#, python-format
+msgid ""
+"Read more in the <a href=\"%(href)s\">project in quarantine</a> help "
+"article."
+msgstr ""
+
 #: warehouse/templates/manage/project/publishing.html:258
 #, python-format
 msgid ""
