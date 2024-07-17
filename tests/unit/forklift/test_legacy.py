@@ -25,6 +25,7 @@ import pytest
 
 from pypi_attestations import (
     Attestation,
+    Distribution,
     Envelope,
     VerificationError,
     VerificationMaterial,
@@ -3467,6 +3468,10 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         assert len(verify.calls) == 1
+        verified_distribution = verify.calls[0].args[3]
+        assert verified_distribution == Distribution(
+            name=filename, digest=_TAR_GZ_PKG_SHA256
+        )
 
     def test_upload_with_invalid_attestation_predicate_type_fails(
         self,
