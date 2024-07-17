@@ -106,7 +106,7 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
 
 // Copy handler for copying text, e.g.
 //   - prohibited project names confirmation page
-//   - user account recovieres
+//   - user account recoveries
 //
 document.querySelectorAll(".copy-text").forEach(function (element) {
   tippy([element], {content: "Click to copy!"});
