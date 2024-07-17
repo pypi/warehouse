@@ -357,7 +357,7 @@ def _user_reset_password(user, request):
 @view_config(
     route_name="admin.user.reset_password",
     require_methods=["POST"],
-    permission=Permissions.AdminUsersWrite,
+    permission=Permissions.AdminUsersAccountRecoveryWrite,
     has_translations=True,
     uses_session=True,
     require_csrf=True,
