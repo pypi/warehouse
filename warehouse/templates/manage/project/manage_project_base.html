@@ -75,6 +75,11 @@
                   and cannot be being modified by its maintainers.
                 {% endtrans %}
               </p>
+              <p>
+                {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+                  Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+                {% endtrans %}
+              </p>
             </div>
           {% endif %}
           {% if request.organization_access and project.organization %}
