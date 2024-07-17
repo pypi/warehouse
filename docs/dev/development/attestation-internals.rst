@@ -32,19 +32,6 @@ For example, for a GitHub-based Trusted Publisher, the identity might be
 i.e. ``pypa/sampleproject`` on GitHub, publishing from a workflow defined
 on the ``main`` branch in the file ``release.yml``.
 
-.. _future-identities:
-
-Future identities
-^^^^^^^^^^^^^^^^^
-
-In the future, PyPI may allow signing identities other than the project's
-Trusted Publishers. Some potential future signing identities include:
-
-* E-mail addresses, checked against the project's owners' profiles
-  and/or against the uploaded distribution's own metadata.
-* Third-party identities (such as GitHub or GitLab usernames), checked against
-  the uploaded distribution's own metadata.
-
 Attestation types
 -----------------
 
