@@ -29,9 +29,6 @@ import "admin-lte/plugins/datatables-rowgroup/js/rowGroup.bootstrap4";
 // Import AdminLTE JS
 import "admin-lte/build/js/AdminLTE";
 
-// Import Tippy
-import tippy from "tippy.js";
-
 // Get our timeago function
 import timeAgo from "warehouse/utils/timeago";
 
@@ -109,14 +106,15 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
 //   - user account recoveries
 //
 document.querySelectorAll(".copy-text").forEach(function (element) {
-  tippy([element], {content: "Click to copy!"});
-  function copy(text, target) {
+  $(element).tooltip({ title: "Click to copy!" });
+  function copy(text) {
     setTimeout(function () {
-      target._tippy.hide();
-      target._tippy.setContent("Click to copy!");
+      $(element).tooltip("hide")
+        .attr("data-original-title", "Click to copy!");
     }, 1000);
-    target._tippy.setContent("Copied!");
-    target._tippy.show();
+    $(element).tooltip("hide")
+      .attr("data-original-title", "Copied!")
+      .tooltip("show");
     navigator.clipboard.writeText(text);
   }
 
