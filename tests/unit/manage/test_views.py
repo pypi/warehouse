@@ -3825,6 +3825,151 @@ class TestManageProjectRelease:
             )
         ]
 
+    def test_publish_project_release(self, monkeypatch):
+        user = pretend.stub(username=pretend.stub())
+        release = pretend.stub(
+            version="1.2.3",
+            canonical_version="1.2.3",
+            project=pretend.stub(
+                name="foobar",
+                record_event=pretend.call_recorder(lambda *a, **kw: None),
+                users=[user],
+            ),
+            created=datetime.datetime(2017, 2, 5, 17, 18, 18, 462_634),
+            published=None,
+            is_draft=True,
+            version_or_draft="1.2.3--draft--foobar123",
+        )
+        request = pretend.stub(
+            POST={"confirm_publish_version": release.version},
+            method="POST",
+            db=pretend.stub(add=pretend.call_recorder(lambda a: None)),
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+            user=user,
+            remote_addr=pretend.stub(),
+        )
+        journal_obj = pretend.stub()
+        journal_cls = pretend.call_recorder(lambda **kw: journal_obj)
+
+        get_user_role_in_project = pretend.call_recorder(
+            lambda project, user, req: "Owner"
+        )
+        monkeypatch.setattr(views, "get_user_role_in_project", get_user_role_in_project)
+
+        monkeypatch.setattr(views, "JournalEntry", journal_cls)
+
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.publish_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert release.published is not None
+
+        assert request.db.add.calls == [pretend.call(journal_obj)]
+        assert journal_cls.calls == [
+            pretend.call(
+                name=release.project.name,
+                action="publish release",
+                version=release.version,
+                submitted_by=request.user,
+                submitted_from=request.remote_addr,
+            )
+        ]
+        assert request.session.flash.calls == [
+            pretend.call(f"Published release {release.version!r}", queue="success")
+        ]
+        assert request.route_path.calls == [
+            pretend.call("manage.project.releases", project_name=release.project.name)
+        ]
+        assert release.project.record_event.calls == [
+            pretend.call(
+                tag="project:release:publish",
+                ip_address=request.remote_addr,
+                additional={
+                    "published_by": request.user.username,
+                    "canonical_version": release.canonical_version,
+                },
+            )
+        ]
+
+    def test_publish_project_release_no_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            is_draft=True,
+            published=None,
+            version_or_draft="1.2.3--draft--foobar123",
+        )
+        request = pretend.stub(
+            POST={"confirm_publish_version": ""},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.publish_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.published
+
+        assert request.session.flash.calls == [
+            pretend.call("Confirm the request", queue="error")
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version_or_draft,
+            )
+        ]
+
+    def test_publish_project_release_bad_confirm(self):
+        release = pretend.stub(
+            version="1.2.3",
+            project=pretend.stub(name="foobar"),
+            is_draft=True,
+            published=None,
+            version_or_draft="1.2.3--draft--foobar123",
+        )
+        request = pretend.stub(
+            POST={"confirm_publish_version": "invalid"},
+            method="POST",
+            flags=pretend.stub(enabled=pretend.call_recorder(lambda *a: False)),
+            route_path=pretend.call_recorder(lambda *a, **kw: "/the-redirect"),
+            session=pretend.stub(flash=pretend.call_recorder(lambda *a, **kw: None)),
+        )
+        view = views.ManageProjectRelease(release, request)
+
+        result = view.publish_project_release()
+
+        assert isinstance(result, HTTPSeeOther)
+        assert result.headers["Location"] == "/the-redirect"
+
+        assert not release.published
+
+        assert request.session.flash.calls == [
+            pretend.call(
+                "Could not publish release - "
+                + f"'invalid' is not the same as {release.version!r}",
+                queue="error",
+            )
+        ]
+        assert request.route_path.calls == [
+            pretend.call(
+                "manage.project.release",
+                project_name=release.project.name,
+                version=release.version_or_draft,
+            )
+        ]
+
     def test_yank_project_release(self, monkeypatch, db_request):
         user = UserFactory.create()
         project = ProjectFactory.create(name="foobar")

@@ -82,14 +82,18 @@
     {% set index_url = " -i https://test.pypi.org/simple/" %}
   {%- endif -%}
 
+  {%- if release.is_draft -%}
+    {% set extra_index_url = " --extra-index-url=https://pypi.org/draft/" + release.draft_hash + "/" %}
+  {%- endif -%}
+
   {%- if request_route == "packaging.release" -%}
     {% set project_version = "==" + release.version %}
   {%- endif -%}
 
   {%- if release.version.epoch -%}
-    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}'
+    pip install{{ index_url }} '{{ release.project.name }}{{ project_version }}' {{ extra_index_url }}
   {%- else -%}
-    pip install{{ index_url }} {{ release.project.name }}{{ project_version }}
+    pip install{{ index_url }} {{ release.project.name }}{{ project_version }} {{ extra_index_url }}
   {%- endif -%}
 {%- endmacro -%}
 
@@ -165,7 +169,11 @@
     </div>
 
     <div class="package-header__right">
-    {% if release.yanked %}
+    {% if release.is_draft %}
+      <a class="status-badge status-badge--warn" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
+        <span>{% trans %}Draft version{% endtrans %}</span>
+      </a>
+    {% elif release.yanked %}
       <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>
           {% trans %}This release has been yanked{% endtrans %}<br>
@@ -186,9 +194,11 @@
       </a>
       {% endif %}
     {% endif %}
+    {% if not release.is_draft %}
       <p class="package-header__date">
         {% trans release_date=humanize(release.created) %}Released: {{ release_date }}{% endtrans %}
       </p>
+    {% endif %}
     </div>
   </div>
 </div>
