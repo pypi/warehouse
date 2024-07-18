@@ -20,9 +20,9 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
 from warehouse.attestations._core import get_provenance_digest
+from warehouse.attestations.models import ReleaseFileAttestation
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, Project, Release
-from warehouse.attestations.models import ReleaseFileAttestation
 
 API_VERSION = "1.2"
 

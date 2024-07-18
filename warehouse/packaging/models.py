@@ -812,11 +812,14 @@ class File(HasEvents, db.Model):
 
     @property
     def publisher_url(self) -> str | None:
+        event_tag = self.Event.tag  # type: ignore[attr-defined]
+        event_additional = self.Event.additional  # type: ignore[attr-defined]
+
         try:
             release_event = self.events.where(
                 sql.and_(
-                    self.Event.tag == EventTag.Project.ReleaseAdd,  # type: ignore[attr-defined]
-                    self.Event.additional["publisher_url"].as_string().is_not(None),  # type: ignore[attr-defined]
+                    event_tag == EventTag.Project.ReleaseAdd,
+                    event_additional["publisher_url"].as_string().is_not(None),
                 )
             ).one()
         except (NoResultFound, MultipleResultsFound):
