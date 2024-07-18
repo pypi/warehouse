@@ -24,31 +24,37 @@ from warehouse.packaging import File, ISimpleStorage
 class Publisher(BaseModel):
     kind: str
     """
+    The kind of Trusted Publisher.
     """
 
     claims: object
     """
+    Claims specified by the publisher.
     """
 
 
 class AttestationBundle(BaseModel):
     publisher: Publisher
     """
+    The publisher associated with this set of attestations.
     """
 
     attestations: list[Attestation]
     """
-    Attestations are returned as an opaque
+    The list of attestations included in this bundle.
     """
 
 
 class Provenance(BaseModel):
     version: Literal[1]
     """
-    The provenance object's version, set to 1
+    The provenance object's version, which is always 1.
     """
 
     attestation_bundles: list[AttestationBundle]
+    """
+    One or more attestation "bundles".
+    """
 
 
 def get_provenance_digest(request, file: File) -> str | None:
