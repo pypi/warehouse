@@ -69,18 +69,6 @@ Consequently, downstream consumers/verifiers of SLSA Provenance attestations
 may wish to further evaluate the attestation payload and signing identity
 on a local policy basis.
 
-Future attestations
-^^^^^^^^^^^^^^^^^^^
-
-Per :ref:`future identities <future-identities>`, PyPI may allow additional
-attestation types in the future. These future types may depend on future
-identities. Some potential future attestation types:
-
-* Third-party review attestations, e.g. manual review or automatic scanning
-  from security tooling.
-* "Release" attestations from the index itself, attesting that PyPI has
-  actually made a particular distribution available for public download.
-
 Attestation object internals
 ----------------------------
 
