@@ -31,7 +31,7 @@ def test_get_provenance_digest_succeed(db_request, monkeypatch):
     file = FileFactory.create()
     FileEventFactory.create(
         source=file,
-        tag=EventTag.Project.ReleaseAdd,
+        tag=EventTag.File.FileAdd,
         additional={"publisher_url": "fake-publisher-url"},
     )
 
@@ -81,7 +81,7 @@ def test_generate_provenance_file_succeed(db_request, monkeypatch):
     file = FileFactory.create()
     FileEventFactory.create(
         source=file,
-        tag=EventTag.Project.ReleaseAdd,
+        tag=EventTag.File.FileAdd,
         additional={"publisher_url": publisher_url},
     )
 

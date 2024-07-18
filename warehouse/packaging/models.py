@@ -818,7 +818,7 @@ class File(HasEvents, db.Model):
         try:
             release_event = self.events.where(
                 sql.and_(
-                    event_tag == EventTag.Project.ReleaseAdd,
+                    event_tag == EventTag.File.FileAdd,
                     event_additional["publisher_url"].as_string().is_not(None),
                 )
             ).one()
