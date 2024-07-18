@@ -19,12 +19,11 @@ import packaging_legacy.version
 from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
+from warehouse.attestations._core import get_provenance_digest
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, Project, Release, ReleaseFileAttestation
-from warehouse.attestations._core import get_provenance_digest
 
 API_VERSION = "1.2"
-
 
 
 def _simple_index(request, serial):
@@ -62,34 +61,42 @@ def _simple_detail(project, request):
         "versions": versions,
         "files": [
             {
-                "filename": file.filename,
-                "url": request.route_url("packaging.file", path=file.path),
-                "hashes": {
-                    "sha256": file.sha256_digest,
+                **{
+                    "filename": file.filename,
+                    "url": request.route_url("packaging.file", path=file.path),
+                    "hashes": {
+                        "sha256": file.sha256_digest,
+                    },
+                    "requires-python": (
+                        file.release.requires_python
+                        if file.release.requires_python
+                        else None
+                    ),
+                    "size": file.size,
+                    "upload-time": file.upload_time.isoformat() + "Z",
+                    "yanked": (
+                        file.release.yanked_reason
+                        if file.release.yanked and file.release.yanked_reason
+                        else file.release.yanked
+                    ),
+                    "data-dist-info-metadata": (
+                        {"sha256": file.metadata_file_sha256_digest}
+                        if file.metadata_file_sha256_digest
+                        else False
+                    ),
+                    "core-metadata": (
+                        {"sha256": file.metadata_file_sha256_digest}
+                        if file.metadata_file_sha256_digest
+                        else False
+                    ),
                 },
-                "requires-python": (
-                    file.release.requires_python
-                    if file.release.requires_python
-                    else None
+                **(
+                    {
+                        "provenance": provenance_digest,
+                    }
+                    if (provenance_digest := get_provenance_digest(request, file))
+                    else {}
                 ),
-                "size": file.size,
-                "upload-time": file.upload_time.isoformat() + "Z",
-                "yanked": (
-                    file.release.yanked_reason
-                    if file.release.yanked and file.release.yanked_reason
-                    else file.release.yanked
-                ),
-                "data-dist-info-metadata": (
-                    {"sha256": file.metadata_file_sha256_digest}
-                    if file.metadata_file_sha256_digest
-                    else False
-                ),
-                "core-metadata": (
-                    {"sha256": file.metadata_file_sha256_digest}
-                    if file.metadata_file_sha256_digest
-                    else False
-                ),
-                "provenance": get_provenance_digest(request, file),
             }
             for file in files
         ],

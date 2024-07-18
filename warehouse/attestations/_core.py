@@ -11,13 +11,16 @@
 # limitations under the License.
 import hashlib
 import tempfile
+
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, TypeAdapter
-from typing import Literal
-from pypi_attestations import Attestation
+from pypi_attestations import (
+    Attestation,
+)
 
-from warehouse.packaging import ISimpleStorage, File
+from warehouse.packaging import File, ISimpleStorage
 
 
 class Publisher(BaseModel):
@@ -29,6 +32,7 @@ class Publisher(BaseModel):
     """
     """
 
+
 class AttestationBundle(BaseModel):
     publisher: Publisher
     """
@@ -39,6 +43,7 @@ class AttestationBundle(BaseModel):
     Attestations are returned as an opaque
     """
 
+
 class Provenance(BaseModel):
     version: Literal[1]
     """
@@ -46,7 +51,6 @@ class Provenance(BaseModel):
     """
 
     attestation_bundles: list[AttestationBundle]
-
 
 
 def get_provenance_digest(request, file: File) -> str | None:
@@ -68,10 +72,7 @@ def get_provenance_digest(request, file: File) -> str | None:
 def generate_provenance_file(request, publisher_url: str, file: File) -> str:
 
     storage = request.find_service(ISimpleStorage)
-    publisher = Publisher(
-        kind=publisher_url,
-        claims={}  # TODO(dm)
-    )
+    publisher = Publisher(kind=publisher_url, claims={})  # TODO(dm)
 
     attestation_bundle = AttestationBundle(
         publisher=publisher,
@@ -80,13 +81,10 @@ def generate_provenance_file(request, publisher_url: str, file: File) -> str:
                 Path(release_attestation.attestation_path).read_text()
             )
             for release_attestation in file.attestations
-        ]
+        ],
     )
 
-    provenance = Provenance(
-        version=1,
-        attestation_bundles=[attestation_bundle]
-    )
+    provenance = Provenance(version=1, attestation_bundles=[attestation_bundle])
 
     provenance_file_path = f"{file.path}.provenance"
     with tempfile.NamedTemporaryFile() as f:
@@ -99,3 +97,4 @@ def generate_provenance_file(request, publisher_url: str, file: File) -> str:
         )
 
     return provenance_file_path
+

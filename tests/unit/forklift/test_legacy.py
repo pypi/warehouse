@@ -22,8 +22,8 @@ from unittest import mock
 
 import pretend
 import pytest
-from pydantic import TypeAdapter
 
+from pydantic import TypeAdapter
 from pypi_attestations import (
     Attestation,
     Distribution,
@@ -59,8 +59,8 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    Role,
     ReleaseFileAttestation,
+    Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 
@@ -3810,11 +3810,13 @@ class TestFileUpload:
         assert resp.status_code == 400
         assert resp.status.startswith(expected_msg)
 
-    def test_upload_succeeds_upload_attestation(self,         monkeypatch,
+    def test_upload_succeeds_upload_attestation(
+        self,
+        monkeypatch,
         pyramid_config,
         db_request,
         metrics,
-                              ):
+    ):
 
         project = ProjectFactory.create()
         version = "1.0"
@@ -3879,7 +3881,12 @@ class TestFileUpload:
 
         assert resp.status_code == 200
 
-        attestations_db = db_request.db.query(ReleaseFileAttestation).join(ReleaseFileAttestation.file).filter(File.filename == filename).all()
+        attestations_db = (
+            db_request.db.query(ReleaseFileAttestation)
+            .join(ReleaseFileAttestation.file)
+            .filter(File.filename == filename)
+            .all()
+        )
         assert len(attestations_db) == 1
         assert TypeAdapter(Attestation).validate_json(attestations_db[0].attestation)
 

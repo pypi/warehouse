@@ -28,14 +28,9 @@ import packaging_legacy.version
 import sentry_sdk
 import wtforms
 import wtforms.validators
-
 from pydantic import TypeAdapter, ValidationError
-from pypi_attestations import (
-    Attestation,
-    AttestationType,
-    Distribution,
-    VerificationError,
-)
+
+from pypi_attestations import Attestation, Distribution, VerificationError, AttestationType
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -51,6 +46,7 @@ from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
+from warehouse.attestations.models import ReleaseFileAttestation
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -63,6 +59,7 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
+from warehouse.packaging import File, IFileStorage
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -74,7 +71,6 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    ReleaseFileAttestation,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -370,122 +366,6 @@ def _is_duplicate_file(db_session, filename, hashes):
 
     return None
 
-
-def _process_attestations(request, distribution: Distribution) -> list[Attestation]:
-    """
-    Process any attestations included in a file upload request
-
-    Attestations, if present, will be parsed and verified against the uploaded
-    artifact. Attestations are only allowed when uploading via a Trusted
-    Publisher, because a Trusted Publisher provides the identity that will be
-    used to verify the attestations.
-    Currently, only GitHub Actions Trusted Publishers are supported.
-    """
-
-    metrics = request.find_service(IMetricsService, context=None)
-
-    publisher = request.oidc_publisher
-    if not publisher or not publisher.publisher_name == "GitHub":
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Attestations are currently only supported when using Trusted "
-            "Publishing with GitHub Actions.",
-        )
-    try:
-        attestations = TypeAdapter(list[Attestation]).validate_json(
-            request.POST["attestations"]
-        )
-    except ValidationError as e:
-        # Log invalid (malformed) attestation upload
-        metrics.increment("warehouse.upload.attestations.malformed")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            f"Error while decoding the included attestation: {e}",
-        )
-
-    if len(attestations) > 1:
-        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
-        raise _exc_with_message(
-            HTTPBadRequest,
-            "Only a single attestation per-file is supported at the moment.",
-        )
-
-    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
-    for attestation_model in attestations:
-        try:
-            # For now, attestations are not stored, just verified
-            predicate_type, _ = attestation_model.verify(
-                Verifier.production(),
-                verification_policy,
-                distribution,
-            )
-        except VerificationError as e:
-            # Log invalid (failed verification) attestation upload
-            metrics.increment("warehouse.upload.attestations.failed_verify")
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Could not verify the uploaded artifact using the included "
-                f"attestation: {e}",
-            )
-        except Exception as e:
-            with sentry_sdk.push_scope() as scope:
-                scope.fingerprint = [e]
-                sentry_sdk.capture_message(
-                    f"Unexpected error while verifying attestation: {e}"
-                )
-
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Unknown error while trying to verify included attestations: {e}",
-            )
-
-        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
-            metrics.increment(
-                "warehouse.upload.attestations.failed_unsupported_predicate_type"
-            )
-            raise _exc_with_message(
-                HTTPBadRequest,
-                f"Attestation with unsupported predicate type: {predicate_type}",
-            )
-
-        # Log successful attestation upload
-        metrics.increment("warehouse.upload.attestations.ok")
-
-    return attestations
-
-
-def _store_attestations(request, file: File, attestations: list[Attestation]):
-    """Store the attestations along the release files.
-
-    Attestations are living near the release file, like metadata files. They are named using
-    their filehash to allow storing more than 1 attestation by file.
-
-    TODO(dm): Validate if the 8 hex chars are enough.
-    """
-    storage = request.find_service(IFileStorage, name="archive")
-
-    release_file_attestations = []
-    for attestation in attestations:
-
-        with tempfile.NamedTemporaryFile() as tmp_file:
-            tmp_file.write(attestation.model_dump_json().encoded("utf-8"))
-
-            attestation_digest = hashlib.file_digest(tmp_file, "sha256").hexdigest()
-            attestation_path = f"{file.path}.{attestation_digest[:8]}.attestation"
-
-            storage.store(
-                attestation_path,
-                tmp_file.name,
-            )
-
-            release_file_attestations.append(
-                ReleaseFileAttestation(
-                    file=file,
-                    attestation_file_sha256_digest=attestation_digest,
-                )
-            )
-
-    request.db.add_all(release_file_attestations)
 
 @view_config(
     route_name="forklift.legacy.file_upload",
@@ -1412,3 +1292,120 @@ def missing_trailing_slash_redirect(request):
         "/legacy/ (with a trailing slash)",
         location=request.route_path("forklift.legacy.file_upload"),
     )
+
+
+def _process_attestations(request, distribution: Distribution) -> list[Attestation]:
+    """
+    Process any attestations included in a file upload request
+
+    Attestations, if present, will be parsed and verified against the uploaded
+    artifact. Attestations are only allowed when uploading via a Trusted
+    Publisher, because a Trusted Publisher provides the identity that will be
+    used to verify the attestations.
+    Currently, only GitHub Actions Trusted Publishers are supported.
+    """
+
+    metrics = request.find_service(IMetricsService, context=None)
+
+    publisher = request.oidc_publisher
+    if not publisher or not publisher.publisher_name == "GitHub":
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Attestations are currently only supported when using Trusted "
+            "Publishing with GitHub Actions.",
+        )
+    try:
+        attestations = TypeAdapter(list[Attestation]).validate_json(
+            request.POST["attestations"]
+        )
+    except ValidationError as e:
+        # Log invalid (malformed) attestation upload
+        metrics.increment("warehouse.upload.attestations.malformed")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            f"Error while decoding the included attestation: {e}",
+        )
+
+    if len(attestations) > 1:
+        metrics.increment("warehouse.upload.attestations.failed_multiple_attestations")
+        raise _exc_with_message(
+            HTTPBadRequest,
+            "Only a single attestation per-file is supported at the moment.",
+        )
+
+    verification_policy = publisher.publisher_verification_policy(request.oidc_claims)
+    for attestation_model in attestations:
+        try:
+            # For now, attestations are not stored, just verified
+            predicate_type, _ = attestation_model.verify(
+                Verifier.production(),
+                verification_policy,
+                distribution,
+            )
+        except VerificationError as e:
+            # Log invalid (failed verification) attestation upload
+            metrics.increment("warehouse.upload.attestations.failed_verify")
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Could not verify the uploaded artifact using the included "
+                f"attestation: {e}",
+            )
+        except Exception as e:
+            with sentry_sdk.push_scope() as scope:
+                scope.fingerprint = [e]
+                sentry_sdk.capture_message(
+                    f"Unexpected error while verifying attestation: {e}"
+                )
+
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Unknown error while trying to verify included attestations: {e}",
+            )
+
+        if predicate_type != AttestationType.PYPI_PUBLISH_V1:
+            metrics.increment(
+                "warehouse.upload.attestations.failed_unsupported_predicate_type"
+            )
+            raise _exc_with_message(
+                HTTPBadRequest,
+                f"Attestation with unsupported predicate type: {predicate_type}",
+            )
+
+        # Log successful attestation upload
+        metrics.increment("warehouse.upload.attestations.ok")
+
+    return attestations
+
+
+def _store_attestations(request, file: File, attestations: list[Attestation]):
+    """Store the attestations along the release files.
+
+    Attestations are living near the release file, like metadata files. They are named using
+    their filehash to allow storing more than 1 attestation by file.
+
+    TODO(dm): Validate if the 8 hex chars are enough.
+    """
+    storage = request.find_service(IFileStorage, name="archive")
+
+    release_file_attestations = []
+    for attestation in attestations:
+
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            tmp_file.write(attestation.model_dump_json().encoded("utf-8"))
+
+            attestation_digest = hashlib.file_digest(tmp_file, "sha256").hexdigest()
+            attestation_path = f"{file.path}.{attestation_digest[:8]}.attestation"
+
+            storage.store(
+                attestation_path,
+                tmp_file.name,
+            )
+
+            release_file_attestations.append(
+                ReleaseFileAttestation(
+                    file=file,
+                    attestation_file_sha256_digest=attestation_digest,
+                )
+            )
+
+    request.db.add_all(release_file_attestations)

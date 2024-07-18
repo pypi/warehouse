@@ -16,8 +16,13 @@ import tempfile
 import pretend
 
 import warehouse.packaging.models
+
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.utils import _simple_detail, render_simple_detail, store_provenance_object
+from warehouse.packaging.utils import (
+    _simple_detail,
+    render_simple_detail,
+    store_provenance_object,
+)
 
 from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
@@ -67,6 +72,7 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
         + f".{project.normalized_name}.html"
     )
 
+
 def test_store_provenance_object_succeed(db_request, monkeypatch):
     storage_service = pretend.stub(
         store=pretend.call_recorder(
@@ -80,7 +86,9 @@ def test_store_provenance_object_succeed(db_request, monkeypatch):
         }.get(svc)
     )
 
-    monkeypatch.setattr(warehouse.packaging.models.File, "publisher_url", "x-fake-publisher-url")
+    monkeypatch.setattr(
+        warehouse.packaging.models.File, "publisher_url", "x-fake-publisher-url"
+    )
 
     file = FileFactory.create()
     provenance_hash = store_provenance_object(db_request, file)
