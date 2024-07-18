@@ -23,7 +23,6 @@ from unittest import mock
 import pretend
 import pytest
 
-from pydantic import TypeAdapter
 from pypi_attestations import (
     Attestation,
     Distribution,
@@ -3872,7 +3871,7 @@ class TestFileUpload:
         }.get(svc)
 
         process_attestations = pretend.call_recorder(
-            lambda request, artifact_path: [attestation]
+            lambda request, distribution: [attestation]
         )
 
         monkeypatch.setattr(legacy, "_process_attestations", process_attestations)
@@ -3888,7 +3887,6 @@ class TestFileUpload:
             .all()
         )
         assert len(attestations_db) == 1
-        assert TypeAdapter(Attestation).validate_json(attestations_db[0].attestation)
 
     @pytest.mark.parametrize(
         "version, expected_version",

@@ -28,9 +28,14 @@ import packaging_legacy.version
 import sentry_sdk
 import wtforms
 import wtforms.validators
-from pydantic import TypeAdapter, ValidationError
 
-from pypi_attestations import Attestation, Distribution, VerificationError, AttestationType
+from pydantic import TypeAdapter, ValidationError
+from pypi_attestations import (
+    Attestation,
+    AttestationType,
+    Distribution,
+    VerificationError,
+)
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
@@ -59,7 +64,6 @@ from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
 from warehouse.macaroons.models import Macaroon
 from warehouse.metrics import IMetricsService
-from warehouse.packaging import File, IFileStorage
 from warehouse.packaging.interfaces import IFileStorage, IProjectService
 from warehouse.packaging.models import (
     Dependency,
@@ -1380,8 +1384,9 @@ def _process_attestations(request, distribution: Distribution) -> list[Attestati
 def _store_attestations(request, file: File, attestations: list[Attestation]):
     """Store the attestations along the release files.
 
-    Attestations are living near the release file, like metadata files. They are named using
-    their filehash to allow storing more than 1 attestation by file.
+    Attestations are living near the release file, like metadata files.
+    They are named using their filehash to allow storing more than 1 attestation
+    by file.
 
     TODO(dm): Validate if the 8 hex chars are enough.
     """
@@ -1391,7 +1396,7 @@ def _store_attestations(request, file: File, attestations: list[Attestation]):
     for attestation in attestations:
 
         with tempfile.NamedTemporaryFile() as tmp_file:
-            tmp_file.write(attestation.model_dump_json().encoded("utf-8"))
+            tmp_file.write(attestation.model_dump_json().encode("utf-8"))
 
             attestation_digest = hashlib.file_digest(tmp_file, "sha256").hexdigest()
             attestation_path = f"{file.path}.{attestation_digest[:8]}.attestation"
@@ -1399,6 +1404,7 @@ def _store_attestations(request, file: File, attestations: list[Attestation]):
             storage.store(
                 attestation_path,
                 tmp_file.name,
+                meta=None,
             )
 
             release_file_attestations.append(

@@ -44,7 +44,7 @@ def _simple_detail(project, request):
     # Get all of the files for this project.
     files = sorted(
         request.db.query(File)
-        .options(joinedload(File.release), joinedload(File.attestations))
+        .options(joinedload(File.release))
         .join(Release)
         .join(ReleaseFileAttestation)
         .filter(Release.project == project)

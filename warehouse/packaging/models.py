@@ -66,6 +66,7 @@ from warehouse.attestations.models import ReleaseFileAttestation
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
+from warehouse.events.tags import EventTag
 from warehouse.integrations.vulnerabilities.models import VulnerabilityRecord
 from warehouse.observations.models import HasObservations
 from warehouse.organizations.models import (
@@ -805,13 +806,23 @@ class File(HasEvents, db.Model):
     # PEP 740 attestations
     attestations: Mapped[list[ReleaseFileAttestation]] = orm.relationship(
         cascade="all, delete-orphan",
-        lazy="dynamic",
+        lazy="joined",
         passive_deletes=True,  # TODO(dm) check-me
     )
 
     @property
     def publisher_url(self) -> str | None:
-        return self.Event.additional["publisher_url"].as_string()  # type: ignore[attr-defined]
+        try:
+            release_event = self.events.where(
+                sql.and_(
+                    self.Event.tag == EventTag.Project.ReleaseAdd,  # type: ignore[attr-defined]
+                    self.Event.additional["publisher_url"].as_string().is_not(None),  # type: ignore[attr-defined]
+                )
+            ).one()
+        except (NoResultFound, MultipleResultsFound):
+            return None
+
+        return release_event.additional["publisher_url"]
 
     @property
     def uploaded_via_trusted_publisher(self) -> bool:

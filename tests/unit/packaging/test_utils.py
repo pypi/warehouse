@@ -15,14 +15,8 @@ import tempfile
 
 import pretend
 
-import warehouse.packaging.models
-
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.utils import (
-    _simple_detail,
-    render_simple_detail,
-    store_provenance_object,
-)
+from warehouse.packaging.utils import _simple_detail, render_simple_detail
 
 from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
@@ -71,46 +65,6 @@ def test_render_simple_detail(db_request, monkeypatch, jinja):
         f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
         + f".{project.normalized_name}.html"
     )
-
-
-def test_store_provenance_object_succeed(db_request, monkeypatch):
-    storage_service = pretend.stub(
-        store=pretend.call_recorder(
-            lambda path, file_path, *, meta=None: f"https://files/attestations/{path}.provenance"
-        )
-    )
-
-    db_request.find_service = pretend.call_recorder(
-        lambda svc, name=None, context=None: {
-            ISimpleStorage: storage_service,
-        }.get(svc)
-    )
-
-    monkeypatch.setattr(
-        warehouse.packaging.models.File, "publisher_url", "x-fake-publisher-url"
-    )
-
-    file = FileFactory.create()
-    provenance_hash = store_provenance_object(db_request, file)
-
-    assert provenance_hash is not None
-
-
-def test_store_provenance_object_fails_no_attestations(db_request, monkeypatch):
-    file = FileFactory.create()
-    file.attestations = None
-
-    provenance_hash = store_provenance_object(db_request, file)
-    assert provenance_hash is None
-
-
-def test_store_provenance_object_fails_no_publisher_url(db_request, monkeypatch):
-    file = FileFactory.create()
-
-    monkeypatch.setattr(warehouse.packaging.models.File, "publisher_url", None)
-
-    provenance_hash = store_provenance_object(db_request, file)
-    assert provenance_hash is None
 
 
 def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):

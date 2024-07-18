@@ -28,13 +28,13 @@ from warehouse.packaging.models import (
     ProhibitedProjectName,
     Project,
     Release,
-    ReleaseFileAttestation,
     Role,
     RoleInvitation,
 )
 from warehouse.utils import readme
 
 from .accounts import UserFactory
+from .attestation import ReleaseAttestationsFactory
 from .base import WarehouseFactory
 from .observations import ObserverFactory
 
@@ -99,14 +99,6 @@ class ReleaseFactory(WarehouseFactory):
 
     uploader = factory.SubFactory(UserFactory)
     description = factory.SubFactory(DescriptionFactory)
-
-
-class ReleaseAttestationsFactory(WarehouseFactory):
-    class Meta:
-        model = ReleaseFileAttestation
-
-    file = factory.SubFactory("tests.common.db.packaging.FileFactory")
-    attestation = "fake-attestation"
 
 
 class FileFactory(WarehouseFactory):

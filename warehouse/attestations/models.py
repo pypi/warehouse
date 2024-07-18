@@ -15,35 +15,10 @@ import typing
 
 from uuid import UUID
 
-from sqlalchemy import (
-    BigInteger,
-    CheckConstraint,
-    Column,
-    FetchedValue,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Text,
-    UniqueConstraint,
-    cast,
-    func,
-    or_,
-    orm,
-    select,
-    sql,
-)
+from sqlalchemy import ForeignKey, orm
 from sqlalchemy.dialects.postgresql import CITEXT
-from sqlalchemy.exc import MultipleResultsFound, NoResultFound
-from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.orm import (
-    Mapped,
-    attribute_keyed_dict,
-    declared_attr,
-    mapped_column,
-    validates,
-)
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 
@@ -55,8 +30,8 @@ class ReleaseFileAttestation(db.Model):
     """
     Association table between Release Files and Attestations.
 
-    Attestations are stored as opaque blob because their implementation details are handled by the pypi_attestation package.
-    They are linked to release files as a one-to-many relationship.
+    Attestations are stored on disk along the release files (and their
+    associated metadata). We keep in database only the attestation hash.
     """
 
     __tablename__ = "release_files_attestation"
@@ -70,12 +45,4 @@ class ReleaseFileAttestation(db.Model):
 
     @hybrid_property
     def attestation_path(self):
-        return self.file.path + self.attestation_file_sha256_digest[:8] + ".attestation"
-
-    @attestation_path.expression  # type: ignore
-    def attestation_path(self):
-        return func.concat(
-            func.concat(
-                self.file.path, self.attestation_file_sha256_digest[:8], ".attestation"
-            )
-        )
+        return f"{self.file.path}.{self.attestation_file_sha256_digest[:8]}.attestation"

@@ -16,9 +16,7 @@ from pathlib import Path
 from typing import Literal
 
 from pydantic import BaseModel, TypeAdapter
-from pypi_attestations import (
-    Attestation,
-)
+from pypi_attestations import Attestation
 
 from warehouse.packaging import File, ISimpleStorage
 
@@ -55,21 +53,21 @@ class Provenance(BaseModel):
 
 def get_provenance_digest(request, file: File) -> str | None:
     if not file.attestations:
-        return
+        return None
 
     publisher_url = file.publisher_url
     if not publisher_url:
-        return  # # TODO(dm)
+        return None  # TODO(dm)
 
-    provenance_file_path = generate_provenance_file(request, publisher_url, file)
-
-    with Path(provenance_file_path).open("rb") as file_handler:
-        provenance_digest = hashlib.file_digest(file_handler, "sha256")
-
-    return provenance_digest.hexdigest()
+    provenance_file_path, provenance_digest = generate_provenance_file(
+        request, publisher_url, file
+    )
+    return provenance_digest
 
 
-def generate_provenance_file(request, publisher_url: str, file: File) -> str:
+def generate_provenance_file(
+    request, publisher_url: str, file: File
+) -> tuple[Path, str]:
 
     storage = request.find_service(ISimpleStorage)
     publisher = Publisher(kind=publisher_url, claims={})  # TODO(dm)
@@ -86,15 +84,16 @@ def generate_provenance_file(request, publisher_url: str, file: File) -> str:
 
     provenance = Provenance(version=1, attestation_bundles=[attestation_bundle])
 
-    provenance_file_path = f"{file.path}.provenance"
+    provenance_file_path = Path(f"{file.path}.provenance")
     with tempfile.NamedTemporaryFile() as f:
         f.write(provenance.model_dump_json().encode("utf-8"))
         f.flush()
 
         storage.store(
-            f"{file.path}.provenance",
+            provenance_file_path,
             f.name,
         )
 
-    return provenance_file_path
+        file_digest = hashlib.file_digest(f, "sha256")
 
+    return provenance_file_path, file_digest.hexdigest()
