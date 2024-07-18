@@ -61,6 +61,13 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
+        "admin.user.submit_email",
+        "/admin/users/{username}/emails/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
         "admin.user.add_email",
         "/admin/users/{username}/add_email/",
         domain=warehouse,
@@ -89,8 +96,22 @@ def includeme(config):
         traverse="/{username}",
     )
     config.add_route(
-        "admin.user.wipe_factors",
-        "/admin/users/{username}/wipe_factors/",
+        "admin.user.account_recovery.initiate",
+        "/admin/users/{username}/account_recovery/initiate/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.cancel",
+        "/admin/users/{username}/account_recovery/cancel/",
+        domain=warehouse,
+        factory="warehouse.accounts.models:UserFactory",
+        traverse="/{username}",
+    )
+    config.add_route(
+        "admin.user.account_recovery.complete",
+        "/admin/users/{username}/account_recovery/complete/",
         domain=warehouse,
         factory="warehouse.accounts.models:UserFactory",
         traverse="/{username}",

@@ -63,6 +63,13 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
+            "admin.user.submit_email",
+            "/admin/users/{username}/emails/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
             "admin.user.add_email",
             "/admin/users/{username}/add_email/",
             domain=warehouse,
@@ -91,8 +98,22 @@ def test_includeme():
             traverse="/{username}",
         ),
         pretend.call(
-            "admin.user.wipe_factors",
-            "/admin/users/{username}/wipe_factors/",
+            "admin.user.account_recovery.initiate",
+            "/admin/users/{username}/account_recovery/initiate/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.account_recovery.cancel",
+            "/admin/users/{username}/account_recovery/cancel/",
+            domain=warehouse,
+            factory="warehouse.accounts.models:UserFactory",
+            traverse="/{username}",
+        ),
+        pretend.call(
+            "admin.user.account_recovery.complete",
+            "/admin/users/{username}/account_recovery/complete/",
             domain=warehouse,
             factory="warehouse.accounts.models:UserFactory",
             traverse="/{username}",
