@@ -20,9 +20,11 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.models import File, Project, Release
+from warehouse.packaging.models import File, Project, Release, ReleaseFileAttestation
+from warehouse.attestations._core import get_provenance_digest
 
-API_VERSION = "1.1"
+API_VERSION = "1.2"
+
 
 
 def _simple_index(request, serial):
@@ -43,8 +45,9 @@ def _simple_detail(project, request):
     # Get all of the files for this project.
     files = sorted(
         request.db.query(File)
-        .options(joinedload(File.release))
+        .options(joinedload(File.release), joinedload(File.attestations))
         .join(Release)
+        .join(ReleaseFileAttestation)
         .filter(Release.project == project)
         .all(),
         key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
@@ -86,6 +89,7 @@ def _simple_detail(project, request):
                     if file.metadata_file_sha256_digest
                     else False
                 ),
+                "provenance": get_provenance_digest(request, file),
             }
             for file in files
         ],

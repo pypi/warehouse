@@ -801,6 +801,17 @@ class File(HasEvents, db.Model):
         comment="If True, the metadata for the file cannot be backfilled.",
     )
 
+    # PEP 740 attestations
+    attestations: Mapped[list[ReleaseFileAttestation]] = orm.relationship(
+        cascade="all, delete-orphan",
+        lazy="dynamic",
+        passive_deletes=True,  # TODO(dm) check-me
+    )
+
+    @property
+    def publisher_url(self) -> str | None :
+        return self.Event.additional["publisher_url"].as_string()  # type: ignore[attr-defined]
+
     @property
     def uploaded_via_trusted_publisher(self) -> bool:
         """Return True if the file was uploaded via a trusted publisher."""
@@ -959,3 +970,27 @@ class ProjectMacaroonWarningAssociation(db.Model):
         ForeignKey("projects.id", onupdate="CASCADE", ondelete="CASCADE"),
         primary_key=True,
     )
+
+class ReleaseFileAttestation(db.Model):
+    """
+    Association table between Release Files and Attestations.
+
+    Attestations are stored as opaque blob because their implementation details are handled by the pypi_attestation package.
+    They are linked to release files as a one-to-many relationship.
+    """
+    __tablename__ = "release_files_attestation"
+
+    file_id: Mapped[UUID] = mapped_column(
+        ForeignKey("release_files.id", onupdate="CASCADE", ondelete="CASCADE"),
+    )
+    file: Mapped[File] = orm.relationship(back_populates="attestations")
+
+    attestation_file_sha256_digest: Mapped[str] = mapped_column(CITEXT)
+
+    @hybrid_property
+    def attestation_path(self):
+        return self.file.path + self.attestation_file_sha256_digest[:8] + ".attestation"
+
+    @attestation_path.expression  # type: ignore
+    def attestation_path(self):
+        return func.concat(func.concat(self.file.path, self.attestation_file_sha256_digest[:8], ".attestation"))

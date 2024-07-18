@@ -70,6 +70,7 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
+    ReleaseFileAttestation,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -366,7 +367,7 @@ def _is_duplicate_file(db_session, filename, hashes):
     return None
 
 
-def _process_attestations(request, artifact_path: Path):
+def _process_attestations(request, artifact_path: Path) -> list[Attestation]:
     """
     Process any attestations included in a file upload request
 
@@ -374,8 +375,7 @@ def _process_attestations(request, artifact_path: Path):
     artifact. Attestations are only allowed when uploading via a Trusted
     Publisher, because a Trusted Publisher provides the identity that will be
     used to verify the attestations.
-    Currently, only GitHub Actions Trusted Publishers are supported, and
-    attestations are discarded after verification.
+    Currently, only GitHub Actions Trusted Publishers are supported.
     """
 
     metrics = request.find_service(IMetricsService, context=None)
@@ -447,6 +447,41 @@ def _process_attestations(request, artifact_path: Path):
         # Log successful attestation upload
         metrics.increment("warehouse.upload.attestations.ok")
 
+    return attestations
+
+
+def _store_attestations(request, file: File, attestations: list[Attestation]):
+    """Store the attestations along the release files.
+
+    Attestations are living near the release file, like metadata files. They are named using
+    their filehash to allow storing more than 1 attestation by file.
+
+    TODO(dm): Validate if the 8 hex chars are enough.
+    """
+    storage = request.find_service(IFileStorage, name="archive")
+
+    release_file_attestations = []
+    for attestation in attestations:
+
+        with tempfile.NamedTemporaryFile() as tmp_file:
+            tmp_file.write(attestation.model_dump_json().encoded("utf-8"))
+
+            attestation_digest = hashlib.file_digest(tmp_file, "sha256").hexdigest()
+            attestation_path = f"{file.path}.{attestation_digest[:8]}.attestation"
+
+            storage.store(
+                attestation_path,
+                tmp_file.name,
+            )
+
+            release_file_attestations.append(
+                ReleaseFileAttestation(
+                    file=file,
+                    attestation_file_sha256_digest=attestation_digest,
+                )
+            )
+
+    request.db.add_all(release_file_attestations)
 
 @view_config(
     route_name="forklift.legacy.file_upload",
@@ -1146,8 +1181,9 @@ def file_upload(request):
                 k: h.hexdigest().lower() for k, h in metadata_file_hashes.items()
             }
 
+        attestations: list[Attestation] | None = None
         if "attestations" in request.POST:
-            _process_attestations(
+            attestations = _process_attestations(
                 request=request, artifact_path=Path(temporary_filename)
             )
 
@@ -1247,6 +1283,11 @@ def file_upload(request):
                 },
             )
 
+        # If the user provided attestations, store them along the release file
+        if attestations:
+            _store_attestations(request, file_, attestations)
+            # TODO(dm): Add some event?
+
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
         warnings.append("Two factor authentication is not enabled for your account.")
@@ -1304,6 +1345,7 @@ def file_upload(request):
         "path": file_data.path,
         "uploaded_via": file_data.uploaded_via,
         "upload_time": file_data.upload_time,
+        # TODO(dm): Add something here for attestation upload?
     }
     if request.registry.settings.get("warehouse.release_files_table") is not None:
         request.task(update_bigquery_release_files).delay(dist_metadata)

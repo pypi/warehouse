@@ -30,6 +30,7 @@ from warehouse.packaging.models import (
     Release,
     Role,
     RoleInvitation,
+    ReleaseFileAttestation,
 )
 from warehouse.utils import readme
 
@@ -99,6 +100,12 @@ class ReleaseFactory(WarehouseFactory):
     uploader = factory.SubFactory(UserFactory)
     description = factory.SubFactory(DescriptionFactory)
 
+class ReleaseAttestationsFactory(WarehouseFactory):
+    class Meta:
+        model = ReleaseFileAttestation
+
+    file = factory.SubFactory("tests.common.db.packaging.FileFactory")
+    attestation = "fake-attestation"
 
 class FileFactory(WarehouseFactory):
     class Meta:
@@ -138,6 +145,12 @@ class FileFactory(WarehouseFactory):
                 "sdist",
             ]
         )
+    )
+
+    attestations = factory.RelatedFactoryList(
+        ReleaseAttestationsFactory,
+        factory_related_name="file",
+        size=1,
     )
 
 
