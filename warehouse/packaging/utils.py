@@ -21,7 +21,8 @@ from sqlalchemy.orm import joinedload
 
 from warehouse.attestations._core import get_provenance_digest
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.models import File, Project, Release, ReleaseFileAttestation
+from warehouse.packaging.models import File, Project, Release
+from warehouse.attestations.models import ReleaseFileAttestation
 
 API_VERSION = "1.2"
 
