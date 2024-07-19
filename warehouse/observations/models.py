@@ -113,6 +113,10 @@ class ObservationKind(enum.Enum):
     IsMalware = ("is_malware", "Is Malware")
     IsSpam = ("is_spam", "Is Spam")
     SomethingElse = ("something_else", "Something Else")
+    AccountRecovery = (
+        "account_recovery",
+        "Account Recovery",
+    )
 
 
 # A reverse-lookup map by the string value stored in the database

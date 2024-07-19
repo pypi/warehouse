@@ -45,9 +45,7 @@
       border: 0;
       background-color: transparent;
       padding: 0;
-      background-position: 0 1.3em;
-      background-repeat: repeat-x;
-      background-size: 100% 1.5px;
+      text-decoration: underline;
       @include white-underlined-link;
     }
 
