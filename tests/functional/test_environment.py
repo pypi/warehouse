@@ -12,7 +12,9 @@
 
 import platformdirs
 
+
 def test_xdg_environment():
+    # Backstop checks for Warehouse's (Dockerfile-configured) environment.
     user_data = platformdirs.user_data_dir()
     user_cache = platformdirs.user_cache_dir()
 
