@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:22.4.0-bookworm as static-deps
+FROM node:22.4.0-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -19,7 +19,7 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
 
 
 # This is our actual build stage, where we'll compile our static assets.
-FROM static-deps as static
+FROM static-deps AS static
 
 # Actually copy over our static files, we only copy over the static files to
 # save a small amount of space in our image and because we don't need them. We
@@ -36,7 +36,7 @@ RUN NODE_ENV=production npm run build
 
 
 # We'll build a light-weight layer along the way with just docs stuff
-FROM python:3.12.4-slim-bookworm as docs
+FROM python:3.12.4-slim-bookworm AS docs
 
 # By default, Docker has special steps to avoid keeping APT caches in the layers, which
 # is good, but in our case, we're going to mount a special cache volume (kept between
@@ -105,7 +105,7 @@ USER docs
 
 # Now we're going to build our actual application, but not the actual production
 # image that it gets deployed into.
-FROM python:3.12.4-slim-bookworm as build
+FROM python:3.12.4-slim-bookworm AS build
 
 # Define whether we're building a production or a development image. This will
 # generally be used to control whether or not we install our development and
@@ -224,6 +224,15 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Warehouse runs as `nobody` with `/nonexistent` as `$HOME`, which causes
+# significant shpilkes for libraries that expect to use XDG dirs.
+# Placate everybody by making some directories for runtime use.
+# Note that this happens right after `/tmp/*` is blown away, because we want
+# to keep these.
+RUN mkdir -p /tmp/share /tmp/cache
+ENV XDG_DATA_HOME /tmp/share
+ENV XDG_CACHE_HOME /tmp/cache
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from

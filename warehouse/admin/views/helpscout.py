@@ -17,6 +17,7 @@ import re
 
 from pyramid.view import view_config
 from pyramid_jinja2 import IJinja2Environment
+from sqlalchemy.sql import func
 
 from warehouse.accounts.models import Email
 
@@ -46,7 +47,7 @@ def helpscout(request):
     email = (
         request.db.query(Email)
         .where(
-            Email.email.ilike(
+            func.regexp_replace(Email.email, r"\+[^)]*@", "@").ilike(
                 re.sub(
                     r"\+[^)]*@",
                     "@",
