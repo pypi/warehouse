@@ -232,7 +232,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # to keep these.
 RUN mkdir -p /tmp/share /tmp/cache
 ENV XDG_DATA_HOME /tmp/share
-ENV XDG_CACHE_COME /tmp/cache
+ENV XDG_CACHE_HOME /tmp/cache
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
