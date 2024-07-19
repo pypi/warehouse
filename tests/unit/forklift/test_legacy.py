@@ -3815,11 +3815,11 @@ class TestFileUpload:
             ("https://google.com", False),  # Totally different
             ("https://github.com/foo", False),  # Missing parts
             ("https://github.com/foo/bar/", True),  # Exactly the same
-            ("https://github.com/foo/bar/readme.md", True),  # Additonal parts
+            ("https://github.com/foo/bar/readme.md", True),  # Additional parts
             ("https://github.com/foo/bar", True),  # Missing trailing slash
         ],
     )
-    def test_release_url_verified(
+    def test_new_release_url_verified(
         self, monkeypatch, pyramid_config, db_request, metrics, url, expected
     ):
         project = ProjectFactory.create()
@@ -3877,6 +3877,86 @@ class TestFileUpload:
         )
         assert release_url is not None
         assert release_url.verified == expected
+
+    def test_new_publisher_verifies_existing_release_url(
+        self,
+        monkeypatch,
+        pyramid_config,
+        db_request,
+        metrics,
+    ):
+        repo_name = "my_new_repo"
+        verified_url = "https://github.com/foo/bar"
+        unverified_url = f"https://github.com/foo/{repo_name}"
+
+        project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project, version="1.0")
+        # We start with an existing release, with one verified URL and one unverified
+        # URL. Uploading a new file with a Trusted Publisher that matches the unverified
+        # URL should mark it as verified.
+        release.project_urls = {
+            "verified_url": {"url": verified_url, "verified": True},
+            "unverified_url": {"url": unverified_url, "verified": False},
+        }
+        publisher = GitHubPublisherFactory.create(projects=[project])
+        publisher.repository_owner = "foo"
+        publisher.repository_name = repo_name
+        claims = {"sha": "somesha"}
+        identity = PublisherTokenContext(publisher, SignedClaims(claims))
+        db_request.oidc_publisher = identity.publisher
+        db_request.oidc_claims = identity.claims
+
+        db_request.db.add(Classifier(classifier="Environment :: Other Environment"))
+        db_request.db.add(Classifier(classifier="Programming Language :: Python"))
+
+        filename = "{}-{}.tar.gz".format(project.name, "1.0")
+
+        pyramid_config.testing_securitypolicy(identity=identity)
+        db_request.user_agent = "warehouse-tests/6.6.6"
+        db_request.POST = MultiDict(
+            {
+                "metadata_version": "1.2",
+                "name": project.name,
+                "version": "1.0",
+                "summary": "This is my summary!",
+                "filetype": "sdist",
+                "md5_digest": _TAR_GZ_PKG_MD5,
+                "content": pretend.stub(
+                    filename=filename,
+                    file=io.BytesIO(_TAR_GZ_PKG_TESTDATA),
+                    type="application/tar",
+                ),
+            }
+        )
+        db_request.POST.extend(
+            [
+                ("classifiers", "Environment :: Other Environment"),
+                ("classifiers", "Programming Language :: Python"),
+                ("requires_dist", "foo"),
+                ("requires_dist", "bar (>1.0)"),
+                ("requires_external", "Cheese (>1.0)"),
+                ("provides", "testing"),
+            ]
+        )
+        db_request.POST.add("project_urls", f"verified_url, {verified_url}")
+        db_request.POST.add("project_urls", f"unverified_url, {unverified_url}")
+
+        storage_service = pretend.stub(store=lambda path, filepath, meta: None)
+        db_request.find_service = lambda svc, name=None, context=None: {
+            IFileStorage: storage_service,
+            IMetricsService: metrics,
+        }.get(svc)
+
+        legacy.file_upload(db_request)
+
+        # After successful upload, the Release should have now both URLs verified
+        release_urls = (
+            db_request.db.query(ReleaseURL).filter(Release.project == project).all()
+        )
+        release_urls = {r.name: r.verified for r in release_urls}
+        assert "verified_url" in release_urls and "unverified_url" in release_urls
+        assert release_urls["verified_url"]
+        assert release_urls["unverified_url"]
 
     @pytest.mark.parametrize(
         "version, expected_version",

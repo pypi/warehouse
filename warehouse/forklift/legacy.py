@@ -817,6 +817,7 @@ def file_upload(request):
         }
     )
     try:
+        is_new_release = False
         canonical_version = packaging.utils.canonicalize_version(meta.version)
         release = (
             request.db.query(Release)
@@ -908,6 +909,7 @@ def file_upload(request):
             uploaded_via=request.user_agent,
         )
         request.db.add(release)
+        is_new_release = True
 
         # TODO: This should be handled by some sort of database trigger or
         #       a SQLAlchemy hook or the like instead of doing it inline in
@@ -1306,6 +1308,19 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
+
+    # For existing releases, we check if any of the existing project URLs are unverified
+    # and have been verified in the current upload. In that case, we mark them as
+    # verified.
+    if not is_new_release and project_urls:
+        for name, release_url in release._project_urls.items():
+            if (
+                not release_url.verified
+                and name in project_urls
+                and project_urls[name]["url"] == release_url.url
+                and project_urls[name]["verified"]
+            ):
+                release_url.verified = True
 
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
