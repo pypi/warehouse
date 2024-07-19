@@ -26,87 +26,6 @@ _VALID_GITLAB_ENVIRONMENT = re.compile(r"^[a-zA-Z0-9\-_/${} ]+$")
 
 _CONSECUTIVE_SPECIAL_CHARACTERS = re.compile(r"(?!.*[._-]{2})")
 
-_GITLAB_RESERVED_PROJECT_NAMES = {
-    "-",
-    "badges",
-    "blame",
-    "blob",
-    "builds",
-    "commits",
-    "create",
-    "create_dir",
-    "edit",
-    "environments/folders",
-    "files",
-    "find_file",
-    "gitlab-lfs/objects",
-    "info/lfs/objects",
-    "new",
-    "preview",
-    "raw",
-    "refs",
-    "tree",
-    "update",
-    "wikis",
-}
-
-_GITLAB_RESERVED_GROUP_NAMES = {
-    "-",
-    ".well-known",
-    "404.html",
-    "422.html",
-    "500.html",
-    "502.html",
-    "503.html",
-    "admin",
-    "api",
-    "apple-touch-icon.png",
-    "assets",
-    "dashboard",
-    "deploy.html",
-    "explore",
-    "favicon.ico",
-    "favicon.png",
-    "files",
-    "groups",
-    "health_check",
-    "help",
-    "import",
-    "jwt",
-    "login",
-    "oauth",
-    "profile",
-    "projects",
-    "public",
-    "robots.txt",
-    "s",
-    "search",
-    "sitemap",
-    "sitemap.xml",
-    "sitemap.xml.gz",
-    "slash-command-logo.png",
-    "snippets",
-    "unsubscribes",
-    "uploads",
-    "users",
-    "v2",
-}
-
-_GITLAB_RESERVED_SUBGROUP_NAMES = {
-    "-",
-}
-
-
-class CaseInsensitiveNonOf(wtforms.validators.NoneOf):
-
-    def __init__(self, values, message=None, values_formatter=None):
-        values = {val.lower() for val in values}
-        super().__init__(values, message, values_formatter)
-
-    def __call__(self, form, field):
-        field.data = field.data.lower()
-        super().__call__(form, field)
-
 
 def ends_with_atom_or_git(form: forms.Form, field: wtforms.Field) -> None:
     field_value = typing.cast(str, field.data).lower()
@@ -123,6 +42,14 @@ class GitLabPublisherBase(forms.Form):
                 message=_("Specify GitLab namespace (username or group/subgroup)"),
             ),
             ends_with_atom_or_git,
+            wtforms.validators.Regexp(
+                _VALID_GITLAB_NAMESPACE,
+                message=_("Invalid GitLab username or group/subgroup name."),
+            ),
+            wtforms.validators.Regexp(
+                _CONSECUTIVE_SPECIAL_CHARACTERS,
+                message=_("Invalid GitLab username or group/subgroup name."),
+            ),
         ]
     )
 
@@ -130,7 +57,6 @@ class GitLabPublisherBase(forms.Form):
         validators=[
             wtforms.validators.InputRequired(message=_("Specify project name")),
             ends_with_atom_or_git,
-            CaseInsensitiveNonOf(values=_GITLAB_RESERVED_PROJECT_NAMES),
             wtforms.validators.Regexp(
                 _VALID_GITLAB_PROJECT, message=_("Invalid project name")
             ),
@@ -173,35 +99,6 @@ class GitLabPublisherBase(forms.Form):
         if workflow_filepath.startswith("/") or workflow_filepath.endswith("/"):
             raise wtforms.validators.ValidationError(
                 _("Top-level pipeline file path cannot start or end with /")
-            )
-
-    def validate_namespace(self, field):
-        group: str = field.data.lower()
-        if count := group.count("/"):
-            if count != 1:
-                raise wtforms.validators.ValidationError(
-                    _("Invalid GitLab username or group/subgroup name.")
-                )
-            group, subgroup = group.split("/")
-
-            if subgroup in _GITLAB_RESERVED_SUBGROUP_NAMES:
-                raise wtforms.validators.ValidationError(
-                    _("Invalid GitLab username or group/subgroup name.")
-                )
-
-        if group in _GITLAB_RESERVED_GROUP_NAMES:
-            raise wtforms.validators.ValidationError(
-                _("Invalid GitLab username or group/subgroup name.")
-            )
-
-        if not _VALID_GITLAB_NAMESPACE.match(group):
-            raise wtforms.validators.ValidationError(
-                _("Invalid GitLab username or group/subgroup name.")
-            )
-
-        if not _CONSECUTIVE_SPECIAL_CHARACTERS.match(group):
-            raise wtforms.validators.ValidationError(
-                _("Invalid GitLab username or group/subgroup name.")
             )
 
     @property

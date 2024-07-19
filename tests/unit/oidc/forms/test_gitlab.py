@@ -118,7 +118,7 @@ class TestGitLabPublisherForm:
 
     @pytest.mark.parametrize(
         "project_name",
-        ["badges", "BaDGes", "-", "invalid.git", "invalid.atom", "invalid--project"],
+        ["invalid.git", "invalid.atom", "invalid--project"],
     )
     def test_reserved_project_names(self, project_name):
 
@@ -136,15 +136,9 @@ class TestGitLabPublisherForm:
     @pytest.mark.parametrize(
         "namespace",
         [
-            "admin",
-            "dashBoarD",
-            "-",
             "invalid.git",
             "invalid.atom",
             "consecutive--special-characters",
-            "too/many/subgroups",
-            "invalid-subgroup-name/-",
-            "404.html/subgroup",
             "must-end-with-non-special-characters-",
         ],
     )
