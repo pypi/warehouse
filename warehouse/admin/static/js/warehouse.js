@@ -103,13 +103,18 @@ document.querySelectorAll(".btn-group[data-input][data-state]").forEach(function
 
 // Copy handler for copying text, e.g.
 //   - prohibited project names confirmation page
+//   - user account recoveries
 //
 document.querySelectorAll(".copy-text").forEach(function (element) {
-  function copy(text, target) {
+  $(element).tooltip({ title: "Click to copy!" });
+  function copy(text) {
     setTimeout(function () {
-      $("#copied_tip").remove();
+      $(element).tooltip("hide")
+        .attr("data-original-title", "Click to copy!");
     }, 1000);
-    $(target).append("<div class='tip' id='copied_tip'>Copied!</div>");
+    $(element).tooltip("hide")
+      .attr("data-original-title", "Copied!")
+      .tooltip("show");
     navigator.clipboard.writeText(text);
   }
 
@@ -185,3 +190,40 @@ if (malwareReportsTable.length) {
   new $.fn.dataTable.Buttons(table, {buttons: ["copy", "csv", "colvis"]});
   table.buttons().container().appendTo($(".col-md-6:eq(0)", table.table().container()));
 }
+
+// Link Checking
+const links = document.querySelectorAll("a[data-check-link-url]");
+links.forEach(function(link){
+  let reportLine = {bareUrl: link.href, url: link.dataset.checkLinkUrl, status:0, element : link};
+  fetch(reportLine.url, {
+    method: "GET",
+    mode: "cors",
+  })
+    .then(function(response) {
+      let responseText = "";
+      response.text().then((text) => {
+        responseText = text;
+        console.log(response.status, responseText);
+        if (response.status === 400 && responseText === "Unsupported content-type returned\n") {
+          reportLine.element.firstChild.classList.remove("fa-question");
+          reportLine.element.firstChild.classList.add("fa-check");
+          reportLine.element.firstChild.classList.add("text-green");
+          reportLine.status = 1;
+        } else {
+          reportLine.status = 0;
+          reportLine.element.firstChild.classList.remove("fa-question");
+          reportLine.element.firstChild.classList.add("fa-times");
+          reportLine.element.firstChild.classList.add("text-red");
+        }
+        console.log(reportLine);
+      });
+    })
+    .catch(function(error) {
+      reportLine.status = -1;
+      console.log(error);
+      console.log(reportLine);
+      reportLine.element.firstChild.classList.remove("fa-question");
+      reportLine.element.firstChild.classList.add("fa-times");
+      reportLine.element.firstChild.classList.add("text-red");
+    });
+});
