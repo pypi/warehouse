@@ -19,6 +19,8 @@ import shlex
 
 from datetime import timedelta
 
+import platformdirs
+
 import orjson
 import transaction
 
@@ -241,6 +243,11 @@ def from_base64_encoded_json(configuration):
 
 
 def configure(settings=None):
+    # Sanity check: regardless of what we're configuring, some of Warehouse's
+    # application state depends on a handful of XDG directories existing.
+    platformdirs.user_data_dir(ensure_exists=True)
+    platformdirs.user_cache_dir(ensure_exists=True)
+
     if settings is None:
         settings = {}
     settings["warehouse.forklift.legacy.MAX_FILESIZE_MIB"] = MAX_FILESIZE / ONE_MIB
