@@ -10,6 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import platformdirs
 
 
@@ -20,3 +21,6 @@ def test_xdg_environment():
 
     assert user_data == "/tmp/share"
     assert user_cache == "/tmp/cache"
+
+    assert os.access(user_data, os.R_OK | os.W_OK)
+    assert os.access(user_cache, os.R_OK | os.W_OK)
