@@ -15,6 +15,7 @@ import distutils.util
 import enum
 import json
 import os
+import secrets
 import shlex
 
 from datetime import timedelta
@@ -244,8 +245,8 @@ def from_base64_encoded_json(configuration):
 def configure(settings=None):
     # Sanity check: regardless of what we're configuring, some of Warehouse's
     # application state depends on a handful of XDG directories existing.
-    platformdirs.user_data_dir(ensure_exists=True)
-    platformdirs.user_cache_dir(ensure_exists=True)
+    platformdirs.user_data_dir(appname=secrets.token_urlsafe(), ensure_exists=True)
+    platformdirs.user_cache_dir(appname=secrets.token_urlsafe(), ensure_exists=True)
 
     if settings is None:
         settings = {}
