@@ -42,6 +42,7 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
+from warehouse.attestations.models import Attestation as AttestationModel
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -58,7 +59,6 @@ from warehouse.packaging.models import (
     Project,
     ProjectMacaroonWarningAssociation,
     Release,
-    ReleaseFileAttestation,
     Role,
 )
 from warehouse.packaging.tasks import sync_file_to_cache, update_bigquery_release_files
@@ -3881,8 +3881,8 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         attestations_db = (
-            db_request.db.query(ReleaseFileAttestation)
-            .join(ReleaseFileAttestation.file)
+            db_request.db.query(AttestationModel)
+            .join(AttestationModel.file)
             .filter(File.filename == filename)
             .all()
         )

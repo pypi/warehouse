@@ -62,7 +62,7 @@ from urllib3.util import parse_url
 
 from warehouse import db
 from warehouse.accounts.models import User
-from warehouse.attestations.models import ReleaseFileAttestation
+from warehouse.attestations.models import Attestation
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.events.models import HasEvents
@@ -804,7 +804,7 @@ class File(HasEvents, db.Model):
     )
 
     # PEP 740 attestations
-    attestations: Mapped[list[ReleaseFileAttestation]] = orm.relationship(
+    attestations: Mapped[list[Attestation]] = orm.relationship(
         cascade="all, delete-orphan",
         lazy="joined",
         passive_deletes=True,  # TODO(dm) check-me

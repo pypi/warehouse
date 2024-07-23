@@ -13,14 +13,14 @@ import hashlib
 
 import factory
 
-from warehouse.attestations.models import ReleaseFileAttestation
+from warehouse.attestations.models import Attestation
 
 from .base import WarehouseFactory
 
 
 class ReleaseAttestationsFactory(WarehouseFactory):
     class Meta:
-        model = ReleaseFileAttestation
+        model = Attestation
 
     file = factory.SubFactory("tests.common.db.packaging.FileFactory")
     attestation_file_sha256_digest = factory.LazyAttribute(

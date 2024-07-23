@@ -51,7 +51,7 @@ from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.attestations.models import ReleaseFileAttestation
+from warehouse.attestations.models import Attestation as AttestationModel
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
@@ -1408,7 +1408,7 @@ def _store_attestations(request, file: File, attestations: list[Attestation]):
             )
 
             release_file_attestations.append(
-                ReleaseFileAttestation(
+                AttestationModel(
                     file=file,
                     attestation_file_sha256_digest=attestation_digest,
                 )

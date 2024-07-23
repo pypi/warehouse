@@ -26,9 +26,9 @@ if typing.TYPE_CHECKING:
     from warehouse.packaging.models import File
 
 
-class ReleaseFileAttestation(db.Model):
+class Attestation(db.Model):
     """
-    Association table between Release Files and Attestations.
+    Table used to store Attestations.
 
     Attestations are stored on disk along the release files (and their
     associated metadata). We keep in database only the attestation hash.

@@ -20,7 +20,7 @@ from pyramid_jinja2 import IJinja2Environment
 from sqlalchemy.orm import joinedload
 
 from warehouse.attestations._core import get_provenance_digest
-from warehouse.attestations.models import ReleaseFileAttestation
+from warehouse.attestations.models import Attestation
 from warehouse.packaging.interfaces import ISimpleStorage
 from warehouse.packaging.models import File, Project, Release
 
@@ -47,7 +47,7 @@ def _simple_detail(project, request):
         request.db.query(File)
         .options(joinedload(File.release))
         .join(Release)
-        .join(ReleaseFileAttestation)
+        .join(Attestation)
         .filter(Release.project == project)
         .all(),
         key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
