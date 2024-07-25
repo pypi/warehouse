@@ -1914,9 +1914,9 @@ requests==2.32.3 \
     #   sigstore
     #   stripe
     #   tuf
-requests-aws4auth==1.2.3 \
-    --hash=sha256:8070a5207e95fa5fe88e87d9a75f34e768cbab35bb3557ef20cbbf9426dee4d5 \
-    --hash=sha256:d4c73c19f37f80d4aa9c5bd4fa376cfd0c69299c48b00a8eb2ae6b0416164fb8
+requests-aws4auth==1.3.1 \
+    --hash=sha256:2969b5379ae6e60ee666638caf6cb94a32d67033f6bfcf0d50c95cd5474f2419 \
+    --hash=sha256:b6ad4882310e03ba2538ebf94d1f001ca9feabc5c52618539cf1eb6d5af76791
     # via -r requirements/main.in
 rfc3339-validator==0.1.4 \
     --hash=sha256:138a2abdf93304ad60530167e51d2dfb9549521a836871b88d7f4695d0022f6b \
@@ -2083,7 +2083,6 @@ six==1.16.0 \
     #   opensearch-py
     #   pymacaroons
     #   python-dateutil
-    #   requests-aws4auth
     #   rfc3339-validator
 sqlalchemy[asyncio]==2.0.31 \
     --hash=sha256:0b0f658414ee4e4b8cbcd4a9bb0fd743c5eeb81fc858ca517217a8013d282c96 \
