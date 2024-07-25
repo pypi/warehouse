@@ -61,6 +61,7 @@ from warehouse.packaging.models import (
     ReleaseClassifiers,
 )
 from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
+from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.http import is_safe_url
 from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
@@ -94,12 +95,17 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(
+                body="404 Not Found",
+                content_type="text/plain",
+                headers=_CORS_HEADERS,
+            )
         elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
             response = HTTPNotFound(
                 body='{"message": "Not Found"}',
                 charset="utf-8",
                 content_type="application/json",
+                headers=_CORS_HEADERS,
             )
         else:
             response = render_to_response(
@@ -118,6 +124,7 @@ def httpexception_view(exc, request):
     response.headers.extend(
         (k, v) for k, v in exc.headers.items() if k not in response.headers
     )
+    response.headers.extend(_CORS_HEADERS)
 
     return response
 

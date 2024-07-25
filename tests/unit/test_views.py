@@ -30,6 +30,7 @@ from webob.multidict import MultiDict
 from warehouse import views
 from warehouse.errors import WarehouseDenied
 from warehouse.packaging.models import ProjectFactory as DBProjectFactory
+from warehouse.utils.cors import _CORS_HEADERS
 from warehouse.utils.row_counter import compute_row_counts
 from warehouse.views import (
     SecurityKeyGiveaway,
@@ -58,6 +59,12 @@ from ..common.db.classifiers import ClassifierFactory
 from ..common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
+def _assert_has_cors_headers(headers):
+    for k, v in _CORS_HEADERS.items():
+        assert k in headers
+        assert headers[k] == v
+
+
 class TestHTTPExceptionView:
     def test_returns_context_when_no_template(self, pyramid_config):
         pyramid_config.testing_add_renderer("non-existent.html")
@@ -80,6 +87,7 @@ class TestHTTPExceptionView:
 
         assert response.status_code == status_code
         assert response.status == f"{status_code} My Cool Status"
+        _assert_has_cors_headers(response.headers)
         renderer.assert_()
 
     @pytest.mark.parametrize("status_code", [403, 404, 410, 500])
@@ -97,6 +105,7 @@ class TestHTTPExceptionView:
         assert response.status_code == status_code
         assert response.status == f"{status_code} My Cool Status"
         assert response.headers["Foo"] == "Bar"
+        _assert_has_cors_headers(response.headers)
         renderer.assert_()
 
     def test_renders_404_with_csp(self, pyramid_config):
@@ -117,6 +126,7 @@ class TestHTTPExceptionView:
             "frame-src": ["https://www.youtube-nocookie.com"],
             "script-src": ["https://www.youtube.com", "https://s.ytimg.com"],
         }
+        _assert_has_cors_headers(response.headers)
         renderer.assert_()
 
     def test_simple_404(self):
@@ -132,6 +142,7 @@ class TestHTTPExceptionView:
             assert response.status == "404 Not Found"
             assert response.content_type == "text/plain"
             assert response.text == "404 Not Found"
+            _assert_has_cors_headers(response.headers)
 
     def test_json_404(self):
         csp = {}
@@ -149,6 +160,7 @@ class TestHTTPExceptionView:
             assert response.status == "404 Not Found"
             assert response.content_type == "application/json"
             assert response.text == '{"message": "Not Found"}'
+            _assert_has_cors_headers(response.headers)
 
     def test_context_is_project(self, pyramid_config, monkeypatch):
         csp = {}
@@ -342,6 +354,7 @@ class TestServiceUnavailableView:
         assert resp.status_code == 503
         assert resp.content_type == "text/html"
         assert resp.body == b"A 503 Error"
+        _assert_has_cors_headers(resp.headers)
 
 
 def test_robotstxt(pyramid_request):

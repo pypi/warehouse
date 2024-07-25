@@ -17,6 +17,7 @@ from pyramid.httpexceptions import HTTPMovedPermanently, HTTPNotFound
 
 from warehouse.legacy.api import json
 from warehouse.packaging.models import ReleaseURL
+from warehouse.utils.cors import _CORS_HEADERS
 
 from ....common.db.accounts import UserFactory
 from ....common.db.integrations import VulnerabilityRecordFactory
@@ -30,14 +31,9 @@ from ....common.db.packaging import (
 
 
 def _assert_has_cors_headers(headers):
-    assert headers["Access-Control-Allow-Origin"] == "*"
-    assert headers["Access-Control-Allow-Headers"] == (
-        "Content-Type, If-Match, If-Modified-Since, If-None-Match, "
-        "If-Unmodified-Since"
-    )
-    assert headers["Access-Control-Allow-Methods"] == "GET"
-    assert headers["Access-Control-Max-Age"] == "86400"
-    assert headers["Access-Control-Expose-Headers"] == "X-PyPI-Last-Serial"
+    for k, v in _CORS_HEADERS.items():
+        assert k in headers
+        assert headers[k] == v
 
 
 class TestLatestReleaseFactory:
