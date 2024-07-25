@@ -42,7 +42,7 @@ import warehouse.constants
 
 from warehouse.accounts.utils import UserContext
 from warehouse.admin.flags import AdminFlag, AdminFlagValue
-from warehouse.attestations.models import Attestation as AttestationModel
+from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.classifiers.models import Classifier
 from warehouse.forklift import legacy, metadata
 from warehouse.macaroons import IMacaroonService, caveats, security_policy
@@ -3881,8 +3881,8 @@ class TestFileUpload:
         assert resp.status_code == 200
 
         attestations_db = (
-            db_request.db.query(AttestationModel)
-            .join(AttestationModel.file)
+            db_request.db.query(DatabaseAttestation)
+            .join(DatabaseAttestation.file)
             .filter(File.filename == filename)
             .all()
         )

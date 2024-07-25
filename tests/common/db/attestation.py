@@ -18,7 +18,7 @@ from warehouse.attestations.models import Attestation
 from .base import WarehouseFactory
 
 
-class ReleaseAttestationsFactory(WarehouseFactory):
+class AttestationFactory(WarehouseFactory):
     class Meta:
         model = Attestation
 

@@ -76,7 +76,7 @@ def generate_provenance_file(
 ) -> tuple[Path, str]:
 
     storage = request.find_service(ISimpleStorage)
-    publisher = Publisher(kind=publisher_url, claims={})  # TODO(dm)
+    publisher = Publisher(kind=publisher_url, claims=request.identity.claims)  # TODO(dm)
 
     attestation_bundle = AttestationBundle(
         publisher=publisher,
