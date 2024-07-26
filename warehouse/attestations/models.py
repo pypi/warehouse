@@ -34,7 +34,7 @@ class Attestation(db.Model):
     associated metadata). We keep in database only the attestation hash.
     """
 
-    __tablename__ = "release_files_attestation"
+    __tablename__ = "attestation"
 
     file_id: Mapped[UUID] = mapped_column(
         ForeignKey("release_files.id", onupdate="CASCADE", ondelete="CASCADE"),
