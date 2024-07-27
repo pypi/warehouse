@@ -1,6 +1,6 @@
 # First things first, we build an image which is where we're going to compile
 # our static assets with. We use this stage in development.
-FROM node:22.4.0-bookworm AS static-deps
+FROM node:22.5.1-bookworm AS static-deps
 
 WORKDIR /opt/warehouse/src/
 
@@ -224,15 +224,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         $(if [ "$DEVEL" = "yes" ]; then echo 'bash libjpeg62 postgresql-client build-essential libffi-dev libxml2-dev libxslt-dev libpq-dev libcurl4-openssl-dev libssl-dev vim oathtool'; fi) \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Warehouse runs as `nobody` with `/nonexistent` as `$HOME`, which causes
-# significant shpilkes for libraries that expect to use XDG dirs.
-# Placate everybody by making some directories for runtime use.
-# Note that this happens right after `/tmp/*` is blown away, because we want
-# to keep these.
-RUN mkdir -p /tmp/share /tmp/cache
-ENV XDG_DATA_HOME /tmp/share
-ENV XDG_CACHE_HOME /tmp/cache
 
 # Copy the directory into the container, this is done last so that changes to
 # Warehouse itself require the least amount of layers being invalidated from
