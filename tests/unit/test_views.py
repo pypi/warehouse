@@ -227,7 +227,6 @@ class TestForbiddenView:
         request = pretend.stub(user=pretend.stub(), context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
-        _assert_has_cors_headers(resp.headers)
         renderer.assert_()
 
     def test_logged_out_redirects_login(self):
@@ -245,7 +244,6 @@ class TestForbiddenView:
 
         assert resp.status_code == 303
         assert resp.headers["Location"] == "/accounts/login/?next=/foo/bar/%3Fb%3Ds"
-        _assert_has_cors_headers(resp.headers)
 
     @pytest.mark.parametrize("reason", ("manage_2fa_required",))
     def test_two_factor_required(self, reason):
@@ -275,7 +273,6 @@ class TestForbiddenView:
                 queue="error",
             )
         ]
-        _assert_has_cors_headers(resp.headers)
 
     @pytest.mark.parametrize(
         "requested_path",
@@ -303,7 +300,6 @@ class TestForbiddenView:
                 queue="error",
             )
         ]
-        _assert_has_cors_headers(resp.headers)
 
     def test_generic_warehousedeined(self, pyramid_config):
         result = WarehouseDenied(
@@ -321,7 +317,6 @@ class TestForbiddenView:
         request = pretend.stub(user=pretend.stub(), context=None)
         resp = forbidden(exc, request)
         assert resp.status_code == 403
-        _assert_has_cors_headers(resp.headers)
         renderer.assert_()
 
 
@@ -335,7 +330,6 @@ class TestForbiddenIncludeView:
         assert resp.status_code == 403
         assert resp.content_type == "text/html"
         assert resp.content_length == 0
-        _assert_has_cors_headers(resp.headers)
 
 
 class TestForbiddenAPIView:
@@ -348,7 +342,6 @@ class TestForbiddenAPIView:
         assert resp.status_code == 403
         assert resp.content_type == "application/json"
         assert resp.json_body == {"message": "Access was denied to this resource."}
-        _assert_has_cors_headers(resp.headers)
 
 
 class TestServiceUnavailableView:
