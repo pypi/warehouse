@@ -1071,7 +1071,7 @@ def file_upload(request):
 
         attestations: list[Attestation] | None = None
         if "attestations" in request.POST:
-            attestations = _process_attestations(
+            attestations = _parse_and_verify_attestations(
                 request=request,
                 distribution=Distribution(name=filename, digest=file_hashes["sha256"]),
             )
@@ -1175,7 +1175,6 @@ def file_upload(request):
         # If the user provided attestations, store them along the release file
         if attestations:
             _store_attestations(request, file_, attestations)
-            # TODO(dm): Add some event?
 
     # Check if the user has any 2FA methods enabled, and if not, email them.
     if request.user and not request.user.has_two_factor:
@@ -1298,7 +1297,9 @@ def missing_trailing_slash_redirect(request):
     )
 
 
-def _process_attestations(request, distribution: Distribution) -> list[Attestation]:
+def _parse_and_verify_attestations(
+    request, distribution: Distribution
+) -> list[Attestation]:
     """
     Process any attestations included in a file upload request
 
@@ -1375,9 +1376,6 @@ def _process_attestations(request, distribution: Distribution) -> list[Attestati
                 f"Attestation with unsupported predicate type: {predicate_type}",
             )
 
-        # Log successful attestation upload
-        metrics.increment("warehouse.upload.attestations.ok")
-
     return attestations
 
 
@@ -1391,8 +1389,9 @@ def _store_attestations(request, file: File, attestations: list[Attestation]):
     TODO(dm): Validate if the 8 hex chars are enough.
     """
     storage = request.find_service(IFileStorage, name="archive")
+    metrics = request.find_service(IMetricsService, context=None)
 
-    release_file_attestations = []
+    attestations_db_models = []
     for attestation in attestations:
 
         with tempfile.NamedTemporaryFile() as tmp_file:
@@ -1407,11 +1406,14 @@ def _store_attestations(request, file: File, attestations: list[Attestation]):
                 meta=None,
             )
 
-            release_file_attestations.append(
+            attestations_db_models.append(
                 DatabaseAttestation(
                     file=file,
                     attestation_file_sha256_digest=attestation_digest,
                 )
             )
 
-    request.db.add_all(release_file_attestations)
+    request.db.add_all(attestations_db_models)
+
+    # Log successful attestation upload
+    metrics.increment("warehouse.upload.attestations.ok")

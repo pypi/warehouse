@@ -3874,7 +3874,9 @@ class TestFileUpload:
             lambda request, distribution: [attestation]
         )
 
-        monkeypatch.setattr(legacy, "_process_attestations", process_attestations)
+        monkeypatch.setattr(
+            legacy, "_parse_and_verify_attestations", process_attestations
+        )
 
         resp = legacy.file_upload(db_request)
 
@@ -3887,6 +3889,10 @@ class TestFileUpload:
             .all()
         )
         assert len(attestations_db) == 1
+
+        assert (
+            pretend.call("warehouse.upload.attestations.ok") in metrics.increments.calls
+        )
 
     @pytest.mark.parametrize(
         "version, expected_version",
