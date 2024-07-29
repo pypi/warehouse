@@ -235,7 +235,7 @@
                   {% trans %}Release history{% endtrans %}
                 </a>
               </li>
-              {% if files and not project.lifecycle_status == "quarantine-enter" %}
+              {% if files %}
               <li role="tab">
                 <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                   <i class="fa fa-download" aria-hidden="true"></i>
@@ -386,7 +386,7 @@
           </div>
         </div>
 
-        {% if files and not project.lifecycle_status == "quarantine-enter" %}
+        {% if files %}
           {# Tab: Downloads #}
           <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
