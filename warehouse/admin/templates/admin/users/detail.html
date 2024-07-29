@@ -312,7 +312,14 @@
                 </tr>
                 <tr>
                   <th>Token</th>
-                  <td>{{ account_recovery.payload["token"] }}</td>
+                  <td>
+                    <span>{{ account_recovery.payload["token"] }}</span>
+                    <button type="button"
+                            class="copy-text"
+                            data-copy-text="{{ account_recovery.payload["token"] }}">
+                      <i class="fa fa-copy" aria-hidden="true"></i>
+                    </button>
+                  </td>
                 </tr>
                 <tr>
                   <th>Project URLS</th>
