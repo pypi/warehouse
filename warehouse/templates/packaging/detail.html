@@ -298,6 +298,11 @@
                   and cannot be being modified by its maintainers.
                 {% endtrans %}
               </p>
+              <p>
+                {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+                  Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+                {% endtrans %}
+              </p>
             </div>
           {% elif release.yanked and release.yanked_reason %}
             <div class="callout-block callout-block--danger">
