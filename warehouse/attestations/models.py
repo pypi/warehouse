@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import typing
 
+from pathlib import Path
 from uuid import UUID
 
 from sqlalchemy import ForeignKey, orm
@@ -30,8 +31,7 @@ class Attestation(db.Model):
     """
     Table used to store Attestations.
 
-    Attestations are stored on disk along the release files (and their
-    associated metadata). We keep in database only the attestation hash.
+    Attestations are stored on disk. We keep in database only the attestation hash.
     """
 
     __tablename__ = "attestation"
@@ -45,4 +45,11 @@ class Attestation(db.Model):
 
     @hybrid_property
     def attestation_path(self):
-        return f"{self.file.path}.{self.attestation_file_sha256_digest[:8]}.attestation"
+        return "/".join(
+            [
+            self.attestation_file_sha256_digest[:2],
+            self.attestation_file_sha256_digest[2:4],
+            self.attestation_file_sha256_digest[4:],
+            f"{Path(self.file.path).name}.attestation",
+            ]
+        )

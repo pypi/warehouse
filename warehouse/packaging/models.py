@@ -807,7 +807,7 @@ class File(HasEvents, db.Model):
     attestations: Mapped[list[Attestation]] = orm.relationship(
         cascade="all, delete-orphan",
         lazy="joined",
-        passive_deletes=True,  # TODO(dm) check-me
+        passive_deletes=True,
     )
 
     @property

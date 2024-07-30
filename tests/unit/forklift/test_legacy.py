@@ -3891,7 +3891,7 @@ class TestFileUpload:
         assert len(attestations_db) == 1
 
         assert (
-            pretend.call("warehouse.upload.attestations.ok") in metrics.increments.calls
+            pretend.call("warehouse.upload.attestations.ok") in metrics.increment.calls
         )
 
     @pytest.mark.parametrize(
