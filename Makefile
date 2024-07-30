@@ -14,7 +14,7 @@ endif
 # confusion.
 ifneq ($(T),)
 ifeq ($(TESTARGS),)
-		TESTARGS = -n 0
+	TESTARGS = -n 0
 endif
 endif
 
