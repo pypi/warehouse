@@ -93,9 +93,10 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
     fakeblake2b = pretend.call_recorder(lambda *a, **kw: fake_hasher)
     monkeypatch.setattr(hashlib, "blake2b", fakeblake2b)
 
+    expected_size = 42
     fake_named_temporary_file = pretend.stub(
         name="/tmp/wutang",
-        write=pretend.call_recorder(lambda data: 42),
+        write=pretend.call_recorder(lambda data: expected_size),
         flush=pretend.call_recorder(lambda: None),
     )
 
@@ -154,4 +155,4 @@ def test_render_simple_detail_with_store(db_request, monkeypatch, jinja):
         f"{project.normalized_name}/deadbeefdeadbeefdeadbeefdeadbeef"
         + f".{project.normalized_name}.html"
     )
-    assert size == 42
+    assert size == expected_size
