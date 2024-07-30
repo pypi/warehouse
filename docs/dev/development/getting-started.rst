@@ -692,7 +692,8 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
 
-You can also add arguments to the test runner by using the ``TESTARGS`` variable:
+You can also add arguments to the test runner by using the ``TESTARGS``
+variable:
 
 .. code-block:: console
 
