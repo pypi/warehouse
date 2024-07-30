@@ -300,6 +300,10 @@ class TestProject:
 
             acls.extend(acl)
 
+        _perms_read_and_upload = [
+            Permissions.ProjectsRead,
+            Permissions.ProjectsUpload,
+        ]
         assert acls == [
             (
                 Allow,
@@ -345,16 +349,16 @@ class TestProject:
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{owner1.user.id}", [Permissions.ProjectsRead]),
-                (Allow, f"user:{owner2.user.id}", [Permissions.ProjectsRead]),
-                (Allow, f"user:{owner3.user.id}", [Permissions.ProjectsRead]),
-                (Allow, f"user:{owner4.user.id}", [Permissions.ProjectsRead]),
+                (Allow, f"user:{owner1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner2.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner3.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{owner4.user.id}", _perms_read_and_upload),
             ],
             key=lambda x: x[1],
         ) + sorted(
             [
-                (Allow, f"user:{maintainer1.user.id}", [Permissions.ProjectsRead]),
-                (Allow, f"user:{maintainer2.user.id}", [Permissions.ProjectsRead]),
+                (Allow, f"user:{maintainer1.user.id}", _perms_read_and_upload),
+                (Allow, f"user:{maintainer2.user.id}", _perms_read_and_upload),
             ],
             key=lambda x: x[1],
         )
