@@ -69,9 +69,9 @@
 
 {% macro email_row(email) -%}
   <tr>
-    <th class="table__email" scope="row">
+    <td class="table__email" scope="row">
       {{ email.email }}
-    </th>
+    </td>
     <td>
       <span class="table__status-badges">
         {% if email.primary %}
@@ -141,10 +141,10 @@
     </th>
     <td>
       <span class="table__mobile-label">{% trans %}Scope{% endtrans %}</span>
-      {% if macaroon.caveats.get("permissions") == 'user' %}
+      {% if macaroon.permissions_caveat.permissions == 'user' %}
       {% trans %}All projects{% endtrans %}
       {% else %}
-        {% for project in macaroon.caveats.get("permissions")['projects'] %}
+        {% for project in macaroon.permissions_caveat.get("permissions")['projects'] %}
         <a href="{{ request.route_path('packaging.project', name=project) }}">{{ project }}</a>
         {% endfor %}
       {% endif %}
@@ -225,7 +225,7 @@
       <img src="{{ gravatar(request, user.email, size=140) }}" alt="{{ alt }}" title="{{ alt }}" class="gravatar-form__image">
       <div class="gravatar-form__content">
         <p>
-        {% trans trimmed href='https://gravatar.com/', title=gettext('External link')%}
+        {% trans href='https://gravatar.com/', title=gettext('External link')%}
           We use
           <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">gravatar.com</a>
           to generate your profile picture based on your primary email address
@@ -254,7 +254,7 @@
       </p>
       {% endif %}
       <p class="form-group__help-text">
-        {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+        {% trans href=request.route_path('accounts.profile', username=user.username) %}
           Displayed on your <a href="{{ href }}">public profile</a>. Cannot be changed.
         {% endtrans %}
       </p>
@@ -270,12 +270,19 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ save_account_form.name(placeholder=gettext("No name set"), autocomplete="name", autocapitalize="off", spellcheck="false", class_="form-group__field", **{"aria-describedby":"full-name-errors"}) }}
+        {{ save_account_form.name(
+            placeholder=gettext("No name set"),
+            autocomplete="name",
+            autocapitalize="off",
+            spellcheck="false",
+            class_="form-group__field",
+            aria_describedby="full-name-errors",
+        ) }}
         <div id="full-name-errors">
           {{ field_errors(save_account_form.name) }}
         </div>
         <p class="form-group__help-text">
-          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+          {% trans href=request.route_path('accounts.profile', username=user.username) %}
             Displayed on your <a href="{{ href }}">public profile</a>
           {% endtrans %}
         </p>
@@ -288,13 +295,16 @@
           {% endif %}
         </label>
         <p class="form-group__text">
-          {{ save_account_form.public_email(class_="form-group__field", **{"aria-secribedby":"public-email-errors"}) }}
+          {{ save_account_form.public_email(
+              class_="form-group__field",
+              aria_describedby="public-email-errors",
+          ) }}
         </p>
         <div id="public-email-errors">
           {{ field_errors(save_account_form.public_email) }}
         </div>
         <p class="form-group__help-text">
-          {% trans trimmed href=request.route_path('accounts.profile', username=user.username) %}
+          {% trans href=request.route_path('accounts.profile', username=user.username) %}
             One of your verified emails can be displayed on your <a href="{{ href }}">public profile</a> to logged-in users.
           {% endtrans %}
         </p>
@@ -344,7 +354,14 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}
           </span>{% endif %}
         </label>
-        {{ add_email_form.email(placeholder=gettext("Your email address"), autocomplete="email", spellcheck="false", required="required", class_="form-group__field", **{"aria-describedby":"add-email-errors"}) }}
+        {{ add_email_form.email(
+            placeholder=gettext("Your email address"),
+            autocomplete="email",
+            spellcheck="false",
+            required="required",
+            class_="form-group__field",
+            aria_describedby="add-email-errors",
+        ) }}
         <div id="add-email-errors">
           {{ field_errors(add_email_form.email) }}
         </div>
@@ -370,11 +387,19 @@
             {% endif %}
           </label>
           <label for="show-password">
-            <input data-action="change->password#togglePasswords" data-target="password.showPassword"
+            <input data-action="change->password#togglePasswords" data-password-target="showPassword"
               id="show-password" type="checkbox">&nbsp;{% trans %}Show passwords{% endtrans %}
           </label>
         </div>
-        {{ change_password_form.password(placeholder=gettext("Your current password"), required="required", autocomplete="current-password", spellcheck="false", class_="form-group__field", data_target="password.password", **{"aria-describedby":"current-password-errors"}) }}
+        {{ change_password_form.password(
+          placeholder=gettext("Your current password"),
+          required="required",
+          autocomplete="current-password",
+          spellcheck="false",
+          class_="form-group__field",
+          data_password_target="password",
+          aria_describedby="current-password-errors",
+        ) }}
         <div id="current-password-errors">
           {{ field_errors(change_password_form.password) }}
         </div>
@@ -388,12 +413,23 @@
         </label>
         {# the password field needs to be wrapped in a div to properly place tooltips #}
         <div>
-          {{ change_password_form.new_password(placeholder=gettext("Select a new password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch password-strength-gauge.password", data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength", **{"aria-describedby":"new-password-errors"}) }}
+          {{ change_password_form.new_password(
+            placeholder=gettext("Select a new password"),
+            required="required",
+            autocomplete="new-password",
+            spellcheck="false",
+            class_="form-group__field",
+            data_password_target="password",
+            data_password_match_target="passwordMatch",
+            data_password_strength_gauge_target="password",
+            data_action="input->password-match#checkPasswordsMatch input->password-strength-gauge#checkPasswordStrength",
+            aria_describedby="new-password-errors",
+          ) }}
         </div>
         <div id="new-password-errors">
           {{ field_errors(change_password_form.new_password) }}
         </div>
-        {{ password_strength_gauge(data_target="password-strength-gauge.strengthGauge") }}
+        {{ password_strength_gauge(data_password_strength_gauge_target="strengthGauge") }}
       </div>
       <div class="form-group">
         <label class="form-group__label" for="name">
@@ -402,18 +438,28 @@
           <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
           {% endif %}
         </label>
-        {{ change_password_form.password_confirm(placeholder=gettext("Confirm password"), required="required", autocomplete="new-password", spellcheck="false", class_="form-group__field", data_target="password.password password-match.passwordMatch", data_action="input->password-match#checkPasswordsMatch", **{"aria-describedby":"confirm-password-errors"}) }}
+        {{ change_password_form.password_confirm(
+          placeholder=gettext("Confirm password"),
+          required="required",
+          autocomplete="new-password",
+          spellcheck="false",
+          class_="form-group__field",
+          data_password_target="password",
+          data_password_match_target="passwordMatch",
+          data_action="input->password-match#checkPasswordsMatch",
+          aria_describedby="confirm-password-errors",
+        ) }}
         <div id="confirm-password-errors">
           {{ field_errors(change_password_form.password_confirm) }}
         </div>
       </div>
       <div class="form-group">
         <ul class="form-errors">
-          <li data-target="password-match.matchMessage" class="hidden"></li>
+          <li data-password-match-target="matchMessage" class="hidden"></li>
         </ul>
       </div>
       <div>
-        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-target="password-match.submit">
+        <input value="{% trans %}Update password{% endtrans %}" class="button button--primary" type="submit" data-password-match-target="submit">
       </div>
     </form>
   </section>
@@ -458,14 +504,40 @@
   <section id="account-events">
     <h2>{% trans %}Security history{% endtrans %}</h2>
 
-    {% set recent_events = user.recent_events %}
+    {% set role_strings = {
+      EventTag.Account.RoleAdd: 'Role added',
+      EventTag.Account.RoleChange: 'Role changed',
+      EventTag.Account.RoleDeclineInvite: 'Role invitation declined',
+      EventTag.Account.RoleInvite: 'Invited to role',
+      EventTag.Account.RoleRemove: 'Role removed',
+      EventTag.Account.RoleRevokeInvite: 'Role invitation revoked'
+    } %}
+
+    {% set team_role_strings = {
+      EventTag.Account.TeamRoleAdd: 'Team role added',
+      EventTag.Account.TeamRoleRemove: 'Team role removed'
+    } %}
+
+    {% set recent_events = user.recent_events.all() %}
     {% if recent_events|length > 0 %}
 
+    {% macro caveat_detail(caveat) -%}
+      {% if "permissions" in caveat %}
+        {% if caveat.permissions == "user" %}
+          {% trans %}Token scope: entire account{% endtrans %}
+        {% else %}
+          {% trans project_name=caveat.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+        {% endif %}
+      {% elif "exp" in caveat %}
+        {% trans exp=humanize(caveat.exp) %}Expires: {{ exp }}{% endtrans %}
+      {% endif %}
+    {%- endmacro %}
+
     {% macro event_summary(event) -%}
-      {% if event.tag == "account:create" %}
+      {% if event.tag == EventTag.Account.AccountCreate %}
       <strong>{% trans %}Account created{% endtrans %}</strong>
 
-      {% elif event.tag == "account:login:success" %}
+      {% elif event.tag == EventTag.Account.LoginSuccess %}
       <strong>{% trans %}Logged in{% endtrans %}</strong><br>
       <small>
         {% trans %}Two factor method:{% endtrans %}
@@ -480,7 +552,7 @@
         {% endif %}
       </small>
 
-      {% elif event.tag == "account:login:failure" %}
+      {% elif event.tag == EventTag.Account.LoginFailure %}
       <strong>{% trans %}Login failed{% endtrans %}</strong>
       {% if event.additional.auth_method %}
         {% if event.additional.auth_method == "basic" %}
@@ -516,19 +588,19 @@
         {% endif %}
       </small>
 
-      {% elif event.tag  == "account:email:add" %}
+      {% elif event.tag  == EventTag.Account.EmailAdd %}
       <strong>{% trans %}Email added to account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:remove" %}
+      {% elif event.tag  == EventTag.Account.EmailRemove %}
       <strong>{% trans %}Email removed from account{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:verified" %}
+      {% elif event.tag  == EventTag.Account.EmailVerified %}
       <strong>{% trans %}Email verified{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:reverify" %}
+      {% elif event.tag  == EventTag.Account.EmailReverify %}
       <strong>{% trans %}Email reverified{% endtrans %}</strong><br>
       <small>{{ event.additional.email }}</small>
-      {% elif event.tag  == "account:email:primary:change" %}
+      {% elif event.tag  == EventTag.Account.EmailPrimaryChange %}
         {% if event.additional.old_primary %}
         <strong>{% trans %}Primary email changed{% endtrans %}</strong><br>
         <small>
@@ -541,7 +613,7 @@
           {{ event.additional.new_primary }}
         </small>
         {% endif %}
-      {% elif event.tag == "account:email:sent" %}
+      {% elif event.tag == EventTag.Account.EmailSent %}
       <strong>{% trans %}Email sent{% endtrans %}</strong><br>
       <small>
         {% trans %}From:{% endtrans %} <span class="table__monospace">{{ event.additional.from_ }}</span><br>
@@ -549,16 +621,27 @@
         {% trans %}Subject:{% endtrans %} <span class="table__monospace">{{event.additional.subject}}</span>
       </small>
 
-      {% elif event.tag  == "account:password:reset:request" %}
+      {% elif event.tag  == EventTag.Account.PasswordResetRequest %}
       <strong>{% trans %}Password reset requested{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:reset:attempt" %}
+      {% elif event.tag  == EventTag.Account.PasswordResetAttempt %}
       <strong>{% trans %}Password reset attempted{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:reset" %}
+      {% elif event.tag  == EventTag.Account.PasswordReset %}
       <strong>{% trans %}Password successfully reset{% endtrans %}</strong>
-      {% elif event.tag  == "account:password:change" %}
+      {% elif event.tag  == EventTag.Account.PasswordChange %}
       <strong>{% trans %}Password successfully changed{% endtrans %}</strong>
+      {% elif event.tag == EventTag.Account.PasswordDisabled %}
+      <strong>{% trans %}Password disabled{% endtrans %}</strong>
 
-      {% elif event.tag  == "account:two_factor:method_added" %}
+      {% elif event.tag == EventTag.Account.PendingOIDCPublisherAdded %}
+      <strong>Pending trusted publisher added</strong>
+      <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
+      {{ oidc_audit_event(event) }}
+
+      {% elif event.tag == EventTag.Account.PendingOIDCPublisherRemoved %}
+      <strong>Pending trusted publisher removed</strong>
+      <small>{% trans %}Project:{% endtrans %} {{ event.additional.project }}</small>
+      {{ oidc_audit_event(event) }}
+      {% elif event.tag  == EventTag.Account.TwoFactorMethodAdded %}
       <strong>{% trans %}Two factor authentication added{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
@@ -568,7 +651,7 @@
           {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% endif %}
       </small>
-      {% elif event.tag  == "account:two_factor:method_removed" %}
+      {% elif event.tag  == EventTag.Account.TwoFactorMethodRemoved %}
       <strong>{% trans %}Two factor authentication removed{% endtrans %}</strong><br>
       <small>
         {% if event.additional.method == "webauthn" %}
@@ -578,37 +661,47 @@
           {% trans %}Method: Authentication application (<abbr title="time-based one-time password">TOTP</abbr>){% endtrans %}
         {% endif %}
       </small>
+      {% elif event.tag == EventTag.Account.TwoFactorDeviceRemembered %}
+      <strong>{% trans %}Two factor device remembered{% endtrans %}</strong>
 
-      {% elif event.tag == "account:recovery_codes:generated" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesGenerated %}
       <strong>{% trans %}Recovery codes generated{% endtrans %}</strong><br>
       <small>
       </small>
-      {% elif event.tag == "account:recovery_codes:regenerated" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesRegenerated %}
       <strong>{% trans %}Recovery codes regenerated{% endtrans %}</strong><br>
       <small>
       </small>
-      {% elif event.tag == "account:recovery_codes:used" %}
+      {% elif event.tag == EventTag.Account.RecoveryCodesUsed %}
       <strong>{% trans %}Recovery code used for login{% endtrans %}</strong><br>
       <small>
       </small>
 
 
-      {% elif event.tag  == "account:api_token:added" %}
+      {% elif event.tag  == EventTag.Account.APITokenAdded %}
       <strong>{% trans %}API token added{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
-        {% if event.additional.caveats.permissions == "user" %}
-          {% trans %}Token scope: entire account{% endtrans %}
+        {#
+          NOTE: Old events contain a single caveat dictionary, rather than a list of caveats.
+
+          This check can be deleted roughly 90 days after merge, since events older than
+          90 days are not presented to the user.
+        #}
+        {% if event.additional.caveats is mapping %}
+          {{ caveat_detail(event.additional.caveats) }}
         {% else %}
-          {% trans project_name=event.additional.caveats.permissions.projects[0] %}Token scope: Project {{ project_name }}{% endtrans %}
+          {% for caveat in event.additional.caveats %}
+            {{ caveat_detail(caveat) }}
+          {% endfor %}
         {% endif %}
       </small>
 
-      {% elif event.tag  == "account:api_token:removed" %}
+      {% elif event.tag  == EventTag.Account.APITokenRemoved %}
       <strong>{% trans %}API token removed{% endtrans %}</strong><br>
       <small>{% trans %}Unique identifier:{% endtrans %} {{ event.additional.macaroon_id }}</small>
 
-      {% elif event.tag  == "account:api_token:removed_leak" %}
+      {% elif event.tag  == EventTag.Account.APITokenRemovedLeak %}
       <strong>{% trans %}API token automatically removed for security reasons{% endtrans %}</strong><br>
       <small>
         {% trans %}Token name:{% endtrans %} {{ event.additional.description }}<br>
@@ -621,13 +714,63 @@
         {% trans public_url=event.additional.public_url %}Reason: Token found at <a href="{{ public_url }}">public url</a>{% endtrans %}
       </small>
 
+      {% elif event.tag == EventTag.Account.OrganizationRoleInvite %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invited to join <a href="{{ href }}">{{ organization_name }}</a>{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleDeclineInvite %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invitation to join <a href="{{ href }}">{{ organization_name }}</a> declined{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleRevokeInvite %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invitation to join <a href="{{ href }}">{{ organization_name }}</a> revoked{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleExpireInvite %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Invitation to join <a href="{{ href }}">{{ organization_name }}</a> expired{% endtrans %}
+      </strong>
+
+
+      {% elif event.tag == EventTag.Account.OrganizationRoleAdd %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Role in <a href="{{ href }}">{{ organization_name }}</a> added{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleChange %}
+      <strong>
+        {% trans href=request.route_path('organizations.profile', organization=event.additional.organization_name), organization_name=event.additional.organization_name, role_name=event.additional.role_name|lower %}Role in <a href="{{ href }}">{{ organization_name }}</a> changed{% endtrans %}
+      </strong>
+      {% elif event.tag == EventTag.Account.OrganizationRoleRemove %}
+      <strong>{% trans %}Organization role removed{% endtrans %}</strong>
+      <small>
+        {% trans project_name=event.additional.project_name, role_name=event.additional.role_name|lower %}
+        Project: {{ project_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
+
+      {% elif event.tag in role_strings %}
+      <strong>{% trans heading=role_strings[event.tag] %}{{ heading }}{% endtrans %}</strong>
+      <small>
+        {% trans project_name=event.additional.project_name, role_name=event.additional.role_name|lower %}
+        Project: {{ project_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
+
+      {% elif event.tag in team_role_strings %}
+      <strong>{% trans heading=team_role_strings[event.tag] %}{{ heading }}{% endtrans %}</strong>
+      <small>
+        {% trans organization_name=event.additional.organization_name, team_name=event.additional.team_name, role_name=event.additional.role_name|lower %}
+        Organization: {{ organization_name }}; team: {{ team_name }}; role: {{ role_name }}
+        {% endtrans %}
+      </small>
+
       {% else %}
       <strong>{{ event.tag }}</strong>
       {% endif %}
     {%- endmacro %}
 
     <p>
-      {% trans trimmed faq_url=request.help_url(_anchor='suspicious-activity')%}
+      {% trans faq_url=request.help_url(_anchor='suspicious-activity')%}
       Events appear here as security-related actions occur on your account. If you notice anything suspicious, please <a href="{{ faq_url }}">secure your account</a> as soon as possible.
       {% endtrans %}
     </p>
@@ -635,8 +778,8 @@
       <caption class="sr-only">{% trans %}Recent account activity{% endtrans %}</caption>
       <thead>
         <th scope="col">{% trans %}Event{% endtrans %}</th>
-        <th scope="col">{% trans %}Date / time{% endtrans %}</th>
-        <th scope="col">{% trans %}IP address{% endtrans %}</th>
+        <th scope="col">{% trans %}Time{% endtrans %}</th>
+        <th scope="col">{% trans %}Additional Info{% endtrans %}</th>
       </thead>
       <tbody>
         {% for event in recent_events %}
@@ -647,8 +790,10 @@
             {{ humanize(event.time, time="true") }}
           </td>
           <td>
-            <span class="table__mobile-label">{% trans %}IP address{% endtrans %}</span>
-            {{ "Redacted" if event.additional.redact_ip else event.ip_address }}
+            <span class="table__mobile-label">{% trans %}Location Info{% endtrans %}</span>
+            {{ "Redacted" if event.additional.redact_ip else event.location_info }}<br>
+            <span class="table__mobile-label">{% trans %}Device Info{% endtrans %}</span>
+            {{ event.user_agent_info }}
           </td>
         </tr>
         {% endfor %}
@@ -682,7 +827,7 @@
         {% for project in active_projects %}
         <li>
           <strong>{{ project.name }}</strong> -
-          {% trans trimmed transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
+          {% trans transfer_href=request.route_path('manage.project.roles', project_name=project.name), delete_href=request.route_path('manage.project.settings', project_name=project.name) %}
             <a href="{{ transfer_href }}">transfer ownership</a>
             or
             <a href="{{ delete_href }}">delete project</a>

@@ -12,12 +12,13 @@
 
 import os
 
-import celery
-import elasticsearch
+import celery.exceptions
+import opensearchpy
 import packaging.version
 import pretend
 import pytest
 import redis
+import redis.lock
 
 from first import first
 
@@ -35,10 +36,10 @@ from ...common.db.packaging import FileFactory, ProjectFactory, ReleaseFactory
 
 
 def test_project_docs(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )
@@ -50,7 +51,7 @@ def test_project_docs(db_session):
             r.files = [
                 FileFactory.create(
                     release=r,
-                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    filename=f"{p.name}-{r.version}.tar.gz",
                     python_version="source",
                 )
             ]
@@ -62,22 +63,21 @@ def test_project_docs(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease
                 ).description.raw,
             },
         }
-        for p, prs in sorted(releases.items(), key=lambda x: x[0].id)
+        for p, prs in sorted(releases.items(), key=lambda x: x[0].normalized_name)
     ]
 
 
 def test_single_project_doc(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )
@@ -89,7 +89,7 @@ def test_single_project_doc(db_session):
             r.files = [
                 FileFactory.create(
                     release=r,
-                    filename="{}-{}.tar.gz".format(p.name, r.version),
+                    filename=f"{p.name}-{r.version}.tar.gz",
                     python_version="source",
                 )
             ]
@@ -101,7 +101,6 @@ def test_single_project_doc(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease
@@ -114,10 +113,10 @@ def test_single_project_doc(db_session):
 
 
 def test_project_docs_empty(db_session):
-    projects = [ProjectFactory.create() for _ in range(2)]
+    projects = ProjectFactory.create_batch(2)
     releases = {
         p: sorted(
-            [ReleaseFactory.create(project=p) for _ in range(3)],
+            ReleaseFactory.create_batch(3, project=p),
             key=lambda r: packaging.version.parse(r.version),
             reverse=True,
         )
@@ -129,7 +128,7 @@ def test_project_docs_empty(db_session):
         r.files = [
             FileFactory.create(
                 release=r,
-                filename="{}-{}.tar.gz".format(project_with_files.name, r.version),
+                filename=f"{project_with_files.name}-{r.version}.tar.gz",
                 python_version="source",
             )
         ]
@@ -141,7 +140,6 @@ def test_project_docs_empty(db_session):
                 "created": p.created,
                 "name": p.name,
                 "normalized_name": p.normalized_name,
-                "version": [r.version for r in prs],
                 "latest_version": first(prs, key=lambda r: not r.is_prerelease).version,
                 "description": first(
                     prs, key=lambda r: not r.is_prerelease
@@ -184,7 +182,7 @@ class FakeESIndices:
                 elif action == "remove":
                     self.remove_alias(values["alias"], values["index"])
                 else:
-                    raise ValueError("Unknown action: {!r}.".format(action))
+                    raise ValueError(f"Unknown action: {action!r}.")
 
 
 class FakeESClient:
@@ -196,6 +194,12 @@ class NotLock:
     def __init__(*a, **kw):
         pass
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
     def acquire(self):
         return True
 
@@ -204,20 +208,11 @@ class NotLock:
 
 
 class TestSearchLock:
-    def test_success(self):
-        lock_stub = pretend.stub(acquire=pretend.call_recorder(lambda: True))
-        r = pretend.stub(lock=lambda *a, **kw: lock_stub)
-        test_lock = SearchLock(r)
-        test_lock.__enter__()
-        assert lock_stub.acquire.calls == [pretend.call()]
+    def test_is_subclass_of_redis_lock(self, mockredis):
+        search_lock = SearchLock(redis_client=mockredis)
 
-    def test_failure(self):
-        lock_stub = pretend.stub(acquire=pretend.call_recorder(lambda: False))
-        r = pretend.stub(lock=lambda *a, **kw: lock_stub)
-        test_lock = SearchLock(r)
-        with pytest.raises(redis.exceptions.LockError):
-            test_lock.__enter__()
-        assert lock_stub.acquire.calls == [pretend.call()]
+        assert isinstance(search_lock, redis.lock.Lock)
+        assert search_lock.name == "search-index"
 
 
 class TestReindex:
@@ -232,14 +227,14 @@ class TestReindex:
         task = pretend.stub()
         es_client = FakeESClient()
 
-        db_request.registry.update({"elasticsearch.index": "warehouse"})
+        db_request.registry.update({"opensearch.index": "warehouse"})
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
 
@@ -252,9 +247,7 @@ class TestReindex:
             assert index == "warehouse-cbcbcbcbcb"
             raise TestError
 
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
 
@@ -275,12 +268,8 @@ class TestReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        le = redis.exceptions.LockError("Failed to acquire lock")
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             reindex(task, db_request)
@@ -288,7 +277,6 @@ class TestReindex:
         assert task.retry.calls == [pretend.call(countdown=60, exc=le)]
 
     def test_successfully_indexes_and_adds_new(self, db_request, monkeypatch):
-
         docs = pretend.stub()
 
         def project_docs(db):
@@ -300,20 +288,18 @@ class TestReindex:
         es_client = FakeESClient()
 
         db_request.registry.update(
-            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
+            {"opensearch.index": "warehouse", "opensearch.shards": 42}
         )
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -363,23 +349,21 @@ class TestReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.index": "warehouse",
-                "elasticsearch.shards": 42,
+                "opensearch.index": "warehouse",
+                "opensearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             }
         )
         db_request.registry.settings = {
-            "elasticsearch.url": "http://some.url",
+            "opensearch.url": "http://some.url",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch,
-            "Elasticsearch",
+            warehouse.search.tasks.opensearchpy,
+            "OpenSearch",
             lambda *a, **kw: es_client,
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -428,23 +412,21 @@ class TestReindex:
         es_client_init = pretend.call_recorder(lambda *a, **kw: es_client)
 
         db_request.registry.update(
-            {"elasticsearch.index": "warehouse", "elasticsearch.shards": 42}
+            {"opensearch.index": "warehouse", "opensearch.shards": 42}
         )
         db_request.registry.settings = {
             "aws.key_id": "AAAAAAAAAAAAAAAAAA",
             "aws.secret_key": "deadbeefdeadbeefdeadbeef",
-            "elasticsearch.url": "https://some.url?aws_auth=1&region=us-east-2",
+            "opensearch.url": "https://some.url?aws_auth=1&region=us-east-2",
             "celery.scheduler_url": "redis://redis:6379/0",
         }
         monkeypatch.setattr(
             warehouse.search.tasks.requests_aws4auth, "AWS4Auth", aws4auth
         )
         monkeypatch.setattr(
-            warehouse.search.tasks.elasticsearch, "Elasticsearch", es_client_init
+            warehouse.search.tasks.opensearchpy, "OpenSearch", es_client_init
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         parallel_bulk = pretend.call_recorder(lambda client, iterable, index: [None])
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
@@ -459,7 +441,7 @@ class TestReindex:
         assert es_client_init.calls[0].kwargs["retry_on_timeout"] is True
         assert (
             es_client_init.calls[0].kwargs["connection_class"]
-            == elasticsearch.connection.http_requests.RequestsHttpConnection
+            == opensearchpy.connection.http_requests.RequestsHttpConnection
         )
         assert es_client_init.calls[0].kwargs["http_auth"] == aws4auth_stub
         assert aws4auth.calls == [
@@ -509,7 +491,7 @@ class TestPartialReindex:
         es_client = FakeESClient()
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         class TestError(Exception):
@@ -521,9 +503,7 @@ class TestPartialReindex:
             raise TestError
 
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         with pytest.raises(TestError):
             reindex_project(task, db_request, "foo")
@@ -540,12 +520,10 @@ class TestPartialReindex:
 
         es_client = FakeESClient()
         es_client.delete = pretend.raiser(TestError)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         with pytest.raises(TestError):
@@ -558,14 +536,12 @@ class TestPartialReindex:
 
         es_client = FakeESClient()
         es_client.delete = pretend.call_recorder(
-            pretend.raiser(elasticsearch.exceptions.NotFoundError)
+            pretend.raiser(opensearchpy.exceptions.NotFoundError)
         )
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         db_request.registry.update(
-            {"elasticsearch.client": es_client, "elasticsearch.index": "warehouse"}
+            {"opensearch.client": es_client, "opensearch.index": "warehouse"}
         )
 
         unindex_project(task, db_request, "foo")
@@ -579,12 +555,8 @@ class TestPartialReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        le = redis.exceptions.LockError("Failed to acquire lock")
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             unindex_project(task, db_request, "foo")
@@ -598,12 +570,8 @@ class TestPartialReindex:
 
         db_request.registry.settings = {"celery.scheduler_url": "redis://redis:6379/0"}
 
-        le = redis.exceptions.LockError()
-        monkeypatch.setattr(
-            redis.StrictRedis,
-            "from_url",
-            lambda *a, **kw: pretend.stub(lock=pretend.raiser(le)),
-        )
+        le = redis.exceptions.LockError("Failed to acquire lock")
+        monkeypatch.setattr(SearchLock, "acquire", pretend.raiser(le))
 
         with pytest.raises(celery.exceptions.Retry):
             reindex_project(task, db_request, "foo")
@@ -628,9 +596,9 @@ class TestPartialReindex:
 
         db_request.registry.update(
             {
-                "elasticsearch.client": es_client,
-                "elasticsearch.index": "warehouse",
-                "elasticsearch.shards": 42,
+                "opensearch.client": es_client,
+                "opensearch.index": "warehouse",
+                "opensearch.shards": 42,
                 "sqlalchemy.engine": db_engine,
             }
         )
@@ -639,9 +607,7 @@ class TestPartialReindex:
             lambda client, iterable, index=None: [None]
         )
         monkeypatch.setattr(warehouse.search.tasks, "parallel_bulk", parallel_bulk)
-        monkeypatch.setattr(
-            redis.StrictRedis, "from_url", lambda *a, **kw: pretend.stub(lock=NotLock)
-        )
+        monkeypatch.setattr(warehouse.search.tasks, "SearchLock", NotLock)
 
         reindex_project(task, db_request, "foo")
 

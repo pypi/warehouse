@@ -15,19 +15,23 @@ import json
 
 import webauthn as pywebauthn
 
-from webauthn.helpers import base64url_to_bytes, generate_challenge
+from webauthn.helpers import (
+    base64url_to_bytes,
+    generate_challenge,
+    parse_authentication_credential_json,
+    parse_registration_credential_json,
+)
 from webauthn.helpers.exceptions import (
     InvalidAuthenticationResponse,
+    InvalidAuthenticatorDataStructure,
     InvalidRegistrationResponse,
+    UnsupportedPublicKeyType,
 )
 from webauthn.helpers.options_to_json import options_to_json
 from webauthn.helpers.structs import (
     AttestationConveyancePreference,
-    AuthenticationCredential,
     AuthenticatorSelectionCriteria,
-    AuthenticatorTransport,
     PublicKeyCredentialDescriptor,
-    RegistrationCredential,
     UserVerificationRequirement,
 )
 
@@ -47,15 +51,7 @@ def _get_webauthn_user_public_key_credential_descriptors(user, *, rp_id):
     usage within the webauthn API.
     """
     return [
-        PublicKeyCredentialDescriptor(
-            id=base64url_to_bytes(credential.credential_id),
-            transports=[
-                AuthenticatorTransport.USB,
-                AuthenticatorTransport.NFC,
-                AuthenticatorTransport.BLE,
-                AuthenticatorTransport.INTERNAL,
-            ],
-        )
+        PublicKeyCredentialDescriptor(id=base64url_to_bytes(credential.credential_id))
         for credential in user.webauthn
     ]
 
@@ -94,7 +90,7 @@ def get_credential_options(user, *, challenge, rp_name, rp_id):
     options = pywebauthn.generate_registration_options(
         rp_id=rp_id,
         rp_name=rp_name,
-        user_id=str(user.id),
+        user_id=str(user.id).encode(),
         user_name=user.username,
         user_display_name=user.name or user.username,
         challenge=challenge,
@@ -134,7 +130,7 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
     # for the individual challenge.
     encoded_challenge = _webauthn_b64encode(challenge)
     try:
-        _credential = RegistrationCredential.parse_raw(response)
+        _credential = parse_registration_credential_json(response.decode())
         return pywebauthn.verify_registration_response(
             credential=_credential,
             expected_challenge=encoded_challenge,
@@ -142,7 +138,11 @@ def verify_registration_response(response, challenge, *, rp_id, origin):
             expected_origin=origin,
             require_user_verification=False,
         )
-    except InvalidRegistrationResponse as e:
+    except (
+        InvalidAuthenticatorDataStructure,
+        InvalidRegistrationResponse,
+        UnsupportedPublicKeyType,
+    ) as e:
         raise RegistrationRejectedError(str(e))
 
 
@@ -163,7 +163,7 @@ def verify_assertion_response(assertion, *, challenge, user, origin, rp_id):
 
     for public_key, current_sign_count in webauthn_user_public_keys:
         try:
-            _credential = AuthenticationCredential.parse_raw(assertion)
+            _credential = parse_authentication_credential_json(assertion.decode())
             return pywebauthn.verify_authentication_response(
                 credential=_credential,
                 expected_challenge=encoded_challenge,

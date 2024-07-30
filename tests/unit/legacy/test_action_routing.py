@@ -11,41 +11,24 @@
 # limitations under the License.
 
 import pretend
-import pytest
 
 from warehouse.legacy import action_routing
 
 
-@pytest.mark.parametrize(
-    ("action", "params", "expected"),
-    [
-        ("foo", {":action": "foo"}, True),
-        ("foo", {":action": "bar"}, False),
-        ("bar", {}, False),
-    ],
-)
-def test_pypi_action(action, params, expected):
-    res = action_routing.pypi_action(action)({}, pretend.stub(params=params))
-    assert res == expected
-
-
-def test_add_pypi_action_route(monkeypatch):
-    pred = pretend.stub()
-    pypi_action = pretend.call_recorder(lambda name: pred)
-    monkeypatch.setattr(action_routing, "pypi_action", pypi_action)
-
+def test_add_pypi_action_route():
     config = pretend.stub(add_route=pretend.call_recorder(lambda *a, **k: None))
 
     action_routing.add_pypi_action_route(config, "the name", "the action")
 
     assert config.add_route.calls == [
-        pretend.call("the name", "/pypi", custom_predicates=[pred])
+        pretend.call("the name", "/pypi", pypi_action="the action")
     ]
 
 
 def test_includeme():
     config = pretend.stub(
-        add_directive=pretend.call_recorder(lambda name, f, action_wrap: None)
+        add_route_predicate=pretend.call_recorder(lambda name, pred: None),
+        add_directive=pretend.call_recorder(lambda name, f, action_wrap: None),
     )
 
     action_routing.includeme(config)

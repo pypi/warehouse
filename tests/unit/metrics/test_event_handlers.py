@@ -28,7 +28,7 @@ from warehouse.metrics.event_handlers import (
 
 
 def test_time_ms():
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
     with freezegun.freeze_time(now):
         assert time_ms() == now.timestamp() * 1000
 
@@ -36,7 +36,7 @@ def test_time_ms():
 def test_on_new_request(pyramid_request):
     assert not hasattr(pyramid_request, "timings")
 
-    now = datetime.datetime.utcnow()
+    now = datetime.datetime.now(datetime.UTC)
     with freezegun.freeze_time(now):
         on_new_request(pretend.stub(request=pyramid_request))
 
@@ -44,7 +44,7 @@ def test_on_new_request(pyramid_request):
 
 
 def test_on_before_traversal(pyramid_request, metrics):
-    new_request = datetime.datetime.utcnow()
+    new_request = datetime.datetime.now(datetime.UTC)
     route_match_duration = new_request + datetime.timedelta(seconds=1)
 
     pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
@@ -65,7 +65,7 @@ def test_on_before_traversal(pyramid_request, metrics):
 
 
 def test_on_context_found(pyramid_request, metrics):
-    new_request = datetime.datetime.utcnow()
+    new_request = datetime.datetime.now(datetime.UTC)
     traversal_duration = new_request + datetime.timedelta(seconds=2)
     view_code_start = new_request + datetime.timedelta(seconds=2)
 
@@ -87,7 +87,7 @@ def test_on_context_found(pyramid_request, metrics):
 
 class TestOnBeforeRender:
     def test_without_view_duration(self, pyramid_request, metrics):
-        before_render_start = datetime.datetime.utcnow()
+        before_render_start = datetime.datetime.now(datetime.UTC)
 
         pyramid_request.timings = {}
         pyramid_request.matched_route = None
@@ -107,7 +107,7 @@ class TestOnBeforeRender:
     def test_with_view_duration(
         self, pyramid_request, metrics, matched_route, route_tag
     ):
-        view_code_start = datetime.datetime.utcnow()
+        view_code_start = datetime.datetime.now(datetime.UTC)
         before_render_start = view_code_start + datetime.timedelta(seconds=1.5)
 
         pyramid_request.timings = {
@@ -137,7 +137,7 @@ class TestOnNewResponse:
     def test_without_route(self, pyramid_request, metrics):
         response = pretend.stub(status_code="200")
 
-        new_request = datetime.datetime.utcnow()
+        new_request = datetime.datetime.now(datetime.UTC)
         new_response = new_request + datetime.timedelta(seconds=1)
 
         pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
@@ -161,7 +161,7 @@ class TestOnNewResponse:
     def test_without_render(self, pyramid_request, metrics):
         response = pretend.stub(status_code="200")
 
-        new_request = datetime.datetime.utcnow()
+        new_request = datetime.datetime.now(datetime.UTC)
         new_response = new_request + datetime.timedelta(seconds=1)
 
         pyramid_request.timings = {"new_request_start": new_request.timestamp() * 1000}
@@ -185,7 +185,7 @@ class TestOnNewResponse:
     def test_with_render(self, pyramid_request, metrics):
         response = pretend.stub(status_code="200")
 
-        new_request = datetime.datetime.utcnow()
+        new_request = datetime.datetime.now(datetime.UTC)
         before_render = new_request + datetime.timedelta(seconds=1)
         new_response = new_request + datetime.timedelta(seconds=2)
 

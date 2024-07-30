@@ -24,3 +24,8 @@ class IEmailSender(Interface):
         """
         Sends an EmailMessage to the given recipient.
         """
+
+    def last_sent(to, subject):
+        """
+        Determines when an email was last sent, if at all
+        """

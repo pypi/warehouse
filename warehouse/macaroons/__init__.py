@@ -10,8 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from warehouse.macaroons.errors import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.macaroons.services import database_macaroon_factory
+
+__all__ = ["InvalidMacaroonError", "includeme"]
 
 
 def includeme(config):

@@ -66,7 +66,9 @@ def _compressor(request, response):
         # ;gzip to this because we don't want people to try and use it to infer
         # any information about it.
         if response.etag is not None:
-            md5_digest = hashlib.md5((response.etag + ";gzip").encode("utf8"))
+            md5_digest = hashlib.md5(
+                (response.etag + ";gzip").encode("utf8"), usedforsecurity=False
+            )
             md5_digest = md5_digest.digest()
             md5_digest = base64.b64encode(md5_digest)
             md5_digest = md5_digest.replace(b"\n", b"").decode("utf8")

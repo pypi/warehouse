@@ -11,15 +11,24 @@
 # limitations under the License.
 
 import datetime
+import uuid
 
 import pytest
 
-from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory
+from pyramid.authorization import Authenticated
+
+from warehouse.accounts.models import Email, RecoveryCode, User, UserFactory, WebAuthn
+from warehouse.authnz import Permissions
+from warehouse.utils.security_policy import principals_for
 
 from ...common.db.accounts import (
     EmailFactory as DBEmailFactory,
     UserEventFactory as DBUserEventFactory,
     UserFactory as DBUserFactory,
+)
+from ...common.db.packaging import (
+    ProjectFactory as DBProjectFactory,
+    RoleFactory as DBRoleFactory,
 )
 
 
@@ -102,18 +111,20 @@ class TestUser:
 
     def test_recent_events(self, db_session):
         user = DBUserFactory.create()
-        recent_event = DBUserEventFactory(user=user, tag="foo", ip_address="0.0.0.0")
+        recent_event = DBUserEventFactory(source=user, tag="foo")
+        legacy_event = DBUserEventFactory(
+            source=user,
+            tag="wu",
+            time=datetime.datetime.now() - datetime.timedelta(days=1),
+        )
         stale_event = DBUserEventFactory(
-            user=user,
+            source=user,
             tag="bar",
-            ip_address="0.0.0.0",
             time=datetime.datetime.now() - datetime.timedelta(days=91),
         )
 
-        assert len(user.events) == 2
-        assert len(user.recent_events) == 1
-        assert user.events == [recent_event, stale_event]
-        assert user.recent_events == [recent_event]
+        assert user.events.all() == [recent_event, legacy_event, stale_event]
+        assert user.recent_events.all() == [recent_event, legacy_event]
 
     def test_regular_user_not_prohibited_password_reset(self, db_session):
         user = DBUserFactory.create()
@@ -150,3 +161,160 @@ class TestUser:
     def test_has_no_burned_recovery_codes(self, db_session):
         user = DBUserFactory.create()
         assert user.has_burned_recovery_codes is False
+
+    def test_acl(self, db_session):
+        user = DBUserFactory.create()
+        assert user.__acl__() == [
+            (
+                "Allow",
+                "group:admins",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersWrite,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:support",
+                (
+                    Permissions.AdminUsersRead,
+                    Permissions.AdminUsersEmailWrite,
+                    Permissions.AdminUsersAccountRecoveryWrite,
+                    Permissions.AdminDashboardSidebarRead,
+                ),
+            ),
+            (
+                "Allow",
+                "group:moderators",
+                (Permissions.AdminUsersRead, Permissions.AdminDashboardSidebarRead),
+            ),
+        ]
+
+    @pytest.mark.parametrize(
+        (
+            "is_superuser",
+            "is_support",
+            "is_moderator",
+            "is_psf_staff",
+            "expected",
+        ),
+        [
+            (False, False, False, False, []),
+            (
+                True,
+                False,
+                False,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
+            ),
+            (
+                False,
+                True,
+                False,
+                False,
+                [
+                    "group:support",
+                    "group:moderators",
+                ],
+            ),
+            (
+                False,
+                False,
+                True,
+                False,
+                ["group:moderators"],
+            ),
+            (
+                True,
+                False,
+                True,
+                False,
+                [
+                    "group:admins",
+                    "group:moderators",
+                    "group:observers",
+                    "group:psf_staff",
+                ],
+            ),
+            (
+                False,
+                False,
+                False,
+                True,
+                ["group:psf_staff"],
+            ),
+            (
+                False,
+                False,
+                True,
+                True,
+                ["group:moderators", "group:psf_staff"],
+            ),
+        ],
+    )
+    def test_principals(
+        self,
+        is_superuser,
+        is_support,
+        is_moderator,
+        is_psf_staff,
+        expected,
+    ):
+        user = User(
+            id=uuid.uuid4(),
+            is_superuser=is_superuser,
+            is_support=is_support,
+            is_moderator=is_moderator,
+            is_psf_staff=is_psf_staff,
+        )
+
+        expected = expected[:] + [f"user:{user.id}", Authenticated]
+
+        assert set(principals_for(user)) == set(expected)
+
+    @pytest.mark.parametrize(
+        ("has_totp", "count_webauthn", "expected"),
+        [
+            (False, 0, False),
+            (False, 1, True),
+            (False, 2, False),
+            (True, 0, True),
+            (True, 1, False),
+            (True, 2, False),
+        ],
+    )
+    def test_has_single_2fa(self, db_session, has_totp, count_webauthn, expected):
+        user = DBUserFactory.create(totp_secret=None)
+        if has_totp:
+            user.totp_secret = b"secret"
+        for i in range(count_webauthn):
+            user.webauthn.append(
+                WebAuthn(
+                    user_id=user.id,
+                    label=f"label{i}",
+                    credential_id=f"foo{i}",
+                    public_key=f"bar{i}",
+                    sign_count=i,
+                )
+            )
+        db_session.flush()
+        assert user.has_single_2fa == expected
+
+    def test_user_projects_is_ordered_by_name(self, db_session):
+        user = DBUserFactory.create()
+        project1 = DBProjectFactory.create(name="foo")
+        DBRoleFactory.create(project=project1, user=user)
+        project2 = DBProjectFactory.create(name="bar")
+        DBRoleFactory.create(project=project2, user=user)
+        project3 = DBProjectFactory.create(name="baz")
+        DBRoleFactory.create(project=project3, user=user)
+
+        assert user.projects == [project2, project3, project1]

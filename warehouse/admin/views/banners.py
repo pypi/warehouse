@@ -14,8 +14,9 @@ import wtforms
 
 from pyramid.httpexceptions import HTTPNotFound, HTTPSeeOther
 from pyramid.view import view_config
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 
+from warehouse.authnz import Permissions
 from warehouse.banners.models import Banner
 from warehouse.forms import Form, URIValidator
 
@@ -23,7 +24,7 @@ from warehouse.forms import Form, URIValidator
 @view_config(
     route_name="admin.banner.list",
     renderer="admin/banners/list.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
 )
@@ -35,7 +36,7 @@ def banner_list(request):
 @view_config(
     route_name="admin.banner.edit",
     renderer="admin/banners/edit.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -44,7 +45,7 @@ def banner_list(request):
 @view_config(
     route_name="admin.banner.edit",
     renderer="admin/banners/edit.html",
-    permission="psf_staff",
+    permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -70,7 +71,7 @@ def edit_banner(request):
 @view_config(
     route_name="admin.banner.create",
     renderer="admin/banners/edit.html",
-    permission="admin_dashboard_access",
+    permission=Permissions.AdminBannerRead,
     request_method="GET",
     uses_session=True,
     require_csrf=True,
@@ -79,7 +80,7 @@ def edit_banner(request):
 @view_config(
     route_name="admin.banner.create",
     renderer="admin/banners/edit.html",
-    permission="psf_staff",
+    permission=Permissions.AdminBannerWrite,
     request_method="POST",
     uses_session=True,
     require_csrf=True,
@@ -104,7 +105,7 @@ def create_banner(request):
 @view_config(
     route_name="admin.banner.delete",
     require_methods=["POST"],
-    permission="psf_staff",
+    permission=Permissions.AdminBannerWrite,
     uses_session=True,
     require_csrf=True,
 )
@@ -129,7 +130,7 @@ def delete_banner(request):
 @view_config(
     route_name="admin.banner.preview",
     require_methods=["GET"],
-    permission="moderator",
+    permission=Permissions.AdminBannerRead,
     uses_session=True,
     require_csrf=True,
     has_translations=True,
@@ -148,18 +149,18 @@ class BannerForm(Form):
     name = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=100),
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
         ],
     )
     text = wtforms.fields.StringField(
         validators=[
             wtforms.validators.Length(max=280),
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
         ],
     )
     link_url = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.DataRequired(),
+            wtforms.validators.InputRequired(),
             URIValidator(),
         ]
     )
@@ -171,7 +172,7 @@ class BannerForm(Form):
     )
     fa_icon = wtforms.fields.StringField(
         validators=[
-            wtforms.validators.Length(max=20),
+            wtforms.validators.Length(max=40),
             wtforms.validators.Optional(),
         ],
         default=Banner.DEFAULT_FA_ICON,
@@ -179,4 +180,7 @@ class BannerForm(Form):
     active = wtforms.fields.BooleanField(
         validators=[wtforms.validators.Optional()], default=False
     )
-    end = wtforms.fields.DateField(validators=[wtforms.validators.DataRequired()])
+    dismissable = wtforms.fields.BooleanField(
+        validators=[wtforms.validators.Optional()], default=False
+    )
+    end = wtforms.fields.DateField(validators=[wtforms.validators.InputRequired()])

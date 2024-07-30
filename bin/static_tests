@@ -8,5 +8,6 @@ set -x
 export LC_ALL="${ENCODING:-en_US.UTF-8}"
 export LANG="${ENCODING:-en_US.UTF-8}"
 
+export TZ="${TIMEZONE:-UTC}"
 # Actually run our tests.
 npm run test $@

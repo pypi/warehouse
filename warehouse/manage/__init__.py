@@ -17,6 +17,7 @@ from pyramid.renderers import render_to_response
 
 from warehouse.accounts.forms import ReAuthenticateForm
 from warehouse.accounts.interfaces import IUserService
+from warehouse.rate_limiting import IRateLimiter, RateLimit
 
 DEFAULT_TIME_TO_REAUTH = 30 * 60  # 30 minutes
 
@@ -41,6 +42,7 @@ def reauth_view(view, info):
                     username=request.user.username,
                     next_route=request.matched_route.name,
                     next_route_matchdict=json.dumps(request.matchdict),
+                    next_route_query=json.dumps(request.GET.mixed()),
                     user_service=user_service,
                 )
 
@@ -57,8 +59,26 @@ def reauth_view(view, info):
     return view
 
 
-reauth_view.options = {"require_reauth"}
+reauth_view.options = {"require_reauth"}  # type: ignore
 
 
 def includeme(config):
     config.add_view_deriver(reauth_view, over="rendered_view", under="decorated_view")
+
+    user_oidc_registration_ratelimit_string = config.registry.settings.get(
+        "warehouse.manage.oidc.user_registration_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(user_oidc_registration_ratelimit_string),
+        IRateLimiter,
+        name="user_oidc.publisher.register",
+    )
+
+    ip_oidc_registration_ratelimit_string = config.registry.settings.get(
+        "warehouse.manage.oidc.ip_registration_ratelimit_string"
+    )
+    config.register_service_factory(
+        RateLimit(ip_oidc_registration_ratelimit_string),
+        IRateLimiter,
+        name="ip_oidc.publisher.register",
+    )

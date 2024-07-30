@@ -10,21 +10,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from google.cloud import bigquery, storage
+from google.cloud import bigquery
+from google.cloud.storage import Client as storage_Client
 
 
 def gcloud_bigquery_factory(context, request):
-    credentials = request.registry.settings["gcloud.credentials"]
+    service_account_info = request.registry.settings["gcloud.service_account_info"]
     project = request.registry.settings["gcloud.project"]
 
-    return bigquery.Client.from_service_account_json(credentials, project=project)
+    return bigquery.Client.from_service_account_info(
+        service_account_info, project=project
+    )
 
 
 def gcloud_gcs_factory(context, request):
-    credentials = request.registry.settings["gcloud.credentials"]
+    service_account_info = request.registry.settings["gcloud.service_account_info"]
     project = request.registry.settings["gcloud.project"]
 
-    return storage.Client.from_service_account_json(credentials, project=project)
+    return storage_Client.from_service_account_info(
+        service_account_info, project=project
+    )
 
 
 def includeme(config):

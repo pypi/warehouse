@@ -7,6 +7,17 @@ ifeq ($(WAREHOUSE_IPYTHON_SHELL), 1)
     IPYTHON = yes
 endif
 
+# Optimization: if the user explicitly passes tests via `T`,
+# disable xdist (since the overhead of spawning workers is typically
+# higher than running a small handful of specific tests).
+# Only do this when the user doesn't set any explicit `TESTARGS` to avoid
+# confusion.
+ifneq ($(T),)
+ifeq ($(TESTARGS),)
+	TESTARGS = -n 0
+endif
+endif
+
 default:
 	@echo "Call a specific subcommand:"
 	@echo
@@ -17,11 +28,33 @@ default:
 	@echo
 	@exit 1
 
-.state/docker-build: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt
-	# Build our docker containers for this project.
-	docker-compose build --build-arg IPYTHON=$(IPYTHON) --force-rm web
-	docker-compose build --force-rm worker
-	docker-compose build --force-rm static
+.state/docker-build-base: Dockerfile package.json package-lock.json requirements/main.txt requirements/deploy.txt requirements/lint.txt requirements/tests.txt requirements/dev.txt
+	# Build our base container for this project.
+	docker compose build --build-arg IPYTHON=$(IPYTHON) --force-rm base
+
+	# Mark the state so we don't rebuild this needlessly.
+	mkdir -p .state
+	touch .state/docker-build-base
+
+.state/docker-build-static: Dockerfile package.json package-lock.json .babelrc
+	# Build our static container for this project.
+	docker compose build --force-rm static
+
+	# Mark the state so we don't rebuild this needlessly.
+	mkdir -p .state
+	touch .state/docker-build-static
+
+.state/docker-build-docs: Dockerfile requirements/docs-dev.txt requirements/docs-blog.txt requirements/docs-user.txt
+	# Build the worker container for this project
+	docker compose build --build-arg  USER_ID=$(shell id -u)  --build-arg GROUP_ID=$(shell id -g) --force-rm dev-docs
+
+	# Mark the state so we don't rebuild this needlessly.
+	mkdir -p .state
+	touch .state/docker-build-docs
+
+.state/docker-build: .state/docker-build-base .state/docker-build-static .state/docker-build-docs
+	# Build the worker container for this project
+	docker compose build --force-rm worker
 
 	# Mark the state so we don't rebuild this needlessly.
 	mkdir -p .state
@@ -33,64 +66,106 @@ build:
 	docker system prune -f --filter "label=com.docker.compose.project=warehouse"
 
 serve: .state/docker-build
-	docker-compose up --remove-orphans
+	$(MAKE) .state/db-populated
+	$(MAKE) .state/search-indexed
+	docker compose up --remove-orphans
 
-debug: .state/docker-build
-	docker-compose run --rm --service-ports web
+debug: .state/docker-build-base
+	docker compose run --rm --service-ports web
 
-tests: .state/docker-build
-	docker-compose run --rm web bin/tests --postgresql-host db $(T) $(TESTARGS)
+tests: .state/docker-build-base
+	docker compose run --rm tests bin/tests --postgresql-host db $(T) $(TESTARGS)
 
-static_tests: .state/docker-build
-	docker-compose run --rm static bin/static_tests $(T) $(TESTARGS)
+static_tests: .state/docker-build-static
+	docker compose run --rm static bin/static_tests $(T) $(TESTARGS)
 
-static_pipeline: .state/docker-build
-	docker-compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
+static_pipeline: .state/docker-build-static
+	docker compose run --rm static bin/static_pipeline $(T) $(TESTARGS)
 
-reformat: .state/docker-build
-	docker-compose run --rm web bin/reformat
+reformat: .state/docker-build-base
+	docker compose run --rm base bin/reformat
 
-lint: .state/docker-build
-	docker-compose run --rm web bin/lint && bin/static_lint
+lint: .state/docker-build-base .state/docker-build-static
+	docker compose run --rm base bin/lint
+	docker compose run --rm static bin/static_lint
 
-docs: .state/docker-build
-	docker-compose run --rm web bin/docs
+dev-docs: .state/docker-build-docs
+	docker compose run --rm dev-docs bin/dev-docs
 
-licenses: .state/docker-build
-	docker-compose run --rm web bin/licenses
+user-docs: .state/docker-build-docs
+	docker compose run --rm user-docs bin/user-docs
 
-deps: .state/docker-build
-	docker-compose run --rm web bin/deps
+blog: .state/docker-build-docs
+	docker compose run --rm blog mkdocs build -f docs/mkdocs-blog.yml
 
-translations: .state/docker-build
-	docker-compose run --rm web bin/translations
+licenses: .state/docker-build-base
+	docker compose run --rm base bin/licenses
+
+deps: .state/docker-build-base
+	docker compose run --rm base bin/deps
+
+translations: .state/docker-build-base
+	docker compose run --rm base bin/translations
 
 requirements/%.txt: requirements/%.in
-	docker-compose run --rm web bin/pip-compile --allow-unsafe --generate-hashes --output-file=$@ $<
+	docker compose run --rm base bin/pip-compile --generate-hashes --output-file=$@ $<
 
-initdb:
-	docker-compose run --rm web psql -h db -d postgres -U postgres -c "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname ='warehouse';"
-	docker-compose run --rm web psql -h db -d postgres -U postgres -c "DROP DATABASE IF EXISTS warehouse"
-	docker-compose run --rm web psql -h db -d postgres -U postgres -c "CREATE DATABASE warehouse ENCODING 'UTF8'"
-	xz -d -f -k dev/$(DB).sql.xz --stdout | docker-compose run --rm web psql -h db -d warehouse -U postgres -v ON_ERROR_STOP=1 -1 -f -
-	docker-compose run --rm web python -m warehouse db upgrade head
+resetdb: .state/docker-build-base
+	docker compose pause web worker
+	docker compose up -d db
+	docker compose exec --user postgres db /docker-entrypoint-initdb.d/init-dbs.sh
+	rm -f .state/db-populated .state/db-migrated
+	$(MAKE) initdb
+	docker compose unpause web worker
+
+.state/search-indexed: .state/db-populated
 	$(MAKE) reindex
-	docker-compose run web python -m warehouse sponsors populate-db
+	mkdir -p .state && touch .state/search-indexed
 
-reindex:
-	docker-compose run --rm web python -m warehouse search reindex
+.state/db-populated: .state/db-migrated
+	docker compose run --rm web python -m warehouse sponsors populate-db
+	docker compose run --rm web python -m warehouse classifiers sync
+	docker compose exec --user postgres db psql -U postgres warehouse -f /post-migrations.sql
+	mkdir -p .state && touch .state/db-populated
 
-shell:
-	docker-compose run --rm web python -m warehouse shell
+.state/db-migrated: .state/docker-build-base
+	docker compose up -d db
+	docker compose exec db /usr/local/bin/wait-for-db
+	$(MAKE) runmigrations
+	mkdir -p .state && touch .state/db-migrated
+
+initdb: .state/docker-build-base .state/db-populated
+	$(MAKE) reindex
+
+inittuf: .state/db-migrated
+	docker compose up -d rstuf-api
+	docker compose up -d rstuf-worker
+	docker compose run --rm web python -m warehouse tuf bootstrap dev/rstuf/bootstrap.json --api-server http://rstuf-api
+
+runmigrations: .state/docker-build-base
+	docker compose run --rm web python -m warehouse db upgrade head
+
+reindex: .state/docker-build-base
+	docker compose run --rm web python -m warehouse search reindex
+
+shell: .state/docker-build-base
+	docker compose run --rm web python -m warehouse shell
+
+totp: .state/docker-build-base
+	@docker compose run --rm base bin/devtotp
+
+dbshell: .state/docker-build-base
+	docker compose run --rm web psql -h db -d warehouse -U postgres
 
 clean:
 	rm -rf dev/*.sql
 
 purge: stop clean
-	rm -rf .state
-	docker-compose rm --force
+	rm -rf .state dev/.coverage* dev/.mypy_cache dev/.pip-cache dev/.pip-tools-cache dev/.pytest_cache .state/db-populated .state/db-migrated
+	docker compose down -v --remove-orphans
+	docker compose rm --force
 
 stop:
-	docker-compose down -v
+	docker compose stop
 
-.PHONY: default build serve initdb shell tests docs deps clean purge debug stop compile-pot
+.PHONY: default build serve resetdb initdb shell dbshell tests dev-docs user-docs deps clean purge debug stop compile-pot runmigrations

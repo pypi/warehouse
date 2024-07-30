@@ -1,0 +1,41 @@
+/*!
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+  A form with radio buttons controlling display of .radio-toggle elements.
+
+  <form class="radio-toggle-form">
+    <input type="radio" data-target=".radio-toggle-0">
+    <input type="radio" data-target=".radio-toggle-1">
+    <div class="radio-toggle radio-toggle-0">
+      <!-- Displays when [data-target=".radio-toggle-0"] is selected. -->
+    </div>
+    <div class="radio-toggle radio-toggle-1">
+      <!-- Displays when [data-target=".radio-toggle-1"] is selected. -->
+    </div>
+  </form>
+
+  The .radio-toggle elements must be siblings of the radio buttons.
+*/
+
+.radio-toggle-form {
+  .radio-toggle {
+    display: none;
+  }
+
+  input[type="radio"][data-target=".radio-toggle-1"]:checked ~ .radio-toggle-1,
+  input[type="radio"][data-target=".radio-toggle-2"]:checked ~ .radio-toggle-2 {
+    display: block;
+  }
+}

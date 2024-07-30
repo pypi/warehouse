@@ -10,7 +10,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os
+import re
+
+from pathlib import Path
+
+import pytest
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -32,72 +36,95 @@ FILTERS = {
     "format_package_type": "warehouse.filters:format_package_type",
     "parse_version": "warehouse.filters:parse_version",
     "localize_datetime": "warehouse.filters:localize_datetime",
+    "ctime": "warehouse.filters:ctime",
+    "canonicalize_name": "packaging.utils:canonicalize_name",
 }
 
+# A compiled regex that matches a subject block, possibly with newlines inside
+SUBJECT_BLOCK_EXPRESSION = re.compile(
+    r"\{% block subject %}.*\{% endblock %}", re.DOTALL
+)
 
-def test_templates_for_empty_titles():
+
+@pytest.mark.parametrize(
+    "template",
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "templates")
+        for f in Path(warehouse.__path__[0]).glob("templates/**/*.html")
+    ],
+)
+def test_templates_for_empty_titles(template: Path):
     """
     Test if all HTML templates have defined the title block. See
-    https://github.com/pypa/warehouse/issues/784
+    https://github.com/pypi/warehouse/issues/784
     """
-    dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
+    dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
         ],
         cache_size=0,
     )
 
     env.filters.update(FILTERS)
 
-    for dir_, _, files in os.walk(dir_name):
-        if (
-            dir_.find("/includes") > -1
-            or dir_.find("/legacy") > -1
-            or dir_.find("/email/") > -1
-        ):
-            continue
+    if any(
+        parent.name in ["includes", "api", "legacy", "email"]
+        for parent in template.parents
+    ):
+        # Skips specific directories, which are not expected to have titles.
+        return
 
-        for file_name in files:
-            if file_name.endswith(".csi.html"):
-                continue
-            if file_name.endswith(".html"):
-                rel_dir = os.path.relpath(dir_, dir_name)
-                rel_file = os.path.join(rel_dir, file_name)
-                template = env.get_template(rel_file)
-                assert "title" in template.blocks or "title_base" in template.blocks
+    template_obj = env.get_template(str(template))
+    assert "title" in template_obj.blocks or "title_base" in template_obj.blocks
 
 
-def test_render_templates():
+@pytest.mark.parametrize(
+    "template",
+    [
+        f.relative_to(Path(warehouse.__path__[0]) / "templates")
+        for f in Path(warehouse.__path__[0]).glob("templates/**/*.html")
+    ],
+)
+def test_render_templates(template):
     """
     Test if all HTML templates are rendered without Jinja exceptions.
-    see https://github.com/pypa/warehouse/issues/6634
+    see https://github.com/pypi/warehouse/issues/6634
     """
-    dir_name = os.path.join(os.path.dirname(warehouse.__file__), "templates")
+    dir_name = Path(warehouse.__path__[0]) / "templates"
 
     env = Environment(
         loader=FileSystemLoader(dir_name),
         extensions=[
             "jinja2.ext.i18n",
             "warehouse.utils.html.ClientSideIncludeExtension",
+            "warehouse.i18n.extensions.TrimmedTranslatableTagsExtension",
         ],
         cache_size=0,
     )
 
     env.filters.update(FILTERS)
 
-    exceptions = []
-    for dir_, _, files in os.walk(dir_name):
-        for file_name in files:
-            if file_name.endswith(".html"):
-                rel_dir = os.path.relpath(dir_, dir_name)
-                rel_file = os.path.join(rel_dir, file_name)
-                try:
-                    env.get_template(rel_file)
-                except Exception as e:
-                    exceptions.append(e)
+    assert env.get_template(str(template))
 
-    assert len(exceptions) == 0
+
+@pytest.mark.parametrize(
+    "template",
+    [f for f in Path(warehouse.__path__[0]).glob("templates/email/**/subject.txt")],
+)
+def test_email_subjects_for_multiple_lines(template: Path):
+    """
+    Test if all email subject templates don't contain new lines. See
+    https://github.com/pypi/warehouse/issues/13216
+    """
+
+    with template.open("r") as f:
+        match = SUBJECT_BLOCK_EXPRESSION.search(f.read())
+        # There should be a subject block inside a subject template file
+        assert match is not None
+        # There should NOT be a newline inside the subject block
+        assert "\n" not in match.group(0)

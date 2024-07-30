@@ -1,0 +1,5 @@
+#!/bin/bash
+set -ex
+
+make -C docs/dev/ doctest SPHINXOPTS="-W"
+make -C docs/dev/ html SPHINXOPTS="-W"

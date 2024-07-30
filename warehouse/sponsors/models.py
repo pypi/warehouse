@@ -10,8 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from sqlalchemy import Boolean, Column, Integer, String, Text
-from sqlalchemy_utils.types.url import URLType
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.utils import readme
@@ -22,38 +21,43 @@ class Sponsor(db.Model):
     __tablename__ = "sponsors"
     __repr__ = make_repr("name")
 
-    name = Column(String, nullable=False)
-    service = Column(String)
-    activity_markdown = Column(Text)
+    name: Mapped[str]
+    service: Mapped[str | None]
+    activity_markdown: Mapped[str | None]
 
-    link_url = Column(URLType, nullable=False)
-    color_logo_url = Column(URLType, nullable=False)
-    white_logo_url = Column(URLType)
+    link_url: Mapped[str]
+    color_logo_url: Mapped[str]
+    white_logo_url: Mapped[str | None]
 
     # control flags
-    is_active = Column(Boolean, default=False, nullable=False)
-    footer = Column(Boolean, default=False, nullable=False)
-    psf_sponsor = Column(Boolean, default=False, nullable=False)
-    infra_sponsor = Column(Boolean, default=False, nullable=False)
-    one_time = Column(Boolean, default=False, nullable=False)
-    sidebar = Column(Boolean, default=False, nullable=False)
+    # TODO: These cannot use `bool_false` type, as `default=False` is performed
+    #  locally prior to sending the value to the database.
+    #  Changing incurs a migration, which we should do as a later refactor.
+    is_active: Mapped[bool] = mapped_column(default=False)
+    footer: Mapped[bool] = mapped_column(default=False)
+    psf_sponsor: Mapped[bool] = mapped_column(default=False)
+    infra_sponsor: Mapped[bool] = mapped_column(default=False)
+    one_time: Mapped[bool] = mapped_column(default=False)
+    sidebar: Mapped[bool] = mapped_column(default=False)
 
     # pythondotorg integration
-    origin = Column(String, default="manual")
-    level_name = Column(String)
-    level_order = Column(Integer, default=0)
-    slug = Column(String)
+    origin: Mapped[str | None] = mapped_column(default="manual")
+    level_name: Mapped[str | None]
+    level_order: Mapped[int | None] = mapped_column(default=0)
+    slug: Mapped[str | None]
 
     @property
     def color_logo_img(self):
-        return f'<img src="{ self.color_logo_url }" alt="{ self.name }">'
+        return f'<img src="{self.color_logo_url}" alt="{self.name}" loading="lazy">'
 
     @property
     def white_logo_img(self):
         if not self.white_logo_url:
             return ""
-        return f'<img class="sponsors__image" \
-                  src="{ self.white_logo_url }" alt="{ self.name }">'
+        return (
+            '<img class="sponsors__image" '
+            + f'src="{self.white_logo_url}" alt="{self.name}" loading="lazy">'
+        )
 
     @property
     def activity(self):

@@ -1,0 +1,111 @@
+openapi: 3.0.0
+info:
+  title: Warehouse Management API
+  description: "**BETA** API for managing warehouse interactions"
+  version: 0.0.0
+# Intentionally exclude `servers` key, defaults to the server this is loaded from.
+# Potentially challenging for generating client code.
+
+components:
+  schemas:
+    Observation:
+      type: object
+      description: A generic Observation object shape
+      properties:
+        kind:
+          type: string
+          description: The kind of observation
+          example: "is_malware"
+          enum:
+            - is_malware
+            - is_spam
+            - is_dependency_confusion
+            - something_else
+        inspector_url:
+          type: string
+          description: |
+            A link to notable source code using our [Inspector](https://inspector.pypi.io/) service.
+            **Required** if `kind=is_malware`
+          pattern: "^https://inspector.pypi.io/project/.*"
+          example: "https://inspector.pypi.io/project/..."
+        summary:
+          type: string
+          description: A brief summary of the observation
+          example: "This project is distributing malware"
+      required:
+        - kind
+        - summary
+      example: { "kind": "is_malware", "summary": "This project is distributing malware" }
+  securitySchemes:
+    bearerAuth:
+      description: "[PyPI API Token](https://pypi.org/help/#apitoken)"
+      type: http
+      scheme: bearer
+      bearerFormat: API Token
+security:
+  - bearerAuth: [ ]
+
+tags:
+  - name: danger-api
+    description: "[Danger Zone API](https://blog.pypi.org/posts/2024-03-06-malware-reporting-evolved/#via-api)"
+
+paths:
+  /danger-api/echo:
+    get:
+      summary: Echo Username
+      description: Echo username of authenticated user. Likely to be omitted from v1.
+      operationId: echoUsername
+      tags:
+        - danger-api
+      responses:
+        '200':
+          description: Echo username of authenticated user
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  username:
+                    type: string
+                    example: someuser
+                example: { "username": "someuser" }
+        '400':
+            description: Bad request
+  /danger-api/projects/{name}/observations:
+    post:
+      summary: Submit a project observation
+      description: Submit a Project Observation to the PyPI team for review.
+      operationId: submitObservation
+      tags:
+        - danger-api
+      parameters:
+        - name: name
+          in: path
+          description: The name of the Project
+          required: true
+          schema:
+            type: string
+            example: "project-name"
+      requestBody:
+        description: The Observation payload
+        required: true
+        content:
+          application/vnd.pypi.api-v0-danger+json:
+            schema:
+              $ref: '#/components/schemas/Observation'
+      responses:
+        '202':
+          description: Observation submitted
+          content:
+            application/vnd.pypi.api-v0-danger+json:
+              schema:
+                type: object
+                properties:
+                  project:
+                    type: string
+                    example: "project-name"
+                  thanks:
+                    type: string
+                    example: "for the observation"
+        '400':
+          description: Bad request

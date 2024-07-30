@@ -17,10 +17,10 @@ Revises: 0977b97fce94
 Create Date: 2016-04-25 11:09:54.284023
 """
 
-import citext
 import sqlalchemy as sa
 
 from alembic import op
+from sqlalchemy.dialects.postgresql import CITEXT
 
 revision = "fb3278418206"
 down_revision = "0977b97fce94"
@@ -30,7 +30,7 @@ def upgrade():
     op.alter_column(
         "release_files",
         "blake2_256_digest",
-        existing_type=citext.CIText(),
+        existing_type=CITEXT(),
         nullable=False,
     )
     op.alter_column(
@@ -45,6 +45,6 @@ def downgrade():
     op.alter_column(
         "release_files",
         "blake2_256_digest",
-        existing_type=citext.CIText(),
+        existing_type=CITEXT(),
         nullable=True,
     )

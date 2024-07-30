@@ -12,6 +12,12 @@
 
 from zope.interface import Interface
 
+from warehouse.rate_limiting.interfaces import RateLimiterException
+
+
+class TooManyProjectsCreated(RateLimiterException):
+    pass
+
 
 class IGenericFileStorage(Interface):
     def create_service(context, request):
@@ -24,6 +30,18 @@ class IGenericFileStorage(Interface):
         """
         Return a file like object that can be read to access the file located
         at the given path.
+        """
+
+    def get_metadata(path):
+        """
+        Return a dictionary containing any user-created metadata associated
+        with the file at a given path. Implementations may or may not store
+        or provide such metadata.
+        """
+
+    def get_checksum(path):
+        """
+        Return the md5 digest of the file at a given path as a lowercase string.
         """
 
     def store(path, file_path, *, meta=None):
@@ -52,4 +70,14 @@ class IDocsStorage(Interface):
     def remove_by_prefix(prefix):
         """
         Remove all files matching the given prefix.
+        """
+
+
+class IProjectService(Interface):
+    def create_project(name, creator, request, *, creator_is_owner=True):
+        """
+        Creates a new project, recording a user as its creator.
+
+        If `creator_is_owner`, a `Role` is also added to the project
+        marking `creator` as a project owner.
         """

@@ -25,7 +25,7 @@ def purge_tag(task, request, tag):
     request.log.info("Purging %s", tag)
     try:
         service.purge(tag)
-    except (interfaces.CacheError) as exc:
+    except interfaces.CacheError as exc:
         request.log.error("Error purging %s: %s", tag, str(exc))
         raise task.retry(exc=exc)
 

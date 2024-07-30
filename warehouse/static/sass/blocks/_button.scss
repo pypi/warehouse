@@ -21,8 +21,10 @@
 
   Modifiers:
     - small: Makes button small.
+    - full-width: Makes button full width of parent container.
     - primary: Makes button bright blue.
     - danger: Makes button red.
+    - warning: Makes button brown.
     - disabled: Styles for when the button cannot be clicked.
     - switch-to-desktop: Switch to desktop button found in site footer.
     - switch-to-mobile: Switch to mobile button found in site header.
@@ -35,7 +37,7 @@
   position: relative;
   font-weight: $bold-font-weight;
   cursor: pointer;
-  padding: 8.5px ($spacing-unit / 2);
+  padding: 8.5px $half-spacing-unit;
   background-color: transparent;
   color: lighten($text-color, 10);
   border: 1px solid $accessible-border-color;
@@ -63,6 +65,10 @@
     padding: 6px 8px;
   }
 
+  &--full-width {
+    width: 100%;
+  }
+
   &--primary {
     border-color: $primary-color;
     background-color: $primary-color;
@@ -83,6 +89,11 @@
       border-color: $white;
       @include link-focus-state($primary-color);
     }
+  }
+
+  &--tertiary {
+    border-color: $light-grey;
+    background-color: $white;
   }
 
   &--danger {
@@ -106,6 +117,27 @@
     }
   }
 
+  &--warning {
+    border-color: $warning-color;
+    background-color: $warning-color;
+    color: $white;
+
+    &:focus,
+    &:hover,
+    &:active {
+      border-color: darken($warning-color, 5);
+      background-color: darken($warning-color, 4);
+      text-decoration-color: transparentize($white, 0.8);
+      color: $white;
+    }
+
+    &:active,
+    &:focus {
+      border-color: $white;
+      @include link-focus-state($warning-color);
+    }
+  }
+
   &[disabled],
   &--disabled {
     cursor: not-allowed;
@@ -113,7 +145,7 @@
     border-color: darken($background-color, 5%);
     color: darken($background-color, 12%);
     text-decoration: line-through;
-    pointer-events: none;
+    pointer-events: auto;
 
     &:focus,
     &:hover,

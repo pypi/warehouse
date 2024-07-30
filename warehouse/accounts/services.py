@@ -14,16 +14,19 @@ import collections
 import datetime
 import functools
 import hashlib
+import http
 import logging
 import os
 import secrets
 import urllib.parse
 
+import passlib.exc
 import requests
 
 from passlib.context import CryptContext
+from sqlalchemy import exists, select
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import joinedload
-from sqlalchemy.orm.exc import NoResultFound
 from webauthn.helpers import bytes_to_base64url
 from zope.interface import implementer
 
@@ -32,6 +35,7 @@ import warehouse.utils.webauthn as webauthn
 
 from warehouse.accounts.interfaces import (
     BurnedRecoveryCode,
+    IEmailBreachedService,
     InvalidRecoveryCode,
     IPasswordBreachedService,
     ITokenService,
@@ -43,7 +47,15 @@ from warehouse.accounts.interfaces import (
     TooManyEmailsAdded,
     TooManyFailedLogins,
 )
-from warehouse.accounts.models import Email, RecoveryCode, User, WebAuthn
+from warehouse.accounts.models import (
+    DisableReason,
+    Email,
+    ProhibitedUserName,
+    RecoveryCode,
+    User,
+    WebAuthn,
+)
+from warehouse.events.tags import EventTag
 from warehouse.metrics import IMetricsService
 from warehouse.rate_limiting import DummyRateLimiter, IRateLimiter
 from warehouse.utils.crypto import BadData, SignatureExpired, URLSafeTimedSerializer
@@ -52,6 +64,7 @@ logger = logging.getLogger(__name__)
 
 PASSWORD_FIELD = "password"
 RECOVERY_CODE_COUNT = 8
+RECOVERY_CODE_BYTES = 8
 
 
 @implementer(IUserService)
@@ -80,25 +93,59 @@ class DatabaseUserService:
         )
         self.remote_addr = remote_addr
         self._metrics = metrics
+        self.cached_get_user = functools.lru_cache(self._get_user)
 
-    @functools.lru_cache()
-    def get_user(self, userid):
+    def _get_user(self, userid):
         # TODO: We probably don't actually want to just return the database
         #       object here.
         # TODO: We need some sort of Anonymous User.
-        return self.db.query(User).options(joinedload(User.webauthn)).get(userid)
+        return (
+            self.db.scalars(
+                select(User).options(joinedload(User.webauthn)).where(User.id == userid)
+            )
+            .unique()
+            .one_or_none()
+        )
 
-    @functools.lru_cache()
+    def get_user(self, userid):
+        return self.cached_get_user(userid)
+
+    @functools.lru_cache
     def get_user_by_username(self, username):
         user_id = self.find_userid(username)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
-    def get_user_by_email(self, email):
+    @functools.lru_cache
+    def get_user_by_email(self, email: str) -> User | None:
         user_id = self.find_userid_by_email(email)
         return None if user_id is None else self.get_user(user_id)
 
-    @functools.lru_cache()
+    @functools.lru_cache
+    def get_users_by_prefix(self, prefix: str) -> list[User]:
+        """
+        Get the first 10 matches by username prefix.
+        No need to apply `ILIKE` here, as the `username` column is already
+        `CIText`.
+        """
+        return (
+            self.db.query(User)
+            .filter(User.username.startswith(prefix))
+            .order_by(User.username)
+            .limit(10)
+            .all()
+        )
+
+    @functools.lru_cache
+    def get_admin_user(self):
+        """Useful for notifications to the admin@ email address."""
+        return self.get_user_by_username("admin")
+
+    def username_is_prohibited(self, username):
+        return self.db.query(
+            exists().where(ProhibitedUserName.name == username.lower())
+        ).scalar()
+
+    @functools.lru_cache
     def find_userid(self, username):
         try:
             user = self.db.query(User.id).filter(User.username == username).one()
@@ -107,7 +154,7 @@ class DatabaseUserService:
 
         return user.id
 
-    @functools.lru_cache()
+    @functools.lru_cache
     def find_userid_by_email(self, email):
         try:
             user_id = (self.db.query(Email.user_id).filter(Email.email == email).one())[
@@ -177,7 +224,10 @@ class DatabaseUserService:
 
             # Actually check our hash, optionally getting a new hash for it if
             # we should upgrade our saved hashed.
-            ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            try:
+                ok, new_hash = self.hasher.verify_and_update(password, user.password)
+            except passlib.exc.PasswordValueError:
+                ok = False
 
             # First, check to see if the password that we were given was OK.
             if ok:
@@ -220,15 +270,17 @@ class DatabaseUserService:
         primary=None,
         verified=False,
         public=False,
+        ratelimit=True,
     ):
-        # Check to make sure that we haven't hitten the rate limit for this IP
-        if not self.ratelimiters["email.add"].test(self.remote_addr):
-            self._metrics.increment(
-                "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
-            )
-            raise TooManyEmailsAdded(
-                resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
-            )
+        if ratelimit:
+            # Check to make sure that we haven't hitten the rate limit for this IP
+            if not self.ratelimiters["email.add"].test(self.remote_addr):
+                self._metrics.increment(
+                    "warehouse.email.add.ratelimited", tags=["ratelimiter:email.add"]
+                )
+                raise TooManyEmailsAdded(
+                    resets_in=self.ratelimiters["email.add"].resets_in(self.remote_addr)
+                )
 
         user = self.get_user(user_id)
 
@@ -249,8 +301,9 @@ class DatabaseUserService:
         self.db.add(email)
         self.db.flush()  # flush the db now so email.id is available
 
-        self.ratelimiters["email.add"].hit(self.remote_addr)
-        self._metrics.increment("warehouse.email.add.ok")
+        if ratelimit:
+            self.ratelimiters["email.add"].hit(self.remote_addr)
+            self._metrics.increment("warehouse.email.add.ok")
 
         return email
 
@@ -269,20 +322,28 @@ class DatabaseUserService:
 
         return user
 
-    def disable_password(self, user_id, reason=None):
+    def disable_password(self, user_id, request, reason=None):
         user = self.get_user(user_id)
         user.password = self.hasher.disable()
         user.disabled_for = reason
+        user.record_event(
+            tag=EventTag.Account.PasswordDisabled,
+            request=request,
+            additional={"reason": reason.value if reason else None},
+        )
 
     def is_disabled(self, user_id):
         user = self.get_user(user_id)
 
-        # User is not disabled.
-        if self.hasher.is_enabled(user.password):
-            return (False, None)
-        # User is disabled.
-        else:
+        if user.is_frozen:
+            return (True, DisableReason.AccountFrozen)
+
+        # User is disabled due to password being disabled
+        if not self.hasher.is_enabled(user.password):
             return (True, user.disabled_for)
+
+        # User is not disabled.
+        return (False, None)
 
     def has_two_factor(self, user_id):
         """
@@ -529,29 +590,17 @@ class DatabaseUserService:
             None,
         )
 
-    def record_event(self, user_id, *, tag, additional=None):
-        """
-        Creates a new UserEvent for the given user with the given
-        tag, IP address, and additional metadata.
-
-        Returns the event.
-        """
-        user = self.get_user(user_id)
-        return user.record_event(
-            tag=tag, ip_address=self.remote_addr, additional=additional
-        )
-
     def generate_recovery_codes(self, user_id):
         user = self.get_user(user_id)
 
         if user.has_recovery_codes:
             self.db.query(RecoveryCode).filter_by(user=user).delete()
 
-        recovery_codes = [secrets.token_hex(8) for _ in range(RECOVERY_CODE_COUNT)]
+        recovery_codes = [
+            secrets.token_hex(RECOVERY_CODE_BYTES) for _ in range(RECOVERY_CODE_COUNT)
+        ]
         for recovery_code in recovery_codes:
             self.db.add(RecoveryCode(user=user, code=self.hasher.hash(recovery_code)))
-
-        self.db.flush()
 
         return recovery_codes
 
@@ -575,9 +624,12 @@ class DatabaseUserService:
 
         # The code is valid and not burned. Mark it as burned
         stored_recovery_code.burned = datetime.datetime.now()
-        self.db.flush()
         self._metrics.increment("warehouse.authentication.recovery_code.ok")
         return True
+
+    def get_password_timestamp(self, user_id):
+        user = self.get_user(user_id)
+        return user.password_date.timestamp() if user.password_date is not None else 0
 
 
 @implementer(ITokenService)
@@ -603,6 +655,20 @@ class TokenService:
             raise TokenInvalid
 
         return data
+
+    def unsafe_load_payload(self, token):
+        """
+        ¡DANGER!
+
+        This method does not validate expiration whatsoever!
+        It can *and should* only be used for inspecting an expired token then
+        doing nothing with it whatsoever.
+        """
+        signature_valid, data = self.serializer.loads_unsafe(token)
+
+        if signature_valid:
+            return data
+        return None
 
 
 def database_login_factory(context, request):
@@ -654,7 +720,6 @@ class TokenServiceFactory:
 
 @implementer(IPasswordBreachedService)
 class HaveIBeenPwnedPasswordBreachedService:
-
     _failure_message_preamble = (
         "This password appears in a security breach or has been "
         "compromised and cannot be used."
@@ -716,7 +781,11 @@ class HaveIBeenPwnedPasswordBreachedService:
         self._metrics_increment("warehouse.compromised_password_check.start", tags=tags)
 
         # To work with the HIBP API, we need the sha1 of the UTF8 encoded password.
-        hashed_password = hashlib.sha1(password.encode("utf8")).hexdigest().lower()
+        hashed_password = (
+            hashlib.sha1(password.encode("utf8"), usedforsecurity=False)
+            .hexdigest()
+            .lower()
+        )
 
         # Fetch the passwords from the HIBP data set.
         try:
@@ -772,3 +841,62 @@ class NullPasswordBreachedService:
         # This service allows *every* password as a non-breached password. It will never
         # tell a user their password isn't good enough.
         return False
+
+
+@implementer(IEmailBreachedService)
+class HaveIBeenPwnedEmailBreachedService:
+    def __init__(
+        self,
+        *,
+        session,
+        api_base="https://haveibeenpwned.com/api/v3/breachedaccount/",
+        api_key=None,
+    ):
+        self._http = session
+        self._api_base = api_base
+        self.api_key = api_key
+
+    @classmethod
+    def create_service(cls, context, request):
+        hibp_api_key = request.registry.settings.get("hibp.api_key")
+        return cls(session=request.http, api_key=hibp_api_key)
+
+    def get_email_breach_count(self, email: str) -> int | None:
+        """
+        Check if an email has been breached, return the number of breaches.
+        See https://haveibeenpwned.com/API/v3#BreachesForAccount
+        """
+
+        # bail early if no api key is set, so we don't send failing requests
+        if not self.api_key:
+            return None
+
+        try:
+            resp = self._http.get(
+                urllib.parse.urljoin(self._api_base, email),
+                headers={"User-Agent": "PyPI.org", "hibp-api-key": self.api_key},
+                timeout=(0.25, 0.25),
+            )
+            resp.raise_for_status()
+        except requests.RequestException as exc:
+            # 404 is expected if the email has **not** been breached
+            if (
+                exc.response is not None
+                and exc.response.status_code == http.HTTPStatus.NOT_FOUND
+            ):
+                return 0
+            logger.warning("Error contacting HaveIBeenPwned: %r", exc)
+            return -1
+
+        return len(resp.json())
+
+
+@implementer(IEmailBreachedService)
+class NullEmailBreachedService:
+    @classmethod
+    def create_service(cls, context, request):
+        return cls()
+
+    def get_email_breach_count(self, email):
+        # This service allows *every* email as a non-breached email.
+        return 0

@@ -14,14 +14,12 @@ import json
 import re
 import time
 
-from typing import Optional
-
 import requests
 
 from warehouse import integrations
-from warehouse.accounts.interfaces import IUserService
 from warehouse.email import send_token_compromised_email_leak
-from warehouse.macaroons.caveats import InvalidMacaroonError
+from warehouse.events.tags import EventTag
+from warehouse.macaroons import InvalidMacaroonError
 from warehouse.macaroons.interfaces import IMacaroonService
 from warehouse.metrics import IMetricsService
 
@@ -70,13 +68,13 @@ class InvalidTokenLeakRequestError(Exception):
 
 
 class TokenLeakDisclosureRequest:
-    def __init__(self, token: str, public_url: str):
+    def __init__(self, token: str, public_url: str, source: str | None = None):
         self.token = token
         self.public_url = public_url
+        self.source = source
 
     @classmethod
     def from_api_record(cls, record, *, matchers=TOKEN_LEAK_MATCHERS):
-
         if not isinstance(record, dict):
             raise InvalidTokenLeakRequestError(
                 f"Record is not a dict but: {str(record)[:100]}", reason="format"
@@ -103,10 +101,12 @@ class TokenLeakDisclosureRequest:
             extracted_token = matcher.extract(record["token"])
         except ExtractionFailedError:
             raise InvalidTokenLeakRequestError(
-                "Cannot extract token from recieved match", reason="extraction"
+                "Cannot extract token from received match", reason="extraction"
             )
 
-        return cls(token=extracted_token, public_url=record["url"])
+        return cls(
+            token=extracted_token, public_url=record["url"], source=record.get("source")
+        )
 
 
 class GitHubPublicKeyMetaAPIError(InvalidTokenLeakRequestError):
@@ -129,7 +129,7 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         session,
         metrics,
         api_url: str,
-        api_token: Optional[str] = None,
+        api_token: str | None = None,
         public_keys_cache=PUBLIC_KEYS_CACHE,
     ):
         super().__init__(metrics=metrics, public_keys_cache=public_keys_cache)
@@ -188,7 +188,6 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
         expected_attributes = {"key", "key_identifier"}
         result = []
         for public_key in public_keys:
-
             if not isinstance(public_key, dict):
                 raise GitHubPublicKeyMetaAPIError(
                     f"Key is not a dict but: {public_key}",
@@ -211,10 +210,9 @@ class GitHubTokenScanningPayloadVerifier(integrations.PayloadVerifier):
 
 
 def _analyze_disclosure(request, disclosure_record, origin):
-
     metrics = request.find_service(IMetricsService, context=None)
 
-    metrics.increment(f"warehouse.token_leak.{origin}.recieved")
+    metrics.increment(f"warehouse.token_leak.{origin}.received")
 
     try:
         disclosure = TokenLeakDisclosureRequest.from_api_record(
@@ -243,15 +241,17 @@ def _analyze_disclosure(request, disclosure_record, origin):
         public_url=disclosure.public_url,
         origin=origin,
     )
-    user_service = request.find_service(IUserService, context=None)
 
-    user_service.record_event(
-        database_macaroon.user.id,
-        tag="account:api_token:removed_leak",
+    database_macaroon.user.record_event(
+        tag=EventTag.Account.APITokenRemovedLeak,
+        request=request,
         additional={
             "macaroon_id": str(database_macaroon.id),
             "public_url": disclosure.public_url,
-            "permissions": database_macaroon.caveats.get("permissions", "user"),
+            "permissions": database_macaroon.permissions_caveat.get(
+                "permissions", "user"
+            ),
+            "caveats": database_macaroon.caveats,
             "description": database_macaroon.description,
         },
     )

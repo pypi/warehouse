@@ -14,7 +14,7 @@ import datetime
 
 import factory
 
-from warehouse.accounts.models import Email, User, UserEvent
+from warehouse.accounts.models import Email, User
 
 from .base import WarehouseFactory
 
@@ -38,13 +38,14 @@ class UserFactory(WarehouseFactory):
     last_login = factory.Faker(
         "date_time_between_dates", datetime_start=datetime.datetime(2011, 1, 1)
     )
+    totp_secret = factory.Faker("binary", length=20)
 
 
 class UserEventFactory(WarehouseFactory):
     class Meta:
-        model = UserEvent
+        model = User.Event
 
-    user = factory.SubFactory(User)
+    source = factory.SubFactory(User)
 
 
 class EmailFactory(WarehouseFactory):

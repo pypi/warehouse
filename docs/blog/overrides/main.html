@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+{# JSON Feed #}
+{% if "rss" in config.plugins %}
+<link
+  rel="alternate"
+  type="application/feed+json"
+  title="JSON feed" href="{{ 'feed_json_created.json' | url }}"
+  />
+<link
+  rel="alternate"
+  type="application/feed+json"
+  title="JSON feed of updated content"
+  href="{{ 'feed_json_updated.json' | url }}" />
+{% endif %}
+{% endblock %}

@@ -13,7 +13,6 @@
 from email.headerregistry import Address
 from email.message import EmailMessage as RawEmailMessage
 from email.utils import parseaddr
-from typing import Optional
 
 import premailer
 
@@ -33,14 +32,23 @@ def _format_sender(sitename, sender):
 
 
 class EmailMessage:
-    def __init__(self, subject: str, body_text: str, body_html: Optional[str] = None):
+    def __init__(
+        self,
+        subject: str,
+        body_text: str,
+        body_html: str | None = None,
+        sender: str | None = None,
+    ):
         self.subject = subject
         self.body_text = body_text
         self.body_html = body_html
+        self.sender = sender
 
     @classmethod
     def from_template(cls, email_name, context, *, request):
-        subject = render(f"email/{email_name}/subject.txt", context, request=request)
+        subject = render(
+            f"email/{email_name}/subject.txt", context, request=request
+        ).replace("\n", "")
         body_text = render(f"email/{email_name}/body.txt", context, request=request)
 
         try:
@@ -75,9 +83,13 @@ class SMTPEmailSender:
                 body=message.body_text,
                 html=message.body_html,
                 recipients=[recipient],
-                sender=self.sender,
+                sender=self.sender if message.sender is None else message.sender,
             )
         )
+
+    def last_sent(self, to, subject):
+        # We don't store previously sent emails, so nothing to comapre against
+        return None
 
 
 @implementer(IEmailSender)
@@ -105,7 +117,7 @@ class SESEmailSender:
     def send(self, recipient, message):
         raw = RawEmailMessage()
         raw["Subject"] = message.subject
-        raw["From"] = self._sender
+        raw["From"] = self._sender if message.sender is None else message.sender
         raw["To"] = recipient
 
         raw.set_content(message.body_text)
@@ -121,11 +133,26 @@ class SESEmailSender:
         self._db.add(
             SESEmailMessage(
                 message_id=resp["MessageId"],
-                from_=parseaddr(self._sender)[1],
+                from_=parseaddr(
+                    self._sender if message.sender is None else message.sender
+                )[1],
                 to=parseaddr(recipient)[1],
                 subject=message.subject,
             )
         )
+
+    def last_sent(self, to, subject):
+        last_email = (
+            self._db.query(SESEmailMessage)
+            .filter(
+                SESEmailMessage.to == to,
+                SESEmailMessage.subject == subject,
+            )
+            .order_by(SESEmailMessage.created.desc())
+            .first()
+        )
+        if last_email:
+            return last_email.created
 
 
 class ConsoleAndSMTPEmailSender(SMTPEmailSender):
@@ -134,7 +161,7 @@ class ConsoleAndSMTPEmailSender(SMTPEmailSender):
         print(
             f"""Email sent
 Subject: {message.subject}
-From: {self.sender}
+From: {self.sender if message.sender is None else message.sender}
 To: {recipient}
 HTML: Visualize at http://localhost:1080
 Text: {message.body_text}"""

@@ -30,7 +30,7 @@ def test_cant_render_rst():
 
 def test_can_render_plaintext():
     result = readme.render("raw thing", "text/plain")
-    assert result == "raw thing"
+    assert result == "<pre>raw thing</pre>"
 
 
 def test_can_render_markdown():
@@ -41,6 +41,11 @@ def test_can_render_markdown():
 def test_can_render_missing_content_type():
     result = readme.render("raw thing")
     assert result == "<p>raw thing</p>\n"
+
+
+def test_can_render_blank_content_type():
+    result = readme.render("wild thing", "")
+    assert result == "<p>wild thing</p>\n"
 
 
 def test_renderer_version():

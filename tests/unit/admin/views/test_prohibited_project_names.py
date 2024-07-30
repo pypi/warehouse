@@ -12,6 +12,8 @@
 
 import uuid
 
+from collections import defaultdict
+
 import pretend
 import pytest
 
@@ -35,7 +37,7 @@ class TestProhibitedProjectNameList:
     def test_no_query(self, db_request):
         db_request.db.query(ProhibitedProjectName).delete()
         prohibited = sorted(
-            [ProhibitedProjectFactory.create() for _ in range(30)],
+            ProhibitedProjectFactory.create_batch(30),
             key=lambda b: canonicalize_name(b.name),
         )
         result = views.prohibited_project_names(db_request)
@@ -45,7 +47,7 @@ class TestProhibitedProjectNameList:
     def test_with_page(self, db_request):
         db_request.db.query(ProhibitedProjectName).delete()
         prohibited = sorted(
-            [ProhibitedProjectFactory.create() for _ in range(30)],
+            ProhibitedProjectFactory.create_batch(30),
             key=lambda b: canonicalize_name(b.name),
         )
         db_request.GET["page"] = "2"
@@ -62,7 +64,7 @@ class TestProhibitedProjectNameList:
     def test_basic_query(self, db_request):
         db_request.db.query(ProhibitedProjectName).delete()
         prohibited = sorted(
-            [ProhibitedProjectFactory.create() for _ in range(30)],
+            ProhibitedProjectFactory.create_batch(30),
             key=lambda b: canonicalize_name(b.name),
         )
         db_request.GET["q"] = prohibited[0].name
@@ -76,7 +78,7 @@ class TestProhibitedProjectNameList:
     def test_wildcard_query(self, db_request):
         db_request.db.query(ProhibitedProjectName).delete()
         prohibited = sorted(
-            [ProhibitedProjectFactory.create() for _ in range(30)],
+            ProhibitedProjectFactory.create_batch(30),
             key=lambda b: canonicalize_name(b.name),
         )
         db_request.GET["q"] = prohibited[0].name[:-1] + "%"
@@ -101,17 +103,36 @@ class TestConfirmProhibitedProjectName:
 
         assert result == {
             "prohibited_project_names": {"project": "foo", "comment": ""},
-            "existing": {"project": None, "releases": [], "files": [], "roles": []},
+            "existing": {
+                "project": None,
+                "releases": [],
+                "files": [],
+                "roles": [],
+                "releases_by_date": defaultdict(list),
+            },
         }
 
     def test_stuff_to_delete(self, db_request):
+        db_request.user = UserFactory.create()
         project = ProjectFactory.create()
+        release = ReleaseFactory.create(project=project)
+        file_ = FileFactory.create(release=release, filename="who cares")
+        role = RoleFactory.create(project=project, user=db_request.user)
+
         db_request.GET["project"] = project.name
         result = views.confirm_prohibited_project_names(db_request)
 
         assert result == {
             "prohibited_project_names": {"project": project.name, "comment": ""},
-            "existing": {"project": project, "releases": [], "files": [], "roles": []},
+            "existing": {
+                "project": project,
+                "releases": [release],
+                "files": [file_],
+                "roles": [role],
+                "releases_by_date": defaultdict(
+                    list, {release.created.strftime("%Y-%m-%d"): [release]}
+                ),
+            },
         }
 
 
@@ -152,13 +173,22 @@ class TestAddProhibitedProjectName:
         assert result.status_code == 303
         assert result.headers["Location"] == "/foo/bar/"
 
-    def test_already_existing_prohibited_project_names(self, db_request):
-        prohibited_project_name = ProhibitedProjectFactory.create()
+    @pytest.mark.parametrize(
+        "project_name, prohibit_name",
+        [
+            ("foobar", "foobar"),
+            ("FoObAr", "fOoBaR"),
+        ],
+    )
+    def test_already_existing_prohibited_project_names(
+        self, db_request, project_name, prohibit_name
+    ):
+        ProhibitedProjectFactory.create(name=project_name)
 
         db_request.db.expire_all()
         db_request.user = UserFactory.create()
-        db_request.POST["project"] = prohibited_project_name.name
-        db_request.POST["confirm"] = prohibited_project_name.name
+        db_request.POST["project"] = prohibit_name
+        db_request.POST["confirm"] = prohibit_name
         db_request.POST["comment"] = "This is a comment"
         db_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
@@ -169,7 +199,7 @@ class TestAddProhibitedProjectName:
 
         assert db_request.session.flash.calls == [
             pretend.call(
-                f"{prohibited_project_name.name!r} has already been prohibited.",
+                f"{prohibit_name!r} has already been prohibited.",
                 queue="error",
             )
         ]

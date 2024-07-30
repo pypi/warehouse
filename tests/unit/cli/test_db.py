@@ -9,10 +9,19 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+from datetime import datetime
+from uuid import UUID
 
 import alembic.command
 import pretend
 import pytest
+import sqlalchemy
+
+from sqlalchemy.dialects.postgresql import UUID as PG_UUID
+from sqlalchemy.orm import Mapped, mapped_column
+
+import warehouse.cli.db.dbml
+import warehouse.db
 
 from warehouse.cli.db.branches import branches
 from warehouse.cli.db.current import current
@@ -24,6 +33,7 @@ from warehouse.cli.db.revision import revision
 from warehouse.cli.db.show import show
 from warehouse.cli.db.stamp import stamp
 from warehouse.cli.db.upgrade import upgrade
+from warehouse.utils.db.types import datetime_now
 
 
 def test_branches_command(monkeypatch, cli, pyramid_config):
@@ -43,11 +53,6 @@ def test_branches_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(branches, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_branches.calls == [pretend.call(alembic_config)]
 
 
@@ -68,11 +73,6 @@ def test_current_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(current, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_current.calls == [pretend.call(alembic_config)]
 
 
@@ -93,11 +93,6 @@ def test_downgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(downgrade, ["--", "-1"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_downgrade.calls == [pretend.call(alembic_config, "-1")]
 
 
@@ -126,11 +121,6 @@ def test_heads_command(monkeypatch, cli, pyramid_config, args, ekwargs):
 
     result = cli.invoke(heads, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_heads.calls == [pretend.call(alembic_config, **ekwargs)]
 
 
@@ -151,11 +141,6 @@ def test_history_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(history, ["foo:bar"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_history.calls == [pretend.call(alembic_config, "foo:bar")]
 
 
@@ -195,11 +180,6 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
 
     result = cli.invoke(merge, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_merge.calls == [pretend.call(alembic_config, *eargs, **ekwargs)]
 
 
@@ -256,11 +236,6 @@ def test_revision_command(monkeypatch, cli, pyramid_config, args, ekwargs):
 
     result = cli.invoke(revision, args, obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_revision.calls == [pretend.call(alembic_config, **ekwargs)]
 
 
@@ -281,11 +256,6 @@ def test_show_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(show, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_show.calls == [pretend.call(alembic_config, "foo")]
 
 
@@ -306,11 +276,6 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(stamp, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_stamp.calls == [pretend.call(alembic_config, "foo")]
 
 
@@ -331,9 +296,129 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
-    assert alembic_config.attributes == {"connection": connection}
-    assert connection.execute.calls == [
-        pretend.call("SELECT pg_advisory_lock(hashtext('alembic'))"),
-        pretend.call("SELECT pg_advisory_unlock(hashtext('alembic'))"),
-    ]
     assert alembic_upgrade.calls == [pretend.call(alembic_config, "foo")]
+
+
+def test_dbml_command(monkeypatch, cli):
+    generate_dbml_file = pretend.call_recorder(lambda tables, path: None)
+    monkeypatch.setattr(warehouse.cli.db.dbml, "generate_dbml_file", generate_dbml_file)
+
+    ModelBase = pretend.stub(  # noqa
+        metadata=pretend.stub(
+            tables=pretend.stub(
+                values=pretend.call_recorder(lambda: ["table0", "table1"])
+            )
+        )
+    )
+    monkeypatch.setattr(warehouse.db, "ModelBase", ModelBase)
+
+    cli.invoke(warehouse.cli.db.dbml.dbml)
+    assert generate_dbml_file.calls == [pretend.call(["table0", "table1"], None)]
+
+
+EXPECTED_DBML = """Table _clan {
+  name varchar [unique, not null]
+  fetched varchar [default: `FetchedValue()`, Note: "fetched value"]
+  for_the_children boolean [default: `True`]
+  nice varchar
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+  Note: "various clans"
+}
+
+Table _clan_member {
+  name varchar [not null]
+  clan_id varchar
+  joined datetime [not null, default: `now()`]
+  departed datetime
+  id varchar [pk, not null, default: `gen_random_uuid()`]
+}
+
+Ref: _clan_member.clan_id > _clan.id
+"""
+
+
+def test_generate_dbml_file(tmp_path_factory):
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+        metadata = sqlalchemy.MetaData()
+
+    class Clan(Muddle):
+        __tablename__ = "_clan"
+        __table_args__ = {"comment": "various clans"}
+
+        name: Mapped[str] = mapped_column(unique=True)
+        fetched: Mapped[str | None] = mapped_column(
+            server_default=sqlalchemy.FetchedValue(),
+            comment="fetched value",
+        )
+        for_the_children: Mapped[bool | None] = mapped_column(default=True)
+        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
+
+    class ClanMember(Muddle):
+        __tablename__ = "_clan_member"
+
+        name: Mapped[str]
+        clan_id: Mapped[UUID | None] = mapped_column(
+            PG_UUID,
+            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
+        )
+        joined: Mapped[datetime_now]
+        departed: Mapped[datetime | None]
+
+    outpath = tmp_path_factory.mktemp("out") / "wutang.dbml"
+    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), outpath)
+
+    with open(outpath) as f:
+        assert f.read() == EXPECTED_DBML
+
+
+def test_generate_dbml_console(capsys, monkeypatch):
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+        metadata = sqlalchemy.MetaData()
+
+    class Clan(Muddle):
+        __tablename__ = "_clan"
+        __table_args__ = {"comment": "various clans"}
+
+        name: Mapped[str] = mapped_column(unique=True)
+        fetched: Mapped[str | None] = mapped_column(
+            server_default=sqlalchemy.FetchedValue(),
+            comment="fetched value",
+        )
+        for_the_children: Mapped[bool | None] = mapped_column(default=True)
+        nice: Mapped[str | None] = mapped_column(sqlalchemy.String(length=69))
+
+    class ClanMember(Muddle):
+        __tablename__ = "_clan_member"
+
+        name: Mapped[str]
+        clan_id: Mapped[UUID | None] = mapped_column(
+            PG_UUID,
+            sqlalchemy.ForeignKey("_clan.id", deferrable=True, initially="DEFERRED"),
+        )
+        joined: Mapped[datetime_now]
+        departed: Mapped[datetime | None]
+
+    warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)
+    captured = capsys.readouterr()
+
+    assert captured.out == EXPECTED_DBML
+
+
+def test_generate_dbml_bad_conversion():
+    class Muddle(warehouse.db.Model):
+        __abstract__ = True
+        metadata = sqlalchemy.MetaData()
+
+    class BadText(sqlalchemy.Text):
+        pass
+
+    class Puddle(Muddle):
+        __tablename__ = "puddle"
+        __table_args__ = {"comment": "various clans"}
+
+        name: Mapped[str] = mapped_column(BadText, unique=True)
+
+    with pytest.raises(SystemExit):
+        warehouse.cli.db.dbml.generate_dbml_file(Muddle.metadata.tables.values(), None)

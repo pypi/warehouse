@@ -18,18 +18,19 @@
 {% block title %}Flags{% endblock %}
 
 {% block breadcrumb %}
-  <li class="active">Flags</li>
+  <li class="breadcrumb-item active">Flags</li>
 {% endblock %}
 
 {% set csrf_token = request.session.get_csrf_token() %}
 
 {% block content %}
-<div class="box box-primary">
-  <div class="box-header with-border">
-    <h3 class="box-title">Edit Flags</h3>
+<div class="card card-primary card-outline">
+  <div class="card-header with-border">
+    <h3 class="card-title">Edit Flags</h3>
   </div>
-  <div class="box-body table-responsive no-padding">
+  <div class="card-body table-responsive p-0">
     <table class="table table-hover">
+      <thead>
       <tr>
         <th>Flag ID</th>
         <th>Description</th>
@@ -37,19 +38,22 @@
         <th>Enabled?</th>
         <th></th>
       </tr>
+      </thead>
+      <tbody>
       {% for flag in flags %}
       <tr>
         <form method="POST" action="{{ request.route_path('admin.flags.edit') }}">
           <input name="csrf_token" type="hidden" value="{{ csrf_token }}">
           <input name="id" type="hidden" value="{{ flag.id }}">
           <td><code>{{ flag.id }}</code></td>
-          <td><input name="description" size="50" value="{{ flag.description }}" {{ "disabled" if not request.has_permission('admin') }}></td>
+          <td><input name="description" size="50" value="{{ flag.description }}" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }}></td>
           <td>{{ flag.notify }}</td>
-          <td><input name="enabled" type="checkbox" {{ "disabled" if not request.has_permission('admin') }} {{ 'checked' if flag.enabled else '' }}></td>
-          <td><input type="submit" title="{{ "Flag changes require superuser privileges" if not request.has_permission('admin') }}" value="Save" {{ "disabled" if not request.has_permission('admin') }}></td>
+          <td><input name="enabled" type="checkbox" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }} {{ 'checked' if flag.enabled else '' }}></td>
+          <td><input type="submit" title="{{ 'Flag changes require superuser privileges' if not request.has_permission(Permissions.AdminFlagsWrite) }}" value="Save" {{ "disabled" if not request.has_permission(Permissions.AdminFlagsWrite) }}></td>
         </form>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
   </div>
 </div>

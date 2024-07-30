@@ -68,22 +68,23 @@
 {% block title %}Message Details{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.emails.list') }}">Emails</a></li>
-  <li class="active">Message Details</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.emails.list') }}">Emails</a></li>
+  <li class="breadcrumb-item active">Message Details</li>
 {% endblock %}
 
 
 {% block content %}
   <div class="row">
     <div class="col-md-12">
-      <div class="box box-solid">
-        <div class="box-header with-border">
-          <i class="fa fa-envelope-open"></i>
-
-          <h3 class="box-title">Message</h3>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fa fa-envelope-open"></i>
+            Message
+          </h3>
         </div>
 
-        <div class="box-body">
+        <div class="card-body">
           <dl class="dl-horizontal">
             <dt>Message Id</dt>
             <dd>{{ email.message_id }}</dd>
@@ -112,17 +113,20 @@
 
   <div class="row">
     <div class="col-md-12">
-      <div class="box-solid">
-        <div class="box-header with-border">
-          <i class="fa fa-exchange-alt"></i>
+      <div class="card">
+        <div class="card-header">
 
-          <h3 class="box-title">Events</h3>
+          <h3 class="card-title">
+            <i class="fa fa-exchange-alt"></i>
+            Events
+          </h3>
         </div>
 
-        <div class="box-body">
-          <ul class="timeline">
+        <div class="card-body">
+          <div class="timeline timeline-inverse">
             {% for event in email.events|reverse %}
-            <li>
+            <div>
+              {# Modify the icon and color based on the event type #}
               {% if event.event_type.value == "Delivery" %}
                 {% set event_icon = "envelope" %}
                 {% set event_color = "green" %}
@@ -150,21 +154,21 @@
                   {{ render_data(event.data) }}
                 </div>
               </div>
-            </li>
+            </div>
             {% endfor %}
 
-            <li>
+            <div>
               <i class="fa fa-check bg-blue"></i>
+
               <div class="timeline-item">
                 <span class="time"><i class="fa fa-clock"></i> {{ email.created|format_datetime }}</span>
                 <h3 class="timeline-header no-border">Accepted</h3>
               </div>
-            </li>
-
-            <li>
-              <i class="fa fa-clock-o bg-gray"></i>
-            </li>
-          </ul>
+            </div>
+            <div>
+              <i class="fas fa-clock bg-gray"></i>
+            </div>
+          </div>
         </div>
       </div>
     </div>

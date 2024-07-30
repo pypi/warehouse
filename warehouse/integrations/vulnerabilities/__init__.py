@@ -10,9 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from typing import List
-
 from warehouse import integrations
 
 
@@ -26,12 +23,14 @@ class VulnerabilityReportRequest:
     def __init__(
         self,
         project: str,
-        versions: List[str],
+        versions: list[str],
         vulnerability_id: str,
         advisory_link: str,
-        aliases: List[str],
+        aliases: list[str],
         details: str,
-        fixed_in: List[str],
+        summary: str,
+        fixed_in: list[str],
+        withdrawn: str | None,
     ):
         self.project = project
         self.versions = versions
@@ -39,7 +38,9 @@ class VulnerabilityReportRequest:
         self.advisory_link = advisory_link
         self.aliases = aliases
         self.details = details
+        self.summary = summary
         self.fixed_in = fixed_in
+        self.withdrawn = withdrawn
 
     @classmethod
     def from_api_request(cls, request):
@@ -64,12 +65,14 @@ class VulnerabilityReportRequest:
             advisory_link=request["link"],
             aliases=request["aliases"],
             details=request.get("details"),
+            summary=request.get("summary"),
             fixed_in=[
                 version
                 for event in request.get("events", [])
                 for event_type, version in event.items()
                 if event_type == "fixed"
             ],
+            withdrawn=request.get("withdrawn"),
         )
 
 

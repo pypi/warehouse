@@ -1,0 +1,124 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{%- for user in users -%}
+<div class="c-sb-section">
+  <div class="c-sb-section__title">
+    User Details
+  </div>
+  <div class="c-sb-section__body">
+    <ul class="c-sb-list c-sb-list--two-line">
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Username
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            <a target="_blank" rel="noopener" href="{{ request.route_url('accounts.profile', username=user.username) }}">{{ user.username }}</a>
+            (<a target="_blank" rel="noopener" href="{{ request.route_url('admin.user.detail', username=user.username) }}">admin</a>)
+          </span>
+        </span>
+      </li>
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Display Name
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            {{ user.name }}
+          </span>
+        </span>
+      </li>
+      {% if user.date_joined %}
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Date Joined
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            {{ user.date_joined.strftime('%Y-%m-%d') }}
+          </span>
+        </span>
+      </li>
+      {% endif %}
+      {% if user.last_login %}
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Last Login
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            {{ user.last_login.strftime('%Y-%m-%d') }}
+          </span>
+        </span>
+      </li>
+      {% endif %}
+      {% if user.is_frozen %}
+      <li class="c-sb-list-item">
+        <span class="c-sb-list-item__label t-tx-charcoal-300">
+          Frozen
+          <span class="c-sb-list-item__text t-tx-charcoal-500">
+            <span class="badge red">Yes</span>
+          </span>
+        </span>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+
+<div class="c-sb-section">
+<div class="c-sb-section__title">
+  <i class="icon-email icon-sb"></i> Email Addresses ({{ user.emails|length }})
+</div>
+<div class="c-sb-section__body">
+  <ul class="unstyled">
+    {% for email in user.emails %}
+    <li>
+      {{ email.email }}
+      {% if email.primary %}<span class="badge blue">Primary</span>{% endif %}
+      {% if email.verified %}<span class="badge green">Verified</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="c-sb-section">
+<div class="c-sb-section__title">
+  <i class="icon-lock icon-sb"></i> Two-Factor
+</div>
+<div class="c-sb-section__body">
+  <ul class="unstyled">
+    <li>
+      Recovery Codes: {% if user.has_recovery_codes %}<span class="badge green">Yes</span>{% else %}<span class="badge red">No</span>{% endif %}
+    </li>
+    {% if user.totp_secret %}
+    <li>
+      TOTP: <span class="badge green">Yes</span>
+    </li>
+    {% endif %}
+    {% for key in user.webauthn %}
+    <li>
+      WebAuthn: <span class="badge green">{{ key.label }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+
+<div class="c-sb-section">
+<div class="c-sb-section__title">
+  <i class="icon-archive icon-sb"></i> Projects ({{ user.projects|length }})
+</div>
+<div class="c-sb-section__body">
+  <ul class="unstyled">
+    {% for project in user.projects %}
+    <li>
+      <a target="_blank" rel="noopener" href="{{ request.route_url('packaging.project', name=project.normalized_name) }}">{{ project.name }}</a>
+      <span class="u-pull-right">(<a target="_blank" rel="noopener" href="{{ request.route_url('admin.project.detail', project_name=project.normalized_name) }}">admin</a>)</span>
+    </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endfor -%}

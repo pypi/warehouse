@@ -1,0 +1,16 @@
+:root, [data-md-color-scheme="pypi"], [data-md-color-scheme="slate"] {
+  --md-primary-fg-color:        #0073b7;
+  --md-primary-fg-color--light: #009ffd;
+  --md-primary-fg-color--dark:  #009ffd;
+}
+
+[data-md-color-scheme="slate"][data-md-color-primary="indigo"] {
+  --md-typeset-a-color: #009ffd;
+}
+
+.md-typeset .blogging-tag code {
+  white-space: nowrap;
+  display: block;
+}
+
+readthedocs-flyout { display: none; }

@@ -318,6 +318,28 @@ class TestSession:
         session.clear_webauthn_challenge()
         assert not session[session._webauthn_challenge_key]
 
+    def test_record_password_timestamp(self):
+        session = Session()
+        assert not session.should_save()
+        session.record_password_timestamp(1646230636)
+
+        assert session[session._password_timestamp_key] == 1646230636
+        assert session.should_save()
+
+    @pytest.mark.parametrize(
+        ("stored", "current", "expected"),
+        [
+            (1600000000, 0, True),
+            (1600000000, 1600000000, False),
+            (0, 1600000000, True),
+            (None, 1600000000, False),
+        ],
+    )
+    def test_password_outdated(self, stored, current, expected):
+        session = Session()
+        session.record_password_timestamp(stored)
+        assert session.password_outdated(current) == expected
+
 
 class TestSessionFactory:
     def test_initialize(self, monkeypatch):

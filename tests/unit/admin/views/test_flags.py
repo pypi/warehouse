@@ -92,7 +92,6 @@ class TestEditFlag:
         expected_description,
         expected_enabled,
     ):
-
         # Clear out any existing flags added from migrations
         db_request.db.query(AdminFlag).delete()
 

@@ -23,11 +23,11 @@ extra_in_right = right_reqs - left_reqs
 
 if extra_in_left:
     for dep in sorted(extra_in_left):
-        print("- {}".format(dep))
+        print(f"- {dep}")
 
 if extra_in_right:
     for dep in sorted(extra_in_right):
-        print("+ {}".format(dep))
+        print(f"+ {dep}")
 
 if extra_in_left or extra_in_right:
     sys.exit(1)

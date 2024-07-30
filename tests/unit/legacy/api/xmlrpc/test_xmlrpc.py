@@ -12,9 +12,11 @@
 
 import datetime
 
-import elasticsearch
 import pretend
 import pytest
+
+from pyramid.httpexceptions import HTTPMethodNotAllowed
+from pyramid_rpc.xmlrpc import XmlRpcApplicationError
 
 from warehouse.legacy.api.xmlrpc import views as xmlrpc
 from warehouse.packaging.models import Classifier
@@ -114,448 +116,39 @@ class TestRateLimiting:
 
 
 class TestSearch:
-    def test_error_when_disabled(self, pyramid_request, metrics, monkeypatch):
-        monkeypatch.setattr(
-            pyramid_request.registry,
-            "settings",
-            {"warehouse.xmlrpc.search.enabled": False},
-        )
+    @pytest.mark.parametrize("domain", [None, "example.com"])
+    def test_error(self, pyramid_request, metrics, monkeypatch, domain):
+        registry_settings = {}
+        if domain:
+            registry_settings["warehouse.domain"] = domain
+        monkeypatch.setattr(pyramid_request.registry, "settings", registry_settings)
+        monkeypatch.setattr(pyramid_request, "domain", "example.org")
+
         with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
             xmlrpc.search(pyramid_request, {"name": "foo", "summary": ["one", "two"]})
 
         assert exc.value.faultString == (
-            "RuntimeError: PyPI's XMLRPC API is currently disabled due to "
-            "unmanageable load and will be deprecated in the near future. See "
-            "https://status.python.org/ for more information."
+            "RuntimeError: PyPI no longer supports 'pip search' (or XML-RPC search). "
+            f"Please use https://{domain if domain else 'example.org'}/search "
+            "(via a browser) instead. See "
+            "https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+            "for more information."
         )
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.search.deprecated")
-        ]
-
-    def test_fails_with_invalid_operator(self, pyramid_request, metrics):
-        with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
-            xmlrpc.search(pyramid_request, {}, "lol nope")
-
-        assert (
-            exc.value.faultString
-            == "ValueError: Invalid operator, must be one of 'and' or 'or'."
-        )
-        assert metrics.histogram.calls == []
-
-    def test_default_search_operator(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, must):
-                self.type = type
-                self.must = must
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": {"query": "foo", "boost": 10}}},
-                    {
-                        "bool": {
-                            "should": [
-                                {"match": {"summary": {"query": "one", "boost": 5}}},
-                                {"match": {"summary": {"query": "two", "boost": 5}}},
-                            ]
-                        }
-                    },
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="my summary",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="other summary",
-                        latest_version="2.0",
-                        version=["2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}
-        )
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "my summary",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "other summary",
-                "version": "2.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_default_search_operator_with_spaces_in_values(
-        self, pyramid_request, metrics
-    ):
-        class FakeQuery:
-            def __init__(self, type, must):
-                self.type = type
-                self.must = must
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.must] == [
-                    {
-                        "bool": {
-                            "should": [
-                                {
-                                    "match": {
-                                        "summary": {"boost": 5, "query": "fix code"}
-                                    }
-                                },
-                                {
-                                    "match": {
-                                        "summary": {"boost": 5, "query": "like this"}
-                                    }
-                                },
-                            ]
-                        }
-                    }
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="fix code",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="like this",
-                        latest_version="2.0",
-                        version=["2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(pyramid_request, {"summary": ["fix code", "like this"]})
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "fix code",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "like this",
-                "version": "2.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_searches_with_and(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, must):
-                self.type = type
-                self.must = must
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": {"query": "foo", "boost": 10}}},
-                    {
-                        "bool": {
-                            "should": [
-                                {"match": {"summary": {"query": "one", "boost": 5}}},
-                                {"match": {"summary": {"query": "two", "boost": 5}}},
-                            ]
-                        }
-                    },
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="my summary",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="other summary",
-                        latest_version="2.0",
-                        version=["2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "and"
-        )
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "my summary",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "other summary",
-                "version": "2.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_searches_with_or(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, should):
-                self.type = type
-                self.should = should
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.should] == [
-                    {"match": {"name": {"query": "foo", "boost": 10}}},
-                    {
-                        "bool": {
-                            "should": [
-                                {"match": {"summary": {"query": "one", "boost": 5}}},
-                                {"match": {"summary": {"query": "two", "boost": 5}}},
-                            ]
-                        }
-                    },
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="my summary",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="other summary",
-                        latest_version="2.0",
-                        version=["2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "summary": ["one", "two"]}, "or"
-        )
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "my summary",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "other summary",
-                "version": "2.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_version_search(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, must):
-                self.type = type
-                self.must = must
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": {"boost": 10, "query": "foo"}}},
-                    {"match": {"version": {"query": "1.0"}}},
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="my summary",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="other summary",
-                        latest_version="2.0",
-                        version=["2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(
-            pyramid_request, {"name": "foo", "version": "1.0"}, "and"
-        )
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "my summary",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "other summary",
-                "version": "1.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_version_search_returns_latest(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, must):
-                self.type = type
-                self.must = must
-
-            def __getitem__(self, name):
-                self.offset = name.start
-                self.limit = name.stop
-                self.step = name.step
-                return self
-
-            def execute(self):
-                assert self.type == "bool"
-                assert [q.to_dict() for q in self.must] == [
-                    {"match": {"name": {"query": "foo", "boost": 10}}}
-                ]
-                assert self.offset is None
-                assert self.limit == 100
-                assert self.step is None
-                return [
-                    pretend.stub(
-                        name="foo",
-                        summary="my summary",
-                        latest_version="1.0",
-                        version=["1.0"],
-                    ),
-                    pretend.stub(
-                        name="foo-bar",
-                        summary="other summary",
-                        latest_version="2.0",
-                        version=["3.0a1", "2.0", "1.0"],
-                    ),
-                ]
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-        results = xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
-        assert results == [
-            {
-                "_pypi_ordering": False,
-                "name": "foo",
-                "summary": "my summary",
-                "version": "1.0",
-            },
-            {
-                "_pypi_ordering": False,
-                "name": "foo-bar",
-                "summary": "other summary",
-                "version": "2.0",
-            },
-        ]
-        assert metrics.histogram.calls == [
-            pretend.call("warehouse.xmlrpc.search.results", 2)
-        ]
-
-    def test_version_search_wraps_connection_error(self, pyramid_request, metrics):
-        class FakeQuery:
-            def __init__(self, type, must):
-                pass
-
-            def __getitem__(self, name):
-                return self
-
-            def execute(self):
-                raise elasticsearch.TransportError()
-
-        pyramid_request.es = pretend.stub(query=FakeQuery)
-
-        with pytest.raises(xmlrpc.XMLRPCServiceUnavailable):
-            xmlrpc.search(pyramid_request, {"name": "foo"}, "and")
-
-        assert metrics.increment.calls == [
-            pretend.call("warehouse.xmlrpc.search.error")
-        ]
-        assert metrics.histogram.calls == []
+        assert metrics.increment.calls == []
 
 
 def test_list_packages(db_request):
-    projects = [ProjectFactory.create() for _ in range(10)]
+    projects = ProjectFactory.create_batch(10)
     assert set(xmlrpc.list_packages(db_request)) == {p.name for p in projects}
 
 
 def test_list_packages_with_serial(db_request):
-    projects = [ProjectFactory.create() for _ in range(10)]
+    projects = ProjectFactory.create_batch(10)
     expected = {}
     for project in projects:
         expected.setdefault(project.name, 0)
-        for _ in range(10):
-            entry = JournalEntryFactory.create(name=project.name)
+        entries = JournalEntryFactory.create_batch(10, name=project.name)
+        for entry in entries:
             if entry.id > expected[project.name]:
                 expected[project.name] = entry.id
     assert xmlrpc.list_packages_with_serial(db_request) == expected
@@ -573,9 +166,9 @@ def test_package_hosting_mode_results(db_request):
 def test_user_packages(db_request):
     user = UserFactory.create()
     other_user = UserFactory.create()
-    owned_projects = [ProjectFactory.create() for _ in range(5)]
-    maintained_projects = [ProjectFactory.create() for _ in range(5)]
-    unowned_projects = [ProjectFactory.create() for _ in range(5)]
+    owned_projects = ProjectFactory.create_batch(5)
+    maintained_projects = ProjectFactory.create_batch(5)
+    unowned_projects = ProjectFactory.create_batch(5)
     for project in owned_projects:
         RoleFactory.create(project=project, user=user)
     for project in maintained_projects:
@@ -597,9 +190,10 @@ def test_top_packages(num, pyramid_request):
     with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
         xmlrpc.top_packages(pyramid_request, num)
 
-    assert (
-        exc.value.faultString
-        == "RuntimeError: This API has been removed. Use BigQuery instead."
+    assert exc.value.faultString == (
+        "RuntimeError: This API has been removed. Use BigQuery instead. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
@@ -613,10 +207,9 @@ def test_package_urls(domain, db_request):
         xmlrpc.package_urls(db_request, "foo", "1.0.0")
 
     assert exc.value.faultString == (
-        "RuntimeError: This API has been deprecated. Use "
-        f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
-        "instead. The XMLRPC method release_urls can be used in the "
-        "interim, but will be deprecated in the future."
+        "RuntimeError: This API has been deprecated. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
@@ -630,18 +223,17 @@ def test_package_data(domain, db_request):
         xmlrpc.package_data(db_request, "foo", "1.0.0")
 
     assert exc.value.faultString == (
-        "RuntimeError: This API has been deprecated. Use "
-        f"https://{domain if domain else 'example.org'}/foo/1.0.0/json "
-        "instead. The XMLRPC method release_data can be used in the "
-        "interim, but will be deprecated in the future."
+        "RuntimeError: This API has been deprecated. "
+        "See https://warehouse.pypa.io/api-reference/xml-rpc.html#deprecated-methods "
+        "for more information."
     )
 
 
 def test_package_releases(db_request):
     project1 = ProjectFactory.create()
-    releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
+    releases1 = ReleaseFactory.create_batch(10, project=project1)
     project2 = ProjectFactory.create()
-    [ReleaseFactory.create(project=project2) for _ in range(10)]
+    ReleaseFactory.create_batch(10, project=project2)
     result = xmlrpc.package_releases(db_request, project1.name, show_hidden=False)
     assert (
         result
@@ -654,9 +246,9 @@ def test_package_releases(db_request):
 
 def test_package_releases_hidden(db_request):
     project1 = ProjectFactory.create()
-    releases1 = [ReleaseFactory.create(project=project1) for _ in range(10)]
+    releases1 = ReleaseFactory.create_batch(10, project=project1)
     project2 = ProjectFactory.create()
-    [ReleaseFactory.create(project=project2) for _ in range(10)]
+    ReleaseFactory.create_batch(10, project=project2)
     result = xmlrpc.package_releases(db_request, project1.name, show_hidden=True)
     assert result == [
         r.version for r in reversed(sorted(releases1, key=lambda x: x._pypi_ordering))
@@ -737,7 +329,7 @@ def test_release_urls(db_request):
     release = ReleaseFactory.create(project=project)
     file_ = FileFactory.create(
         release=release,
-        filename="{}-{}.tar.gz".format(project.name, release.version),
+        filename=f"{project.name}-{release.version}.tar.gz",
         python_version="source",
     )
 
@@ -754,7 +346,7 @@ def test_release_urls(db_request):
             "md5_digest": file_.md5_digest,
             "sha256_digest": file_.sha256_digest,
             "digests": {"md5": file_.md5_digest, "sha256": file_.sha256_digest},
-            "has_sig": file_.has_signature,
+            "has_sig": False,
             "upload_time": file_.upload_time.isoformat() + "Z",
             "upload_time_iso_8601": file_.upload_time.isoformat() + "Z",
             "comment_text": file_.comment_text,
@@ -769,15 +361,11 @@ def test_release_urls(db_request):
 
 
 def test_package_roles(db_request):
-    project1, project2 = ProjectFactory.create(), ProjectFactory.create()
-    owners1 = [RoleFactory.create(project=project1) for _ in range(3)]
-    for _ in range(3):
-        RoleFactory.create(project=project2)
-    maintainers1 = [
-        RoleFactory.create(project=project1, role_name="Maintainer") for _ in range(3)
-    ]
-    for _ in range(3):
-        RoleFactory.create(project=project2, role_name="Maintainer")
+    project1, project2 = ProjectFactory.create_batch(2)
+    owners1 = RoleFactory.create_batch(3, project=project1)
+    RoleFactory.create_batch(3, project=project2)
+    maintainers1 = RoleFactory.create_batch(3, project=project1, role_name="Maintainer")
+    RoleFactory.create_batch(3, project=project2, role_name="Maintainer")
     result = xmlrpc.package_roles(db_request, project1.name)
     assert result == [
         (r.role_name, r.user.username)
@@ -793,11 +381,10 @@ def test_changelog_last_serial_none(db_request):
 
 
 def test_changelog_last_serial(db_request):
-    projects = [ProjectFactory.create() for _ in range(10)]
+    projects = ProjectFactory.create_batch(10)
     entries = []
     for project in projects:
-        for _ in range(10):
-            entries.append(JournalEntryFactory.create(name=project.name))
+        entries.extend(JournalEntryFactory.create_batch(10, name=project.name))
 
     expected = max(e.id for e in entries)
 
@@ -805,17 +392,16 @@ def test_changelog_last_serial(db_request):
 
 
 def test_changelog_since_serial(db_request):
-    projects = [ProjectFactory.create() for _ in range(10)]
+    projects = ProjectFactory.create_batch(10)
     entries = []
     for project in projects:
-        for _ in range(10):
-            entries.append(JournalEntryFactory.create(name=project.name))
+        entries.extend(JournalEntryFactory.create_batch(10, name=project.name))
 
     expected = [
         (
             e.name,
             e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
+            int(e.submitted_date.replace(tzinfo=datetime.UTC).timestamp()),
             e.action,
             e.id,
         )
@@ -827,42 +413,14 @@ def test_changelog_since_serial(db_request):
     assert xmlrpc.changelog_since_serial(db_request, serial) == expected
 
 
-@pytest.mark.parametrize("with_ids", [True, False, None])
-def test_changelog(db_request, with_ids):
-    projects = [ProjectFactory.create() for _ in range(10)]
-    entries = []
-    for project in projects:
-        for _ in range(10):
-            entries.append(JournalEntryFactory.create(name=project.name))
+def test_changelog(pyramid_request):
+    with pytest.raises(xmlrpc.XMLRPCWrappedError) as exc:
+        xmlrpc.changelog(pyramid_request, 0)
 
-    entries = sorted(entries, key=lambda x: x.id)
-
-    since = int(
-        entries[int(len(entries) / 2)]
-        .submitted_date.replace(tzinfo=datetime.timezone.utc)
-        .timestamp()
+    assert exc.value.faultString == (
+        "ValueError: The changelog method has been deprecated, use "
+        "changelog_since_serial instead."
     )
-
-    expected = [
-        (
-            e.name,
-            e.version,
-            int(e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp()),
-            e.action,
-            e.id,
-        )
-        for e in entries
-        if (e.submitted_date.replace(tzinfo=datetime.timezone.utc).timestamp() > since)
-    ]
-
-    if not with_ids:
-        expected = [e[:-1] for e in expected]
-
-    extra_args = []
-    if with_ids is not None:
-        extra_args.append(with_ids)
-
-    assert xmlrpc.changelog(db_request, since, *extra_args) == expected
 
 
 def test_browse(db_request):
@@ -874,13 +432,14 @@ def test_browse(db_request):
     for classifier in classifiers:
         db_request.db.add(classifier)
 
-    projects = [ProjectFactory.create() for _ in range(3)]
+    projects = ProjectFactory.create_batch(3)
     releases = []
     for project in projects:
-        for _ in range(10):
-            releases.append(
-                ReleaseFactory.create(project=project, _classifiers=[classifiers[0]])
+        releases.extend(
+            ReleaseFactory.create_batch(
+                10, project=project, _classifiers=[classifiers[0]]
             )
+        )
 
     releases = sorted(releases, key=lambda x: (x.project.name, x.version))
 
@@ -935,3 +494,10 @@ def test_multicall(pyramid_request):
 )
 def test_clean_for_xml(string, expected):
     assert xmlrpc._clean_for_xml(string) == expected
+
+
+def test_http_method_not_allowed_does_not_bubble_up(pyramid_request):
+    assert isinstance(
+        xmlrpc.exception_view(HTTPMethodNotAllowed(), pyramid_request),
+        XmlRpcApplicationError,
+    )

@@ -145,6 +145,12 @@ class RateLimit:
             metrics=request.find_service(IMetricsService, context=None),
         )
 
+    def __repr__(self):
+        return (
+            f'RateLimit("{self.limit}", identifiers={self.identifiers}, '
+            f"limiter_class={self.limiter_class})"
+        )
+
     def __eq__(self, other):
         if not isinstance(other, RateLimit):
             return NotImplemented

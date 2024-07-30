@@ -34,7 +34,9 @@ class TestAutoDetection:
         assert shell.autodetect() == "ipython"
 
     def test_plain(self, monkeypatch):
-        monkeypatch.setitem(sys.modules, "plain", pretend.stub())
+        """Neither bpython nor ipython are installed."""
+        monkeypatch.setitem(sys.modules, "bpython", None)
+        monkeypatch.setitem(sys.modules, "IPython", None)
         assert shell.autodetect() == "plain"
 
 

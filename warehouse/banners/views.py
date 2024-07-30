@@ -27,9 +27,9 @@ def list_banner_messages(request):
     # used to preview specific banner
     banner_id = request.params.get("single_banner")
     if banner_id:
-        query = request.db.query(Banner).filter((Banner.id == banner_id))
+        query = request.db.query(Banner).filter(Banner.id == banner_id)
     else:
-        today = str(datetime.date.today())
+        today = datetime.date.today()
         query = request.db.query(Banner).filter(
             (Banner.active == True) & (Banner.end >= today)  # noqa
         )

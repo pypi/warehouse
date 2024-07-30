@@ -43,6 +43,7 @@ class TestIsSafeUrl:
             "\njavascript:alert(x)",
             "\x08//example.com",
             "\n",
+            "view/?param=//example.com",
         ],
     )
     def test_rejects_bad_url(self, url):
@@ -54,7 +55,6 @@ class TestIsSafeUrl:
             "/view/?param=http://example.com",
             "/view/?param=https://example.com",
             "/view?param=ftp://exampel.com",
-            "view/?param=//example.com",
             "https://testserver/",
             "HTTPS://testserver/",
             "//testserver/",

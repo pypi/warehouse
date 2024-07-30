@@ -12,15 +12,18 @@
 
 
 import collections
+import re
 
-import elasticsearch
+import opensearchpy
 
 from pyramid.exceptions import PredicateMismatch
 from pyramid.httpexceptions import (
     HTTPBadRequest,
     HTTPException,
+    HTTPForbidden,
     HTTPMovedPermanently,
     HTTPNotFound,
+    HTTPRequestEntityTooLarge,
     HTTPSeeOther,
     HTTPServiceUnavailable,
     exception_response,
@@ -28,17 +31,17 @@ from pyramid.httpexceptions import (
 from pyramid.i18n import make_localizer
 from pyramid.interfaces import ITranslationDirectories
 from pyramid.renderers import render_to_response
-from pyramid.response import Response
 from pyramid.view import (
     exception_view_config,
     forbidden_view_config,
     notfound_view_config,
     view_config,
+    view_defaults,
 )
-from sqlalchemy import func
-from sqlalchemy.orm import aliased, joinedload
+from sqlalchemy import func, text
 from sqlalchemy.sql import exists, expression
 from trove_classifiers import deprecated_classifiers, sorted_classifiers
+from webob.multidict import MultiDict
 
 from warehouse.accounts import REDIRECT_FIELD_NAME
 from warehouse.accounts.models import User
@@ -50,16 +53,34 @@ from warehouse.errors import WarehouseDenied
 from warehouse.forms import SetLocaleForm
 from warehouse.i18n import LOCALE_ATTR
 from warehouse.metrics import IMetricsService
-from warehouse.packaging.models import File, Project, Release, release_classifiers
-from warehouse.search.queries import SEARCH_FILTER_ORDER, get_es_query
+from warehouse.packaging.models import (
+    File,
+    Project,
+    ProjectFactory,
+    Release,
+    ReleaseClassifiers,
+)
+from warehouse.search.queries import SEARCH_FILTER_ORDER, get_opensearch_query
 from warehouse.utils.http import is_safe_url
-from warehouse.utils.paginate import ElasticsearchPage, paginate_url_factory
+from warehouse.utils.paginate import OpenSearchPage, paginate_url_factory
 from warehouse.utils.row_counter import RowCount
+
+JSON_REGEX = r"^/pypi/([^\/]+)\/?([^\/]+)?/json\/?$"
+json_path = re.compile(JSON_REGEX)
 
 
 @view_config(context=HTTPException)
 @notfound_view_config(append_slash=HTTPMovedPermanently)
+@notfound_view_config(path_info=JSON_REGEX, append_slash=False)
 def httpexception_view(exc, request):
+    # If this is a 404 for a Project, provide the project name requested
+    if isinstance(request.context, Project):
+        project_name = request.context.name
+    elif isinstance(request.context, ProjectFactory):
+        project_name = request.matchdict.get("name")
+    else:
+        project_name = None
+
     # This special case exists for the easter egg that appears on the 404
     # response page. We don't generally allow youtube embeds, but we make an
     # except for this one.
@@ -73,10 +94,18 @@ def httpexception_view(exc, request):
     try:
         # Lightweight version of 404 page for `/simple/`
         if isinstance(exc, HTTPNotFound) and request.path.startswith("/simple/"):
-            response = Response(body="404 Not Found", content_type="text/plain")
+            response = HTTPNotFound(body="404 Not Found", content_type="text/plain")
+        elif isinstance(exc, HTTPNotFound) and json_path.match(request.path):
+            response = HTTPNotFound(
+                body='{"message": "Not Found"}',
+                charset="utf-8",
+                content_type="application/json",
+            )
         else:
             response = render_to_response(
-                "{}.html".format(exc.status_code), {}, request=request
+                f"{exc.status_code}.html",
+                {"project_name": project_name},
+                request=request,
             )
     except LookupError:
         # We don't have a customized template for this error, so we'll just let
@@ -98,7 +127,7 @@ def httpexception_view(exc, request):
 def forbidden(exc, request):
     # If the forbidden error is because the user isn't logged in, then we'll
     # redirect them to the log in page.
-    if request.authenticated_userid is None:
+    if request.user is None:
         url = request.route_url(
             "accounts.login", _query={REDIRECT_FIELD_NAME: request.path_qs}
         )
@@ -106,9 +135,25 @@ def forbidden(exc, request):
 
     # Check if the error has a "result" attribute and if it is a WarehouseDenied
     if hasattr(exc, "result") and isinstance(exc.result, WarehouseDenied):
+        # If the forbidden error is because the user does not have a verified
+        # email address, redirect them to their account page for email verification.
+        if exc.result.reason == "unverified_email":
+            request.session.flash(
+                request._(
+                    "You must verify your **primary** email address before you "
+                    "can perform this action."
+                ),
+                queue="error",
+            )
+            url = request.route_url(
+                "manage.unverified-account",
+                _query={REDIRECT_FIELD_NAME: request.path_qs},
+            )
+            return HTTPSeeOther(url)
+
         # If the forbidden error is because the user doesn't have 2FA enabled, we'll
         # redirect them to the 2FA page
-        if exc.result.reason in {"owners_require_2fa", "pypi_mandates_2fa"}:
+        if exc.result.reason == "manage_2fa_required":
             request.session.flash(
                 request._(
                     "Two-factor authentication must be enabled on your account to "
@@ -132,7 +177,18 @@ def forbidden(exc, request):
 def forbidden_include(exc, request):
     # If the forbidden error is for a client-side-include, just return an empty
     # response instead of redirecting
-    return Response(status=403)
+    return HTTPForbidden()
+
+
+@forbidden_view_config(path_info=r"^/(danger-)?api/")
+@exception_view_config(PredicateMismatch, path_info=r"^/(danger-)?api/")
+def forbidden_api(exc, request):
+    # If the forbidden error is for an API endpoint, return a JSON response
+    # instead of redirecting
+    return HTTPForbidden(
+        json={"message": "Access was denied to this resource."},
+        content_type="application/json",
+    )
 
 
 @view_config(context=DatabaseNotAvailableError)
@@ -182,48 +238,12 @@ def opensearchxml(request):
             1 * 60 * 60,  # 1 hour
             stale_while_revalidate=10 * 60,  # 10 minutes
             stale_if_error=1 * 24 * 60 * 60,  # 1 day
-            keys=["all-projects", "trending"],
+            keys=["all-projects"],
         )
     ],
     has_translations=True,
 )
 def index(request):
-    project_ids = [
-        r[0]
-        for r in (
-            request.db.query(Project.id)
-            .order_by(Project.zscore.desc().nullslast(), func.random())
-            .limit(5)
-            .all()
-        )
-    ]
-    release_a = aliased(
-        Release,
-        request.db.query(Release)
-        .distinct(Release.project_id)
-        .filter(Release.project_id.in_(project_ids))
-        .order_by(
-            Release.project_id,
-            Release.is_prerelease.nullslast(),
-            Release._pypi_ordering.desc(),
-        )
-        .subquery(),
-    )
-    trending_projects = (
-        request.db.query(release_a)
-        .options(joinedload(release_a.project))
-        .order_by(func.array_idx(project_ids, release_a.project_id))
-        .all()
-    )
-
-    latest_releases = (
-        request.db.query(Release)
-        .options(joinedload(Release.project))
-        .order_by(Release.created.desc())
-        .limit(5)
-        .all()
-    )
-
     counts = dict(
         request.db.query(RowCount.table_name, RowCount.count)
         .filter(
@@ -240,8 +260,6 @@ def index(request):
     )
 
     return {
-        "latest_releases": latest_releases,
-        "trending_projects": trending_projects,
         "num_projects": counts.get(Project.__tablename__, 0),
         "num_releases": counts.get(Release.__tablename__, 0),
         "num_files": counts.get(File.__tablename__, 0),
@@ -256,7 +274,10 @@ def index(request):
     uses_session=True,
 )
 def locale(request):
-    form = SetLocaleForm(**request.GET)
+    try:
+        form = SetLocaleForm(MultiDict({"locale_id": request.GET.getone("locale_id")}))
+    except KeyError:
+        raise HTTPBadRequest("Invalid amount of locale_id parameters provided")
 
     redirect_to = request.referer
     if not is_safe_url(redirect_to, host=request.host):
@@ -299,9 +320,14 @@ def search(request):
     metrics = request.find_service(IMetricsService, context=None)
 
     querystring = request.params.get("q", "").replace("'", '"')
+    # Bail early for really long queries before ES raises an error
+    if len(querystring) > 1000:
+        metrics.increment("warehouse.views.search.error", tags=["error:query_too_long"])
+        raise HTTPRequestEntityTooLarge("Query string too long.")
+
     order = request.params.get("o", "")
     classifiers = request.params.getall("c")
-    query = get_es_query(request.es, querystring, order, classifiers)
+    query = get_opensearch_query(request.opensearch, querystring, order, classifiers)
 
     try:
         page_num = int(request.params.get("page", 1))
@@ -309,10 +335,10 @@ def search(request):
         raise HTTPBadRequest("'page' must be an integer.")
 
     try:
-        page = ElasticsearchPage(
+        page = OpenSearchPage(
             query, page=page_num, url_maker=paginate_url_factory(request)
         )
-    except elasticsearch.TransportError:
+    except opensearchpy.TransportError:
         metrics.increment("warehouse.views.search.error")
         raise HTTPServiceUnavailable
 
@@ -325,8 +351,8 @@ def search(request):
         request.db.query(Classifier)
         .with_entities(Classifier.classifier)
         .filter(
-            exists([release_classifiers.c.trove_id]).where(
-                release_classifiers.c.trove_id == Classifier.id
+            exists(ReleaseClassifiers.trove_id).where(
+                ReleaseClassifiers.trove_id == Classifier.id
             ),
             Classifier.classifier.notin_(deprecated_classifiers.keys()),
         )
@@ -436,6 +462,27 @@ def stats(request):
     return {"total_packages_size": total_size, "top_packages": top_packages}
 
 
+@view_defaults(
+    route_name="security-key-giveaway",
+    renderer="pages/security-key-giveaway.html",
+    uses_session=True,
+    has_translations=True,
+    require_csrf=True,
+    require_methods=False,
+)
+class SecurityKeyGiveaway:
+    def __init__(self, request):
+        self.request = request
+
+    @property
+    def default_response(self):
+        return {}
+
+    @view_config(request_method="GET")
+    def security_key_giveaway(self):
+        return self.default_response
+
+
 @view_config(
     route_name="includes.current-user-indicator",
     renderer="includes/current-user-indicator.html",
@@ -483,7 +530,7 @@ def sidebar_sponsor_logo(request):
 def health(request):
     # This will ensure that we can access the database and run queries against
     # it without doing anything that will take a lock or block other queries.
-    request.db.execute("SELECT 1")
+    request.db.execute(text("SELECT 1"))
 
     # Nothing will actually check this, but it's a little nicer to have
     # something to return besides an empty body.

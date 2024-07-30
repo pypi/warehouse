@@ -12,17 +12,19 @@
 
 import binascii
 import os
-import urllib
+import urllib.parse
 
 import certifi
-import elasticsearch
+import opensearchpy
 import redis
 import requests_aws4auth
+import sentry_sdk
 
-from elasticsearch.helpers import parallel_bulk
-from elasticsearch_dsl import serializer
-from sqlalchemy import func
+from opensearchpy.helpers import parallel_bulk
+from redis.lock import Lock
+from sqlalchemy import func, select, text
 from sqlalchemy.orm import aliased
+from urllib3.util import parse_url
 
 from warehouse import tasks
 from warehouse.packaging.models import (
@@ -30,7 +32,7 @@ from warehouse.packaging.models import (
     Description,
     Project,
     Release,
-    release_classifiers,
+    ReleaseClassifiers,
 )
 from warehouse.packaging.search import Project as ProjectDocument
 from warehouse.search.utils import get_index
@@ -38,9 +40,8 @@ from warehouse.utils.db import windowed_query
 
 
 def _project_docs(db, project_name=None):
-
     releases_list = (
-        db.query(Release.id)
+        select(Release.id)
         .filter(Release.yanked.is_(False), Release.files)
         .order_by(
             Release.project_id,
@@ -54,32 +55,22 @@ def _project_docs(db, project_name=None):
         releases_list = releases_list.join(Project).filter(Project.name == project_name)
 
     releases_list = releases_list.subquery()
-
-    r = aliased(Release, name="r")
-
-    all_versions = (
-        db.query(func.array_agg(r.version))
-        .filter(r.project_id == Release.project_id)
-        .correlate(Release)
-        .scalar_subquery()
-        .label("all_versions")
-    )
+    rlist = aliased(Release, releases_list)
 
     classifiers = (
-        db.query(func.array_agg(Classifier.classifier))
-        .select_from(release_classifiers)
-        .join(Classifier, Classifier.id == release_classifiers.c.trove_id)
-        .filter(Release.id == release_classifiers.c.release_id)
+        select(func.array_agg(Classifier.classifier))
+        .select_from(ReleaseClassifiers)
+        .join(Classifier, Classifier.id == ReleaseClassifiers.trove_id)
+        .filter(Release.id == ReleaseClassifiers.release_id)
         .correlate(Release)
         .scalar_subquery()
         .label("classifiers")
     )
 
     release_data = (
-        db.query(
+        select(
             Description.raw.label("description"),
             Release.version.label("latest_version"),
-            all_versions,
             Release.author,
             Release.author_email,
             Release.maintainer,
@@ -93,37 +84,31 @@ def _project_docs(db, project_name=None):
             classifiers,
             Project.normalized_name,
             Project.name,
-            Project.zscore,
         )
-        .select_from(releases_list)
-        .join(Release, Release.id == releases_list.c.id)
+        .select_from(rlist)
+        .join(Release, Release.id == rlist.id)
         .join(Description)
         .outerjoin(Release.project)
     )
 
-    for release in windowed_query(release_data, Project.id, 25000):
-        p = ProjectDocument.from_db(release)
-        p._index = None
-        p.full_clean()
-        doc = p.to_dict(include_meta=True)
-        doc.pop("_index", None)
-        yield doc
+    for chunk in windowed_query(db, release_data, Project.name, 25000):
+        for release in chunk:
+            p = ProjectDocument.from_db(release)
+            p._index = None
+            p.full_clean()
+            doc = p.to_dict(include_meta=True)
+            doc.pop("_index", None)
+            yield doc
 
 
-class SearchLock:
+class SearchLock(Lock):
     def __init__(self, redis_client, timeout=None, blocking_timeout=None):
-        self.lock = redis_client.lock(
-            "search-index", timeout=timeout, blocking_timeout=blocking_timeout
+        super().__init__(
+            redis_client,
+            name="search-index",
+            timeout=timeout,
+            blocking_timeout=blocking_timeout,
         )
-
-    def __enter__(self):
-        if self.lock.acquire():
-            return self
-        else:
-            raise redis.exceptions.LockError("Could not acquire lock!")
-
-    def __exit__(self, type, value, tb):
-        self.lock.release()
 
 
 @tasks.task(bind=True, ignore_result=True, acks_late=True)
@@ -134,29 +119,29 @@ def reindex(self, request):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
         with SearchLock(r, timeout=30 * 60, blocking_timeout=30):
-            p = urllib.parse.urlparse(request.registry.settings["elasticsearch.url"])
+            p = parse_url(request.registry.settings["opensearch.url"])
             qs = urllib.parse.parse_qs(p.query)
             kwargs = {
-                "hosts": [urllib.parse.urlunparse(p[:2] + ("",) * 4)],
+                "hosts": [urllib.parse.urlunparse((p.scheme, p.netloc) + ("",) * 4)],
                 "verify_certs": True,
                 "ca_certs": certifi.where(),
                 "timeout": 30,
                 "retry_on_timeout": True,
-                "serializer": serializer.serializer,
+                "serializer": opensearchpy.serializer.serializer,
             }
             aws_auth = bool(qs.get("aws_auth", False))
             if aws_auth:
                 aws_region = qs.get("region", ["us-east-1"])[0]
-                kwargs["connection_class"] = elasticsearch.RequestsHttpConnection
+                kwargs["connection_class"] = opensearchpy.RequestsHttpConnection
                 kwargs["http_auth"] = requests_aws4auth.AWS4Auth(
                     request.registry.settings["aws.key_id"],
                     request.registry.settings["aws.secret_key"],
                     aws_region,
                     "es",
                 )
-            client = elasticsearch.Elasticsearch(**kwargs)
-            number_of_replicas = request.registry.get("elasticsearch.replicas", 0)
-            refresh_interval = request.registry.get("elasticsearch.interval", "1s")
+            client = opensearchpy.OpenSearch(**kwargs)
+            number_of_replicas = request.registry.get("opensearch.replicas", 0)
+            refresh_interval = request.registry.get("opensearch.interval", "1s")
 
             # We use a randomly named index so that we can do a zero downtime reindex.
             # Essentially we'll use a randomly named index which we will use until all
@@ -164,11 +149,11 @@ def reindex(self, request):
             # our randomly named index, and then delete the old randomly named index.
 
             # Create the new index and associate all of our doc types with it.
-            index_base = request.registry["elasticsearch.index"]
+            index_base = request.registry["opensearch.index"]
             random_token = binascii.hexlify(os.urandom(5)).decode("ascii")
-            new_index_name = "{}-{}".format(index_base, random_token)
+            new_index_name = f"{index_base}-{random_token}"
             doc_types = request.registry.get("search.doc_types", set())
-            shards = request.registry.get("elasticsearch.shards", 1)
+            shards = request.registry.get("opensearch.shards", 1)
 
             # Create the new index with zero replicas and index refreshes disabled
             # while we are bulk indexing.
@@ -185,7 +170,7 @@ def reindex(self, request):
             # From this point on, if any error occurs, we want to be able to delete our
             # in progress index.
             try:
-                request.db.execute("SET statement_timeout = '600s'")
+                request.db.execute(text("SET statement_timeout = '600s'"))
 
                 for _ in parallel_bulk(
                     client, _project_docs(request.db), index=new_index_name
@@ -196,7 +181,7 @@ def reindex(self, request):
                 raise
             finally:
                 request.db.rollback()
-                request.db.close()  # pragma: no cover
+                request.db.close()
 
             # Now that we've finished indexing all of our data we can update the
             # replicas and refresh intervals.
@@ -223,6 +208,7 @@ def reindex(self, request):
             else:
                 client.indices.put_alias(name=index_base, index=new_index_name)
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
 
 
@@ -231,15 +217,15 @@ def reindex_project(self, request, project_name):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
         with SearchLock(r, timeout=15, blocking_timeout=1):
-            client = request.registry["elasticsearch.client"]
+            client = request.registry["opensearch.client"]
             doc_types = request.registry.get("search.doc_types", set())
-            index_name = request.registry["elasticsearch.index"]
+            index_name = request.registry["opensearch.index"]
             get_index(
                 index_name,
                 doc_types,
                 using=client,
-                shards=request.registry.get("elasticsearch.shards", 1),
-                replicas=request.registry.get("elasticsearch.replicas", 0),
+                shards=request.registry.get("opensearch.shards", 1),
+                replicas=request.registry.get("opensearch.replicas", 0),
             )
 
             for _ in parallel_bulk(
@@ -247,6 +233,7 @@ def reindex_project(self, request, project_name):
             ):
                 pass
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)
 
 
@@ -255,11 +242,12 @@ def unindex_project(self, request, project_name):
     r = redis.StrictRedis.from_url(request.registry.settings["celery.scheduler_url"])
     try:
         with SearchLock(r, timeout=15, blocking_timeout=1):
-            client = request.registry["elasticsearch.client"]
-            index_name = request.registry["elasticsearch.index"]
+            client = request.registry["opensearch.client"]
+            index_name = request.registry["opensearch.index"]
             try:
                 client.delete(index=index_name, id=project_name)
-            except elasticsearch.exceptions.NotFoundError:
+            except opensearchpy.exceptions.NotFoundError:
                 pass
     except redis.exceptions.LockError as exc:
+        sentry_sdk.capture_exception(exc)
         raise self.retry(countdown=60, exc=exc)

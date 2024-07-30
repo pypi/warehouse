@@ -12,21 +12,24 @@
 
 import enum
 
+from uuid import UUID
+
 import automat
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, ForeignKey, Text, orm, sql
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy import Enum, ForeignKey, orm, sql
+from sqlalchemy.dialects.postgresql import JSONB, UUID as PG_UUID
 from sqlalchemy.ext.mutable import MutableDict
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy.orm.session import object_session
 
 from warehouse import db
 from warehouse.accounts.models import Email as EmailAddress, UnverifyReasons
+from warehouse.utils.db.types import bool_false, datetime_now
 
 MAX_TRANSIENT_BOUNCES = 5
 
 
 class EmailStatuses(enum.Enum):
-
     Accepted = "Accepted"
     Delivered = "Delivered"
     Bounced = "Bounced"
@@ -35,7 +38,6 @@ class EmailStatuses(enum.Enum):
 
 
 class EmailStatus:
-
     _machine = automat.MethodicalMachine()
 
     def __init__(self, email_message):
@@ -164,6 +166,8 @@ class EmailStatus:
     # really want to treat this as a bounce. We'll record the event
     # for posterity though.
     delivered.upon(soft_bounce, enter=delivered, outputs=[])
+    # Sometimes we get delivery events twice, we just ignore them.
+    delivered.upon(deliver, enter=delivered, outputs=[])
     delivered.upon(
         bounce,
         enter=bounced,
@@ -229,26 +233,23 @@ class EmailStatus:
 
 
 class EmailMessage(db.Model):
-
     __tablename__ = "ses_emails"
 
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
-    status = Column(
+    created: Mapped[datetime_now]
+    status: Mapped[Enum] = mapped_column(
         Enum(EmailStatuses, values_callable=lambda x: [e.value for e in x]),
-        nullable=False,
         server_default=EmailStatuses.Accepted.value,
     )
 
-    message_id = Column(Text, nullable=False, unique=True, index=True)
-    from_ = Column("from", Text, nullable=False)
-    to = Column(Text, nullable=False, index=True)
-    subject = Column(Text, nullable=False)
-    missing = Column(Boolean, nullable=False, server_default=sql.false())
+    message_id: Mapped[str] = mapped_column(unique=True, index=True)
+    from_: Mapped[str] = mapped_column("from")
+    to: Mapped[str] = mapped_column(index=True)
+    subject: Mapped[str]
+    missing: Mapped[bool_false]
 
     # Relationships!
-    events = orm.relationship(
-        "Event",
-        backref="email",
+    events: Mapped[list["Event"]] = orm.relationship(
+        back_populates="email",
         cascade="all, delete-orphan",
         lazy=False,
         order_by=lambda: Event.created,
@@ -256,32 +257,33 @@ class EmailMessage(db.Model):
 
 
 class EventTypes(enum.Enum):
-
     Delivery = "Delivery"
     Bounce = "Bounce"
     Complaint = "Complaint"
 
 
 class Event(db.Model):
-
     __tablename__ = "ses_events"
 
-    created = Column(DateTime, nullable=False, server_default=sql.func.now())
+    created: Mapped[datetime_now]
 
-    email_id = Column(
-        UUID(as_uuid=True),
+    email_id: Mapped[UUID] = mapped_column(
+        PG_UUID(as_uuid=True),
         ForeignKey(
             "ses_emails.id", deferrable=True, initially="DEFERRED", ondelete="CASCADE"
         ),
-        nullable=False,
         index=True,
     )
-
-    event_id = Column(Text, nullable=False, unique=True, index=True)
-    event_type = Column(
-        Enum(EventTypes, values_callable=lambda x: [e.value for e in x]), nullable=False
+    email: Mapped[EmailMessage] = orm.relationship(
+        back_populates="events",
+        lazy=False,
     )
 
-    data = Column(
-        MutableDict.as_mutable(JSONB), nullable=False, server_default=sql.text("'{}'")
+    event_id: Mapped[str] = mapped_column(unique=True, index=True)
+    event_type: Mapped[Enum] = mapped_column(
+        Enum(EventTypes, values_callable=lambda x: [e.value for e in x])
+    )
+
+    data: Mapped[dict] = mapped_column(
+        MutableDict.as_mutable(JSONB()), server_default=sql.text("'{}'")
     )

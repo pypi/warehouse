@@ -27,7 +27,7 @@
 */
 
 .form-group {
-  margin-bottom: $spacing-unit / 2;
+  margin-bottom: $half-spacing-unit;
   max-width: 350px;
 
   &__label {
@@ -63,5 +63,49 @@
     width: 350px;
     max-width: 100%;
     font-size: $small-font-size;
+
+    > code {
+      font-size: 0.7rem;
+    }
+  }
+
+  // For use with `stimulus-autocomplete`
+  &__results {
+    font-size: $input-font-size;
+    margin-left: 0;
+    padding: 4px 0 8px;
+
+    li {
+      background-color: $white;
+      border-bottom: 1px solid $border-color;
+      color: $text-color;
+      cursor: pointer;
+      list-style-type: none;
+
+      &:hover,
+      &:active,
+      &:focus {
+        background-color: mix($white, $primary-color-light, 90%);
+        color: $primary-color-dark;
+      }
+
+      &:active,
+      &:focus {
+        outline: 1px solid $primary-color;
+        border-bottom-color: $primary-color;
+      }
+    }
+  }
+
+  // Specific cases for input validation using `pattern` attribute
+
+  /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
+  input#totp_value:valid {
+    background-color: lighten($success-color, 40%);
+  }
+
+  /* stylelint-disable-next-line selector-id-pattern -- Form sets name */
+  input#totp_value:invalid {
+    background-color: lighten($danger-color, 40%);
   }
 }

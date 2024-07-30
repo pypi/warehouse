@@ -43,7 +43,7 @@
 
   &__heading {
     font-size: 2.4rem;
-    padding: $spacing-unit ($spacing-unit / 2);
+    padding: $spacing-unit $half-spacing-unit;
 
     @media screen and (max-width: $small-tablet) {
       font-size: 1.5rem;
@@ -52,7 +52,7 @@
 
   &__text {
     margin-top: $spacing-unit;
-    padding: $spacing-unit ($spacing-unit / 2);
+    padding: $spacing-unit $half-spacing-unit;
   }
 
   &__rule {
@@ -61,7 +61,7 @@
     max-width: 100%;
     border: 0;
     height: 2px;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgb(255 255 255 / 50%);
   }
 
   &--dark {
@@ -83,7 +83,7 @@
 
     .viewport-section__heading {
       display: inline;
-      font-family: "Ewert", cursive;
+      font-family: Ewert, cursive;
       font-weight: 400;
       color: darken($primary-color, 15);
       background: $highlight-color;

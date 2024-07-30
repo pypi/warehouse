@@ -12,7 +12,7 @@
  * limitations under the License.
  */
 
-import { Controller } from "stimulus";
+import { Controller } from "@hotwired/stimulus";
 
 // These values should be kept in sync with the CSS breakpoints
 const BREAKPOINTS = {

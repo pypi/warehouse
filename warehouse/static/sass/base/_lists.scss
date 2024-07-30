@@ -26,7 +26,7 @@ ol {
 dl {
   dt {
     font-weight: $bold-font-weight;
-    margin-top: $spacing-unit / 2;
+    margin-top: $half-spacing-unit;
 
     &:first-of-type {
       margin-top: 0;
@@ -34,6 +34,6 @@ dl {
   }
 
   dd {
-    padding-left: $spacing-unit / 2;
+    padding-left: $half-spacing-unit;
   }
 }

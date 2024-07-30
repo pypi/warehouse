@@ -1,7 +1,7 @@
 ---
 name: Bug report
 about: Let us know if something is broken on PyPI
-labels: "bug :bug:"
+labels: ["bug :bug:", "requires triaging"]
 ---
 
 <!--

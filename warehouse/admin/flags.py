@@ -12,27 +12,33 @@
 
 import enum
 
-from sqlalchemy import Boolean, Column, Text, sql
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
+from warehouse.utils.db.types import bool_false
 
 
 class AdminFlagValue(enum.Enum):
+    DISABLE_ORGANIZATIONS = "disable-organizations"
     DISALLOW_DELETION = "disallow-deletion"
     DISALLOW_NEW_PROJECT_REGISTRATION = "disallow-new-project-registration"
     DISALLOW_NEW_UPLOAD = "disallow-new-upload"
     DISALLOW_NEW_USER_REGISTRATION = "disallow-new-user-registration"
+    DISALLOW_OIDC = "disallow-oidc"
+    DISALLOW_GITHUB_OIDC = "disallow-github-oidc"
+    DISALLOW_GITLAB_OIDC = "disallow-gitlab-oidc"
+    DISALLOW_GOOGLE_OIDC = "disallow-google-oidc"
+    DISALLOW_ACTIVESTATE_OIDC = "disallow-activestate-oidc"
     READ_ONLY = "read-only"
 
 
 class AdminFlag(db.ModelBase):
-
     __tablename__ = "admin_flags"
 
-    id = Column(Text, primary_key=True, nullable=False)
-    description = Column(Text, nullable=False)
-    enabled = Column(Boolean, nullable=False)
-    notify = Column(Boolean, nullable=False, server_default=sql.false())
+    id: Mapped[str] = mapped_column(primary_key=True)
+    description: Mapped[str]
+    enabled: Mapped[bool]
+    notify: Mapped[bool_false]
 
 
 class Flags:
@@ -46,8 +52,13 @@ class Flags:
             .all()
         )
 
+    def disallow_oidc(self, flag_member=None):
+        return self.enabled(flag_member) or self.enabled(AdminFlagValue.DISALLOW_OIDC)
+
     def enabled(self, flag_member):
-        flag = self.request.db.query(AdminFlag).get(flag_member.value)
+        flag = (
+            self.request.db.get(AdminFlag, flag_member.value) if flag_member else None
+        )
         return flag.enabled if flag else False
 
 

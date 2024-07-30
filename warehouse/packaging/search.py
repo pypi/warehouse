@@ -10,9 +10,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import packaging.version
-
-from elasticsearch_dsl import Date, Document, Float, Keyword, Text, analyzer
+from opensearchpy import Date, Document, Keyword, Text, analyzer
 
 from warehouse.search.utils import doc_type
 
@@ -31,10 +29,8 @@ NameAnalyzer = analyzer(
 
 @doc_type
 class Project(Document):
-
     name = Text()
     normalized_name = Text(analyzer=NameAnalyzer)
-    version = Keyword(multi=True)
     latest_version = Keyword()
     summary = Text(analyzer="snowball")
     description = Text(analyzer="snowball")
@@ -49,16 +45,12 @@ class Project(Document):
     platform = Keyword()
     created = Date()
     classifiers = Keyword(multi=True)
-    zscore = Float()
 
     @classmethod
     def from_db(cls, release):
         obj = cls(meta={"id": release.normalized_name})
         obj["name"] = release.name
         obj["normalized_name"] = release.normalized_name
-        obj["version"] = sorted(
-            release.all_versions, key=lambda r: packaging.version.parse(r), reverse=True
-        )
         obj["latest_version"] = release.latest_version
         obj["summary"] = release.summary
         obj["description"] = release.description
@@ -72,11 +64,10 @@ class Project(Document):
         obj["platform"] = release.platform
         obj["created"] = release.created
         obj["classifiers"] = release.classifiers
-        obj["zscore"] = release.zscore
 
         return obj
 
     class Index:
         # make sure this class can match any index so it will always be used to
-        # deserialize data coming from elasticsearch.
+        # deserialize data coming from opensearch.
         name = "*"

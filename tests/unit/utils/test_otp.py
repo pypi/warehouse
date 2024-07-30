@@ -13,28 +13,23 @@
 import time
 
 from base64 import b32encode
-from urllib.parse import parse_qsl, urlparse
+from urllib.parse import parse_qsl
 
 import pytest
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.hashes import SHA1
 from cryptography.hazmat.primitives.twofactor.totp import TOTP
+from urllib3.util import parse_url
 
-from warehouse.utils.otp import (
-    TOTP_INTERVAL,
-    TOTP_LENGTH,
-    generate_totp_provisioning_uri,
-    generate_totp_secret,
-    verify_totp,
-)
+import warehouse.utils.otp as otp
 
 
 def test_generate_totp_secret():
-    secret = generate_totp_secret()
+    secret = otp.generate_totp_secret()
 
     # secret should be bytes
-    assert type(secret) == bytes
+    assert type(secret) is bytes
 
     # secret should be 20 bytes long, i.e. 160 bits
     assert len(secret) == 20
@@ -44,9 +39,9 @@ def test_generate_totp_provisioning_uri():
     secret = b"F" * 32
     username = "pony"
     issuer_name = "pypi.org"
-    uri = generate_totp_provisioning_uri(secret, username, issuer_name=issuer_name)
+    uri = otp.generate_totp_provisioning_uri(secret, username, issuer_name=issuer_name)
 
-    parsed = urlparse(uri)
+    parsed = parse_url(uri)
 
     assert parsed.scheme == "otpauth"
     assert parsed.netloc == "totp"
@@ -63,15 +58,20 @@ def test_generate_totp_provisioning_uri():
 
 @pytest.mark.parametrize("skew", [0, -20, 20])
 def test_verify_totp_success(skew):
-    secret = generate_totp_secret()
-    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    secret = otp.generate_totp_secret()
+    totp = TOTP(
+        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
+    )
     value = totp.generate(time.time() + skew)
-    assert verify_totp(secret, value)
+    assert otp.verify_totp(secret, value)
 
 
 @pytest.mark.parametrize("skew", [-60, 60])
 def test_verify_totp_failure(skew):
-    secret = generate_totp_secret()
-    totp = TOTP(secret, TOTP_LENGTH, SHA1(), TOTP_INTERVAL, backend=default_backend())
+    secret = otp.generate_totp_secret()
+    totp = TOTP(
+        secret, otp.TOTP_LENGTH, SHA1(), otp.TOTP_INTERVAL, backend=default_backend()
+    )
     value = totp.generate(time.time() + skew)
-    assert not verify_totp(secret, value)
+    with pytest.raises(otp.OutOfSyncTOTPError):
+        otp.verify_totp(secret, value)

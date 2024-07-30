@@ -16,7 +16,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.views import banners as views
@@ -106,7 +106,7 @@ class TestEditBanner:
     def test_update_banner(self, db_request, banner_data):
         banner = BannerFactory.create(fa_icon="custom")
         assert banner.is_live
-        form = views.BannerForm(MultiDict({}), banner)
+        form = views.BannerForm(MultiDict(), banner)
         data = form.data.copy()
         data["name"] = "New Name"
         data["end"] = str(data["end"])
@@ -134,7 +134,7 @@ class TestEditBanner:
 
     def test_form_errors_if_invalid_post_data(self, db_request):
         banner = BannerFactory.create()
-        form = views.BannerForm(MultiDict({}), banner)
+        form = views.BannerForm(MultiDict(), banner)
         data = form.data.copy()
         data["name"] = "New name"
         data["end"] = ""  # date is required
@@ -217,19 +217,23 @@ class TestPreviewBanner:
 
 
 class TestBannerForm:
-    def test_required_fields(self, banner_data):
-        form = views.BannerForm(data={})
-
-        assert form.validate() is False
-        assert set(form.errors) == set(banner_data)
-
-    def test_valid_data(self, banner_data):
-        form = views.BannerForm(data=banner_data)
-        assert form.validate() is True
+    def test_validate(self, banner_data):
+        form = views.BannerForm(MultiDict(banner_data))
+        assert form.validate(), str(form.errors)
         data = form.data
         defaults = {
             "fa_icon": Banner.DEFAULT_FA_ICON,
             "active": False,
+            "dismissable": False,
             "link_label": Banner.DEFAULT_BTN_LABEL,
         }
+
+        # Mash the `end` into a date object to match the form's coerced result.
+        banner_data["end"] = datetime.date.fromisoformat(banner_data["end"])
         assert data == {**banner_data, **defaults}
+
+    def test_required_fields(self, banner_data):
+        form = views.BannerForm(MultiDict())
+
+        assert form.validate() is False
+        assert set(form.errors) == set(banner_data)

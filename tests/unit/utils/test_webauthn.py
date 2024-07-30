@@ -48,6 +48,8 @@ def test_verify_registration_response(monkeypatch):
         credential_type=PublicKeyCredentialType.PUBLIC_KEY,
         user_verified=False,
         attestation_object=b"foobar",
+        credential_device_type="single_device",
+        credential_backed_up=False,
     )
     mock_verify_registration_response = pretend.call_recorder(
         lambda *a, **kw: fake_verified_registration
@@ -58,8 +60,9 @@ def test_verify_registration_response(monkeypatch):
 
     resp = webauthn.verify_registration_response(
         (
-            '{"id": "foo", "rawId": "foo", "response": '
-            '{"attestationObject": "foo", "clientDataJSON": "bar"}}'
+            b'{"id": "foo", "rawId": "foo", "response": '
+            b'{"attestationObject": "foo", "clientDataJSON": "bar"},'
+            b'"type": "public-key"}'
         ),
         b"not_a_real_challenge",
         rp_id="fake_rp_id",
@@ -74,7 +77,6 @@ def test_verify_registration_response(monkeypatch):
                 response=AuthenticatorAttestationResponse(
                     client_data_json=b"m\xaa", attestation_object=b"~\x8a"
                 ),
-                transports=None,
                 type=PublicKeyCredentialType.PUBLIC_KEY,
             ),
             expected_challenge=bytes_to_base64url(b"not_a_real_challenge").encode(),
@@ -96,8 +98,9 @@ def test_verify_registration_response_failure(monkeypatch):
     with pytest.raises(webauthn.RegistrationRejectedError):
         webauthn.verify_registration_response(
             (
-                '{"id": "foo", "rawId": "foo", "response": '
-                '{"attestationObject": "foo", "clientDataJSON": "bar"}}'
+                b'{"id": "foo", "rawId": "foo", "response": '
+                b'{"attestationObject": "foo", "clientDataJSON": "bar"}, '
+                b'"type": "public-key"}'
             ),
             b"not_a_real_challenge",
             rp_id="fake_rp_id",
@@ -109,6 +112,8 @@ def test_verify_assertion_response(monkeypatch):
     fake_verified_authentication = VerifiedAuthentication(
         credential_id=b"a credential id",
         new_sign_count=69,
+        credential_device_type="single_device",
+        credential_backed_up=False,
     )
     mock_verify_authentication_response = pretend.call_recorder(
         lambda *a, **kw: fake_verified_authentication
@@ -128,9 +133,10 @@ def test_verify_assertion_response(monkeypatch):
     )
     resp = webauthn.verify_assertion_response(
         (
-            '{"id": "foo", "rawId": "foo", "response": '
-            '{"authenticatorData": "foo", "clientDataJSON": "bar", '
-            '"signature": "wutang"}}'
+            b'{"id": "foo", "rawId": "foo", "response": '
+            b'{"authenticatorData": "foo", "clientDataJSON": "bar", '
+            b'"signature": "wutang"}, '
+            b'"type": "public-key"}'
         ),
         challenge=b"not_a_real_challenge",
         user=not_a_real_user,
@@ -177,9 +183,10 @@ def test_verify_assertion_response_failure(monkeypatch):
     with pytest.raises(webauthn.AuthenticationRejectedError):
         webauthn.verify_assertion_response(
             (
-                '{"id": "foo", "rawId": "foo", "response": '
-                '{"authenticatorData": "foo", "clientDataJSON": "bar", '
-                '"signature": "wutang"}}'
+                b'{"id": "foo", "rawId": "foo", "response": '
+                b'{"authenticatorData": "foo", "clientDataJSON": "bar", '
+                b'"signature": "wutang"}, '
+                b'"type": "public-key"}'
             ),
             challenge=b"not_a_real_challenge",
             user=pretend.stub(),

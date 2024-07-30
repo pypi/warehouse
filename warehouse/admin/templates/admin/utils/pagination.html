@@ -22,33 +22,33 @@
 
   <ul class="pagination">
     {# previous button #}
-    <li class="paginate_button previous{% if map.current_page.value == map.first_page.number %} disabled{% endif %}">
-        <a href="{{ map.previous_page.href }}">Previous</a>
+    <li class="page-item previous{% if map.current_page.value == map.first_page.number %} disabled{% endif %}">
+        <a href="{{ map.previous_page.href }}" class="page-link">Previous</a>
     </li>
 
     {# show first page button - special case #}
     {% if map.current_page.value > map.first_page.number + map.radius %}
-    <li class="paginate_button"><a href="{{ map.first_page.href }}">{{ map.first_page.number }}</a></li>
+    <li class="page-item"><a href="{{ map.first_page.href }}" class="page-link">{{ map.first_page.number }}</a></li>
     {% endif %}
 
     {% for p in map.range_pages %}
       {% if p.type == "current_page" %}
-      <li class="paginate_button active"><a href="{{ p.href }}">{{ p.number }}</a></li>
+      <li class="page-item active"><a href="{{ p.href }}" class="page-link">{{ p.number }}</a></li>
       {% elif p.type == "page" %}
-      <li class="paginate_button"><a href="{{ p.href }}">{{ p.number }}</a></li>
+      <li class="page-item"><a href="{{ p.href }}" class="page-link">{{ p.number }}</a></li>
       {% elif p.type == "span" %}
-      <li class="paginate_button disabled"><a>...</a></li>
+      <li class="page-item disabled"><a class="page-link">...</a></li>
       {% endif %}
     {% endfor %}
 
     {# show last page button - special case #}
     {% if map.current_page.value < map.last_page.number - map.radius %}
-    <li class="paginate_button"><a href="{{ map.last_page.href }}">{{ map.last_page.number }}</a></li>
+    <li class="page-item"><a href="{{ map.last_page.href }}" class="page-link">{{ map.last_page.number }}</a></li>
     {% endif %}
 
     {# "next" button #}
-    <li class="paginate_button next{% if map.current_page.value == map.last_page.number %} disabled{% endif %}">
-        <a href="{{ map.next_page.href }}">Next</a>
+    <li class="page-item next{% if map.current_page.value == map.last_page.number %} disabled{% endif %}">
+        <a href="{{ map.next_page.href }}" class="page-link">Next</a>
     </li>
   </ul>
 {% endif %}

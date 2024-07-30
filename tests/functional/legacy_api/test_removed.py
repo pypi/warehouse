@@ -15,7 +15,7 @@ import pytest
 
 @pytest.mark.parametrize("action", ["submit", "submit_pkg_info"])
 def test_removed_upload_apis(webtest, action):
-    resp = webtest.post("/legacy/?:action={}".format(action), status=410)
+    resp = webtest.post(f"/legacy/?:action={action}", status=410)
     assert resp.status == (
         "410 Project pre-registration is no longer required or supported, "
         "upload your files instead."

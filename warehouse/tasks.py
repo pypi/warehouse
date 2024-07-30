@@ -11,6 +11,7 @@
 # limitations under the License.
 
 import functools
+import hashlib
 import logging
 import os
 import time
@@ -26,15 +27,16 @@ import venusian
 
 from kombu import Queue
 from pyramid.threadlocal import get_current_request
+from urllib3.util import parse_url
 
 from warehouse.config import Environment
 from warehouse.metrics import IMetricsService
 
 # We need to trick Celery into supporting rediss:// URLs which is how redis-py
 # signals that you should use Redis with TLS.
-celery.app.backends.BACKEND_ALIASES[
-    "rediss"
-] = "warehouse.tasks:TLSRedisBackend"  # noqa
+celery.app.backends.BACKEND_ALIASES["rediss"] = (
+    "warehouse.tasks:TLSRedisBackend"  # noqa
+)
 
 
 # We need to register that the sqs:// url scheme uses a netloc
@@ -94,6 +96,9 @@ class WarehouseTask(celery.Task):
             env["request"].tm = transaction.TransactionManager(explicit=True)
             env["request"].timings = {"new_request_start": time.time() * 1000}
             env["request"].remote_addr = "127.0.0.1"
+            env["request"].remote_addr_hashed = hashlib.sha256(
+                ("127.0.0.1" + registry.settings["warehouse.ip_salt"]).encode("utf8")
+            ).hexdigest()
             self.request.update(pyramid_env=env)
 
         return self.request.pyramid_env["request"]
@@ -121,6 +126,12 @@ class WarehouseTask(celery.Task):
         request.tm.get().addAfterCommitHook(
             self._after_commit_hook, args=args, kws=kwargs
         )
+
+    def retry(self, *args, **kwargs):
+        request = get_current_request()
+        metrics = request.find_service(IMetricsService, context=None)
+        metrics.increment("warehouse.task.retried", tags=[f"task:{self.name}"])
+        return super().retry(*args, **kwargs)
 
     def _after_commit_hook(self, success, *args, **kwargs):
         if success:
@@ -177,11 +188,13 @@ def includeme(config):
 
     broker_url = s["celery.broker_url"]
     if broker_url.startswith("sqs://"):
-        parsed_url = urllib.parse.urlparse(broker_url)
+        parsed_url = parse_url(broker_url)
         parsed_query = urllib.parse.parse_qs(parsed_url.query)
         # Celery doesn't handle paths/query arms being passed into the SQS broker,
         # so we'll just remove them from here.
-        broker_url = urllib.parse.urlunparse(parsed_url[:2] + ("", "", "", ""))
+        broker_url = urllib.parse.urlunparse(
+            (parsed_url.scheme, parsed_url.netloc) + ("",) * 4
+        )
         os.environ["BROKER_URL"] = broker_url
 
         if "queue_name_prefix" in parsed_query:
@@ -191,6 +204,11 @@ def includeme(config):
 
         if "region" in parsed_query:
             broker_transport_options["region"] = parsed_query["region"][0]
+
+        # Add TCP keepalive options to the SQS connection
+        broker_transport_options["client-config"] = {
+            "tcp_keepalive": True,
+        }
 
     config.registry["celery.app"] = celery.Celery(
         "warehouse", autofinalize=False, set_as_current=False
@@ -203,11 +221,8 @@ def includeme(config):
         task_default_queue="default",
         task_default_routing_key="task.default",
         task_queue_ha_policy="all",
-        task_queues=(
-            Queue("default", routing_key="task.#"),
-            Queue("malware", routing_key="malware.#"),
-        ),
-        task_routes={"warehouse.malware.tasks.*": {"queue": "malware"}},
+        task_queues=(Queue("default", routing_key="task.#"),),
+        task_routes={},
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],

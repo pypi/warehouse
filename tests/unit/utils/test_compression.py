@@ -13,7 +13,7 @@
 import pretend
 import pytest
 
-from pyramid.response import Response
+from pyramid.httpexceptions import HTTPOk
 from webob.acceptparse import AcceptEncodingNoHeader, AcceptEncodingValidHeader
 from webob.response import gzip_app_iter
 
@@ -48,7 +48,7 @@ class TestCompressor:
     )
     def test_sets_vary(self, vary, expected):
         request = pretend.stub(accept_encoding=AcceptEncodingNoHeader())
-        response = Response(body=b"foo")
+        response = HTTPOk(body=b"foo")
         response.vary = vary
 
         compressor(request, response)
@@ -60,7 +60,7 @@ class TestCompressor:
         compressed_body = b"".join(list(gzip_app_iter([decompressed_body])))
 
         request = pretend.stub(accept_encoding=AcceptEncodingValidHeader("gzip"))
-        response = Response(body=decompressed_body)
+        response = HTTPOk(body=decompressed_body)
         response.md5_etag()
 
         original_etag = response.etag
@@ -77,7 +77,7 @@ class TestCompressor:
         compressed_body = b"".join(list(gzip_app_iter([decompressed_body])))
 
         request = pretend.stub(accept_encoding=AcceptEncodingValidHeader("gzip"))
-        response = Response(app_iter=iter([decompressed_body]))
+        response = HTTPOk(app_iter=iter([decompressed_body]))
 
         compressor(request, response)
 
@@ -90,7 +90,7 @@ class TestCompressor:
         compressed_body = b"".join(list(gzip_app_iter([decompressed_body])))
 
         request = pretend.stub(accept_encoding=AcceptEncodingValidHeader("gzip"))
-        response = Response(app_iter=iter([decompressed_body]))
+        response = HTTPOk(app_iter=iter([decompressed_body]))
         response.etag = "foo"
 
         compressor(request, response)
@@ -105,7 +105,7 @@ class TestCompressor:
         compressed_body = b"".join(list(gzip_app_iter([decompressed_body])))
 
         request = pretend.stub(accept_encoding=AcceptEncodingValidHeader("gzip"))
-        response = Response(
+        response = HTTPOk(
             app_iter=iter([decompressed_body]), content_length=len(decompressed_body)
         )
 
@@ -117,7 +117,7 @@ class TestCompressor:
 
     def test_doesnt_compress_too_small(self):
         request = pretend.stub(accept_encoding=AcceptEncodingValidHeader("gzip"))
-        response = Response(body=b"foo")
+        response = HTTPOk(body=b"foo")
 
         compressor(request, response)
 

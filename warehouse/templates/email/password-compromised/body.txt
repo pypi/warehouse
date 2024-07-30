@@ -27,7 +27,7 @@ reduce the risk for PyPI and its users.{% endtrans %}
 
 # {% trans %}What should I do?{% endtrans %}
 
-{% trans trimmed url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
+{% trans url=request.route_url('accounts.request-password-reset', _host=request.registry.settings.get('warehouse.domain')) %}
 To regain access to your account, reset your password on PyPI ({{ url }}).{% endtrans %}
 
 

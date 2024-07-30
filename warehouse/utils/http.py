@@ -12,9 +12,8 @@
 
 import unicodedata
 
-from urllib.parse import urlparse
-
 from rfc3986 import exceptions, uri_reference, validators
+from urllib3.util import parse_url
 
 
 # FROM https://github.com/django/django/blob/
@@ -35,7 +34,7 @@ def is_safe_url(url, host=None):
     # urlparse is not so flexible. Treat any url with three slashes as unsafe.
     if url.startswith("///"):
         return False
-    url_info = urlparse(url)
+    url_info = parse_url(url)
     # Forbid URLs like http:///example.com - with a scheme, but without a
     # hostname.
     # In that URL, example.com is not the hostname but, a path component.

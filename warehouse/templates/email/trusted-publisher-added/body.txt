@@ -1,0 +1,49 @@
+{#
+ # Licensed under the Apache License, Version 2.0 (the "License");
+ # you may not use this file except in compliance with the License.
+ # You may obtain a copy of the License at
+ #
+ # http://www.apache.org/licenses/LICENSE-2.0
+ #
+ # Unless required by applicable law or agreed to in writing, software
+ # distributed under the License is distributed on an "AS IS" BASIS,
+ # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+-#}
+{% extends "email/_base/body.txt" %}
+
+{% block content %}
+PyPI user {{ username }} has added a new trusted publisher to a project
+({{ project_name }}) that you manage. Trusted publishers act as trusted
+users and can create project releases automatically.
+
+Publisher information:
+
+* Publisher: {{ publisher.publisher_name }}
+{%- if publisher.publisher_name == "GitHub" %}
+* Workflow: {{ publisher }}
+* Owner: {{ publisher.repository_owner }}
+* Repository: {{ publisher.repository_name }}
+{%- if publisher.environment %}
+* Environment: {{ publisher.environment }}
+{%- endif %}
+{%- elif publisher.publisher_name == "Google" %}
+* Email: {{ publisher.email }}
+{%- if publisher.sub %}
+* Subject: {{ publisher.sub }}
+{%- endif %}
+{% elif publisher.publisher_name == "ActiveState" %}
+* Platform Project URL: {{ publisher.publisher_url }}
+* Organization: {{ publisher.organization }}
+* Project: {{ publisher.activestate_project_name }}
+* Actor: {{ publisher.actor }}
+{%- endif %}
+
+If you did not make this change and you think it was made maliciously, you can
+remove it from the project via the "Publishing" tab on the project's page.
+
+If you are unable to revert the change and need to do so, you can email
+admin@pypi.org to communicate with the PyPI administrators.
+
+{% endblock %}

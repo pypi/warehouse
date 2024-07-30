@@ -11,56 +11,67 @@
 # limitations under the License.
 
 # Taken from "Theatrum Chemicum" at
-# https://bitbucket.org/zzzeek/sqlalchemy/wiki/UsageRecipes/WindowedRangeQuery
+# https://github.com/sqlalchemy/sqlalchemy/wiki/RangeQuery-and-WindowedRangeQuery
 
-from sqlalchemy import and_, func, text
+from __future__ import annotations
+
+import typing
+
+from collections.abc import Iterator
+from typing import Any
+
+from sqlalchemy import and_, func, select
+from sqlalchemy.orm import Session
+
+if typing.TYPE_CHECKING:
+    from sqlalchemy import Result, Select, SQLColumnExpression
 
 
-def column_windows(session, column, windowsize):
+def column_windows(
+    session: Session,
+    stmt: Select[Any],
+    column: SQLColumnExpression[Any],
+    windowsize: int,
+) -> Iterator[SQLColumnExpression[bool]]:
+    """Return a series of WHERE clauses against
+    a given column that break it into windows.
+
+    Result is an iterable of WHERE clauses that are packaged with
+    the individual ranges to select from.
+
+    Requires a database that supports window functions.
     """
-    Return a series of WHERE clauses against a given column that break it into
-    windows.
+    rownum = func.row_number().over(order_by=column).label("rownum")
 
-    Result is an iterable of tuples, consisting of ((start, end), whereclause),
-    where (start, end) are the ids.
+    subq = stmt.add_columns(rownum).subquery()
+    subq_column = list(subq.columns)[-1]
 
-    Requires a database that supports window functions, i.e. Postgresql,
-    SQL Server, Oracle.
-
-    Enhance this yourself !  Add a "where" argument so that windows of just a
-    subset of rows can be computed.
-    """
-
-    def int_for_range(start_id, end_id):
-        if end_id:
-            return and_(column >= start_id, column < end_id)
-        else:
-            return column >= start_id
-
-    q = session.query(
-        column, func.row_number().over(order_by=column).label("rownum")
-    ).from_self(column)
+    target_column = subq.corresponding_column(column)  # type: ignore
+    new_stmt = select(target_column)  # type: ignore
 
     if windowsize > 1:
-        q = q.filter(text("rownum %% %d=1" % windowsize))
+        new_stmt = new_stmt.filter(subq_column % windowsize == 1)
 
-    intervals = [row[0] for row in q]
+    intervals = list(session.scalars(new_stmt))
 
+    # yield out WHERE clauses for each range
     while intervals:
         start = intervals.pop(0)
         if intervals:
-            end = intervals[0]
+            yield and_(column >= start, column < intervals[0])
         else:
-            end = None
-
-        yield int_for_range(start, end)
+            yield column >= start
 
 
-def windowed_query(q, column, windowsize):
+def windowed_query(
+    session: Session,
+    stmt: Select[Any],
+    column: SQLColumnExpression[Any],
+    windowsize: int,
+) -> Iterator[Result[Any]]:
+    """Given a Session and Select() object, organize and execute the statement
+    such that it is invoked for ordered chunks of the total result.   yield
+    out individual Result objects for each chunk.
     """
-    Break a Query into windows on a given column.
-    """
-
-    for whereclause in column_windows(q.session, column, windowsize):
-        for row in q.filter(whereclause).order_by(column):
-            yield row
+    for whereclause in column_windows(session, stmt, column, windowsize):
+        yield session.execute(stmt.filter(whereclause).order_by(column))

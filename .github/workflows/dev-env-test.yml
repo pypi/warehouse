@@ -1,0 +1,18 @@
+name: Development Environment
+
+on:
+  schedule:
+    - cron: '0 13 * * *'  # once a day at around 9am eastern
+  workflow_dispatch:
+
+jobs:
+  build:
+    # TODO: Should we test on other platforms like Windows and Mac?
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: make build
+      - run: docker compose up -d
+      - run: docker compose ps
+      - run: make initdb
+      - run: make tests

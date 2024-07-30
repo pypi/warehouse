@@ -27,7 +27,7 @@
   {% set icon = "fas fa-book" %}
 {% elif name.lower().startswith(("bug", "issue", "tracker", "report")) %}
   {% set icon = "fas fa-bug" %}
-{% elif name.lower().startswith(("funding", "donate", "donation")) %}
+{% elif name.lower().startswith(("funding", "donate", "donation", "sponsor")) %}
   {% set icon = "fas fa-donate" %}
 {% elif parsed.netloc in ["github.com", "github.io"] or parsed.netloc.endswith((".github.com", ".github.io")) %}
   {% set icon = "fab fa-github" %}
@@ -53,8 +53,10 @@
   {% set icon = "fas fa-cube" %}
 {% elif parsed.netloc == "python.org" or parsed.netloc.endswith(".python.org") %}
   {% set icon = "fab fa-python" %}
-{% elif parsed.netloc == "youtube.com" or parsed.netloc.endswith(".youtube.com") %}
+{% elif parsed.netloc in ["youtube.com", "youtu.be"] or parsed.netloc.endswith((".youtube.com", ".youtu.be")) %}
   {% set icon = "fab fa-youtube" %}
+{% elif name|lower == "mastodon" %}
+  {% set icon = "fab fa-mastodon" %}
 {% else %}
   {% set icon = "fas fa-external-link-square-alt" %}
 {% endif %}
@@ -106,11 +108,9 @@
         <a href="#copy-hash-modal-{{ file.id }}">{%- trans -%}view hashes{%- endtrans -%}</a>)
         <p class="file__meta">
           Uploaded {{ humanize(file.upload_time) }}
-          {% if file.python_version %}
-          {% for tag in file.python_version.split('.') %}
+          {% for tag in file.pretty_wheel_tags %}
           <code>{{ tag }}</code>
           {% endfor %}
-          {% endif %}
         </p>
       </div>
     </div>
@@ -128,9 +128,22 @@
 
 {% block canonical_url %}{{ request.route_url('packaging.project', name=release.project.name) }}{% endblock %}
 
+{% block extra_meta %}
+{% if release.project.created|is_recent %}
+<meta name="googlebot" content="noindex">
+{% endif %}
+{% endblock %}
+
 {% block content %}
-{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
-{% endcsi %}
+{% if release.github_repo_info_url and release.github_open_issue_info_url %}
+<div class="hidden"
+  data-controller="github-repo-stats"
+  data-github-repo-stats-github-repo-info-outlet=".github-repo-info"
+  data-github-repo-stats-url-value="{{release.github_repo_info_url}}"
+  data-github-repo-stats-issue-url-value="{{release.github_open_issue_info_url}}">
+</div>
+{% endif %}
+
 <div class="banner">
   <div class="package-header">
     <div class="package-header__left">
@@ -138,19 +151,27 @@
         {{ release.project.name }} {{ release.version }}
       </h1>
 
-      {% if files %}
-      <p class="package-header__pip-instructions">
-        <span id="pip-command">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
-        <button type="button" class="copy-tooltip copy-tooltip-s" data-clipboard-target="#pip-command" data-tooltip-label="{% trans %}Copy to clipboard{% endtrans %}">
-          <i class="fa fa-copy" aria-hidden="true"></i>
-          <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
-        </button>
-      </p>
+      {% if files and not project.lifecycle_status == "quarantine-enter" %}
+      <div data-controller="clipboard">
+        <p class="package-header__pip-instructions">
+          <span id="pip-command" data-clipboard-target="source">{{ pip_command(release, request.matched_route.name, testPyPI) }}</span>
+          <button type="button" class="copy-tooltip copy-tooltip-s" data-action="clipboard#copy" data-clipboard-target="tooltip" data-clipboard-tooltip-value="{% trans %}Copy to clipboard{% endtrans %}">
+            <i class="fa fa-copy" aria-hidden="true"></i>
+            <span class="sr-only">{% trans %}Copy PIP instructions{% endtrans %}</span>
+          </button>
+        </p>
+      </div>
       {% endif %}
     </div>
 
     <div class="package-header__right">
-    {% if release.yanked %}
+    {% if project.lifecycle_status == "quarantine-enter" %}
+      <a class="status-badge status-badge--warn" href="{{ request.route_path('help') }}#project_in_quarantine">
+      <span>
+        {% trans %}This project has been quarantined{% endtrans %}
+      </span>
+      </a>
+    {% elif release.yanked %}
       <a class="status-badge status-badge--bad" href="{{ request.route_path('packaging.project', name=release.project.name) }}">
         <span>
           {% trans %}This release has been yanked{% endtrans %}<br>
@@ -180,6 +201,8 @@
 
 <div class="horizontal-section horizontal-section--grey horizontal-section--thin">
   <div class="site-container">
+{% csi request.route_path("includes.administer-project-include", project_name=project.normalized_name) %}
+{% endcsi %}
     <div class="split-layout split-layout--middle package-description">
     {% if release.summary %}
       <p class="package-description__summary">{{ release.summary }}</p>
@@ -201,20 +224,20 @@
           <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
             <ul class="vertical-tabs__list" role="tablist">
               <li role="tab">
-                <a id="description-tab" href="#description" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+                <a id="description-tab" href="#description" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                   <i class="fa fa-align-left" aria-hidden="true"></i>
                   {% trans %}Project description{% endtrans %}
                 </a>
               </li>
               <li role="tab">
-                <a id="history-tab" href="#history" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+                <a id="history-tab" href="#history" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
                   <i class="fa fa-history" aria-hidden="true"></i>
                   {% trans %}Release history{% endtrans %}
                 </a>
               </li>
               {% if files %}
               <li role="tab">
-                <a id="files-tab" href="#files" data-target="project-tabs.tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+                <a id="files-tab" href="#files" data-project-tabs-target="tab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                   <i class="fa fa-download" aria-hidden="true"></i>
                   {% trans %}Download files{% endtrans %}
                 </a>
@@ -224,7 +247,10 @@
           </nav>
         </div>
         {% include "warehouse:templates/includes/packaging/project-data.html" %}
+        {% set include_sponsor_logos = project.organization.orgtype != OrganizationType.Company %}
         {% include "warehouse:templates/includes/sidebar-sponsor-logo.html" %}
+        {% csi request.route_url("includes.submit_malware_report", project_name=project.name) %}
+        {% endcsi %}
 
       </div>
       <div class="vertical-tabs__panel">
@@ -232,26 +258,26 @@
         <nav aria-label="{% trans project=release.project.name %}Navigation for {{ project }}{% endtrans %}">
           <ul class="vertical-tabs__list" role="tablist">
             <li role="tab">
-              <a id="mobile-description-tab" href="#description" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
+              <a id="mobile-description-tab" href="#description" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile vertical-tabs__tab--no-top-border vertical-tabs__tab--is-active" aria-selected="true" aria-label="{% trans %}Project description. Focus will be moved to the description.{% endtrans %}">
                 <i class="fa fa-align-left" aria-hidden="true"></i>
                 {% trans %}Project description{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-data-tab" href="#data" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
+              <a id="mobile-data-tab" href="#data" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Project details. Focus will be moved to the project details.{% endtrans %}">
                 <i class="fa fa-info-circle" aria-hidden="true"></i>
                 {% trans %}Project details{% endtrans %}
               </a>
             </li>
             <li role="tab">
-              <a id="mobile-history-tab" href="#history" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
+              <a id="mobile-history-tab" href="#history" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Release history. Focus will be moved to the history panel.{% endtrans %}">
               <i class="fa fa-history" aria-hidden="true"></i>
               {% trans %}Release history{% endtrans %}
             </a>
             </li>
             {% if files %}
             <li role="tab">
-              <a id="mobile-files-tab" href="#files" data-target="project-tabs.mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
+              <a id="mobile-files-tab" href="#files" data-project-tabs-target="mobileTab" data-action="project-tabs#onTabClick" class="vertical-tabs__tab vertical-tabs__tab--with-icon vertical-tabs__tab--mobile" aria-label="{% trans %}Download files. Focus will be moved to the project files.{% endtrans %}">
                 <i class="fa fa-download" aria-hidden="true"></i>
                 {% trans %}Download files{% endtrans %}
               </a>
@@ -261,7 +287,29 @@
         </nav>
 
         {# Tab: Project description #}
-        <div id="description" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+        <div id="description" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="description-tab mobile-description-tab" tabindex="-1">
+          {% if project.lifecycle_status == "quarantine-enter" %}
+            <div class="callout-block callout-block--warning">
+              <p>{% trans %}This project has been quarantined.{% endtrans %}</p>
+              <p>
+                {% trans %}
+                  PyPI Admins need to review this project before it can be restored.
+                  While in quarantine, the project is not installable by clients,
+                  and cannot be being modified by its maintainers.
+                {% endtrans %}
+              </p>
+              <p>
+                {% trans href=request.route_path('help') + "#project_in_quarantine" %}
+                  Read more in the <a href="{{ href }}">project in quarantine</a> help article.
+                {% endtrans %}
+              </p>
+            </div>
+          {% elif release.yanked and release.yanked_reason %}
+            <div class="callout-block callout-block--danger">
+              <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+              <p>{{ release.yanked_reason }}</p>
+            </div>
+          {% endif %}
           <h2 class="page-title">{% trans %}Project description{% endtrans %}</h2>
           {% if description %}
           <div class="project-description">
@@ -275,14 +323,14 @@
         </div>
 
         {# Tab: project details #}
-        <div id="data" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
+        <div id="data" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="mobile-data-tab" tabindex="-1">
           <h2 class="page-title">{% trans %}Project details{% endtrans %}</h2>
           {% include "warehouse:templates/includes/packaging/project-data.html" %}
           <br>
         </div>
 
         {# Tab: Release history #}
-        <div id="history" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
+        <div id="history" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="history-tab mobile-history-tab" tabindex="-1">
           <h2 class="page-title split-layout">
             <span>{% trans %}Release history{% endtrans %}</span>
             <span class="reset-text margin-top">
@@ -318,12 +366,12 @@
                 <p class="release__version">
                   {{ hversion.version }}
                   {% if hversion.is_prerelease %}
-                  <span class="badge badge--warning release__version-badge">
+                  <span class="badge badge--warning">
                     {% trans %}pre-release{% endtrans %}
                   </span>
                   {% endif %}
                   {% if hversion.yanked %}
-                  <span class="badge badge--danger release__version-badge">
+                  <span class="badge badge--danger">
                     {% trans %}yanked{% endtrans %}
                   </span>
                   {% endif %}
@@ -331,6 +379,12 @@
                 <p class="release__version-date">
                   {{ humanize(hversion.created) }}
                 </p>
+                {% if hversion.yanked and hversion.yanked_reason %}
+                  <div class="callout-block callout-block--danger release__yanked-reason">
+                    <p>{% trans %}Reason this release was yanked:{% endtrans %}</p>
+                    <p>{{ hversion.yanked_reason }}</p>
+                  </div>
+                {% endif %}
               </a>
             </div>
             {% endfor %}
@@ -339,11 +393,9 @@
 
         {% if files %}
           {# Tab: Downloads #}
-          <div id="files" data-target="project-tabs.content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
+          <div id="files" data-project-tabs-target="content" class="vertical-tabs__content" role="tabpanel" aria-labelledby="files-tab mobile-files-tab" tabindex="-1">
             <h2 class="page-title">{% trans %}Download files{% endtrans %}</h2>
-            <p>{% trans href='https://packaging.python.org/installing/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
-
-            {% if sdists %}
+            <p>{% trans href='https://packaging.python.org/tutorials/installing-packages/', title=gettext('External link') %}Download the file for your platform. If you're not sure which to choose, learn more about <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">installing packages</a>.{% endtrans %}</p>
             <h3>
               {% trans count=sdists|length %}
                 Source Distribution
@@ -352,7 +404,19 @@
               {% endtrans %}
             </h3>
 
-            {{ file_table(sdists) }}
+            {% if sdists %}
+              {{ file_table(sdists) }}
+            {% else %}
+              <div class="file">
+                <div class="file__graphic">
+                  <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+                </div>
+
+                <div class="card">
+                  {% trans %}No source distribution files available for this release.{% endtrans %}
+                  {% trans href='https://packaging.python.org/tutorials/packaging-projects/#generating-distribution-archives', title=gettext('External link') %}See tutorial on <a href="{{ href }}" title="{{ title }}" target="_blank" rel="noopener">generating distribution archives</a>.{% endtrans %}
+                </div>
+              </div>
             {% endif %}
 
             {% if bdists %}
@@ -377,4 +441,19 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  },
+};
+</script>
+<script async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js"
+  integrity="sha256-1CldwzdEg2k1wTmf7s5RWVd7NMXI/7nxxjJM2C4DqII="
+  crossorigin="anonymous"
+></script>
 {% endblock %}

@@ -11,11 +11,11 @@
 # limitations under the License.
 from datetime import date
 
-from sqlalchemy import Boolean, Column, Date, String, Text
-from sqlalchemy_utils.types.url import URLType
+from sqlalchemy.orm import Mapped, mapped_column
 
 from warehouse import db
 from warehouse.utils.attrs import make_repr
+from warehouse.utils.db.types import bool_false
 
 
 class Banner(db.Model):
@@ -25,17 +25,19 @@ class Banner(db.Model):
     DEFAULT_BTN_LABEL = "See more"
 
     # internal name
-    name = Column(String, nullable=False)
+    name: Mapped[str]
 
     # banner display configuration
-    text = Column(Text, nullable=False)
-    link_url = Column(URLType, nullable=False)
-    link_label = Column(String, nullable=False, default=DEFAULT_BTN_LABEL)
-    fa_icon = Column(String, nullable=False, default=DEFAULT_FA_ICON)
+    text: Mapped[str]
+    link_url: Mapped[str]
+    link_label: Mapped[str] = mapped_column(default=DEFAULT_BTN_LABEL)
+    fa_icon: Mapped[str] = mapped_column(default=DEFAULT_FA_ICON)
+    dismissable: Mapped[bool_false]
 
     # visibility control
-    active = Column(Boolean, nullable=False, default=False)
-    end = Column(Date, nullable=False)
+    # TODO: Migrate to `warehouse.utils.db.types.bool_false` - triggers migration
+    active: Mapped[bool] = mapped_column(default=False)
+    end: Mapped[date]
 
     @property
     def is_live(self):

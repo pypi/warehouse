@@ -13,7 +13,6 @@
 import base64
 import datetime
 import re
-import urllib.parse
 
 import requests
 
@@ -21,7 +20,8 @@ from cryptography import x509
 from cryptography.exceptions import InvalidSignature as _InvalidSignature
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric.padding import PKCS1v15
-from cryptography.hazmat.primitives.hashes import SHA1
+from cryptography.hazmat.primitives.hashes import SHA256
+from urllib3.util import parse_url
 
 _signing_url_host_re = re.compile(r"^sns\.[a-zA-Z0-9\-]{3,}\.amazonaws\.com(\.cn)?$")
 
@@ -36,10 +36,11 @@ class MessageVerifier:
         self.http = session if session is not None else requests.session()
 
     def verify(self, message):
-        if message.get("SignatureVersion") != "1":
+        if message.get("SignatureVersion") == "2":
+            self._validate_v2_signature(message)
+        else:
             raise InvalidMessageError("Unknown SignatureVersion")
 
-        self._validate_signature(message)
         self._validate_timestamp(message["Timestamp"])
         self._validate_topic(message["TopicArn"])
 
@@ -48,12 +49,12 @@ class MessageVerifier:
             raise InvalidMessageError("Invalid TopicArn")
 
     def _validate_timestamp(self, timestamp_str):
-        now = datetime.datetime.utcnow()
+        now = datetime.datetime.now(datetime.UTC)
 
         try:
             timestamp = datetime.datetime.strptime(
                 timestamp_str, "%Y-%m-%dT%H:%M:%S.%fZ"
-            )
+            ).replace(tzinfo=datetime.UTC)
         except ValueError:
             raise InvalidMessageError("Unknown Timestamp format")
 
@@ -61,20 +62,20 @@ class MessageVerifier:
         if age > datetime.timedelta(hours=1):
             raise InvalidMessageError("Message has expired")
 
-    def _validate_signature(self, message):
+    def _validate_v2_signature(self, message):
         pubkey = self._get_pubkey(message["SigningCertURL"])
         signature = self._get_signature(message)
         data = self._get_data_to_sign(message)
 
         try:
-            pubkey.verify(signature, data, PKCS1v15(), SHA1())
+            pubkey.verify(signature, data, PKCS1v15(), SHA256())
         except _InvalidSignature:
             raise InvalidMessageError("Invalid Signature") from None
 
     def _get_pubkey(self, cert_url):
         # Before we do anything, we need to verify that the URL for the
         # signature matches what we expect.
-        cert_url_p = urllib.parse.urlparse(cert_url)
+        cert_url_p = parse_url(cert_url)
         cert_scheme = cert_url_p.scheme
         cert_host = cert_url_p.netloc
         if cert_scheme != "https":

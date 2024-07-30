@@ -93,11 +93,17 @@ def origin_cache(seconds, keys=None, stale_while_revalidate=None, stale_if_error
 CacheKeys = collections.namedtuple("CacheKeys", ["cache", "purge"])
 
 
-def key_factory(keystring, iterate_on=None):
+def key_factory(keystring, iterate_on=None, if_attr_exists=None):
     def generate_key(obj):
         if iterate_on:
             for itr in operator.attrgetter(iterate_on)(obj):
                 yield keystring.format(itr=itr, obj=obj)
+        elif if_attr_exists:
+            try:
+                attr = operator.attrgetter(if_attr_exists)(obj)
+                yield keystring.format(attr=attr, obj=obj)
+            except AttributeError:
+                pass
         else:
             yield keystring.format(obj=obj)
 
@@ -118,7 +124,7 @@ def key_maker_factory(cache_keys, purge_keys):
             # a limit to how many surrogate keys we can attach to a single HTTP
             # response, and being able to use use `iterate_on` would allow this
             # size to be unbounded.
-            # ref: https://github.com/pypa/warehouse/pull/3189
+            # ref: https://github.com/pypi/warehouse/pull/3189
             cache=[k.format(obj=obj) for k in cache_keys],
             purge=chain.from_iterable(key(obj) for key in purge_keys),
         )

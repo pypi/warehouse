@@ -9,7 +9,7 @@ export LANG="${ENCODING:-en_US.UTF-8}"
 
 COMMAND_ARGS="$@"
 
-# Print all the followng commands
+# Print all the following commands
 set -x
 
 pip-compile $COMMAND_ARGS

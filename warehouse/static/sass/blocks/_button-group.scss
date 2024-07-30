@@ -55,7 +55,7 @@
     margin-top: 40px;
 
     @media only screen and (max-width: $tablet) {
-      .button-group__button:not(:first-child):not(:last-child) {
+      .button-group__button:not(:first-child, :last-child) {
         display: none; // Avoid button group's ugly wrapping on tablet / mobile
       }
     }

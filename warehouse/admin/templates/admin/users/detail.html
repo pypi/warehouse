@@ -15,40 +15,57 @@
 
 {% import "admin/utils/pagination.html" as pagination %}
 
-{% macro render_field(label, field, input_id, placeholder=None, class=None) %}
-<div class="form-group{% if field.errors %} has-error{% endif %}">
-  <label for="{{ input_id }}" class="col-sm-2 control-label">{{ label }}</label>
+{% set perms_admin_users_write = request.has_permission(Permissions.AdminUsersWrite) %}
+{% set perms_admin_users_email_write = request.has_permission(Permissions.AdminUsersEmailWrite) %}
+{% set perms_admin_users_account_recovery_write = request.has_permission(Permissions.AdminUsersAccountRecoveryWrite) %}
+
+{% macro render_field(label, field, input_id, placeholder=None, class=None, permission=perms_admin_users_write) %}
+<div class="form-group row{% if field.errors %} has-error{% endif %}">
+  <label for="{{ input_id }}" class="col-sm-2 col-form-label">{{ label }}</label>
 
   <div class="col-sm-10">
-    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not request.has_permission('admin')))}}
+    {{ field(id=input_id, class=class, placeholder=placeholder, disabled=(not permission))}}
 
     {% if field.errors %}
-    <span class="help-block">
+    <div class="help-block">
     {% for error in field.errors %}
       <div>{{ error }}</div>
     {% endfor %}
-    </span>
+    </div>
     {% endif %}
   </div>
+</div>
+{% endmacro %}
+
+{% macro render_checkbox(label, field, input_id, class=None, permission=perms_admin_users_write) %}
+<div class="form-check">
+  {{ field(id=input_id, class=class, disabled=(not permission))}}
+  <label for="{{ input_id }}" class="form-check-label">{{ label }}</label>
 </div>
 {% endmacro %}
 
 {% block title %}{{ user.username }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.user.list') }}">Users</a></li>
-  <li class="active">{{ user.username }}</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.user.list') }}">Users</a></li>
+  <li class="breadcrumb-item active">{{ user.username }}</li>
 {% endblock %}
 
 {% block content %}
   <div class="row">
     <div class="col-md-3">
-      <div class="box box-primary">
-        <div class="box-body box-profile">
-          <img class="profile-user-img img-responsive img-circle" src="{{ gravatar(request, user.email, size=128) }}" alt="User profile picture">
 
-          <h3 class="profile-username text-center">{{ user.username }}</h3>
+      <div class="card card-widget widget-user-2">
+        <div class="widget-user-header">
+          <div class="widget-user-image">
+            <img class="img-fluid rounded-circle elevation-2" src="{{ gravatar(request, user.email, size=128) }}" alt="User profile picture">
+          </div>
 
+          <h3 class="widget-user-username text-center">{{ user.username }}</h3>
+          <h5 class="widget-user-desc text-center">{{ user.name }}</h5>
+        </div>
+
+        <div class="card-body">
           <p class="text-muted text-center">
             Last login on {{ user.last_login|format_date() }}
           </p>
@@ -59,105 +76,348 @@
           </p>
           {% endif %}
         </div>
-      </div>
 
-      <div class="box">
-        <div class="box-header with-border">
-          <h2 class="box-title">Actions</h2>
-        </div>
-        <div class="box-body">
-          <ul class="list-unstyled">
-            <li>
-              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not request.has_permission('admin') }}>
-                <i class="icon fa fa-bomb"></i> Nuke user
-              </button>
-              <div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
-                <form method="POST" action="{{ request.route_path('admin.user.delete', user_id=user.id) }}">
-                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h4 class="modal-title" id="exampleModalLabel">Nuke user {{ user.username }}?</h4>
-                        <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        <p>
-                          This will permanently destroy the user and cannot be undone.
-                        </p>
-                        <p>
-                          This will also delete the following projects and their respective releases:
-                        </p>
-                        <ul>
-                        {% for project in user.projects %}
-                          <li>
-                            <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
-                              {{ project.name }}
-                            </a> ({{ project.releases|length }} releases)
-                          </li>
-                        {% endfor %}
-                        </ul>
-                        <hr>
-                        <p>
-                          Type the username '{{ user.username }}' to confirm:
-                        </p>
-                        <input type="text" name="username" placeholder="{{ user.username }}">
-                      </div>
-                      <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-danger">Nuke 'em</button>
-                        </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
+        <div class="card-footer p-0">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a href="#projects" class="nav-link">
+                Projects - Owner <span class="float-right badge bg-primary">{{ roles | selectattr("role_name", "equalto", "Owner") | list | length }}</span>
+              </a>
             </li>
-            <li>
-              <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not request.has_permission('admin') }}>
-                <i class="icon fa fa-bomb"></i> Reset password
-              </button>
-              <div class="modal fade" id="pwresetModal" tabindex="-1" role="dialog">
-                <form method="POST" action="{{ request.route_path('admin.user.reset_password', user_id=user.id) }}">
-                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
-                  <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h4 class="modal-title" id="exampleModalLabel">Reset password for {{ user.username }}?</h4>
-                        <button type="button" class="close" data-dismiss="modal">
-                          <span>&times;</span>
-                        </button>
-                      </div>
-                      <div class="modal-body">
-                        <p>
-                          This will permanently remove user's current password and cannot be undone.
-                        </p>
-                        <hr>
-                        <p>
-                          Type the username '{{ user.username }}' to confirm:
-                        </p>
-                        <input type="text" name="username" placeholder="{{ user.username }}">
-                      </div>
-                      <div class="modal-footer">
-                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                          <button type="submit" class="btn btn-danger">Reset password</button>
-                        </div>
-                    </div>
-                  </form>
-                </div>
-              </div>
+            <li class="nav-item">
+              <a href="#projects" class="nav-link">
+                Projects - Maintainer <span class="float-right badge bg-info">{{ roles | selectattr("role_name", "equalto", "Maintainer") | list | length }}</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="#projects" class="nav-link">
+                Projects - Total Owned Size	<span class="float-right badge bg-success">{{ roles | selectattr("role_name", "equalto", "Owner") | sum(attribute="project.total_size") | filesizeformat(binary=True) }}</span>
+              </a>
             </li>
           </ul>
         </div>
-      </div>
-    </div>
+
+      </div> <!-- /.card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h2 class="card-title">Actions</h2>
+        </div>
+        <div class="card-body">
+          <div class="form-group">
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#freezeModal" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="icon fa fa-snowman"></i> Freeze user & block domain
+            </button>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#nukeModal" {{ "disabled" if not perms_admin_users_write }}>
+              <i class="icon fa fa-bomb"></i> Nuke user
+            </button>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#pwresetModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+              <i class="fa-solid fa-unlock-keyhole"></i> Reset password
+            </button>
+            {% if not user.active_account_recoveries %}
+            <a href="{{ request.route_path('admin.user.account_recovery.initiate', username=user.username) }}" role="button" class="btn btn-block btn-danger" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+              <i class="fa-solid fa-recycle"></i> Start account recovery
+            </a>
+            <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#wipeFactorsModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+              <i class="fa-solid fa-toilet-paper"></i> Wipe 2FA and recovery codes
+            </button>
+            {% endif %}
+            <div class="modal fade" id="freezeModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.freeze', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="nukeModalLabel">Freeze user {{ user.username }} and prohibit domain?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This is totally reversible.
+                      </p>
+                      <p>
+                        This will also prohibit the following domains:
+                      </p>
+                      <ul>
+                      {% for email in user.emails if email.verified %}
+                        <li>
+                          {{ email.domain }}
+                        </li>
+                      {% else %}
+                        <li><i>None</i></li>
+                      {% endfor %}
+                      </ul>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Freeze 'em</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+<div class="modal fade" id="nukeModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.delete', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="nukeModalLabel">Nuke user {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will permanently destroy the user and cannot be undone.
+                      </p>
+                      <p>
+                        This will also delete the following projects and their respective releases:
+                      </p>
+                      <ul>
+                      {% for project in user.projects %}
+                        <li>
+                          <a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">
+                            {{ project.name }}
+                          </a> ({{ project.releases|length }} releases)
+                        </li>
+                      {% endfor %}
+                      </ul>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Nuke 'em</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal fade" id="pwresetModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.reset_password', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="pwresetModalLabel">Reset password for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will permanently remove user's current password and cannot be undone.
+                      </p>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Reset password</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+            <div class="modal fade" id="wipeFactorsModal" tabindex="-1" role="dialog">
+              <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
+                <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h4 class="modal-title" id="wipeFactorsModalLabel">Wipe second/recovery factors for {{ user.username }}?</h4>
+                      <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>
+                        This will permanently remove the user's second factors and recovery codes,
+                        and cannot be undone.
+                      </p>
+                      <p>
+                        It will also permanently remove the user's current password,
+                        and send them a password reset request.
+                      </p>
+                      <hr>
+                      <p>
+                        Type the username '{{ user.username }}' to confirm:
+                      </p>
+                      <input type="text" name="username" placeholder="{{ user.username }}">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Wipe factors</button>
+                      </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div> <!-- .card -->
+
+    </div> <!-- .col-md-3 -->
 
     <div class="col-md-9">
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Edit User</h3>
+
+      <div class="card">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-2">
+              <span class="font-weight-bold">User ID</span>
+            </div>
+            <div class="col">
+              <code>{{ user.id }}</code>
+            </div>
+          </div>
         </div>
-        <div class="box-body">
+      </div>
+
+      {% if user.active_account_recoveries %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Account Recovery in Process</h3>
+        </div>
+        <div class="card-body">
+          {% for account_recovery in user.active_account_recoveries %}
+          <div class="row">
+            <div class="col">
+              <table class="table table-hover">
+                <tr>
+                  <th>Initiated</th>
+                  <td>{{ account_recovery.payload["initiated"] }}</td>
+                </tr>
+                <tr>
+                  <th><i class="fa-brands fa-github"></i></th>
+                  <td><a href="{{ account_recovery.payload["support_issue_link"] }}">{{ account_recovery.payload["support_issue_link"] }}</a></td>
+                </tr>
+                <tr>
+                  <th>Project</th>
+                  <td>{{ account_recovery.payload["project_name"] }}</td>
+                </tr>
+                <tr>
+                  <th>Token</th>
+                  <td>
+                    <span>{{ account_recovery.payload["token"] }}</span>
+                    <button type="button"
+                            class="copy-text"
+                            data-copy-text="{{ account_recovery.payload["token"] }}">
+                      <i class="fa fa-copy" aria-hidden="true"></i>
+                    </button>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Project URLS</th>
+                  <td>
+                    <ul>
+                      {% for url in account_recovery.payload["repos"] %}
+                      <li>{{ url[0] }}: <a href="{{ url[1] }}" data-check-link-url="{{ request.camo_url(url[1]) }}" ><i class="fa fa-question"></i> {{ url[1] }}</a></li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                </tr>
+                {% if account_recovery.payload["override_to_email"] %}
+                <tr>
+                  <th>Alternate E-Mail</th>
+                  <td>{{ account_recovery.payload["override_to_email"] }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <th>Actions</th>
+                  <td>
+                    <button type="button" class="btn btn-block btn-primary" data-toggle="modal" data-target="#cancelRecoveryModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+                      Cancel Recovery
+                    </button>
+                    <button type="button" class="btn btn-block btn-danger" data-toggle="modal" data-target="#completeRecoveryModal" {{ "disabled" if not perms_admin_users_account_recovery_write }}>
+                      Complete Recovery
+                    </button>
+                  </td>
+                </tr>
+              </table>
+              <div class="modal fade" id="cancelRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.cancel', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Cancel Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will cancel the outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Cancel Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+              <div class="modal fade" id="completeRecoveryModal" tabindex="-1" role="dialog">
+                <form method="POST" action="{{ request.route_path('admin.user.account_recovery.complete', username=user.username) }}">
+                  <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+                  <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h4 class="modal-title" id="pwresetModalLabel">Complete Account Recovery for {{ user.username }}?</h4>
+                        <button type="button" class="close" data-dismiss="modal">
+                          <span>&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                        <p>
+                          This will complete outstanding Account Recovery Request for {{ user.username }}.
+                        </p>
+                        <hr>
+                        <p>
+                          All recovery codes, 2FA methods, and passwords for {{ user.username }} will be reset.
+                        </p>
+                        <hr>
+                        <p>
+                          Type the username '{{ user.username }}' to confirm:
+                        </p>
+                        <input type="text" name="username" placeholder="{{ user.username }}">
+                      </div>
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-danger">Complete Recovery</button>
+                        </div>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Edit User</h3>
+        </div>
+        <div class="card-body">
           <form class="form-horizontal" method="POST" action="{{ request.current_route_path() }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
@@ -167,98 +427,175 @@
               {% endfor %}
             {% endif %}
 
-            {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
-
-            <div>
-              <div class="box-header with-border">
-                <h3 class="box-title">Permissions</h3>
+            <div class="card">
+              <div class="card-header with-border">
+                <h3 class="card-title">Details</h3>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      {{ render_field("Name", form.name, "user-name", class="form-control", placeholder="Name") }}
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div class="box-body">
-                {{ render_field("Active", form.is_active, "is-active") }}
-                {{ render_field("Superuser", form.is_superuser, "is-superuser")}}
-                {{ render_field("Moderator", form.is_moderator, "is-moderator")}}
-                {{ render_field("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+              <div class="card-header with-border">
+                <h3 class="card-title">Permissions</h3>
               </div>
 
-              <div class="box-body">
-                {{ render_field("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
+              <div class="card-body">
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <span class="badge badge-primary">Status</span>
+                      {{ render_checkbox("Active", form.is_active, "is-active") }}
+                      {{ render_checkbox("Frozen", form.is_frozen, "is-frozen") }}
+                      {{ render_checkbox("Observer", form.is_observer, "is-observer")}}
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="form-group">
+                      <span class="badge badge-danger">Roles</span>
+                      {{ render_checkbox("Superuser", form.is_superuser, "is-superuser")}}
+                      {{ render_checkbox("Support", form.is_support, "is-support")}}
+                      {{ render_checkbox("Moderator", form.is_moderator, "is-moderator")}}
+                      {{ render_checkbox("PSF Staff", form.is_psf_staff, "is-psf-staff")}}
+                    </div>
+                  </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <span class="badge badge-secondary">Flags</span>
+                      {{ render_checkbox("Prohibit Password Reset", form.prohibit_password_reset, "prohibit-password-reset")}}
+                      {{ render_checkbox("Hide avatar", form.hide_avatar, "hide-avatar")}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" action="user_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_write }}" {{ "disabled" if not perms_admin_users_write }}>Submit</button>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div>
-              <div class="box-header with-border">
-                <h3 class="box-title">Emails</h3>
-              </div>
-
-              <div class="box-body">
-                <table class="table table-hover">
-                  {% if form.errors.emails %}
-                    {% for error in form.errors.emails %}
-                      <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
-                    {% endfor %}
-                  {% endif %}
-                  {% for field in form.emails.entries %}
-                  <tr>
-                    <td>
-                      {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email")}}
-                    </td>
-                    <td>
-                      {{ render_field("Primary", field.primary, "email-primary-" ~ loop.index0)}}
-                    </td>
-                    <td>
-                      {{ render_field("Verified", field.verified, "email-verified-" ~ loop.index0) }}
-                    </td>
-                    <td>
-                      {{ render_field("Public", field.public, "email-public-" ~ loop.index0) }}
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </table>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
-              </div>
-            </div>
-
           </form>
         </div>
       </div>
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Add a new email</h3>
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Emails</h3>
         </div>
-        <div class="box-body">
-          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', user_id=user.id) }}">
+        <div class="card-body">
+          <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.submit_email', username=user.username) }}">
             <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
 
-            {% if add_email_form.errors.__all__ %}
-              {% for error in add_email_form.errors.__all__ %}
+            {% if form.errors.__all__ %}
+              {% for error in form.errors.__all__ %}
               <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
               {% endfor %}
             {% endif %}
 
-            {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email")}}
-            {{ render_field("Primary", add_email_form.primary, "email-primary")}}
-            {{ render_field("Verified", add_email_form.verified, "email-verified") }}
-            {{ render_field("Public", add_email_form.public, "email-public") }}
-            <div class="form-group">
-              <div class="col-sm-offset-10 col-sm-2">
-                <button type="submit" class="btn btn-danger" title="{{ "Submitting requires superuser privileges" if not request.has_permission('admin') }}" {{ "disabled" if not request.has_permission('admin') }}>Submit</button>
+            <div class="card">
+              <div class="card-body">
+                {% if emails_form.errors.emails %}
+                  {% for error in emails_form.errors.emails %}
+                    <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+
+                {% for field in emails_form.emails.entries %}
+                <div class="row">
+                  <div class="col-7">
+                    {{ render_field("Email", field.email, "email-" ~ loop.index0, class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Primary", field.primary, "email-primary-" ~ loop.index0, permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Verified", field.verified, "email-verified-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Public", field.public, "email-public-" ~ loop.index0, permission=perms_admin_users_email_write) }}
+                  </div>
+                  {% if breached_email_count[field.email.data] %}
+                  <div class="col">
+                    Breaches: {{ breached_email_count[field.email.data] }}
+                  </div>
+                  {% endif %}
+                  {% if field.unverify_reason.data %}
+                  <div class="col">
+                    <i class="fa fa-times text-red"></i> Unverify Reason: {{ field.unverify_reason.data.value }}
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
               </div>
+
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" action="email_form" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </form>
+
+          <div class="card-header with-border">
+            <h3 class="card-title">Add a new email</h3>
+          </div>
+          <div class="card">
+            <form class="form-horizontal" method="POST" action="{{ request.route_path('admin.user.add_email', username=user.username) }}">
+              <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+
+              <div class="card-body">
+                {% if add_email_form.errors.__all__ %}
+                  {% for error in add_email_form.errors.__all__ %}
+                  <div class="alert alert-danger"><i class="icon fa fa-ban"></i> {{ error }}</div>
+                  {% endfor %}
+                {% endif %}
+
+                <div class="row">
+                  <div class="col-6">
+                    {{ render_field("Email", add_email_form.email, "email", class="form-control", placeholder="Email", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Primary", add_email_form.primary, "email-primary", permission=perms_admin_users_email_write)}}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Verified", add_email_form.verified, "email-verified", permission=perms_admin_users_email_write) }}
+                  </div>
+                  <div class="col">
+                    {{ render_checkbox("Public", add_email_form.public, "email-public", permission=perms_admin_users_email_write) }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="card-footer">
+                <div class="form-group">
+                  <div class="col-sm-offset-10 col-sm-2">
+                    <button type="submit" class="btn btn-danger" title="{{ 'Submitting requires superuser privileges' if not perms_admin_users_email_write }}" {{ "disabled" if not perms_admin_users_email_write }}>Submit</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
         </div>
-      </div>
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">2FA</h3>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">2FA</h3>
         </div>
         <div>
-          <div class="box-body">
+          <div class="card-body">
             <table class="table table-hover">
               <tr>
                 <th>TOTP Enabled</th>
@@ -277,10 +614,10 @@
         </div>
         {% if user.webauthn %}
         <div>
-          <div class="box-header with-border">
-            <h3 class="box-title">WebAuthn Keys</h3>
+          <div class="card-header with-border">
+            <h3 class="card-title">WebAuthn Keys</h3>
           </div>
-          <div class="box-body">
+          <div class="card-body">
             <table class="table table-hover">
               <tr>
                 <th>Label</th>
@@ -298,10 +635,10 @@
         {% endif %}
         {% if user.has_recovery_codes %}
         <div>
-          <div class="box-header with-border">
-            <h3 class="box-title">Recovery codes</h3>
+          <div class="card-header with-border">
+            <h3 class="card-title">Recovery codes</h3>
           </div>
-          <div class="box-body">
+          <div class="card-body">
             <table class="table table-hover">
               <tr>
                 <th>Generated</th>
@@ -309,57 +646,260 @@
               </tr>
               <tr>
                 <td>{{ user.recovery_codes[0].generated }}</td>
-                <td>{{ user.recovery_codes|length }}</td>
+                <td>{{ user.recovery_codes.filter_by(burned=None).all()|length }}</td>
               </tr>
             </table>
           </div>
         </div>
         {% endif %}
-      </div>
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Projects</h3>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">API Tokens</h3>
         </div>
-        <div class="box-body">
-          <table class="table table-hover">
-            <tr>
-              <th>Project</th>
-              <th>Role</th>
-            </tr>
-            {% for role in roles %}
-            <tr>
-              <td><a href="{{ request.route_path('admin.project.detail', project_name=role.project.normalized_name) }}">{{ role.project.name }}</a></td>
-              <td>{{ role.role_name }}</td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
-      </div>
-      <div class="box">
-        <div class="box-header with-border">
-          <h3 class="box-title">Account activity</h3>
-        </div>
-        <div class="box-body">
-          <table class="table table-hover">
+
+        <div class="card-body">
+          <table id="api-tokens" class="table table-hover">
             <thead>
-              <th scope="col">Event</th>
-              <th scope="col">Time</th>
-              <th scope="col">IP address</th>
-              <th scope="col">Additional information</th>
+              <tr>
+                <th scope="col" class="token">Token</th>
+                <th scope="col" class="description">Description</th>
+                <th scope="col" class="created">Created</th>
+                <th scope="col" class="last_used">Last Used</th>
+                <th scope="col" class="caveats">Caveats (as created)</th>
+                <th scope="col" class="permissions_caveat">Permissions (deprecated)</th>
+              </tr>
             </thead>
             <tbody>
-              {% for event in user.recent_events %}
+              {% for token in user.macaroons %}
+              <tr>
+                <td>
+                  <a href="{{ request.route_path('admin.macaroon.detail', macaroon_id=token.id) }}">
+                    <code>{{ token.id }}</code>
+                  </a>
+                </td>
+                <td>{{ token.description }}</td>
+                <td>{{ token.created }}</td>
+                <td>{{ token.last_used }}</td>
+                <td>{{ token.caveats }}</td>
+                <td>{{ token.permissions_caveat }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+
+      {% if user.role_invitations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Project Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for invitation in user.role_invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=invitation.project.normalized_name) }}">{{ invitation.project.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+      </div> <!-- .card -->
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Projects</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="projects">
+            <thead>
+              <tr>
+                <th>Project Name</th>
+                <th>Role</th>
+                <th>Total Size</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for role in roles %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.project.detail', project_name=role.project.normalized_name) }}">{{ role.project.name }}</a></td>
+                <td>{{ role.role_name }}</td>
+                <td>{{ role.project.total_size | filesizeformat(binary=True) }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+
+      {% if user.organization_invitations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organization Invitations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="organization-invitations">
+            <thead>
+              <tr>
+                <th>Organization Name</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for invitation in user.organization_invitations %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=invitation.organization.id) }}">{{ invitation.organization.name }}</a></td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
+      {% if user.organizations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Organizations</h3>
+        </div>
+
+        <div class="card-body">
+          <table class="table table-hover" id="organizations">
+            <thead>
+              <tr>
+                <th>Organization Name</th>
+                <th>Organization Role</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for organization in user.organization_roles %}
+              <tr>
+                <td><a href="{{ request.route_path('admin.organization.detail', organization_id=organization.organization.id) }}">{{ organization.organization.name }}</a></td>
+                <td>{{ organization.role_name.value }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+      {% endif %}
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Pending OpenID Connect Publishers</h3>
+        </div>
+
+        <div class="card-body">
+          {% if user.pending_oidc_publishers %}
+          <div class="table-responsive p-0">
+            <table class="table table-hover" id="pending-oidc-publishers">
+              <thead>
+                <tr>
+                  <th scope="col">Project name</th>
+                  <th scope="col">Publisher name</th>
+                  <th scope="col">URL</th>
+                  <th scope="col">repr</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pub in user.pending_oidc_publishers %}
+                <tr>
+                  <td>{{ pub.project_name }}</td>
+                  <td>{{ pub.publisher_name }}</td>
+                  {% if pub.publisher_url() %}
+                  <td><a href="{{ pub.publisher_url() }}">{{ pub.publisher_url() }}</a></td>
+                  {% else %}
+                  <td>N/A</td>
+                  {% endif %}
+                  <td><code>{{ pub }}</code></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          {% else %}
+          No publishers configured.
+          {% endif %}
+        </div>
+      </div> <!-- .card -->
+
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Account activity</h3>
+        </div>
+        <div class="card-body">
+          <table id="account-activity" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="event">Event</th>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="ip_address">IP address</th>
+                <th scope="col" class="hashed_ip">Hashed IP address</th>
+                <th scope="col" class="location_info">Location info</th>
+                <th scope="col" class="user_agent">User-Agent</th>
+                <th scope="col" class="additional_info">Additional information</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for event in user.events %}
               <tr>
                 <td>{{ event.tag }}</td>
                 <td>{{ event.time }}</td>
                 <td>{{ event.ip_address }}</td>
+                <td>{{ event.ip_address.hashed_ip_address }}</td>
+                <td>{{ event.location_info }}</td>
+                <td>{{ event.user_agent_info }}</td>
                 <td>{{ event.additional }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      </div>
+      </div> <!-- .card -->
+
+    {% if user.observer.observations %}
+      <div class="card">
+        <div class="card-header with-border">
+          <h3 class="card-title">Observations</h3>
+        </div>
+        <div class="card-body">
+          <table id="observations" class="table table-striped table-hover">
+            <thead>
+              <tr>
+                <th scope="col" class="time">Time</th>
+                <th scope="col" class="related">Related</th>
+                <th scope="col" class="kind">Kind</th>
+                <th scope="col" class="summary">Summary</th>
+                <th scope="col" class="payload">Payload</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for observation in user.observer.observations %}
+              <tr>
+                <td>{{ observation.created }}</td>
+                <td>{{ observation.related }}</td>
+                <td>{{ observation.kind_display }}</td>
+                <td>{{ observation.summary }}</td>
+                <td>{{ observation.payload }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div> <!-- .card -->
+    {% endif %}
     </div>
   </div>
 {% endblock %}

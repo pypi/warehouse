@@ -20,13 +20,16 @@ from warehouse.packaging.models import (
     Dependency,
     File,
     JournalEntry,
+    LifecycleStatus,
     Project,
     Release,
     Role,
 )
 from warehouse.utils.project import (
+    clear_project_quarantine,
     confirm_project,
     destroy_docs,
+    quarantine_project,
     remove_documentation,
     remove_project,
 )
@@ -42,7 +45,7 @@ from ...common.db.packaging import (
 
 
 def test_confirm():
-    project = stub(normalized_name="foobar")
+    project = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_project_name": "foobar"},
         route_path=call_recorder(lambda *a, **kw: stub()),
@@ -56,7 +59,7 @@ def test_confirm():
 
 
 def test_confirm_no_input():
-    project = stub(normalized_name="foobar")
+    project = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_project_name": ""},
         route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -65,14 +68,14 @@ def test_confirm_no_input():
 
     with pytest.raises(HTTPSeeOther) as err:
         confirm_project(project, request, fail_route="fail_route")
-        assert err.value == "/the-redirect"
+    assert err.value.location == "/the-redirect"
 
     assert request.route_path.calls == [call("fail_route", project_name="foobar")]
     assert request.session.flash.calls == [call("Confirm the request", queue="error")]
 
 
 def test_confirm_incorrect_input():
-    project = stub(normalized_name="foobar")
+    project = stub(name="foobar", normalized_name="foobar")
     request = stub(
         POST={"confirm_project_name": "bizbaz"},
         route_path=call_recorder(lambda *a, **kw: "/the-redirect"),
@@ -81,7 +84,7 @@ def test_confirm_incorrect_input():
 
     with pytest.raises(HTTPSeeOther) as err:
         confirm_project(project, request, fail_route="fail_route")
-        assert err.value == "/the-redirect"
+    assert err.value.location == "/the-redirect"
 
     assert request.route_path.calls == [call("fail_route", project_name="foobar")]
     assert request.session.flash.calls == [
@@ -90,6 +93,54 @@ def test_confirm_incorrect_input():
             queue="error",
         )
     ]
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_quarantine_project(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(name="foo")
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    quarantine_project(project, db_request, flash=flash)
+
+    assert (
+        db_request.db.query(Project).filter(Project.name == project.name).count() == 1
+    )
+    assert (
+        db_request.db.query(Project)
+        .filter(Project.name == project.name)
+        .filter(Project.lifecycle_status == LifecycleStatus.QuarantineEnter)
+        .first()
+    )
+    assert bool(db_request.session.flash.calls) == flash
+
+
+@pytest.mark.parametrize("flash", [True, False])
+def test_clear_project_quarantine(db_request, flash):
+    user = UserFactory.create()
+    project = ProjectFactory.create(
+        name="foo", lifecycle_status=LifecycleStatus.QuarantineEnter
+    )
+    RoleFactory.create(user=user, project=project)
+
+    db_request.user = user
+    db_request.session = stub(flash=call_recorder(lambda *a, **kw: stub()))
+
+    clear_project_quarantine(project, db_request, flash=flash)
+
+    assert (
+        db_request.db.query(Project).filter(Project.name == project.name).count() == 1
+    )
+    assert (
+        db_request.db.query(Project)
+        .filter(Project.name == project.name)
+        .filter(Project.lifecycle_status == LifecycleStatus.QuarantineExit)
+        .first()
+    )
+    assert bool(db_request.session.flash.calls) == flash
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -134,13 +185,12 @@ def test_remove_project(db_request, flash):
 
     journal_entry = (
         db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
+        .options(joinedload(JournalEntry.submitted_by))
         .filter(JournalEntry.name == "foo")
         .one()
     )
     assert journal_entry.action == "remove project"
     assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
 
 
 @pytest.mark.parametrize("flash", [True, False])
@@ -155,16 +205,6 @@ def test_destroy_docs(db_request, flash):
     db_request.task = call_recorder(lambda *a, **kw: remove_documentation_recorder)
 
     destroy_docs(project, db_request, flash=flash)
-
-    journal_entry = (
-        db_request.db.query(JournalEntry)
-        .options(joinedload("submitted_by"))
-        .filter(JournalEntry.name == "foo")
-        .one()
-    )
-    assert journal_entry.action == "docdestroy"
-    assert journal_entry.submitted_by == db_request.user
-    assert journal_entry.submitted_from == db_request.remote_addr
 
     assert not (
         db_request.db.query(Project)

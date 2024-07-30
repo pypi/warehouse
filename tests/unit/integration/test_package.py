@@ -10,7 +10,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import pretend
 import pytest
 
 from warehouse import integrations
@@ -45,8 +44,7 @@ class TestCache:
 
 
 class TestPayloadVerifier:
-    def test_unimplemented(self):
-        metrics = pretend.stub(increment=pretend.call_recorder(lambda str: None))
+    def test_unimplemented(self, metrics):
         cache = integrations.PublicKeysCache(cache_time=10)
         payload_verifier = integrations.PayloadVerifier(
             metrics=metrics, public_keys_cache=cache

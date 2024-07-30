@@ -14,12 +14,13 @@ from pyramid.httpexceptions import HTTPSeeOther
 from pyramid.view import view_config
 
 from warehouse.admin.flags import AdminFlag
+from warehouse.authnz import Permissions
 
 
 @view_config(
     route_name="admin.flags",
     renderer="admin/flags/index.html",
-    permission="moderator",
+    permission=Permissions.AdminFlagsRead,
     request_method="GET",
     uses_session=True,
 )
@@ -29,14 +30,14 @@ def get_flags(request):
 
 @view_config(
     route_name="admin.flags.edit",
-    permission="admin",
+    permission=Permissions.AdminFlagsWrite,
     request_method="POST",
     uses_session=True,
     require_methods=False,
     require_csrf=True,
 )
 def edit_flag(request):
-    flag = request.db.query(AdminFlag).get(request.POST["id"])
+    flag = request.db.get(AdminFlag, request.POST["id"])
     flag.description = request.POST["description"]
     flag.enabled = bool(request.POST.get("enabled"))
 

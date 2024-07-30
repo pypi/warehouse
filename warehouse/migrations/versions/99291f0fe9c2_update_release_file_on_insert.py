@@ -11,6 +11,7 @@
 # limitations under the License.
 
 """
+Update release_file on insert
 
 The release.requires_python and release_files.requires_python can be out of
 sync if a file is uploaded after the release has been created. It's
@@ -32,7 +33,6 @@ down_revision = "e7b09b5c089d"
 
 
 def upgrade():
-
     op.execute(
         """ UPDATE release_files
             SET requires_python = releases.requires_python

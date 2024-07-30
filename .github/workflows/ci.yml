@@ -4,105 +4,91 @@ on:
     branches:
       - main
   pull_request:
+  merge_group:
+    types: [checks_requested]
+  workflow_dispatch:  # generally only for the "combine-prs" workflow
+permissions:
+  id-token: write
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.sha }}
   cancel-in-progress: true
 jobs:
+  build:
+    if: github.repository == 'pypi/warehouse'
+    runs-on: depot-ubuntu-22.04-arm
+    outputs:
+      buildId: ${{ steps.build.outputs.build-id}}
+      token: ${{ steps.pull-token.outputs.token }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Depot CLI
+        uses: depot/setup-action@v1
+      - name: Build image
+        id: build
+        uses: depot/build-push-action@v1
+        with:
+          save: true
+          build-args: |
+            DEVEL=yes
+            CI=yes
+          tags: pypi/warehouse:ci-${{ github.run_id }}
+      - name: Export Token
+        id: pull-token
+        run: echo "token=$(depot pull-token)" >> "$GITHUB_OUTPUT"
   test:
+    # Time out if our test suite has gotten hung
+    timeout-minutes: 15
+    needs: build
     strategy:
       matrix:
         include:
           - name: Tests
-            command: bin/tests --postgresql-host localhost
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
+            command: bin/tests --postgresql-host postgres
           - name: Lint
             command: bin/lint
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
-          - name: Documentation
-            command: bin/docs
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
+          - name: User Documentation
+            command: bin/user-docs
+          - name: Developer Documentation
+            command: bin/dev-docs
           - name: Dependencies
-            command: bin/github-actions-deps
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
+            command: bin/deps
           - name: Licenses
             command: bin/licenses
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
           - name: Translations
             command: bin/translations
-            needs-python: ${{ true }}
-            needs-node: ${{ false }}
-          - name: Static Tests
-            command: bin/static_tests
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
-          - name: Static Lint
-            command: bin/static_lint
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
-          - name: Static Pipeline
-            command: bin/static_pipeline
-            needs-python: ${{ false }}
-            needs-node: ${{ true }}
-    runs-on: ubuntu-latest
+    runs-on: depot-ubuntu-22.04-arm
+    container:
+      image: registry.depot.dev/rltf7cln5v:${{ needs.build.outputs.buildId }}
+      credentials:
+        username: x-token
+        password: ${{ needs.build.outputs.token }}
+      env:
+        BILLING_BACKEND: warehouse.subscriptions.services.MockStripeBillingService api_base=http://stripe:12111 api_version=2020-08-27
     services:
       postgres:
-        image: postgres:10.1
+        image: ${{ (matrix.name == 'Tests') && 'postgres:16.1' || '' }}
         ports:
           - 5432:5432
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust  # never do this in production!
+        # Set health checks to wait until postgres has started
+        options: --health-cmd "pg_isready --username=postgres --dbname=postgres" --health-interval 10s --health-timeout 5s --health-retries 5
+      stripe:
+        image: ${{ (matrix.name == 'Tests') && 'stripe/stripe-mock:v0.162.0' || '' }}
+        ports:
+          - 12111:12111
     name: ${{ matrix.name }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
-      - name: Install platform dependencies
-        run: |
-          sudo apt -y update
-          sudo apt -y install libcurl4-openssl-dev libssl-dev pkg-config
-      - uses: actions/setup-python@v2
-        if: ${{ matrix.needs-python }}
+        uses: actions/checkout@v4
+      - name: Cache mypy results
+        if: ${{ (matrix.name == 'Lint') }}
+        uses: actions/cache@v4
         with:
-          python-version: 3.9.10
-      - name: Cache Python dependencies
-        if: ${{ matrix.needs-python }}
-        uses: actions/cache@v2
-        env:
-          cache-name: warehouse-cache-pip
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-${{ github.job }}-
-            ${{ runner.os }}-
-      - name: Install Python dependencies
-        if: ${{ matrix.needs-python }}
-        run: |
-          pip install -U pip setuptools wheel
-          pip install -r requirements.txt --no-deps
-          pip install -r requirements/dev.txt
-      - uses: actions/setup-node@v2
-        if: ${{ matrix.needs-node }}
-        with:
-          node-version: 14.15.5
-      - name: Cache Node dependencies
-        if: ${{ matrix.needs-node }}
-        uses: actions/cache@v2
-        env:
-          cache-name: warehouse-cache-npm
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ github.job }}-${{ env.cache-name }}-
-            ${{ runner.os }}-build-${{ github.job }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      - name: Install Node dependencies
-        if: ${{ matrix.needs-node }}
-        run: npm ci
+          path: |
+              dev/.mypy_cache
+          key: ${{ runner.os }}-mypy-${{ env.pythonLocation }}-${{ hashFiles('requirements.txt', 'requirements/*.txt') }}
       - name: Run ${{ matrix.name }}
         run: ${{ matrix.command }}

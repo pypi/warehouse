@@ -537,7 +537,7 @@ WHITE_BASE_URL = "https://pypi.org/static/images/sponsors/white/"
 BLACK_BASE_URL = "https://pypi.org/static/images/sponsors/color/"
 
 
-@warehouse.group()  # pragma: no branch
+@warehouse.group()
 def sponsors():
     """
     Manage operations on top of sponsors.

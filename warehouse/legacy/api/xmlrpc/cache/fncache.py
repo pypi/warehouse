@@ -19,12 +19,12 @@ from warehouse.legacy.api.xmlrpc.cache.interfaces import CacheError
 DEFAULT_EXPIRES = 86400
 
 
-class StubMetricReporter(object):
+class StubMetricReporter:
     def increment(self, metric_name):
         return
 
 
-class RedisLru(object):
+class RedisLru:
     """
     Redis backed LRU cache for functions which return an object which
     can survive json.dumps() and json.loads() intact

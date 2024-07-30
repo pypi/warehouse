@@ -52,11 +52,23 @@
           </button>
           <ul id="webauthn-errors" class="form-errors form-errors--full-width margin-top--large">
             <li id="webauthn-browser-support" class="hidden">
-              {% trans trimmed href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link"), target="_blank", rel="noopener" %}
+              {% trans href="https://developer.mozilla.org/en-US/docs/Web/API/PublicKeyCredential#Browser_compatibility", title=gettext("External link"), target="_blank", rel="noopener" %}
               <a href="{{ href }}" title="{{ title }}" target="{{ target }}" rel="{{ rel }}">Upgrade your browser</a> to log in with a security device (e.g. USB key)
               {% endtrans %}
             </li>
           </ul>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" id="remember_device_webauthn" name="remember_device" value="true" />
+              {% trans remember_device_days=remember_device_days %}
+              Remember this device for {{ remember_device_days }} day
+              {% pluralize %}
+              Remember this device for {{ remember_device_days }} days
+              {% endtrans %}
+            </label>
+          </div>
+
           <p class="margin-top--large">{% trans href='/help/#utfkey' %}Lost your device? Not working? <a href="{{ href }}">Get help</a>.{% endtrans %}</p>
         </form>
       </div>
@@ -89,7 +101,17 @@
               <span class="form-group__required">{% trans %}(required){% endtrans %}</span>
               {% endif %}
             </label>
-            {{ totp_form.totp_value(autocapitalize="off", autocomplete="off", inputmode="numeric", pattern="[0-9]*", required="required", spellcheck="false", class_="form-group__field", **{"aria-describedby":"totp-errors"}) }}
+            {{ totp_form.totp_value(
+              autocapitalize="off",
+              autocomplete="one-time-code",
+              inputmode="numeric",
+              pattern="\d{6}",
+              required="required",
+              spellcheck="false",
+              class_="form-group__field",
+              aria_describedby="totp-errors",
+              autofocus=not has_webauthn,
+            ) }}
             {% if totp_form.totp_value.errors %}
             <ul id="totp-errors" class="form-errors" role="alert">
               {% for error in totp_form.totp_value.errors %}
@@ -102,7 +124,18 @@
             <input type="submit" value="{% trans %}Verify{% endtrans %}" class="button button--primary">
           </div>
 
-          {% trans trimmed href='/help/#totp' %}
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="remember_device" value="true" />
+              {% trans remember_device_days=remember_device_days %}
+              Remember this device for {{ remember_device_days }} day
+              {% pluralize %}
+              Remember this device for {{ remember_device_days }} days
+              {% endtrans %}
+            </label>
+          </div>
+
+          {% trans href='/help/#totp' %}
           <p>Generate a code using the authentication application connected to your PyPI account. Enter this code in the form to verify your identity.</p>
           <p>Lost your application? Not working? <a href="{{ href }}">Get help</a>.</p>
           {% endtrans %}
@@ -119,7 +152,7 @@
           {% trans %}Login using recovery codes{% endtrans %}
       </a>
       {% else %}
-      {% trans trimmed href='/help/#recoverycodes' %}
+      {% trans href='/help/#recoverycodes' %}
       <p><strong>You have not generated account recovery codes.</strong></p>
       <p>If you lose access to your two factor methods, you may lose access to your account. <a href="{{ href }}">Get help with recovery codes.</a></p>
       {% endtrans %}

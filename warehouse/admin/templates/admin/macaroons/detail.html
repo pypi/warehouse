@@ -1,0 +1,113 @@
+{#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-#}
+{% extends "admin/base.html" %}
+
+{% block title %}Macaroons{% endblock %}
+
+{% block breadcrumb %}
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.macaroon.decode_token') }}">Macaroons</a></li>
+  <li class="breadcrumb-item active">{{ macaroon.id }}</li>
+{% endblock %}
+
+
+{% block content %}
+
+<div class="card">
+  <div class="card-header">Details</div>
+  <div class="card-body">
+    <table class="card-body table table-striped">
+      <tbody>
+      <tr>
+        <td>Macaroon ID</td>
+        {# TODO: link to Macaroon? We're already on the page #}
+        <td><code>{{ macaroon.id }}</code></td>
+      </tr>
+      <tr>
+        <td>Description</td>
+        <td>{{ macaroon.description }}</td>
+      </tr>
+      <tr>
+        <td>User</td>
+        <td>
+          <a href="{{ request.route_path('admin.user.detail', username=macaroon.user.username) }}">
+            {{ macaroon.user.username }}
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td>OIDC Publisher</td>
+        <td>{{ macaroon.oidc_publisher }}</td>
+      </tr>
+      <tr>
+        <td>Permissions (deprecated)</td>
+        <td>{{ macaroon.permissions_caveat }}</td>
+      </tr>
+      <tr>
+        <td>Caveats (as created)</td>
+        <td>{{ macaroon.caveats }}</td>
+      </tr>
+      <tr>
+        <td>Additional</td>
+        <td>{{ macaroon.additional }}</td>
+      </tr>
+      <tr>
+        <td>Created</td>
+        <td>{{ macaroon.created }}</td>
+      </tr>
+      <tr>
+        <td>Last Used</td>
+        <td>{{ macaroon.last_used }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer">
+    <div class="form-group">
+      <button type="button" class="btn btn-danger float-right" data-toggle="modal" data-target="#deleteMacaroon" {{ "disabled" if not request.has_permission(Permissions.AdminMacaroonsWrite) }} value=>
+        <i class="icon fa fa-trash"></i> Delete Macaroon
+      </button>
+    </div>
+  </div>
+</div>
+
+{% if macaroon %}
+<div class="modal fade" id="deleteMacaroon" tabindex="-1" role="dialog">
+  <form method="POST" action="{{ request.route_path('admin.macaroon.delete', macaroon_id=macaroon.id) }}">
+    <input name="csrf_token" type="hidden" value="{{ request.session.get_csrf_token() }}">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title" id="exampleModalLabel">Delete macaroon {{ macaroon.id }}?</h4>
+          <button type="button" class="close" data-dismiss="modal">
+            <span>&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>
+            This will permanently destroy the macaroon and cannot be undone.
+          </p>
+          <hr>
+          <input type="hidden" name="macaroon" value="{{ macaroon.id }}">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endif %}
+
+{% endblock %}

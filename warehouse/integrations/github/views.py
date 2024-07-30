@@ -12,7 +12,7 @@
 
 import json
 
-from pyramid.response import Response
+from pyramid.httpexceptions import HTTPBadRequest, HTTPNoContent
 from pyramid.view import view_config
 
 from warehouse.integrations.github import utils
@@ -52,13 +52,13 @@ def github_disclose_token(request):
     )
 
     if not verifier.verify(payload=body, key_id=key_id, signature=signature):
-        return Response(status=400)
+        return HTTPBadRequest()
 
     try:
         disclosures = request.json_body
     except json.decoder.JSONDecodeError:
         metrics.increment("warehouse.token_leak.github.error.payload.json_error")
-        return Response(status=400)
+        return HTTPBadRequest()
 
     try:
         utils.analyze_disclosures(
@@ -68,7 +68,7 @@ def github_disclose_token(request):
             metrics=metrics,
         )
     except utils.InvalidTokenLeakRequestError:
-        return Response(status=400)
+        return HTTPBadRequest()
 
     # 204 No Content: we acknowledge but we won't comment on the outcome.
-    return Response(status=204)
+    return HTTPNoContent()

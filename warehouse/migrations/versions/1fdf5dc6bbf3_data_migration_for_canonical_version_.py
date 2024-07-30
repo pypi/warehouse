@@ -35,7 +35,7 @@ releases = sa.Table(
 
 def upgrade():
     connection = op.get_bind()
-    version_query = sa.select([releases.c.version]).distinct()
+    version_query = sa.select(releases.c.version).distinct()
 
     for release in connection.execute(version_query):
         connection.execute(

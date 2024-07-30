@@ -81,7 +81,7 @@
 
   &--tall {
     .horizontal-menu__link {
-      padding: 32px ($spacing-unit / 2);
+      padding: 32px $half-spacing-unit;
 
       &:hover {
         text-decoration: underline;

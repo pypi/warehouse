@@ -11,4 +11,28 @@
  # See the License for the specific language governing permissions and
  # limitations under the License.
 -#}
+
 {% extends "base.html" %}
+
+{% block content %}
+  <div class="row">
+    {% if malware_reports_count %}
+      <div class="col-lg-4 col-6">
+        <div class="small-box bg-gradient-warning">
+          <div class="inner">
+            <h3>{{ malware_reports_count }}</h3>
+            <p>Open Malware Reports</p>
+          </div>
+          <div class="icon">
+            <i class="fa-solid fa-dumpster-fire"></i>
+          </div>
+          <a href="{{ request.route_path("admin.malware_reports.list") }}"
+             class="small-box-footer">
+            More info <i class="fas fa-arrow-circle-right"></i>
+          </a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+  <!-- /.row -->
+{% endblock %}

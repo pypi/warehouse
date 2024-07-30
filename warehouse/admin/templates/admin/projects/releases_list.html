@@ -18,18 +18,18 @@
 {% block title %}Releases for {{ project.name }}{% endblock %}
 
 {% block breadcrumb %}
-  <li><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
-  <li><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></li>
-  <li class="active">Releases</li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.list') }}">Projects</a></li>
+  <li class="breadcrumb-item"><a href="{{ request.route_path('admin.project.detail', project_name=project.normalized_name) }}">{{ project.name }}</a></li>
+  <li class="breadcrumb-item active">Releases</li>
 {% endblock %}
 
 {% block content %}
-<div class="box">
-  <div class="box-body">
+<div class="card">
+  <div class="card-body">
     <form>
       <div class="input-group input-group-lg">
         <input name="q" type="text" class="form-control input-lg" placeholder="Search"{% if query %} value="{{ query }}"{% endif %}>
-        <div class="input-group-btn">
+        <div class="input-group-btn input-group-append">
           <button type="submit" class="btn btn-default"><i class="fa fa-search"></i></button>
         </div>
       </div>
@@ -37,9 +37,10 @@
   </div>
 </div>
 
-<div class="box">
-  <div class="box-body table-responsive no-padding">
-    <table class="table table-hover">
+<div class="card">
+  <div class="card-body table-responsive p-0">
+    <table class="table table-hover table-striped">
+      <thead>
       <tr>
         <th>Release version</th>
         <th>Created</th>
@@ -47,7 +48,9 @@
         <th>Uploader</th>
         <th>Author email</th>
       </tr>
+      </thead>
 
+      <tbody>
       {% for release in releases %}
       <tr>
         <td><a href="{{ request.route_path('admin.project.release', project_name=release.project.normalized_name, version=release.version) }}">{{ release.project.name }}-{{ release.version }}</a></td>
@@ -55,21 +58,22 @@
         <td>{{ release.yanked }}</td>
         <td>
           {% if release.uploader %}
-          <a href="{{ request.route_path('admin.user.detail', user_id=release.uploader.id) }}">{{ release.uploader.username }}</a>
+          <a href="{{ request.route_path('admin.user.detail', username=release.uploader.username) }}">{{ release.uploader.username }}</a>
           {% endif %}
         </td>
         <td>{{ release.author_email }}</td>
       </tr>
       {% endfor %}
+      </tbody>
     </table>
 
-    <div class="box-footer">
+    <div class="card-footer row">
       <div class="col-sm-5">
           {{ pagination.summary(releases) }}
       </div>
 
       <div class="col-sm-7">
-        <div class="pull-right">
+        <div class="float-right">
             {{ pagination.paginate(releases) }}
         </div>
       </div>

@@ -14,6 +14,7 @@
 
 @mixin centered-container($width) {
   max-width: $width;
+
   @include margin(null auto);
   @include clearfix;
 }
@@ -23,7 +24,7 @@
   padding: 0 $spacing-unit;
 
   @media screen and (max-width: $small-tablet) {
-    padding: 0 ($spacing-unit / 2);
+    padding: 0 $half-spacing-unit;
   }
 }
 

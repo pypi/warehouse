@@ -41,7 +41,7 @@ class ImmutableManifestFiles:
             if url.startswith(prefix):
                 manifest_files = set()
 
-                with open(manifest_path, "r", encoding="utf8") as fp:
+                with open(manifest_path, encoding="utf8") as fp:
                     data = json.load(fp)
                 manifest_files.update(data.values())
 

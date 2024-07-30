@@ -20,7 +20,7 @@ import pretend
 import pytest
 
 from pyramid.httpexceptions import HTTPNotFound
-from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound
 from webob.multidict import MultiDict
 
 from warehouse.admin.interfaces import ISponsorLogoStorage
@@ -32,29 +32,72 @@ from ....common.db.sponsors import SponsorFactory
 COLOR_LOGO_FILE = FieldStorage()
 COLOR_LOGO_FILE.filename = "colorlogo.png"
 COLOR_LOGO_FILE.file = io.BytesIO(
-    (
-        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-        b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
-        b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
-    )
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
+    b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
+    b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
 )
 COLOR_LOGO_FILE.type = "image/png"
 
 WHITE_LOGO_FILE = FieldStorage()
 WHITE_LOGO_FILE.filename = "whitelogo.png"
 WHITE_LOGO_FILE.file = io.BytesIO(
-    (
-        b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
-        b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
-        b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
-    )
+    b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06"
+    b"\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\rIDATx\xdac\xfc\xcf\xc0P\x0f\x00"
+    b"\x04\x85\x01\x80\x84\xa9\x8c!\x00\x00\x00\x00IEND\xaeB`\x82"
 )
 WHITE_LOGO_FILE.type = "image/png"
 
 
+class TestSponsorForm(TestCase):
+    def setUp(self):
+        self.data = {
+            "name": "Sponsor",
+            "link_url": "https://newsponsor.com",
+            "color_logo_url": "http://domain.com/image.jpg",
+        }
+
+    def test_validate(self):
+        form = views.SponsorForm(formdata=MultiDict(self.data))
+        assert form.validate(), str(form.errors)
+
+    def test_required_fields(self):
+        required_fields = ["name", "link_url", "color_logo_url"]
+
+        form = views.SponsorForm(formdata=MultiDict({"color_logo_url": ""}))
+
+        assert form.validate() is False
+        assert len(form.errors) == len(required_fields)
+        for field in required_fields:
+            assert field in form.errors
+
+    def test_white_logo_is_required_for_footer_display(self):
+        self.data["footer"] = True
+
+        # don't validate without logo
+        form = views.SponsorForm(formdata=MultiDict(self.data))
+        assert form.validate() is False
+        assert "white_logo" in form.errors
+
+        self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
+        form = views.SponsorForm(formdata=MultiDict(self.data))
+        assert form.validate() is True
+
+    def test_white_logo_is_required_for_infra_display(self):
+        self.data["infra_sponsor"] = True
+
+        # don't validate without logo
+        form = views.SponsorForm(formdata=MultiDict(self.data))
+        assert form.validate() is False
+        assert "white_logo" in form.errors
+
+        self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
+        form = views.SponsorForm(formdata=MultiDict(self.data))
+        assert form.validate() is True
+
+
 class TestSponsorList:
     def test_list_all_sponsors(self, db_request):
-        [SponsorFactory.create() for _ in range(5)]
+        SponsorFactory.create_batch(5)
         sponsors = db_request.db.query(Sponsor).order_by(Sponsor.name).all()
 
         result = views.sponsor_list(db_request)
@@ -243,50 +286,3 @@ class TestDeleteSponsor:
         assert db_request.route_url.calls == [
             pretend.call("admin.sponsor.edit", sponsor_id=sponsor.id)
         ]
-
-
-class TestSponsorForm(TestCase):
-    def setUp(self):
-        self.data = {
-            "name": "Sponsor",
-            "link_url": "https://newsponsor.com",
-            "color_logo_url": "http://domain.com/image.jpg",
-        }
-
-    def test_required_fields(self):
-        required_fields = ["name", "link_url", "color_logo_url"]
-
-        form = views.SponsorForm(data={"color_logo_url": ""})
-
-        assert form.validate() is False
-        assert len(form.errors) == len(required_fields)
-        for field in required_fields:
-            assert field in form.errors
-
-    def test_valid_data(self):
-        form = views.SponsorForm(data=self.data)
-        assert form.validate() is True
-
-    def test_white_logo_is_required_for_footer_display(self):
-        self.data["footer"] = True
-
-        # don't validate without logo
-        form = views.SponsorForm(data=self.data)
-        assert form.validate() is False
-        assert "white_logo" in form.errors
-
-        self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
-        form = views.SponsorForm(data=self.data)
-        assert form.validate() is True
-
-    def test_white_logo_is_required_for_infra_display(self):
-        self.data["infra_sponsor"] = True
-
-        # don't validate without logo
-        form = views.SponsorForm(data=self.data)
-        assert form.validate() is False
-        assert "white_logo" in form.errors
-
-        self.data["white_logo_url"] = "http://domain.com/white-logo.jpg"
-        form = views.SponsorForm(data=self.data)
-        assert form.validate() is True

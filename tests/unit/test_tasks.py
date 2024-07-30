@@ -51,7 +51,7 @@ class TestWarehouseTask:
 
     def test_call(self, monkeypatch):
         request = pretend.stub()
-        registry = pretend.stub()
+        registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         result = pretend.stub()
 
         prepared = {
@@ -75,6 +75,27 @@ class TestWarehouseTask:
         assert task() is result
         assert prepare.calls == [pretend.call(registry=registry)]
         assert runner.calls == [pretend.call(request)]
+
+    def test_retry(self, monkeypatch, metrics):
+        def runner(self):
+            raise self.retry(exc=Exception())
+
+        request = pretend.stub(
+            find_service=lambda *a, **kw: metrics,
+        )
+        monkeypatch.setattr(tasks, "get_current_request", lambda: request)
+
+        task = tasks.WarehouseTask()
+        task.app = Celery()
+        task.name = "warehouse.test.task"
+        task.run = runner
+
+        with pytest.raises(Exception):
+            task.run(task)
+
+        assert metrics.increment.calls == [
+            pretend.call("warehouse.task.retried", tags=["task:warehouse.test.task"])
+        ]
 
     def test_without_request(self, monkeypatch):
         async_result = pretend.stub()
@@ -154,7 +175,7 @@ class TestWarehouseTask:
             assert apply_async.calls == []
 
     def test_creates_request(self, monkeypatch):
-        registry = pretend.stub()
+        registry = pretend.stub(settings={"warehouse.ip_salt": "peppa"})
         pyramid_env = {"request": pretend.stub()}
 
         monkeypatch.setattr(scripting, "prepare", lambda *a, **k: pyramid_env)
@@ -169,11 +190,16 @@ class TestWarehouseTask:
         assert isinstance(request.tm, transaction.TransactionManager)
         assert 1.5e12 < request.timings["new_request_start"] < 1e13
         assert request.remote_addr == "127.0.0.1"
+        assert (
+            request.remote_addr_hashed
+            == "cc9dfe9c4e6b6579bbf789d04339bd2d7f10aadf84ff4394193d99f14a0333f0"
+        )
 
     def test_reuses_request(self):
         pyramid_env = {"request": pretend.stub()}
 
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.update(pyramid_env=pyramid_env)
 
         assert obj.get_request() is pyramid_env["request"]
@@ -302,6 +328,7 @@ class TestWarehouseTask:
 
     def test_after_return_without_pyramid_env(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         assert (
             obj.after_return(
                 pretend.stub(),
@@ -316,6 +343,7 @@ class TestWarehouseTask:
 
     def test_after_return_closes_env_runs_request_callbacks(self):
         obj = tasks.WarehouseTask()
+        obj.request_stack = pretend.stub(top=None)
         obj.request.pyramid_env = {
             "request": pretend.stub(
                 _process_finished_callbacks=pretend.call_recorder(lambda: None)
@@ -426,49 +454,85 @@ def test_make_celery_app():
             "amqp://guest@rabbitmq:5672//",
             {},
         ),
-        (Environment.development, False, "sqs://", "sqs://", {}),
-        (Environment.production, True, "sqs://", "sqs://", {}),
+        (
+            Environment.development,
+            False,
+            "sqs://",
+            "sqs://",
+            {
+                "client-config": {"tcp_keepalive": True},
+            },
+        ),
+        (
+            Environment.production,
+            True,
+            "sqs://",
+            "sqs://",
+            {
+                "client-config": {"tcp_keepalive": True},
+            },
+        ),
         (
             Environment.development,
             False,
             "sqs://?queue_name_prefix=warehouse",
             "sqs://",
-            {"queue_name_prefix": "warehouse-"},
+            {
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs://?queue_name_prefix=warehouse",
             "sqs://",
-            {"queue_name_prefix": "warehouse-"},
+            {
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.development,
             False,
             "sqs://?region=us-east-2",
             "sqs://",
-            {"region": "us-east-2"},
+            {
+                "region": "us-east-2",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs://?region=us-east-2",
             "sqs://",
-            {"region": "us-east-2"},
+            {
+                "region": "us-east-2",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.development,
             False,
             "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+            {
+                "region": "us-east-2",
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
         (
             Environment.production,
             True,
             "sqs:///?region=us-east-2&queue_name_prefix=warehouse",
             "sqs://",
-            {"region": "us-east-2", "queue_name_prefix": "warehouse-"},
+            {
+                "region": "us-east-2",
+                "queue_name_prefix": "warehouse-",
+                "client-config": {"tcp_keepalive": True},
+            },
         ),
     ],
 )
@@ -505,11 +569,8 @@ def test_includeme(env, ssl, broker_url, expected_url, transport_options):
         "task_serializer": "json",
         "accept_content": ["json", "msgpack"],
         "task_queue_ha_policy": "all",
-        "task_queues": (
-            Queue("default", routing_key="task.#"),
-            Queue("malware", routing_key="malware.#"),
-        ),
-        "task_routes": {"warehouse.malware.tasks.*": {"queue": "malware"}},
+        "task_queues": (Queue("default", routing_key="task.#"),),
+        "task_routes": {},
         "REDBEAT_REDIS_URL": (config.registry.settings["celery.scheduler_url"]),
     }.items():
         assert app.conf[key] == value
