@@ -285,6 +285,11 @@ def mint_token(
             },
         )
 
+    # NOTE: This is for temporary metrics collection of GitHub Trusted Publishers
+    # that use reusable workflows. Since support for reusable workflows is accidental
+    # and not correctly implemented, we need to understand how widely it's being
+    # used before changing its behavior.
+    # ref: https://github.com/pypi/warehouse/pull/16364
     if isinstance(publisher, GitHubPublisher) and claims:
         job_workflow_ref = claims.get("job_workflow_ref")
         workflow_ref = claims.get("workflow_ref")
