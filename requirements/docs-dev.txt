@@ -334,9 +334,9 @@ sphinxcontrib-devhelp==1.0.6 \
     --hash=sha256:6485d09629944511c893fa11355bda18b742b83a2b181f9a009f7e500595c90f \
     --hash=sha256:9893fd3f90506bc4b97bdb977ceb8fbd823989f4316b28c3841ec128544372d3
     # via sphinx
-sphinxcontrib-htmlhelp==2.0.6 \
-    --hash=sha256:1b9af5a2671a61410a868fce050cab7ca393c218e6205cbc7f590136f207395c \
-    --hash=sha256:c6597da06185f0e3b4dc952777a04200611ef563882e0c244d27a15ee22afa73
+sphinxcontrib-htmlhelp==2.1.0 \
+    --hash=sha256:166759820b47002d22914d64a075ce08f4c46818e17cfc9470a9786b759b19f8 \
+    --hash=sha256:c9e2916ace8aad64cc13a0d233ee22317f2b9025b9cf3295249fa985cc7082e9
     # via sphinx
 sphinxcontrib-httpdomain==1.8.1 \
     --hash=sha256:21eefe1270e4d9de8d717cc89ee92cc4871b8736774393bafc5e38a6bb77b1d5 \
