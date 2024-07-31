@@ -75,6 +75,12 @@
             Joined on {{ user.date_joined|format_date() }}
           </p>
           {% endif %}
+
+          {% if user.disabled_for %}
+          <p class="text-muted text-center">
+            Password disabled:<br>{{ user.disabled_for.value }}
+          </p>
+          {% endif %}
         </div>
 
         <div class="card-footer p-0">
