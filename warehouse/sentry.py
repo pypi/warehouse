@@ -52,6 +52,8 @@ ignore_exceptions = (
     "gunicorn.http.errors.InvalidProxyLine",
     "gunicorn.http.errors.ForbiddenProxyRequest",
     "gunicorn.http.errors.InvalidSchemeHeaders",
+    # Webob raises this when the client disconnects, which we can't do anything about
+    "webob.request.DisconnectionError",
 )
 
 
