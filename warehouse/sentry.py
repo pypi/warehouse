@@ -23,10 +23,6 @@ def _sentry(request):
     return request.registry["sentry"]
 
 
-# There is an 'ignore_errors' kwarg for sentry_sdk.init() however it is supposedly
-# WIP and unstable compared to the 'before_send' kwarg. We can switch to
-# 'ignore_errors' once https://github.com/getsentry/sentry-python/issues/149
-# is closed.
 ignore_exceptions = (
     # For some reason we get periodic SystemExit exceptions, I think it is
     # because of OpenSSL generating a SIGABRT when OpenSSL_Die() is called, and
