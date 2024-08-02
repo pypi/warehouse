@@ -54,10 +54,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -517,6 +514,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -1256,11 +1266,6 @@ def file_upload(request):
                     "python-version": file_.python_version,
                 },
             )
-
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
 
     request.db.flush()  # flush db now so server default values are populated for celery
 
