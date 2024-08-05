@@ -55,10 +55,7 @@ from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
 from warehouse.constants import MAX_FILESIZE, MAX_PROJECT_SIZE, ONE_GIB, ONE_MIB
-from warehouse.email import (
-    send_api_token_used_in_trusted_publisher_project_email,
-    send_two_factor_not_yet_enabled_email,
-)
+from warehouse.email import send_api_token_used_in_trusted_publisher_project_email
 from warehouse.events.tags import EventTag
 from warehouse.forklift import metadata
 from warehouse.forklift.forms import UploadForm, _filetype_extension_mapping
@@ -91,6 +88,11 @@ COMPRESSION_RATIO_MIN_SIZE = 64 * ONE_MIB
 # See discussion here: https://github.com/pypi/warehouse/issues/13962
 COMPRESSION_RATIO_THRESHOLD = 50
 
+# SQS has a maximum total message length of 262144 bytes. In order to stay
+# under this when enqueuing a job to store BigQuery metadata, we truncate the
+# Description field to 40K bytes, which captures up to the 95th percentile of
+# existing descriptions.
+MAX_DESCRIPTION_LENGTH_TO_BIGQUERY = 40000
 
 # Wheel platform checking
 
@@ -552,6 +554,19 @@ def file_upload(request):
                 ).format(
                     request.user.username,
                     project_help=request.help_url(_anchor="verified-email"),
+                ),
+            ) from None
+        # Ensure user has enabled 2FA before they can upload a file.
+        if not request.user.has_two_factor:
+            raise _exc_with_message(
+                HTTPBadRequest,
+                (
+                    "User {!r} does not have two-factor authentication enabled. "
+                    "Please enable two-factor authentication before attempting to "
+                    "upload to PyPI. See {project_help} for more information."
+                ).format(
+                    request.user.username,
+                    project_help=request.help_url(_anchor="two-factor-authentication"),
                 ),
             ) from None
 
@@ -1322,11 +1337,6 @@ def file_upload(request):
             ):
                 release_url.verified = True
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
-
     request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
@@ -1335,7 +1345,11 @@ def file_upload(request):
         "name": meta.name,
         "version": str(meta.version),
         "summary": meta.summary,
-        "description": meta.description,
+        "description": (
+            meta.description[:MAX_DESCRIPTION_LENGTH_TO_BIGQUERY]
+            if meta.description is not None
+            else None
+        ),
         "author": meta.author,
         "description_content_type": meta.description_content_type,
         "author_email": meta.author_email,

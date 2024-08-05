@@ -170,6 +170,19 @@ class TestSimpleIndex:
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
 
+    def test_quarantined_project_omitted_from_index(self, db_request):
+        db_request.accept = "text/html"
+        ProjectFactory.create(name="foo")
+        ProjectFactory.create(name="bar", lifecycle_status="quarantine-enter")
+
+        assert simple.simple_index(db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "projects": [{"name": "foo", "_last-serial": 0}],
+        }
+        assert db_request.response.headers["X-PyPI-Last-Serial"] == "0"
+        assert db_request.response.content_type == "text/html"
+        _assert_has_cors_headers(db_request.response.headers)
+
 
 class TestSimpleDetail:
     def test_redirects(self, pyramid_request):
@@ -425,3 +438,19 @@ class TestSimpleDetail:
 
         if renderer_override is not None:
             assert db_request.override_renderer == renderer_override
+
+    def test_with_files_quarantined_omitted_from_index(self, db_request):
+        db_request.accept = "text/html"
+        project = ProjectFactory.create(lifecycle_status="quarantine-enter")
+        releases = ReleaseFactory.create_batch(3, project=project)
+        _ = [
+            FileFactory.create(release=r, filename=f"{project.name}-{r.version}.tar.gz")
+            for r in releases
+        ]
+
+        assert simple.simple_detail(project, db_request) == {
+            "meta": {"_last-serial": 0, "api-version": API_VERSION},
+            "name": project.normalized_name,
+            "files": [],
+            "versions": [],
+        }
