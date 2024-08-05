@@ -681,7 +681,19 @@ If you want to run a specific test, you can use the ``T`` variable:
 
     T=tests/unit/i18n/test_filters.py make tests
 
-You can add arguments to the test runner by using the ``TESTARGS`` variable:
+
+.. note::
+
+  By default, using the ``T`` variable disables testcase parallelization
+  (due to runner startup time being greater than actual test time). To
+  re-enable parallelization, you can pass explicit ``TESTARGS``:
+
+  .. code-block:: console
+
+    T=tests/unit/i18n/test_filters.py TESTARGS="-n auto" make tests
+
+You can also add arguments to the test runner by using the ``TESTARGS``
+variable:
 
 .. code-block:: console
 
