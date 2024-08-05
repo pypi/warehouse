@@ -15,10 +15,14 @@
 import { Controller } from "@hotwired/stimulus";
 
 export default class extends Controller {
-  static targets = ["tab", "tabPanel"];
-
+  static targets = ["prefilledTab", "tab", "tabPanel"];
 
   initialize() {
+    // Select the tab with prefilled fields (if any)
+    if (this.hasPrefilledTabTarget) {
+      this.index = this.tabTargets.indexOf(this.prefilledTabTarget);
+    }
+
     // Select the tab with errors if there are any
     this.tabPanelTargets.forEach((target, index) => {
       const aElement = target.querySelector("div#errors");
