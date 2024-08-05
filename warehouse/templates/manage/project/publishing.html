@@ -28,6 +28,7 @@
 {% endmacro %}
 
 {% macro github_form(request, github_publisher_form) %}
+    {{ prefilled_warning() if prefilled_provider == "github" }}
     <p>
       {% trans href="https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/about-security-hardening-with-openid-connect" %}
       Read more about GitHub Actions' OpenID Connect support <a href="{{ href }}">here</a>.
@@ -125,7 +126,6 @@
           {{ field_errors(github_publisher_form.environment) }}
         </div>
       </div>
-      {{ prefilled_warning() if prefilled_provider == "github" }}
       <div>
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
@@ -133,6 +133,7 @@
 {% endmacro %}
 
 {% macro gitlab_form(request, gitlab_publisher_form) %}
+    {{ prefilled_warning() if prefilled_provider == "gitlab" }}
     <p>
       {% trans href="https://docs.gitlab.com/ee/ci/secrets/id_token_authentication.html" %}
       Read more about GitLab CI/CD OpenID Connect support <a href="{{ href }}">here</a>.
@@ -213,7 +214,6 @@
           {{ field_errors(gitlab_publisher_form.environment) }}
         </div>
       </div>
-      {{ prefilled_warning() if prefilled_provider == "gitlab" }}
       <div>
         <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
       </div>
@@ -221,6 +221,7 @@
 {% endmacro %}
 
 {% macro google_form(request, google_publisher_form) %}
+  {{ prefilled_warning() if prefilled_provider == "google" }}
   <p>
     {% trans href="https://cloud.google.com/iam/docs/service-account-creds" %}
     Read more about Google's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -270,7 +271,6 @@
         {{ field_errors(google_publisher_form.sub) }}
       </div>
     </div>
-    {{ prefilled_warning() if prefilled_provider == "google" }}
     <div>
       <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
     </div>
@@ -278,6 +278,7 @@
 {% endmacro %}
 
 {% macro activestate_form(request, activestate_pubisher_form) %}
+  {{ prefilled_warning() if prefilled_provider == "activestate" }}
   <p>
     {% trans href="https://docs.activestate.com/platform/user/oidc/" %}
     Read more about ActiveState's OpenID Connect support <a href="{{ href }}">here</a>.
@@ -352,7 +353,6 @@
         {{ field_errors(activestate_pubisher_form.actor) }}
       </div>
     </div>
-    {{ prefilled_warning() if prefilled_provider == "activestate" }}
     <div>
       <input type="submit" value="{% trans %}Add{% endtrans %}" class="button button--primary">
     </div>
