@@ -14,6 +14,8 @@ import http
 
 from urllib.parse import urlencode
 
+from pyramid_retry import RetryableException
+from requests.exceptions import Timeout
 from zope.interface import implementer
 
 from .interfaces import ChallengeResponse, ICaptchaService
@@ -134,6 +136,8 @@ class Service:
                 },
                 timeout=10,
             )
+        except Timeout as err:
+            raise RetryableException from err
         except Exception as err:
             raise UnexpectedError(str(err)) from err
 
