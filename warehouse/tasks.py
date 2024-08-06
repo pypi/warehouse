@@ -226,6 +226,8 @@ def includeme(config):
         task_serializer="json",
         worker_disable_rate_limits=True,
         REDBEAT_REDIS_URL=s["celery.scheduler_url"],
+        # Silence deprecation warning on startup
+        broker_connection_retry_on_startup=False,
     )
     config.registry["celery.app"].Task = WarehouseTask
     config.registry["celery.app"].pyramid_config = config
