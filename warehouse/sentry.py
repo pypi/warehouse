@@ -17,6 +17,7 @@ from sentry_sdk.integrations.logging import LoggingIntegration
 from sentry_sdk.integrations.pyramid import PyramidIntegration
 from sentry_sdk.integrations.sqlalchemy import SqlalchemyIntegration
 from sentry_sdk.integrations.wsgi import SentryWsgiMiddleware
+from webob.request import DisconnectionError
 
 
 def _sentry(request):
@@ -49,7 +50,7 @@ ignore_exceptions = (
     "gunicorn.http.errors.ForbiddenProxyRequest",
     "gunicorn.http.errors.InvalidSchemeHeaders",
     # Webob raises this when the client disconnects, which we can't do anything about
-    "webob.request.DisconnectionError",
+    DisconnectionError,
 )
 
 
