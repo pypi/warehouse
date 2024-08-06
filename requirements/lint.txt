@@ -360,9 +360,9 @@ types-first==2.0.5.2 \
     --hash=sha256:342c2d99d3a2bf43c281b2de5d08f83c65ac1b2320af04b0f878ea2bc8ba390c \
     --hash=sha256:4115d28bdb52542531f70ccb1a044802f597d8fb3e4e55f65c23f522e1086d1f
     # via -r requirements/lint.in
-types-html5lib==1.1.11.20240228 \
-    --hash=sha256:22736b7299e605ec4ba539d48691e905fd0c61c3ea610acc59922232dc84cede \
-    --hash=sha256:af5de0125cb0fe5667543b158db83849b22e25c0e36c9149836b095548bf1020
+types-html5lib==1.1.11.20240806 \
+    --hash=sha256:575c4fd84ba8eeeaa8520c7e4c7042b7791f5ec3e9c0a5d5c418124c42d9e7e4 \
+    --hash=sha256:8060dc98baf63d6796a765bbbc809fff9f7a383f6e3a9add526f814c086545ef
     # via -r requirements/lint.in
 types-itsdangerous==1.1.6 \
     --hash=sha256:21c6966c10e353a5d35d36c82aaa2c5598d3bc32ddc8e0591276da5ad2e3c638 \
