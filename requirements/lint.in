@@ -1,4 +1,3 @@
-doc8>=1.1.0
 flake8
 curlylint
 pep8-naming
@@ -9,6 +8,7 @@ mypy
 celery-types
 msgpack-types
 mypy-zope
+sphinx-lint
 types-babel
 types-boto3
 types-certifi
