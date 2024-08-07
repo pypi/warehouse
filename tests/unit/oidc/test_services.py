@@ -88,7 +88,7 @@ class TestOIDCPublisherService:
         assert jwt.decode.calls == [
             pretend.call(
                 token,
-                key=key.key,
+                key=key,
                 algorithms=["RS256"],
                 options=dict(
                     verify_signature=True,
