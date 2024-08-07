@@ -972,15 +972,14 @@ class TestPyJWTBackstop:
 
         assert decoded == {"foo": "bar"}
 
-    def test_decodes_token_typeerror_on_pyjwk(self):
+    def test_decodes_token_pyjwk(self):
         privkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._privkey))
         pubkey_jwk = PyJWK.from_json(algorithms.RSAAlgorithm.to_jwk(self._pubkey))
 
         token = jwt.encode({"foo": "bar"}, privkey_jwk.key, algorithm="RS256")
+        decoded = jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
 
-        # Passing a `PyJWK` directly into `jwt.decode` does not work.
-        with pytest.raises(TypeError, match=r"Expecting a PEM-formatted key\."):
-            jwt.decode(token, pubkey_jwk, algorithms=["RS256"])
+        assert decoded == {"foo": "bar"}
 
     def test_decode_strict_aud(self):
         token = jwt.encode(
