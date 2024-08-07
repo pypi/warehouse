@@ -19,7 +19,7 @@
     <div class="vertical-tabs__tabs">
       <ul class="vertical-tabs__list">
         <li>
-          <a id="my-tab-id" class="vetical-tabs__tab">
+          <a id="my-tab-id" class="vertical-tabs__tab">
             // Tab
           </a>
         </li>
@@ -34,7 +34,7 @@
       <nav aria-label="label for navigation">
         <ul class="vertical-tabs__list">
           <li>
-            <a id="my-tab-id" class="vetical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true">
+            <a id="my-tab-id" class="vertical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true">
               // Active Tab. Remove --is-active and aria-selected for standard tab
             </a>
           </li>
@@ -60,7 +60,7 @@
       <nav>
         <ul class="vertical-tabs__list" role="tablist">
           <li>
-            <a id="my-tab-id" class="vetical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true" role="tab">
+            <a id="my-tab-id" class="vertical-tabs__tab vertical-tabs__tab--is-active" aria-selected="true" role="tab">
               // Active Tab. Remove --is-active and aria-selected for standard tab
             </a>
           </li>
@@ -69,7 +69,7 @@
     </div>
 
     <div class="vertical-tabs__panel" role="tabpanel" aria-labelledby="my-tab-id my-mofile-tab-id">
-      <a id="my-mobile-tab-id" class="vetical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" aria-selected="true" role="tab">
+      <a id="my-mobile-tab-id" class="vertical-tabs__tab vertical-tabs__tab--mobile vertical-tabs__tab--is-active" aria-selected="true" role="tab">
         // Duplicate Tab to show on smaller screens
         // Active Tab. Remove --is-active and aria-selected for standard tab
       </a>
