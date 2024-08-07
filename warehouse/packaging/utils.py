@@ -22,7 +22,7 @@ from sqlalchemy.orm import joinedload
 from warehouse.attestations._core import get_provenance_digest
 from warehouse.attestations.models import Attestation
 from warehouse.packaging.interfaces import ISimpleStorage
-from warehouse.packaging.models import File, Project, Release
+from warehouse.packaging.models import File, LifecycleStatus, Project, Release
 
 API_VERSION = "1.2"
 
@@ -31,6 +31,12 @@ def _simple_index(request, serial):
     # Fetch the name and normalized name for all of our projects
     projects = (
         request.db.query(Project.name, Project.normalized_name, Project.last_serial)
+        # Exclude projects that are in the `quarantine-enter` lifecycle status.
+        # Use `is_distinct_from` method here to ensure that we select `NULL` records,
+        # which would otherwise be excluded by the `==` operator.
+        .filter(
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
         .order_by(Project.normalized_name)
         .all()
     )
@@ -49,6 +55,11 @@ def _simple_detail(project, request):
         .join(Release)
         .join(Attestation)
         .filter(Release.project == project)
+        # Exclude projects that are in the `quarantine-enter` lifecycle status.
+        .join(Project)
+        .filter(
+            Project.lifecycle_status.is_distinct_from(LifecycleStatus.QuarantineEnter)
+        )
         .all(),
         key=lambda f: (packaging_legacy.version.parse(f.release.version), f.filename),
     )

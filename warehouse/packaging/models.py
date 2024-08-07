@@ -357,7 +357,16 @@ class Project(SitemapMixin, HasEvents, HasObservations, db.Model):
             permissions |= {(role.user_id, "Administer") for role in query.all()}
 
         for user_id, permission_name in sorted(permissions, key=lambda x: (x[1], x[0])):
-            if permission_name == "Administer":
+            # Disallow Write permissions for Projects in quarantine, allow Upload
+            if self.lifecycle_status == LifecycleStatus.QuarantineEnter:
+                acls.append(
+                    (
+                        Allow,
+                        f"user:{user_id}",
+                        [Permissions.ProjectsRead, Permissions.ProjectsUpload],
+                    )
+                )
+            elif permission_name == "Administer":
                 acls.append(
                     (
                         Allow,
