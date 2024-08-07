@@ -139,8 +139,6 @@ services:
         condition: service_healthy
       stripe:
         condition: service_started
-      notdatadog:
-        condition: service_started
 
   files:
     image: warehouse:docker-compose
