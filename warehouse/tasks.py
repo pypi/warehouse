@@ -114,6 +114,15 @@ class WarehouseTask(celery.Task):
         # avoid :(
         request = get_current_request()
 
+        # Add custom SQS MessageAttributes to payload for tracing. Ref:
+        # https://docs.aws.amazon.com/AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-message-metadata.html
+        kwargs["message_attributes"] = {
+            "task_name": {
+                "StringValue": self.name,
+                "DataType": "String",
+            },
+        }
+
         # If for whatever reason we were unable to get a request we'll just
         # skip this and call the original method to send this immediately.
         if request is None or not hasattr(request, "tm"):
