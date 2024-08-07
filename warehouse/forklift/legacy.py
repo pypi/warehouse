@@ -1214,11 +1214,6 @@ def file_upload(request):
             # Log successful attestation upload
             metrics.increment("warehouse.upload.attestations.ok")
 
-    # Check if the user has any 2FA methods enabled, and if not, email them.
-    if request.user and not request.user.has_two_factor:
-        warnings.append("Two factor authentication is not enabled for your account.")
-        send_two_factor_not_yet_enabled_email(request, request.user)
-
     request.db.flush()  # flush db now so server default values are populated for celery
 
     # Push updates to BigQuery
