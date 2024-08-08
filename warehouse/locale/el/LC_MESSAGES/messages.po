@@ -1061,32 +1061,32 @@ msgstr "Monty Python - The Cheese Shop Sketch"
 #: warehouse/templates/pages/help.html:683
 #: warehouse/templates/pages/help.html:688
 #: warehouse/templates/pages/help.html:700
-#: warehouse/templates/pages/help.html:721
-#: warehouse/templates/pages/help.html:735
-#: warehouse/templates/pages/help.html:744
-#: warehouse/templates/pages/help.html:756
-#: warehouse/templates/pages/help.html:767
-#: warehouse/templates/pages/help.html:772
-#: warehouse/templates/pages/help.html:780
-#: warehouse/templates/pages/help.html:791
-#: warehouse/templates/pages/help.html:836
-#: warehouse/templates/pages/help.html:844
-#: warehouse/templates/pages/help.html:892
-#: warehouse/templates/pages/help.html:897
-#: warehouse/templates/pages/help.html:902
-#: warehouse/templates/pages/help.html:912
-#: warehouse/templates/pages/help.html:921
-#: warehouse/templates/pages/help.html:935
-#: warehouse/templates/pages/help.html:943
-#: warehouse/templates/pages/help.html:951
-#: warehouse/templates/pages/help.html:959
-#: warehouse/templates/pages/help.html:968
-#: warehouse/templates/pages/help.html:987
-#: warehouse/templates/pages/help.html:1002
+#: warehouse/templates/pages/help.html:722
+#: warehouse/templates/pages/help.html:736
+#: warehouse/templates/pages/help.html:745
+#: warehouse/templates/pages/help.html:757
+#: warehouse/templates/pages/help.html:768
+#: warehouse/templates/pages/help.html:773
+#: warehouse/templates/pages/help.html:781
+#: warehouse/templates/pages/help.html:792
+#: warehouse/templates/pages/help.html:837
+#: warehouse/templates/pages/help.html:845
+#: warehouse/templates/pages/help.html:893
+#: warehouse/templates/pages/help.html:898
+#: warehouse/templates/pages/help.html:903
+#: warehouse/templates/pages/help.html:913
+#: warehouse/templates/pages/help.html:922
+#: warehouse/templates/pages/help.html:936
+#: warehouse/templates/pages/help.html:944
+#: warehouse/templates/pages/help.html:952
+#: warehouse/templates/pages/help.html:960
+#: warehouse/templates/pages/help.html:969
+#: warehouse/templates/pages/help.html:988
 #: warehouse/templates/pages/help.html:1003
 #: warehouse/templates/pages/help.html:1004
 #: warehouse/templates/pages/help.html:1005
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1006
+#: warehouse/templates/pages/help.html:1011
 #: warehouse/templates/pages/sponsors.html:33
 #: warehouse/templates/pages/sponsors.html:37
 #: warehouse/templates/pages/sponsors.html:41
@@ -8834,7 +8834,7 @@ msgid "Troubleshooting"
 msgstr "Αντιμετώπιση προβλημάτων"
 
 #: warehouse/templates/pages/help.html:194
-#: warehouse/templates/pages/help.html:888
+#: warehouse/templates/pages/help.html:889
 msgid "About"
 msgstr "Σχετικά"
 
@@ -10176,9 +10176,12 @@ msgid "You'll receive an email with a password reset link."
 msgstr ""
 "Θα λάβετε ένα email που θα περιέχει ένα σύνδεσμο για μηδενισμό του κωδικού."
 
+# | msgid "I forgot my PyPI password. Can you help me?"
 #: warehouse/templates/pages/help.html:715
-msgid "If you've lost access to your PyPI account due to:"
-msgstr ""
+#, fuzzy
+msgid ""
+"If you've lost access to your PyPI account or can't fully verify it due to:"
+msgstr "Ξέχασα τον κωδικό χρήστη του PyPI. Μπορείτε να με βοηθήσετε;"
 
 # | msgid "Emails associated with your account"
 #: warehouse/templates/pages/help.html:717
@@ -10187,6 +10190,10 @@ msgid "Lost access to the email address associated with your account"
 msgstr "Emails που συσχετίζονται με τον λογαριασμό σας"
 
 #: warehouse/templates/pages/help.html:718
+msgid "Accidentally registered with an email address you cannot verify"
+msgstr ""
+
+#: warehouse/templates/pages/help.html:719
 msgid ""
 "Lost two-factor authentication <a href=\"#totp\">application</a>, <a "
 "href=\"#utfkey\">device</a>, and <a href=\"#recoverycodes\">recovery codes</"
@@ -10199,7 +10206,7 @@ msgstr ""
 # | "account, <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\"
 # rel="
 # | "\"noopener\">file an issue on our tracker</a>."
-#: warehouse/templates/pages/help.html:721
+#: warehouse/templates/pages/help.html:722
 #, fuzzy, python-format
 msgid ""
 "You can proceed to <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -10210,29 +10217,29 @@ msgstr ""
 "λογαριασμό σας στο PyPI, <a href=\"%(href)s\" title=\"%(title)s\" "
 "target=\"_blank\" rel=\"noopener\">ανοίξτε ένα θέμα στον tracker μας</a>."
 
-#: warehouse/templates/pages/help.html:729
+#: warehouse/templates/pages/help.html:730
 msgid "Ensure that your API Token is valid and has not been revoked."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:730
+#: warehouse/templates/pages/help.html:731
 msgid ""
 "Ensure that your API Token is <a href=\"#apitoken\">properly formatted</a> "
 "and does not contain any trailing characters such as newlines."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:731
+#: warehouse/templates/pages/help.html:732
 #, fuzzy
 #| msgid "Set your username to <code>__token__</code>"
 msgid "Ensure that the username you are using is <code>__token__</code>."
 msgstr "Ορίστε το όνομα χρήστη ως <code>__token__</code>"
 
-#: warehouse/templates/pages/help.html:733
+#: warehouse/templates/pages/help.html:734
 msgid ""
 "Remember that PyPI and TestPyPI each require you to create an account, so "
 "your credentials may be different."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:735
+#: warehouse/templates/pages/help.html:736
 #, python-format
 msgid ""
 "If you're using Windows and trying to paste your token in the Command Prompt "
@@ -10243,7 +10250,7 @@ msgid ""
 "Python's <code>getpass</code> module."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:744
+#: warehouse/templates/pages/help.html:745
 #, python-format
 msgid ""
 "Transport Layer Security, or TLS, is part of how we make sure connections "
@@ -10263,7 +10270,7 @@ msgstr ""
 "href=\"%(reason_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">Μάθετε γιατί στο PSF blog</a>."
 
-#: warehouse/templates/pages/help.html:751
+#: warehouse/templates/pages/help.html:752
 #, python-format
 msgid ""
 "If you are having trouble with <code>%(command)s</code> and get a <code>No "
@@ -10275,7 +10282,7 @@ msgstr ""
 "code>, προσπαθήστε να προσθέσετε το <code>-v</code> (πρώτο γράμμα από τη "
 "λέξη verbose) στην εντολή για να πάρετε παραπάνω πληροφορίες:"
 
-#: warehouse/templates/pages/help.html:753
+#: warehouse/templates/pages/help.html:754
 msgid ""
 "If you see an error like <code>There was a problem confirming the ssl "
 "certificate</code> or <code>tlsv1 alert protocol version</code> or "
@@ -10287,7 +10294,7 @@ msgstr ""
 "<code>TLSV1_ALERT_PROTOCOL_VERSION</code>, θα χρειαστεί να συνδεθείτε στο "
 "PyPI με μια νεώτερη έκδοση του TLS."
 
-#: warehouse/templates/pages/help.html:754
+#: warehouse/templates/pages/help.html:755
 msgid ""
 "The specific steps you need to take will depend on your operating system "
 "version, where your installation of Python originated (python.org, your OS "
@@ -10300,7 +10307,7 @@ msgstr ""
 "μεσολαβητή) και από την έκδοση της εγκατεστημένης Python, του πακέτου "
 "<code>setuptools</code> και του πακέτου <code>pip</code>."
 
-#: warehouse/templates/pages/help.html:756
+#: warehouse/templates/pages/help.html:757
 #, fuzzy, python-format
 #| msgid ""
 #| "For help, go to <a href=\"%(irc_href)s\" title=\"%(title)s\" "
@@ -10329,7 +10336,7 @@ msgstr ""
 "συμπεριλαμβάνοντας το λειτουργικό σας σύστημα και οδηγίες εγκατάστασης του "
 "καθώς και την έξοδο από την εντολή <code>%(command)s</code>."
 
-#: warehouse/templates/pages/help.html:767
+#: warehouse/templates/pages/help.html:768
 #, python-format
 msgid ""
 "We take <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10340,7 +10347,7 @@ msgstr ""
 "target=\"_blank\" rel=\"noopener\">προσβασιμότητα</a> και θέλουμε να κάνουμε "
 "την ιστοσελίδα εύκολα προσβάσιμη από όλους."
 
-#: warehouse/templates/pages/help.html:772
+#: warehouse/templates/pages/help.html:773
 #, python-format
 msgid ""
 "If you are experiencing an accessibility problem, <a href=\"%(href)s\" "
@@ -10352,7 +10359,7 @@ msgstr ""
 "GitHub</a>, ούτως ώστε να προσπαθήσουμε να διορθώσουμε το πρόβλημα τόσο για "
 "εσάς όσο και για τους άλλους."
 
-#: warehouse/templates/pages/help.html:780
+#: warehouse/templates/pages/help.html:781
 #, python-format
 msgid ""
 "In a previous version of PyPI, it used to be possible for maintainers to "
@@ -10368,7 +10375,7 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">twine για το ανέβασμα "
 "του project σας στο PyPI</a>."
 
-#: warehouse/templates/pages/help.html:789
+#: warehouse/templates/pages/help.html:790
 msgid ""
 "Spammers return to PyPI with some regularity hoping to place their Search "
 "Engine Optimized phishing, scam, and click-farming content on the site. "
@@ -10382,7 +10389,7 @@ msgstr ""
 "γίνεται index η περιγραφή καθώς και άλλα δεδομένα του project και έχει "
 "γενικά πολύ καλή φήμη στην αναζήτηση, το καθιστά πρωταρχικό στόχο."
 
-#: warehouse/templates/pages/help.html:791
+#: warehouse/templates/pages/help.html:792
 #, python-format
 msgid ""
 "When the PyPI administrators are overwhelmed by spam <strong>or</strong> "
@@ -10400,24 +10407,24 @@ msgstr ""
 "καθώς θα έχουμε σχετική ανακοίνωση εκεί για το λόγο της διακοπής αυτών των "
 "υπηρεσιών."
 
-#: warehouse/templates/pages/help.html:800
+#: warehouse/templates/pages/help.html:801
 msgid "PyPI will return these errors for one of these reasons:"
 msgstr ""
 "Το PyPI θα επιστρέψει αυτά τα σφάλματα για έναν από τους ακόλουθους λόγους:"
 
-#: warehouse/templates/pages/help.html:802
+#: warehouse/templates/pages/help.html:803
 msgid "Filename has been used and file exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται και το αρχείο υπάρχει ήδη"
 
-#: warehouse/templates/pages/help.html:803
+#: warehouse/templates/pages/help.html:804
 msgid "Filename has been used but file no longer exists"
 msgstr "Το όνομα αρχείου χρησιμοποιείται αλλά το αρχείο δεν υπάρχει"
 
-#: warehouse/templates/pages/help.html:804
+#: warehouse/templates/pages/help.html:805
 msgid "A file with the exact same content exists"
 msgstr "Το αρχείο υπάρχει με ακριβώς το ίδιο όνομα"
 
-#: warehouse/templates/pages/help.html:807
+#: warehouse/templates/pages/help.html:808
 msgid ""
 "PyPI does not allow for a filename to be reused, even once a project has "
 "been deleted and recreated."
@@ -10425,13 +10432,13 @@ msgstr ""
 "Το PyPI δεν επιτρέπει σε ένα όνομα αρχείου να επαναχρησιμοποιείται ακόμα και "
 "όταν ένα project διαγραφεί ή επαναδημιουργηθεί."
 
-#: warehouse/templates/pages/help.html:813
+#: warehouse/templates/pages/help.html:814
 msgid ""
 "A distribution filename on PyPI consists of the combination of project name, "
 "version number, and distribution type."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:819
+#: warehouse/templates/pages/help.html:820
 msgid ""
 "This ensures that a given distribution for a given release for a given "
 "project will always resolve to the same file, and cannot be surreptitiously "
@@ -10439,7 +10446,7 @@ msgid ""
 "be removed)."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:827
+#: warehouse/templates/pages/help.html:828
 msgid ""
 "To avoid this situation in most cases, you will need to change the version "
 "number to one that you haven't previously uploaded to PyPI, rebuild the "
@@ -10455,7 +10462,7 @@ msgstr ""
 # | "\">issue tracker</a>. Include the name of the requested classifier
 # and a
 # | "brief justification of why it is important."
-#: warehouse/templates/pages/help.html:836
+#: warehouse/templates/pages/help.html:837
 #, fuzzy, python-format
 msgid ""
 "If you would like to request a new trove classifier file a pull request on "
@@ -10468,7 +10475,7 @@ msgstr ""
 "rel=\"noopener\">issue tracker μας</a>. Συμπεριλάβετε το όνομα του "
 "επιθυμητού classifier και μια μικρή αιτιολόγηση γιατί αυτό είναι σημαντικό."
 
-#: warehouse/templates/pages/help.html:844
+#: warehouse/templates/pages/help.html:845
 #, python-format
 msgid ""
 "If you're experiencing an issue with PyPI itself, we welcome "
@@ -10485,7 +10492,7 @@ msgstr ""
 "tracker είναι μόνο για θέματα λογισμικού που τρέχουν στο PyPI. Προτού "
 "γράψετε ένα νέο θέμα, ελέγξτε πρώτα αν κάποιο παρόμοιο υπάρχει ήδη."
 
-#: warehouse/templates/pages/help.html:851
+#: warehouse/templates/pages/help.html:852
 msgid ""
 "If you are having an issue is with a specific package installed from PyPI, "
 "you should reach out to the maintainers of that project directly instead."
@@ -10493,7 +10500,7 @@ msgstr ""
 "Αν το θέμα σας αφορά ένα συγκεκριμένο πακέτο εγκατεστημένο από το PyPI, θα "
 "πρέπει να επικοινωνήσετε με τους συντηρητές αυτού του project."
 
-#: warehouse/templates/pages/help.html:856
+#: warehouse/templates/pages/help.html:857
 msgid ""
 "If you are having issues while setting up a <abbr title=\"time-based one-"
 "time password\">TOTP</abbr> device, it may be because your device time is "
@@ -10501,7 +10508,7 @@ msgid ""
 "and try setting up the device again."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:863
+#: warehouse/templates/pages/help.html:864
 #, python-format
 msgid ""
 "Projects may get placed in quarantine for any number of reasons, such as "
@@ -10511,14 +10518,14 @@ msgid ""
 "a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:872
+#: warehouse/templates/pages/help.html:873
 msgid ""
 "While in quarantine, the project is not installable by clients, and cannot "
 "be being modified by its maintainers. PyPI Administrators will need to "
 "review this project before it can be restored."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:879
+#: warehouse/templates/pages/help.html:880
 #, python-format
 msgid ""
 "If you believe your project has mistakenly been flagged for quarantine, "
@@ -10526,7 +10533,7 @@ msgid ""
 "details."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:892
+#: warehouse/templates/pages/help.html:893
 #, python-format
 msgid ""
 "PyPI is powered by the Warehouse project; <a href=\"%(href)s\" "
@@ -10541,7 +10548,7 @@ msgstr ""
 "Packaging Authority (PyPA) και υποστηριζόμενο από το Python Packaging "
 "Working Group (PackagingWG)."
 
-#: warehouse/templates/pages/help.html:897
+#: warehouse/templates/pages/help.html:898
 #, python-format
 msgid ""
 "The <a href=\"%(href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10554,7 +10561,7 @@ msgstr ""
 "οποίων ο στόχος είναι η βελτίωση και η διατήρηση πολλών κεντρικών projects "
 "σχετικά με το Python packaging."
 
-#: warehouse/templates/pages/help.html:902
+#: warehouse/templates/pages/help.html:903
 #, python-format
 msgid ""
 "The <a href=\"%(packaging_wg_href)s\" title=\"%(title)s\" target=\"_blank\" "
@@ -10575,7 +10582,7 @@ msgstr ""
 "Technology Fund</a> του οποίου η χρηματοδότηση επιτρέπει στους developers να "
 "βελτιώσουν την ασφάλεια και την προσβασιμότητα του Warehouse."
 
-#: warehouse/templates/pages/help.html:912
+#: warehouse/templates/pages/help.html:913
 #, python-format
 msgid ""
 "PyPI is powered by <a href=\"%(warehouse_href)s\" title=\"%(title)s\" "
@@ -10588,7 +10595,7 @@ msgstr ""
 "μια ποικιλία από εργαλεία και υπηρεσίες που παρέχονται από τους <a "
 "href=\"%(sponsors_href)s\">γενναιόδωρους χορηγούς μας</a>."
 
-#: warehouse/templates/pages/help.html:919
+#: warehouse/templates/pages/help.html:920
 msgid ""
 "As of April 16, 2018, PyPI.org is at \"production\" status, meaning that it "
 "has moved out of beta and replaced the old site (pypi.python.org). It is now "
@@ -10599,7 +10606,7 @@ msgstr ""
 "ιστοσελίδα (pypi.python.org). Είναι πλέον στιβαρό, τεσταρισμένο και έτοιμο "
 "για την αναμενόμενη κυκλοφορία σε επίπεδο browser και API."
 
-#: warehouse/templates/pages/help.html:921
+#: warehouse/templates/pages/help.html:922
 #, python-format
 msgid ""
 "PyPI is heavily cached and distributed via <abbr title=\"content delivery "
@@ -10628,7 +10635,7 @@ msgstr ""
 "κάποιον <a href=\"%(mirror_href)s\">καθρέπτη</a> είτε να φτιάξετε ένα <a "
 "href=\"%(private_index_href)s\">ιδιωτικό αποθετήριο</a>."
 
-#: warehouse/templates/pages/help.html:935
+#: warehouse/templates/pages/help.html:936
 #, python-format
 msgid ""
 "We have a huge amount of work to do to continue to maintain and improve PyPI "
@@ -10640,11 +10647,11 @@ msgstr ""
 "title=\"%(title)s\" target=\"_blank\" rel=\"noopener\">το Warehouse project</"
 "a>)."
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:941
 msgid "Financial:"
 msgstr "Οικονομικά:"
 
-#: warehouse/templates/pages/help.html:940
+#: warehouse/templates/pages/help.html:941
 #, python-format
 msgid ""
 "We would deeply appreciate <a href=\"%(href)s\">your donations to fund "
@@ -10653,11 +10660,11 @@ msgstr ""
 "Θα εκτιμούσαμε βαθύτατα <a href=\"%(href)s\">τις δωρεές σας για τη "
 "χρηματοδότηση της ανάπτυξης και της συντήρησης</a>."
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:942
 msgid "Development:"
 msgstr "Ανάπτυξη:"
 
-#: warehouse/templates/pages/help.html:941
+#: warehouse/templates/pages/help.html:942
 msgid ""
 "Warehouse is open source, and we would love to see some new faces working on "
 "the project. You <strong>do not</strong> need to be an experienced open-"
@@ -10670,7 +10677,7 @@ msgstr ""
 "πραγματικότητα, θα χαρούμε να σας βοηθήσουμε να κάνετε το πρώτο σας pull "
 "request ανοικτού-κώδικα!"
 
-#: warehouse/templates/pages/help.html:943
+#: warehouse/templates/pages/help.html:944
 #, fuzzy, python-format
 #| msgid ""
 #| "If you have skills in Python, ElasticSearch, HTML, SCSS, JavaScript, or "
@@ -10701,7 +10708,7 @@ msgstr ""
 "href=\"%(good_first_issue_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">'Good first issue'</a> – προτείνουμε να ξεκινήσετε από εκεί."
 
-#: warehouse/templates/pages/help.html:951
+#: warehouse/templates/pages/help.html:952
 #, fuzzy, python-format
 #| msgid ""
 #| "Issues are grouped into <a href=\"%(href)s\" title=\"%(title)s\" "
@@ -10722,11 +10729,11 @@ msgstr ""
 "project μπροστά. Αν ενδιαφέρεστε να δουλέψετε πάνω σε ένα συγκεκριμένο "
 "issue, αφήστε ένα σχόλιο και θα σας καθοδηγήσουμε στη διαδικασία συνεισφοράς."
 
-#: warehouse/templates/pages/help.html:958
+#: warehouse/templates/pages/help.html:959
 msgid "Stay updated:"
 msgstr "Μείνετε ενημερωμένοι:"
 
-#: warehouse/templates/pages/help.html:959
+#: warehouse/templates/pages/help.html:960
 #, fuzzy, python-format
 #| msgid ""
 #| "You can also follow the ongoing development of the project on the <a "
@@ -10745,7 +10752,7 @@ msgstr ""
 "href=\"%(message_group_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">PyPA Dev message group</a>."
 
-#: warehouse/templates/pages/help.html:968
+#: warehouse/templates/pages/help.html:969
 #, fuzzy, python-format
 #| msgid ""
 #| "Changes to PyPI are generally announced on both the <a "
@@ -10775,14 +10782,14 @@ msgstr ""
 "href=\"%(rss_href)s\" title=\"%(title)s\" target=\"_blank\" "
 "rel=\"noopener\">RSS</a> feeds για την ετικέτα \"pypi\"."
 
-#: warehouse/templates/pages/help.html:977
+#: warehouse/templates/pages/help.html:978
 #, python-format
 msgid ""
 "All traffic is routed through our global CDN, which lists their public IP "
 "addresses here: <a href=\"%(href)s\">%(href)s</a>."
 msgstr ""
 
-#: warehouse/templates/pages/help.html:978
+#: warehouse/templates/pages/help.html:979
 #, fuzzy, python-format
 #| msgid ""
 #| "To regain access to your account, <a href=\"%(href)s\">reset your "
@@ -10794,7 +10801,7 @@ msgstr ""
 "Για να μπορείτε να ανακτήσετε την πρόσβαση στο λογαριασμό σας, <a "
 "href=\"%(href)s\">μηδενίστε τον κωδικό σας</a> στο PyPI."
 
-#: warehouse/templates/pages/help.html:982
+#: warehouse/templates/pages/help.html:983
 msgid ""
 "When Warehouse's maintainers are deploying new features, at first we mark "
 "them with a small \"beta feature\" symbol to tell you: this should probably "
@@ -10806,12 +10813,12 @@ msgstr ""
 "άλλη λειτουργία της ιστοσελίδας."
 
 # | msgid "Currently, the following features are in beta:"
-#: warehouse/templates/pages/help.html:983
+#: warehouse/templates/pages/help.html:984
 #, fuzzy
 msgid "Currently, no features are in beta."
 msgstr "Προς το παρόν, τα ακόλουθα χαρακτηριστικά είναι σε beta:"
 
-#: warehouse/templates/pages/help.html:987
+#: warehouse/templates/pages/help.html:988
 #, python-format
 msgid ""
 "\"PyPI\" should be pronounced like \"pie pea eye\", specifically with the "
@@ -10826,39 +10833,39 @@ msgstr ""
 "project, το οποίο είναι ένα δημοφιλές εναλλακτικό implementation της γλώσσας "
 "προγραμματισμού Python."
 
-#: warehouse/templates/pages/help.html:999
+#: warehouse/templates/pages/help.html:1000
 msgid "Resources"
 msgstr "Πόροι"
 
-#: warehouse/templates/pages/help.html:1000
+#: warehouse/templates/pages/help.html:1001
 msgid "Looking for something else? Perhaps these links will help:"
 msgstr "Ψάχνετε για κάτι άλλο; Ίσως οι παρακάτω σύνδέσμοι να βοηθήσουν:"
 
-#: warehouse/templates/pages/help.html:1002
+#: warehouse/templates/pages/help.html:1003
 msgid "Python Packaging User Guide"
 msgstr "Python Packaging User Guide"
 
-#: warehouse/templates/pages/help.html:1003
+#: warehouse/templates/pages/help.html:1004
 msgid "Python documentation"
 msgstr "Τεκμηρίωση Python"
 
-#: warehouse/templates/pages/help.html:1004
+#: warehouse/templates/pages/help.html:1005
 msgid "(main Python website)"
 msgstr "(κύρια ιστοσελίδα της Python)"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1006
 msgid "Python community page"
 msgstr "Ιστοσελίδα κοινότητας της Python"
 
-#: warehouse/templates/pages/help.html:1005
+#: warehouse/templates/pages/help.html:1006
 msgid "(lists IRC channels, mailing lists, etc.)"
 msgstr "(προβολή καναλιών IRC, mailing lists, κλπ)"
 
-#: warehouse/templates/pages/help.html:1008
+#: warehouse/templates/pages/help.html:1009
 msgid "Contact"
 msgstr "Επικοινωνία"
 
-#: warehouse/templates/pages/help.html:1010
+#: warehouse/templates/pages/help.html:1011
 #, fuzzy, python-format
 #| msgid ""
 #| "The <a href=\"%(pypa_href)s\" title=\"%(title)s\" target=\"_blank\" "
