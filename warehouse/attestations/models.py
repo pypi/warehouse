@@ -47,9 +47,9 @@ class Attestation(db.Model):
     def attestation_path(self):
         return "/".join(
             [
-            self.attestation_file_sha256_digest[:2],
-            self.attestation_file_sha256_digest[2:4],
-            self.attestation_file_sha256_digest[4:],
-            f"{Path(self.file.path).name}.attestation",
+                self.attestation_file_sha256_digest[:2],
+                self.attestation_file_sha256_digest[2:4],
+                self.attestation_file_sha256_digest[4:],
+                f"{Path(self.file.path).name}.attestation",
             ]
         )
