@@ -10,6 +10,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import enum
+
 from zope.interface import Interface
 
 from warehouse.rate_limiting.interfaces import RateLimiterException
@@ -73,7 +75,20 @@ class IDocsStorage(Interface):
         """
 
 
+class ProjectNameUnavailableReason(enum.Enum):
+    Invalid = "invalid"
+    Stdlib = "stdlib"
+    AlreadyExists = "already-exists"
+    Prohibited = "prohibited"
+    TooSimilar = "too-similar"
+
+
 class IProjectService(Interface):
+    def check_project_name(name, request):
+        """
+        Check if a project name is valid and available for use.
+        """
+
     def create_project(name, creator, request, *, creator_is_owner=True):
         """
         Creates a new project, recording a user as its creator.

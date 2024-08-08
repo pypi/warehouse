@@ -65,6 +65,7 @@ from warehouse.organizations.models import (
     OrganizationRole,
     OrganizationRoleType,
 )
+from warehouse.packaging.interfaces import IProjectService
 from warehouse.packaging.models import Role, RoleInvitation
 from warehouse.rate_limiting.interfaces import IRateLimiter
 
@@ -3306,8 +3307,16 @@ class TestReAuthentication:
 
 class TestManageAccountPublishingViews:
     def test_initializes(self, metrics):
+        project_service = pretend.stub()
+
+        def find_service(iface, name=None, context=None):
+            if iface is IMetricsService:
+                return metrics
+            if iface is IProjectService:
+                return project_service
+
         request = pretend.stub(
-            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            find_service=pretend.call_recorder(find_service),
             POST=MultiDict(),
             registry=pretend.stub(
                 settings={
@@ -3319,9 +3328,11 @@ class TestManageAccountPublishingViews:
 
         assert view.request is request
         assert view.metrics is metrics
+        assert view.project_service is project_service
 
         assert view.request.find_service.calls == [
-            pretend.call(IMetricsService, context=None)
+            pretend.call(IMetricsService, context=None),
+            pretend.call(IProjectService, context=None),
         ]
 
     @pytest.mark.parametrize(
@@ -3347,6 +3358,8 @@ class TestManageAccountPublishingViews:
         def find_service(iface, name=None, context=None):
             if iface is IMetricsService:
                 return metrics
+            if iface is IProjectService:
+                return pretend.stub()
 
             if name == "user_oidc.publisher.register":
                 return user_rate_limiter
@@ -3373,6 +3386,7 @@ class TestManageAccountPublishingViews:
         }
         assert request.find_service.calls == [
             pretend.call(IMetricsService, context=None),
+            pretend.call(IProjectService, context=None),
             pretend.call(IRateLimiter, name="user_oidc.publisher.register"),
             pretend.call(IRateLimiter, name="ip_oidc.publisher.register"),
         ]
@@ -3398,16 +3412,17 @@ class TestManageAccountPublishingViews:
                     "github.token": "fake-api-token",
                 }
             ),
-            find_service=pretend.call_recorder(lambda *a, **kw: metrics),
+            find_service=lambda svc, **kw: {
+                IMetricsService: metrics,
+                IProjectService: project_service,
+            }[svc],
             flags=pretend.stub(
                 disallow_oidc=pretend.call_recorder(lambda f=None: False)
             ),
             POST=pretend.stub(),
         )
 
-        project_factory = pretend.stub()
-        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
-        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
+        project_service = pretend.stub(check_project_name=lambda name: None)
 
         pending_github_publisher_form_obj = pretend.stub()
         pending_github_publisher_form_cls = pretend.call_recorder(
@@ -3462,18 +3477,17 @@ class TestManageAccountPublishingViews:
             pretend.call(AdminFlagValue.DISALLOW_GOOGLE_OIDC),
             pretend.call(AdminFlagValue.DISALLOW_ACTIVESTATE_OIDC),
         ]
-        assert project_factory_cls.calls == [pretend.call(request)]
         assert pending_github_publisher_form_cls.calls == [
             pretend.call(
                 request.POST,
                 api_token="fake-api-token",
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 request.POST,
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
 
@@ -3490,10 +3504,6 @@ class TestManageAccountPublishingViews:
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-
-        project_factory = pretend.stub()
-        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
-        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
 
         pending_github_publisher_form_obj = pretend.stub()
         pending_github_publisher_form_cls = pretend.call_recorder(
@@ -3561,13 +3571,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
 
@@ -3611,10 +3621,6 @@ class TestManageAccountPublishingViews:
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-
-        project_factory = pretend.stub()
-        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
-        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
 
         pending_github_publisher_form_obj = pretend.stub()
         pending_github_publisher_form_cls = pretend.call_recorder(
@@ -3689,13 +3695,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
 
@@ -3746,10 +3752,6 @@ class TestManageAccountPublishingViews:
         pyramid_request.session = pretend.stub(
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
-
-        project_factory = pretend.stub()
-        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
-        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
 
         pending_github_publisher_form_obj = pretend.stub()
         pending_github_publisher_form_cls = pretend.call_recorder(
@@ -3828,13 +3830,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
 
@@ -4475,10 +4477,6 @@ class TestManageAccountPublishingViews:
             flash=pretend.call_recorder(lambda *a, **kw: None)
         )
 
-        project_factory = pretend.stub()
-        project_factory_cls = pretend.call_recorder(lambda r: project_factory)
-        monkeypatch.setattr(views, "ProjectFactory", project_factory_cls)
-
         pending_github_publisher_form_obj = pretend.stub()
         pending_github_publisher_form_cls = pretend.call_recorder(
             lambda *a, **kw: pending_github_publisher_form_obj
@@ -4545,13 +4543,13 @@ class TestManageAccountPublishingViews:
             pretend.call(
                 pyramid_request.POST,
                 api_token="fake-api-token",
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
         assert pending_gitlab_publisher_form_cls.calls == [
             pretend.call(
                 pyramid_request.POST,
-                project_factory=project_factory,
+                check_project_name=view._check_project_name,
             )
         ]
 

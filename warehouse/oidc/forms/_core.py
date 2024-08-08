@@ -14,6 +14,7 @@ import wtforms
 
 from warehouse import forms
 from warehouse.i18n import localize as _
+from warehouse.packaging.interfaces import ProjectNameUnavailableReason
 from warehouse.utils.project import PROJECT_NAME_RE
 
 
@@ -30,13 +31,31 @@ class PendingPublisherMixin:
     def validate_project_name(self, field):
         project_name = field.data
 
-        if project_name in self._project_factory:
-            raise wtforms.validators.ValidationError(
-                _(
-                    "This project already exists, create an ordinary Trusted "
-                    "Publisher instead"
+        match self._check_project_name(project_name):
+            case ProjectNameUnavailableReason.Invalid:
+                raise wtforms.validators.ValidationError(_("Invalid project name"))
+            case ProjectNameUnavailableReason.AlreadyExists:
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "This project already exists; create an ordinary Trusted "
+                        "Publisher instead"
+                    )
                 )
-            )
+            case ProjectNameUnavailableReason.Prohibited:
+                raise wtforms.validators.ValidationError(
+                    _("This project name isn't allowed")
+                )
+            case ProjectNameUnavailableReason.TooSimilar:
+                raise wtforms.validators.ValidationError(
+                    _("This project name is too similar to an existing project")
+                )
+            case ProjectNameUnavailableReason.Stdlib:
+                raise wtforms.validators.ValidationError(
+                    _(
+                        "This project name isn't allowed (conflict with the Python"
+                        " standard library module name)"
+                    )
+                )
 
 
 class DeletePublisherForm(forms.Form):

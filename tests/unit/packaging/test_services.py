@@ -24,7 +24,13 @@ from zope.interface.verify import verifyClass
 
 import warehouse.packaging.services
 
-from warehouse.packaging.interfaces import IDocsStorage, IFileStorage, ISimpleStorage
+from warehouse.packaging.interfaces import (
+    IDocsStorage,
+    IFileStorage,
+    IProjectService,
+    ISimpleStorage,
+    ProjectNameUnavailableReason,
+)
 from warehouse.packaging.services import (
     B2FileStorage,
     GCSFileStorage,
@@ -34,11 +40,14 @@ from warehouse.packaging.services import (
     LocalDocsStorage,
     LocalFileStorage,
     LocalSimpleStorage,
+    ProjectService,
     S3ArchiveFileStorage,
     S3DocsStorage,
     S3FileStorage,
     project_service_factory,
 )
+
+from ...common.db.packaging import ProhibitedProjectFactory, ProjectFactory
 
 
 class TestLocalFileStorage:
@@ -977,6 +986,75 @@ class TestGenericLocalBlobStorage:
     def test_notimplementederror(self):
         with pytest.raises(NotImplementedError):
             GenericLocalBlobStorage.create_service(pretend.stub(), pretend.stub())
+
+
+class TestProjectService:
+    def test_verify_service(self):
+        assert verifyClass(IProjectService, ProjectService)
+
+    @pytest.mark.parametrize("name", ["", ".,;", "_z"])
+    def test_check_project_name_invalid(self, name):
+        service = ProjectService(session=pretend.stub())
+        request = pretend.stub()
+
+        assert (
+            service.check_project_name(name, request)
+            is ProjectNameUnavailableReason.Invalid
+        )
+
+    @pytest.mark.parametrize("name", ["uu", "cgi", "nis", "mailcap"])
+    def test_check_project_name_stdlib(self, name):
+        service = ProjectService(session=pretend.stub())
+        request = pretend.stub()
+
+        assert (
+            service.check_project_name(name, request)
+            is ProjectNameUnavailableReason.Stdlib
+        )
+
+    def test_check_project_name_already_exists(self, db_session):
+        service = ProjectService(session=db_session)
+        request = pretend.stub(db=db_session)
+        ProjectFactory.create(name="foo")
+
+        assert (
+            service.check_project_name("foo", request)
+            is ProjectNameUnavailableReason.AlreadyExists
+        )
+        assert (
+            service.check_project_name("Foo", request)
+            is ProjectNameUnavailableReason.AlreadyExists
+        )
+
+    def test_check_project_name_prohibited(self, db_session):
+        service = ProjectService(session=db_session)
+        request = pretend.stub(db=db_session)
+        ProhibitedProjectFactory.create(name="foo")
+
+        assert (
+            service.check_project_name("foo", request)
+            is ProjectNameUnavailableReason.Prohibited
+        )
+        assert (
+            service.check_project_name("Foo", request)
+            is ProjectNameUnavailableReason.Prohibited
+        )
+
+    def test_check_project_name_too_similar(self, db_session):
+        service = ProjectService(session=db_session)
+        request = pretend.stub(db=db_session)
+        ProjectFactory.create(name="f00")
+
+        assert (
+            service.check_project_name("foo", request)
+            is ProjectNameUnavailableReason.TooSimilar
+        )
+
+    def test_check_project_name_ok(self, db_session):
+        service = ProjectService(session=db_session)
+        request = pretend.stub(db=db_session)
+
+        assert service.check_project_name("foo", request) is None
 
 
 def test_project_service_factory():
