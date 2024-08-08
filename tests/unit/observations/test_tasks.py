@@ -52,8 +52,8 @@ def test_report_observation_to_helpscout(
     kind, reports, payload, db_request, monkeypatch
 ):
     db_request.registry.settings = {"helpscout.app_secret": "fake-sekret"}
-    db_request.route_path = (
-        lambda route_name, project_name="deadbeef": "/admin/malware_reports/"
+    db_request.route_url = (
+        lambda route_url, project_name="deadbeef": "/admin/malware_reports/"
     )
 
     # Mock out the authentication to HelpScout

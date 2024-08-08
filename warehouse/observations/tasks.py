@@ -92,7 +92,7 @@ def report_observation_to_helpscout(task, request: Request, model_id: UUID) -> N
             f"""
             Inspector URL: {model.payload.get("inspector_url")}
 
-            Malware Reports URL: {request.route_path(
+            Malware Reports URL: {request.route_url(
                 "admin.malware_reports.project.list", project_name=target_name,
             )}
             """
