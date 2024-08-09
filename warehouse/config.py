@@ -405,6 +405,7 @@ def configure(settings=None):
         "OIDC_BACKEND",
         default="warehouse.oidc.services.OIDCPublisherService",
     )
+    maybe_set(settings, "tuf.rstuf_api_url", "TUF_RSTUF_API_URL")
 
     # Pythondotorg integration settings
     maybe_set(

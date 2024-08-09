@@ -50,6 +50,7 @@ from sigstore.verify import Verifier
 from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
+from warehouse import tuf
 from warehouse.admin.flags import AdminFlagValue
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -1268,6 +1269,8 @@ def file_upload(request):
             )
 
     request.db.flush()  # flush db now so server default values are populated for celery
+
+    request.task(tuf.update_metadata).delay(release.project.id)
 
     # Push updates to BigQuery
     dist_metadata = {
