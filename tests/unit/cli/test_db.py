@@ -49,7 +49,7 @@ def test_branches_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(branches, obj=pyramid_config)
     assert result.exit_code == 0
@@ -69,7 +69,7 @@ def test_current_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(current, obj=pyramid_config)
     assert result.exit_code == 0
@@ -89,7 +89,7 @@ def test_downgrade_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(downgrade, ["--", "-1"], obj=pyramid_config)
     assert result.exit_code == 0
@@ -117,7 +117,7 @@ def test_heads_command(monkeypatch, cli, pyramid_config, args, ekwargs):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(heads, args, obj=pyramid_config)
     assert result.exit_code == 0
@@ -137,7 +137,7 @@ def test_history_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(history, ["foo:bar"], obj=pyramid_config)
     assert result.exit_code == 0
@@ -176,7 +176,7 @@ def test_merge_command(monkeypatch, cli, pyramid_config, args, eargs, ekwargs):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(merge, args, obj=pyramid_config)
     assert result.exit_code == 0
@@ -232,7 +232,7 @@ def test_revision_command(monkeypatch, cli, pyramid_config, args, ekwargs):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(revision, args, obj=pyramid_config)
     assert result.exit_code == 0
@@ -252,7 +252,7 @@ def test_show_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(show, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
@@ -272,7 +272,7 @@ def test_stamp_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(stamp, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0
@@ -292,7 +292,7 @@ def test_upgrade_command(monkeypatch, cli, pyramid_config):
         execute=pretend.call_recorder(lambda sql: None),
     )
     engine = pretend.stub(begin=lambda: connection)
-    pyramid_config.registry["sqlalchemy.engine"] = engine
+    pyramid_config.registry["sqlalchemy.engines"] = {"primary": engine}
 
     result = cli.invoke(upgrade, ["foo"], obj=pyramid_config)
     assert result.exit_code == 0

@@ -556,7 +556,7 @@ def populate_db(config):
     # but warehouse.cli at the module scope.
     from warehouse.db import Session
 
-    session = Session(bind=config.registry["sqlalchemy.engine"])
+    session = Session(bind=config.registry["sqlalchemy.engines"]["primary"])
 
     for data in SPONSORS_DICTS:
         name = data["name"]

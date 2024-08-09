@@ -542,13 +542,19 @@ def test_routes(warehouse):
             domain=warehouse,
         ),
         pretend.call("api.billing.webhook", "/billing/webhook/", domain=warehouse),
-        pretend.call("api.simple.index", "/simple/", domain=warehouse),
+        pretend.call(
+            "api.simple.index",
+            "/simple/",
+            domain=warehouse,
+            with_database="replica",
+        ),
         pretend.call(
             "api.simple.detail",
             "/simple/{name}/",
             factory="warehouse.packaging.models:ProjectFactory",
             traverse="/{name}/",
             domain=warehouse,
+            with_database="replica",
         ),
         # API URLs
         pretend.call(
@@ -590,24 +596,28 @@ def test_routes(warehouse):
             "/pypi/{name}/json",
             factory="warehouse.legacy.api.json.latest_release_factory",
             domain=warehouse,
+            with_database="replica",
         ),
         pretend.call(
             "legacy.api.json.project_slash",
             "/pypi/{name}/json/",
             factory="warehouse.legacy.api.json.latest_release_factory",
             domain=warehouse,
+            with_database="replica",
         ),
         pretend.call(
             "legacy.api.json.release",
             "/pypi/{name}/{version}/json",
             factory="warehouse.legacy.api.json.release_factory",
             domain=warehouse,
+            with_database="replica",
         ),
         pretend.call(
             "legacy.api.json.release_slash",
             "/pypi/{name}/{version}/json/",
             factory="warehouse.legacy.api.json.release_factory",
             domain=warehouse,
+            with_database="replica",
         ),
         pretend.call("legacy.docs", docs_route_url),
     ]
