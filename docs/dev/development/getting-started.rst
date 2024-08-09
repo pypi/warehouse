@@ -352,6 +352,10 @@ to a moderator if needed.
 
 All of these users have 2FA enabled via TOTP,
 using the same secret as ``make totp``.
+You can scan the following QR code to add this TOTP secret to your TOTP authenticator:
+
+.. image:: ../_static/warehouse_admin_totp.png
+   :width: 100
 
 They also have the following Recovery Codes generated:
 
