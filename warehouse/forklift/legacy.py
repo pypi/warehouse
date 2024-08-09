@@ -51,7 +51,7 @@ from sqlalchemy import and_, exists, func, orm
 from sqlalchemy.exc import MultipleResultsFound, NoResultFound
 
 from warehouse.admin.flags import AdminFlagValue
-from warehouse.attestations._core import generate_provenance_file2
+from warehouse.attestations._core import generate_and_store_provenance_file
 from warehouse.attestations.models import Attestation as DatabaseAttestation
 from warehouse.authnz import Permissions
 from warehouse.classifiers.models import Classifier
@@ -1211,11 +1211,9 @@ def file_upload(request):
                     attestations_db_models.append(database_attestation)
 
             request.db.add_all(attestations_db_models)
-            generate_provenance_file2(
+            generate_and_store_provenance_file(
                 request,
                 file_,
-                request.oidc_publisher,
-                request.oidc_claims,
                 attestations,
             )
 

@@ -15,101 +15,60 @@ import typing
 
 from pathlib import Path
 
-from pydantic import TypeAdapter
-from pypi_attestations import Attestation, GitHubPublisher, GitLabPublisher, AttestationBundle, Provenance
+from pypi_attestations import (
+    Attestation,
+    AttestationBundle,
+    GitHubPublisher,
+    GitLabPublisher,
+    Provenance,
+    Publisher,
+)
 
-from warehouse.oidc.models import OIDCPublisher
-from warehouse.oidc.models import GitLabPublisher as GitLabOIDCPublisher
-from warehouse.oidc.models import GitHubPublisher as GitHubOIDCPublisher
-
-
+from warehouse.oidc.models import (
+    GitHubPublisher as GitHubOIDCPublisher,
+    GitLabPublisher as GitLabOIDCPublisher,
+    OIDCPublisher,
+)
 from warehouse.packaging import File, ISimpleStorage
 
 
-if typing.TYPE_CHECKING:
-    from pypi_attestations import Publisher
-
-
 def get_provenance_digest(request, file: File) -> str | None:
-    if not file.attestations:
+    """Returns the sha256 digest of the provenance file for the release."""
+    if not file.attestations or not file.publisher_url:
         return None
 
-    publisher_url = file.publisher_url
-    if not publisher_url:
-        return None  # TODO(dm)
+    storage = request.find_service(ISimpleStorage)
+    provenance_file = storage.get(f"{file.path}.provenance")
 
-    provenance_file_path, provenance_digest = generate_provenance_file(
-        request, publisher_url, file
-    )
-    return provenance_digest
-
-
-# def generate_provenance_file(
-#     request, publisher_url: str, file: File
-# ) -> tuple[Path, str]:
-#
-#     storage = request.find_service(ISimpleStorage)
-#
-#     if publisher_url.startswith("https://github.com/"):
-#         publisher = GitHubPublisher()
-#     elif publisher_url.startswith("https://gitlab.com"):
-#         publisher = GitLabPublisher()
-#     else:
-#         raise Exception()  # TODO(dm)
-#
-#     attestation_bundle = AttestationBundle(
-#         publisher=publisher,
-#         attestations=[
-#             TypeAdapter(Attestation).validate_json(
-#                 Path(release_attestation.attestation_path).read_text()
-#             )
-#             for release_attestation in file.attestations
-#         ],
-#     )
-#
-#     provenance = Provenance(attestation_bundles=[attestation_bundle])
-#
-#     provenance_file_path = Path(f"{file.path}.provenance")
-#     with tempfile.NamedTemporaryFile() as f:
-#         f.write(provenance.model_dump_json().encode("utf-8"))
-#         f.flush()
-#
-#         storage.store(
-#             provenance_file_path,
-#             f.name,
-#         )
-#
-#         file_digest = hashlib.file_digest(f, "sha256")
-#
-#     return provenance_file_path, file_digest.hexdigest()
+    return hashlib.file_digest(provenance_file, "sha256").hexdigest()
 
 
 def publisher_from_oidc_publisher(publisher: OIDCPublisher) -> Publisher:
     match publisher.publisher_name:
         case "GitLab":
-            publisher = typing.cast(publisher, GitLabOIDCPublisher)
-            return GitLabPublisher(repository=publisher.project_path, environment="")  # TODO(dm)
+            publisher = typing.cast(GitLabOIDCPublisher, publisher)
+            return GitLabPublisher(
+                repository=publisher.project_path, environment=""
+            )  # TODO(dm)
         case "GitHub":
-            publisher = typing.cast(publisher, GitHubOIDCPublisher)
-            return GitHubPublisher(repository=publisher.repository, workflow="", environment="")
+            publisher = typing.cast(GitHubOIDCPublisher, publisher)
+            return GitHubPublisher(
+                repository=publisher.repository, workflow="", environment=""
+            )
         case _:
             raise Exception()  # TODO(dm)
 
 
-def generate_provenance_file2(request, file: File, oidc_publisher: OIDCPublisher, oidc_claims, attestations: list[Attestation]):
+def generate_and_store_provenance_file(
+    request, file: File, attestations: list[Attestation]
+):
     storage = request.find_service(ISimpleStorage)
 
-    # First
-    publisher: Publisher = publisher_from_oidc_publisher(oidc_publisher)
+    publisher: Publisher = publisher_from_oidc_publisher(request.oidc_publisher)
 
     attestation_bundle = AttestationBundle(
         publisher=publisher,
-        attestations=[
-            TypeAdapter(Attestation).validate_json(
-                Path(release_attestation.attestation_path).read_text()
-            )
-            for release_attestation in file.attestations
-        ],
+        attestations=attestations,
     )
 
     provenance = Provenance(attestation_bundles=[attestation_bundle])
@@ -123,6 +82,3 @@ def generate_provenance_file2(request, file: File, oidc_publisher: OIDCPublisher
             provenance_file_path,
             f.name,
         )
-
-        file_digest = hashlib.file_digest(f, "sha256")
-    pass
