@@ -28,12 +28,14 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
+    OIDCPublisherMixin,
     PendingOIDCPublisher,
     check_claim_binary,
+    check_existing_jti,
 )
 
 
-def _check_repository(ground_truth, signed_claim, all_signed_claims):
+def _check_repository(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # Defensive: GitHub should never give us an empty repository claim.
     if not signed_claim:
         return False
@@ -42,7 +44,7 @@ def _check_repository(ground_truth, signed_claim, all_signed_claims):
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
+def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #   OWNER/REPO/.github/workflows/WORKFLOW.yml@REF
     # where REF is the value of either the `ref` or `sha` claims.
@@ -73,7 +75,7 @@ def _check_job_workflow_ref(ground_truth, signed_claim, all_signed_claims):
     return True
 
 
-def _check_environment(ground_truth, signed_claim, all_signed_claims):
+def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # When there is an environment, we expect a case-insensitive string.
     # https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment
     # For tokens that are generated outside of an environment, the claim will
@@ -95,7 +97,7 @@ def _check_environment(ground_truth, signed_claim, all_signed_claims):
     return ground_truth.lower() == signed_claim.lower()
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims):
+def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #  repo:ORG/REPO[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -147,7 +149,6 @@ class GitHubPublisherMixin:
     __unchecked_claims__ = {
         "actor",
         "actor_id",
-        "jti",
         "run_id",
         "run_number",
         "run_attempt",
@@ -238,6 +239,11 @@ class GitHubPublisherMixin:
     def sub(self):
         return f"repo:{self.repository}"
 
+    @property
+    def jti(self):
+        """Placeholder value for JTI."""
+        return True
+
     def publisher_url(self, claims=None):
         base = f"https://github.com/{self.repository}"
         sha = claims.get("sha") if claims else None
@@ -300,6 +306,13 @@ class GitHubPublisher(GitHubPublisherMixin, OIDCPublisher):
         ),
     )
 
+    __required_verifiable_claims__ = (
+        GitHubPublisherMixin.__required_verifiable_claims__
+        | {
+            "jti": check_existing_jti,
+        }
+    )
+
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
@@ -321,6 +334,10 @@ class PendingGitHubPublisher(GitHubPublisherMixin, PendingOIDCPublisher):
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
     )
+
+    __preverified_claims__ = OIDCPublisherMixin.__preverified_claims__ | {
+        "jti",
+    }
 
     def reify(self, session):
         """

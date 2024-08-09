@@ -22,11 +22,13 @@ from warehouse.oidc.interfaces import SignedClaims
 from warehouse.oidc.models._core import (
     CheckClaimCallable,
     OIDCPublisher,
+    OIDCPublisherMixin,
     PendingOIDCPublisher,
+    check_existing_jti,
 )
 
 
-def _check_project_path(ground_truth, signed_claim, all_signed_claims):
+def _check_project_path(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # Defensive: GitLab should never give us an empty project_path claim.
     if not signed_claim:
         return False
@@ -35,7 +37,7 @@ def _check_project_path(ground_truth, signed_claim, all_signed_claims):
     return signed_claim.lower() == ground_truth.lower()
 
 
-def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
+def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     #   gitlab.com/OWNER/REPO//WORKFLOW_PATH/WORKFLOW_FILE.yml@REF
     # where REF is the value of the `ref_path` claim.
@@ -61,7 +63,7 @@ def _check_ci_config_ref_uri(ground_truth, signed_claim, all_signed_claims):
     return True
 
 
-def _check_environment(ground_truth, signed_claim, all_signed_claims):
+def _check_environment(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # When there is an environment, we expect a string.
     # For tokens that are generated outside of an environment, the claim will
     # be missing.
@@ -80,7 +82,7 @@ def _check_environment(ground_truth, signed_claim, all_signed_claims):
     return ground_truth == signed_claim
 
 
-def _check_sub(ground_truth, signed_claim, _all_signed_claims):
+def _check_sub(ground_truth, signed_claim, _all_signed_claims, **_kwargs):
     # We expect a string formatted as follows:
     # project_path:NAMESPACE/PROJECT[:OPTIONAL-STUFF]
     # where :OPTIONAL-STUFF is a concatenation of other job context
@@ -149,7 +151,6 @@ class GitLabPublisherMixin:
         "runner_environment",
         "ci_config_sha",
         "project_visibility",
-        "jti",
         "user_access_level",
         "groups_direct",
     }
@@ -222,6 +223,11 @@ class GitLabPublisherMixin:
     def publisher_name(self):
         return "GitLab"
 
+    @property
+    def jti(self):
+        """Placeholder value for JTI."""
+        return True
+
     def publisher_url(self, claims=None):
         base = f"https://gitlab.com/{self.project_path}"
         return f"{base}/commit/{claims['sha']}" if claims else base
@@ -247,6 +253,13 @@ class GitLabPublisher(GitLabPublisherMixin, OIDCPublisher):
         ),
     )
 
+    __required_verifiable_claims__ = (
+        GitLabPublisherMixin.__required_verifiable_claims__
+        | {
+            "jti": check_existing_jti,
+        }
+    )
+
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(OIDCPublisher.id), primary_key=True
     )
@@ -264,6 +277,10 @@ class PendingGitLabPublisher(GitLabPublisherMixin, PendingOIDCPublisher):
             name="_pending_gitlab_oidc_publisher_uc",
         ),
     )
+
+    __preverified_claims__ = OIDCPublisherMixin.__preverified_claims__ | {
+        "jti",
+    }
 
     id = mapped_column(
         UUID(as_uuid=True), ForeignKey(PendingOIDCPublisher.id), primary_key=True
